@@ -117,10 +117,32 @@ const BACKGROUND_MARK := 200.0
 const LOGO := Vector2i(1280, 720)
 ## The icons: the mark on nothing at each size, the seal from [constant SEAL_FROM] up and the foil
 ## chip under it, drawn over and brought down so the seal is drawn there rather than the chip, see
-## [constant LogoArt.SMALL]; the same in an icon file for a shortcut; and the app's icon, a JPEG,
-## so the seal on the engraved stock.
-const ICONS: Array[int] = [16, 24, 32, 48, 64, 128, 256, 512]
+## [constant LogoArt.SMALL]; the same in a shortcut's icon files, Windows' [constant ICO], macOS'
+## [constant ICNS] and Linux' [constant LINUX], and one picture of [constant SHORTCUT], which the
+## library's list wears for a game installed from them; and the app's icon, the list's fallback, a
+## JPEG, so on the engraved stock, as an app's icon is the square of its own: the foil chip as big
+## as it goes, since the list draws it 20 pixels across.
+const ICONS: Array[int] = [16, 24, 32, 48, 64, 96, 128, 256, 512, 1024]
 const ICO: Array[int] = [16, 24, 32, 48, 64, 128, 256]
+## Each picture in Apple's icon file, its kind and its side: 16, 32, 128, 256 and 512 points, once
+## and twice over. Without it, a shortcut on macOS wears Steam's own logo.
+const ICNS: Array[Array] = [
+	["icp4", 16],
+	["ic11", 32],
+	["icp5", 32],
+	["ic12", 64],
+	["ic07", 128],
+	["ic13", 256],
+	["ic08", 256],
+	["ic14", 512],
+	["ic09", 512],
+	["ic10", 1024],
+]
+## The sides in the ZIP for Linux, each a PNG named after its side, which Steam puts in the
+## desktop's icon theme for a shortcut and the library's list wears for the Linux build. Without it,
+## a shortcut there has no icon at all and the list wears the app's icon.
+const LINUX: Array[int] = [16, 24, 32, 48, 64, 96, 128, 256, 512]
+const SHORTCUT := 512
 const SEAL_FROM := 64
 const APP_ICON := 184
 
@@ -304,9 +326,10 @@ func _logo() -> void:
 	save(cut, OUT + "/library/library_logo.png", Vector2i(Vector2(used.size) * fit))
 
 
-## The mark at every size of [constant ICONS], an icon file of [constant ICO] and the app's icon.
+## The mark at every size of [constant ICONS], a shortcut's icon files for Windows, macOS and Linux,
+## and the app's icon.
 func _icons() -> void:
-	var pictures: Array[PackedByteArray] = []
+	var pictures := {}
 	for side: int in ICONS:
 		var drawn_at := side * OVER if side >= SEAL_FROM else side
 		var art := LogoArt.new()
@@ -315,11 +338,12 @@ func _icons() -> void:
 		var image := await drawn(art, Vector2i.ONE * drawn_at)
 		image.resize(side, side, Image.INTERPOLATE_LANCZOS)
 		save(image, OUT + "/client/icon_%d.png" % side, Vector2i.ONE * side)
-		if ICO.has(side):
-			pictures.append(image.save_png_to_buffer())
-		if side == ICONS[-1]:
+		pictures[side] = image.save_png_to_buffer()
+		if side == SHORTCUT:
 			save(image, OUT + "/client/shortcut_icon.png", Vector2i.ONE * side)
 	_write_ico(OUT + "/client/shortcut_icon.ico", pictures)
+	_write_icns(OUT + "/client/mac_icon.icns", pictures)
+	_write_linux_icons(OUT + "/client/linux_icons.zip", pictures)
 	var plate := Panel.new()
 	var engraved := TicketStyle.cut(HouseTheme.STOCK_RAISED, 0.0, 0.0, 0.0)
 	engraved.engraving = Color(HouseTheme.FOIL, 0.1)
@@ -328,8 +352,8 @@ func _icons() -> void:
 	plate.size = Vector2.ONE * APP_ICON * OVER
 	var mark := LogoArt.new()
 	mark.plate = false
-	mark.size = Vector2.ONE * APP_ICON * OVER * 0.86
-	mark.position = (plate.size - mark.size) / 2.0
+	mark.chip_only = true
+	mark.size = plate.size
 	plate.add_child(mark)
 	save(
 		await drawn(plate, Vector2i.ONE * APP_ICON * OVER, false),
@@ -571,29 +595,66 @@ func _described(image: Image, file: String, size: Vector2i) -> void:
 	save(image, DESCRIBED + "/" + file, size)
 
 
-## An icon file at [param path] of [param pictures], each a PNG, one per size in [constant ICO]: the
-## header, a line about each, and the pictures one after another.
-func _write_ico(path: String, pictures: Array[PackedByteArray]) -> void:
+## An icon file at [param path] of [param pictures], PNGs by side, one for each side of
+## [constant ICO]: the header, a line about each, and the pictures one after another.
+func _write_ico(path: String, pictures: Dictionary) -> void:
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		push_error("could not write %s" % path)
 		return
 	file.store_16(0)
 	file.store_16(1)
-	file.store_16(pictures.size())
-	var at := 6 + 16 * pictures.size()
-	for i: int in pictures.size():
-		var side := ICO[i]
+	file.store_16(ICO.size())
+	var at := 6 + 16 * ICO.size()
+	for side: int in ICO:
+		var picture: PackedByteArray = pictures[side]
 		file.store_8(side % 256)
 		file.store_8(side % 256)
 		file.store_8(0)
 		file.store_8(0)
 		file.store_16(1)
 		file.store_16(32)
-		file.store_32(pictures[i].size())
+		file.store_32(picture.size())
 		file.store_32(at)
-		at += pictures[i].size()
-	for picture: PackedByteArray in pictures:
-		file.store_buffer(picture)
+		at += picture.size()
+	for side: int in ICO:
+		file.store_buffer(pictures[side])
 	file.close()
 	print("%s: %s" % [path.trim_prefix("res://"), ICO])
+
+
+## Apple's icon file at [param path] of [param pictures], PNGs by side, big-endian: "icns" and the
+## file's length, then each of [constant ICNS], its kind, its length and its picture.
+func _write_icns(path: String, pictures: Dictionary) -> void:
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file == null:
+		push_error("could not write %s" % path)
+		return
+	file.big_endian = true
+	var length := 8
+	for entry: Array in ICNS:
+		length += 8 + (pictures[entry[1]] as PackedByteArray).size()
+	file.store_buffer("icns".to_ascii_buffer())
+	file.store_32(length)
+	for entry: Array in ICNS:
+		var picture: PackedByteArray = pictures[entry[1]]
+		file.store_buffer((entry[0] as String).to_ascii_buffer())
+		file.store_32(8 + picture.size())
+		file.store_buffer(picture)
+	file.close()
+	print("%s: %s" % [path.trim_prefix("res://"), ICNS])
+
+
+## A ZIP at [param path] of [param pictures], PNGs by side, one for each side of [constant LINUX],
+## each named after its side, 16x16.png and on.
+func _write_linux_icons(path: String, pictures: Dictionary) -> void:
+	var zip := ZIPPacker.new()
+	if zip.open(ProjectSettings.globalize_path(path)) != OK:
+		push_error("could not write %s" % path)
+		return
+	for side: int in LINUX:
+		zip.start_file("%dx%d.png" % [side, side])
+		zip.write_file(pictures[side])
+		zip.close_file()
+	zip.close()
+	print("%s: %s" % [path.trim_prefix("res://"), LINUX])

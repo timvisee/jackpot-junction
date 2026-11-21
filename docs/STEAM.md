@@ -241,6 +241,8 @@ it, and takes some minutes.
 | `library/library_logo.png` | Library Logo, placed bottom left | 1280 × 438 |
 | `client/app_icon.jpg` | Steamworks settings, Community, Assets: App Icon | 184 × 184 |
 | `client/shortcut_icon.png` or `.ico` | Shortcut Icon | 512, or 16 to 256 |
+| `client/linux_icons.zip` | Linux Client Icons | 16 to 512 |
+| `client/mac_icon.icns` | Mac Icon | 16 to 1024 |
 | `event/event_cover.png`, `event_header.png` | Each announcement's cover and header | 800 × 450, 1920 × 622 |
 | `community/avatar_*.jpg` | Avatars, where Steamworks takes still ones | 184 × 184 |
 | `description/*.png` | The description's headings and pictures | 616 wide |
@@ -252,7 +254,15 @@ it, and takes some minutes.
 - **Library logo**: its place over the hero is chosen in the preview after the
   upload: bottom left, where the hero leaves a shade for it.
 - **Icons**: the seal from 64 pixels up and the foil chip under it, as the game's
-  own window and desktop icon.
+  own window and desktop icon. Steam's library list draws an installed game with
+  its client icon: the ICO for Windows, the Linux zip for Linux. Without the zip,
+  Linux gets the App Icon there, and shortcuts there get no icon at all.
+- **App Icon**: Steamworks takes only a JPEG, so it cannot be transparent. As is
+  the custom, it is a square of the game's own: the foil chip as big as it goes on
+  the engraved stock, since it is seen at 20 pixels. It shows where no client icon
+  is installed, and in chat and notifications.
+- **Mac Icon**: without it, a macOS shortcut wears Steam's logo. Not needed until
+  macOS ships on Steam.
 - **Description**: the headings and pictures of ITCH.md's description, also kept
   in `docs/description/`, each uploaded into the description where it stands
   there, with its words as its alt text.
