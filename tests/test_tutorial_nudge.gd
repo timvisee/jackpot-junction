@@ -5,16 +5,24 @@ extends GdUnitTestSuite
 
 const STOPPED := 0.0
 const DRIVING := 6.0
+const DT := 1.0 / 60.0
 
 
-## Standing still with nothing getting done: pointed at once the while is up, and every while after.
-func test_standing_still_points_at_it_and_again_after() -> void:
+## Standing still with nothing getting done: pointed at once the short while is up, then every
+## longer while after, busy or not in between; getting on with the lesson brings the short one back.
+func test_standing_still_points_at_it_then_less_often() -> void:
 	var nudge := TutorialNudge.new()
 	nudge.reset(0.0)
 	assert_bool(nudge.step(TutorialNudge.STILL_FOR - 0.1, 0.0, STOPPED, false)).is_false()
 	assert_bool(nudge.step(0.2, 0.0, STOPPED, false)).is_true()
-	assert_bool(nudge.step(TutorialNudge.STILL_FOR - 0.1, 0.0, STOPPED, false)).is_false()
+	assert_bool(nudge.step(TutorialNudge.STILL_AGAIN - 0.1, 0.0, STOPPED, false)).is_false()
 	assert_bool(nudge.step(0.2, 0.0, STOPPED, false)).is_true()
+	assert_bool(nudge.step(1.0, 0.0, STOPPED, true)).is_false()
+	assert_bool(nudge.step(TutorialNudge.STILL_AGAIN - 0.1, 0.0, STOPPED, false)).is_false()
+	assert_bool(nudge.step(0.2, 0.0, STOPPED, false)).is_true()
+	nudge.step(DT, TutorialNudge.HEADWAY, STOPPED, false)
+	assert_bool(nudge.again).is_false()
+	assert_bool(nudge.step(TutorialNudge.STILL_FOR + 0.1, 0.0, STOPPED, false)).is_true()
 
 
 ## Driving about with nothing getting done takes the longer while, and moving off starts the

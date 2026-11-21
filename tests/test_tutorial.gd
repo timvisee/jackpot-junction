@@ -374,9 +374,10 @@ func test_the_clipboard_comes_up_in_the_middle_once_then_lands() -> void:
 
 
 ## A learner standing about with nothing getting done has the clipboard pointed at again, GAME.md
-## 9.4a: it lands in its corner as it does for a new lesson, and again as long as it stays that way,
-## and after a longer while however the kart drives; getting on with the lesson, or being busy with
-## something else, starts the wait over. Not while the board is up in the middle.
+## 9.4a: it lands in its corner as it does for a new lesson, and again, less often, as long as it
+## stays that way, and after a longer while however the kart drives; getting on with the lesson
+## starts the wait over, the short one again, and being busy with something else starts it over as
+## long as it was. Not while the board is up in the middle.
 func test_the_clipboard_is_pointed_at_again_for_a_learner_standing_about() -> void:
 	TutorialNudge.on = true
 	var tutorial := await _start()
@@ -397,35 +398,42 @@ func test_the_clipboard_is_pointed_at_again_for_a_learner_standing_about() -> vo
 	assert_int(run.nudged).is_equal(1)
 	assert_bool(run.list.is_landing()).is_true()
 	assert_float(run.list._landing.most).is_equal(LandingCue.POP)
-	# While it lands, the wait does not run; once it has, standing on brings it round again.
+	# While it lands, the wait does not run; once it has, standing on brings it round again, after
+	# the longer while.
 	run._watch_quiet(TutorialNudge.STILL_FOR + 1.0, lesson)
 	assert_int(run.nudged).is_equal(1)
 	await _runner.simulate_frames(int((LandingCue.LASTS + 0.2) / 0.017), 17)
 	assert_bool(run.list.is_landing()).is_false()
 	kart.velocity = Vector3.ZERO
 	run._watch_quiet(TutorialNudge.STILL_FOR + 0.1, lesson)
+	assert_int(run.nudged).is_equal(1)
+	run._watch_quiet(TutorialNudge.STILL_AGAIN - TutorialNudge.STILL_FOR, lesson)
 	assert_int(run.nudged).is_equal(2)
 	await _runner.simulate_frames(int((LandingCue.LASTS + 0.2) / 0.017), 17)
-	# Getting on with the lesson starts it over.
+	# Getting on with the lesson starts it over, the short wait again.
 	kart.velocity = Vector3.ZERO
 	run._watch_quiet(TutorialNudge.STILL_FOR - 1.0, lesson)
 	lesson.tasks[0].progress += TutorialNudge.HEADWAY * 2.0
 	run._watch_quiet(DT, lesson)
 	run._watch_quiet(TutorialNudge.STILL_FOR - 0.5, lesson)
 	assert_int(run.nudged).is_equal(2)
-	# So does a question up, the kart held.
+	run._watch_quiet(0.6, lesson)
+	assert_int(run.nudged).is_equal(3)
+	await _runner.simulate_frames(int((LandingCue.LASTS + 0.2) / 0.017), 17)
+	# A question up, the kart held, starts it over as long as it was.
+	kart.velocity = Vector3.ZERO
 	kart.frozen = true
 	run._watch_quiet(TutorialNudge.QUIET_FOR + 1.0, lesson)
 	kart.frozen = false
-	run._watch_quiet(TutorialNudge.STILL_FOR - 0.5, lesson)
-	assert_int(run.nudged).is_equal(2)
-	# Driving round with nothing getting done, it takes the longer while.
+	run._watch_quiet(TutorialNudge.STILL_FOR + 0.5, lesson)
+	assert_int(run.nudged).is_equal(3)
+	# Driving round with nothing getting done, it takes the longest while.
 	kart.velocity = Vector3(TutorialNudge.STANDING * 6.0, 0.0, 0.0)
 	run.nudge.reset(lesson.headway())
 	run._watch_quiet(TutorialNudge.QUIET_FOR - 0.5, lesson)
-	assert_int(run.nudged).is_equal(2)
-	run._watch_quiet(0.6, lesson)
 	assert_int(run.nudged).is_equal(3)
+	run._watch_quiet(0.6, lesson)
+	assert_int(run.nudged).is_equal(4)
 	kart.velocity = Vector3.ZERO
 
 

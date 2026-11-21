@@ -7900,10 +7900,12 @@ or the line under the name changing, which the player is looking at already. The
 that is not a new lesson's is for a learner who has not found the board up in its corner: standing
 still three seconds with nothing getting done, or twenty seconds of nothing getting done however
 the kart drives, though not in the final exam, where a while of driving round with nothing banked
-is the fight itself and only standing still counts, and the board lands where it hangs again, and again each time that comes round
-while it stays that way. Getting on with the lesson starts the wait over, a bar filling a little,
-a tick or a count; so does being busy with something else, the question of 4.2 up, a pick or the
-hand open, or the kart down, and the board up in the middle or stamping a lesson PASSED. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
+is the fight itself and only standing still counts, and the board lands where it hangs again.
+After that, standing still brings it round only every ten seconds, so a learner who has seen it
+is not nagged. Getting on with the lesson starts the wait over, the three seconds again: a bar
+filling a little, a tick or a count. Being busy with something else starts it over as long as it
+was: the question of 4.2 up, a pick or the hand open, or the kart down, and the board up in the
+middle or stamping a lesson PASSED. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait
 for it. A lesson done is stamped PASSED in green with the driving test's rubber stamp in place of
 its tasks for a second, under its name, and then the next lesson. On a touch screen it hangs from
 the top as anywhere, and the touch controls are drawn over it, never it over them: the menu button
