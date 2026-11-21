@@ -3,7 +3,7 @@ extends GPUParticles3D
 ## What a kart leaves behind it, GAME.md 4.4. Smoke out of the exhaust by default, and whatever
 ## else its driver picked instead: sparks, confetti, nothing at all, what the loyalty program of
 ## 8.9 pays, poker chips, an afterburn or a pencil's scribbles, or what the Steam supporter pack of
-## 10.8 lets be worn, a prism's ribbon of light, see [PrismRibbon]. Density follows the
+## 10.8 lets be worn, a prism's ribbon of light, see [PrismRibbon], or stardust. Density follows the
 ## throttle and thickens while drifting, on drift exit boosts and on turbo pads, whichever it is.
 
 const BASE_RATIO := 0.15
@@ -141,6 +141,8 @@ func _build() -> void:
 			process.scale_max = 1.4
 			process.color = Color(0.22, 0.22, 0.24, 0.9)
 			mesh = _stroke()
+		8:
+			mesh = SupporterTrails.stardust(process, self)
 		3, 7:
 			# Nothing at all: a trail that is not there is not simulated either; the prism is a
 			# ribbon of its own rather than particles.

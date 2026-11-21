@@ -270,9 +270,21 @@ func test_the_pinwheel_turns_and_blurs_with_speed() -> void:
 	remove_child(flag)
 
 
-## The prism is no particles but a ribbon, laid where the exhaust goes, let go after its life,
-## started again after a jump, and gone when the trail is another.
-func test_the_prism_is_a_ribbon() -> void:
+## Stardust is twinkles that hang rather than fly, on the particles every trail is; the prism is no
+## particles but a ribbon, laid where the exhaust goes, let go after its life, started again after
+## a jump, and gone when the trail is another.
+func test_the_trails_are_stardust_and_a_ribbon() -> void:
+	var stardust := ExhaustSmoke.new()
+	stardust.dress(Color.RED, KartStyle.TRAILS.find("Stardust"))
+	add_child(stardust)
+	assert_bool(stardust.emitting).is_true()
+	assert_object(stardust.ribbon).is_null()
+	var process := stardust.process_material as ParticleProcessMaterial
+	assert_float(process.initial_velocity_max).is_less(0.5)
+	var look := (stardust.draw_pass_1 as QuadMesh).material as StandardMaterial3D
+	assert_int(look.billboard_mode).is_equal(BaseMaterial3D.BILLBOARD_PARTICLES)
+	remove_child(stardust)
+	stardust.free()
 	var prism := ExhaustSmoke.new()
 	prism.dress(Color.RED, KartStyle.TRAILS.find("Prism"))
 	add_child(prism)

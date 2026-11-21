@@ -55,7 +55,7 @@ const FLAGS: Array[String] = [
 	"Pinwheel",
 ]
 const TRAILS: Array[String] = [
-	"Smoke", "Sparks", "Confetti", "None", "Poker chips", "Afterburn", "Pencil", "Prism"
+	"Smoke", "Sparks", "Confetti", "None", "Poker chips", "Afterburn", "Pencil", "Prism", "Stardust"
 ]
 const FRAMES: Array[String] = ["None", "Gold"]
 const MARKS: Array[String] = ["Plain", "Chalk", "Dashed", "Pencil"]
@@ -79,7 +79,7 @@ const EVERYBODY: Array[Array] = [[0, 1, 3], [0, 1, 3, 4, 5], [0, 1, 2], [0, 1, 3
 ## The pieces of each part the Steam supporter pack lets be worn, GAME.md 10.8, always after the
 ## rest of their part, so the numbers before them never move: worn only where the pack is owned,
 ## offered only in a Steam build, never a bot's nor the booth demo's, see [Supporter].
-const SUPPORTER: Array[Array] = [[], [16, 17], [10, 11], [7], [], [], []]
+const SUPPORTER: Array[Array] = [[], [16, 17], [10, 11], [7, 8], [], [], []]
 ## How often a kart of the demo for a booth wears a piece in an edition's finish, GAME.md 9.8, never
 ## more than one piece, and how often each finish is the one, Foil, Holographic and Polychrome in
 ## [constant Loyalty.FINISHES] order: rare, as editions are in play, and the higher the rarer.
