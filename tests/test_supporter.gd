@@ -500,3 +500,18 @@ func test_the_plate_star() -> void:
 	assert_str(LicensePlate.clean("tim*7")).is_equal("TIM*7")
 	assert_str(LicensePlate.clean("tim★7")).is_equal("TIM*7")
 	assert_str(LicensePlate.clean("**********")).is_equal("********")
+
+
+## The license carries the supporter's endorsement where the pack is owned, dated the day it was
+## first seen here, which is kept; and none where it is not.
+func test_the_license_endorsement() -> void:
+	var card: LicenseCard = auto_free(LicenseCard.from_settings())
+	assert_str(card.supporter_since).is_empty()
+	assert_str(Game.settings.supporter_since).is_empty()
+	Supporter.pretend = Supporter.Pretend.OWNED
+	card = auto_free(LicenseCard.from_settings())
+	assert_str(card.supporter_since).is_equal(LicenseCard.today())
+	assert_str(Game.settings.supporter_since).is_equal(LicenseCard.today())
+	Game.settings.supporter_since = "2026-11-21"
+	card = auto_free(LicenseCard.from_settings())
+	assert_str(card.supporter_since).is_equal("2026-11-21")

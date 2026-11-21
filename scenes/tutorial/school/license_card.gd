@@ -88,6 +88,9 @@ const BACK_LINES: Array[String] = [
 	"The holder agrees to drift responsibly, or at least often.",
 ]
 const CODE := "CHEAT CODE"
+## The supporter pack's endorsement, GAME.md 10.8, and the day beside it.
+const SUPPORTER := "SUPPORTER"
+const SUPPORTER_SINCE := "since %s"
 const CODE_LINE := "Does nothing. We checked."
 const EXAMINER := "The Examiner"
 ## What the examiner's red pen notes of the cones knocked over.
@@ -103,6 +106,9 @@ var color_index := 0
 var style: KartStyle
 ## The endorsements along the foot, each word to whether it was earned, in order.
 var endorsements: Dictionary[String, bool] = {}
+## The day the Steam supporter pack was first seen owned here, GAME.md 10.8, for its endorsement
+## after the rest; empty where it is not owned.
+var supporter_since := ""
 ## The loyalty program's endorsements, GAME.md 8.9: small rubber stamps in a row under the stripe on
 ## the back, the exam's being on the front already.
 var program_stamps := PackedStringArray()
@@ -239,6 +245,11 @@ static func from_settings() -> LicenseCard:
 		earned
 	)
 	card.stamped = true
+	if Supporter.owned():
+		if settings.supporter_since.is_empty():
+			settings.supporter_since = today()
+			settings.save_to_disk()
+		card.supporter_since = settings.supporter_since
 	card.program_stamps = Loyalty.endorsements_of(settings.profile)
 	# And the laps of the roundabout, GAME.md 8.9.
 	if settings.profile.loyalty.laps > 0:
@@ -792,6 +803,31 @@ func _draw_endorsements() -> void:
 			wide
 		)
 		x += wide + 6.0
+	if not supporter_since.is_empty():
+		_draw_supporter(Vector2(x, y), font)
+
+
+## The supporter pack's endorsement, GAME.md 10.8, from [param at] on: a night-blue chip with the
+## pack's star and SUPPORTER in cream, the day it was first seen beside it, on the next row where
+## this one has no room.
+func _draw_supporter(at: Vector2, font: Font) -> void:
+	var wide := font.get_string_size(SUPPORTER, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 30.0
+	var since := SUPPORTER_SINCE % supporter_since
+	var dated := font.get_string_size(since, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x + 6.0
+	if at.x + wide + dated > RIGHT:
+		at = Vector2(COLUMN, at.y + 24.0)
+	var chip := StyleBoxFlat.new()
+	chip.set_corner_radius_all(5)
+	chip.bg_color = PartTray.SUPPORTER_TAPE
+	var rect := Rect2(at, Vector2(wide, 19.0))
+	draw_style_box(chip, rect)
+	var star := PackedVector2Array()
+	for i: int in 8:
+		var reach := 6.0 if i % 2 == 0 else 1.8
+		star.append(rect.position + Vector2(11.0, 9.5) + Vector2.UP.rotated(TAU * i / 8.0) * reach)
+	draw_colored_polygon(star, PartTray.SUPPORTER_STAR)
+	_text(rect.position + Vector2(20.0, 3.0), SUPPORTER, font, 10, PartTray.SUPPORTER_WORDS)
+	_text(rect.position + Vector2(wide + 6.0, 5.0), since, font, 8, FAINT)
 
 
 ## The holder's signature: their name slanted in blue ink over a line under the photo.
