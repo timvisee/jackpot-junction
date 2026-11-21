@@ -515,3 +515,25 @@ func test_the_license_endorsement() -> void:
 	Game.settings.supporter_since = "2026-11-21"
 	card = auto_free(LicenseCard.from_settings())
 	assert_str(card.supporter_since).is_equal("2026-11-21")
+
+
+## The thank-you card is due where the pack is owned and it has not been shown on this install and
+## account; closed, it is kept as shown and not due again.
+func test_the_thank_you_comes_once() -> void:
+	assert_bool(SupporterThanks.due()).is_false()
+	assert_object(SupporterThanks.over(_holder)).is_null()
+	Supporter.pretend = Supporter.Pretend.OWNED
+	assert_bool(SupporterThanks.due()).is_true()
+	var thanks := SupporterThanks.over(_holder)
+	assert_object(thanks).is_not_null()
+	await get_tree().process_frame
+	thanks.start()
+	thanks.come_on_now()
+	assert_bool(thanks.is_up()).is_true()
+	var went := [false]
+	thanks.put_away.connect(func() -> void: went[0] = true)
+	thanks.closing.pressed.emit()
+	assert_bool(Game.settings.supporter_thanked).is_true()
+	await await_millis(int((SupporterThanks.DROP + 0.8) * 1000.0))
+	assert_bool(went[0]).is_true()
+	assert_bool(SupporterThanks.due()).is_false()

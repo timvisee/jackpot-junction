@@ -64,8 +64,8 @@ var to_school := Game.go_to_tutorial
 ## The House's welcome to its loyalty program while it is up, GAME.md 8.9, and the map it opens
 ## until that is put away.
 var welcome: LoyaltyWelcome
-## A letter of the House's while it is up, STORY.md 6.11.
-var mail: HouseMail
+## A letter of the House's while it is up, STORY.md 6.11, or the supporter pack's thanks, 10.8.
+var mail: Variant
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
@@ -285,8 +285,10 @@ func _ready() -> void:
 		welcome = LoyaltyWelcome.over(self, Game.settings.profile)
 		welcome.welcomed.connect(_on_welcomed)
 	# Or a letter of the House's, as a stage begins, STORY.md 6.11: one a visit, after the two.
-	elif not StoryLetters.due(Game.settings.profile).is_empty():
+	elif not StoryLetters.due(Game.settings.profile).is_empty() or SupporterThanks.due():
 		mail = HouseMail.over(self, Game.settings.profile)
+		if mail == null:
+			mail = SupporterThanks.over(self)
 		mail.put_away.connect(
 			func() -> void:
 				mail = null

@@ -337,9 +337,10 @@ var play_online_tab := ""
 ## What such a game is called, empty for its host's name, see [member NetDoor.title]; kept too.
 var lobby_title := ""
 ## The Steam supporter pack, GAME.md 10.8: the day it was first seen owned here, for the license's
-## endorsement. Kept with the machine and its Steam account rather than a profile, which the cloud
-## would carry to the next install.
+## endorsement, and whether its thank-you card has been shown. Kept with the machine and its Steam
+## account rather than a profile, which the cloud would carry to the next install.
 var supporter_since := ""
+var supporter_thanked := false
 
 var path := DEFAULT_PATH
 ## The profile the file names as the one playing, which it goes on naming while a profile that is
@@ -495,6 +496,7 @@ func load_machine(file: ConfigFile) -> void:
 		str(file.get_value("online", "lobby_title", lobby_title)), PlayerNames.TITLE_LENGTH
 	)
 	supporter_since = str(file.get_value("supporter", "since", ""))
+	supporter_thanked = bool(file.get_value("supporter", "thanked", false))
 
 
 func save_to_disk() -> Error:
@@ -586,6 +588,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("online", "play_online_tab", play_online_tab)
 	file.set_value("online", "lobby_title", lobby_title)
 	file.set_value("supporter", "since", supporter_since)
+	file.set_value("supporter", "thanked", supporter_thanked)
 
 
 ## Where the profiles are kept: a folder beside the settings file, or none for settings that are
