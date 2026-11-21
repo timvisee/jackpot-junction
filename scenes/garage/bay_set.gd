@@ -89,6 +89,12 @@ const NOTE_SLOTS: Array[Vector2] = [
 ]
 const NOTE_SCALE := 0.00072
 const CORK := Color("#b08a5a")
+## The supporter pack's thank-you card taped up under the calendar, GAME.md 10.8: its middle on the
+## back wall, its size, how far it is turned, and the pixels it is drawn at, of its own.
+const THANKS_AT := Vector3(-1.65, 1.08, WALL_Z + 0.02)
+const THANKS_SIZE := Vector2(0.33, 0.22)
+const THANKS_TURN := 0.06
+const THANKS_PIXELS := 0.6
 const FIRST_AID := Color("#eeeae0")
 ## The lift's turntable: how far round it reaches, and its steel and its stripes.
 const PAD_REACH := 0.92
@@ -114,6 +120,8 @@ var cone: Node3D
 ## The turntable let into the floor between the lift's posts, which the kart stands on and which
 ## turns with it, see [method KartStage._turn_pad].
 var pad: Node3D
+## The supporter pack's thank-you card taped up on the wall, or null, see [method _thanks].
+var thanks_card: MeshInstance3D
 
 var _solid: Array[Array] = []
 var _bands: Array[Array] = []
@@ -146,6 +154,7 @@ static func make() -> BaySet:
 	bay._tires(TIRES_AT)
 	bay._props()
 	bay._story(Story.stage_here(), Game.settings.profile)
+	bay._thanks()
 	for at: Vector3 in LAMPS:
 		bay._lamp(at)
 	bay._bake()
@@ -443,6 +452,41 @@ func _story(stage: int, profile: Profile) -> void:
 		_solid.append([ring, Transform3D(Basis(Vector3.RIGHT, PI * 0.5), spot), PINNED_RED])
 	_box(Vector3(0.02, 0.02, 0.03), at + Vector3(0.0, 0.31, 0.012), STEEL_DARK)
 	_mystery(_last_notes(profile, NOTES_PINNED))
+
+
+## The supporter pack's thank-you card, GAME.md 10.8, taped up on the back wall under the calendar
+## once it has been shown, where the pack is owned: the card itself, drawn once, see
+## [ThankYouCard], and a strip of masking tape over each of its top corners. [BayThanks] holds it
+## up again.
+func _thanks() -> void:
+	if not Supporter.owned() or Game.settings == null or not Game.settings.supporter_thanked:
+		return
+	var card := MeshInstance3D.new()
+	card.name = "ThankYouCard"
+	var quad := QuadMesh.new()
+	quad.size = THANKS_SIZE
+	card.mesh = quad
+	var paper := StandardMaterial3D.new()
+	paper.albedo_color = ThankYouCard.CARD
+	paper.roughness = 0.9
+	card.material_override = paper
+	card.transform = Transform3D(Basis(Vector3.BACK, THANKS_TURN), THANKS_AT)
+	add_child(card)
+	thanks_card = card
+	for side: float in [-1.0, 1.0]:
+		var corner := Vector3(side * THANKS_SIZE.x * 0.42, THANKS_SIZE.y * 0.46, 0.004)
+		var taped := card.transform * corner
+		_box(Vector3(0.1, 0.035, 0.004), taped, BayArt.MASKING, Basis(Vector3.BACK, side * 0.6))
+	DrawnTexture.kept(
+		self,
+		ThankYouCard.new(),
+		Vector2i(ThankYouCard.SIZE),
+		func(drawn: Texture2D) -> void:
+			paper.albedo_texture = drawn
+			paper.albedo_color = Color.WHITE,
+		Viewport.MSAA_DISABLED,
+		THANKS_PIXELS
+	)
 
 
 ## A cork board right of the lift with the last notes found pinned up on it, [param numbers], the

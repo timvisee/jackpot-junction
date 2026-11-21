@@ -41,6 +41,8 @@ static func add_to(on: KartDialog, stage: Control) -> BayNew:
 	place.call()
 	on.tray.tried.connect(made.look)
 	on.add_child(made)
+	# And the supporter pack's thank-you card, taped up on the wall beside it, GAME.md 10.8.
+	BayThanks.add_to(on, stage)
 	return made
 
 

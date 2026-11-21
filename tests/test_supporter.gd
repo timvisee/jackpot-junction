@@ -537,3 +537,30 @@ func test_the_thank_you_comes_once() -> void:
 	await await_millis(int((SupporterThanks.DROP + 0.8) * 1000.0))
 	assert_bool(went[0]).is_true()
 	assert_bool(SupporterThanks.due()).is_false()
+
+
+## Once shown, the card is taped up in the kart dialog's bay where the pack is owned, with a button
+## over it; held up again it has Close alone, and closing it keeps nothing.
+func test_the_card_is_taped_up_in_the_bay() -> void:
+	Supporter.pretend = Supporter.Pretend.OWNED
+	var dialog := KartDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_object(dialog.stage.thanks_card()).is_null()
+	dialog.queue_free()
+	await get_tree().process_frame
+	Game.settings.supporter_thanked = true
+	dialog = KartDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_object(dialog.stage.thanks_card()).is_not_null()
+	assert_object(dialog.find_child("BayThanks", true, false)).is_not_null()
+	Game.settings.supporter_thanked = false
+	var again := SupporterThanks.again_over(dialog)
+	await get_tree().process_frame
+	assert_bool(again.again).is_true()
+	assert_bool(again.try_on.visible).is_false()
+	again.come_on_now()
+	again.closing.pressed.emit()
+	assert_bool(Game.settings.supporter_thanked).is_false()
+	dialog.queue_free()

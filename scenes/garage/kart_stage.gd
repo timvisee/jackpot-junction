@@ -274,6 +274,20 @@ class StageMarks:
 		return true
 
 
+## Where [param world], a point in the bay, is drawn on the stage, in [member film]'s space, or
+## null while the camera has it behind.
+func on_film(world: Vector3) -> Variant:
+	if _camera == null or _render == null or _camera.is_position_behind(world):
+		return null
+	var pixel := _camera.unproject_position(world)
+	return film.position + pixel / Vector2(_render.size) * film.size
+
+
+## The supporter pack's thank-you card taped up in the bay, GAME.md 10.8, or null, see [BaySet].
+func thanks_card() -> MeshInstance3D:
+	return _bay.thanks_card if _bay != null else null
+
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_DRAG
