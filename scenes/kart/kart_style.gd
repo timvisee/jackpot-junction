@@ -37,6 +37,7 @@ const HATS: Array[String] = [
 	"Welding goggles",
 	"Paper hat",
 	"Fez",
+	"Lighthouse",
 ]
 const FLAGS: Array[String] = [
 	"None",
@@ -72,6 +73,10 @@ const PARTS: Array[StringName] = [&"paint", &"hat", &"flag", &"trail", &"frame",
 ## and the plain one of each new kind, the racer of the bodies. The rest a profile wins, 8.9, among
 ## them four the game always had: Checks, the top hat, the checkered flag and confetti.
 const EVERYBODY: Array[Array] = [[0, 1, 3], [0, 1, 3, 4, 5], [0, 1, 2], [0, 1, 3], [0], [0], [0]]
+## The pieces of each part the Steam supporter pack lets be worn, GAME.md 10.8, always after the
+## rest of their part, so the numbers before them never move: worn only where the pack is owned,
+## offered only in a Steam build, never a bot's nor the booth demo's, see [Supporter].
+const SUPPORTER: Array[Array] = [[], [16], [], [], [], [], []]
 ## How often a kart of the demo for a booth wears a piece in an edition's finish, GAME.md 9.8, never
 ## more than one piece, and how often each finish is the one, Foil, Holographic and Polychrome in
 ## [constant Loyalty.FINISHES] order: rare, as editions are in play, and the higher the rarer.
@@ -106,7 +111,7 @@ static func random(rng: RandomNumberGenerator) -> KartStyle:
 ## A dress drawn at random from everything there is, GAME.md 9.8, for the demo for a booth's karts:
 ## every part from all of its choices, won ones too, the bodies among them, and now and then one
 ## piece of dress in an edition's finish, see [constant DEMO_EDITION]; never the crown, as for a
-## bot.
+## bot, and never a piece of the supporter pack, 10.8, which on a kart always means a person.
 static func dressed_up(rng: RandomNumberGenerator) -> KartStyle:
 	var style := KartStyle.new()
 	var crown := HATS.find("Crown")
@@ -114,7 +119,7 @@ static func dressed_up(rng: RandomNumberGenerator) -> KartStyle:
 	for part: int in CHOICES.size():
 		var count: int = CHOICES[part].size()
 		var index := rng.randi_range(0, count - 1)
-		while part == 1 and index == crown:
+		while (part == 1 and index == crown) or supporter(part, index):
 			index = rng.randi_range(0, count - 1)
 		picked.append(index)
 	style.paint = picked[0]
@@ -141,11 +146,19 @@ static func _any(rng: RandomNumberGenerator, part: int, but := -1) -> int:
 
 
 ## Whether the choice [param index] of [param part] is one a player may wear who has won
-## [param dress], the names [method Loyalty.unlocks_of] gives: everybody's, or one won.
+## [param dress], the names [method Loyalty.unlocks_of] gives: everybody's, or one won; a piece of
+## the supporter pack where the pack is owned, see [method supporter].
 static func allowed(part: int, index: int, dress: PackedStringArray) -> bool:
 	if part < 0 or part >= CHOICES.size() or index < 0 or index >= CHOICES[part].size():
 		return false
+	if supporter(part, index):
+		return Supporter.owned()
 	return index in EVERYBODY[part] or won_name(part, index) in dress
+
+
+## Whether [param index] of [param part] is a piece of the supporter pack, GAME.md 10.8.
+static func supporter(part: int, index: int) -> bool:
+	return part >= 0 and part < SUPPORTER.size() and index in SUPPORTER[part]
 
 
 ## The name a won choice goes by among [method Loyalty.unlocks_of]'s, "hat:Fedora".

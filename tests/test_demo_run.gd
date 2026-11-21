@@ -77,7 +77,8 @@ func test_the_seats_are_dealt_for_the_run() -> void:
 	assert_object((again[0] as DemoInput).bot_trait).is_same((inputs[0] as DemoInput).bot_trait)
 
 
-## Every kart is dressed from all there is, won pieces and finishes too, never in the crown.
+## Every kart is dressed from all there is, won pieces and finishes too, never in the crown nor in
+## a piece of the supporter pack, GAME.md 10.8.
 func test_the_dress_is_drawn_from_everything() -> void:
 	var rng := _rng(5)
 	var crown := KartStyle.HATS.find("Crown")
@@ -104,6 +105,7 @@ func test_the_dress_is_drawn_from_everything() -> void:
 		finished += pieces
 	for part: int in KartStyle.CHOICES.size():
 		var wanted: int = KartStyle.CHOICES[part].size() - (1 if part == 1 else 0)
+		wanted -= KartStyle.SUPPORTER[part].size()
 		assert_int(seen[part].size()).is_equal(wanted)
 	# Rare, as editions are, and the higher the rarer.
 	assert_int(finished).is_between(20, 100)

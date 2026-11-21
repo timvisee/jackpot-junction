@@ -30,6 +30,9 @@ const TRIES := 5
 ## What Steam answers for a machine that is none of its own, GodotSteam's `SteamHardwareType`:
 ## anything else is a Steam Deck, a Steam Machine or a Steam Frame.
 const NOT_STEAM_HARDWARE := 0
+## How the overlay opens a store page, GodotSteam's OverlayToStoreFlag: just the page, nothing
+## added to the cart.
+const OVERLAY_TO_STORE := 0
 
 ## For the tests alone: a Steam game played over ENet on this port of this machine instead of
 ## over Steam's network, so a host and a friend can play one in a test, see [SteamPeer].
@@ -205,6 +208,11 @@ func present(keys: Dictionary) -> void:
 ## Whether the account owns the DLC [param dlc] and has it installed, GAME.md 10.8.
 func owns(dlc: int) -> bool:
 	return bool(api.call(&"isDLCInstalled", dlc))
+
+
+## Opens the store page of [param app], a DLC as well, in Steam's overlay, GAME.md 10.8.
+func show_store(app: int) -> void:
+	api.call(&"activateGameOverlayToStore", app, OVERLAY_TO_STORE)
 
 
 ## Whether Steam's keyboard on the screen is the way to type here, GAME.md 10.8: on Steam's own

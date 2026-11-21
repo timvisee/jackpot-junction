@@ -113,11 +113,13 @@ func test_every_color_has_a_roof_marker_of_its_own() -> void:
 ## Every hat there is to pick is a hat with a height the roof marker clears, the learner's
 ## block too, the driving school's L on its sides and its top, GAME.md 4.4 and 9.4a.
 func test_every_hat_is_worn_and_the_learner_wears_the_block() -> void:
-	assert_int(KartDress.HAT_LIFT.size()).is_equal(KartStyle.HATS.size())
+	assert_int(KartDress.HAT_LIFT.size()).is_equal(
+		KartStyle.HATS.size() - KartStyle.SUPPORTER[1].size()
+	)
 	for index: int in range(1, KartStyle.HATS.size()):
 		var hat: Node3D = auto_free(KartDress.hat(index, Color.RED))
 		assert_object(hat).is_not_null()
-		assert_float(KartDress.HAT_LIFT[index]).is_greater(0.0)
+		assert_float(KartDress.hat_lift(index)).is_greater(0.0)
 	var learner := KartStyle.HATS.find("Learner")
 	assert_int(learner).is_greater(0)
 	var worn: Node3D = auto_free(KartDress.hat(learner, Color.RED))

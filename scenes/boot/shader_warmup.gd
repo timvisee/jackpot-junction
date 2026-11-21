@@ -66,6 +66,7 @@ const EFFECTS: Array[StringName] = [
 	&"_tracks",
 	&"_dressed_karts",
 	&"_finishes",
+	&"_supporter_dress",
 	&"_hud",
 	&"_printed",
 	&"_boxed_slabs",
@@ -481,6 +482,21 @@ func _finishes() -> void:
 	sheen.material_override = under
 	sheen.position = _spot(Vector3(-6.0, 0.5, -6.0))
 	_match.add_child(sheen)
+
+
+## The supporter pack's dress, GAME.md 10.8, every hat and flag of it: what of it is drawn in a way
+## no other dress is, the lighthouse's glass and glowing bulb, and its beam added over the felt.
+func _supporter_dress() -> void:
+	var color := Palette.player_color(0)
+	var pieces: Array[Node3D] = []
+	for part: int in [1, 2]:
+		for index: int in KartStyle.SUPPORTER[part]:
+			pieces.append(
+				KartDress.hat(index, color) if part == 1 else KartDress.flag(index, color)
+			)
+	for i: int in pieces.size():
+		pieces[i].position = _spot(Vector3(6.0 + 1.5 * float(i), 0.0, -6.0))
+		_match.add_child(pieces[i])
 
 
 ## The corner of the HUD: a pot on fire, a tally, and the words and icons thrown up over a kart.

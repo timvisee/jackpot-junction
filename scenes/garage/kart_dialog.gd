@@ -585,15 +585,17 @@ func _bench_shown(on: bool) -> void:
 
 
 ## The cursor or the mouse on [param index] of the open tray: the kart tries it on, or for one not
-## won stays as it is.
+## won stays as it is. A piece of the supporter pack is tried on where it is offered, owned or not,
+## GAME.md 10.8: seeing it on the kart is what it is offered for.
 func _try(index: int) -> void:
 	if open_part < 0:
 		return
 	var owner_now := kart_owner()
+	var locked := PartTray.pack_of(open_part, index) == PartTray.Pack.LOCKED
 	if open_part == CARD_BACK:
 		_back_tried = index if owner_now.owns(CARD_BACK, index) else -1
 		return
-	if owner_now.owns(open_part, index):
+	if owner_now.owns(open_part, index) or locked:
 		stage.show_kart(owner_now.trying(_style, open_part, index), kart_color(), owner_now.plate())
 	else:
 		stage.show_kart(_style, kart_color(), owner_now.plate())
@@ -606,9 +608,13 @@ func _untry(_index: int) -> void:
 		stage.show_kart(_style, kart_color(), kart_owner().plate())
 
 
-## [param index] of the open tray worn, and the kart cheers; one not won only says it is not.
+## [param index] of the open tray worn, and the kart cheers; one not won only says it is not, and a
+## piece of the supporter pack where the pack is not owned opens its store page, GAME.md 10.8.
 func _choose(index: int) -> void:
 	if open_part < 0:
+		return
+	if PartTray.pack_of(open_part, index) == PartTray.Pack.LOCKED:
+		Audio.play_sfx(&"ui_click" if Store.open_supporter() else &"ui_back", -4.0, 0.05)
 		return
 	var owner_now := kart_owner()
 	var part := open_part

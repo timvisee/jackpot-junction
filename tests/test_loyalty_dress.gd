@@ -154,7 +154,9 @@ func test_a_stall_steps_through_what_is_won() -> void:
 ## pattern never darkens the color past the shade, so the color stays the color under it. The suits
 ## are no pattern but stickers, below.
 func test_every_piece_is_built() -> void:
-	assert_int(KartDress.HAT_LIFT.size()).is_equal(KartStyle.HATS.size())
+	assert_int(KartDress.HAT_LIFT.size()).is_equal(
+		KartStyle.HATS.size() - KartStyle.SUPPORTER[1].size()
+	)
 	assert_int(KartDress.PAINT_SCALES.size()).is_equal(KartStyle.PAINTS.size())
 	for index: int in range(1, KartStyle.HATS.size()):
 		var hat: Node3D = auto_free(KartDress.hat(index, Color.RED))

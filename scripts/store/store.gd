@@ -17,6 +17,8 @@ const SINGLETON := &"Steam"
 ## The bars a store draws no bar of, GAME.md 10.8: Know Every Street's target is the nearest
 ## district's, and moves.
 const NO_BAR: Array[StringName] = [&"know_every_street"]
+## A DLC's store page on the web, for a build with no overlay to open it in.
+const STORE_PAGE := "https://store.steampowered.com/app/%d"
 
 ## Steam, once started, or null: none wanted, none in this build, or none answering.
 static var steam: SteamStore
@@ -91,6 +93,22 @@ static func supporter_dlc(path := APP_FILE) -> int:
 	if file.load(path) != OK:
 		return 0
 	return int(file.get_value("steam", "supporter_dlc", 0))
+
+
+## Opens the supporter pack's store page, GAME.md 10.8, in Steam's overlay where there is one, else
+## in the browser, and asks Steam again whether it is owned, for when it was bought; false with no
+## pack to open, as in a build whose DLC is not set yet.
+static func open_supporter() -> bool:
+	Supporter.store_asked += 1
+	var dlc := supporter_dlc()
+	if dlc == 0 or Supporter.dry:
+		return false
+	if steam != null:
+		steam.show_store(dlc)
+		Supporter.set_owned(owns_supporter_pack())
+	else:
+		OS.shell_open(STORE_PAGE % dlc)
+	return true
 
 
 ## The Steam app this build is, from [param path], [constant APP_FILE], or [constant SPACEWAR]

@@ -6,8 +6,12 @@ extends Control
 ## masking tape under it, and the one worn in an outline of the house's gold with ON clipped to it.
 ## The part's None or its plain one first, then those won, then those not won yet: an outline
 ## painted in dashes with only a peg, a "?" stenciled in it and the tape saying where in the loyalty
-## program it is won, GAME.md 8.9. A piece won, or moved up a finish, that the dialog has not shown
-## yet wears the NEW tag over its outline's top left corner, ON having the right, see
+## program it is won, GAME.md 8.9. A piece of the Steam supporter pack, 10.8, wears the pack's star
+## pinned to its outline and a night-blue tape; where the pack is not owned it hangs dimmed in a
+## dashed outline with "Supporter Pack" on its tape, and wearing it opens the pack's store page.
+## Where the pack is not offered, as in a build from GitHub, its pieces are not on the rack at all.
+## A piece won, or moved up a finish, that the dialog has not shown yet wears the NEW tag over its
+## outline's top left corner, ON having the right, see
 ## [method TrayCell.set_fresh]. The cursor on a piece, or the mouse over it for as long as it is
 ## there, has the kart try it on, see [signal tried] and [signal left]; pressed, it is worn, see
 ## [signal chosen]. More pieces than the rack holds at once scroll along it, by the cursor, a drag
@@ -27,6 +31,8 @@ signal done
 ## How a place is picked out, see [method draw_place]: not at all, by the cursor on it, in the
 ## house's gold, its piece lifted off its peg, or by the mouse over it, in a soft white.
 enum Look { PLAIN, CURSOR, POINTER }
+## Whether a piece is of the supporter pack, and owned: none, owned, or offered and locked.
+enum Pack { NONE, OWNED, LOCKED }
 
 ## The words along its top: the part, how many of its pieces are won, and what the keys do, or a
 ## finger on a touch screen.
@@ -39,6 +45,16 @@ const HEADINGS: Array[String] = [
 ]
 const NOT_WON := "?"
 const ON := "ON"
+## A piece of the supporter pack, GAME.md 10.8: what its tape says while the pack is not owned, the
+## night-blue tape and the cream it is written in, the star pinned to its outline, where and how
+## big, and how dim its piece hangs while the pack is not owned.
+const SUPPORTER_PACK := "Supporter Pack"
+const SUPPORTER_TAPE := Color("#1d2a4a")
+const SUPPORTER_WORDS := Color("#f3ead2")
+const SUPPORTER_STAR := Color("#f8eed4")
+const STAR_AT := Vector2(4.0, -4.0)
+const STAR_SIZE := 12.0
+const LOCKED_DIM := 0.55
 const CLOSE := "CLOSE"
 ## How deep its frame is along the top, for its words, and round the rest.
 const BAND := 30.0
@@ -179,16 +195,34 @@ static func order_of(part_of: int, owner: KartOwner = null) -> Array[int]:
 	var none := choices.find("None")
 	if none >= 0:
 		order.append(none)
+	var locked: Array[int] = []
 	var later: Array[int] = []
 	for i: int in choices.size():
 		if i == none:
 			continue
-		if owner == null or owner.owns(part_of, i):
+		var pack := pack_of(part_of, i)
+		if pack == Pack.LOCKED:
+			locked.append(i)
+		elif pack == Pack.NONE and not Supporter.offered() and KartStyle.supporter(part_of, i):
+			continue
+		elif owner == null or owner.owns(part_of, i):
 			order.append(i)
 		else:
 			later.append(i)
+	order.append_array(locked)
 	order.append_array(later)
 	return order
+
+
+## Whether [param index] of [param part_of] is a piece of the supporter pack, GAME.md 10.8, and
+## whether it may be worn here: [enum Pack]'s none for any other piece, and for one of the pack's
+## where the pack is not offered at all.
+static func pack_of(part_of: int, index: int) -> Pack:
+	if not KartStyle.supporter(part_of, index):
+		return Pack.NONE
+	if Supporter.owned():
+		return Pack.OWNED
+	return Pack.LOCKED if Supporter.offered() else Pack.NONE
 
 
 ## A flat button of the rack's at [param place], named [param called], drawn by whoever connects to
@@ -260,8 +294,11 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 		cell.part = part
 		cell.named = choices[i]
 		cell.owned = owner.owns(part, i)
+		cell.pack = pack_of(part, i)
 		cell.worn = i == worn
 		cell.where = "" if cell.owned else KartOwner.won_at(part, i)
+		if cell.pack == Pack.LOCKED:
+			cell.where = SUPPORTER_PACK
 		cell.finish = owner.finish_of(part, i)
 		cell.fresh = Vector2i(part, i) in unseen
 		cell.color = color
@@ -272,7 +309,9 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 		_row.add_child(cell)
 		cells.append(cell)
 		won += 1 if cell.owned else 0
-	_count = COUNT % [won, choices.size()]
+	# The supporter pack's pieces where it is not owned are not won in the program, nor counted.
+	var counted := cells.filter(func(each: TrayCell) -> bool: return each.pack != Pack.LOCKED)
+	_count = COUNT % [won, counted.size()]
 	_scroll.scroll_horizontal = 0
 	_say_arrows()
 	_place_binds()
@@ -384,12 +423,12 @@ func warm() -> void:
 ## looks one of a few ways, so it is drawn once a run each way and kept, see [BayArt]; only the
 ## piece and the words on its tape drawn over it, see [method tape_words].
 static func draw_place(
-	on: CanvasItem, at: Vector2, hangs: bool, worn: bool, look := Look.PLAIN
+	on: CanvasItem, at: Vector2, hangs: bool, worn: bool, look := Look.PLAIN, pack := Pack.NONE
 ) -> void:
 	var outline := Rect2(OUTLINE.position + at, OUTLINE.size)
 	if look == Look.CURSOR:
 		BayArt.box(on, outline.grow(-2.0), 7.0, Color(HouseTheme.FOIL, LIT_INSIDE))
-	BoardArt.draw_place(on, outline, hangs, worn)
+	BoardArt.draw_place(on, outline, hangs and pack != Pack.LOCKED, worn)
 	if look != Look.PLAIN:
 		var edge := FeltArt.rounded(outline, 8.0)
 		edge.append(edge[0])
@@ -399,10 +438,13 @@ static func draw_place(
 		Look.CURSOR:
 			BayArt.draw_tape(on, tape.grow(2.0), HouseTheme.FOIL, HouseTheme.FOIL)
 		Look.POINTER:
-			BayArt.draw_tape(on, tape, POINTED_TAPE)
+			var pointed := POINTED_TAPE if pack == Pack.NONE else SUPPORTER_TAPE.lightened(0.2)
+			BayArt.draw_tape(on, tape, pointed)
 		_:
-			BayArt.draw_tape(on, tape)
-	if not hangs:
+			BayArt.draw_tape(on, tape, BayArt.MASKING if pack == Pack.NONE else SUPPORTER_TAPE)
+	if pack != Pack.NONE:
+		draw_star(on, Vector2(outline.position.x, outline.end.y) + STAR_AT, STAR_SIZE)
+	if not hangs and pack == Pack.NONE:
 		BayArt.words(
 			on, outline.get_center(), NOT_WON, 44, BoardArt.on_board(0.5), Type.mark_font()
 		)
@@ -415,6 +457,20 @@ static func draw_place(
 		BayArt.words(on, tag.get_center(), ON, 12, HouseTheme.ON_FOIL, Type.display_font())
 
 
+## The supporter pack's star, GAME.md 10.8, pinned at [param middle] on [param on]: a night-blue
+## enamel pin [param radius] round with a cream rim and a four-pointed star on it, the star of the
+## pack's stardust and its card backs.
+static func draw_star(on: CanvasItem, middle: Vector2, radius: float) -> void:
+	on.draw_circle(middle + Vector2(1.0, 2.0), radius + 1.0, Color(0.0, 0.0, 0.0, 0.4))
+	on.draw_circle(middle, radius + 1.5, SUPPORTER_STAR)
+	on.draw_circle(middle, radius, SUPPORTER_TAPE)
+	var points := PackedVector2Array()
+	for i: int in 8:
+		var reach := radius * (0.78 if i % 2 == 0 else 0.24)
+		points.append(middle + Vector2.UP.rotated(TAU * i / 8.0) * reach)
+	on.draw_colored_polygon(points, SUPPORTER_STAR)
+
+
 ## A piece's place on the rack: the piece hanging in its outline with its name on the tape under
 ## it, or the "?" of one not won yet and where it is won, see [method draw_place].
 class TrayCell:
@@ -424,6 +480,8 @@ class TrayCell:
 	var part := 0
 	var named := ""
 	var owned := true
+	## Whether it is a piece of the supporter pack, and owned, see [method PartTray.pack_of].
+	var pack := Pack.NONE
 	var worn := false
 	var where := ""
 	var finish := 0
@@ -445,11 +503,13 @@ class TrayCell:
 			&"normal", &"hover", &"pressed", &"disabled", &"focus", &"hover_pressed"
 		]:
 			add_theme_stylebox_override(look, StyleBoxEmpty.new())
-		if owned:
+		if owned or pack == Pack.LOCKED:
 			picture = DressPicture.make(part, index, color, finish)
 			var room := OUTLINE.grow(-7.0)
 			picture.position = room.position
 			picture.size = room.size
+			if pack == Pack.LOCKED:
+				picture.modulate.a = LOCKED_DIM
 			add_child(picture)
 		for told: Signal in [focus_entered, focus_exited, mouse_entered, mouse_exited]:
 			told.connect(_lift)
@@ -462,7 +522,9 @@ class TrayCell:
 	func _tell() -> void:
 		var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
 		var on := ScreenReader.spoken(ON) if worn else ""
-		ScreenReader.name(self, tape_words(), ScreenReader.line([tagged, on]))
+		var packed := SUPPORTER_PACK if pack == Pack.OWNED else ""
+		var said := named + ", " + SUPPORTER_PACK if pack == Pack.LOCKED else tape_words()
+		ScreenReader.name(self, said, ScreenReader.line([tagged, on, packed]))
 
 	## Whether it wears the NEW tag, GAME.md 4.4a: won or moved up a finish and not shown yet.
 	func set_fresh(on: bool) -> void:
@@ -520,12 +582,13 @@ class TrayCell:
 			look = Look.CURSOR
 		elif is_hovered():
 			look = Look.POINTER
+		var packed := pack
 		var art := BayArt.kept(
 			self,
-			"place:%s:%s:%s:%d" % [hangs, in_gold, cell.size, look],
+			"place:%s:%s:%s:%d:%d" % [hangs, in_gold, cell.size, look, packed],
 			whole.size,
 			func(on: CanvasItem) -> void:
-				PartTray.draw_place(on, Vector2.ONE * AROUND, hangs, in_gold, look),
+				PartTray.draw_place(on, Vector2.ONE * AROUND, hangs, in_gold, look, packed),
 			GROUP
 		)
 		# Until the picture of a new look is drawn, the last one, never nothing.
@@ -534,10 +597,13 @@ class TrayCell:
 		if _art != null:
 			draw_texture_rect(_art, whole, false)
 		else:
-			PartTray.draw_place(self, Vector2.ZERO, owned, worn, look)
+			PartTray.draw_place(self, Vector2.ZERO, owned, worn, look, pack)
 		var says := tape_words()
 		var face := BayArt.marker_font() if owned else BayArt.hand_font()
 		var size_now := 16 if owned else 17
 		while BayArt.wide_of(says, size_now, face) > TAPE.size.x - 10.0 and size_now > 10:
 			size_now -= 1
-		BayArt.words(self, TAPE.get_center(), says, size_now, BayArt.MARKER, face)
+		var ink := BayArt.MARKER
+		if pack != Pack.NONE and not has_focus():
+			ink = SUPPORTER_WORDS
+		BayArt.words(self, TAPE.get_center(), says, size_now, ink, face)

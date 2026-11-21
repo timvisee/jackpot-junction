@@ -456,6 +456,10 @@ static func film(
 	var sway := thing.get_node_or_null("Sway")
 	if sway != null:
 		sway.process_mode = Node.PROCESS_MODE_DISABLED
+	# A piece's light, a beam or a glow, is for the felt and the room, not for its picture.
+	for node: Node in thing.find_children("*", "MeshInstance3D", true, false):
+		if SupporterDress.is_light(node):
+			(node as MeshInstance3D).visible = false
 	var render := SubViewport.new()
 	render.name = "Film"
 	render.size = Vector2i(pixels, pixels)
@@ -500,13 +504,15 @@ static func _subject(part_of: int, index_of: int, in_color: Color) -> Node3D:
 
 
 ## The box round every mesh of [param thing] in its own space, without a flag's pole for
-## [param no_pole], so the picture holds what flies from it.
+## [param no_pole], so the picture holds what flies from it, nor a piece's light.
 static func bounds_of(thing: Node3D, no_pole: bool) -> AABB:
 	var found := AABB()
 	var first := true
 	for node: Node in thing.find_children("*", "MeshInstance3D", true, false):
 		var mesh := node as MeshInstance3D
 		if mesh.mesh == null or (no_pole and mesh.get_parent() == thing):
+			continue
+		if SupporterDress.is_light(mesh):
 			continue
 		var placed := Transform3D.IDENTITY
 		var at: Node = mesh

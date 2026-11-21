@@ -38,13 +38,13 @@ func _pull_of(kart: Kart) -> MagnetFlag:
 	return found[0] as MagnetFlag if not found.is_empty() else null
 
 
-## Each is the last of its part, so the pieces before them keep their numbers, and both survive
-## the numbers a style is kept and sent as.
+## Each came last of its part, so the pieces before them keep their numbers, the supporter pack's
+## coming after, GAME.md 10.8; and both survive the numbers a style is kept and sent as.
 func test_the_pieces_come_last_and_survive_the_numbers() -> void:
 	var fez := KartStyle.HATS.find("Fez")
 	var magnet := KartStyle.FLAGS.find("Magnet")
-	assert_int(fez).is_equal(KartStyle.HATS.size() - 1)
-	assert_int(magnet).is_equal(KartStyle.FLAGS.size() - 1)
+	assert_int(fez).is_equal(KartStyle.HATS.size() - 1 - KartStyle.SUPPORTER[1].size())
+	assert_int(magnet).is_equal(KartStyle.FLAGS.size() - 1 - KartStyle.SUPPORTER[2].size())
 	assert_str(KartStyle.HATS[fez - 1]).is_equal("Paper hat")
 	assert_str(KartStyle.FLAGS[magnet - 1]).is_equal("Kit's rag")
 	var style := KartStyle.from_array(_both())
@@ -53,7 +53,8 @@ func test_the_pieces_come_last_and_survive_the_numbers() -> void:
 	assert_array(Array(style.to_array())).contains_exactly(Array(_both()))
 	# One past them is a choice this build has never heard of, and plain; a style from before the
 	# bodies, as this one is, is in the racer.
-	var beyond := KartStyle.from_array(PackedInt32Array([0, fez + 1, magnet + 1, 0, 0, 0]))
+	var past := PackedInt32Array([0, KartStyle.HATS.size(), KartStyle.FLAGS.size(), 0, 0, 0])
+	var beyond := KartStyle.from_array(past)
 	assert_array(Array(beyond.to_array())).contains_exactly([0, 0, 0, 0, 0, 0, 0])
 
 

@@ -178,6 +178,10 @@ func activateGameOverlayInviteDialog(lobby: int) -> void:
 	calls.append("activateGameOverlayInviteDialog %d" % lobby)
 
 
+func activateGameOverlayToStore(app: int, flag: int) -> void:
+	calls.append("activateGameOverlayToStore %d %d" % [app, flag])
+
+
 func inviteUserToLobby(_lobby: int, friend: int) -> bool:
 	invited.append(friend)
 	return true

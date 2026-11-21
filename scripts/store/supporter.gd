@@ -15,6 +15,10 @@ enum Pretend { NONE, OWNED, LOCKED }
 
 ## How a debug build pretends, see [method start].
 static var pretend := Pretend.NONE
+## For the tests: how many times the store page was asked for, see [method Store.open_supporter],
+## and whether it is only counted, never opened.
+static var store_asked := 0
+static var dry := false
 ## What the store said at the start: whether the pack is owned, and whether this is a Steam build.
 static var _owned := false
 static var _steam_build := false

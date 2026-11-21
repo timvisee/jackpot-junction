@@ -68,7 +68,9 @@ func test_the_tray_holds_every_piece_and_says_where_the_rest_are_won() -> void:
 	dialog.open_tray(1)
 	await get_tree().process_frame
 	assert_bool(dialog.tray.visible).is_true()
-	assert_int(dialog.tray.cells.size()).is_equal(KartStyle.HATS.size())
+	# The supporter pack's are not offered here, a build with no Steam, GAME.md 10.8.
+	var offered := KartStyle.HATS.size() - KartStyle.SUPPORTER[1].size()
+	assert_int(dialog.tray.cells.size()).is_equal(offered)
 	assert_bool(dialog.hooks[1].lit).is_true()
 	var fedora := _cell(dialog, KartStyle.HATS.find("Fedora"))
 	assert_bool(fedora.owned).is_true()
@@ -234,7 +236,11 @@ func test_none_comes_first_in_every_tray() -> void:
 		var choices := KartDialog.choices_of(part)
 		var expected := choices.find("None") if "None" in choices else 0
 		assert_int(first.index).override_failure_message("part %d" % part).is_equal(expected)
-		assert_int(dialog.tray.cells.size()).is_equal(choices.size())
+		# The supporter pack's are not offered in a build with no Steam, GAME.md 10.8.
+		var offered := choices.size()
+		if part < KartStyle.SUPPORTER.size():
+			offered -= KartStyle.SUPPORTER[part].size()
+		assert_int(dialog.tray.cells.size()).is_equal(offered)
 	dialog.open_tray(3)
 	assert_str(dialog.tray.cells[0].named).is_equal("None")
 	assert_str(dialog.tray.cells[1].named).is_equal("Smoke")

@@ -115,10 +115,10 @@ static func wear_finish(worn: Node3D, level: int) -> void:
 	var sheen := finish_material(level)
 	if worn == null or sheen == null:
 		return
-	for node: Node in worn.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
+	for node: Node in worn.find_children("*", "GeometryInstance3D", true, false):
+		var mesh := node as GeometryInstance3D
 		var material := mesh.material_override as BaseMaterial3D
-		if material == null:
+		if material == null or SupporterDress.is_light(mesh):
 			continue
 		var own := material.duplicate() as BaseMaterial3D
 		own.next_pass = sheen
@@ -266,7 +266,7 @@ static func _patch_at(at: Vector2) -> float:
 ## How far above the head the hat [param index] of [constant KartStyle.HATS] reaches as it is
 ## worn, in the body's space: what the roof marker is lifted by over it.
 static func hat_lift(index: int) -> float:
-	return HAT_LIFT[index] * HAT_SCALE
+	return SupporterDress.lift_of(index) * HAT_SCALE
 
 
 ## The hat a player picked, ready to hang off the kart's body, or null for a bare head: cut to the
@@ -275,6 +275,8 @@ static func hat_lift(index: int) -> float:
 static func hat(index: int, color: Color) -> Node3D:
 	if index <= 0 or index >= KartStyle.HATS.size():
 		return null
+	if KartStyle.supporter(1, index):
+		return SupporterDress.hat(KartStyle.HATS[index], color)
 	var hat_node := Node3D.new()
 	hat_node.name = "Hat"
 	hat_node.position = HEAD - Vector3(0.0, HAT_DROP[index], 0.0)
