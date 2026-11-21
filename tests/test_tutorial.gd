@@ -157,9 +157,10 @@ func test_a_piece_rises_out_of_the_floor_and_is_in_play_once_up() -> void:
 	assert_vector(piece.rotation).is_equal_approx(Vector3.ZERO, Vector3.ONE * 0.001)
 
 
-## Driving: the lane of cones and the ring come up; ten meters forward, then a full turn of the
-## heading either way, sawing back and forth adding up to nothing. The pad beside the start says
-## what it is while the kart is near, and goes back into the floor once the lesson is done.
+## Driving: the lane of cones and the ring come up; ten meters forward, then a full circle's worth
+## of turning, every turn adding to it whichever way it goes, the wheel sawn back and forth too. The
+## pad beside the start says what it is while the kart is near, and goes back into the floor once
+## the lesson is done.
 func test_driving_forward_then_round_the_cones() -> void:
 	var tutorial := await _start()
 	var run := tutorial.run
@@ -192,9 +193,12 @@ func test_driving_forward_then_round_the_cones() -> void:
 	lesson.step(DT)
 	motor.heading -= 1.0
 	lesson.step(DT)
-	assert_float(lesson._round.progress).is_equal_approx(0.0, 0.001)
+	assert_float(lesson._round.progress).is_equal_approx(2.0 / TAU, 0.001)
+	# Back and forth all the way: the bar fills as a full circle one way would.
+	var way := 1.0
 	for i: int in 8:
-		motor.heading -= TAU / 7.0
+		motor.heading += way * TAU / 7.0
+		way = -way
 		lesson.step(DT)
 	assert_bool(lesson._round.done).is_true()
 	var pads := lesson.pads()

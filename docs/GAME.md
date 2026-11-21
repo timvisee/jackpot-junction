@@ -7958,8 +7958,10 @@ The lessons, in order, each bringing its pieces into the one lot:
 
 1. **Driving.** A lane of cones rises ahead of the start, up the west side of the lot, and a ring
    of cones at its head. Drive forward, a bar filling over ten meters driven, then go round the
-   ring, a bar filling as the kart's heading turns a full circle either way, moving or standing,
-   counted from where that task started, so sawing the wheel back and forth adds up to nothing. Simple driving is told to push
+   ring, a bar filling as the kart's heading turns a full circle's worth, moving or standing,
+   counted from where that task started, every turn adding to it whichever way it goes: learners
+   told to go round sawed the wheel back and forth, not seeing they were to keep turning one way,
+   and that is steering just the same. Simple driving is told to push
    the way to go. There is no lesson in reversing: letting go is the brake, and the controls card
    of 8.1 has reverse.
 2. **Speed.** The long run along the north of the lot, with a ring of cones at its far end. The tank

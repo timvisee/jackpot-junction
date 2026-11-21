@@ -13,6 +13,10 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Turning in the driving school.** Going round the cones counts every turn of the wheel, either
+  way, where turning back used to take it off again, so learners who steered left and right were
+  stuck.
+
 - **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
   itself rather than the floor round it, which left the table sitting a little high.
 - **The seal on the desktop.** The game's icon shows the whole seal from 64 pixels up, where it

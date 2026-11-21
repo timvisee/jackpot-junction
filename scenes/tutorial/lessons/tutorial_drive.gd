@@ -1,9 +1,10 @@
 class_name TutorialDrive
 extends TutorialLesson
 ## Lesson 1, GAME.md 9.4a: driving. A lane of cones rises ahead of the start and a ring of them at
-## its head: drive up the lane, ten meters of it, then go round the ring, the kart's heading a full
-## circle either way, counted from where the task starts, moving or standing, so sawing the wheel
-## back and forth adds up to nothing. The pad that opens the way of driving to change, 4.2, lies
+## its head: drive up the lane, ten meters of it, then go round the ring, the kart's heading turned
+## a full circle's worth from where the task starts, moving or standing, every turn adding to it
+## whichever way it goes: a learner told to go round who saws the wheel back and forth, as many
+## did, has been steering just the same. The pad that opens the way of driving to change, 4.2, lies
 ## beside the start, the clipboard saying what it is while the kart is near it; driving onto it puts
 ## up the question to choose from, see [method _switch_mode], rather than switching on the spot. It
 ## goes back into the floor once the lesson is done: the pause menu changes it after. No welcome:
@@ -20,7 +21,8 @@ const LANE_OUT := 0.3
 
 var _drive: TutorialTask
 var _round: TutorialTask
-## How far the heading has turned since the ring's task started, either way, and where it was.
+## How far the heading has turned since the ring's task started, every way added up, and where it
+## was.
 var _turned := 0.0
 var _heading := 0.0
 var _pads: Array[ModePad] = []
@@ -95,10 +97,11 @@ func step(delta: float) -> void:
 		if speed > 0.0:
 			_drive.advance(speed * delta, FORWARD)
 	elif task == _round:
-		# Either way counts, and back the other way takes it off again.
-		_turned += turned
-		_round.progress = clampf(absf(_turned) / TAU, 0.0, 1.0)
-		if absf(_turned) >= TAU:
+		# Either way counts, and back the other way counts too: a full circle one way, the wheel
+		# sawn back and forth, or anything between, it is all steering.
+		_turned += absf(turned)
+		_round.progress = clampf(_turned / TAU, 0.0, 1.0)
+		if _turned >= TAU:
 			_round.complete()
 
 
