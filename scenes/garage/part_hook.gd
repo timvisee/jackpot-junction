@@ -101,7 +101,7 @@ func _ready() -> void:
 ## [param finished], one of the loyalty program's finishes or 0.
 func say(index: int, named: String, color: Color, finished: int) -> void:
 	worn = named
-	finish_word = Loyalty.FINISHES[finished - 1] if finished > 0 else ""
+	finish_word = Loyalty.finish_name(finished)
 	if picture != null:
 		picture.show_choice(part, index, color, finished)
 	queue_redraw()

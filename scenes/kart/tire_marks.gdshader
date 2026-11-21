@@ -103,6 +103,10 @@ void fragment() {
 		laid = mix(ink, hue(UV2.y * 0.06 + now * 0.04) * 0.7, finish_share);
 	} else if (finish == 3) {
 		laid = mix(ink, hue(floor(UV2.y * 0.5) * 0.17) * 0.7, finish_share);
+	} else if (finish == 4) {
+		// Starlight, the supporter pack's, GAME.md 10.8: a pale night blue, flecked with stars.
+		float fleck = step(0.93, fract(sin(floor(UV2.y * 6.0) * 91.7) * 4375.3));
+		laid = mix(ink, mix(vec3(0.3, 0.32, 0.55), vec3(0.95), fleck), finish_share);
 	}
 	ALBEDO = mix(laid, gilt * gold_glow, gold);
 	ALPHA = mix(mark, gilt_alpha, gold);

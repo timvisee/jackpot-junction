@@ -222,6 +222,17 @@ func _finish(process: ParticleProcessMaterial) -> void:
 			ramp.add_point(0.34, Color(base, 1.0))
 			ramp.add_point(0.42, GLINT)
 			ramp.add_point(0.5, Color(base, 1.0))
+		Loyalty.STARLIGHT:
+			# The supporter pack's Starlight, GAME.md 10.8: its own color but for two quick
+			# twinkles of starlight, pale and a little blue, as it goes.
+			process.color = Color(1.0, 1.0, 1.0, base.a)
+			var twinkle := Color(0.9, 0.92, 1.0, 1.0)
+			ramp.set_color(0, Color(base, 1.0))
+			ramp.set_color(1, Color(base, 1.0))
+			for at: float in [0.25, 0.6]:
+				ramp.add_point(at - 0.05, Color(base, 1.0))
+				ramp.add_point(at, twinkle)
+				ramp.add_point(at + 0.05, Color(base, 1.0))
 		_:
 			process.color = Color(1.0, 1.0, 1.0, base.a)
 			ramp.set_color(0, _hue(0.0, base))

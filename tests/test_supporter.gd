@@ -403,3 +403,63 @@ func test_the_night_sky_paint() -> void:
 		for x: int in range(0, tones.get_width(), 4):
 			darkest = minf(darkest, tones.get_pixel(x, y).r)
 	assert_float(darkest).is_greater_equal(KartDress.SHADE)
+
+
+## Starlight is a finish past the editions', worn on a piece whose switch is on where the pack is
+## owned, in place of its edition while it is; it survives the numbers a style is sent as, is kept
+## with the profile, and is named on the rack.
+func test_starlight_is_a_finish_of_its_own() -> void:
+	var profile := Game.settings.profile
+	profile.loyalty.editions["hat:Fedora"] = 2
+	profile.loyalty.starlit = PackedStringArray(["hat:Fedora"])
+	assert_int(Loyalty.worn_finish(profile, "hat:Fedora")).is_equal(2)
+	Supporter.pretend = Supporter.Pretend.OWNED
+	assert_int(Loyalty.worn_finish(profile, "hat:Fedora")).is_equal(Loyalty.STARLIGHT)
+	assert_int(Loyalty.finish_of(profile, "hat:Fedora")).is_equal(2)
+	assert_str(Loyalty.finish_name(Loyalty.STARLIGHT)).is_equal("Starlight")
+	assert_str(Loyalty.finish_name(1)).is_equal("Foil")
+	var style := KartStyle.new()
+	style.hat = KartStyle.HATS.find("Fedora")
+	style.finishes[1] = Loyalty.STARLIGHT
+	assert_int(KartStyle.from_array(style.to_array()).finish(1)).is_equal(Loyalty.STARLIGHT)
+	assert_object(KartDress.finish_material(Loyalty.STARLIGHT)).is_not_null()
+	var file := ConfigFile.new()
+	profile.loyalty.write(file)
+	var again := LoyaltyState.new()
+	again.read(file)
+	assert_array(Array(again.starlit)).contains_exactly(["hat:Fedora"])
+
+
+## The rack of a part whose worn piece takes a finish has the Starlight switch where the pack is
+## owned; turned on, the piece is worn in Starlight, its hook says so, and turned off it is back.
+func test_the_starlight_switch_on_the_rack() -> void:
+	Game.settings.set_seat_style(0, PackedInt32Array([0, KartStyle.HATS.find("Cap"), 0, 0, 0, 0]))
+	var dialog := KartDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	dialog.open_tray(1)
+	await get_tree().process_frame
+	assert_bool(dialog.tray.starlight.visible).is_false()
+	dialog.close_tray()
+	dialog.queue_free()
+	await get_tree().process_frame
+	Supporter.pretend = Supporter.Pretend.OWNED
+	dialog = KartDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	dialog.open_tray(1)
+	await get_tree().process_frame
+	assert_bool(dialog.tray.starlight.visible).is_true()
+	assert_bool(dialog.tray.starlight_on).is_false()
+	dialog.toggle_starlight()
+	await get_tree().process_frame
+	assert_bool(dialog.tray.starlight_on).is_true()
+	assert_int(dialog.kart_owner().style().finish(1)).is_equal(Loyalty.STARLIGHT)
+	assert_str(dialog.hooks[1].finish_word).is_equal("Starlight")
+	dialog.toggle_starlight()
+	await get_tree().process_frame
+	assert_int(dialog.kart_owner().style().finish(1)).is_equal(0)
+	dialog.open_tray(6)
+	await get_tree().process_frame
+	assert_bool(dialog.tray.starlight.visible).is_false()
+	dialog.queue_free()

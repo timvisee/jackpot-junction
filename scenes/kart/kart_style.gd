@@ -206,7 +206,7 @@ static func from_array(values: Variant) -> KartStyle:
 	for i: int in CHOICES.size():
 		var at := CHOICES.size() + i
 		if at < packed.size() and read[i] > 0:
-			style.finishes[i] = clampi(packed[at], 0, Loyalty.FINISHES.size())
+			style.finishes[i] = clampi(packed[at], 0, Loyalty.STARLIGHT)
 	return style
 
 

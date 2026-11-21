@@ -246,11 +246,42 @@ func new_pieces() -> Array[Vector2i]:
 	return found
 
 
+## Whether [param index] of [param part] is worn in the Steam supporter pack's Starlight,
+## GAME.md 10.8, its switch on, see [method Loyalty.worn_finish].
+func starlit(part: int, index: int) -> bool:
+	return KartStyle.won_name(part, index) in profile.loyalty.starlit
+
+
+## Turns the Starlight switch of [param index] of [param part] over, see [method set_starlit].
+func toggle_starlit(part: int, index: int) -> bool:
+	return set_starlit(part, index, not starlit(part, index))
+
+
+## Turns the Starlight switch of [param index] of [param part] [param on] or off, keeps it and puts
+## the piece on again in its new finish; false where the pack is not owned, for the body, for a
+## piece no finish lies on, or one not worn here.
+func set_starlit(part: int, index: int, on: bool) -> bool:
+	if not Supporter.owned() or part not in range(KartStyle.BODY) or index <= 0:
+		return false
+	if not owns(part, index):
+		return false
+	var piece := KartStyle.won_name(part, index)
+	var listed := profile.loyalty.starlit
+	if on and piece not in listed:
+		listed.append(piece)
+	elif not on and piece in listed:
+		listed.remove_at(listed.find(piece))
+	profile.loyalty.starlit = listed
+	profile.save_to_disk()
+	wear(part, index)
+	return true
+
+
 ## The finish [param index] of [param part] is worn in, GAME.md 8.9, 0 for none.
 func finish_of(part: int, index: int) -> int:
 	if index <= 0 or part >= KartStyle.CHOICES.size():
 		return 0
-	return Loyalty.finish_of(profile, KartStyle.won_name(part, index))
+	return Loyalty.worn_finish(profile, KartStyle.won_name(part, index))
 
 
 ## Where in the loyalty program [param index] of [param part] is won, the landmark's own name, or

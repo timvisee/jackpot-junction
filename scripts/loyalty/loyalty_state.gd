@@ -48,6 +48,9 @@ var ring: Array[Dictionary] = []
 ## how many laps have paid an edition not yet chosen.
 var editions: Dictionary = {}
 var owed := 0
+## The pieces of dress worn in the Steam supporter pack's Starlight, GAME.md 10.8, by name, in place
+## of their editions while the pack is owned, see [method Loyalty.worn_finish].
+var starlit := PackedStringArray()
 ## The landmark pinned, to be kept in sight in the pause menu and beside a match's clock, GAME.md
 ## 8.9; or the roundabout; none for nothing pinned.
 var pinned := &""
@@ -85,6 +88,7 @@ func read(file: ConfigFile) -> void:
 			if piece is String and (finished[piece] is int or finished[piece] is float):
 				editions[piece] = clampi(int(finished[piece]), 0, Loyalty.FINISHES.size())
 	owed = maxi(int(file.get_value(SECTION, "owed", 0)), 0)
+	starlit = PackedStringArray(file.get_value(SECTION, "starlit", PackedStringArray()))
 	pinned = StringName(str(file.get_value(SECTION, "pinned", "")))
 	lost_waits = {}
 	var waits: Variant = file.get_value(SECTION, "lost_waits", {})
@@ -116,6 +120,7 @@ func write(file: ConfigFile) -> void:
 	file.set_value(SECTION, "ring", ring)
 	file.set_value(SECTION, "editions", editions)
 	file.set_value(SECTION, "owed", owed)
+	file.set_value(SECTION, "starlit", starlit)
 	file.set_value(SECTION, "pinned", String(pinned))
 
 

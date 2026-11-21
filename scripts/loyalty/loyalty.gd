@@ -37,6 +37,10 @@ const ROUNDABOUT := &"roundabout"
 const SLIP_ROAD := &"slip_road"
 ## The finishes an edition moves a piece of dress up through, GAME.md 8.9, each over the last.
 const FINISHES: Array[String] = ["Foil", "Holographic", "Polychrome"]
+## The Steam supporter pack's own finish, GAME.md 10.8, past the editions' and never one of them:
+## laid on a piece by a switch rather than moved up to, see [method worn_finish].
+const STARLIGHT := 4
+const STARLIGHT_NAME := "Starlight"
 
 ## The program's map, GAME.md 8.9, The first map.
 const MAP_PATH := "res://data/loyalty/map.tres"
@@ -728,6 +732,22 @@ static func finish_of(profile: Profile, piece: String) -> int:
 	return int(profile.loyalty.editions.get(piece, 0))
 
 
+## The finish [param profile] wears the piece of dress [param piece] in: Starlight where its switch
+## is on and the supporter pack owned, GAME.md 10.8, in place of its edition while it is; else the
+## finish its editions have moved it up to, see [method finish_of].
+static func worn_finish(profile: Profile, piece: String) -> int:
+	if profile != null and piece in profile.loyalty.starlit and Supporter.owned():
+		return STARLIGHT
+	return finish_of(profile, piece) if profile != null else 0
+
+
+## The name of finish [param level]: an edition's, or Starlight; empty for none.
+static func finish_name(level: int) -> String:
+	if level == STARLIGHT:
+		return STARLIGHT_NAME
+	return FINISHES[level - 1] if level > 0 and level <= FINISHES.size() else ""
+
+
 ## [param profile] spends an edition on [param piece]: it moves up a finish, as far as the last,
 ## and is new in the kart dialog until it has been seen there in it, GAME.md 4.4a. False with none
 ## owed, or for a piece not won or already at its last finish.
@@ -752,8 +772,8 @@ static func with_finishes(profile: Profile, style: PackedInt32Array) -> PackedIn
 	for part: int in KartStyle.CHOICES.size():
 		var index := choices[part]
 		dressed.finishes[part] = (
-			finish_of(profile, KartStyle.won_name(part, index))
-			if index > 0 and profile != null
+			worn_finish(profile, KartStyle.won_name(part, index))
+			if index > 0 and profile != null and part != KartStyle.BODY
 			else 0
 		)
 	return dressed.to_array()

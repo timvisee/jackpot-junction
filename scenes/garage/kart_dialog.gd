@@ -217,6 +217,7 @@ func _ready() -> void:
 	tray.tried.connect(_try)
 	tray.left.connect(_untry)
 	tray.chosen.connect(_choose)
+	tray.starlight_pressed.connect(toggle_starlight)
 	tray.done.connect(close_tray)
 	var well := PartTray.well()
 	_stage_node.add_child(well)
@@ -629,6 +630,21 @@ func _choose(index: int) -> void:
 	stage.show_kart(_style, kart_color(), owner_now.plate(), true)
 
 
+## The Starlight switch of the open rack, GAME.md 10.8: the piece worn of the open part in the
+## supporter pack's Starlight or back in its edition, and the rack filled again in place.
+func toggle_starlight() -> void:
+	var worn := _style.to_array()[open_part] if open_part in range(KartStyle.BODY) else 0
+	var done := kart_owner().toggle_starlit(open_part, worn)
+	Audio.play_sfx(&"stamp" if done else &"ui_back", -6.0, 0.05)
+	if done:
+		_style = kart_owner().style()
+		_show_dress()
+		stage.show_kart(_style, kart_color(), kart_owner().plate(), true)
+		var part := open_part
+		open_part = -1
+		open_tray(part, worn)
+
+
 ## A piece of every part on the tab up's kart at random, of those it has won, a card back where it
 ## has its own, and a color nobody else in the room is in, another than its own where there is one;
 ## the kart does a donut in it, and its push button rolls, pressed or by its key.
@@ -829,6 +845,8 @@ func _input(event: InputEvent) -> void:
 		switch_owner(1)
 	elif event.is_action_pressed(SHUFFLE_ACTION):
 		shuffle()
+	elif event.is_action_pressed(InputActions.MENU_VIEW) and tray.starlight.is_visible_in_tree():
+		toggle_starlight()
 	else:
 		return
 	get_viewport().set_input_as_handled()

@@ -27,6 +27,8 @@ signal tried(index: int)
 signal left(index: int)
 signal chosen(index: int)
 signal done
+## The Starlight switch pressed, GAME.md 10.8, see [member starlight].
+signal starlight_pressed
 
 ## How a place is picked out, see [method draw_place]: not at all, by the cursor on it, in the
 ## house's gold, its piece lifted off its peg, or by the mouse over it, in a soft white.
@@ -38,6 +40,7 @@ enum Pack { NONE, OWNED, LOCKED }
 ## finger on a touch screen.
 const COUNT := "%d of %d won"
 const WEAR := "%s wear it   %s put it away"
+const WEAR_STARLIGHT := "%s wear it   %s put it away   %s starlight"
 const WEAR_TOUCH := "tap a piece to wear it"
 const BINDS_SIZE := 13
 const HEADINGS: Array[String] = [
@@ -55,6 +58,12 @@ const SUPPORTER_STAR := Color("#f8eed4")
 const STAR_AT := Vector2(4.0, -4.0)
 const STAR_SIZE := 12.0
 const LOCKED_DIM := 0.55
+## The Starlight switch, GAME.md 10.8: a stenciled plate beside Close with the pack's star on it,
+## where it stands and what it says, and its word's size; the star lit while the piece worn is in
+## Starlight. Only where the pack is owned, and for a piece a finish lies on.
+const STARLIGHT_AT := Rect2(858.0, -16.0, 170.0, 42.0)
+const STARLIGHT := "STARLIGHT"
+const STARLIGHT_SIZE := 17
 const CLOSE := "CLOSE"
 ## How deep its frame is along the top, for its words, and round the rest.
 const BAND := 30.0
@@ -92,6 +101,10 @@ const SLIDE_OUT := 0.16
 
 var part := 0
 var cells: Array[TrayCell] = []
+## The Starlight switch, and whether the piece worn of the part is in Starlight, see
+## [constant STARLIGHT_AT].
+var starlight: Button
+var starlight_on := false
 ## Whether it is hung out, or on its way out, and how it slides.
 var _out := false
 var _slide: Tween
@@ -101,6 +114,8 @@ var _count := ""
 var _binds: Control
 var _back_arrow: Button
 var _on_arrow: Button
+## The device the binds were last drawn for, see [method show_binds].
+var _hinted: Array = [false, true, false]
 
 
 ## What it slides in and out of behind the bench's edge: the stage, cut off at its foot, hung on the
@@ -184,6 +199,27 @@ func _ready() -> void:
 			BayArt.left(close, Vector2(54.0, middle), CLOSE, CLOSE_SIZE, ink, Type.display_font())
 	)
 	close.pressed.connect(func() -> void: done.emit())
+	starlight = _plate_button("Starlight", STARLIGHT_AT)
+	starlight.hide()
+	starlight.draw.connect(_draw_starlight)
+	starlight.pressed.connect(func() -> void: starlight_pressed.emit())
+
+
+## The Starlight switch's plate: stenciled as Close's is, the pack's star on its left, lit while the
+## piece worn is in Starlight.
+func _draw_starlight() -> void:
+	var box := Rect2(Vector2.ZERO, starlight.size)
+	BoardArt.draw_stencil_plate(starlight, box, starlight.is_hovered() or starlight_on, false)
+	var ink := SUPPORTER_STAR if starlight_on else BoardArt.PAINT
+	if starlight.is_hovered() and not starlight_on:
+		ink = BayArt.ENAMEL
+	var middle := box.get_center().y
+	for x: float in [11.0, box.size.x - 11.0]:
+		BayArt.screw(starlight, Vector2(x, middle), 3.5, 0.7)
+	draw_star(starlight, Vector2(32.0, middle), STAR_SIZE if starlight_on else STAR_SIZE * 0.85)
+	BayArt.left(
+		starlight, Vector2(50.0, middle), STARLIGHT, STARLIGHT_SIZE, ink, Type.display_font()
+	)
 
 
 ## The pieces of [param part_of] in the order the rack holds them: its None first where it has one,
@@ -287,6 +323,10 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 	var choices := KartDialog.choices_of(part)
 	var won := 0
 	var unseen := owner.new_pieces()
+	starlight.visible = Supporter.owned() and part_of < KartStyle.BODY and worn > 0
+	starlight_on = starlight.visible and owner.starlit(part_of, worn)
+	starlight.queue_redraw()
+	ScreenReader.name(starlight, STARLIGHT.capitalize(), "on" if starlight_on else "off")
 	for i: int in order_of(part, owner):
 		var cell := TrayCell.new()
 		cell.name = "Cell%d" % i
@@ -314,7 +354,7 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 	_count = COUNT % [won, counted.size()]
 	_scroll.scroll_horizontal = 0
 	_say_arrows()
-	_place_binds()
+	show_binds(_hinted[0], _hinted[1], _hinted[2])
 	queue_redraw()
 	ScreenReader.say(self, ScreenReader.line([ScreenReader.spoken(HEADINGS[part]), _count]))
 
@@ -323,6 +363,7 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 ## in hand: a tap's words on a touch screen for [param touch], Enter and Esc for [param keys], a
 ## click for Enter while [param pointer] has the mouse in hand, and A and B on a pad.
 func show_binds(touch: bool, keys: bool, pointer: bool) -> void:
+	_hinted = [touch, keys, pointer]
 	if _binds != null:
 		_binds.queue_free()
 	var ink := Color(WORDS_ON_RED, 0.9)
@@ -350,7 +391,15 @@ func show_binds(touch: bool, keys: bool, pointer: bool) -> void:
 		var glyphs: Array = [
 			InputGlyph.of_event(wear, ink, BINDS_SIZE), InputGlyph.of_event(away, ink, BINDS_SIZE)
 		]
-		_binds = InputHint.row(WEAR, glyphs, ink, BINDS_SIZE)
+		if starlight != null and starlight.visible:
+			var star_key := InputEventKey.new()
+			star_key.keycode = KEY_TAB
+			var star_button := InputEventJoypadButton.new()
+			star_button.button_index = JOY_BUTTON_Y
+			glyphs.append(InputGlyph.of_event(star_key if keys else star_button, ink, BINDS_SIZE))
+		_binds = InputHint.row(
+			WEAR_STARLIGHT if glyphs.size() > 2 else WEAR, glyphs, ink, BINDS_SIZE
+		)
 	_binds.name = "Binds"
 	add_child(_binds)
 	_place_binds()
@@ -568,7 +617,7 @@ class TrayCell:
 	func tape_words() -> String:
 		if not owned:
 			return where
-		return named + (" · " + Loyalty.FINISHES[finish - 1] if finish > 0 else "")
+		return named + (" · " + Loyalty.finish_name(finish) if finish > 0 else "")
 
 	func _draw() -> void:
 		# By its size rounded: scrolled, a control's size drifts in its last places, and its
