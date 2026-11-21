@@ -7899,7 +7899,8 @@ and that is all: the board lands for a new lesson only, not for a task ticked, t
 or the line under the name changing, which the player is looking at already. The one landing
 that is not a new lesson's is for a learner who has not found the board up in its corner: standing
 still three seconds with nothing getting done, or twenty seconds of nothing getting done however
-the kart drives, and the board lands where it hangs again, and again each time that comes round
+the kart drives, though not in the final exam, where a while of driving round with nothing banked
+is the fight itself and only standing still counts, and the board lands where it hangs again, and again each time that comes round
 while it stays that way. Getting on with the lesson starts the wait over, a bar filling a little,
 a tick or a count; so does being busy with something else, the question of 4.2 up, a pick or the
 hand open, or the kart down, and the board up in the middle or stamping a lesson PASSED. An extra, the drift, is written a shade dimmer under Extra, and the lesson does not wait

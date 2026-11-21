@@ -48,6 +48,16 @@ func test_only_headway_starts_it_over() -> void:
 	assert_float(nudge.still).is_equal(0.0)
 
 
+## Where driving round does not count, the final exam's fight, only standing still points at it.
+func test_where_driving_does_not_count_only_standing_still_does() -> void:
+	var nudge := TutorialNudge.new()
+	nudge.reset(0.0)
+	assert_bool(nudge.step(TutorialNudge.QUIET_FOR * 2.0, 0.0, DRIVING, false, false)).is_false()
+	assert_bool(nudge.step(TutorialNudge.STILL_FOR + 0.1, 0.0, STOPPED, false, false)).is_true()
+	assert_bool(TutorialFight.new().nudge_driving).is_false()
+	assert_bool(TutorialDrive.new().nudge_driving).is_true()
+
+
 ## Busy with something else, a question or the hand, never points and starts the wait over.
 func test_busy_starts_it_over() -> void:
 	var nudge := TutorialNudge.new()

@@ -286,9 +286,9 @@ func _refresh() -> void:
 	list.refresh(lesson)
 
 
-## A learner standing about, or getting nowhere with [param lesson], is pointed at the clipboard
-## again, see [TutorialNudge]; not while busy with something else, a question up, a pick or the hand
-## open, or the kart down, nor while the board has the eye already.
+## A learner standing about, or getting nowhere with [param lesson] where it says so, is pointed at
+## the clipboard again, see [TutorialNudge]; not while busy with something else, a question up, a
+## pick or the hand open, or the kart down, nor while the board has the eye already.
 func _watch_quiet(delta: float, lesson: TutorialLesson) -> void:
 	if not TutorialNudge.on:
 		return
@@ -304,7 +304,8 @@ func _watch_quiet(delta: float, lesson: TutorialLesson) -> void:
 		or list.is_checking()
 	)
 	var speed := Vector2(driver.velocity.x, driver.velocity.z).length()
-	if nudge.step(delta, lesson.headway(), speed, busy) and list.nudge():
+	var at := lesson.headway()
+	if nudge.step(delta, at, speed, busy, lesson.nudge_driving) and list.nudge():
 		nudged += 1
 
 

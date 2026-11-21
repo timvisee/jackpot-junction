@@ -2,10 +2,11 @@ class_name TutorialNudge
 extends RefCounted
 ## When the tutorial points the player at the clipboard again, GAME.md 9.4a: a learner who has not
 ## found it, up in its corner, stands about or drives round with nothing done. Standing still a
-## while with nothing getting done, or a longer while of nothing getting done however they drive,
-## and it is time; and again as long as it stays that way. Getting on with the lesson, or being
-## busy with something else, a question or the hand open, starts the wait over. [TutorialRun] asks
-## every tick and lands the board when told, see [method TutorialList.nudge].
+## while with nothing getting done, or a longer while of nothing getting done however they drive
+## where the lesson says so, and it is time; and again as long as it stays that way. Getting on
+## with the lesson, or being busy with something else, a question or the hand open, starts the wait
+## over. [TutorialRun] asks every tick and lands the board when told, see
+## [method TutorialList.nudge].
 
 ## How long, in seconds, standing still, and then nothing getting done however the kart drives,
 ## before the clipboard is pointed at, and again after.
@@ -41,15 +42,16 @@ func reset(headway: float) -> void:
 
 ## One tick of [param delta] seconds, the lesson's [param headway] as it is now, see
 ## [method TutorialLesson.headway], at [param speed]; [param busy] for the player at something
-## else just then. Whether to point at the clipboard now.
-func step(delta: float, headway: float, speed: float, busy: bool) -> bool:
+## else just then, and [param driving] false for standing still alone to count, not driving round
+## with nothing getting done. Whether to point at the clipboard now.
+func step(delta: float, headway: float, speed: float, busy: bool, driving := true) -> bool:
 	if busy or headway >= _low + HEADWAY:
 		reset(headway)
 		return false
 	_low = minf(_low, headway)
 	quiet += delta
 	still = still + delta if speed < STANDING else 0.0
-	if still < STILL_FOR and quiet < QUIET_FOR:
+	if still < STILL_FOR and (not driving or quiet < QUIET_FOR):
 		return false
 	quiet = 0.0
 	still = 0.0

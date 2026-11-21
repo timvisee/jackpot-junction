@@ -38,6 +38,10 @@ var skippable := true
 ## Whether every task is on the list from the start though they are done in order: the fight's
 ## goal with its hints under it.
 var show_all := false
+## Whether driving round a long while with nothing getting done points at the clipboard again, as
+## standing still does, see [TutorialNudge]: not in the fight, where a while of driving round with
+## nothing banked is the fight itself.
+var nudge_driving := true
 var run: TutorialRun
 ## What the lesson brings up into the lot, each [piece, the floor it stands on in meters, the way it
 ## comes, see [RisingPiece]], held back from the start of the test until the lesson brings it up.

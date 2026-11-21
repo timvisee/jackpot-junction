@@ -55,6 +55,7 @@ func _init() -> void:
 	title = "Final exam"
 	skippable = false
 	show_all = true
+	nudge_driving = false
 	spawn_cell = TestGround.START
 	reveals = [[&"stats", "", []], [&"feed", "", []], [&"mult", "Your {mult}", []]]
 	_bank = add_task("{Bank} points", "", [], true)
