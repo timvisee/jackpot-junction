@@ -489,3 +489,14 @@ func test_the_starlight_switch_on_the_rack() -> void:
 	await get_tree().process_frame
 	assert_bool(dialog.tray.starlight.visible).is_false()
 	dialog.queue_free()
+
+
+## A plate may hold the supporter's star where the pack is owned, typed as an asterisk or as the
+## star itself and kept as the asterisk; one off the wire keeps it whoever owns what.
+func test_the_plate_star() -> void:
+	assert_str(LicensePlate.clean("tim*7")).is_equal("TIM7")
+	assert_str(LicensePlate.valid("TIM*7")).is_equal("TIM*7")
+	Supporter.pretend = Supporter.Pretend.OWNED
+	assert_str(LicensePlate.clean("tim*7")).is_equal("TIM*7")
+	assert_str(LicensePlate.clean("tim★7")).is_equal("TIM*7")
+	assert_str(LicensePlate.clean("**********")).is_equal("********")

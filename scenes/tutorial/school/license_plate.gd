@@ -15,6 +15,11 @@ extends Control
 ## case, since a plate is stamped and not written.
 const MOST := 8
 const ALLOWED := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -"
+## The star a plate may hold where the Steam supporter pack is owned, GAME.md 10.8: typed as an
+## asterisk, or as a star itself, kept as the asterisk and drawn as a five-pointed star, see
+## [method draw_words]. Any plate off the wire may hold it, whoever owns what.
+const STAR := "*"
+const STAR_TYPED := "★"
 ## What an empty plate reads.
 const BLANK := "JJ"
 const SIZE := Vector2(224.0, 64.0)
@@ -77,16 +82,16 @@ static func badge(worn: String, wide: float) -> Control:
 
 ## [param raw] as a plate may read: upper case, nothing a plate cannot hold, one space at a time,
 ## no longer than [constant MOST].
-static func clean(raw: String) -> String:
-	return clean_typed(raw).strip_edges()
+static func clean(raw: String, starred := Supporter.owned()) -> String:
+	return clean_typed(raw, starred).strip_edges()
 
 
 ## [param raw] as it is being typed: cleaned as [method clean] does, but a space at the end is left
 ## standing, since the next letter may be on its way.
-static func clean_typed(raw: String) -> String:
+static func clean_typed(raw: String, starred := Supporter.owned()) -> String:
 	var kept := ""
-	for character: String in raw.to_upper():
-		if character in ALLOWED:
+	for character: String in raw.to_upper().replace(STAR_TYPED, STAR):
+		if character in ALLOWED or (starred and character == STAR):
 			kept += character
 	while kept.contains("  "):
 		kept = kept.replace("  ", " ")
@@ -129,7 +134,7 @@ static func for_bot(trait_name: String, rng: RandomNumberGenerator) -> String:
 static func valid(worn: String) -> String:
 	if worn == "L":
 		return worn
-	return clean(worn)
+	return clean(worn, true)
 
 
 func set_text(words: String) -> void:
@@ -152,9 +157,7 @@ func _draw() -> void:
 	var font_size := _fitted(font, shown, roundi(size.y * 0.5), size.x - size.y * 0.5)
 	# In the middle of the plate under the microprint, by the height of its capitals.
 	var baseline := size.y * 0.6 + float(font_size) * Type.CAP_HEIGHT * 0.5
-	draw_string(
-		font, Vector2(0.0, baseline), shown, HORIZONTAL_ALIGNMENT_CENTER, size.x, font_size, INK
-	)
+	draw_words(self, font, baseline, shown, font_size, INK)
 
 
 ## The plain plate, for a small one: pale, a dark rim, a bolt in each top corner, the letters in
@@ -173,15 +176,46 @@ func _draw_plain() -> void:
 	var font := Type.display_font()
 	var font_size := _fitted(font, shown, roundi(size.y * 0.56), size.x - inset * 3.0)
 	var baseline := (size.y + font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
-	draw_string(
-		font,
-		Vector2(0.0, baseline),
-		shown,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		size.x,
-		font_size,
-		PLAIN_INK
-	)
+	draw_words(self, font, baseline, shown, font_size, PLAIN_INK)
+
+
+## [param shown] across the middle of [param on], on [param baseline] in [param font] at
+## [param font_size] in [param ink]: its letters as they are, and a supporter's star, see
+## [constant STAR], drawn as a five-pointed star as tall as the capitals.
+static func draw_words(
+	on: Control, font: Font, baseline: float, shown: String, font_size: int, ink: Color
+) -> void:
+	if not shown.contains(STAR):
+		on.draw_string(
+			font,
+			Vector2(0.0, baseline),
+			shown,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			on.size.x,
+			font_size,
+			ink
+		)
+		return
+	var cap := float(font_size) * Type.CAP_HEIGHT
+	var star_wide := cap * 1.15
+	var pieces := shown.split(STAR)
+	var wide := star_wide * float(pieces.size() - 1)
+	for piece: String in pieces:
+		wide += font.get_string_size(piece, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var x := (on.size.x - wide) * 0.5
+	for i: int in pieces.size():
+		on.draw_string(
+			font, Vector2(x, baseline), pieces[i], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink
+		)
+		x += font.get_string_size(pieces[i], HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+		if i < pieces.size() - 1:
+			var middle := Vector2(x + star_wide * 0.5, baseline - cap * 0.5)
+			var points := PackedVector2Array()
+			for k: int in 10:
+				var reach := cap * (0.62 if k % 2 == 0 else 0.25)
+				points.append(middle + Vector2.UP.rotated(TAU * k / 10.0) * reach)
+			on.draw_colored_polygon(points, ink)
+			x += star_wide
 
 
 ## The biggest size up to [param most] that [param shown] fits [param room] at in [param font].
