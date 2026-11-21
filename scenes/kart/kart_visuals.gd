@@ -240,6 +240,11 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 		tint.uv1_triplanar = fresh.uv1_triplanar
 		tint.uv1_scale = fresh.uv1_scale
 		tint.next_pass = fresh.next_pass
+		# The supporter pack's night sky glows with its stars, GAME.md 10.8; any other paint not.
+		tint.emission_enabled = fresh.emission_enabled
+		tint.emission_texture = fresh.emission_texture
+		tint.emission_energy_multiplier = fresh.emission_energy_multiplier
+		tint.emission_operator = fresh.emission_operator
 	if body_of(kart.style) != body_of(was):
 		_rebody(kart, body)
 	KartStickers.dress(body.get_node("Model"), kart.style.paint)

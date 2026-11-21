@@ -267,6 +267,9 @@ static func none_mark(on: CanvasItem, box: Rect2, line_ink: Color) -> void:
 ## A paint's pattern on a patch of the player's color; for the card suits the stickers the kart
 ## wears rather than a pattern, see [method sticker].
 static func paint_patch(on: CanvasItem, box: Rect2, index_of: int, in_color: Color) -> void:
+	if KartStyle.supporter(0, index_of):
+		SupporterPaint.patch(on, box, in_color)
+		return
 	var shape := FeltArt.rounded(box, minf(box.size.x, box.size.y) * 0.12)
 	var pattern := KartDress.pattern_texture(index_of)
 	if pattern == null:

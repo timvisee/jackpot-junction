@@ -380,3 +380,26 @@ func test_the_tip_jar_fills_and_tips() -> void:
 	jar.observe(0.1, true, false, 0.0, 0)
 	assert_int(jar.held).is_equal(TipJar.LEAST)
 	remove_child(hat)
+
+
+## The night sky is the plain paint with the sky's tones on it, never darker than any paint may
+## go, and its stars glowing; a finish lies over it as over any paint; on the rack it has its patch.
+func test_the_night_sky_paint() -> void:
+	var sky := KartStyle.PAINTS.find("Night sky")
+	assert_bool(KartStyle.supporter(0, sky)).is_true()
+	var style := KartStyle.new()
+	style.paint = sky
+	style.finishes[0] = 2
+	var paint := KartDress.paint(Color.BLUE, style)
+	assert_object(paint.albedo_texture).is_same(SupporterPaint.sky())
+	assert_bool(paint.emission_enabled).is_true()
+	assert_object(paint.emission_texture).is_same(SupporterPaint.stars())
+	# Only the stars glow: the color times the texture, not added to it.
+	assert_int(paint.emission_operator).is_equal(BaseMaterial3D.EMISSION_OP_MULTIPLY)
+	assert_object(paint.next_pass).is_same(KartDress.finish_material(2))
+	var tones := SupporterPaint.sky().get_image()
+	var darkest := 1.0
+	for y: int in range(0, tones.get_height(), 4):
+		for x: int in range(0, tones.get_width(), 4):
+			darkest = minf(darkest, tones.get_pixel(x, y).r)
+	assert_float(darkest).is_greater_equal(KartDress.SHADE)

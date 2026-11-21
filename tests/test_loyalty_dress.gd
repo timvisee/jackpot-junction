@@ -157,7 +157,9 @@ func test_every_piece_is_built() -> void:
 	assert_int(KartDress.HAT_LIFT.size()).is_equal(
 		KartStyle.HATS.size() - KartStyle.SUPPORTER[1].size()
 	)
-	assert_int(KartDress.PAINT_SCALES.size()).is_equal(KartStyle.PAINTS.size())
+	assert_int(KartDress.PAINT_SCALES.size()).is_equal(
+		KartStyle.PAINTS.size() - KartStyle.SUPPORTER[0].size()
+	)
 	for index: int in range(1, KartStyle.HATS.size()):
 		var hat: Node3D = auto_free(KartDress.hat(index, Color.RED))
 		assert_object(hat).override_failure_message(KartStyle.HATS[index]).is_not_null()
@@ -165,6 +167,8 @@ func test_every_piece_is_built() -> void:
 		var flag: Node3D = auto_free(KartDress.flag(index, Color.BLUE))
 		assert_object(flag).override_failure_message(KartStyle.FLAGS[index]).is_not_null()
 	for index: int in range(1, KartStyle.PAINTS.size()):
+		if KartStyle.supporter(0, index):
+			continue
 		if index == KartStickers.PAINT:
 			assert_object(KartDress.pattern_texture(index)).is_null()
 			continue

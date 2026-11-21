@@ -131,6 +131,8 @@ static func wear_finish(worn: Node3D, level: int) -> void:
 static func paint(
 	color: Color, style: KartStyle, body_print: Texture2D = null
 ) -> StandardMaterial3D:
+	if KartStyle.supporter(0, style.paint):
+		return SupporterPaint.paint(color, style, body_print)
 	var material := StandardMaterial3D.new()
 	material.next_pass = finish_material(style.finish(0))
 	material.albedo_color = color
