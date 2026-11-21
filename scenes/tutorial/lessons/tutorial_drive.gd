@@ -2,18 +2,21 @@ class_name TutorialDrive
 extends TutorialLesson
 ## Lesson 1, GAME.md 9.4a: driving. A lane of cones rises ahead of the start and a ring of them at
 ## its head: drive up the lane, ten meters of it, then go round the ring, the kart's heading turned
-## a full circle's worth from where the task starts, moving or standing, every turn adding to it
-## whichever way it goes: a learner told to go round who saws the wheel back and forth, as many
-## did, has been steering just the same. The pad that opens the way of driving to change, 4.2, lies
-## beside the start, the clipboard saying what it is while the kart is near it; driving onto it puts
-## up the question to choose from, see [method _switch_mode], rather than switching on the spot. It
-## goes back into the floor once the lesson is done: the pause menu changes it after. No welcome:
+## a circle and a half's worth from where the task starts, moving or standing, every turn adding to
+## it whichever way it goes: a learner told to go round who saws the wheel back and forth, as many
+## did, has been steering just the same, and the half more makes it steering for a while. The pad
+## that opens the way of driving to change, 4.2, lies beside the start, the clipboard saying what
+## it is while the kart is near it; driving onto it puts up the question to choose from, see
+## [method _switch_mode], rather than switching on the spot. It goes back into the floor once the
+## lesson is done: the pause menu changes it after. No welcome:
 ## the driving school has greeted the player already. There is no lesson in reversing: letting go is
 ## the brake.
 
 ## How far forward, in meters, and how near a pad the kart has to be for the clipboard to say what
 ## the pads are.
 const FORWARD := 10.0
+## How many full circles' worth of turning going round the ring takes, every way added up.
+const TURNS := 1.5
 const NEAR_PADS := 6.0
 const MODES_WORDS := "Drive onto the pad to choose how you drive.\nChange it any time in the menu."
 ## How far toward the outside of the lane its cones stand, in meters, so the middle is clear.
@@ -100,8 +103,8 @@ func step(delta: float) -> void:
 		# Either way counts, and back the other way counts too: a full circle one way, the wheel
 		# sawn back and forth, or anything between, it is all steering.
 		_turned += absf(turned)
-		_round.progress = clampf(_turned / TAU, 0.0, 1.0)
-		if _turned >= TAU:
+		_round.progress = clampf(_turned / (TAU * TURNS), 0.0, 1.0)
+		if _turned >= TAU * TURNS:
 			_round.complete()
 
 

@@ -13,9 +13,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
-- **Turning in the driving school.** Going round the cones counts every turn of the wheel, either
-  way, where turning back used to take it off again, so learners who steered left and right were
-  stuck.
+- **Turning in the driving school.** Going round the cones counts every turn of the wheel either
+  way, a circle and a half of it, where turning back used to take it off again and stuck learners
+  who steered left and right.
 - **The clipboard calls again.** Standing about in the driving school, or getting nowhere for a
   while, brings the clipboard's rings back round it, so a learner who never looked up there finds it.
 
