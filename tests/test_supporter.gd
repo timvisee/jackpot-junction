@@ -148,6 +148,29 @@ func test_the_dialog_tries_a_locked_piece_and_wears_an_owned_one() -> void:
 	dialog.queue_free()
 
 
+## A pack bought while the rack is out unlocks its pieces there at once, the rack filled again in
+## place with the cursor where it was.
+func test_the_rack_unlocks_once_the_pack_is_bought() -> void:
+	Supporter.start(PackedStringArray(), false, true)
+	var lighthouse := _lighthouse()
+	var dialog := KartDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	dialog.open_tray(1, lighthouse)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_int(dialog.tray.cell_at(lighthouse).pack).is_equal(PartTray.Pack.LOCKED)
+	Supporter.set_owned(true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var cell := dialog.tray.cell_at(lighthouse)
+	assert_int(cell.pack).is_equal(PartTray.Pack.OWNED)
+	assert_bool(cell.owned).is_true()
+	assert_bool(dialog.tray.is_out()).is_true()
+	assert_bool(cell.has_focus()).is_true()
+	dialog.queue_free()
+
+
 ## The lighthouse is built with its lamp, its beam marked as light, which a finish and a picture
 ## leave out; the roof marker clears its cap.
 func test_the_lighthouse_is_built() -> void:

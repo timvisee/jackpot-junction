@@ -218,6 +218,7 @@ func _ready() -> void:
 	tray.left.connect(_untry)
 	tray.chosen.connect(_choose)
 	tray.starlight_pressed.connect(toggle_starlight)
+	tray.pack_changed.connect(refill_tray)
 	tray.done.connect(close_tray)
 	var well := PartTray.well()
 	_stage_node.add_child(well)
@@ -569,9 +570,17 @@ func toggle_starlight() -> void:
 		_style = kart_owner().style()
 		_show_dress()
 		stage.show_kart(_style, kart_color(), kart_owner().plate(), true)
-		var part := open_part
-		open_part = -1
-		open_tray(part, worn)
+		refill_tray(worn)
+
+
+## The open rack filled again in place, the cursor on [param on], or on the piece worn for -1: as
+## its Starlight switch turns, and as the supporter pack is bought while it is out, GAME.md 10.8.
+func refill_tray(on := -1) -> void:
+	if open_part < 0:
+		return
+	var part := open_part
+	open_part = -1
+	open_tray(part, on)
 
 
 ## A piece of every part on the tab up's kart at random, of those it has won, a card back where it

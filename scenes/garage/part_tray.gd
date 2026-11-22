@@ -29,6 +29,9 @@ signal chosen(index: int)
 signal done
 ## The Starlight switch pressed, GAME.md 10.8, see [member starlight].
 signal starlight_pressed
+## The supporter pack owned, or no longer, while it is out, GAME.md 10.8, as one bought in Steam's
+## overlay is, see [method Store.recheck_supporter]: [param on] the piece the cursor is on, or -1.
+signal pack_changed(on: int)
 
 ## How a place is picked out, see [method draw_place]: not at all, by the cursor on it, in the
 ## house's gold, its piece lifted off its peg, or by the mouse over it, in a soft white.
@@ -116,6 +119,21 @@ var _back_arrow: Button
 var _on_arrow: Button
 ## The device the binds were last drawn for, see [method show_binds].
 var _hinted: Array = [false, true, false]
+## Whether the supporter pack was owned when it was last filled, see [signal pack_changed].
+var _filled_owned := false
+
+
+## Out, and the supporter pack owned or no longer since it was filled, says so, see
+## [signal pack_changed].
+func _process(_delta: float) -> void:
+	if not _out or cells.is_empty() or Supporter.owned() == _filled_owned:
+		return
+	_filled_owned = Supporter.owned()
+	var on := -1
+	for cell: TrayCell in cells:
+		if cell.has_focus():
+			on = cell.index
+	pack_changed.emit(on)
 
 
 ## What it slides in and out of behind the bench's edge: the stage, cut off at its foot, hung on the
@@ -325,6 +343,7 @@ func _say_arrows() -> void:
 ## worn, in its color.
 func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 	part = part_of
+	_filled_owned = Supporter.owned()
 	for cell: TrayCell in cells:
 		cell.hide()
 		cell.queue_free()
