@@ -1,8 +1,9 @@
 class_name ThankYouEnvelope
 extends Control
 ## What the supporter pack's thank-you card comes in, GAME.md 10.8: not the House's bulk mail but a
-## kraft envelope addressed by hand, "To a supporter", a real stamp in its corner with a lighthouse
-## on it, and a round postmark across the stamp. Drawn in code at [constant SIZE].
+## kraft envelope addressed by hand, "TO: YOU", as the House's invitation is, a real stamp in its
+## corner with a lighthouse on it, and a round postmark across the stamp. Drawn in code at
+## [constant SIZE].
 
 const SIZE := Vector2(720.0, 480.0)
 const KRAFT := Color(0.76, 0.62, 0.44)
@@ -11,11 +12,18 @@ const INK := Color(0.16, 0.18, 0.3)
 const STAMP_PAPER := Color(0.97, 0.95, 0.9)
 const STAMP_FIELD := Color(0.22, 0.32, 0.55)
 const POSTMARK := Color(0.2, 0.2, 0.25, 0.65)
-const TO := "To a supporter"
+const TO := "TO: YOU"
 const WHERE := "Jackpot Junction, table one"
 const STAMP := Rect2(560.0, 36.0, 120.0, 144.0)
 const POSTMARK_AT := Vector2(548.0, 150.0)
 const POSTMARK_WORDS := "THANK YOU"
+## The address: the foot of its first line, under the flap's point, and how far down the second's
+## is; how big each is written; and how far the rule under the first runs past the longer of them.
+const ADDRESS_FOOT := 318.0
+const WHERE_DOWN := 54.0
+const TO_SIZE := 54
+const WHERE_SIZE := 34
+const RULE_PAST := 24.0
 
 
 func _ready() -> void:
@@ -39,12 +47,27 @@ func _draw() -> void:
 		PackedVector2Array([Vector2(SIZE.x, 0.0), Vector2(SIZE.x * 0.5, SIZE.y * 0.46)]),
 	]:
 		draw_polyline(line, KRAFT_DARK, 2.0, true)
-	var hand := BayArt.hand_font()
-	draw_string(hand, Vector2(150.0, 300.0), TO, HORIZONTAL_ALIGNMENT_LEFT, -1, 54, INK)
-	draw_string(hand, Vector2(190.0, 352.0), WHERE, HORIZONTAL_ALIGNMENT_LEFT, -1, 34, INK)
-	draw_line(Vector2(140.0, 312.0), Vector2(520.0, 316.0), Color(INK, 0.4), 1.5, true)
+	_draw_address()
 	_draw_stamp()
 	_draw_postmark()
+
+
+## Who it is for and where, written by hand in the middle of the envelope under the flap's point,
+## a rule under the first line as long as the longer of the two and a little past.
+func _draw_address() -> void:
+	var hand := BayArt.hand_font()
+	var middle := SIZE.x * 0.5
+	var to_wide := hand.get_string_size(TO, HORIZONTAL_ALIGNMENT_LEFT, -1, TO_SIZE).x
+	var where_wide := hand.get_string_size(WHERE, HORIZONTAL_ALIGNMENT_LEFT, -1, WHERE_SIZE).x
+	var at := Vector2(middle - to_wide * 0.5, ADDRESS_FOOT)
+	draw_string(hand, at, TO, HORIZONTAL_ALIGNMENT_LEFT, -1, TO_SIZE, INK)
+	var under := Vector2(middle - where_wide * 0.5, ADDRESS_FOOT + WHERE_DOWN)
+	draw_string(hand, under, WHERE, HORIZONTAL_ALIGNMENT_LEFT, -1, WHERE_SIZE, INK)
+	var half := maxf(to_wide, where_wide) * 0.5 + RULE_PAST
+	var rule := ADDRESS_FOOT + 12.0
+	draw_line(
+		Vector2(middle - half, rule), Vector2(middle + half, rule + 4.0), Color(INK, 0.4), 1.5, true
+	)
 
 
 ## The stamp: white paper with a toothed edge round a blue field, a lighthouse on it in cream.

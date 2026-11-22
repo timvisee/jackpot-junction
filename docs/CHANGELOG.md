@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **The thank-you card, warmer.** Its envelope is addressed to you, and its note reads a little
+  easier.
 - **Steam's keyboard waits to be asked.** On a Steam Deck or Steam Machine it comes up only for a
   box you press, with the cursor at the end; the bay's name and plate, a seat's name and the Me
   page's plate are typed into in a dialog above it.

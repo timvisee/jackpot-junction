@@ -17,8 +17,8 @@ const SILVER := Color(0.56, 0.6, 0.72)
 const HEADING := "Thank you!"
 const NOTE := (
 	"You picked up the Supporter Pack, and that means a lot. Jackpot Junction stays free "
-	+ "for everyone because people like you chip in. The pieces in the Garage are yours "
-	+ "now: wear them proudly, and have fun at the tables."
+	+ "for everyone because people like you chip in. The pieces in the garage are yours "
+	+ "now. Wear them proudly, and have fun at the tables."
 )
 ## The hand the maker signs in.
 const SIGNATURE := preload("res://assets/fonts/HomemadeApple-Regular.ttf")
