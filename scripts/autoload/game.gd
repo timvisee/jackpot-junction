@@ -269,6 +269,9 @@ static func _silence(tree: SceneTree) -> bool:
 ## A pad plugged in or out, see [method _ready].
 func _on_pad_plugged(_device: int, _connected: bool) -> void:
 	PadFamily.forget()
+	if "--pads" in OS.get_cmdline_user_args():
+		for line: String in PadFamily.told():
+			print(line)
 
 
 ## Watches every event, without swallowing any, to know which scheme to draw hints in and which

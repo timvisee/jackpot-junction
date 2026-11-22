@@ -172,3 +172,41 @@ func test_a_debug_build_draws_every_pad_as_the_family_asked_for() -> void:
 	assert_int(PadFamily.shown()).is_equal(PadFamily.Family.NINTENDO)
 	assert_int(PadFamily.of_device(3)).is_equal(PadFamily.Family.NINTENDO)
 	assert_str(InputActions.short_binding_text(InputActions.NITRO, false)).is_equal("R")
+
+
+## Valve's own: the Steam Deck's controls with its own names, and the Steam Controller lettered as
+## an Xbox pad is.
+func test_valves_pads() -> void:
+	var family := PadFamily.Family
+	var deck := _info(PadFamily.VALVE, PadFamily.STEAM_DECK_PAD)
+	assert_int(PadFamily.of_pad(deck, "")).is_equal(family.STEAM_DECK)
+	assert_int(PadFamily.of_pad(_info(PadFamily.VALVE, 0x1142), "")).is_equal(family.XBOX)
+	var shoulder := InputActions.event_text(_button(JOY_BUTTON_LEFT_SHOULDER), family.STEAM_DECK)
+	assert_str(shoulder).is_equal("L1")
+	var trigger := InputActions.event_text(_trigger(JOY_AXIS_TRIGGER_RIGHT), family.STEAM_DECK)
+	assert_str(trigger).is_equal("R2")
+	assert_str(InputActions.event_text(_button(JOY_BUTTON_A), family.STEAM_DECK)).is_equal("A")
+	assert_bool(PadFamily.lettered(family.STEAM_DECK)).is_false()
+
+
+## In a Steam build, a pad Steam Input stands in for is the pad Steam says is behind it, asked by
+## the index the engine gives it; one Steam knows nothing of is told apart as before.
+func test_steam_says_which_pad_is_behind_its_own() -> void:
+	var fake := FakeSteam.new()
+	var store := SteamStore.new(fake)
+	fake.pad_handles[0] = 4100
+	fake.pad_types[4100] = 13
+	store.watch_pads()
+	assert_bool(fake.calls.has("inputInit")).is_true()
+	assert_int(store.pad_family(0)).is_equal(PadFamily.Family.PLAYSTATION)
+	# An index that is the pad's handle itself.
+	fake.pad_types[7] = 14
+	assert_int(store.pad_family(7)).is_equal(PadFamily.Family.STEAM_DECK)
+	assert_int(store.pad_family(9)).is_equal(-1)
+	PadFamily.behind_steam = store.pad_family
+	var virtual := _info(PadFamily.VALVE, 0x11FF, "Steam Virtual Gamepad")
+	virtual["steam_input_index"] = "0"
+	assert_int(PadFamily.of_pad(virtual, "")).is_equal(PadFamily.Family.PLAYSTATION)
+	virtual["steam_input_index"] = "9"
+	assert_int(PadFamily.of_pad(virtual, "")).is_equal(PadFamily.Family.GENERIC)
+	PadFamily.behind_steam = Callable()

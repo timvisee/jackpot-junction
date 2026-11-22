@@ -6,14 +6,16 @@ extends RefCounted
 ##
 ## The engine reads every pad by where its buttons are, so the button at the bottom of the four is
 ## the same button to the game on all of them; only what is printed on it differs. Told apart by
-## the maker's USB id, and by the pad's name where a pad does not say, as on a phone. Any other pad,
-## and the pad of a player who has not touched one yet, is a generic pad: its buttons named and
-## drawn as an Xbox pad's, the layout the engine names its buttons after and most other pads print
-## on theirs, where a picture of the whole pad shows no maker's. A debug build started
-## with `++ --pad=playstation`, `--pad=playstation4`, `--pad=nintendo`, `--pad=xbox` or
-## `--pad=generic` draws every pad as that family, for trying one without the pad.
+## the maker's USB id, and by the pad's name where a pad does not say, as on a phone; and in a
+## Steam build, for a pad Steam Input stands in for with one of its own, by Steam's word on the pad
+## behind it, see [member behind_steam]. Any other pad, and the pad of a player who has not touched
+## one yet, is a generic pad: its buttons named and drawn as an Xbox pad's, the layout the engine
+## names its buttons after and most other pads print on theirs, where a picture of the whole pad
+## shows no maker's. A debug build started with `++ --pad=playstation`, `--pad=playstation4`,
+## `--pad=nintendo`, `--pad=steamdeck`, `--pad=xbox` or `--pad=generic` draws every pad as that
+## family, for trying one without the pad.
 
-enum Family { GENERIC, XBOX, PLAYSTATION, PLAYSTATION_4, NINTENDO }
+enum Family { GENERIC, XBOX, PLAYSTATION, PLAYSTATION_4, NINTENDO, STEAM_DECK }
 
 ## The makers' USB ids, and Sony's pads with a Share button rather than the DualSense's Create:
 ## the DualShock 4, both models and its wireless adapter, and the PS3's, which is nearest to it.
@@ -21,6 +23,28 @@ const SONY := 0x054C
 const NINTENDO := 0x057E
 const MICROSOFT := 0x045E
 const SHARE_PADS: Array[int] = [0x05C4, 0x09CC, 0x0BA0, 0x0268]
+## Valve's, and of its pads the Steam Deck's own controls and the Steam Controller, wired, through
+## its dongle and over Bluetooth, lettered as an Xbox pad is.
+const VALVE := 0x28DE
+const STEAM_DECK_PAD := 0x1205
+const STEAM_CONTROLLERS: Array[int] = [0x1102, 0x1142, 0x1106]
+## Steam Input's word on a pad, GodotSteam's `InputType`, and the family each is: a Steam
+## Controller lettered as an Xbox pad, a Switch 2's as a Switch's, any other as generic.
+const STEAM_TYPES: Dictionary[int, Family] = {
+	1: Family.XBOX,
+	2: Family.XBOX,
+	3: Family.XBOX,
+	4: Family.GENERIC,
+	5: Family.PLAYSTATION_4,
+	8: Family.NINTENDO,
+	9: Family.NINTENDO,
+	10: Family.NINTENDO,
+	12: Family.PLAYSTATION_4,
+	13: Family.PLAYSTATION,
+	14: Family.STEAM_DECK,
+	16: Family.NINTENDO,
+	17: Family.XBOX,
+}
 ## Words in a pad's name that say its family, for a pad whose maker's id does not, in the order
 ## they are looked for.
 const NAMED: Array[Array] = [
@@ -90,6 +114,15 @@ const WORDS: Dictionary[Family, Dictionary] = {
 		"Menu": "+",
 		"Share": "Capture",
 	},
+	Family.STEAM_DECK:
+	{
+		"LB": "L1",
+		"RB": "R1",
+		"LT": "L2",
+		"RT": "R2",
+		"LS": "L3",
+		"RS": "R3",
+	},
 }
 ## What `--pad=` says for each family.
 const ASKED: Dictionary[String, Family] = {
@@ -98,10 +131,14 @@ const ASKED: Dictionary[String, Family] = {
 	"playstation": Family.PLAYSTATION,
 	"playstation4": Family.PLAYSTATION_4,
 	"nintendo": Family.NINTENDO,
+	"steamdeck": Family.STEAM_DECK,
 }
 
 ## The family every pad is drawn as in a debug build started with `--pad=`, or -1.
 static var pretend := -1
+## In a Steam build, Steam's word on the family of the pad behind Steam Input's pad of the index it
+## is called with, -1 where it has none, see [method SteamStore.pad_family]; empty without Steam.
+static var behind_steam := Callable()
 ## Counts up whenever what [method shown] or [method of_device] answer may have changed, so a glyph
 ## looks again only then rather than asking about its pad every frame, see [InputGlyph].
 static var epoch := 0
@@ -146,6 +183,10 @@ static func of_device(device: int) -> Family:
 ## The family of a pad the engine tells [param info] of, see [method Input.get_joy_info], and
 ## calls [param named].
 static func of_pad(info: Dictionary, named: String) -> Family:
+	if info.has("steam_input_index") and behind_steam.is_valid():
+		var behind: int = behind_steam.call(int(str(info["steam_input_index"])))
+		if behind >= 0:
+			return behind as Family
 	var maker := int(str(info.get("vendor_id", "0")))
 	var product := int(str(info.get("product_id", "0")))
 	if maker == SONY:
@@ -153,6 +194,10 @@ static func of_pad(info: Dictionary, named: String) -> Family:
 	if maker == NINTENDO:
 		return Family.NINTENDO
 	if maker == MICROSOFT:
+		return Family.XBOX
+	if maker == VALVE and product == STEAM_DECK_PAD:
+		return Family.STEAM_DECK
+	if maker == VALVE and product in STEAM_CONTROLLERS:
 		return Family.XBOX
 	var words := ("%s %s" % [named, info.get("raw_name", "")]).to_lower()
 	for each: Array in NAMED:
@@ -186,6 +231,18 @@ static func touched(device: int) -> void:
 		return
 	_last_pad = device
 	_look_again()
+
+
+## Each pad plugged in as the engine and Steam tell of it, for `++ --pads`: what to send in where a
+## pad is drawn as the wrong one.
+static func told() -> PackedStringArray:
+	var lines: PackedStringArray = []
+	for device: int in Input.get_connected_joypads():
+		var info := Input.get_joy_info(device)
+		var family: String = Family.keys()[of_device(device)]
+		lines.append("pad %d: %s, %s" % [device, Input.get_joy_name(device), info])
+		lines.append("pad %d: drawn as %s" % [device, family.capitalize()])
+	return lines
 
 
 ## A pad came or went: the engine may give its id to another pad, so every family is asked again.

@@ -40,6 +40,9 @@ var overlay := true
 var invited: Array[int] = []
 ## Friends' names, by account.
 var friends: Dictionary[int, String] = {}
+## Steam Input's pads, by the index the engine gives each: its handle and its type.
+var pad_handles: Dictionary[int, int] = {}
+var pad_types: Dictionary[int, int] = {}
 ## Whether joining a lobby is answered, as Steam does a moment later; off, never.
 var answers := true
 ## The DLCs the account owns.
@@ -223,6 +226,19 @@ func setLobbyType(lobby: int, lobby_type: int) -> bool:
 	if lobbies.has(lobby):
 		lobbies[lobby]["type"] = lobby_type
 	return true
+
+
+func inputInit(_explicitly_call_run_frame: bool) -> bool:
+	calls.append("inputInit")
+	return true
+
+
+func getControllerForGamepadIndex(index: int) -> int:
+	return pad_handles.get(index, 0)
+
+
+func getInputTypeForHandle(handle: int) -> int:
+	return pad_types.get(handle, 0)
 
 
 func isDLCInstalled(dlc: int) -> bool:

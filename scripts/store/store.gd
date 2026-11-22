@@ -66,6 +66,9 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 		steam = store
 		asked_lobby = lobby_in(OS.get_cmdline_args())
 		store.watch_dlc(recheck_supporter)
+		# Which pad stands behind a pad Steam Input shows the game, for its buttons, GAME.md 8.3.
+		store.watch_pads()
+		PadFamily.behind_steam = store.pad_family
 
 
 ## The lobby `+connect_lobby <id>` among [param args], Godot's own arguments, names: Steam starts

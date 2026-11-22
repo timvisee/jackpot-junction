@@ -32,6 +32,7 @@ const FAMILY_WORDS: Dictionary[PadFamily.Family, String] = {
 	PadFamily.Family.PLAYSTATION: "PlayStation controller",
 	PadFamily.Family.PLAYSTATION_4: "PlayStation 4 controller",
 	PadFamily.Family.NINTENDO: "Nintendo controller",
+	PadFamily.Family.STEAM_DECK: "Steam Deck",
 }
 ## Which side of the pad each button's words stand: left, right, or over it for the middle ones.
 const SIDES: Dictionary[StringName, int] = {

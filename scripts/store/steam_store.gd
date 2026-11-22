@@ -229,6 +229,22 @@ func watch_dlc(told: Callable) -> void:
 			api.connect(wiring[0], wiring[1])
 
 
+## Steam Input started, to be asked which pad stands behind a pad it shows the game in its place,
+## GAME.md 8.3. Nothing else of it is used: the game reads its pads itself.
+func watch_pads() -> void:
+	api.call(&"inputInit", false)
+
+
+## The family of the pad behind Steam Input's pad [param index], see [PadFamily], or -1 where Steam
+## does not say. The engine's index is Steam's for its pad, or the pad's handle itself.
+func pad_family(index: int) -> int:
+	var handle: int = api.call(&"getControllerForGamepadIndex", index)
+	if handle == 0:
+		handle = index
+	var type: int = api.call(&"getInputTypeForHandle", handle)
+	return PadFamily.STEAM_TYPES.get(type, -1)
+
+
 func _on_dlc_installed(_dlc: int) -> void:
 	_dlc_told.call()
 
