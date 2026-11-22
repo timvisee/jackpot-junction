@@ -245,15 +245,8 @@ func _ready() -> void:
 	_clubhouse_room.name = "ClubhouseRoom"
 	_clubhouse_room.visible = false
 	column.add_child(_clubhouse_room)
-	var version := Label.new()
-	version.text = version_words(Store.on() or OS.has_feature("steam"))
-	version.add_theme_color_override("font_color", Color(0.6, 0.6, 0.65))
-	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	version.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	version.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	version.offset_right = -16.0
-	version.offset_bottom = -12.0
-	add_child(version)
+	# The version in the corner, and the supporter pack's line opposite for a player who owns it.
+	var version := TitleFoot.add_to(self, version_words(Store.on() or OS.has_feature("steam")))
 	if not Game.settings.license_number.is_empty():
 		_peek_license()
 	else:

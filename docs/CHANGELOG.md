@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **A star on the title for supporters.** Owning the supporter pack puts its star and name in the
+  bottom left corner of the title.
+
 ### Changed
 
 - **Server page links open in a new tab.** A dedicated server's web page opens Steam, itch.io

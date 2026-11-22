@@ -10724,7 +10724,9 @@ place, its pieces unlocked, and in the menus, the title or the settings with the
 them or not, the thank-you card comes up at once over whatever is open, where in a match it waits
 for the title. Where it is offered and not owned, the About page of the settings, 8.5, has a faint
 line on it under the game's own links and a gold link in the middle, as theirs are, with the
-pack's star pinned beside it, to its store page, gone once it is bought. In a GitHub
+pack's star pinned beside it, to its store page, gone once it is bought. An owner's title has the
+pack's star and "Supporter Pack" in its bottom left corner, opposite the version and in its gray,
+there the moment the pack is bought and never offered to anybody else, `TitleFoot`. In a GitHub
 build they are not on the rack at all, nor at the lobby's stalls, nor in a Steam build that does not
 name the DLC yet, which would have no store page to send a player to. A debug build started with
 `++ --supporter` plays as if the pack were owned, and with `++ --supporter=locked` as a Steam build

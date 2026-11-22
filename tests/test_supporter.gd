@@ -755,6 +755,22 @@ func test_the_about_page_offers_the_pack() -> void:
 	remove_child(tab)
 
 
+## The title's foot has the pack's star and its name in the bottom left corner only for a player
+## who owns the pack, shown the moment it is bought; the version in the other corner either way.
+func test_the_title_foot_shows_the_pack_once_owned() -> void:
+	Supporter.start(PackedStringArray(), false, true)
+	var foot := TitleFoot.add_to(_holder, "v1.2.3")
+	assert_str((foot.get_node("Version") as Label).text).is_equal("v1.2.3")
+	assert_bool(foot.supporter.visible).is_false()
+	Supporter.set_owned(true)
+	await get_tree().process_frame
+	assert_bool(foot.supporter.visible).is_true()
+	assert_str((foot.supporter.get_child(1) as Label).text).is_equal(TitleFoot.SUPPORTER)
+	Supporter.pretend = Supporter.Pretend.LOCKED
+	await get_tree().process_frame
+	assert_bool(foot.supporter.visible).is_false()
+
+
 ## A click on the card taped up in the bay holds it up once, not twice over: a button's own press
 ## and its pressed signal both reach a handler named as the engine's own is.
 func test_a_click_holds_the_card_up_once() -> void:
