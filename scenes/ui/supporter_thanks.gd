@@ -72,8 +72,9 @@ static func due() -> bool:
 	return Supporter.owned() and not Game.settings.supporter_thanked and not Demo.on
 
 
-## The card held up again over [param parent], the kart dialog, from where it is taped up in the
-## bay, see [BayThanks]: started at once.
+## The card held up again over [param parent]: the kart dialog, from where it is taped up in the
+## bay, see [BayThanks], or the settings, from the Me page's supporter section, see [LicenseTab]:
+## started at once.
 static func again_over(parent: Node) -> SupporterThanks:
 	var thanks := SupporterThanks.new()
 	thanks.name = "SupporterThanks"

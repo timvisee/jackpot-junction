@@ -56,6 +56,12 @@ const EARNED := "%d of %d earned"
 const PROGRAM_LINE := "The House's map of bets, and what each one pays."
 const PROGRAM_BUTTON := "Open the map"
 const WON := "%d of %d landmarks won"
+## The Steam supporter pack's section, GAME.md 10.8, for a player who owns it: its title, its
+## thanks, since when, and the way to its thank-you card held up again.
+const SUPPORTER := "Supporter Pack"
+const SUPPORTER_LINE := "Thank you for chipping in. The pack's pieces are yours in the Garage."
+const SUPPORTER_SINCE := "Supporter since %s"
+const THANKS_BUTTON := "Read the thank-you card"
 ## The page's heading over the cards, and the line under it: whose it is, its number and its day,
 ## as the Statistics page says whose record it is.
 const TITLE := "License"
@@ -111,6 +117,10 @@ var achievements_dialog: AchievementsDialog
 ## The way to the kart dialog, and the dialog while it is up over the settings; none over a room.
 var kart: Button
 var kart_dialog: KartDialog
+## The way to the supporter pack's thank-you card, and the card while it is held up, see
+## [method _supporter].
+var thanks: Button
+var thanks_card: SupporterThanks
 
 ## Kit's folder beside the license, once the story has a note in it, and the notes open over the
 ## settings while they are up, STORY.md 7.2.
@@ -177,6 +187,8 @@ func _ready() -> void:
 	_achievements(grid)
 	if not DrivingSchool.underway:
 		_story(grid)
+	if Supporter.owned():
+		_supporter(grid)
 	_link_focus(grid)
 
 
@@ -235,7 +247,9 @@ func _card_row() -> Node:
 
 ## What in [param section] takes the cursor: the plate's field, or its one button or switch.
 func _taker(section: Node) -> Control:
-	for each: Control in [field, retake, kart, program, catalog, achievements, story_switch]:
+	for each: Control in [
+		field, retake, kart, program, catalog, achievements, story_switch, thanks
+	]:
 		if each != null and section.is_ancestor_of(each):
 			return each
 	return null
@@ -410,6 +424,39 @@ func open_catalog() -> void:
 		return
 	catalog_dialog = CatalogDialog.open(_over())
 	catalog_dialog.put_away.connect(func() -> void: catalog_dialog = null)
+
+
+## The Steam supporter pack's own section, GAME.md 10.8, for a player who owns it: its thanks, the
+## day it was first seen here, and the way to its thank-you card, held up again over the screen the
+## settings are on.
+func _supporter(grid: GridContainer) -> void:
+	var section := _section("SupporterSection", SUPPORTER)
+	section.add_child(_section_line(SUPPORTER_LINE))
+	if not _settings.supporter_since.is_empty():
+		var since := _section_line(SUPPORTER_SINCE % _settings.supporter_since)
+		since.name = "Since"
+		since.add_theme_color_override("font_color", StatsTab.VALUE_INK)
+		section.add_child(since)
+	thanks = MenuTheme.button(THANKS_BUTTON, Type.BODY)
+	thanks.name = "Thanks"
+	thanks.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	thanks.pressed.connect(open_thanks)
+	section.add_child(thanks)
+	grid.add_child(section)
+
+
+## The thank-you card held up again over the whole screen the settings are on; put away, the cursor
+## is back on its button.
+func open_thanks() -> void:
+	if thanks_card != null:
+		return
+	thanks_card = SupporterThanks.again_over(_over())
+	thanks_card.put_away.connect(
+		func() -> void:
+			thanks_card = null
+			if is_instance_valid(thanks) and thanks.is_visible_in_tree():
+				thanks.grab_focus()
+	)
 
 
 ## In the school or its test: what is under way, and no way to the school, which would leave the

@@ -649,6 +649,38 @@ func test_the_thank_you_comes_once() -> void:
 	assert_bool(SupporterThanks.due()).is_false()
 
 
+## The settings' Me page has a Supporter Pack section where the pack is owned, with the day it was
+## first seen and the way to the thank-you card, held up again over the settings; none where not.
+func test_the_me_page_has_a_supporter_section() -> void:
+	var room: Control = auto_free(Control.new())
+	room.size = Vector2(1600.0, 900.0)
+	add_child(room)
+	var tab := LicenseTab.make(Game.settings)
+	room.add_child(tab)
+	await await_idle_frame()
+	assert_object(tab.find_child("SupporterSection", true, false)).is_null()
+	assert_object(tab.thanks).is_null()
+	room.remove_child(tab)
+	tab.free()
+	Supporter.pretend = Supporter.Pretend.OWNED
+	Game.settings.supporter_since = "2026-11-22"
+	tab = LicenseTab.make(Game.settings)
+	room.add_child(tab)
+	await await_idle_frame()
+	var section := tab.find_child("SupporterSection", true, false)
+	assert_object(section).is_not_null()
+	assert_str((section.find_child("Since", true, false) as Label).text).contains("2026-11-22")
+	tab.thanks.pressed.emit()
+	await get_tree().process_frame
+	assert_object(tab.thanks_card).is_not_null()
+	assert_bool(tab.thanks_card.again).is_true()
+	tab.thanks_card.come_on_now()
+	tab.thanks_card.closing.pressed.emit()
+	await await_millis(int((SupporterThanks.DROP + 0.8) * 1000.0))
+	assert_object(tab.thanks_card).is_null()
+	assert_bool(Game.settings.supporter_thanked).is_false()
+
+
 ## Once shown, the card is taped up in the kart dialog's bay where the pack is owned, with a button
 ## over it the cursor reaches across from the hat's hook, the press bind under it, and passes over
 ## while there is no card; held up again it has Close alone, closing it keeps nothing, and the
