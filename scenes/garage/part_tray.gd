@@ -242,7 +242,8 @@ func _draw_starlight() -> void:
 
 ## The pieces of [param part_of] in the order the rack holds them: its None first where it has one,
 ## a trail's being past its plain smoke, then those [param owner] has won or everybody has, then
-## those still to be won, each lot in the order the part has them.
+## those still to be won, each lot in the order the part has them; and at the very end those of the
+## supporter pack where it is offered and not owned, see [method pack_of].
 static func order_of(part_of: int, owner: KartOwner = null) -> Array[int]:
 	var choices := KartDialog.choices_of(part_of)
 	var order: Array[int] = []
@@ -263,8 +264,8 @@ static func order_of(part_of: int, owner: KartOwner = null) -> Array[int]:
 			order.append(i)
 		else:
 			later.append(i)
-	order.append_array(locked)
 	order.append_array(later)
+	order.append_array(locked)
 	return order
 
 

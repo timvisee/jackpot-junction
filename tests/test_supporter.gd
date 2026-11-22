@@ -98,7 +98,8 @@ func test_never_a_bots_nor_the_demos() -> void:
 
 
 ## The rack leaves the pack's pieces out where the pack is not offered, hangs them dimmed and
-## locked after those worn where it is offered and not owned, and among them where it is owned.
+## locked at its very end, after those not won, where it is offered and not owned, and among those
+## worn where it is owned.
 func test_the_rack_offers_them_as_the_pack_is() -> void:
 	var lighthouse := _lighthouse()
 	assert_bool(lighthouse in PartTray.order_of(1)).is_false()
@@ -125,6 +126,13 @@ func test_the_dialog_tries_a_locked_piece_and_wears_an_owned_one() -> void:
 	assert_object(cell).is_not_null()
 	assert_bool(cell.owned).is_false()
 	assert_int(cell.pack).is_equal(PartTray.Pack.LOCKED)
+	# The pack's at the very end, after the pieces still to be won.
+	var pack_size := KartStyle.SUPPORTER[1].size()
+	for each: PartTray.TrayCell in dialog.tray.cells.slice(-pack_size):
+		assert_int(each.pack).is_equal(PartTray.Pack.LOCKED)
+	var before := dialog.tray.cells[-pack_size - 1]
+	assert_int(before.pack).is_equal(PartTray.Pack.NONE)
+	assert_bool(before.owned).is_false()
 	assert_str(cell.tape_words()).is_equal(PartTray.SUPPORTER_PACK)
 	dialog._try(lighthouse)
 	assert_int(dialog.stage.shown.hat).is_equal(lighthouse)

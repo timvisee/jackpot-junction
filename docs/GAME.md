@@ -10714,7 +10714,7 @@ start and never saved, `Supporter`. On the kart dialog's rack, 4.4a, a piece of 
 pack's star, a night-blue enamel pin with a cream four-pointed star, pinned to its outline's lower
 left corner, and a night-blue tape written in cream, so the pack's pieces stand out from the
 masking tape of the rest; the cursor's gold tape is the same on them as on any. In a Steam build
-without the pack they hang after the pieces worn, before those not won, dimmed in the dashed
+without the pack they hang at the very end, after those not won, dimmed in the dashed
 outline with "Supporter Pack" on the tape, left out of the count of pieces won; the cursor on one
 tries it on the kart all the same, since seeing it there is what it is offered for, and picking
 one opens the DLC's store page in Steam's overlay. Steam is asked again whenever a DLC is
