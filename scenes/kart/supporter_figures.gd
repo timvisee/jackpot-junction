@@ -35,6 +35,9 @@ static func house_of_cards(worn: Node3D) -> void:
 	many.instance_count = HouseOfCards.MOST_CARDS
 	many.visible_instance_count = 0
 	cards.multimesh = many
+	# Its cards are moved every drawn frame, not every physics step: none of the engine's smoothing
+	# between steps, which warns of being stepped outside them.
+	cards.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	var paper := SupporterDress.flat(Color.WHITE)
 	paper.albedo_texture = _card_sides()
 	cards.material_override = paper
@@ -201,6 +204,7 @@ static func tip_jar(worn: Node3D) -> void:
 	for i: int in TipJar.MOST:
 		many.set_instance_color(i, TipJar.COLORS[i % TipJar.COLORS.size()])
 	chips.multimesh = many
+	chips.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF
 	chips.material_override = _painted()
 	worn.add_child(chips)
 	var fills := TipJar.new()
