@@ -350,7 +350,7 @@ func _add_screen() -> void:
 ## screen, GAME.md 8.5: the nearest of the distances to the share of the fit Auto works out, see
 ## [method ViewChoices.auto_distance], and whom it follows, see [method ViewChoices.follows].
 func _say_autos() -> void:
-	var screen := Vector2(DisplayServer.window_get_size())
+	var screen := ViewChoices.screen_now()
 	var auto := ViewChoices.auto_distance(screen)
 	var near := 0
 	for j: int in CAMERA_STEPS.size():

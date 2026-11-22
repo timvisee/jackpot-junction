@@ -496,7 +496,7 @@ func _alive_targets() -> Array[Node3D]:
 	var all := _valid(targets)
 	if not _framed:
 		return all
-	var way := ViewChoices.follows(get_viewport().get_visible_rect().size)
+	var way := ViewChoices.follows(ViewChoices.screen_now())
 	return _framing.pick(all, _valid(listener_targets), way, _arena_size)
 
 
@@ -726,7 +726,7 @@ func _distance_pull() -> float:
 	var chosen := Game.settings.camera_distance
 	if chosen > 0.0:
 		return chosen
-	return ViewChoices.auto_distance(get_viewport().get_visible_rect().size)
+	return ViewChoices.auto_distance(ViewChoices.screen_now())
 
 
 ## The framing that keeps every one of [param points] out from under the HUD's [member covers],

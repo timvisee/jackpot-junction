@@ -36,16 +36,29 @@ static func ui_scale_now() -> float:
 	return Settings.ui_scale_for_now if Settings.ui_scale_for_now > 0.0 else Game.settings.ui_scale
 
 
-## Whether a screen [param screen] pixels across is a small one to play on, GAME.md 8.5: a handheld,
-## a television across the room, a small window, or anywhere the UI is drawn bigger than it was laid
-## out, which is somebody saying the screen is hard to read.
+## The window the game is played in, in the system's own points: its size on the screen, not the
+## 1920 by 1080 the menus and the HUD are laid out in, which every window is stretched to and so
+## says nothing of how big it is. Zero where there is no window, as in a test.
+static func screen_now() -> Vector2:
+	return Vector2(DisplayServer.window_get_size()) / maxf(DisplayServer.screen_get_scale(), 1.0)
+
+
+## Whether a window [param screen] points across, see [method screen_now], is a small one to play
+## on, GAME.md 8.5: a handheld, a television across the room, a small window, or anywhere the UI is
+## drawn bigger than it was laid out, which is somebody saying the screen is hard to read.
 static func small_screen(screen: Vector2) -> bool:
 	if Game.settings.screen != SCREEN_DESK or OS.has_feature("mobile"):
 		return true
-	return minf(screen.x, screen.y) < 760.0 or ui_scale_now() > 1.0
+	return _small_window(screen) or ui_scale_now() > 1.0
 
 
-## What Auto settles the camera's distance on for a screen [param screen] pixels across, GAME.md
+## Whether [param screen] is a window under 760 points down or across; not one of no size at all.
+static func _small_window(screen: Vector2) -> bool:
+	var side := minf(screen.x, screen.y)
+	return side > 0.0 and side < 760.0
+
+
+## What Auto settles the camera's distance on for a window [param screen] points across, GAME.md
 ## 8.5, as a share of the fit, for the camera and for the Video page to show in brackets: the bigger
 ## the UI, the smaller the screen and the further away it is watched from, the closer it comes in;
 ## a wide desktop sits a little further back.
@@ -55,12 +68,12 @@ static func auto_distance(screen: Vector2) -> float:
 		factor -= 0.12
 	elif Game.settings.screen == SCREEN_HANDHELD:
 		factor -= 0.05
-	elif OS.has_feature("mobile") or minf(screen.x, screen.y) < 760.0:
+	elif OS.has_feature("mobile") or _small_window(screen):
 		factor -= 0.05
 	return clampf(factor, 0.52, 0.9)
 
 
-## Who the camera keeps in the picture for a screen [param screen] pixels across, GAME.md 8.2: as
+## Who the camera keeps in the picture for a window [param screen] points across, GAME.md 8.2: as
 ## chosen, or with Auto every kart at a desk, and the karts driven here alone on a small screen,
 ## see [method small_screen], where every kart in the picture is a kart too small to make out.
 static func follows(screen: Vector2) -> String:
@@ -68,6 +81,6 @@ static func follows(screen: Vector2) -> String:
 	return follows_auto(screen) if chosen == FOLLOW_AUTO else chosen
 
 
-## Whom Auto follows on a screen [param screen] pixels across, see [method follows].
+## Whom Auto follows in a window [param screen] points across, see [method follows].
 static func follows_auto(screen: Vector2) -> String:
 	return FOLLOW_MINE if small_screen(screen) else FOLLOW_EVERYONE

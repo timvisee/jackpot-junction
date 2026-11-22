@@ -5339,7 +5339,9 @@ from a section's button low in its box was the one beside it.
   Nearby rivals or My kart. Auto follows everyone at a desk and only the karts
   driven here on a small screen: a TV, a handheld, a window under 760 lines, or a
   UI drawn bigger than 100%, which is somebody saying the screen is hard to read.
-  Both Autos say in brackets what they come to on this screen. The look is how
+  The window is measured as the system has it, in its points: the game stretches
+  every window to the 1920 by 1080 it is laid out in, so that says nothing of how
+  big the window is. Both Autos say in brackets what they come to on this screen. The look is how
   the room is drawn, 8.1b: Cel on a desktop and Toon on a phone to start with, and
   any of the others for a player
   who would rather. A phone or a tablet starts full screen, with the system's own

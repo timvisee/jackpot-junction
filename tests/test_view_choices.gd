@@ -54,6 +54,20 @@ func test_auto_follows_my_kart_on_a_small_screen() -> void:
 	assert_str(ViewChoices.follows(DESK)).is_equal(ViewChoices.FOLLOW_NEARBY)
 
 
+## A window of no size, as where there is none, is not a small one: it says nothing.
+func test_no_window_is_not_a_small_screen() -> void:
+	assert_bool(ViewChoices.small_screen(Vector2.ZERO)).is_false()
+	assert_float(ViewChoices.auto_distance(Vector2.ZERO)).is_equal(ViewChoices.auto_distance(DESK))
+
+
+## The screen is the window's own size, not the 1920 by 1080 the HUD is laid out in: the camera and
+## the Video page's Auto measure the same window.
+func test_the_screen_is_the_window() -> void:
+	var window := Vector2(DisplayServer.window_get_size())
+	var scale := maxf(DisplayServer.screen_get_scale(), 1.0)
+	assert_vector(ViewChoices.screen_now()).is_equal_approx(window / scale, Vector2.ONE * 0.01)
+
+
 func test_the_choices_are_remembered() -> void:
 	var settings := Settings.new()
 	settings.path = "user://test_view_choices.cfg"
