@@ -4054,7 +4054,16 @@ as the pack's star pinned to the outline and a night-blue tape.
       whenever a DLC is installed or the overlay closes, the rack out unlocked in place; the steps
       and the store page's words in STEAM.md, "The supporter pack".
 - [ ] The DLC on Steamworks, its price and store page, and `STEAM_SUPPORTER_DLC` set: the user's,
-      later. Its capsules are not rendered yet.
+      later. Its pictures and words are ready: `make steam-supporter-art` and STEAM.md.
+- [x] Play-test round 1 (the user, 2026-11-22): the lighthouse's beam toned down, to tune further;
+      the house of cards drawn on the rack, balanced on its middle and leaning as the kart drives;
+      the lucky cat beckoning forward and back, no bow; TIPS a margin on its tape; the Prism's bands
+      joined on a bend; Stardust quieter; the Beacon back's beams from its lamp, level; the
+      thank-you card's spotlight fading out; the MultiMesh interpolation warnings gone.
+- [x] A Supporter Pack section on the Me page for an owner, with the thank-you card again.
+- [x] The DLC's store art (`make steam-supporter-art`, into `build/steam-art/supporter`): its
+      capsules, its description's headings, a row of five karts in its pieces and a hand of its
+      card backs, six screenshots; its long description with the exact list of its pieces.
 
 ### S9: Steam Deck, later
 
