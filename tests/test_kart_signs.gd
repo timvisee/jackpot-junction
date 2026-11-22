@@ -70,6 +70,29 @@ func test_the_marker_is_over_my_kart_only_when_asked_for() -> void:
 	assert_vector(marks[0].way as Vector2).is_equal(Vector2.DOWN)
 
 
+## The drive hint over my kart at the start is not hidden under the marker: the marker goes over it
+## while it is up, and back down to the kart once it has gone.
+func test_the_marker_goes_over_a_hint_hung_over_my_kart() -> void:
+	var match_node := await _playing()
+	var pointers := match_node.hud.get_node("KartPointers") as KartPointers
+	var kart := match_node.kart_of(0)
+	var mine := match_node.slots[0].color()
+	Game.settings.kart_marker = true
+	var hint := kart.get_node_or_null("ControlHint") as ControlHint
+	if hint == null:
+		hint = ControlHint.attach(kart, DeviceInput.ANY)
+	await _runner.simulate_frames(2)
+	var row := hint.get_node("Row") as ScreenHint
+	var top := row.top_on_screen(match_node.camera_rig.camera)
+	pointers._process(0.0)
+	var marks := pointers._signs.filter(func(each: Dictionary) -> bool: return each.color == mine)
+	assert_float((marks[0].at as Vector2).y).is_less_equal(top.y - KartPointers.OVER_HINT + 0.01)
+	hint.free()
+	pointers._process(0.0)
+	marks = pointers._signs.filter(func(each: Dictionary) -> bool: return each.color == mine)
+	assert_float((marks[0].at as Vector2).y).is_greater(top.y)
+
+
 func test_the_rings_go_under_the_karts_asked_for() -> void:
 	var match_node := await _playing()
 	var rings := match_node.hud.get_node("KartRings") as KartRings

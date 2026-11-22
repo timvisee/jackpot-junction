@@ -11,6 +11,8 @@ extends Node3D
 const FONT_SIZE := 20
 ## How high over the kart the foot of a hint hangs, clear of the tallest hat.
 const HEIGHT := 2.0
+## Every hint hung, for whatever else is hung over a kart to keep clear of, see [KartPointers].
+const GROUP := &"screen_hints"
 
 var _face: Sprite3D
 
@@ -21,6 +23,7 @@ static func hang(kart: Node3D, row: Control, named: String) -> ScreenHint:
 	var hint := ScreenHint.new()
 	hint.name = named
 	hint.position = Vector3(0.0, HEIGHT, 0.0)
+	hint.add_to_group(GROUP)
 	var held := InputHint.billboard(InputHint.card(row), 0.001)
 	hint.add_child(held)
 	hint._face = held.get_node("Face")
@@ -34,6 +37,15 @@ static func hang(kart: Node3D, row: Control, named: String) -> ScreenHint:
 func replace(row: Control) -> void:
 	InputHint.redraw(_face.get_parent(), InputHint.card(row))
 	_fit()
+
+
+## Where the top of the hint is drawn by [param camera], in the HUD's units: its foot, less how
+## tall it is, a pixel of the drawing to a pixel of the screen, see [method _fit].
+func top_on_screen(camera: Camera3D) -> Vector2:
+	var foot := camera.unproject_position(global_position)
+	if _face == null or _face.texture == null:
+		return foot
+	return foot - Vector2(0.0, _face.texture.get_height() / get_tree().root.content_scale_factor)
 
 
 ## [constant FONT_SIZE] at the UI scale the screen has now: drawn bigger with the rest of the UI,

@@ -14,9 +14,11 @@ const INSET := 30.0
 const ARROW := 18.0
 const ARROW_HERE := 26.0
 ## The marker over a kart driven here: how wide it is, and how high over the kart's middle it
-## floats, in meters, so it clears a hat and a flag.
+## floats, in meters, so it clears a hat and a flag; and how far over a hint hung over the kart it
+## goes while one is up, such as the drive hint at the start, in the HUD's units, see [ScreenHint].
 const MARKER := 26.0
 const MARKER_LIFT := 2.4
+const OVER_HINT := 6.0
 ## The ink round every arrow and marker, so it reads on the brightest felt and the darkest vault.
 const INK := Color(0.06, 0.05, 0.08, 0.9)
 const EDGE := 3.0
@@ -63,7 +65,7 @@ func _place(match_node: Match, rig: CameraRig) -> void:
 		var at := rig.camera.unproject_position(middle)
 		if not behind and screen.has_point(at):
 			if mine and marking:
-				var over := rig.camera.unproject_position(middle + Vector3.UP * MARKER_LIFT)
+				var over := _over(kart, middle + Vector3.UP * MARKER_LIFT, rig.camera)
 				_signs.append(
 					{at = over, way = Vector2.DOWN, length = MARKER, color = slot.color()}
 				)
@@ -77,6 +79,18 @@ func _place(match_node: Match, rig: CameraRig) -> void:
 		_signs.append(
 			{at = _on_edge(middle_of, way), way = way, length = length, color = slot.color()}
 		)
+
+
+## Where the marker over [param kart] points as [param camera] draws it: at [param tip] unless a
+## hint hung over the kart is up, and then [constant OVER_HINT] over the top of it, where both can
+## be read.
+func _over(kart: Kart, tip: Vector3, camera: Camera3D) -> Vector2:
+	var at := camera.unproject_position(tip)
+	for node: Node in get_tree().get_nodes_in_group(ScreenHint.GROUP):
+		var hint := node as ScreenHint
+		if hint != null and hint.is_visible_in_tree() and kart.is_ancestor_of(hint):
+			at.y = minf(at.y, hint.top_on_screen(camera).y - OVER_HINT)
+	return at
 
 
 ## Where a line out of [param from] [param way] meets the edge of the screen, [constant INSET] in.

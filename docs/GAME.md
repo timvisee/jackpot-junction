@@ -5457,7 +5457,8 @@ from a section's button low in its box was the one beside it.
   any felt; at least 1.35 m across and growing as the camera goes back, so never
   smaller on the screen than with the camera close in. The marker over my kart is a
   point in the player's color, edged in ink, hung 2.4 m over each kart driven here
-  at a size on the screen that does not change. Both are off until asked for: a
+  at a size on the screen that does not change, and over the top of a hint hung
+  over the kart while one is up, such as the drive hint at the start, 3.8. Both are off until asked for: a
   table of rings is busier, and a marker over each of four karts on a shared screen
   is four more things in the picture.
   Color-blind roof markers are always on. First on the tab, the player colors
