@@ -418,7 +418,7 @@ func test_the_cursor_goes_down_each_board_and_round_the_bench() -> void:
 	dialog.close_tray()
 	assert_object(card_back.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(dialog.cans[0])
 	card_back.visible = false
-	dialog._link_bench()
+	BayWays.bench(dialog)
 	assert_object(trail.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(dialog.cans[0])
 	assert_object(shuffle.find_valid_focus_neighbor(SIDE_LEFT)).is_same(trail)
 	# With no plate to type, the learner's L in its place, right from the die is the shuffle.

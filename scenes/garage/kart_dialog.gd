@@ -228,7 +228,7 @@ func _ready() -> void:
 	ButtonBinds.mark(hooks[SHUFFLE], SHUFFLE_ACTION)
 	_stage_node.add_child(back)
 	_show_binds()
-	_link_cursor()
+	BayWays.boards(self)
 	_root.resized.connect(_fit_screen)
 	_bay.resized.connect(_fit)
 	_fit_screen()
@@ -321,67 +321,6 @@ func _build_keys() -> void:
 		keys.append(key)
 
 
-## The cursor's ways between the hooks up and down either board, across the kart between them to
-## the hook on the same row or the nearest above it, see [method BoardArt.across], and up to Back
-## from the top hooks; the ways onto the bench are its own, see [method _link_bench].
-func _link_cursor() -> void:
-	for part: int in LEFT_HOOKS:
-		_way(hooks[part], SIDE_RIGHT, hooks[BoardArt.across(part, RIGHT_HOOKS)])
-		_way(hooks[part], SIDE_LEFT, hooks[part])
-	for part: int in RIGHT_HOOKS:
-		_way(hooks[part], SIDE_LEFT, hooks[BoardArt.across(part, LEFT_HOOKS)])
-		_way(hooks[part], SIDE_RIGHT, hooks[part])
-	for column: Array[int] in [LEFT_HOOKS, RIGHT_HOOKS]:
-		for i: int in column.size():
-			_way(hooks[column[i]], SIDE_TOP, hooks[column[i - 1]] if i > 0 else back)
-			if i + 1 < column.size():
-				_way(hooks[column[i]], SIDE_BOTTOM, hooks[column[i + 1]])
-	_way(back, SIDE_BOTTOM, hooks[RIGHT_HOOKS[0]])
-	_way(back, SIDE_LEFT, hooks[LEFT_HOOKS[0]])
-	_way(back, SIDE_RIGHT, back)
-	_way(back, SIDE_TOP, back)
-
-
-## [param from]'s way to [param side] leads to [param to].
-func _way(from: Control, side: Side, to: Control) -> void:
-	from.set_focus_neighbor(side, from.get_path_to(to))
-
-
-## The bench's ways, as it is now: two rows of it, the cans over the name, its die and the plate
-## where it can be typed into. Along each row, the cans on out to the bottom hooks either side;
-## down from every can to the name, up from the name to the first can and from the die to the
-## last; down to the cans from the bottom of the left board, the card back's hook or the trail's
-## where there is no card back here, and between the shuffle's plate and the plate, or the last
-## can where there is no plate to type.
-func _link_bench() -> void:
-	var card_back := hooks[CARD_BACK]
-	var trail := hooks[LEFT_HOOKS[-2]]
-	var shuffle := hooks[SHUFFLE]
-	var bottom_left := card_back if card_back.visible else trail
-	var typed := plate_field.visible
-	for i: int in cans.size():
-		_way(cans[i], SIDE_LEFT, cans[i - 1] if i > 0 else bottom_left)
-		_way(cans[i], SIDE_RIGHT, cans[i + 1] if i + 1 < cans.size() else shuffle)
-		_way(cans[i], SIDE_TOP, bottom_left if i * 2 < cans.size() else shuffle)
-		_way(cans[i], SIDE_BOTTOM, name_box)
-	_way(name_box, SIDE_LEFT, name_box)
-	_way(name_box, SIDE_RIGHT, die)
-	_way(name_box, SIDE_TOP, cans[0])
-	_way(name_box, SIDE_BOTTOM, name_box)
-	_way(die, SIDE_LEFT, name_box)
-	_way(die, SIDE_RIGHT, plate_field if typed else shuffle)
-	_way(die, SIDE_TOP, cans[-1])
-	_way(die, SIDE_BOTTOM, die)
-	_way(plate_field, SIDE_LEFT, die)
-	_way(plate_field, SIDE_RIGHT, plate_field)
-	_way(plate_field, SIDE_TOP, shuffle)
-	_way(plate_field, SIDE_BOTTOM, plate_field)
-	_way(trail, SIDE_BOTTOM, card_back if card_back.visible else cans[0])
-	_way(card_back, SIDE_BOTTOM, cans[0])
-	_way(shuffle, SIDE_LEFT, bottom_left)
-	_way(shuffle, SIDE_BOTTOM, plate_field if typed else cans[-1])
-
-
 ## The pane over nearly all the screen, or all of it short of room, see
 ## [method CatalogDialog.fill_screen].
 func _fit_screen() -> void:
@@ -440,7 +379,7 @@ func show_owner(index: int) -> void:
 	_show_dress()
 	_show_color()
 	_show_plate()
-	_link_bench()
+	BayWays.bench(self)
 	_try_color()
 	if open_part >= 0:
 		open_tray(open_part)
@@ -535,18 +474,8 @@ func open_tray(part: int, on := -1) -> void:
 	_bench_shown(false)
 	for i: int in hooks.size():
 		hooks[i].set_lit(i == part)
-	for cell: PartTray.TrayCell in tray.cells:
-		_way(cell, SIDE_TOP, hooks[part])
-		_way(cell, SIDE_BOTTOM, cell)
 	var landing := tray.cell_at(worn)
-	if not tray.cells.is_empty():
-		_way(tray.cells[0], SIDE_LEFT, tray.cells[0])
-		_way(tray.cells[-1], SIDE_RIGHT, tray.cells[-1])
-		# Down off the bottom of either board onto the rack, while it is out over the bench.
-		var onto: Control = landing if landing != null else tray.cells[0]
-		var card_back := hooks[CARD_BACK]
-		_way(card_back if card_back.visible else hooks[LEFT_HOOKS[-2]], SIDE_BOTTOM, onto)
-		_way(hooks[SHUFFLE], SIDE_BOTTOM, onto)
+	BayWays.rack(self, landing)
 	landing = tray.cell_at(on) if on >= 0 else landing
 	if landing != null:
 		landing.grab_focus.call_deferred()
@@ -565,7 +494,7 @@ func close_tray(refocus := true) -> void:
 	for hook: PartHook in hooks:
 		hook.set_lit(false)
 	_bench_shown(true)
-	_link_bench()
+	BayWays.bench(self)
 	stage.show_kart(_style, kart_color(), kart_owner().plate())
 	if refocus and part == CARD_BACK:
 		_rest_on(hooks[part])
