@@ -161,6 +161,9 @@ class Square:
 		draw_rect(Rect2(Vector2.ZERO, size), HouseTheme.STOCK)
 		var middle := size * 0.5
 		var reach := size.x * 0.5
-		for i: int in 36:
-			draw_circle(middle, reach * (1.0 - i * 0.02), LIGHT, true, -1.0, true)
+		# The warm light behind it for one earned only: one not earned yet sits in the dark, to
+		# look the more unlike its earned self and the more out of reach.
+		if look != AchievementArt.Look.LOCKED:
+			for i: int in 36:
+				draw_circle(middle, reach * (1.0 - i * 0.02), LIGHT, true, -1.0, true)
 		AchievementArt.draw(self, middle, reach * FILL, achievement, look)
