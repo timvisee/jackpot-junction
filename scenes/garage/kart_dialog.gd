@@ -855,9 +855,10 @@ func _show_button_binds() -> void:
 
 
 ## The key or pad button that presses what the cursor is on, Enter or A, hung under it as Back has
-## its own: under the piece on a hook, which opens its part's rack, a can, the name's tape, the die
-## and the plate; so a player with keys or a pad in hand sees what pressing it does there. Only
-## under that one, none for the mouse and never on a touch screen.
+## its own: under the piece on a hook, which opens its part's rack, a can, the name's tape, the die,
+## the plate and the supporter pack's thank-you card in the bay; so a player with keys or a pad in
+## hand sees what pressing it does there. Only under that one, none for the mouse and never on a
+## touch screen.
 func _show_press_bind() -> void:
 	if _press_bind != null:
 		_press_bind.queue_free()
@@ -870,7 +871,11 @@ func _show_press_bind() -> void:
 	if hook != null and hook.part <= CARD_BACK:
 		var outline := BoardArt.outline_of(hook.part)
 		edge = Vector2(outline.get_center().x, outline.end.y)
-	elif on is PaintCan and not (on as PaintCan).disabled or on in [name_box, die, plate_field]:
+	elif (
+		on is PaintCan and not (on as PaintCan).disabled
+		or on in [name_box, die, plate_field]
+		or on is BayThanks
+	):
 		var rect := (on as Control).get_rect()
 		edge = Vector2(rect.get_center().x, rect.end.y)
 	if edge.x >= 0.0:

@@ -578,8 +578,9 @@ func test_the_thank_you_comes_once() -> void:
 
 
 ## Once shown, the card is taped up in the kart dialog's bay where the pack is owned, with a button
-## over it the cursor reaches across from the hat's hook, and passes over while there is no card;
-## held up again it has Close alone, closing it keeps nothing, and the cursor is back on it.
+## over it the cursor reaches across from the hat's hook, the press bind under it, and passes over
+## while there is no card; held up again it has Close alone, closing it keeps nothing, and the
+## cursor is back on it.
 func test_the_card_is_taped_up_in_the_bay() -> void:
 	Supporter.pretend = Supporter.Pretend.OWNED
 	var dialog := KartDialog.open(_holder)
@@ -602,6 +603,8 @@ func test_the_card_is_taped_up_in_the_bay() -> void:
 	assert_object(hat.find_valid_focus_neighbor(SIDE_RIGHT)).is_same(card)
 	assert_object(card.find_valid_focus_neighbor(SIDE_LEFT)).is_same(hat)
 	card.grab_focus()
+	await get_tree().process_frame
+	assert_object(dialog._press_bind).is_not_null()
 	card.pressed.emit()
 	await get_tree().process_frame
 	assert_object(card.held).is_not_null()
