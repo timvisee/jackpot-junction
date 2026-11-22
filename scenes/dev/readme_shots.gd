@@ -2,9 +2,12 @@ extends Control
 ## Dev harness for the posed UI shots of the README and the Steam page, see tools/screenshots: the
 ## House's opening invitation, the Your kart dialog, the joker catalog, the loyalty program and the
 ## driver's license, each mounted on the throwaway profile this runs under with `++ --shot=` and
-## its name: invitation, kart, catalog, loyalty or license. The Game autoload's `--screenshot` grabs
-## it, oversampled, as the gameplay shots are grabbed through the playground. Nothing here ships: it
-## dresses a test profile and shows a screen the game already has.
+## its name: invitation, kart, catalog, loyalty or license; and for the Steam supporter pack's store
+## page, with `++ --supporter`, its pieces on the hat rack, its card backs, and its thank-you card,
+## pack_kart, pack_backs and thanks, the license then wearing its endorsement and its star. The
+## Game autoload's `--screenshot` grabs it, oversampled, as the gameplay shots are grabbed through
+## the playground. Nothing here ships: it dresses a test profile and shows a screen the game already
+## has.
 
 ## Every this many jokers in the catalog's order, one is left face down, as a player still finding
 ## them has it.
@@ -47,6 +50,12 @@ func _ready() -> void:
 		_loyalty()
 	elif _shot() == "license":
 		_license()
+	elif _shot() == "thanks":
+		_thanks()
+	elif _shot() == "pack_backs":
+		_kart(KartDialog.CARD_BACK, CardBack.STYLES.find("Beacon"))
+	elif _shot() == "pack_kart":
+		_kart(KartStyle.PARTS.find(&"hat"), KartStyle.HATS.find("House of cards"), 4)
 	else:
 		_kart()
 
@@ -65,6 +74,10 @@ func _license() -> void:
 	settings.license_number = LicenseCard.new_number(rng)
 	settings.license_date = LicenseCard.today()
 	settings.license_plate = LicensePlate.suggest("Tail Light Tim", settings.license_number)
+	if Supporter.owned():
+		# The supporter pack's endorsement, and its star on the plate.
+		settings.supporter_since = LicenseCard.today()
+		settings.license_plate = LicensePlate.clean("TIM*777")
 	settings.license_endorsements = PackedStringArray(
 		TutorialFight.ENDORSEMENTS.slice(0, LICENSE_ENDORSED)
 	)
@@ -113,9 +126,20 @@ func _shot() -> String:
 	return "kart"
 
 
+## The supporter pack's thank-you card as it comes on the title, GAME.md 10.8, all at once.
+func _thanks() -> void:
+	TitleBackground.add_to(self)
+	var thanks := SupporterThanks.over(self)
+	thanks.start()
+	thanks.come_on_now()
+	_square_on = thanks
+
+
 ## The Your kart dialog on a profile that has won every piece of dress, GAME.md 8.9, in the set the
-## README shows: racing stripes, a top hat, the checkered flag and confetti, on the racer, in blue.
-func _kart() -> void:
+## README shows: racing stripes, a top hat, the checkered flag and confetti, on the racer, in blue;
+## or with [param rack] the rack of that part out, the cursor on [param on], and in the supporter
+## pack's outfit [param outfit] of [SupporterArt], its pieces on the rack, see `--supporter`.
+func _kart(rack := -1, on := -1, outfit := -1) -> void:
 	var profile := Game.settings.profile
 	for landmark: LoyaltyLandmark in Loyalty.map().landmarks:
 		profile.loyalty.win(landmark.id)
@@ -123,6 +147,14 @@ func _kart() -> void:
 	Game.settings.set_seat_name(0, "Tail Light Tim")
 	Game.settings.set_seat_color(0, 1)
 	Game.settings.set_seat_style(0, PackedInt32Array([5, 2, 3, 2, 0, 0, 0]))
+	if outfit >= 0 or rack >= 0:
+		# Every piece seen already, so none wears NEW over the pack's.
+		profile.loyalty.dress_fresh.clear()
+	if outfit >= 0:
+		Game.settings.set_seat_style(0, SupporterArt.dresses(outfit + 1)[outfit])
 	var dialog := KartDialog.open(self)
+	if rack >= 0:
+		dialog.open_tray(rack, on)
+		return
 	# The hat rack out with the crown under the cursor, so the kart tries it on over its top hat.
 	dialog.open_tray(KartStyle.PARTS.find(&"hat"), KartStyle.HATS.find("Crown"))

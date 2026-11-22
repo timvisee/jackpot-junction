@@ -38,6 +38,8 @@ extends Node3D
 ##   --teams=2            play in this many teams, GAME.md 3.14 (default none)
 ##   --friendly-fire=1    let teammates hurt each other
 ##   --autopilot=1        a bot's brain drives the player's kart, for screenshots of it on the move
+##   --dress=supporter    every kart in pieces of the Steam supporter pack, GAME.md 10.8, to see
+##                        them in play
 ##   --house=0.6          the story's Final Hand on House Rules, its clock this share of the way
 ##                        through, for screenshots of the House's acts, STORY.md 8.2
 ##   --lastlines=1        jump straight to the story's last lines, the oversight desk ending, over
@@ -55,6 +57,8 @@ const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const NO_PAD := 16
 
 var match_node: Match
+## Every kart in the supporter pack's pieces, see `--dress=supporter`.
+var dress_supporter := false
 
 var _players := 1
 var _seats := 1
@@ -130,6 +134,8 @@ func _ready() -> void:
 	# Dressed as the settings say, GAME.md 4.4, so a screenshot of this room shows what a player
 	# actually drives rather than the kart as it comes.
 	var styles: Array = [Game.settings.kart_styles[0]]
+	if dress_supporter:
+		styles = SupporterArt.dresses(inputs.size())
 	# As many karts as were asked for, up to a room of eight, GAME.md 9.3.
 	match_node.rules = match_node.rules.duplicate()
 	match_node.rules.max_players = maxi(match_node.rules.max_players, inputs.size())
@@ -328,6 +334,8 @@ func _parse_user_args() -> void:
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--players="):
 			_players = int(arg.get_slice("=", 1))
+		elif arg == "--dress=supporter":
+			dress_supporter = true
 		elif arg.begins_with("--seats="):
 			_seats = clampi(int(arg.get_slice("=", 1)), 1, 4)
 		elif arg.begins_with("--bots="):

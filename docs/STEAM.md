@@ -437,8 +437,7 @@ bought in the overlay unlocks at once. A build that names no DLC offers none of 
    is installed is whether the account owns it, which is all the game asks.
 3. **Price**: about a euro or two, on the DLC's store package. Valve looks prices over before they
    go live.
-4. **Store page** (the DLC's own Edit Store Page): the words below, and its capsules at the sizes
-   of the game's, in the table above. `make steam-art` does not render the DLC's yet. Steam reviews
+4. **Store page** (the DLC's own Edit Store Page): the words and the pictures below. Steam reviews
    the page before the DLC can be released.
 5. **The id in the build**: set the repository variable `STEAM_SUPPORTER_DLC` to the DLC's app id.
    The Steam workflow writes it into the build's `data/steam/app.cfg`, and from that build on the
@@ -451,6 +450,41 @@ bought in the overlay unlocks at once. A build that names no DLC offers none of 
    show both in a debug build without Steam.
 7. **Release** it by hand on its Steamworks page once its store page is approved, on the game's
    release day or any day after.
+
+### Its pictures
+
+`make steam-supporter-art`, which `make steam-art` runs after the game's, renders the DLC's own
+into `build/steam-art/supporter/`, apart from the game's: the same table and karts as the game's
+capsules, every kart in the pack's pieces, the seal with the pack's name under it between two of
+its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands, and
+`scenes/dev/supporter_art.gd` what the karts wear; the screenshots come from
+`tools/screenshots --supporter`.
+
+| File | Where it goes | Size |
+|---|---|---|
+| `store/header_capsule.png` | Store page, Graphical Assets: Header Capsule | 920 × 430 |
+| `store/small_capsule.png` | Small Capsule | 462 × 174 |
+| `store/main_capsule.png` | Main Capsule | 1232 × 706 |
+| `store/vertical_capsule.png` | Vertical Capsule | 748 × 896 |
+| `screenshots/*.png` | Screenshots, in the order of their numbers | 1920 × 1080 |
+| `description/*.png` | The description's headings and pictures | 616 wide |
+
+- **Screenshots**: the pack's karts round the Junction and three karts in its hats of character,
+  close up, drawn as the capsules are, since at a match's own zoom the pieces cannot be told apart;
+  then the game's own screens: the hat rack with the pack's pieces, the card back rack with Beacon
+  tried, the thank-you card, and the license with the endorsement. Mark every one suitable for all
+  ages. `++ --dress=supporter` on the playground puts every kart in the pack's pieces, to see them
+  in play.
+- **Description**: two headings, a row of five karts in the pack's pieces and a hand of its three
+  card backs, also kept in `docs/description/supporter/`, each uploaded into the description where
+  it stands below, with its alt text from the table under it.
+
+| Picture | Alt text |
+|---|---|
+| `heading_supporter_thanks.png` | A thank-you you can wear |
+| `picture_supporter_karts.png` | Five karts wearing the house of cards, the lucky cat, the lighthouse, the halo and the tip jar, with lanterns, pinwheels and the night sky paint |
+| `heading_supporter_pieces.png` | Everything in the pack |
+| `picture_supporter_backs.png` | A hand of three cards showing the Beacon, Constellation and Aurora card backs |
 
 ### Words for its store page
 
@@ -465,25 +499,37 @@ Short description:
 > your pot, three card backs, a star for your license plate and a card from the maker. Nothing that
 > wins a match: just a way to show you chipped in.
 
-About This Content:
+About This Content, in Steam's own markup, its pictures uploaded first as the game's are, see
+About This Game above:
 
-> Jackpot Junction is free, and stays free. The Supporter Pack is for those who would like to give
-> something back, and to show it at the table.
->
-> - **Hats**: a lighthouse that sweeps the felt with its beam, a halo, a house of cards that grows
->   with your pot and falls when you do, a lucky cat that waves faster after chips, and a tip jar
->   that fills as you win.
-> - **Flags**: a paper lantern that glows in your color and a pinwheel that spins with your speed.
-> - **Trails**: Prism, a ribbon of light that leaves rainbow arcs in a drift, and Stardust,
->   twinkles that hang where you have been.
-> - **Paint and finish**: Night sky, your color as a starry sky, and Starlight, a finish of
->   drifting stars for any piece you wear.
-> - **Card backs**: Beacon, Constellation and Aurora.
-> - **And**: a star for your license plate, a Supporter endorsement on your driver's license, and
->   a thank-you card from the maker, taped up in your garage.
->
-> Everything in it is for looks. It changes nothing about how a match is played or won, and every
-> joker, power-up and arena stays free for everyone.
+```text
+Jackpot Junction is free, and stays free. The Supporter Pack is for those who would like to give something back, and to show it at the table.
+
+[img]{STEAM_APP_IMAGE}/extras/heading_supporter_thanks.png[/img]
+[img]{STEAM_APP_IMAGE}/extras/picture_supporter_karts.png[/img]
+Every piece glows, spins or answers to your pot, so the table can see who chipped in. A house of cards that grows with your pot and falls when you do, a lucky cat that beckons faster after chips, a lighthouse that sweeps the felt.
+
+[img]{STEAM_APP_IMAGE}/extras/heading_supporter_pieces.png[/img]
+[img]{STEAM_APP_IMAGE}/extras/picture_supporter_backs.png[/img]
+[list]
+[*][b]Lighthouse[/b] (hat): its lamp turns and sweeps a soft beam over the felt.
+[*][b]Halo[/b] (hat): a ring of warm light over your helmet.
+[*][b]House of cards[/b] (hat): a storey more as your pot grows; it wobbles as you drive and falls when you do.
+[*][b]Lucky cat[/b] (hat): it beckons, faster after you pick up chips, and cheers when you cash out.
+[*][b]Tip jar[/b] (hat): fills with chips as your pot grows.
+[*][b]Lantern[/b] (flag): a paper lantern glowing in your color.
+[*][b]Pinwheel[/b] (flag): spins with your speed.
+[*][b]Prism[/b] (trail): a ribbon of light that leaves rainbow arcs in a drift.
+[*][b]Stardust[/b] (trail): twinkles that hang where you have been.
+[*][b]Night sky[/b] (paint): your color as a starry night sky.
+[*][b]Starlight[/b] (finish): drifting stars, for any piece you wear.
+[*][b]Beacon[/b], [b]Constellation[/b] and [b]Aurora[/b] (card backs) for your joker deck.
+[*][b]A star[/b] for your license plate and a [b]Supporter[/b] endorsement on your driver's license.
+[*][b]A thank-you card[/b] from the maker, taped up in your garage.
+[/list]
+
+Everything in it is for looks. It changes nothing about how a match is played or won, and every joker, power-up and arena stays free for everyone.
+```
 
 ## Testing with app 480
 

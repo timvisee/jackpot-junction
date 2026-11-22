@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art itch-art steam-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art itch-art steam-art steam-supporter-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -136,6 +136,16 @@ steam-art: | $(CACHE)
 	rm -rf build/steam-art
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/steam_art_export.tscn
 	tools/screenshots --steam
+	$(MAKE) steam-supporter-art
+
+# The supporter pack's DLC's own store art, GAME.md 10.8, docs/STEAM.md "The supporter pack", into
+# build/steam-art/supporter, apart from the game's: its capsules, its description's headings and
+# pictures, also kept in docs/description/supporter, and its screenshots. Needs a display, or
+# GODOT_HIDDEN=1 and gamescope.
+steam-supporter-art: | $(CACHE)
+	rm -rf build/steam-art/supporter
+	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/supporter_art_export.tscn
+	tools/screenshots --supporter
 
 # The screenshots the README wears, into docs/screenshots, each drawn oversize and brought back down
 # for smooth edges, GAME.md 10.7. Needs a display, or GODOT_HIDDEN=1 and gamescope.
