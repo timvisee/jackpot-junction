@@ -1,6 +1,6 @@
 class_name PadDiagram
 extends RefCounted
-## A pad drawn whole for the leaflet of GAME.md 8.3b, see [PadLeaflet]: which drawing each family
+## A pad drawn whole for the blueprint of GAME.md 8.3b, see [PadLeaflet]: which drawing each family
 ## of pad is shown as, see [PadFamily], where its buttons are on it, and which of them a binding is.
 ##
 ## The drawings are Xelu's free controller prompts, public domain, see THIRD_PARTY.md: line art in
@@ -117,21 +117,6 @@ const PLAIN_NAMES: Dictionary[StringName, String] = {
 	&"dpad": "D-pad",
 	&"touch": "Touchpad",
 }
-## The four printed on the paper: an Xbox pad's in its colors, a little deeper than on a screen, and
-## a PlayStation pad's shapes the same.
-const PRINTED_FACES: Dictionary[JoyButton, Color] = {
-	JOY_BUTTON_A: Color("#5aae5a"),
-	JOY_BUTTON_B: Color("#cf4f4b"),
-	JOY_BUTTON_X: Color("#4777c8"),
-	JOY_BUTTON_Y: Color("#dcb434"),
-}
-const PRINTED_SHAPES: Dictionary[JoyButton, Color] = {
-	JOY_BUTTON_A: Color("#4d78d6"),
-	JOY_BUTTON_B: Color("#d0464b"),
-	JOY_BUTTON_X: Color("#cf6fb4"),
-	JOY_BUTTON_Y: Color("#2f9e78"),
-}
-
 var family := PadFamily.Family.GENERIC
 var art: Texture2D
 var spots: Dictionary[StringName, Vector2]
@@ -179,19 +164,16 @@ func shows(spot: StringName) -> bool:
 
 
 ## The four under the thumb printed on [param canvas] over the drawing laid at [param at] and
-## scaled by [param scale], in [param ink], as this family has them: an Xbox pad's lettered in
-## their colors, a PlayStation pad's shapes in theirs, a Nintendo pad's letters alone.
+## scaled by [param scale], in [param ink], as this family has them: a PlayStation pad's shapes, and
+## the letters of the rest where that family has them, in the one ink the drawing is in.
 func print_faces(canvas: CanvasItem, at: Vector2, scale: float, ink: Color, font: Font) -> void:
 	var radius := FACE_RADIUS * scale
 	var size := roundi(radius * 1.05)
 	for spot: StringName in FACES:
 		var middle := at + spots[spot] * scale
-		var face := FACES[spot]
 		if PadFamily.shapes(family):
-			InputGlyph.draw_shape(canvas, face, middle, radius * 0.5, PRINTED_SHAPES[face])
+			InputGlyph.draw_shape(canvas, FACES[spot], middle, radius * 0.5, ink)
 			continue
-		if PadFamily.lettered(family):
-			canvas.draw_circle(middle, radius - 3.0, Color(PRINTED_FACES[face], 0.85))
 		var letter := name_of(spot)
 		var wide := font.get_string_size(letter, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 		var foot := (font.get_ascent(size) - font.get_descent(size)) * 0.5

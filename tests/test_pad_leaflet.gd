@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
-## The leaflet of the pad in hand, GAME.md 8.3b: which drawing each family of pad gets and what its
-## buttons are called, which button each binding is, what each page says at each button as the
-## actions are bound, and the leaflet itself: its pages, its keys and its way out.
+## The blueprint of the pad in hand, GAME.md 8.3b: which drawing each family of pad gets and what
+## its buttons are called, which button each binding is, what each sheet says at each button as the
+## actions are bound, and the blueprint itself: its sheets, its keys and its way out.
 
 var _holder: Control
 var _fire_was: Array[InputEvent] = []

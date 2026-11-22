@@ -17,8 +17,8 @@ below, and hands the notes to the release workflow.
   L1 to R2, and a Nintendo pad's letters where it prints them, ZL and ZR.
 - **Steam Input knows your pad.** On Steam, a pad Steam Input takes over still shows its own
   buttons, and a Steam Deck its L1 to R2.
-- **How to hold the wheel.** A leaflet of your controller, from the pause menu and the Controls
-  settings, with a line from each button to what it does as you have it bound.
+- **How to hold the wheel.** Show gamepad, in the pause menu and the Controls settings, puts up a
+  blueprint of your controller with a line from each button to what it does as you have it bound.
 - **A star on the title for supporters.** Owning the supporter pack puts its star and name in the
   bottom left corner of the title.
 

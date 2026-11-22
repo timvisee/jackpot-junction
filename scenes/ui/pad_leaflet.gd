@@ -1,9 +1,10 @@
 class_name PadLeaflet
 extends Control
-## The leaflet of the pad in the player's hands, GAME.md 8.3b: How to hold the wheel, a form of the
-## Dept. of Karts with the whole pad drawn on it, see [PadDiagram], and a line from each of its
-## buttons out to what it does as the player has it bound, the button's name under it as their pad
-## prints it. Three pages, driving, the jokers and the menus, turned with the page keys or its tabs.
+## The gamepad drawn whole, GAME.md 8.3b: How to hold the wheel, a blueprint of the Dept. of Karts'
+## engineers over the whole screen, see [BlueprintArt], with the pad drawn on it, see [PadDiagram],
+## and a line from each of its buttons out to what it does as the player has it bound, the button's
+## name under it as their pad prints it. Three sheets, driving, the jokers and the menus, their tabs
+## cut from its top edge and turned with the page keys or a click, and Back a tab across from them.
 ## Up over the settings' Controls page, 8.5, and the room's menu, 3.8; the pad drawn is the one the
 ## player touched last, a generic one if they have touched none.
 
@@ -12,20 +13,26 @@ signal put_away
 const TITLE := "How to hold the wheel"
 const ENTRY := "Show gamepad"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
-## The card, in its own units, and what it asks of the screen with the air round it.
-const SIZE := Vector2(1580.0, 960.0)
-const ROOM := Vector2(1660.0, 1010.0)
-## Where the pad is drawn on the card and how big; how far out from it the words stand, how far the
+## The screen it is drawn for, scaled to fit whatever screen it is up on, and the sheet on it, room
+## left over it for the tabs.
+const SIZE := Vector2(1920.0, 1080.0)
+const SHEET := Rect2(30.0, 70.0, 1860.0, 984.0)
+## The tabs: where the first stands and how far on each next one, how big each is; and Back's.
+const TAB_FIRST := Vector2(90.0, 22.0)
+const TAB_STEP := 240.0
+const TAB_SIZE := Vector2(228.0, 56.0)
+const BACK_TAB := Rect2(1660.0, 22.0, 200.0, 56.0)
+## Where the pad is drawn on the sheet and how big; how far out from it the words stand, how far the
 ## lines run level before them, and how close two lines of words come down a side.
-const ART_SCALE := 0.56
-const ART_TOP := 295.0
+const ART_SCALE := 0.66
+const ART_TOP := 245.0
 const COLUMN_OUT := 70.0
 const ELBOW := 40.0
 const ROW_GAP := 84.0
 const LINE_WIDTH := 1.6
-const INK := HouseTheme.INK
-const FAINT := HouseTheme.INK_FAINT
-## What the card says of the pad drawn, by its family.
+const INK := BlueprintArt.INK
+const FAINT := BlueprintArt.FAINT
+## What the sheet says of the pad drawn, by its family.
 const FAMILY_WORDS: Dictionary[PadFamily.Family, String] = {
 	PadFamily.Family.GENERIC: "Your controller",
 	PadFamily.Family.XBOX: "Xbox controller",
@@ -63,7 +70,7 @@ var diagram: PadDiagram
 
 var _sheet: Control
 var _tabs: Array[Button] = []
-var _close: Button
+var _back: Button
 var _from: Control
 var _closing := false
 
@@ -209,54 +216,38 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	diagram = PadDiagram.of(family)
-	var shade := MenuTheme.closer_shade(0.7)
+	var shade := MenuTheme.closer_shade(0.82)
 	shade.gui_input.connect(_on_beside)
 	add_child(shade)
 	_sheet = Control.new()
 	_sheet.name = "Sheet"
 	_sheet.size = SIZE
-	_sheet.mouse_filter = Control.MOUSE_FILTER_STOP
+	_sheet.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_sheet.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	_sheet.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_sheet.draw.connect(_draw_sheet)
 	add_child(_sheet)
 	for i: int in PAGES.size():
-		var tab := Button.new()
+		var tab := _tab_button("%d  ·  %s" % [i + 1, PAGES[i].to_upper()])
 		tab.name = "Tab%d" % i
-		tab.flat = true
-		tab.text = PAGES[i].to_upper()
-		Type.set_font(tab, Type.STRONG, 22)
-		for state: StringName in [&"font_color", &"font_disabled_color"]:
-			tab.add_theme_color_override(state, FAINT)
-		for state: StringName in [&"font_hover_color", &"font_focus_color", &"font_pressed_color"]:
-			tab.add_theme_color_override(state, INK)
-		# Words on the paper rather than buttons on it, the cursor's tab boxed in ink.
-		for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
-			tab.add_theme_stylebox_override(state, StyleBoxEmpty.new())
-		var boxed := StyleBoxFlat.new()
-		boxed.draw_center = false
-		boxed.border_color = Color(INK, 0.55)
-		boxed.set_border_width_all(2)
-		boxed.set_corner_radius_all(6)
-		tab.add_theme_stylebox_override(&"focus", boxed)
-		tab.size = Vector2(190.0, 44.0)
-		tab.position = Vector2(SIZE.x * 0.5 + (i - 1) * 230.0 - 95.0, 200.0)
+		tab.position = TAB_FIRST + Vector2(i * TAB_STEP, 0.0)
 		tab.pressed.connect(_turn_to.bind(i))
-		_sheet.add_child(tab)
 		_tabs.append(tab)
 	# The page keys beside the tabs, as the big dialogs have them, on their own dark chips.
-	var keys := DialogBinds.pages(Game.last_input_keyboard, Palette.CHIP_WHITE, 17)
-	keys.position = Vector2(SIZE.x * 0.5 + 360.0, 210.0)
+	var keys := DialogBinds.pages(Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
+	keys.position = TAB_FIRST + Vector2(PAGES.size() * TAB_STEP + 10.0, 4.0)
 	_sheet.add_child(keys)
-	_close = Button.new()
-	_close.name = "Close"
-	_close.text = "Close"
-	_close.theme_type_variation = HouseTheme.PAPER_BUTTON
-	Type.set_font(_close, Type.STRONG, Type.BODY)
-	_close.size = Vector2(220.0, 52.0)
-	_close.position = Vector2(SIZE.x * 0.5 - 110.0, 872.0)
-	_close.pressed.connect(close)
-	ScreenReader.name(_close, "Close")
-	_sheet.add_child(_close)
+	_back = _tab_button("BACK")
+	_back.name = "Back"
+	_back.position = BACK_TAB.position
+	_back.size = BACK_TAB.size
+	_back.pressed.connect(close)
+	ScreenReader.name(_back, "Back")
+	var key := InputGlyph.of_action(&"ui_cancel", Game.last_input_keyboard, INK, 16)
+	if key != null:
+		key.position = Vector2(24.0, (BACK_TAB.size.y - key.custom_minimum_size.y) * 0.5 + 2.0)
+		_back.add_child(key)
+		(_back.get_theme_stylebox(&"normal") as StyleBoxEmpty).content_margin_left = 40.0
 	_link_cursor()
 	resized.connect(_fit)
 	_fit()
@@ -266,25 +257,59 @@ func _ready() -> void:
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.12)
 
 
-## The card as big as the screen lets it be, in the middle of it.
+## A tab's button: its words alone, the tab itself drawn on the sheet, see [method _draw_sheet], and
+## the cursor's tab ringed in the sheet's white.
+func _tab_button(words: String) -> Button:
+	var tab := Button.new()
+	tab.text = words
+	tab.size = TAB_SIZE
+	Type.set_font(tab, Type.STRONG, 21)
+	var plain := StyleBoxEmpty.new()
+	plain.content_margin_top = 6.0
+	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
+		tab.add_theme_stylebox_override(state, plain)
+	var ringed := StyleBoxFlat.new()
+	ringed.draw_center = false
+	ringed.border_color = Color(INK, 0.7)
+	ringed.set_border_width_all(2)
+	ringed.set_corner_radius_all(6)
+	ringed.set_expand_margin_all(-6.0)
+	tab.add_theme_stylebox_override(&"focus", ringed)
+	_sheet.add_child(tab)
+	return tab
+
+
+## The tabs' words: the page's in the sheet's white, the rest quieter, Back as the pages behind.
+func _ink_tabs() -> void:
+	for i: int in _tabs.size():
+		var ink := INK if i == page else FAINT
+		for state: StringName in [&"font_color", &"font_hover_color", &"font_pressed_color"]:
+			_tabs[i].add_theme_color_override(state, ink)
+		_tabs[i].add_theme_color_override(&"font_focus_color", INK)
+	for state: StringName in [&"font_color", &"font_pressed_color"]:
+		_back.add_theme_color_override(state, FAINT)
+	_back.add_theme_color_override(&"font_hover_color", INK)
+	_back.add_theme_color_override(&"font_focus_color", INK)
+
+
+## The screen it is drawn for as big as the screen lets it be, in the middle of it.
 func _fit() -> void:
 	var room := size if size != Vector2.ZERO else get_viewport_rect().size
-	var scale := minf(room.x / ROOM.x, room.y / ROOM.y)
+	var scale := minf(room.x / SIZE.x, room.y / SIZE.y)
 	_sheet.scale = Vector2.ONE * scale
 	_sheet.position = ((room - SIZE * scale) * 0.5).round()
 
 
-## The cursor kept on the leaflet: along its tabs, down to Close and back up.
+## The cursor kept on the tabs, along them and on to Back and round again.
 func _link_cursor() -> void:
-	for i: int in _tabs.size():
-		var tab := _tabs[i]
-		tab.focus_neighbor_left = tab.get_path_to(_tabs[posmod(i - 1, _tabs.size())])
-		tab.focus_neighbor_right = tab.get_path_to(_tabs[posmod(i + 1, _tabs.size())])
-		tab.focus_neighbor_top = tab.get_path_to(tab)
-		tab.focus_neighbor_bottom = tab.get_path_to(_close)
-	_close.focus_neighbor_left = _close.get_path_to(_close)
-	_close.focus_neighbor_right = _close.get_path_to(_close)
-	_close.focus_neighbor_bottom = _close.get_path_to(_close)
+	var row: Array[Button] = _tabs.duplicate()
+	row.append(_back)
+	for i: int in row.size():
+		var button := row[i]
+		button.focus_neighbor_left = button.get_path_to(row[posmod(i - 1, row.size())])
+		button.focus_neighbor_right = button.get_path_to(row[posmod(i + 1, row.size())])
+		button.focus_neighbor_top = button.get_path_to(button)
+		button.focus_neighbor_bottom = button.get_path_to(button)
 
 
 func _turn(by: int) -> void:
@@ -295,7 +320,7 @@ func _turn_to(to: int, sound := true) -> void:
 	if sound and to != page:
 		Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
 	page = to
-	_close.focus_neighbor_top = _close.get_path_to(_tabs[page])
+	_ink_tabs()
 	for i: int in _tabs.size():
 		var said := _said(i)
 		ScreenReader.name(_tabs[i], ScreenReader.line([TITLE, "%s page" % PAGES[i]]), said)
@@ -360,13 +385,13 @@ func close() -> void:
 	queue_free()
 
 
-## Where the pad's drawing is laid on the card, and how big.
+## Where the pad's drawing is laid on the sheet, and how big.
 func _art_rect() -> Rect2:
 	var drawn := Vector2(diagram.art.get_size()) * ART_SCALE
 	return Rect2(Vector2((SIZE.x - drawn.x) * 0.5, ART_TOP), drawn)
 
 
-## Where on the card the button at [param spot] is, or the point the line from it goes round.
+## Where on the sheet the button at [param spot] is, or the point the line from it goes round.
 func _on_card(spot: StringName, around := false) -> Vector2:
 	var art := _art_rect()
 	var at: Vector2 = diagram.spots[spot]
@@ -376,10 +401,19 @@ func _on_card(spot: StringName, around := false) -> Vector2:
 
 
 func _draw_sheet() -> void:
-	_draw_card()
-	_draw_heading()
+	for i: int in PAGES.size():
+		if i != page:
+			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), false)
+	BlueprintArt.tab(_sheet, BACK_TAB, false)
+	BlueprintArt.sheet(_sheet, SHEET)
+	BlueprintArt.tab(_sheet, _tabs[page].get_rect(), true)
+	BlueprintArt.folds(_sheet, SHEET)
+	var inside := SHEET.grow(-BlueprintArt.BORDER)
+	BlueprintArt.marks(_sheet, inside, Type.micro_font())
+	_draw_strip()
+	_draw_foot(inside)
 	var art := _art_rect()
-	_sheet.draw_texture_rect(diagram.art, art, false, Color(INK, 0.92))
+	_sheet.draw_texture_rect(diagram.art, art, false, Color(INK, 0.96))
 	diagram.print_faces(_sheet, art.position, ART_SCALE, INK, Type.STRONG)
 	var said := labels(page, simple, diagram)
 	var sides: Array[Array] = [[], [], []]
@@ -388,30 +422,28 @@ func _draw_sheet() -> void:
 	_draw_column(sides[0], said, -1, art.position.x - COLUMN_OUT)
 	_draw_column(sides[2], said, 1, art.end.x + COLUMN_OUT)
 	_draw_over(sides[1], said)
-	_draw_stamp()
 
 
-## Cream stock in a double rule, torn from its pad down the left.
-func _draw_card() -> void:
-	var card := Rect2(Vector2.ZERO, SIZE)
-	_sheet.draw_rect(card.grow(10.0).grow_individual(0.0, 0.0, 6.0, 10.0), Color(0, 0, 0, 0.35))
-	_sheet.draw_rect(card, HouseTheme.PAPER)
-	_sheet.draw_rect(card.grow(-18.0), Color(INK, 0.6), false, 1.5)
-	_sheet.draw_rect(card.grow(-24.0), Color(INK, 0.35), false, 1.0)
-	for i: int in 46:
-		_sheet.draw_circle(Vector2(9.0, 14.0 + i * 20.6), 3.2, HouseTheme.STOCK)
+## The title, in the room over the sheet between the page keys and Back.
+func _draw_strip() -> void:
+	var at := Vector2(BACK_TAB.position.x - 30.0, 60.0)
+	_words(Type.display_font(), TITLE.to_upper(), at, 34, INK, -1)
 
 
-func _draw_heading() -> void:
-	var middle := SIZE.x * 0.5
-	var form := "DEPT. OF KARTS   ·   FORM 8.3   ·   HANDLING THE CONTROLLER"
-	_words(Type.micro_font(), form, Vector2(middle, 70.0), 15, FAINT, 0)
-	_words(Type.display_font(), TITLE.to_upper(), Vector2(middle, 135.0), 58, INK, 0)
-	var line := "%s   ·   as you have it bound" % FAMILY_WORDS[family]
-	_words(Type.TEXT, line, Vector2(middle, 174.0), 20, FAINT, 0)
-	var tab := _tabs[page]
-	var under := tab.position + Vector2(tab.size.x * 0.5, tab.size.y - 4.0)
-	_sheet.draw_line(under - Vector2(50.0, 0.0), under + Vector2(50.0, 0.0), INK, 3.0)
+## The sheet's foot: its scale bar on the left, and on the right what sheet it is, in the fine print
+## a title block has, and in red pencil over that whose pad it is drawn for.
+func _draw_foot(inside: Rect2) -> void:
+	BlueprintArt.scale_bar(
+		_sheet, inside.position + Vector2(40.0, inside.size.y - 40.0), Type.micro_font()
+	)
+	var corner := inside.end - Vector2(24.0, 22.0)
+	var sheet := (
+		"DEPT. OF KARTS   ·   FORM 8.3   ·   SHEET %d OF %d   ·   %s"
+		% [page + 1, PAGES.size(), PAGES[page].to_upper()]
+	)
+	_words(Type.micro_font(), sheet, corner, 14, FAINT, -1)
+	var whose := "%s, as you have it bound" % FAMILY_WORDS[family]
+	_words(BayArt.hand_font(), whose, corner - Vector2(0.0, 26.0), 28, BlueprintArt.PENCIL, -1)
 
 
 ## The words down one side of the pad, [param side] of it at [param edge], each beside its button
@@ -439,8 +471,7 @@ func _draw_column(
 		if face:
 			from += (first - button).normalized() * (PadDiagram.FACE_RADIUS * ART_SCALE + 2.0)
 		else:
-			_sheet.draw_circle(button, 5.5, HouseTheme.PAPER)
-			_sheet.draw_circle(button, 3.8, INK)
+			_dot(button)
 		if AROUND.has(spot):
 			_sheet.draw_line(from, first, INK, LINE_WIDTH, true)
 			from = first
@@ -453,7 +484,14 @@ func _draw_column(
 		var note: String = said[spot]["note"]
 		if not note.is_empty():
 			var at := Vector2(x + side * 10.0, y - 26.0)
-			_words(BayArt.hand_font(), note, at, 30, HouseTheme.STAMP_RED, side)
+			_words(BayArt.hand_font(), note, at, 30, BlueprintArt.PENCIL, side)
+
+
+## Where a line leaves a button: a white dot, ringed in the sheet's blue so it reads over the
+## drawing's own lines.
+func _dot(at: Vector2) -> void:
+	_sheet.draw_circle(at, 5.5, BlueprintArt.BLUE)
+	_sheet.draw_circle(at, 3.8, INK)
 
 
 ## [param heights] each as near the button it is for as it can be, at least a row apart, between
@@ -491,18 +529,7 @@ func _draw_over(spots: Array, said: Dictionary[StringName, Dictionary]) -> void:
 		var end := Vector2(middle + clampf(button.x - middle, -wide * 0.5, wide * 0.5), y)
 		_sheet.draw_line(Vector2(middle - wide * 0.5, y), Vector2(middle + wide * 0.5, y), INK, 1.6)
 		_sheet.draw_line(button, end, INK, LINE_WIDTH, true)
-		_sheet.draw_circle(button, 5.5, HouseTheme.PAPER)
-		_sheet.draw_circle(button, 3.8, INK)
-
-
-## The House's stamp in the corner: what is drawn is what the player has bound.
-func _draw_stamp() -> void:
-	_sheet.draw_set_transform(SIZE - Vector2(138.0, 62.0), -0.14, Vector2.ONE * 0.72)
-	var red := Color(HouseTheme.STAMP_RED, 0.78)
-	_sheet.draw_rect(Rect2(-120.0, -38.0, 240.0, 76.0), red, false, 4.0)
-	_sheet.draw_rect(Rect2(-113.0, -31.0, 226.0, 62.0), red, false, 1.5)
-	_words(Type.display_font(), "AS BOUND", Vector2(0.0, 16.0), 44, red, 0)
-	_sheet.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+		_dot(button)
 
 
 ## [param line] at [param at]: ending there for [param align] -1, centered on it for 0, and starting
