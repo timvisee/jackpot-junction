@@ -455,8 +455,9 @@ bought in the overlay unlocks at once. A build that names no DLC offers none of 
    pack is offered. For a build by hand, `make steam-export STEAM_APP_ID=5652730
    STEAM_SUPPORTER_DLC=5680650`.
 6. **Trying it**, once the store page has gone in for review, as Steamworks wants before the DLC
-   can go in a package: add the DLC to the Developer Comp package, so the team's accounts own it,
-   and start a Steam build: the pieces are worn, and the thank-you card comes on the title. An account
+   can go in a package: add the DLC to the Developer Comp package, under Apps Included (Depots
+   Included is for depots, which it has none of), so the team's accounts own it, and start a Steam
+   build: the pieces are worn, and the thank-you card comes on the title. An account
    without it sees them locked on the kart dialog's rack, picking one opens the DLC's page in the
    overlay, and buying it there unlocks them in place. `++ --supporter` and `++ --supporter=locked`
    show both in a debug build without Steam.
