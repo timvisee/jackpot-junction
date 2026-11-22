@@ -1,7 +1,7 @@
 class_name VaultStyle
 extends RoomStyle
 ## After Hours as the House's glamour room, the Vault's style, GAME.md 8.1c: Art Deco under one
-## lamp, the table the House shows off at, STORY.md 3.9. A floor of midnight lacquer with the
+## lamp, the table the House shows off at, STORY.md 3.9. A floor of plum lacquer with the
 ## House's layout on it in gold foil and cream; walls stepped like a skyscraper's crown, a black
 ## lacquer plinth, a fluted cream body and a cream cap with brass where the tiers meet and a brass
 ## line inlaid round the top; boxes that are cigarette cases of butterscotch catalin with a black
@@ -210,8 +210,10 @@ func jackpot(into: Node3D, size: Vector2) -> bool:
 	return true
 
 
-## Midnight lacquer, the room's own felt color under a satin coat, the lamp lying on it softly. The
-## pads take this finish too, see [method Surfaces.inlaid].
+## Plum lacquer, the room's own felt color under a satin coat, the lamp lying on it softly. The
+## pads take this finish too, see [method Surfaces.inlaid]. A mid-tone rather than the near-black
+## it was: on a black floor the black lacquer of a pit, a tray or a lid was lost on many screens,
+## and on this one it stands out.
 func floor_top() -> StandardMaterial3D:
 	if not _materials.has("floor"):
 		var coat := StandardMaterial3D.new()

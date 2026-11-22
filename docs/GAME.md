@@ -3123,7 +3123,7 @@ them:
 | Room | Map | What it is |
 |------|-----|------------|
 | The Workbench | Lucky Crossing | Warm and close. A tungsten key across the table, a cool fill from the far side and a soft lamp over the felt, with the room falling away into the dark past the stands. The home table. |
-| After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. |
+| After Hours | The Vault | The room is dark and the table is the only lit thing in it: one lamp hung over the felt, the sun down to a hint, the crowd a band of shapes in the dark with the neon on their edges. The table itself is lit well, its plum lacquer a mid-tone, so a dark piece on it reads on any screen. |
 | The Yard | Crossfire | Late afternoon, no lamp. A low warm sun across the concrete, soft long shadows, dust in the air over the far side and no glow at all: the same game played outdoors with the day nearly done. |
 | The Garage | The practice rooms of 9.4 | Cool, even strip light on a service bay, no sun and no weather. The place the karts are fixed in: a tool wall behind the table, racks of parts bins and tires down one side, drums down the other, a compressor and its hose, a creeper and the House's soda machine round a walkway painted round the bay. The one room with nobody in it, so its clutter is stacked against the wall of the bay rather than standing behind stands that are not there. |
 
