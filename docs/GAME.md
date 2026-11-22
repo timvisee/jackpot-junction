@@ -4378,8 +4378,12 @@ following a kart along a wall used to aim at the kart, half the screen the stand
 It is counted on the screen rather than on the floor, since a meter of floor past
 the near wall fills far more of the screen than one past the far wall, and on the
 near side at the height of the stands, 1.2 m, which rise toward the camera and fill
-the foot of the screen more again. Where the view is wider than the arena, the arena
-is put in its middle. The picture is slid over afterward, eased over 0.3 s so it
+the foot of the screen more again. At a desk with the UI turned below 100% the
+strip grows, to a fifth of the screen at 75%: the game stretches every window to
+the same picture, so a big screen cannot be told from a small one, and a player who
+turns the UI down is saying the karts are big enough to spare more of the screen
+for the room. A TV or a handheld keeps a tenth. Where the view is wider than the
+arena, the arena is put in its middle. The picture is slid over afterward, eased over 0.3 s so it
 comes to a stop at the edge rather than against it, and the framing never hears of
 it: nothing it held a kart on screen for is undone, since a kart is inside the walls
 and the strip allowed past them is as wide as the floor kept round a kart. It holds
@@ -4439,7 +4443,7 @@ arena, since it holds the pad and who stands on it rather than the room.
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin. Held: back at once with 6% to spare when the field needs it, in only once the field has left 15% of room for 1.5 s and no kart is gliding into the shot, following it in and stopping where it stops |
 | Still aim        | The aim stays put while where it would go is within 5% of the screen of it, across and down, as far as every kart still fits from there at the distance held |
 | Who is framed    | Auto (everybody at a desk; only the karts driven here on a TV, a handheld, a window under 760 lines or a UI over 100%), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that) or My kart; everybody with nobody driving here |
-| Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
+| Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; at a desk more as the UI is turned down, 14% at 90% and 20% at 75%; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
 | Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here and 18 for a rival |
 | Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |

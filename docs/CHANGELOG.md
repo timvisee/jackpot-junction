@@ -25,7 +25,7 @@ below, and hands the notes to the release workflow.
   a kart is under it. The camera used to lurch and pull back to get the kart out from under, so it
   now sits closer and the karts are bigger; Accessibility can turn it off.
 - **The picture stays over the table.** Driving along a wall no longer fills half the screen with
-  crowd: at most a strip at each edge shows what is past the arena.
+  crowd: at most a strip at each edge shows what is past the arena, wider with a smaller UI.
 - **A cut when you come back.** Coming back out of the picture, the camera dips to dark for a moment
   and opens on your kart, where it used to pull back over the whole arena and swoop across.
 - **Who the camera follows.** Camera follows on the Video page keeps everyone, your kart and the

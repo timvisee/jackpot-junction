@@ -8,20 +8,32 @@ const HALF := Vector2(20.0, 11.25)
 const RIG_SCENE := preload("res://scenes/camera/camera_rig.tscn")
 const PITCH := 55.0
 
-var _was_fixed := false
-var _was_distance := 0.0
+var _was: Dictionary = {}
 
 
 func before_test() -> void:
-	_was_fixed = Game.settings.fixed_camera
-	_was_distance = Game.settings.camera_distance
-	Game.settings.fixed_camera = false
-	Game.settings.camera_distance = 1.0
+	var settings := Game.settings
+	_was = {
+		fixed = settings.fixed_camera,
+		distance = settings.camera_distance,
+		screen = settings.screen,
+		ui = settings.ui_scale,
+		for_now = Settings.ui_scale_for_now,
+	}
+	settings.fixed_camera = false
+	settings.camera_distance = 1.0
+	settings.screen = ViewChoices.SCREEN_DESK
+	settings.ui_scale = 1.0
+	Settings.ui_scale_for_now = 0.0
 
 
 func after_test() -> void:
-	Game.settings.fixed_camera = _was_fixed
-	Game.settings.camera_distance = _was_distance
+	var settings := Game.settings
+	settings.fixed_camera = _was.fixed
+	settings.camera_distance = _was.distance
+	settings.screen = _was.screen
+	settings.ui_scale = _was.ui
+	Settings.ui_scale_for_now = _was.for_now
 
 
 static func _view() -> Vector2:
@@ -45,6 +57,29 @@ func test_a_view_past_a_wall_is_slid_back_to_a_little_past_it() -> void:
 	var inner := 1.0 - TableBounds.EDGE * 2.0
 	var edge := (look + slid).x + 20.0 * _view().x * inner
 	assert_float(edge).is_equal_approx(HALF.x, 0.01)
+
+
+## At a desk with the UI turned down, the player can spare more of the screen for the room: the
+## strip grows to twice as wide at 75%. Not on a TV or a handheld, where karts are small already.
+func test_a_smaller_ui_at_a_desk_shows_more_of_the_room() -> void:
+	assert_float(TableBounds.edge_now()).is_equal_approx(TableBounds.EDGE, 0.0001)
+	Game.settings.ui_scale = 0.9
+	var some := TableBounds.edge_now()
+	assert_float(some).is_greater(TableBounds.EDGE)
+	Game.settings.ui_scale = 0.75
+	assert_float(TableBounds.edge_now()).is_equal_approx(TableBounds.EDGE_MOST, 0.0001)
+	assert_float(some).is_less(TableBounds.EDGE_MOST)
+	# Wider, the picture may go further past the wall.
+	var look := Vector3(HALF.x, 0.0, 0.0)
+	var view := _view()
+	var wide := TableBounds.shift(look, Vector3.ZERO, HALF, 20.0, PITCH, view)
+	var tight := TableBounds.shift(look, Vector3.ZERO, HALF, 20.0, PITCH, view, TableBounds.EDGE)
+	assert_float(wide.x).is_greater(tight.x)
+	Game.settings.screen = ViewChoices.SCREEN_TV
+	assert_float(TableBounds.edge_now()).is_equal_approx(TableBounds.EDGE, 0.0001)
+	Game.settings.ui_scale = 1.25
+	Game.settings.screen = ViewChoices.SCREEN_DESK
+	assert_float(TableBounds.edge_now()).is_equal_approx(TableBounds.EDGE, 0.0001)
 
 
 func test_a_view_wider_than_the_arena_puts_it_in_the_middle() -> void:
