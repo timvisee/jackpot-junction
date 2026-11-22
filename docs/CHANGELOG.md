@@ -16,7 +16,7 @@ below, and hands the notes to the release workflow.
 - **Your own pad's buttons.** Hints show a PlayStation pad's cross, circle, square and triangle,
   L1 to R2, and a Nintendo pad's letters where it prints them, ZL and ZR.
 - **Steam Input knows your pad.** On Steam, a pad Steam Input takes over still shows its own
-  buttons, and a Steam Deck its L1 to R2.
+  buttons, and a Steam Deck its L1 to R2 and its own drawing in Show gamepad.
 - **How to hold the wheel.** Show gamepad, in the pause menu and the Controls settings, puts up a
   blueprint of your controller with a line from each button to what it does as you have it bound.
 - **A star on the title for supporters.** Owning the supporter pack puts its star and name in the

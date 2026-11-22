@@ -187,3 +187,25 @@ func test_not_in_the_booths_demo() -> void:
 	var shown := PadLeaflet.row(_holder)
 	assert_bool(shown.visible).is_true()
 	shown.free()
+
+
+## A Steam Deck is drawn from Valve's drawings where a Steam build has them, its top turned over
+## above its front, and as an Xbox pad elsewhere, with its own names either way.
+func test_the_steam_deck_is_drawn_from_valves_drawings_where_they_are() -> void:
+	var deck := PadDiagram.of(PadFamily.Family.STEAM_DECK)
+	assert_str(deck.name_of(&"rt")).is_equal("R2")
+	assert_str(deck.name_of(&"south")).is_equal("A")
+	if not ResourceLoader.exists(PadDiagram.DECK_FRONT):
+		assert_object(deck.art).is_same(PadDiagram.XBOX_ART)
+		assert_int(deck.layers.size()).is_equal(1)
+		return
+	assert_int(deck.layers.size()).is_equal(2)
+	assert_bool(deck.layers[0]["flip"]).is_true()
+	assert_float(deck.face_radius).is_equal_approx(
+		PadDiagram.DECK_FACE_RADIUS * PadDiagram.DECK_UNIT, 0.01
+	)
+	# The front under the top, and every button within the drawing.
+	assert_float(deck.layers[1]["at"].y).is_greater(deck.layers[0]["size"].y)
+	var whole := Rect2(Vector2.ZERO, deck.size)
+	for spot: StringName in deck.spots:
+		assert_bool(whole.has_point(deck.spots[spot])).is_true()

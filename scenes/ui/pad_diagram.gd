@@ -7,13 +7,41 @@ extends RefCounted
 ## white, so it is printed in whatever ink it is drawn in, in their plain cut with no maker's logo
 ## and nothing on the four buttons under the thumb, which are printed over them as each family has
 ## them. A Nintendo pad has an Xbox pad's layout, and no free drawing of its own, so it is drawn as
-## one with its own letters; a generic pad is drawn as an Xbox pad, the layout most pads copy.
+## one with its own letters; a generic pad is drawn as an Xbox pad, the layout most pads copy. A
+## Steam Deck is drawn from Valve's own drawings, its top over its front to show its shoulders, in a
+## Steam build, which has them, see tools/steam_deck_art; as an Xbox pad elsewhere.
 
 const XBOX_ART: Texture2D = preload("res://assets/controllers/xbox_series.png")
 const PS5_ART: Texture2D = preload("res://assets/controllers/playstation_5.png")
 const PS4_ART: Texture2D = preload("res://assets/controllers/playstation_4.png")
-## How big a button under the thumb is on each drawing, in its own pixels.
+## How big a button under the thumb is on Xelu's drawings, in their own pixels.
 const FACE_RADIUS := 44.0
+## The Steam Deck's drawings, there in a Steam build alone; how many of the drawing's pixels each of
+## their own units is, drawn about as big as the other pads; the part of its top view shown, in its
+## units, turned over so its front faces the front view under it, and the room between the two.
+const DECK_FRONT := "res://addons/godotsteam/steamdeck/front.svg"
+const DECK_TOP := "res://addons/godotsteam/steamdeck/top.svg"
+const DECK_WIDE := 1024.0
+const DECK_UNIT := 1.42
+const DECK_TOP_PART := Rect2(0.0, 30.0, 1024.0, 185.0)
+const DECK_GAP := 15.0
+const DECK_FACE_RADIUS := 15.0
+## Where its buttons are, in its units, the top view's shoulders over the front view's rest.
+const DECK_SPOTS: Dictionary[StringName, Vector2] = {
+	&"lt": Vector2(55, 90),
+	&"lb": Vector2(55, 139),
+	&"rt": Vector2(969, 90),
+	&"rb": Vector2(969, 139),
+	&"ls": Vector2(163, 290),
+	&"rs": Vector2(860, 290),
+	&"dpad": Vector2(40, 273),
+	&"view": Vector2(121, 233),
+	&"menu": Vector2(902, 233),
+	&"north": Vector2(958, 244),
+	&"east": Vector2(989, 274),
+	&"west": Vector2(929, 274),
+	&"south": Vector2(958, 304),
+}
 ## Where each button is on each drawing, in its own pixels: a trigger, a shoulder button, a stick,
 ## the D-pad by its left arm, the middle two, the touchpad, and the four under the thumb by where
 ## they are, north the one at the top.
@@ -118,8 +146,14 @@ const PLAIN_NAMES: Dictionary[StringName, String] = {
 	&"touch": "Touchpad",
 }
 var family := PadFamily.Family.GENERIC
+## The drawing, the first of its pictures; how big all of it is, and where its buttons are and how
+## big the four under the thumb, in its pixels; and what it is drawn from, picture by picture: each
+## one's texture, the part of it shown, where that goes and how big, and whether it is turned over.
 var art: Texture2D
+var size := Vector2.ZERO
 var spots: Dictionary[StringName, Vector2]
+var face_radius := FACE_RADIUS
+var layers: Array[Dictionary] = []
 
 
 ## The drawing of a pad of [param family].
@@ -128,15 +162,71 @@ static func of(family: PadFamily.Family) -> PadDiagram:
 	diagram.family = family
 	match family:
 		PadFamily.Family.PLAYSTATION:
-			diagram.art = PS5_ART
-			diagram.spots = PS5_SPOTS
+			diagram._one(PS5_ART, PS5_SPOTS)
 		PadFamily.Family.PLAYSTATION_4:
-			diagram.art = PS4_ART
-			diagram.spots = PS4_SPOTS
+			diagram._one(PS4_ART, PS4_SPOTS)
+		PadFamily.Family.STEAM_DECK when ResourceLoader.exists(DECK_FRONT):
+			diagram._deck()
 		_:
-			diagram.art = XBOX_ART
-			diagram.spots = XBOX_SPOTS
+			diagram._one(XBOX_ART, XBOX_SPOTS)
 	return diagram
+
+
+## Drawn from the one picture [param picture], its buttons at [param at].
+func _one(picture: Texture2D, at: Dictionary[StringName, Vector2]) -> void:
+	art = picture
+	size = Vector2(picture.get_size())
+	spots = at
+	layers = [
+		{
+			"texture": picture,
+			"part": Rect2(Vector2.ZERO, size),
+			"at": Vector2.ZERO,
+			"size": size,
+			"flip": false
+		}
+	]
+
+
+## Drawn from Valve's two pictures of the Steam Deck, its top turned over above its front.
+func _deck() -> void:
+	var front: Texture2D = load(DECK_FRONT)
+	var top: Texture2D = load(DECK_TOP)
+	var pixels := front.get_width() / DECK_WIDE
+	var below := DECK_TOP_PART.size.y + DECK_GAP
+	art = front
+	size = Vector2(DECK_WIDE, below + front.get_height() / pixels) * DECK_UNIT
+	face_radius = DECK_FACE_RADIUS * DECK_UNIT
+	for spot: StringName in DECK_SPOTS:
+		spots[spot] = DECK_SPOTS[spot] * DECK_UNIT
+	var shown := Rect2(DECK_TOP_PART.position * pixels, DECK_TOP_PART.size * pixels)
+	layers = [
+		{
+			"texture": top,
+			"part": shown,
+			"at": Vector2.ZERO,
+			"size": DECK_TOP_PART.size * DECK_UNIT,
+			"flip": true
+		},
+		{
+			"texture": front,
+			"part": Rect2(Vector2.ZERO, front.get_size()),
+			"at": Vector2(0.0, below) * DECK_UNIT,
+			"size": Vector2(front.get_size()) / pixels * DECK_UNIT,
+			"flip": false
+		},
+	]
+
+
+## The drawing on [param canvas] with its top left corner at [param at], scaled by [param scale],
+## in [param tint].
+func draw(canvas: CanvasItem, at: Vector2, scale: float, tint: Color) -> void:
+	for layer: Dictionary in layers:
+		var place := Rect2(at + layer["at"] * scale, layer["size"] * scale)
+		# A negative height is the same place turned over top to bottom.
+		if layer["flip"]:
+			place.size.y = -place.size.y
+		canvas.draw_texture_rect_region(layer["texture"], place, layer["part"], tint)
 
 
 ## Which button on the drawing [param event] is, or an empty name for a key, the mouse, or a pad's
@@ -167,7 +257,7 @@ func shows(spot: StringName) -> bool:
 ## scaled by [param scale], in [param ink], as this family has them: a PlayStation pad's shapes, and
 ## the letters of the rest where that family has them, in the one ink the drawing is in.
 func print_faces(canvas: CanvasItem, at: Vector2, scale: float, ink: Color, font: Font) -> void:
-	var radius := FACE_RADIUS * scale
+	var radius := face_radius * scale
 	var size := roundi(radius * 1.05)
 	for spot: StringName in FACES:
 		var middle := at + spots[spot] * scale

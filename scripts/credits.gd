@@ -105,6 +105,13 @@ const THINGS: Array[Dictionary] = [
 		"where": "thoseawesomeguys.com/prompts",
 	},
 	{
+		"what": "The Steam Deck's drawings, on How to hold the wheel",
+		"who": "Valve Corporation",
+		"terms": "offered for a game's input callouts",
+		"where": "partner.steamgames.com/doc/steamhardware/steamdeck/svg",
+		"steam": true,
+	},
+	{
 		"what": "Material Symbols, the tap",
 		"who": "Google",
 		"terms": "Apache License 2.0",

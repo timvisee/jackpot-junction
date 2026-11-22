@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# Valve's line drawings of the Steam Deck, for the gamepad's blueprint, GAME.md 8.3b: its front and
+# its top, from the Steam Deck documentation, which offers them "in case you'd like to add Steam
+# Deck specific input callouts in your game". Into addons/godotsteam/steamdeck, beside GodotSteam,
+# so they are in the Steam builds alone and never in the repository or the GitHub builds, with the
+# import settings they are drawn at. tools/steam_addon runs this after GodotSteam; running it again
+# starts over.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+sha256=d6419d20d80d0cde4efb828bd90da3c8ef2212aee8f2ac6e450398f8a546407d
+url="https://shared.akamai.steamstatic.com/community_assets/images/steamworks_docs/english/steamdeckSVG.zip"
+
+work="$(mktemp -d)"
+trap 'rm -rf -- "$work"' EXIT
+echo "Fetching Valve's Steam Deck drawings"
+curl -sSLf --retry 3 -o "$work/steamdeck.zip" "$url"
+if ! echo "$sha256  $work/steamdeck.zip" | sha256sum -c --quiet -; then
+	echo "Valve's Steam Deck drawings are not the file they were when they were pinned: $url" >&2
+	exit 1
+fi
+rm -rf addons/godotsteam/steamdeck
+mkdir -p addons/godotsteam/steamdeck
+for view in Front Top; do
+	name="$(echo "$view" | tr '[:upper:]' '[:lower:]')"
+	unzip -p "$work/steamdeck.zip" "steamdeck$view.svg" >"addons/godotsteam/steamdeck/$name.svg"
+	# Drawn a little bigger than they come, and smaller again on a smaller screen.
+	cat >"addons/godotsteam/steamdeck/$name.svg.import" <<'IMPORT'
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+
+[params]
+
+compress/mode=0
+mipmaps/generate=true
+svg/scale=1.5
+IMPORT
+done
+echo "The Steam Deck's drawings are in addons/godotsteam/steamdeck"

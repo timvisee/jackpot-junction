@@ -5055,7 +5055,11 @@ button it is on now.
   touched last is the one drawn, by its family, see 8.3: an Xbox Series pad, a DualSense, a
   DualShock 4. A Nintendo pad has an Xbox pad's layout and no free drawing of its own, so it is
   drawn as one with its own letters; a generic pad, and the pad of a player who has touched none,
-  is drawn as an Xbox pad, the layout most pads copy. The four under the thumb, blank on the
+  is drawn as an Xbox pad, the layout most pads copy. A Steam Deck, in a Steam build, is drawn from
+  Valve's own drawings of it, offered for a game's input callouts and fetched with GodotSteam
+  (`tools/steam_deck_art`), so they are in the Steam builds alone: its top view over its front, turned
+  over so its front faces the front view as an engineer lays two views out, for its L1 to R2;
+  elsewhere it is drawn as an Xbox pad with its own names. The four under the thumb, blank on the
   drawings, are printed as the family has them, in the same white: a PlayStation pad's shapes, the
   others' letters.
 - **The lines**: from each button something is bound to, a line out to its words, the shoulders,

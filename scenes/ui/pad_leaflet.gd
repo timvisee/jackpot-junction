@@ -391,7 +391,7 @@ func close() -> void:
 
 ## Where the pad's drawing is laid on the sheet, and how big.
 func _art_rect() -> Rect2:
-	var drawn := Vector2(diagram.art.get_size()) * ART_SCALE
+	var drawn := diagram.size * ART_SCALE
 	return Rect2(Vector2((SIZE.x - drawn.x) * 0.5, ART_TOP), drawn)
 
 
@@ -416,7 +416,7 @@ func _draw_sheet() -> void:
 	BlueprintArt.marks(_sheet, inside, Type.micro_font())
 	_draw_foot(inside)
 	var art := _art_rect()
-	_sheet.draw_texture_rect(diagram.art, art, false, Color(INK, 0.96))
+	diagram.draw(_sheet, art.position, ART_SCALE, Color(INK, 0.96))
 	diagram.print_faces(_sheet, art.position, ART_SCALE, INK, Type.STRONG)
 	var said := labels(page, simple, diagram)
 	var sides: Array[Array] = [[], [], []]
@@ -467,7 +467,7 @@ func _draw_column(
 		# A line to one of the four under the thumb starts at its rim, leaving what is on it clear.
 		var from := button
 		if face:
-			from += (first - button).normalized() * (PadDiagram.FACE_RADIUS * ART_SCALE + 2.0)
+			from += (first - button).normalized() * (diagram.face_radius * ART_SCALE + 2.0)
 		else:
 			_dot(button)
 		if AROUND.has(spot):
