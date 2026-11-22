@@ -339,6 +339,8 @@ func test_the_house_of_cards_answers_to_the_pot() -> void:
 	house.set_process(false)
 	assert_int(house.storeys).is_equal(HouseOfCards.MOST)
 	assert_int(house.cards.multimesh.visible_instance_count).is_equal(HouseOfCards.MOST_CARDS)
+	# Its picture on the rack frames the whole house, though its cards are one mesh of many.
+	assert_float(DressPicture.bounds_of(hat, false).size.y).is_greater(0.2)
 	house.observe(0.1, true, false, 10.0, 1)
 	assert_int(house.storeys).is_equal(1)
 	assert_int(house.cards.multimesh.visible_instance_count).is_equal(2)

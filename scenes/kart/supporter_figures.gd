@@ -35,6 +35,7 @@ static func house_of_cards(worn: Node3D) -> void:
 	many.instance_count = HouseOfCards.MOST_CARDS
 	many.visible_instance_count = 0
 	cards.multimesh = many
+	cards.custom_aabb = HouseOfCards.bounds().grow(0.2)
 	# Its cards are moved every drawn frame, not every physics step: none of the engine's smoothing
 	# between steps, which warns of being stepped outside them.
 	cards.physics_interpolation_mode = Node.PHYSICS_INTERPOLATION_MODE_OFF

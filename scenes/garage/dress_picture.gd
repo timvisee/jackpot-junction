@@ -462,6 +462,10 @@ static func film(
 	var sway := thing.get_node_or_null("Sway")
 	if sway != null:
 		sway.process_mode = Node.PROCESS_MODE_DISABLED
+	# A house of cards is turned for the kart's cameras, which shows this one its cards from the
+	# side: square on here.
+	for house: Node in thing.find_children("*", "HouseOfCards", true, false):
+		(house as HouseOfCards).turn = 0.0
 	# A piece's light, a beam or a glow, is for the felt and the room, not for its picture.
 	for node: Node in thing.find_children("*", "MeshInstance3D", true, false):
 		if SupporterDress.is_light(node):
@@ -510,22 +514,27 @@ static func _subject(part_of: int, index_of: int, in_color: Color) -> Node3D:
 
 
 ## The box round every mesh of [param thing] in its own space, without a flag's pole for
-## [param no_pole], so the picture holds what flies from it, nor a piece's light.
+## [param no_pole], so the picture holds what flies from it, nor a piece's light; a mesh of many,
+## as the house of cards' cards are, by the box it is given.
 static func bounds_of(thing: Node3D, no_pole: bool) -> AABB:
 	var found := AABB()
 	var first := true
-	for node: Node in thing.find_children("*", "MeshInstance3D", true, false):
-		var mesh := node as MeshInstance3D
-		if mesh.mesh == null or (no_pole and mesh.get_parent() == thing):
+	for node: Node in thing.find_children("*", "GeometryInstance3D", true, false):
+		var mesh := node as GeometryInstance3D
+		var many := mesh as MultiMeshInstance3D
+		var one := mesh as MeshInstance3D
+		if many == null and (one == null or one.mesh == null):
 			continue
-		if SupporterDress.is_light(mesh):
+		if many != null and not many.custom_aabb.has_volume():
+			continue
+		if (no_pole and mesh.get_parent() == thing) or SupporterDress.is_light(mesh):
 			continue
 		var placed := Transform3D.IDENTITY
 		var at: Node = mesh
 		while at != thing and at is Node3D:
 			placed = (at as Node3D).transform * placed
 			at = at.get_parent()
-		var box := placed * mesh.get_aabb()
+		var box := placed * (many.custom_aabb if many != null else one.get_aabb())
 		found = box if first else found.merge(box)
 		first = false
 	return found

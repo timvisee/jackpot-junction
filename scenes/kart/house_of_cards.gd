@@ -37,6 +37,9 @@ const WOBBLE_RATE := 1.7
 
 ## The cards it stands, and how many storeys it stands now.
 var cards: MultiMeshInstance3D
+## How far it is turned on the helmet, in degrees: [constant TURN] on a kart, none in the rack's
+## picture, whose camera is itself turned to the side, see [method DressPicture.film].
+var turn := TURN
 var storeys := 0
 var state := State.STANDING
 var _time := 0.0
@@ -49,6 +52,9 @@ var _rng := RandomNumberGenerator.new()
 func _ready() -> void:
 	super()
 	_rng.seed = 7
+	# Turned from the start, for a picture taken before it is first stepped.
+	if cards != null:
+		cards.rotation.y = deg_to_rad(turn)
 	stand(wanted())
 
 
@@ -67,7 +73,11 @@ func stand(count: int) -> void:
 	state = State.STANDING
 	_time = 0.0
 	if cards != null:
-		cards.multimesh.visible_instance_count = layout(count).size()
+		var placed := layout(count)
+		cards.multimesh.visible_instance_count = placed.size()
+		# Laid at once, settled, for a picture taken before it is first stepped.
+		for i: int in placed.size():
+			cards.multimesh.set_instance_transform(i, placed[i])
 
 
 ## Where each card of a house of [param count] storeys stands, in the house's own space: each storey
@@ -95,6 +105,17 @@ static func layout(count: int) -> Array[Transform3D]:
 			placed.append(Transform3D(flat, Vector3(x, y + 0.004, 0.0)))
 		y += 0.008
 	return placed
+
+
+## The box round the whole house standing, in its own space, see [method layout]: what its cards
+## are framed and culled by, since the engine cannot measure cards it moves itself.
+static func bounds() -> AABB:
+	var card := AABB(Vector3(-CARD.x, -CARD.y, -0.01) * 0.5, Vector3(CARD.x, CARD.y, 0.01))
+	var box := AABB()
+	var placed := layout(MOST)
+	for i: int in placed.size():
+		box = placed[i] * card if i == 0 else box.merge(placed[i] * card)
+	return box
 
 
 func _died() -> void:
@@ -131,7 +152,7 @@ func tick(delta: float) -> void:
 	_time += delta
 	cards.rotation = Vector3(
 		sin(clock * WOBBLE_RATE) * WOBBLE,
-		deg_to_rad(TURN),
+		deg_to_rad(turn),
 		sin(clock * WOBBLE_RATE * 1.3 + 1.0) * WOBBLE
 	)
 	match state:
