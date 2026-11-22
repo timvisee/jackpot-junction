@@ -495,11 +495,14 @@ its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands
 | Name | Jackpot Junction - Supporter Pack |
 | Type | DLC, cosmetic only |
 
+Neither description names the thank-you card, which a player who bought the pack is to find for
+themselves on the title.
+
 Short description:
 
 > A small thank-you for a free game. Eleven pieces of kart dress that glow, spin and answer to
-> your pot, three card backs, a star for your license plate and a card from the maker. Nothing that
-> wins a match: just a way to show you chipped in.
+> your pot, three card backs and a star for your license plate. Nothing that wins a match: just a
+> way to show you chipped in.
 
 About This Content, in Steam's own markup, its pictures uploaded first as the game's are, see
 About This Game above:
@@ -527,7 +530,6 @@ Every piece glows, spins or answers to your pot, so the table can see who chippe
 [*][b]Starlight[/b] (finish): drifting stars, for any piece you wear.
 [*][b]Beacon[/b], [b]Constellation[/b] and [b]Aurora[/b] (card backs) for your joker deck.
 [*][b]A star[/b] for your license plate and a [b]Supporter[/b] endorsement on your driver's license.
-[*][b]A thank-you card[/b] from the maker, taped up in your garage.
 [/list]
 
 Everything in it is for looks. It changes nothing about how a match is played or won, and every joker, power-up and arena stays free for everyone.
