@@ -5,16 +5,19 @@ extends Node
 ## beside it, the way a phone's keyboard comes up, see [KeyboardBar]. Steam's keyboard types into
 ## the box as keys do, so everything that listens to the box hears it the way it always has, Enter
 ## and all. Every box the game has, or comes to have, is given it as it comes into the tree, as
-## [PointerHand] gives the hand. A box starts being typed into when it is clicked or tapped, Tabbed
-## to, or handed the cursor by its screen; a pad only walks the cursor onto a box, so A on it starts
-## it, and brings the keyboard back after it was put away. Steam is told where the box is once it
-## stays put, see [constant STILL]. Never for a player with a keyboard in hand, see
-## [member keys_in_hand]. The keyboard goes with the box, once it is done with or gone, and the box
-## is left as the player left it. Made by [Game] from its path with Steam on, so nothing it names is
-## compiled with the autoloads.
+## [PointerHand] gives the hand. It comes up only for a box the player pressed: A on it with a pad,
+## the cursor at the end of what it reads, or a click or a tap; not for a box a screen handed the
+## cursor, nor one a pad only walked onto, which brought it up as the settings' pages were paged
+## through. Steam is told where the box is once it stays put, see [constant STILL]. Never for a
+## player with a keyboard in hand, see [member keys_in_hand]. The keyboard goes with the box, once
+## it is done with or gone, and the box is left as the player left it. Made by [Game] from its path
+## with Steam on, so nothing it names is compiled with the autoloads.
 
 ## Steam's word that the player put its floating keyboard away, by its own close or by Enter.
 const DISMISSED := &"floating_gamepad_text_input_dismissed"
+## What a box is marked with, as a meta, whose keyboard comes up as soon as it starts being typed
+## into, it being in a dialog put up for nothing else.
+const AT_ONCE := &"keyboard_at_once"
 ## Steam's floating keyboard's kinds, GodotSteam's `FloatingGamepadTextInputMode`: for a line of
 ## words, for an email address, and for digits.
 const SINGLE_LINE := 0
@@ -55,6 +58,8 @@ var _waiting: LineEdit
 var _seen := Rect2i()
 var _still := 0
 var _waited := 0.0
+## The box clicked or tapped, whose keyboard comes up as it starts being typed into; null for none.
+var _pointed: LineEdit
 
 
 func _ready() -> void:
@@ -173,22 +178,41 @@ func _on_added(node: Node) -> void:
 ## by going itself.
 func _on_editing(on: bool, box: LineEdit) -> void:
 	if on:
-		ask(box)
+		if box.has_meta(AT_ONCE) or is_same(box, _pointed):
+			ask(box)
+		_pointed = null
 	elif is_same(box, field) or is_same(box, _waiting):
 		# Not put away at once: the cursor going from one box straight to another hands the
 		# keyboard over rather than putting it away and up again.
 		_done_with.call_deferred()
 
 
-## A pad's A on [param box], which has the cursor: Enter or a click starts a box being typed into,
-## and a pad has neither, so A does, bringing Steam's keyboard up, or back after it was put away.
-## Taken only when the keyboard comes; otherwise A does what it did.
+## A press on [param box]: a pad's A, which has the cursor on it, or a click or a tap. A brings
+## Steam's keyboard up, or back after it was put away, the cursor at the end of what the box reads:
+## Enter or a click starts a box being typed into, and a pad has neither. Taken only when the
+## keyboard comes; otherwise A does what it did. A click or a tap brings it up as the box starts
+## being typed into, or at once where it is being typed into already.
 func _on_box_input(event: InputEvent, box: LineEdit) -> void:
-	if not event is InputEventJoypadButton or not event.is_action_pressed(&"ui_accept"):
+	var pad := event is InputEventJoypadButton and event.is_action_pressed(&"ui_accept")
+	var click := event as InputEventMouseButton
+	var touch := event as InputEventScreenTouch
+	var pointed := (
+		(click != null and click.pressed and click.button_index == MOUSE_BUTTON_LEFT)
+		or (touch != null and touch.pressed)
+	)
+	if not pad and not pointed:
+		return
+	if pointed:
+		if box.is_editing():
+			ask(box)
+		else:
+			_pointed = box
 		return
 	if (shown and is_same(box, field)) or is_same(box, _waiting) or not ask(box):
 		return
 	box.edit()
+	box.deselect()
+	box.caret_column = box.text.length()
 	box.accept_event()
 
 

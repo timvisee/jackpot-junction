@@ -1,11 +1,13 @@
 extends GdUnitTestSuite
-## Steam's keyboard on the screen, GAME.md 10.8: a box starting to be typed into, in a Steam build
-## on Steam's own hardware or in Big Picture, asks Steam for its floating keyboard beside the box's
-## place in the window, of the kind the box wants, once the box stays put and is drawn whole; a
-## pad's A on a box starts it and brings the keyboard, back too after Steam's close put it away; the
-## keyboard is handed from one box straight to the next and goes with the box; Enter on it submits
-## the box. Nothing is asked without Steam, off Steam's hardware outside Big Picture, or with a
-## keyboard in hand. Steam here is always [FakeSteam].
+## Steam's keyboard on the screen, GAME.md 10.8: a box pressed, in a Steam build on Steam's own
+## hardware or in Big Picture, asks Steam for its floating keyboard beside the box's place in the
+## window, of the kind the box wants, once the box stays put and is drawn whole; a box only handed
+## the cursor asks nothing until it is; a pad's A on a box starts it and brings the keyboard, the
+## cursor at the end, back too after Steam's close put it away; the keyboard is handed from one box
+## straight to the next and goes with the box; Enter on it submits the box. Nothing is asked without
+## Steam, off Steam's hardware outside Big Picture, or with a keyboard in hand. Steam here is always
+## [FakeSteam]. Most boxes here are a dialog's, whose keyboard comes as soon as they are typed into,
+## see [constant SteamKeyboard.AT_ONCE], so a box handed the cursor stands for one pressed.
 
 const SHOW := "showFloatingGamepadTextInput"
 const HIDE := "dismissFloatingGamepadTextInput"
@@ -48,11 +50,15 @@ func after_test() -> void:
 	DeviceInput.recent = _was_recent
 
 
-## A box in the holder at [param at].
-func _box(at := Vector2(100.0, 100.0)) -> LineEdit:
+## A box in the holder at [param at]: one whose keyboard comes as soon as it is typed into, as a
+## dialog's does, see [constant SteamKeyboard.AT_ONCE], or with [param at_once] false one that
+## waits to be pressed, as every other box does.
+func _box(at := Vector2(100.0, 100.0), at_once := true) -> LineEdit:
 	var box := LineEdit.new()
 	box.position = at
 	box.size = Vector2(300.0, 48.0)
+	if at_once:
+		box.set_meta(SteamKeyboard.AT_ONCE, true)
 	_holder.add_child(box)
 	return box
 
@@ -102,6 +108,7 @@ func test_a_box_typed_into_asks_for_steams_keyboard_beside_it() -> void:
 	var box := LineEdit.new()
 	box.position = Vector2(200.0, 300.0)
 	box.size = Vector2(240.0, 48.0)
+	box.set_meta(SteamKeyboard.AT_ONCE, true)
 	layer.add_child(box)
 	box.grab_focus()
 	assert_bool(box.is_editing()).is_true()
@@ -161,6 +168,7 @@ func test_a_box_gets_the_kind_of_keyboard_a_phone_would_give_it() -> void:
 	password.secret = true
 	assert_int(SteamKeyboard.kind_of(password)).is_equal(SteamKeyboard.SINGLE_LINE)
 	# Asked for so: the port's box gets Steam's keypad.
+	port.set_meta(SteamKeyboard.AT_ONCE, true)
 	_holder.add_child(port)
 	port.grab_focus()
 	await _settle()
@@ -183,7 +191,8 @@ func test_every_box_is_heard_once_however_often_it_comes_and_goes() -> void:
 
 
 func test_a_pads_a_on_a_box_starts_it_and_brings_the_keyboard_back() -> void:
-	var box := _box()
+	var box := _box(Vector2(100.0, 100.0), false)
+	box.text = "Ann"
 	# The cursor walked onto the box with a pad, which does not start it being typed into.
 	_fake.hardware = SteamStore.NOT_STEAM_HARDWARE
 	box.grab_focus()
@@ -194,6 +203,9 @@ func test_a_pads_a_on_a_box_starts_it_and_brings_the_keyboard_back() -> void:
 	get_viewport().push_input(_pad(JOY_BUTTON_A))
 	assert_bool(get_viewport().is_input_handled()).is_true()
 	assert_bool(box.is_editing()).is_true()
+	# The cursor at the end of what it reads, nothing chosen, to type on after.
+	assert_int(box.caret_column).is_equal(3)
+	assert_bool(box.has_selection()).is_false()
 	await _settle()
 	assert_int(_asked().size()).is_equal(1)
 	# With the keyboard up for it, A asks nothing more.
@@ -356,3 +368,34 @@ func test_without_steam_nothing_is_asked() -> void:
 		var script := child.get_script() as Script
 		var path := script.resource_path if script != null else ""
 		assert_str(path).is_not_equal(Game.STEAM_KEYBOARD)
+
+
+## A box a screen hands the cursor, or a pad walks onto, starts being typed into but asks for no
+## keyboard, as paging through the settings put it up; pressed, by A, a click or a tap, it does.
+func test_a_box_handed_the_cursor_waits_to_be_pressed() -> void:
+	var box := _box(Vector2(100.0, 100.0), false)
+	box.grab_focus()
+	assert_bool(box.is_editing()).is_true()
+	await _settle()
+	assert_array(_asked()).is_empty()
+	get_viewport().push_input(_pad(JOY_BUTTON_A))
+	await _settle()
+	assert_int(_asked().size()).is_equal(1)
+	# A click on one not yet typed into brings it as the click starts it; on one being typed into
+	# already, at once.
+	var other := _box(Vector2(100.0, 200.0), false)
+	var click := InputEventMouseButton.new()
+	click.button_index = MOUSE_BUTTON_LEFT
+	click.pressed = true
+	other.gui_input.emit(click)
+	await _settle()
+	assert_int(_asked().size()).is_equal(1)
+	other.grab_focus()
+	await _settle()
+	assert_int(_asked().size()).is_equal(2)
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	_fake.close_keyboard()
+	other.gui_input.emit(touch)
+	await _settle()
+	assert_int(_asked().size()).is_equal(3)

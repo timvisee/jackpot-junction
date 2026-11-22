@@ -10679,14 +10679,16 @@ nothing pauses. The title's version reads "0.18.0 · Steam".
 #### The keyboard on the screen
 
 A Steam Deck, a Steam Machine or a television has no keyboard to type a name on, so in a Steam
-build a box starting to be typed into brings up Steam's floating keyboard beside it, as a phone's
-keyboard comes up, 4.2. Every box the game has gets it: a profile's and a seat's name, the kart's
+build a box pressed brings up Steam's floating keyboard beside it, as a phone's keyboard comes up,
+4.2. Every box the game has gets it: a profile's and a seat's name, the kart's
 name tape, a password, a lobby's title, a server's name, address and port, the search over the
 friends to invite. Steam's keyboard types into the box as keys do, so the box hears it the way it
-hears a keyboard, and Enter on it does what Enter does there. A box starts being typed into when it
-is clicked or tapped, Tabbed to, or given the cursor by its screen, as the name dialog's box is. A
-pad only walks the cursor onto a box, so A on one starts it and brings the keyboard, and brings it
-back after Steam's own close has put it away. A port's box gets Steam's keypad, any other the
+hears a keyboard, and Enter on it does what Enter does there. It comes for a box the player
+pressed: A on it with a pad, which also starts it being typed into, the cursor put at the end of
+what it reads with nothing chosen, and brings the keyboard back after Steam's own close has put it
+away; or a click or a tap. Not for a box only given the cursor, by its screen as the name dialog's
+box is, or by a pad walking onto it: that put the keyboard up as the settings' pages were paged
+through, before the player had asked to type anything. Asked for on 2026-11-22. A port's box gets Steam's keypad, any other the
 keyboard for a line of words, and Steam keeps it clear of the box. Steam is told where the box is
 once it has come to rest, two frames standing still and drawn whole, or after 0.6 s whatever it
 does: a box handed the cursor as its pane is made is not laid out yet, and a pane dealt in rises
