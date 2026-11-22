@@ -199,13 +199,17 @@ func test_the_steam_deck_is_drawn_from_valves_drawings_where_they_are() -> void:
 		assert_object(deck.art).is_same(PadDiagram.XBOX_ART)
 		assert_int(deck.layers.size()).is_equal(1)
 		return
-	assert_int(deck.layers.size()).is_equal(2)
+	# Each view in two, the middle left out, with a break line at each edge of it in both.
+	assert_int(deck.layers.size()).is_equal(4)
+	assert_int(deck.breaks.size()).is_equal(4)
 	assert_bool(deck.layers[0]["flip"]).is_true()
+	assert_bool(deck.layers[1]["flip"]).is_true()
+	assert_float(deck.size.x).is_less(PadDiagram.DECK_WIDE * PadDiagram.DECK_UNIT)
 	assert_float(deck.face_radius).is_equal_approx(
 		PadDiagram.DECK_FACE_RADIUS * PadDiagram.DECK_UNIT, 0.01
 	)
 	# The front under the top, and every button within the drawing.
-	assert_float(deck.layers[1]["at"].y).is_greater(deck.layers[0]["size"].y)
+	assert_float(deck.layers[2]["at"].y).is_greater(deck.layers[0]["size"].y)
 	var whole := Rect2(Vector2.ZERO, deck.size)
 	for spot: StringName in deck.spots:
 		assert_bool(whole.has_point(deck.spots[spot])).is_true()

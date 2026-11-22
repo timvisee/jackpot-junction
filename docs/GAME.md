@@ -5058,8 +5058,10 @@ button it is on now.
   is drawn as an Xbox pad, the layout most pads copy. A Steam Deck, in a Steam build, is drawn from
   Valve's own drawings of it, offered for a game's input callouts and fetched with GodotSteam
   (`tools/steam_deck_art`), so they are in the Steam builds alone: its top view over its front, turned
-  over so its front faces the front view as an engineer lays two views out, for its L1 to R2;
-  elsewhere it is drawn as an Xbox pad with its own names. The four under the thumb, blank on the
+  over so its front faces the front view as an engineer lays two views out, for its L1 to R2; and
+  the middle of both, its screen, which has no buttons, left out as a long part is drawn broken
+  off, a break line with its zigzag at each edge, so it is drawn less wide and bigger. Elsewhere it
+  is drawn as an Xbox pad with its own names. The four under the thumb, blank on the
   drawings, are printed as the family has them, in the same white: a PlayStation pad's shapes, the
   others' letters.
 - **The lines**: from each button something is bound to, a line out to its words, the shoulders,

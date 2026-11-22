@@ -9,7 +9,8 @@ extends RefCounted
 ## them. A Nintendo pad has an Xbox pad's layout, and no free drawing of its own, so it is drawn as
 ## one with its own letters; a generic pad is drawn as an Xbox pad, the layout most pads copy. A
 ## Steam Deck is drawn from Valve's own drawings, its top over its front to show its shoulders, in a
-## Steam build, which has them, see tools/steam_deck_art; as an Xbox pad elsewhere.
+## Steam build, which has them, see tools/steam_deck_art, its screen broken out of the middle as a
+## long drawing is; as an Xbox pad elsewhere.
 
 const XBOX_ART: Texture2D = preload("res://assets/controllers/xbox_series.png")
 const PS5_ART: Texture2D = preload("res://assets/controllers/playstation_5.png")
@@ -22,10 +23,19 @@ const FACE_RADIUS := 44.0
 const DECK_FRONT := "res://addons/godotsteam/steamdeck/front.svg"
 const DECK_TOP := "res://addons/godotsteam/steamdeck/top.svg"
 const DECK_WIDE := 1024.0
-const DECK_UNIT := 1.42
+const DECK_UNIT := 1.7
 const DECK_TOP_PART := Rect2(0.0, 30.0, 1024.0, 185.0)
 const DECK_GAP := 15.0
 const DECK_FACE_RADIUS := 15.0
+## The middle of it, which is the screen and has no buttons, left out of both views so the Deck is
+## drawn less wide and so bigger, from and to, in its units; the room left at the break; how far
+## down each view its body runs at the break, top and bottom, the top view's turned over, for the
+## break lines drawn there; and how far a break line's zigzag reaches out and up.
+const DECK_CUT := Vector2(352.0, 672.0)
+const DECK_CUT_GAP := 28.0
+const DECK_TOP_BODY := Vector2(68.0, 139.0)
+const DECK_FRONT_BODY := Vector2(4.0, 410.0)
+const DECK_ZIG := Vector2(7.0, 10.0)
 ## Where its buttons are, in its units, the top view's shoulders over the front view's rest.
 const DECK_SPOTS: Dictionary[StringName, Vector2] = {
 	&"lt": Vector2(55, 90),
@@ -154,6 +164,9 @@ var size := Vector2.ZERO
 var spots: Dictionary[StringName, Vector2]
 var face_radius := FACE_RADIUS
 var layers: Array[Dictionary] = []
+## Where the drawing is broken off, the middle left out: a break line each, where it runs across
+## and from where to where down, in its pixels.
+var breaks: Array[Vector3] = []
 
 
 ## The drawing of a pad of [param family].
@@ -194,28 +207,43 @@ func _deck() -> void:
 	var top: Texture2D = load(DECK_TOP)
 	var pixels := front.get_width() / DECK_WIDE
 	var below := DECK_TOP_PART.size.y + DECK_GAP
+	var tall := front.get_height() / pixels
+	# What the middle left out takes off its width, the room at the break kept.
+	var gone := DECK_CUT.y - DECK_CUT.x - DECK_CUT_GAP
 	art = front
-	size = Vector2(DECK_WIDE, below + front.get_height() / pixels) * DECK_UNIT
+	size = Vector2(DECK_WIDE - gone, below + tall) * DECK_UNIT
 	face_radius = DECK_FACE_RADIUS * DECK_UNIT
 	for spot: StringName in DECK_SPOTS:
-		spots[spot] = DECK_SPOTS[spot] * DECK_UNIT
-	var shown := Rect2(DECK_TOP_PART.position * pixels, DECK_TOP_PART.size * pixels)
-	layers = [
-		{
-			"texture": top,
-			"part": shown,
-			"at": Vector2.ZERO,
-			"size": DECK_TOP_PART.size * DECK_UNIT,
-			"flip": true
-		},
-		{
-			"texture": front,
-			"part": Rect2(Vector2.ZERO, front.get_size()),
-			"at": Vector2(0.0, below) * DECK_UNIT,
-			"size": Vector2(front.get_size()) / pixels * DECK_UNIT,
-			"flip": false
-		},
+		var at := DECK_SPOTS[spot]
+		if at.x > DECK_CUT.y:
+			at.x -= gone
+		spots[spot] = at * DECK_UNIT
+	layers = []
+	var views: Array[Array] = [
+		[top, DECK_TOP_PART, 0.0, true], [front, Rect2(0.0, 0.0, DECK_WIDE, tall), below, false]
 	]
+	for view: Array in views:
+		var part: Rect2 = view[1]
+		for piece: Vector3 in [
+			Vector3(0.0, DECK_CUT.x, 0.0), Vector3(DECK_CUT.y, DECK_WIDE, DECK_CUT.y - gone)
+		]:
+			var shown := Rect2(piece.x, part.position.y, piece.y - piece.x, part.size.y)
+			(
+				layers
+				. append(
+					{
+						"texture": view[0],
+						"part": Rect2(shown.position * pixels, shown.size * pixels),
+						"at": Vector2(piece.z, view[2]) * DECK_UNIT,
+						"size": shown.size * DECK_UNIT,
+						"flip": view[3],
+					}
+				)
+			)
+	breaks = []
+	for edge: float in [DECK_CUT.x, DECK_CUT.x + DECK_CUT_GAP]:
+		for body: Vector2 in [DECK_TOP_BODY, DECK_FRONT_BODY + Vector2(below, below)]:
+			breaks.append(Vector3(edge, body.x, body.y) * DECK_UNIT)
 
 
 ## The drawing on [param canvas] with its top left corner at [param at], scaled by [param scale],
@@ -227,6 +255,22 @@ func draw(canvas: CanvasItem, at: Vector2, scale: float, tint: Color) -> void:
 		if layer["flip"]:
 			place.size.y = -place.size.y
 		canvas.draw_texture_rect_region(layer["texture"], place, layer["part"], tint)
+	# A break line at each edge of the middle left out, as a drawing broken off has: straight, with a
+	# sharp zigzag across its middle.
+	var zig := DECK_ZIG * DECK_UNIT
+	for line: Vector3 in breaks:
+		var middle := (line.y + line.z) * 0.5
+		var points := PackedVector2Array()
+		for point: Vector2 in [
+			Vector2(0.0, line.y),
+			Vector2(0.0, middle - zig.y),
+			Vector2(zig.x, middle - zig.y / 3.0),
+			Vector2(-zig.x, middle + zig.y / 3.0),
+			Vector2(0.0, middle + zig.y),
+			Vector2(0.0, line.z),
+		]:
+			points.append(at + (Vector2(line.x, 0.0) + point) * scale)
+		canvas.draw_polyline(points, tint, 1.8, true)
 
 
 ## Which button on the drawing [param event] is, or an empty name for a key, the mouse, or a pad's
