@@ -105,6 +105,20 @@ static func is_light(mesh: Node) -> bool:
 	return mesh.has_meta(LIGHT)
 
 
+## Whether the pack's light holds still rather than twinkling or flaring, for a player who asked
+## for fewer flashes, GAME.md 8.5.
+static func steady() -> bool:
+	return Game.settings != null and Game.settings.flash_reduction
+
+
+## [param sheen], a finish's, told whether to hold still, see [method steady]: Starlight's stars
+## then neither drift nor twinkle. Handed back, null as well.
+static func steadied(sheen: ShaderMaterial) -> ShaderMaterial:
+	if sheen != null:
+		sheen.set_shader_parameter("steady", steady())
+	return sheen
+
+
 ## The hat of the pack called [param named], in [param color], the player's, as [method
 ## KartDress.hat] hangs a hat: on a node at the head, dropped onto it as far as [constant HATS]
 ## says, holding one cut to the helmet and worn at [constant KartDress.HAT_SCALE].

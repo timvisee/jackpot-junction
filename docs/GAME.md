@@ -10676,7 +10676,8 @@ rounds of a shortlist rendered on the real kart, PLAN.md M19 S8.
   edition is back; the profile keeps which pieces are starlit. A trail in Starlight twinkles pale
   and a little blue twice as it goes, and tire marks take a pale night blue flecked with stars.
 - **Fewer flashes.** For a player who asked for fewer flashes, 8.5, the lighthouse's beam holds
-  still, pointing ahead, the stars hold rather than twinkle and the lantern never flares.
+  still, pointing ahead, the stars hold rather than twinkle, Stardust's and Starlight's, whose stars
+  stop drifting too and whose trail keeps its own color, and the lantern never flares.
 - **Never a bot's.** Bots, 4.4, and the karts of the demo for a booth, 9.8, never wear a supporter
   piece, so one on a kart always means a person who backed the game.
 - **The extras.** An endorsement on the driver license, 9.4a, SUPPORTER, stamped and dated the

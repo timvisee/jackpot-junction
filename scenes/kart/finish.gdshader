@@ -3,12 +3,13 @@
 // band of warm light sweeping across it and a glow at its edges; Holographic colors that turn with
 // the angle it is seen at; Polychrome bands of every color drifting over it; and the Steam
 // supporter pack's Starlight, 10.8, small stars drifting slowly through it over a faint night haze
-// at its edges.
+// at its edges, held still where it is told to be steady, for a player who asked for fewer flashes.
 shader_type spatial;
 render_mode unshaded, blend_add, depth_draw_never, cull_back, shadows_disabled;
 
 uniform int finish = 1;
 uniform float strength = 0.5;
+uniform bool steady = false;
 
 varying vec3 world_at;
 
@@ -39,10 +40,11 @@ void fragment() {
 		float drift = world_at.x * 0.35 + world_at.y * 0.5 + world_at.z * 0.25 + TIME * 0.25;
 		sheen = hue(drift) * (0.16 + glance * 0.32);
 	} else {
-		vec3 at = world_at * 20.0 + vec3(0.0, TIME * 0.3, 0.0);
+		float now = steady ? 0.0 : TIME;
+		vec3 at = world_at * 20.0 + vec3(0.0, now * 0.3, 0.0);
 		vec3 cell = floor(at);
 		float h = hash(cell);
-		float twinkle = 0.6 + 0.4 * sin(TIME * 4.0 + h * 50.0);
+		float twinkle = steady ? 0.7 : 0.6 + 0.4 * sin(TIME * 4.0 + h * 50.0);
 		float star = step(0.58, h) * smoothstep(0.3, 0.0, length(fract(at) - 0.5)) * twinkle;
 		vec3 haze = mix(vec3(0.25, 0.2, 0.6), vec3(0.15, 0.35, 0.7), rim) * glance * 0.45;
 		sheen = vec3(1.0, 0.96, 0.9) * star * 3.0 + haze;

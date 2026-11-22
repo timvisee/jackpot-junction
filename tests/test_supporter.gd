@@ -456,6 +456,23 @@ func test_starlight_is_a_finish_of_its_own() -> void:
 	assert_array(Array(again.starlit)).contains_exactly(["hat:Fedora"])
 
 
+## For a player who asked for fewer flashes Starlight holds still: its stars neither drift nor
+## twinkle, and a trail in it keeps its own color rather than twinkling.
+func test_starlight_holds_still_for_fewer_flashes() -> void:
+	for steady: bool in [true, false]:
+		Game.settings.flash_reduction = steady
+		var sheen := KartDress.finish_material(Loyalty.STARLIGHT)
+		assert_bool(sheen.get_shader_parameter("steady")).is_equal(steady)
+		var trail := ExhaustSmoke.new()
+		trail.dress(Color.RED, 0, Loyalty.STARLIGHT)
+		add_child(trail)
+		var process := trail.process_material as ParticleProcessMaterial
+		var ramp := (process.color_ramp as GradientTexture1D).gradient
+		assert_int(ramp.get_point_count()).is_equal(2 if steady else 8)
+		remove_child(trail)
+		trail.free()
+
+
 ## The rack of a part whose worn piece takes a finish has the Starlight switch where the pack is
 ## owned; turned on, the piece is worn in Starlight, its hook says so, and turned off it is back.
 func test_the_starlight_switch_on_the_rack() -> void:

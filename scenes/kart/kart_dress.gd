@@ -106,7 +106,7 @@ static func finish_material(level: int) -> ShaderMaterial:
 		sheen.shader = FINISH_SHADER
 		sheen.set_shader_parameter("finish", level)
 		_finishes[level] = sheen
-	return _finishes[level]
+	return SupporterDress.steadied(_finishes[level])
 
 
 ## [param worn], a hat or a flag, in finish [param level]: every part of it with the sheen over it,
