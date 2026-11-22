@@ -74,8 +74,10 @@ static func auto_distance(screen: Vector2) -> float:
 
 
 ## Who the camera keeps in the picture for a window [param screen] points across, GAME.md 8.2: as
-## chosen, or with Auto every kart at a desk, and the karts driven here alone on a small screen,
-## see [method small_screen], where every kart in the picture is a kart too small to make out.
+## chosen, or with Auto every kart at a desk, and on a small screen, see [method small_screen],
+## where every kart in the picture is a kart too small to make out, the karts driven here and the
+## rivals near them. Never the karts driven here alone, which on a television across the room
+## followed one kart so close the table was lost round it: that only where it is chosen.
 static func follows(screen: Vector2) -> String:
 	var chosen := Game.settings.camera_follows
 	return follows_auto(screen) if chosen == FOLLOW_AUTO else chosen
@@ -83,4 +85,4 @@ static func follows(screen: Vector2) -> String:
 
 ## Whom Auto follows in a window [param screen] points across, see [method follows].
 static func follows_auto(screen: Vector2) -> String:
-	return FOLLOW_MINE if small_screen(screen) else FOLLOW_EVERYONE
+	return FOLLOW_NEARBY if small_screen(screen) else FOLLOW_EVERYONE

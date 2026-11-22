@@ -4446,7 +4446,7 @@ arena, since it holds the pad and who stands on it rather than the room.
 | Pitch            | 55° below horizontal                                              |
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin. Held: back at once with 6% to spare when the field needs it, in only once the field has left 15% of room for 1.5 s and no kart is gliding into the shot, following it in and stopping where it stops |
 | Still aim        | The aim stays put while where it would go is within 5% of the screen of it, across and down, as far as every kart still fits from there at the distance held |
-| Who is framed    | Auto (everybody at a desk; only the karts driven here on a TV, a handheld, a window under 760 lines or a UI over 100%), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that) or My kart; everybody with nobody driving here |
+| Who is framed    | Auto (everybody at a desk; the karts driven here and the rivals near them on a TV, a handheld, a window under 760 lines or a UI over 100%, never My kart, which followed one kart so close on a TV the table was lost round it), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that) or My kart; everybody with nobody driving here |
 | Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; at a desk more as the UI is turned down, 14% at 90% and 20% at 75%; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
 | Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here and 18 for a rival |
 | Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
@@ -5420,9 +5420,11 @@ from a section's button low in its box was the one beside it.
   on a TV and a little on a handheld, and sits a little further back on a wide
   desktop; or a fixed distance, Closest to Farthest, for a player who would rather.
   Camera follows is whom the camera keeps in the picture, 8.2: Auto, Everyone,
-  Nearby rivals or My kart. Auto follows everyone at a desk and only the karts
-  driven here on a small screen: a TV, a handheld, a window under 760 lines, or a
-  UI drawn bigger than 100%, which is somebody saying the screen is hard to read.
+  Nearby rivals or My kart. Auto follows everyone at a desk and Nearby rivals on a
+  small screen: a TV, a handheld, a window under 760 lines, or a UI drawn bigger
+  than 100%, which is somebody saying the screen is hard to read. It never picks My
+  kart, which on a TV across the room followed one kart so close the table was lost
+  round it; that is the player's to choose.
   The window is measured as the system has it, in its points: the game stretches
   every window to the 1920 by 1080 it is laid out in, so that says nothing of how
   big the window is. Both Autos say in brackets what they come to on this screen. The look is how

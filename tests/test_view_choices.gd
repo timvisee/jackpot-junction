@@ -39,19 +39,23 @@ func test_auto_comes_in_closer_on_a_tv_and_a_handheld() -> void:
 	assert_float(handheld).is_less(desk)
 
 
-## Auto follows everybody at a desk, and only the karts driven here on a small screen: a TV, a
-## handheld, a small window, or a UI drawn bigger than it was laid out.
-func test_auto_follows_my_kart_on_a_small_screen() -> void:
+## Auto follows everybody at a desk, and the karts driven here with the rivals near them on a small
+## screen: a TV, a handheld, a small window, or a UI drawn bigger than it was laid out. Never the
+## karts driven here alone, which only a player choosing it gets.
+func test_auto_follows_nearby_rivals_on_a_small_screen() -> void:
+	var nearby := ViewChoices.FOLLOW_NEARBY
 	assert_str(ViewChoices.follows(DESK)).is_equal(ViewChoices.FOLLOW_EVERYONE)
-	assert_str(ViewChoices.follows(Vector2(1280.0, 720.0))).is_equal(ViewChoices.FOLLOW_MINE)
+	assert_str(ViewChoices.follows(Vector2(1280.0, 720.0))).is_equal(nearby)
 	Game.settings.ui_scale = 1.25
-	assert_str(ViewChoices.follows(DESK)).is_equal(ViewChoices.FOLLOW_MINE)
+	assert_str(ViewChoices.follows(DESK)).is_equal(nearby)
 	Game.settings.ui_scale = 1.0
 	Game.settings.screen = ViewChoices.SCREEN_TV
-	assert_str(ViewChoices.follows(DESK)).is_equal(ViewChoices.FOLLOW_MINE)
+	assert_str(ViewChoices.follows(DESK)).is_equal(nearby)
+	Game.settings.screen = ViewChoices.SCREEN_HANDHELD
+	assert_str(ViewChoices.follows(DESK)).is_equal(nearby)
 	# Chosen, it is what was chosen, whatever the screen.
-	Game.settings.camera_follows = ViewChoices.FOLLOW_NEARBY
-	assert_str(ViewChoices.follows(DESK)).is_equal(ViewChoices.FOLLOW_NEARBY)
+	Game.settings.camera_follows = ViewChoices.FOLLOW_MINE
+	assert_str(ViewChoices.follows(DESK)).is_equal(ViewChoices.FOLLOW_MINE)
 
 
 ## A window of no size, as where there is none, is not a small one: it says nothing.
