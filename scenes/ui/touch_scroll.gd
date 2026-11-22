@@ -1,7 +1,8 @@
 class_name TouchScroll
 extends Node
 ## A finger on a touch screen working a list of things that take the cursor, a [ScrollContainer] of
-## them, GAME.md 4.2: dragged, it scrolls the list, a swipe let go carrying it on a little, slowing;
+## them, GAME.md 4.2: dragged, it scrolls the list, up and down, or along for a list that only goes
+## across, as the kart dialog's rack does, a swipe let go carrying it on a little, slowing;
 ## and only a tap, a finger let go about where it was put down, picks the thing under it, giving it
 ## the cursor as a click would. Heard before the list is: without it the first touch of a swipe gave
 ## the card under it the cursor, which the list then scrolled to keep in sight, and the mouse a
@@ -74,8 +75,9 @@ func _input(event: InputEvent) -> void:
 	if not _dragged and drag.position.distance_to(_from) > SLOP * tall:
 		_dragged = true
 	if _dragged:
-		scroll.scroll_vertical -= roundi(drag.relative.y / tall)
-		_fling = -drag.velocity.y / tall
+		var along := drag.relative.x if _across() else drag.relative.y
+		_scrolled(-roundi(along / tall))
+		_fling = -(drag.velocity.x if _across() else drag.velocity.y) / tall
 
 
 ## The list going on after a swipe, slowing, until it is slow enough to stop or a finger has it.
@@ -87,9 +89,7 @@ func _process(delta: float) -> void:
 	_fling_over += _fling * delta
 	var step := roundi(_fling_over)
 	_fling_over -= step
-	var was := scroll.scroll_vertical
-	scroll.scroll_vertical += step
-	if step != 0 and scroll.scroll_vertical == was:
+	if step != 0 and not _scrolled(step):
 		_fling = 0.0
 	_fling *= exp(-FLING_SLOWS * delta)
 
@@ -112,6 +112,22 @@ func _tap(at: Vector2) -> void:
 	var button := picked as BaseButton
 	if button != null and not button.disabled:
 		button.pressed.emit()
+
+
+## Whether the list goes across rather than up and down: one that cannot scroll up and down.
+func _across() -> bool:
+	return scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED
+
+
+## The list scrolled [param by] pixels its own way; whether it moved, not at its end already.
+func _scrolled(by: int) -> bool:
+	if _across():
+		var was := scroll.scroll_horizontal
+		scroll.scroll_horizontal += by
+		return scroll.scroll_horizontal != was
+	var before := scroll.scroll_vertical
+	scroll.scroll_vertical += by
+	return scroll.scroll_vertical != before
 
 
 ## Whether [param at], a point on the screen, is on the list.

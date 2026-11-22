@@ -1,5 +1,6 @@
 extends GdUnitTestSuite
-## The kart dialog's rack dragged along by the mouse, GAME.md 4.4a: see [PartTray].
+## The kart dialog's rack dragged along by the mouse and by a finger, GAME.md 4.4a: see [PartTray]
+## and [TouchScroll].
 
 const PATH := "user://test_rack_drag.cfg"
 
@@ -69,4 +70,33 @@ func test_the_mouse_drags_the_rack() -> void:
 	tray._input(release)
 	cell.pressed.emit()
 	assert_array(chosen).contains_exactly([cell.index])
+	dialog.close()
+
+
+## A finger drags the rack along too: the list only goes across, so a drag scrolls it across.
+func test_a_finger_drags_the_rack() -> void:
+	var was_touch := TouchInput.enabled
+	TouchInput.enabled = true
+	var dialog := await _open()
+	dialog.open_tray(1)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var scroll := dialog.tray._scroll
+	var finger := scroll.get_node("TouchScroll") as TouchScroll
+	var cell := dialog.tray.cells[4]
+	var at := cell.get_global_transform_with_canvas() * (cell.size / 2.0)
+	var touch := InputEventScreenTouch.new()
+	touch.pressed = true
+	touch.position = at
+	finger._input(touch)
+	var was := scroll.scroll_horizontal
+	for step: int in 4:
+		var drag := InputEventScreenDrag.new()
+		drag.position = at - Vector2(40.0 * (step + 1), 0.0)
+		drag.relative = Vector2(-40.0, 0.0)
+		finger._input(drag)
+	assert_int(scroll.scroll_horizontal).is_greater(was)
+	touch.pressed = false
+	finger._input(touch)
+	TouchInput.enabled = was_touch
 	dialog.close()
