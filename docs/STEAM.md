@@ -472,9 +472,10 @@ its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands
 - **Screenshots**: the pack's karts round the Junction and three karts in its hats of character,
   close up, drawn as the capsules are, since at a match's own zoom the pieces cannot be told apart;
   then the game's own screens: the hat rack with the pack's pieces, the card back rack with Beacon
-  tried, the thank-you card, and the license with the endorsement. Mark every one suitable for all
-  ages. `++ --dress=supporter` on the playground puts every kart in the pack's pieces, to see them
-  in play.
+  tried, and the license with the endorsement. Never the thank-you card, which a player who bought
+  the pack is to find for themselves on the title. Mark every one suitable for all ages.
+  `++ --dress=supporter` on the playground puts every kart in the pack's pieces, to see them in
+  play.
 - **Description**: two headings, a row of five karts in the pack's pieces and a hand of its three
   card backs, also kept in `docs/description/supporter/`, each uploaded into the description where
   it stands below, with its alt text from the table under it.

@@ -4063,7 +4063,8 @@ as the pack's star pinned to the outline and a night-blue tape.
 - [x] A Supporter Pack section on the Me page for an owner, with the thank-you card again.
 - [x] The DLC's store art (`make steam-supporter-art`, into `build/steam-art/supporter`): its
       capsules, its description's headings, a row of five karts in its pieces and a hand of its
-      card backs, six screenshots; its long description with the exact list of its pieces.
+      card backs, five screenshots, never the thank-you card, which stays a surprise; its long
+      description with the exact list of its pieces.
 
 ### S9: Steam Deck, later
 

@@ -3,8 +3,8 @@ extends Control
 ## House's opening invitation, the Your kart dialog, the joker catalog, the loyalty program and the
 ## driver's license, each mounted on the throwaway profile this runs under with `++ --shot=` and
 ## its name: invitation, kart, catalog, loyalty or license; and for the Steam supporter pack's store
-## page, with `++ --supporter`, its pieces on the hat rack, its card backs, and its thank-you card,
-## pack_kart, pack_backs and thanks, the license then wearing its endorsement and its star. The
+## page, with `++ --supporter`, its pieces on the hat rack and its card backs, pack_kart and
+## pack_backs, the license then wearing its endorsement and its star. The
 ## Game autoload's `--screenshot` grabs it, oversampled, as the gameplay shots are grabbed through
 ## the playground. Nothing here ships: it dresses a test profile and shows a screen the game already
 ## has.
@@ -50,8 +50,6 @@ func _ready() -> void:
 		_loyalty()
 	elif _shot() == "license":
 		_license()
-	elif _shot() == "thanks":
-		_thanks()
 	elif _shot() == "pack_backs":
 		_kart(KartDialog.CARD_BACK, CardBack.STYLES.find("Beacon"))
 	elif _shot() == "pack_kart":
@@ -124,15 +122,6 @@ func _shot() -> String:
 		if arg.begins_with("--shot="):
 			return arg.get_slice("=", 1)
 	return "kart"
-
-
-## The supporter pack's thank-you card as it comes on the title, GAME.md 10.8, all at once.
-func _thanks() -> void:
-	TitleBackground.add_to(self)
-	var thanks := SupporterThanks.over(self)
-	thanks.start()
-	thanks.come_on_now()
-	_square_on = thanks
 
 
 ## The Your kart dialog on a profile that has won every piece of dress, GAME.md 8.9, in the set the

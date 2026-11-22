@@ -55,14 +55,14 @@ steam=(
 )
 
 # The Steam supporter pack's DLC, GAME.md 10.8, with --supporter: its pieces on the rack, its card
-# backs, its thank-you card and the license's endorsement and plate star, into
-# build/steam-art/supporter/screenshots; its two of the table, close enough for the pieces to be
-# seen, which at a match's zoom they are not, come from scenes/dev/supporter_art_export.gd.
+# backs and the license's endorsement and plate star, into build/steam-art/supporter/screenshots;
+# its two of the table, close enough for the pieces to be seen, which at a match's zoom they are
+# not, come from scenes/dev/supporter_art_export.gd. Never its thank-you card, which a player who
+# bought the pack is to find for themselves.
 supporter=(
 	"02-your-kart|90|$posed|--shot=pack_kart --supporter"
 	"04-card-backs|120|$posed|--shot=pack_backs --supporter"
-	"05-thank-you|90|$posed|--shot=thanks --supporter"
-	"06-license|90|$posed|--shot=license --supporter"
+	"05-license|90|$posed|--shot=license --supporter"
 )
 
 shots=("${readme[@]}")
