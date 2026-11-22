@@ -722,6 +722,29 @@ func test_the_me_page_has_a_supporter_section() -> void:
 	assert_bool(Game.settings.supporter_thanked).is_false()
 
 
+## The About page has a word on the pack under the game's links where it is offered and not owned,
+## its link opening the store page, gone once the pack is bought; none where it is not offered.
+func test_the_about_page_offers_the_pack() -> void:
+	var tab: AboutTab = auto_free(AboutTab.new())
+	add_child(tab)
+	assert_object(tab.supporter_link).is_null()
+	assert_str(tab.said()).not_contains(AboutTab.SUPPORTER_LINK)
+	remove_child(tab)
+	Supporter.start(PackedStringArray(), false, true)
+	tab = auto_free(AboutTab.new())
+	add_child(tab)
+	assert_str(tab.said()).contains(AboutTab.SUPPORTER_LINK)
+	assert_int(tab.supporter_link.size_flags_horizontal).is_equal(Control.SIZE_SHRINK_CENTER)
+	tab.supporter_link.pressed.emit()
+	assert_int(Supporter.store_asked).is_equal(1)
+	Supporter.set_owned(true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_object(tab.supporter_link).is_null()
+	assert_str(tab.said()).not_contains(AboutTab.SUPPORTER_LINK)
+	remove_child(tab)
+
+
 ## Where the pack is offered and not owned, its flyer is taped up in the bay where the card goes,
 ## its press opening the pack's store page; bought and the card shown, the flyer turns into the
 ## card.

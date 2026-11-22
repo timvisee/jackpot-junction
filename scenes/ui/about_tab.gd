@@ -3,7 +3,8 @@ extends ScrollContainer
 ## The About page of the settings, GAME.md 8.5: the mark, the name and the version, that the game
 ## is an experiment made by AI and by which models, everything in it somebody else made, and the
 ## way to the game's page to play it from and to its source. Godot's own license closes it, which
-## the engine's license asks every game made with it to carry.
+## the engine's license asks every game made with it to carry. Where the Steam supporter pack is
+## offered and not owned, a quiet word on it under the game's links, see [method _supporter].
 
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)
@@ -11,6 +12,17 @@ const FAINT := Color(0.6, 0.6, 0.65)
 ## How big the mark is, and the room over it, off the page's top edge.
 const MARK := 168.0
 const MARK_ROOM := 18.0
+## The Steam supporter pack, GAME.md 10.8: a faint line under the game's own links, and a link
+## that opens its store page in Steam's overlay.
+const SUPPORTER_LINE := (
+	"Enjoying it? The Supporter Pack on Steam is a small way to chip in, and says thanks with a"
+	+ " few pieces of kart dress."
+)
+const SUPPORTER_LINK := "Get the Supporter Pack on Steam"
+
+## The supporter pack's link and the line over it, while the pack is offered and not owned.
+var supporter_link: LinkButton
+var _supporter_line: Label
 
 
 func _init() -> void:
@@ -55,6 +67,8 @@ func _ready() -> void:
 	column.add_child(_link(Credits.STEAM))
 	column.add_child(_link(Credits.ITCH))
 	column.add_child(_link(Credits.REPOSITORY))
+	if Supporter.offered() and not Supporter.owned():
+		_supporter(column)
 	column.add_child(_heading("Made with"))
 	for thing: Dictionary in Credits.in_this_build():
 		column.add_child(_credit(thing))
@@ -62,6 +76,36 @@ func _ready() -> void:
 	var license := _paragraph(Engine.get_license_text(), Type.LABEL, FAINT)
 	license.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	column.add_child(license)
+
+
+## The supporter pack's word under the game's links, where it is offered and not owned: a faint
+## line, and a gold link in the middle as the others are, which opens its store page.
+func _supporter(column: VBoxContainer) -> void:
+	_supporter_line = _paragraph(SUPPORTER_LINE, Type.BODY, FAINT)
+	column.add_child(_supporter_line)
+	supporter_link = _link(Credits.STEAM)
+	supporter_link.uri = ""
+	supporter_link.text = SUPPORTER_LINK
+	supporter_link.pressed.connect(
+		func() -> void:
+			Audio.play_sfx(&"ui_click" if Store.open_supporter() else &"ui_back", -4.0, 0.05)
+	)
+	column.add_child(supporter_link)
+
+
+## Bought while the page is up, the supporter pack's word goes, the cursor on the link before it.
+func _process(_delta: float) -> void:
+	if supporter_link == null or not Supporter.owned():
+		return
+	var had := supporter_link.has_focus()
+	var before := supporter_link.get_parent().get_child(_supporter_line.get_index() - 1) as Control
+	for gone: Control in [_supporter_line, supporter_link]:
+		gone.get_parent().remove_child(gone)
+		gone.queue_free()
+	supporter_link = null
+	_supporter_line = null
+	if had and before != null:
+		before.grab_focus()
 
 
 ## A gold link to [param uri], its address shown without the scheme, which opens it on a press.
