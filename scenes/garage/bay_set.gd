@@ -12,6 +12,10 @@ extends Node3D
 ## mesh each, the wall two quads with a small texture of blocks laid over and over; none of it
 ## casts a shadow, only the kart does, and the lamps' lights cast none. About ten things to draw.
 
+## What is taped up under the calendar, see [method _thanks]: nothing, the supporter pack's flyer,
+## or its thank-you card.
+enum Taped { NOTHING, FLYER, CARD }
+
 ## Where the back wall stands behind the kart, where the side walls stand either side of it and how
 ## far they run on toward the camera, well past where it ever stands, how tall the walls are, far
 ## taller than any screen's shape shows, under a dark ceiling over the whole room, the height of
@@ -89,10 +93,11 @@ const NOTE_SLOTS: Array[Vector2] = [
 ]
 const NOTE_SCALE := 0.00072
 const CORK := Color("#b08a5a")
-## The supporter pack's thank-you card taped up under the calendar, GAME.md 10.8: its middle on the
-## back wall, its size, how far it is turned, and the pixels it is drawn at, of its own.
+## The supporter pack's thank-you card taped up under the calendar, GAME.md 10.8, or its flyer
+## before it is bought: its middle on the back wall, its size, how far it is turned, and the pixels
+## it is drawn at, of its own.
 const THANKS_AT := Vector3(-1.65, 1.08, WALL_Z + 0.02)
-const THANKS_SIZE := Vector2(0.33, 0.22)
+const THANKS_SIZE := Vector2(0.39, 0.26)
 const THANKS_TURN := 0.06
 const THANKS_PIXELS := 0.6
 const FIRST_AID := Color("#eeeae0")
@@ -120,8 +125,10 @@ var cone: Node3D
 ## The turntable let into the floor between the lift's posts, which the kart stands on and which
 ## turns with it, see [method KartStage._turn_pad].
 var pad: Node3D
-## The supporter pack's thank-you card taped up on the wall, or null, see [method _thanks].
+## What is taped up under the calendar, the supporter pack's flyer or its thank-you card, or null,
+## and which it is, see [method _thanks].
 var thanks_card: MeshInstance3D
+var taped := Taped.NOTHING
 
 var _solid: Array[Array] = []
 var _bands: Array[Array] = []
@@ -454,12 +461,23 @@ func _story(stage: int, profile: Profile) -> void:
 	_mystery(_last_notes(profile, NOTES_PINNED))
 
 
-## The supporter pack's thank-you card, GAME.md 10.8, taped up on the back wall under the calendar
-## once it has been shown, where the pack is owned: the card itself, drawn once, see
-## [ThankYouCard], and a strip of masking tape over each of its top corners. [BayThanks] holds it
-## up again.
+## What is due taped up under the calendar now, GAME.md 10.8: the supporter pack's thank-you card
+## once it has been shown, where the pack is owned; its flyer where it is offered and not owned;
+## else nothing, which leaves whatever is up, as the flyer while the card is on its way.
+static func taped_now() -> Taped:
+	if Supporter.owned():
+		var thanked := Game.settings != null and Game.settings.supporter_thanked
+		return Taped.CARD if thanked else Taped.NOTHING
+	return Taped.FLYER if Supporter.offered() else Taped.NOTHING
+
+
+## The supporter pack's thank-you card or its flyer, see [method taped_now], taped up on the back
+## wall under the calendar: the paper, drawn once, see [method tape_up], and a strip of masking
+## tape over each of its top corners. [BayThanks] holds the card up again, or opens the pack's
+## store page from the flyer.
 func _thanks() -> void:
-	if not Supporter.owned() or Game.settings == null or not Game.settings.supporter_thanked:
+	var due := taped_now()
+	if due == Taped.NOTHING:
 		return
 	var card := MeshInstance3D.new()
 	card.name = "ThankYouCard"
@@ -475,11 +493,22 @@ func _thanks() -> void:
 	thanks_card = card
 	for side: float in [-1.0, 1.0]:
 		var corner := Vector3(side * THANKS_SIZE.x * 0.42, THANKS_SIZE.y * 0.46, 0.004)
-		var taped := card.transform * corner
-		_box(Vector3(0.1, 0.035, 0.004), taped, BayArt.MASKING, Basis(Vector3.BACK, side * 0.6))
+		var corner_at := card.transform * corner
+		_box(Vector3(0.1, 0.035, 0.004), corner_at, BayArt.MASKING, Basis(Vector3.BACK, side * 0.6))
+	tape_up(due)
+
+
+## [param what], the flyer or the thank-you card, drawn onto the paper taped up under the calendar:
+## the flyer turns into the card in its place once the pack is bought and the card shown.
+func tape_up(what: Taped) -> void:
+	if thanks_card == null or what == Taped.NOTHING or what == taped:
+		return
+	taped = what
+	var paper := thanks_card.material_override as StandardMaterial3D
+	var drawing: Control = ThankYouCard.new() if what == Taped.CARD else SupporterFlyer.new()
 	DrawnTexture.kept(
 		self,
-		ThankYouCard.new(),
+		drawing,
 		Vector2i(ThankYouCard.SIZE),
 		func(drawn: Texture2D) -> void:
 			paper.albedo_texture = drawn

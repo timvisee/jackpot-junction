@@ -283,9 +283,15 @@ func on_film(world: Vector3) -> Variant:
 	return film.position + pixel / Vector2(_render.size) * film.size
 
 
-## The supporter pack's thank-you card taped up in the bay, GAME.md 10.8, or null, see [BaySet].
+## The supporter pack's thank-you card or its flyer taped up in the bay, GAME.md 10.8, or null, see
+## [BaySet].
 func thanks_card() -> MeshInstance3D:
 	return _bay.thanks_card if _bay != null else null
+
+
+## The bay it films, see [BaySet], or null before it is built.
+func bay_set() -> BaySet:
+	return _bay
 
 
 func _ready() -> void:

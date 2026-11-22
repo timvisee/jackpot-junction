@@ -701,6 +701,29 @@ func test_the_me_page_has_a_supporter_section() -> void:
 	assert_bool(Game.settings.supporter_thanked).is_false()
 
 
+## Where the pack is offered and not owned, its flyer is taped up in the bay where the card goes,
+## its press opening the pack's store page; bought and the card shown, the flyer turns into the
+## card.
+func test_the_flyer_turns_into_the_card() -> void:
+	Supporter.start(PackedStringArray(), false, true)
+	var dialog := KartDialog.open(_holder)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	var bay := dialog.stage.bay_set()
+	assert_object(dialog.stage.thanks_card()).is_not_null()
+	assert_int(bay.taped).is_equal(BaySet.Taped.FLYER)
+	var button := dialog.find_child("BayThanks", true, false) as BayThanks
+	button.pressed.emit()
+	assert_int(Supporter.store_asked).is_equal(1)
+	Supporter.set_owned(true)
+	await get_tree().process_frame
+	assert_int(bay.taped).is_equal(BaySet.Taped.FLYER)
+	Game.settings.supporter_thanked = true
+	await get_tree().process_frame
+	assert_int(bay.taped).is_equal(BaySet.Taped.CARD)
+	dialog.queue_free()
+
+
 ## Once shown, the card is taped up in the kart dialog's bay where the pack is owned, with a button
 ## over it the cursor reaches across from the hat's hook, the press bind under it, and passes over
 ## while there is no card; held up again it has Close alone, closing it keeps nothing, and the
