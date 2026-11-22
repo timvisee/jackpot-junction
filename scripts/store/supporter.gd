@@ -3,9 +3,10 @@ extends RefCounted
 ## The supporter pack, GAME.md 10.8: a Steam DLC a player buys to say thank you for a game that is
 ## free, which lets its pieces of dress be worn. The pieces are in every build and show on anybody's
 ## kart; this says whether the ones here may be worn, on Steam's word, asked at every start and
-## never saved, and whether they are offered at all, which they are in a Steam build and in no
-## other. A debug build can pretend either way: `--supporter` as if the pack were owned, and
-## `--supporter=locked` as a Steam build without it, the pieces offered and locked.
+## never saved, and whether they are offered at all, which they are in a Steam build that names
+## the pack's DLC and in no other, see [method Store.offers_supporter_pack]. A debug build can
+## pretend either way: `--supporter` as if the pack were owned, and `--supporter=locked` as a Steam
+## build without it, the pieces offered and locked.
 ##
 ## It names nothing of the game's, only keeps what [Store] found at the start, since the dress asks
 ## it and the dress is under everything: naming the store from here pulled the store's own
@@ -19,17 +20,18 @@ static var pretend := Pretend.NONE
 ## and whether it is only counted, never opened.
 static var store_asked := 0
 static var dry := false
-## What the store said at the start: whether the pack is owned, and whether this is a Steam build.
+## What the store said at the start: whether the pack is owned, and whether it is offered here.
 static var _owned := false
-static var _steam_build := false
+static var _offered := false
 
 
-## Keeps what the store found at the start, [param owned] whether the pack is owned and
-## [param steam_build] whether this is a Steam build, and reads `--supporter` and
-## `--supporter=locked` among [param args], the game's own arguments, in a debug build only.
-static func start(args: PackedStringArray, owned_now: bool, steam_build: bool) -> void:
+## Keeps what the store found at the start, [param owned_now] whether the pack is owned and
+## [param offered_now] whether it is offered, see [method Store.offers_supporter_pack], and reads
+## `--supporter` and `--supporter=locked` among [param args], the game's own arguments, in a debug
+## build only.
+static func start(args: PackedStringArray, owned_now: bool, offered_now: bool) -> void:
 	_owned = owned_now
-	_steam_build = steam_build
+	_offered = offered_now
 	pretend = Pretend.NONE
 	if not OS.is_debug_build():
 		return
@@ -56,7 +58,7 @@ static func set_owned(owned_now: bool) -> void:
 	_owned = owned_now
 
 
-## Whether the pack's pieces are offered here at all: in a Steam build, owned or not, and in a debug
-## build pretending either way; never in a GitHub build.
+## Whether the pack's pieces are offered here at all: in a Steam build naming the pack's DLC, owned
+## or not, and in a debug build pretending either way; never in a GitHub build.
 static func offered() -> bool:
-	return pretend != Pretend.NONE or _steam_build
+	return pretend != Pretend.NONE or _offered

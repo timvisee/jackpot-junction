@@ -97,9 +97,7 @@ func _init() -> void:
 	# The supporter pack, asked of Steam once a start, or owned or locked for a debug build to look
 	# at, GAME.md 10.8.
 	Supporter.start(
-		OS.get_cmdline_user_args(),
-		Store.owns_supporter_pack(),
-		Store.steam != null or OS.has_feature("steam")
+		OS.get_cmdline_user_args(), Store.owns_supporter_pack(), Store.offers_supporter_pack()
 	)
 	var own := settings_path_for(
 		OS.get_cmdline_user_args(), OS.get_cmdline_args(), OS.get_environment(SETTINGS_ENV)

@@ -88,6 +88,13 @@ static func owns_supporter_pack(path := APP_FILE) -> bool:
 	return dlc != 0 and steam.owns(dlc)
 
 
+## Whether the supporter pack is offered here, GAME.md 10.8: in a Steam build, or one started with
+## `--steam`, that names the pack's DLC in [param path], [constant APP_FILE]. A build whose DLC is
+## not set yet has no store page to send a player to, so it hangs none of the pieces locked.
+static func offers_supporter_pack(path := APP_FILE) -> bool:
+	return (steam != null or OS.has_feature("steam")) and supporter_dlc(path) != 0
+
+
 ## The supporter pack's DLC, from [param path], [constant APP_FILE]; 0 for none named.
 static func supporter_dlc(path := APP_FILE) -> int:
 	var file := ConfigFile.new()

@@ -93,6 +93,22 @@ func test_the_supporter_pack_is_steams_word() -> void:
 	assert_bool(Store.owns_supporter_pack(APP)).is_false()
 
 
+## The pack is offered only by a Steam build that names its DLC: with no store page to open, its
+## pieces would hang locked with no way to them.
+func test_the_supporter_pack_is_offered_only_with_its_dlc() -> void:
+	var file := ConfigFile.new()
+	file.set_value("steam", "supporter_dlc", 0)
+	file.save(APP)
+	assert_bool(Store.offers_supporter_pack(APP)).is_false()
+	Store.steam = SteamStore.new(FakeSteam.new())
+	assert_bool(Store.offers_supporter_pack(APP)).is_false()
+	file.set_value("steam", "supporter_dlc", 3141600)
+	file.save(APP)
+	assert_bool(Store.offers_supporter_pack(APP)).is_true()
+	Store.steam = null
+	assert_bool(Store.offers_supporter_pack(APP)).is_false()
+
+
 ## A pack bought while the game runs is noticed: Steam is asked again as a DLC is installed and as
 ## the overlay closes, never as it opens; asked, its word is the pack's.
 func test_a_pack_bought_while_playing_is_noticed() -> void:
