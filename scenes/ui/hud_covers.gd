@@ -120,17 +120,17 @@ func _gather() -> void:
 		for part: String in ["box", "hints"]:
 			_add(parts.get(part))
 		# A hand's cards overlap, and are one thing over the room; so are a pick's. The two are
-		# kept apart, or the room between them would be taken as covered too. A pick with nobody
-		# else on this screen may cover the table, and the camera leaves it to.
+		# kept apart, or the room between them would be taken as covered too. The description of a
+		# lifted card is a thing of its own, there only while it is shown, and the soft dark behind
+		# the cards is nothing, see [HandFan]. A pick with nobody else on this screen may cover the
+		# table, and the camera leaves it to.
+		var hand := hud.hand_of(slot.index)
+		if hand != null and hand.is_visible_in_tree():
+			_add_held(hand.fan().pieces(), hand.fan())
+			_add(hand.detail())
 		var picker := hud.picker_of(slot.index)
-		var pick: Control = picker if picker != null and picker.shared() else null
-		for holder: Control in [hud.hand_of(slot.index), pick]:
-			if holder != null and holder.is_visible_in_tree():
-				var own: Array[Rect2] = []
-				for child: Node in holder.get_children():
-					_add_into(own, child)
-				for rect: Rect2 in merged(own):
-					_add_rect(rect, null if holder == pick else holder)
+		if picker != null and picker.shared() and picker.is_visible_in_tree():
+			_add_held(picker.get_children(), null)
 	_add(hud.scoreboard())
 	# And the demo for a booth's line along the foot, GAME.md 9.8.
 	for named: String in ["Clock", "Lobby"]:
@@ -152,6 +152,16 @@ func _gather() -> void:
 	if controls != null:
 		for rect: Rect2 in merged(TouchHud.covers(controls)):
 			_add_rect(rect, null)
+
+
+## The drawn rectangles of [param pieces], those that touch taken together, each going see-through
+## as [param panel], or kept clear by the camera with none.
+func _add_held(pieces: Array, panel: Control) -> void:
+	var own: Array[Rect2] = []
+	for piece: Variant in pieces:
+		_add_into(own, piece)
+	for rect: Rect2 in merged(own):
+		_add_rect(rect, panel)
 
 
 ## [param thing]'s drawn rectangle, if it is a control on show, going see-through itself.

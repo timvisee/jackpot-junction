@@ -4230,7 +4230,11 @@ Nothing the HUD lays over the screen is let hide a kart. The corners of 8.3, the
 hints hung off them, the standings, the clock, the hands of jokers and the
 driving test's clipboard of 9.4a, hung in its corner, are each a rectangle of it,
 drawn things only: a hand is as big as its cards, a line of words as wide as its
-words. While a kart is under one, its middle with 1.1 m round it touching it, it
+words. A hand is its cards and what is held with them, the count, the sign and the
+table of hands, not the soft dark behind them, which reaches most of a card above
+them and a kart shows through anyway; the description of a lifted card is one of
+its own, there only while it is shown, and each goes see-through for a kart under
+it alone. While a kart is under one, its middle with 1.1 m round it touching it, it
 goes see-through, down to a quarter of itself in an eighth of a second, so the
 kart shows through it; and it comes back over two fifths of a second once no kart
 has been under it for half of one, so a kart running along under its edge does not

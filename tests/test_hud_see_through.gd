@@ -93,3 +93,72 @@ func test_the_standings_take_their_share_on_top_of_their_own() -> void:
 	HudCovers._show(board, 1.0)
 	board._process(0.0)
 	assert_float(board.modulate.a).is_equal(1.0)
+
+
+## How far round the kart standing on the floor under [param screen] the HUD counts it as under,
+## on the screen, as [method HudCovers._look_under] has it.
+static func _reach(rig: CameraRig, screen: Vector2) -> float:
+	var middle := _floor_under(rig, screen) + Vector3.UP * CameraRig.KART_MIDDLE
+	var side := rig.camera.global_basis.x * ClearView.KART_ROOM
+	return rig.camera.unproject_position(middle).distance_to(
+		rig.camera.unproject_position(middle + side)
+	)
+
+
+## Stands [param kart] on the floor under [param screen], so its middle is there on the screen.
+static func _stand_under(rig: CameraRig, kart: Node3D, screen: Vector2) -> void:
+	var floor_at := _floor_under(rig, screen)
+	var lifted := rig.camera.unproject_position(floor_at + Vector3.UP * CameraRig.KART_MIDDLE)
+	kart.global_position = _floor_under(rig, screen + (screen - lifted))
+
+
+## The hand of cards goes see-through only for a kart under the cards: not for one over the soft
+## dark behind them, which reaches well above them, GAME.md 8.2. The description of a lifted card
+## goes on its own, only while it is shown, and the cards stay as they are for a kart under it.
+func test_the_cards_and_their_description_go_see_through_apart() -> void:
+	var match_node := await _playing()
+	var kart := match_node.kart_of(0)
+	kart.jokers.add(load("res://data/jokers/hair_trigger.tres"))
+	kart.jokers.add(load("res://data/jokers/rubber_bumpers.tres"))
+	await _runner.simulate_frames(20, 17)
+	var hud := match_node.hud
+	var rig := match_node.camera_rig
+	var gathering := hud.get_node("Covers") as HudCovers
+	var hand := hud.hand_of(0)
+	var fan := hand.fan()
+	var rival := match_node.kart_of(1)
+	var cards := hand.cards_rect()
+	var shade := HudCovers._drawn_rect(fan.shade)
+	# Over the dark above the cards, clear of the cards by more than a kart's room.
+	var above := Vector2(cards.get_center().x, (shade.position.y + cards.position.y) * 0.5)
+	assert_float(cards.position.y - above.y).is_greater(_reach(rig, above))
+	assert_bool(shade.has_point(above)).is_true()
+	_stand_under(rig, rival, above)
+	_run(gathering, 0.5)
+	assert_float(fan.modulate.a).is_equal(1.0)
+	# Under the cards.
+	_stand_under(rig, rival, cards.get_center())
+	_run(gathering, 0.5)
+	assert_float(fan.modulate.a).is_equal_approx(HudCovers.SEE_THROUGH, 0.01)
+	_stand_under(rig, rival, hud.get_viewport().get_visible_rect().size * 0.5)
+	_run(gathering, HudCovers.CLEAR_FOR + HudCovers.FADE_IN + 0.2)
+	assert_float(fan.modulate.a).is_equal(1.0)
+	# Hidden, the description is nothing over the room.
+	assert_bool(hand.detail().visible).is_false()
+	var detail_rect := HudCovers._drawn_rect(hand.detail())
+	assert_bool(detail_rect.has_area()).is_false()
+	# Lifted, it goes on its own for a kart under it, the cards staying as they are.
+	Input.action_press(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(10, 17)
+	assert_bool(hand.detail().visible).is_true()
+	detail_rect = HudCovers._drawn_rect(hand.detail())
+	cards = hand.cards_rect()
+	var on := Vector2(detail_rect.get_center().x, detail_rect.position.y + detail_rect.size.y * 0.3)
+	var gap := on.distance_to(on.clamp(cards.position, cards.end))
+	assert_float(gap).is_greater(_reach(rig, on))
+	_stand_under(rig, rival, on)
+	_run(gathering, 0.5)
+	assert_float(hand.detail().modulate.a).is_equal_approx(HudCovers.SEE_THROUGH, 0.01)
+	assert_float(fan.modulate.a).is_equal(1.0)
+	Input.action_release(InputActions.JOKER_MENU)
+	await _runner.simulate_frames(2, 17)

@@ -124,6 +124,8 @@ var reach_across := Vector2.ZERO
 var _cards: Array[JokerCard] = []
 var _ids: Array[StringName] = []
 ## The soft dark dome behind the fan, see [constant FADE_DARK].
+## The cards and all held with them but the description, see [HandFan].
+var _fan: HandFan
 var _backdrop: TextureRect
 var _detail: JokerDetail
 var _cap: Control
@@ -166,6 +168,7 @@ var _factor := 1.0
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_fan = HandFan.add_to(self)
 	# Behind the fan and the rest, a soft dark dome the held cards read against, see [method _process].
 	_backdrop = TextureRect.new()
 	_backdrop.name = "Backdrop"
@@ -173,7 +176,8 @@ func _ready() -> void:
 	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_backdrop.z_index = -1
 	_backdrop.visible = false
-	add_child(_backdrop)
+	_fan.add_child(_backdrop)
+	_fan.shade = _backdrop
 	_detail = JokerDetail.new()
 	_detail.name = "Detail"
 	_detail.visible = false
@@ -232,7 +236,7 @@ func burn(id: StringName, word := "") -> void:
 		card.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, 0.0 if hangs() else JokerCard.SIZE.y)
 		card.position = _middle - card.pivot_offset
 		card.scale = Vector2.ONE * _factor
-		add_child(card)
+		_fan.add_child(card)
 	card.set_highlighted(true, true)
 	card.z_index = _cards.size() + 2
 	var label := _word(word, JokerCard.DOOMED) if not word.is_empty() else null
@@ -256,7 +260,7 @@ func _word(text: String, ink: Color) -> Label:
 	label.add_theme_constant_override("outline_size", 8)
 	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.8))
 	label.modulate.a = 0.0
-	add_child(label)
+	_fan.add_child(label)
 	return label
 
 
@@ -309,6 +313,15 @@ func _place_word(label: Label, panel: JokerCard, glow: float) -> void:
 
 ## How far out the card at [param index] still is, 1 while it is out and down to 0 as it goes back.
 ## Where the hand is held: the middle of its cards across, and the edge they stand on.
+## The cards and all held with them, see [HandFan], and the description of the lifted card.
+func fan() -> HandFan:
+	return _fan
+
+
+func detail() -> Control:
+	return _detail
+
+
 func held_at() -> Vector2:
 	return _middle
 
@@ -571,7 +584,7 @@ func _build_count() -> void:
 	_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(_count_label, Type.STRONG, Type.BODY)
 	HudText.shadowed(_count_label, 2)
-	add_child(_count_label)
+	_fan.add_child(_count_label)
 
 
 func _place_count(right: float, _middle: float) -> void:
@@ -616,15 +629,15 @@ func _build_suited() -> void:
 	_suited = SuitedSign.new()
 	_suited.name = "Suited"
 	_suited.visible = false
-	add_child(_suited)
+	_fan.add_child(_suited)
 	_table = HandsTable.new()
 	_table.name = "Hands"
 	_table.visible = false
-	add_child(_table)
+	_fan.add_child(_table)
 	var fanfare := HandFanfare.new()
 	fanfare.name = "Fanfare"
 	fanfare.hand = self
-	add_child(fanfare)
+	_fan.add_child(fanfare)
 
 
 ## Stands the sign on the count, or under it for a hand hanging from the top edge.
@@ -768,7 +781,7 @@ func _place_cap(left: float, middle: float) -> void:
 				InputActions.JOKER_MENU, keyboard, Palette.CHIP_WHITE, CAP_SIZE
 			)
 			if _cap != null:
-				add_child(_cap)
+				_fan.add_child(_cap)
 	if _cap == null:
 		return
 	var cap_size := _cap.get_combined_minimum_size()
@@ -850,7 +863,7 @@ func _sync_cards() -> void:
 		# Fresh cards slide into the hand from beyond the edge it is held at.
 		var beyond := -JokerCard.SIZE.y * 2.0 if hangs() else size.y + JokerCard.SIZE.y
 		card.position = Vector2(size.x * (column + 0.5) / columns, beyond)
-		add_child(card)
+		_fan.add_child(card)
 		_cards.append(card)
 		_mark_unread(card, joker.id in unread)
 
