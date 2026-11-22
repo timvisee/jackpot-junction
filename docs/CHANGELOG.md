@@ -33,6 +33,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The thank-you card on a pad.** The cursor walks between Try them on and Close, and is always on
+  one of them, where the stick and the D-pad did nothing.
 - **The thank-you card in the bay.** Clicking the supporter pack's card on the Garage wall holds
   it up once, where it came up twice.
 

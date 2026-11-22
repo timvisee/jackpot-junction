@@ -865,3 +865,29 @@ func test_the_card_is_taped_up_in_the_bay() -> void:
 	again.closing.pressed.emit()
 	assert_bool(Game.settings.supporter_thanked).is_false()
 	dialog.queue_free()
+
+
+## Up, the card's cursor walks between its two buttons, and a press with the cursor on neither
+## puts it on the first, so a player with a pad always has a button to press.
+func test_the_cards_cursor_walks_between_its_buttons() -> void:
+	Supporter.pretend = Supporter.Pretend.OWNED
+	Game.settings.supporter_thanked = false
+	var thanks := SupporterThanks.over(_holder)
+	thanks.start()
+	thanks.come_on_now()
+	await get_tree().process_frame
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(thanks.try_on)
+	var right := InputEventAction.new()
+	right.action = &"ui_right"
+	right.pressed = true
+	get_viewport().push_input(right)
+	await get_tree().process_frame
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(thanks.closing)
+	thanks.closing.release_focus()
+	var press := InputEventJoypadButton.new()
+	press.button_index = JOY_BUTTON_A
+	press.pressed = true
+	get_viewport().push_input(press)
+	await get_tree().process_frame
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(thanks.try_on)
+	thanks.queue_free()

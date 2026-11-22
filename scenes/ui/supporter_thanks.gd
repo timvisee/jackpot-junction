@@ -42,6 +42,8 @@ const DROP := 0.6
 const CARD_TILT := 0.6
 const DARKNESS := OpeningInvitation.DARKNESS
 const WALKS := OpeningInvitation.WALKS
+## Of those, the ones that walk the cursor between its two buttons once they are up.
+const STEPS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
 const TRY_ON := "Try them on"
 const CLOSE := "Close"
 
@@ -245,8 +247,18 @@ func _input(event: InputEvent) -> void:
 	if _for_the_dialog(event):
 		get_viewport().set_input_as_handled()
 		return
+	# Up, a key or a pad's button with the cursor on neither button puts it on the first, so a player
+	# with a pad always has one to press and to walk from.
+	if is_up() and _pressed(event) and not _holds_cursor():
+		get_viewport().set_input_as_handled()
+		_first().grab_focus()
+		return
 	for walk: StringName in WALKS:
 		if event.is_action(walk):
+			# Up, the cursor walks between the two buttons, whose neighbours keep it on them; the
+			# Tab keys, which would walk it off to the screen under, are kept.
+			if is_up() and walk in STEPS:
+				return
 			get_viewport().set_input_as_handled()
 			return
 	if not _coming:
@@ -260,6 +272,25 @@ func _input(event: InputEvent) -> void:
 	):
 		get_viewport().set_input_as_handled()
 		come_on_now()
+
+
+## The button the cursor goes on first: Try them on, or Close where it is the only one.
+func _first() -> Button:
+	return closing if again else try_on
+
+
+## Whether the cursor is on one of its buttons.
+func _holds_cursor() -> bool:
+	var on := get_viewport().gui_get_focus_owner()
+	return on != null and (on == try_on or on == closing) and on.is_visible_in_tree()
+
+
+## Whether [param event] is a key or a pad's button pressed, or a pad's stick pushed.
+static func _pressed(event: InputEvent) -> bool:
+	if event is InputEventKey or event is InputEventJoypadButton:
+		return event.is_pressed() and not event.is_echo()
+	var stick := event as InputEventJoypadMotion
+	return stick != null and absf(stick.axis_value) > 0.5
 
 
 ## Whether [param event] is one of the kart dialog's own keys rather than this screen's.
