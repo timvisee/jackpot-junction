@@ -4,7 +4,8 @@ extends Control
 ## gamepad face button as a round button in its own color, a shoulder or a trigger as a pill,
 ## a stick as a stick, the D-pad as a D-pad, a mouse button as a mouse with that button lit, and
 ## a tap on a touch screen as a finger pointing down onto it, and a touch screen's steering as the
-## wheel it is drawn as there.
+## wheel it is drawn as there. A pad's buttons are drawn as its family prints them, see
+## [PadFamily]: a PlayStation pad's four as their shapes, a Nintendo pad's letters where they are.
 ##
 ## "Shift drift   Ctrl nitro" is a sentence to be read. The same line with the two keys drawn as
 ## keys is a picture to be recognized, which is what a hint glanced at mid-corner has to be. The
@@ -39,6 +40,14 @@ const EDGE_ALPHA := 0.92
 const EDGE_WIDTH := 1.6
 ## How dark the letter on a gamepad's own colored button is, which is how it is on the pad.
 const FACE_INK := Color(0.06, 0.06, 0.08)
+## A PlayStation pad's four shapes in the colors they have always had, lifted a little to read on
+## the dark button they are drawn on, by the button: cross, circle, square and triangle.
+const SHAPE_COLORS: Dictionary[JoyButton, Color] = {
+	JOY_BUTTON_A: Color("#7fa6ec"),
+	JOY_BUTTON_B: Color("#ec6b6b"),
+	JOY_BUTTON_X: Color("#e58fd0"),
+	JOY_BUTTON_Y: Color("#4fd0a6"),
+}
 ## How much wider than tall a stick is drawn. The letter goes inside the ring, so the ring has to
 ## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
 ## the arrows lose, coming out as nicks in the border.
@@ -106,13 +115,26 @@ var every_way := false:
 		custom_minimum_size = _wanted()
 		queue_redraw()
 
+## Whose pad a pad's button is drawn for, see [method pin]: [constant DeviceInput.ANY] for the pad
+## touched last, which it follows as the player picks up another; and that pad's family.
+var pad := DeviceInput.ANY
+var family := PadFamily.Family.GENERIC
+## Which of the four buttons under the thumb a face button is, by where it sits on the pad.
+var face := JOY_BUTTON_INVALID
+
 ## The item an item button glyph was last drawn wearing, see [method of_item_button].
 var _shown_item := &""
+## The pad's button drawn, and [member PadFamily.epoch] when its family was last looked at; and
+## whether its words are its own, see [method written].
+var _event: InputEvent
+var _epoch := -1
+var _written := false
 
 
 func _ready() -> void:
-	# Only the item button changes by itself, as the item in hand does.
-	set_process(kind == Kind.ITEM)
+	# Only the item button changes by itself, as the item in hand does, and a pad's button, as the
+	# player picks up a pad of another family.
+	set_process(kind == Kind.ITEM or _event != null)
 
 
 ## The first binding of [param action] for one device kind, as a glyph. Null when nothing is
@@ -206,16 +228,76 @@ static func of_event(event: InputEvent, ink: Color, font_size: int) -> InputGlyp
 	if glyph.kind == Kind.MOUSE:
 		glyph.mouse_button = click.button_index
 		glyph.double_click = click.double_click
-	glyph.caption = _caption_of(event, glyph.kind)
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		glyph._event = event
+		glyph.family = PadFamily.of_device(glyph.pad)
+		glyph._epoch = PadFamily.epoch
+	if glyph.kind == Kind.FACE:
+		glyph.face = (event as InputEventJoypadButton).button_index
+	glyph.caption = _caption_of(event, glyph.kind, glyph.family)
 	glyph.along = _along(event)
 	glyph.custom_minimum_size = glyph._wanted()
 	return glyph
+
+
+## Every pad's button drawn under [param root] drawn for the pad [param device] is, rather than
+## for the pad touched last: a player's own hints, where they play from a pad of their own.
+static func pin_all(root: Node, device: int) -> void:
+	if device < 0 or root == null:
+		return
+	if root is InputGlyph:
+		(root as InputGlyph).pin(device)
+	for child: Node in root.get_children():
+		pin_all(child, device)
+
+
+## [param root] with its pad's buttons drawn for the pad [param device] is, see [method pin_all].
+static func pinned(root: Control, device: int) -> Control:
+	pin_all(root, device)
+	return root
+
+
+## [param root] with its pad's buttons drawn for the pad of the player driving [param kart].
+static func pinned_for(root: Control, kart: Object) -> Control:
+	return pinned(root, device_of(kart))
+
+
+## The pad the player driving [param kart] plays from, or [constant DeviceInput.ANY] for one who
+## reads every device or is not at this machine: asked of it by name, so this names no kart.
+static func device_of(kart: Object) -> int:
+	if kart == null or not is_instance_valid(kart):
+		return DeviceInput.ANY
+	var input: Variant = kart.get("input")
+	var device: Variant = (input as Object).get("device") if input is Object else null
+	return device if device is int else DeviceInput.ANY
+
+
+## This glyph drawn for the pad [param device] is, see [method pin_all].
+func pin(device: int) -> void:
+	pad = device
+	_refit()
+
+
+## Drawn again for the family of its pad, as that is now.
+func _refit() -> void:
+	_epoch = PadFamily.epoch
+	if _event == null:
+		return
+	var now := PadFamily.of_device(pad)
+	if now == family:
+		return
+	family = now
+	if not _written:
+		caption = _caption_of(_event, kind, family)
+	custom_minimum_size = _wanted()
+	queue_redraw()
 
 
 ## This glyph with [param words] written on it in place of its own caption, as a key cap can be: an
 ## arrow for an arrow key, say. Returns itself.
 func written(words: String) -> InputGlyph:
 	caption = words
+	_written = true
 	custom_minimum_size = _wanted()
 	return self
 
@@ -252,7 +334,7 @@ static func _kind_of(event: InputEvent) -> Kind:
 ## What is written on the glyph. A stick carries which of the two it is and nothing else: the
 ## ring and the arrows say the rest, and "Left Stick X-Axis +" is a description of an input map
 ## rather than of anything a player does. The D-pad carries nothing, being one of a kind.
-static func _caption_of(event: InputEvent, kind: Kind) -> String:
+static func _caption_of(event: InputEvent, kind: Kind, drawn: int = -1) -> String:
 	if kind == Kind.DPAD:
 		return ""
 	if kind == Kind.MOUSE:
@@ -262,7 +344,7 @@ static func _caption_of(event: InputEvent, kind: Kind) -> String:
 		var motion := event as InputEventJoypadMotion
 		var right := motion != null and motion.axis in [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y]
 		return "R" if right else "L"
-	return InputActions.event_text(event)
+	return InputActions.event_text(event, drawn)
 
 
 ## Which way the stick is pushed or the pad pressed, on the screen: along X or along Y for a
@@ -402,7 +484,13 @@ func _draw_chip(box: Rect2) -> void:
 ## A face button: the round one under the thumb, solid, in the color it is on the pad and with
 ## the letter on it in the dark the pad prints it in. Its own dark rim rather than the chip, so
 ## the color is the whole of the picture.
+##
+## A PlayStation pad's and a Nintendo pad's are dark, as theirs are on the pad: a PlayStation
+## pad's with its shape on it in that shape's color, a Nintendo pad's with its letter in the ink.
 func _draw_face(box: Rect2) -> void:
+	if not PadFamily.lettered(family):
+		_draw_dark_face(box)
+		return
 	var tone: Color = FACE_COLORS.get(caption, ink)
 	var center := box.size * 0.5
 	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
@@ -410,6 +498,50 @@ func _draw_face(box: Rect2) -> void:
 	draw_circle(center, radius, Color(tone.r, tone.g, tone.b, 0.95))
 	draw_arc(center, radius, 0.0, TAU, 28, CHIP, EDGE_WIDTH)
 	_draw_caption(box, FACE_INK)
+
+
+func _draw_dark_face(box: Rect2) -> void:
+	var center := box.size * 0.5
+	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
+	draw_circle(center, radius + 1.5, CHIP_EDGE)
+	draw_circle(center, radius, CHIP)
+	draw_arc(center, radius, 0.0, TAU, 28, Color(ink, EDGE_ALPHA), EDGE_WIDTH, true)
+	if not PadFamily.shapes(family):
+		_draw_caption(box, ink)
+		return
+	draw_shape(self, face, center, radius * 0.5, SHAPE_COLORS.get(face, ink))
+
+
+## A PlayStation pad's shape for the button [param face] is, drawn on [param on] at [param middle],
+## [param reach] out from it, in [param tone]: the cross, the circle, the square or the triangle.
+static func draw_shape(
+	on: CanvasItem, face: JoyButton, middle: Vector2, reach: float, tone: Color
+) -> void:
+	var thick := maxf(1.8, reach * 0.36)
+	match face:
+		JOY_BUTTON_A:
+			var arm := reach * 0.82
+			on.draw_line(middle - Vector2(arm, arm), middle + Vector2(arm, arm), tone, thick, true)
+			on.draw_line(
+				middle + Vector2(-arm, arm), middle + Vector2(arm, -arm), tone, thick, true
+			)
+		JOY_BUTTON_B:
+			on.draw_arc(middle, reach * 0.86, 0.0, TAU, 24, tone, thick, true)
+		JOY_BUTTON_X:
+			var side := reach * 1.5
+			var square := Rect2(middle - Vector2(side, side) * 0.5, Vector2(side, side))
+			on.draw_rect(square, tone, false, thick)
+		JOY_BUTTON_Y:
+			var top := middle + Vector2(0.0, -reach * 0.98)
+			var corners := PackedVector2Array(
+				[
+					top,
+					middle + Vector2(reach * 0.94, reach * 0.66),
+					middle + Vector2(-reach * 0.94, reach * 0.66),
+					top,
+				]
+			)
+			on.draw_polyline(corners, tone, thick, true)
 
 
 ## A stick seen from above: the gate it moves inside, which side it is written in the middle of
@@ -599,3 +731,5 @@ func _draw_item_button(box: Rect2) -> void:
 func _process(_delta: float) -> void:
 	if kind == Kind.ITEM and TouchInput.item_id != _shown_item:
 		queue_redraw()
+	if _event != null and _epoch != PadFamily.epoch:
+		_refit()

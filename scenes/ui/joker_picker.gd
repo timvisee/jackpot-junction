@@ -117,6 +117,9 @@ var lane := Vector2.ZERO
 var ceiling_y := 0.0
 ## Whether the control hints name keys or gamepad buttons.
 var keyboard := true
+## The pad the player plays from, whose family its buttons are drawn as, see [PadFamily]; or
+## [constant DeviceInput.ANY] for whichever was touched last.
+var pad := DeviceInput.ANY
 ## Whether the player is holding the key for a card's details, GAME.md 8.3.
 var details := false
 ## With no card picked out and no pane, while the player is reading their own hand instead on a
@@ -345,6 +348,7 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	aside = not TouchInput.enabled and kart != null and kart.menu_open and kart.jokers.count() > 0
 	visible = not aside
 	_watching = offer
+	pad = InputGlyph.device_of(kart)
 	_terms.text = terms_line()
 	_terms.visible = not _terms.text.is_empty()
 	var choosing := offer.stage == JokerOffer.Stage.CHOOSING
@@ -447,6 +451,7 @@ func _dress_skip(word: String) -> void:
 		return
 	_skip_button.text = ""
 	var row := InputHint.row("%s " + word, [key], Palette.CHIP_WHITE, SKIP_SIZE)
+	InputGlyph.pin_all(row, pad)
 	row.name = "Keys"
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_skip_button.add_child(row)
@@ -485,6 +490,7 @@ func _dress_chip(word: String) -> void:
 	var parts: Array = [key] if key != null else []
 	var template := ("%s " if key != null else "") + word.to_lower()
 	var row := InputHint.row(template, parts, ink, size)
+	InputGlyph.pin_all(row, pad)
 	row.name = "Keys"
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_skip_button.add_child(row)
@@ -974,4 +980,6 @@ func _hint_row(choosing: bool, keeping := false, hand := false, rerolls := false
 	if rerolls:
 		template += "   %%s reroll -%d" % JokerOffer.REROLL_COST
 		parts.append(InputHint.glyph(InputActions.NITRO, keyboard, ink, size))
-	return InputHint.row(template, parts, ink, size)
+	var row := InputHint.row(template, parts, ink, size)
+	InputGlyph.pin_all(row, pad)
+	return row

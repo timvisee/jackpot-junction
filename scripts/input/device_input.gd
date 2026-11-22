@@ -15,6 +15,7 @@ static var recent: Array[int] = []
 
 ## [param device] was just used: the keyboard and mouse as [constant KEYBOARD], or a pad's id.
 static func touched(device: int) -> void:
+	PadFamily.touched(device)
 	if not recent.is_empty() and recent[0] == device:
 		return
 	recent.erase(device)

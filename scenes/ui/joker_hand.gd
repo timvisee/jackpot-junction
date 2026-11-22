@@ -762,9 +762,8 @@ func _measure_across() -> void:
 
 
 ## A picture of the button that opens the hand, sitting just left of it, GAME.md 8.3: a key cap
-## on a keyboard and the round colored button on a pad. Rebuilt rather than relabeled, since a
-## player who picks up a pad mid-match is looking at a different shape and not only a different
-## word.
+## on a keyboard and the button on the player's own pad. Rebuilt rather than relabeled, since a
+## pad picked up mid-match is a different shape and not only a different word.
 func _place_cap(left: float, middle: float) -> void:
 	# A touch screen opens the hand by holding a card, GAME.md 4.2, so there is no button to name.
 	var shown := not _cards.is_empty() and Game.settings.control_hints and not TouchInput.enabled
@@ -781,6 +780,7 @@ func _place_cap(left: float, middle: float) -> void:
 				InputActions.JOKER_MENU, keyboard, Palette.CHIP_WHITE, CAP_SIZE
 			)
 			if _cap != null:
+				InputGlyph.pin_all(_cap, InputGlyph.device_of(kart))
 				_fan.add_child(_cap)
 	if _cap == null:
 		return
@@ -915,7 +915,7 @@ func _show_detail(joker: Joker) -> void:
 	# And the key that says more of the card and of the hand, Alt or the right stick, GAME.md 8.3.
 	parts.append(InputHint.glyph(InputActions.DETAILS, keyboard, ink, size))
 	line += "   %s details"
-	_detail.set_hints(InputHint.row(line, parts, ink, size))
+	_detail.set_hints(InputGlyph.pinned_for(InputHint.row(line, parts, ink, size), kart))
 
 
 ## Whether the card up is a finger's or the mouse's, which the pane says how to keep open or close,

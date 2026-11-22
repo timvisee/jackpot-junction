@@ -178,6 +178,9 @@ func _ready() -> void:
 			# An achievement earned comes up in a corner of whatever screen this is, GAME.md 8.10.
 			add_child(load(TOASTS).new())
 	add_child(FrameCounter.new())
+	# A pad plugged in or out: which family each pad is drawn as is asked again, GAME.md 8.3. A
+	# method rather than a lambda, which the engine's Input would still hold as the game quits.
+	Input.joy_connection_changed.connect(_on_pad_plugged)
 	if Demo.on:
 		add_child(load(DEMO_HOST).new())
 		# So a booth's window says what it is, GAME.md 9.8.
@@ -261,6 +264,11 @@ static func _silence(tree: SceneTree) -> bool:
 			any = any or bool(player.get("playing"))
 			player.call("stop")
 	return any
+
+
+## A pad plugged in or out, see [method _ready].
+func _on_pad_plugged(_device: int, _connected: bool) -> void:
+	PadFamily.forget()
 
 
 ## Watches every event, without swallowing any, to know which scheme to draw hints in and which

@@ -852,7 +852,7 @@ func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
 	for action: StringName in wanted:
 		parts.append(InputHint.glyph(action, keyboard, HINT_INK, HINT_SIZE))
 		template += "%s " + HINT_WORDS[action] + "   "
-	holder.add_child(InputHint.row(template, parts, HINT_INK, HINT_SIZE))
+	holder.add_child(InputGlyph.pinned(InputHint.row(template, parts, HINT_INK, HINT_SIZE), device))
 
 
 ## The held item: its own picture and its name. While the roulette is still turning the picture

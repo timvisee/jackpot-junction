@@ -4711,11 +4711,26 @@ lane beside it is as wide as it was.
   glanced at mid-corner has to be. The shapes are drawn rather than loaded from a
   set of pictures, because the bindings belong to the player: any key on the board
   can end up in one of them.
+- **A pad's buttons as its family prints them** (`PadFamily`): the engine reads every
+  pad by where its buttons sit, so the bottom of the four is one button to the game on
+  all of them, and only what is printed on it differs. A PlayStation pad's four are
+  dark round buttons with their shape on each in its old color, a blue cross, a red
+  circle, a pink square and a green triangle, and its shoulders, triggers and stick
+  clicks are L1 to R2, L3 and R3, its middle two Create and Options, Share on a
+  DualShock 4. A Nintendo pad's four are dark with their white letter, B at the bottom
+  and A to the right as Nintendo has them, with L, R, ZL, ZR, − and +. An Xbox pad,
+  and any other pad, a generic one, keeps the letters in their colors. The family is
+  told by the maker's USB id, Sony's, Nintendo's or Microsoft's, and by the pad's name
+  where it does not say, as on a phone; a pad Steam Input stands in for is generic
+  until the game asks Steam what is behind it. The words follow too, in the rebinding
+  rows and for a screen reader. A debug build started with `++ --pad=playstation`,
+  `playstation4`, `nintendo`, `xbox` or `generic` draws every pad as that family.
 - Every hint is drawn for the scheme that player is using: their own device when
   they are pinned to one, and otherwise whichever they last touched, which the
   game tracks from the input events themselves. The joker hand, the respawn
   picker and the start-of-match hint follow the same rule, so a player who picks
-  up a pad mid-match sees gamepad buttons everywhere.
+  up a pad mid-match sees gamepad buttons everywhere, and as their pad's family
+  prints them: two players at one screen with pads of two makes each see their own.
 - **Match timer** at the top center, in amber seven-segment digits on a board hung
   from the top edge, the same digits as the clock on the hoarding of 8.1, every
   unlit segment still faintly there; red during Last Call and overtime, and the

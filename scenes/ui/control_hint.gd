@@ -74,6 +74,12 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 static func hint_row(
 	for_device: int, size := ScreenHint.FONT_SIZE, simple := false, pedals := false
 ) -> HBoxContainer:
+	var row := _drawn_row(for_device, size, simple, pedals)
+	# The buttons of the pad this player holds, GAME.md 8.3, whatever pad another player holds.
+	return InputGlyph.pinned(row, for_device) as HBoxContainer
+
+
+static func _drawn_row(for_device: int, size: int, simple: bool, pedals: bool) -> HBoxContainer:
 	var keyboard := DeviceInput.uses_keyboard(for_device)
 	if simple and pedals:
 		var steering: Array = [
@@ -105,7 +111,9 @@ static func stamp(for_device: int, simple := false, pedals := false) -> String:
 		InputActions.THROTTLE, InputActions.STEER_LEFT, InputActions.DRIVE_UP, InputActions.FIRE
 	]
 	for action: StringName in actions:
-		named.append(InputActions.short_binding_text(action, keyboard))
+		named.append(
+			InputActions.short_binding_text(action, keyboard, PadFamily.of_device(for_device))
+		)
 	return "%s|%s|%s|%s" % [keyboard, simple, pedals, "/".join(named)]
 
 

@@ -303,9 +303,10 @@ static func first_event(action: StringName, keyboard: bool) -> InputEvent:
 
 
 ## Human-readable bindings of an action for one device kind.
-## Just the first binding, for hints with no room for a list.
-static func short_binding_text(action: StringName, keyboard: bool) -> String:
-	return binding_text(action, keyboard).split(", ")[0]
+## Just the first binding, for hints with no room for a list. A pad's buttons are named as
+## [param family] has them, see [PadFamily]; for -1, the family of the pad touched last.
+static func short_binding_text(action: StringName, keyboard: bool, family: int = -1) -> String:
+	return binding_text(action, keyboard, family).split(", ")[0]
 
 
 ## The name of the stick both actions read, or an empty string when they are not two ends of the
@@ -332,16 +333,17 @@ static func _axis_of(action: StringName) -> int:
 	return -1
 
 
-static func binding_text(action: StringName, keyboard: bool) -> String:
+static func binding_text(action: StringName, keyboard: bool, family: int = -1) -> String:
 	var parts: PackedStringArray = []
 	for event: InputEvent in InputMap.action_get_events(action):
 		if is_keyboard_descriptor(descriptor_from_event(event)) == keyboard:
-			parts.append(event_text(event))
+			parts.append(event_text(event, family))
 	return ", ".join(parts) if not parts.is_empty() else "-"
 
 
-## A short name for an event: the key, or the Xbox-style name of a gamepad button or axis.
-static func event_text(event: InputEvent) -> String:
+## A short name for an event: the key, or the name of a gamepad button or axis as [param family]
+## prints it, see [PadFamily], and for -1 as the pad touched last does.
+static func event_text(event: InputEvent, family: int = -1) -> String:
 	var text := event.as_text()
 	if event is InputEventKey:
 		var key := text.replace(" - Physical", "")
@@ -360,5 +362,5 @@ static func event_text(event: InputEvent) -> String:
 		chosen = chosen.get_slice("/", chosen.get_slice_count("/") - 1)
 		if motion != null and not chosen.contains("Trigger") and chosen.length() > 2:
 			chosen += " +" if motion.axis_value > 0.0 else " -"
-		return PAD_NAMES.get(chosen, chosen) if motion == null else chosen
+		return PadFamily.word(PAD_NAMES.get(chosen, chosen) if motion == null else chosen, family)
 	return text

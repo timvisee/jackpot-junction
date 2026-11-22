@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Your own pad's buttons.** Hints show a PlayStation pad's cross, circle, square and triangle,
+  L1 to R2, and a Nintendo pad's letters where it prints them, ZL and ZR.
 - **A star on the title for supporters.** Owning the supporter pack puts its star and name in the
   bottom left corner of the title.
 
