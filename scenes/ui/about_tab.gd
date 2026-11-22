@@ -13,12 +13,13 @@ const FAINT := Color(0.6, 0.6, 0.65)
 const MARK := 168.0
 const MARK_ROOM := 18.0
 ## The Steam supporter pack, GAME.md 10.8: a faint line under the game's own links, and a link
-## that opens its store page in Steam's overlay.
+## that opens its store page in Steam's overlay, the pack's star pinned beside it, how big.
 const SUPPORTER_LINE := (
 	"Enjoying it? The Supporter Pack on Steam is a small way to chip in, and says thanks with a"
 	+ " few pieces of kart dress."
 )
 const SUPPORTER_LINK := "Get the Supporter Pack on Steam"
+const SUPPORTER_PIN := 24.0
 
 ## The supporter pack's link and the line over it, while the pack is offered and not owned.
 var supporter_link: LinkButton
@@ -79,10 +80,21 @@ func _ready() -> void:
 
 
 ## The supporter pack's word under the game's links, where it is offered and not owned: a faint
-## line, and a gold link in the middle as the others are, which opens its store page.
+## line, and a gold link in the middle as the others are, with the pack's star pinned beside it,
+## which opens its store page.
 func _supporter(column: VBoxContainer) -> void:
 	_supporter_line = _paragraph(SUPPORTER_LINE, Type.BODY, FAINT)
 	column.add_child(_supporter_line)
+	var row := HBoxContainer.new()
+	row.name = "SupporterLink"
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	row.add_theme_constant_override("separation", 8)
+	var pin := Control.new()
+	pin.custom_minimum_size = Vector2.ONE * SUPPORTER_PIN
+	pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pin.draw.connect(func() -> void: PartTray.draw_star(pin, pin.size / 2.0, SUPPORTER_PIN * 0.42))
+	row.add_child(pin)
 	supporter_link = _link(Credits.STEAM)
 	supporter_link.uri = ""
 	supporter_link.text = SUPPORTER_LINK
@@ -90,7 +102,8 @@ func _supporter(column: VBoxContainer) -> void:
 		func() -> void:
 			Audio.play_sfx(&"ui_click" if Store.open_supporter() else &"ui_back", -4.0, 0.05)
 	)
-	column.add_child(supporter_link)
+	row.add_child(supporter_link)
+	column.add_child(row)
 
 
 ## Bought while the page is up, the supporter pack's word goes, the cursor on the link before it.
@@ -99,7 +112,7 @@ func _process(_delta: float) -> void:
 		return
 	var had := supporter_link.has_focus()
 	var before := supporter_link.get_parent().get_child(_supporter_line.get_index() - 1) as Control
-	for gone: Control in [_supporter_line, supporter_link]:
+	for gone: Control in [_supporter_line, supporter_link.get_parent() as Control]:
 		gone.get_parent().remove_child(gone)
 		gone.queue_free()
 	supporter_link = null

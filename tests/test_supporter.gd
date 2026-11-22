@@ -734,7 +734,9 @@ func test_the_about_page_offers_the_pack() -> void:
 	tab = auto_free(AboutTab.new())
 	add_child(tab)
 	assert_str(tab.said()).contains(AboutTab.SUPPORTER_LINK)
-	assert_int(tab.supporter_link.size_flags_horizontal).is_equal(Control.SIZE_SHRINK_CENTER)
+	var row := tab.supporter_link.get_parent() as HBoxContainer
+	assert_int(row.size_flags_horizontal).is_equal(Control.SIZE_SHRINK_CENTER)
+	assert_int(row.get_child_count()).is_equal(2)
 	tab.supporter_link.pressed.emit()
 	assert_int(Supporter.store_asked).is_equal(1)
 	Supporter.set_owned(true)
