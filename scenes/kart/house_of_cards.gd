@@ -2,10 +2,11 @@ class_name HouseOfCards
 extends DressMoments
 ## The supporter pack's House of cards, GAME.md 10.8: playing cards balanced on the helmet in
 ## storeys, a storey more as the pot grows, one below a pot worth banking, two from there and three
-## at a full one; the cards settling into place as a storey goes on, the whole of it wobbling a
-## little as it rides. At a death it collapses, the cards thrown off and falling, and it stands
-## again at the respawn; at a cash-out it folds into a neat deck and builds again. Push your luck,
-## worn on the head. The cards are one [MultiMesh], so the whole house is one draw.
+## at a full one; the cards settling into place as a storey goes on. It is balanced on its middle,
+## and leans as the kart under it speeds up, slows and turns, wobbling the more the faster it goes,
+## always just about to go over. At a death it collapses, the cards thrown off and falling, and it
+## stands again at the respawn; at a cash-out it folds into a neat deck and builds again. Push your
+## luck, worn on the head. The cards are one [MultiMesh], so the whole house is one draw.
 
 enum State { STANDING, FALLING, DOWN, FOLDING }
 
@@ -30,10 +31,22 @@ const GRAVITY := 6.0
 const FOLD := 0.35
 const HOLD := 0.25
 ## How far it is turned on the helmet, so that neither the camera in front of the kart nor the one
-## beside it sees its cards edge-on; and how far it wobbles as it rides, in radians, and how fast.
+## beside it sees its cards edge-on; how far it wobbles standing, in radians, how fast, and how
+## much more for each meter a second its kart goes.
 const TURN := 40.0
-const WOBBLE := 0.025
+const WOBBLE := 0.05
 const WOBBLE_RATE := 1.7
+const WOBBLE_SPEED := 0.12
+## How it leans on its middle as its kart speeds up, slows and turns: in radians for each meter a
+## second squared of the push, at most, how stiffly it rights itself and how quickly it settles,
+## and how quickly the kart's speed and push are followed, so a jolt is not taken for a lean. A
+## step farther than [constant JUMP] is a kart put back on the floor.
+const PUSH_LEAN := 0.016
+const MOST_LEAN := 0.3
+const STIFF := 45.0
+const SETTLE_LEAN := 5.0
+const FOLLOW := 10.0
+const JUMP := 2.5
 
 ## The cards it stands, and how many storeys it stands now.
 var cards: MultiMeshInstance3D
@@ -47,6 +60,14 @@ var _from: Array[Transform3D] = []
 var _velocities: Array[Vector3] = []
 var _spins: Array[Vector3] = []
 var _rng := RandomNumberGenerator.new()
+## How far it leans and how fast, about its two sideways axes, and where its kart was, how fast it
+## went and how hard it was pushed, as followed.
+var _lean := Vector2.ZERO
+var _leaning := Vector2.ZERO
+var _last := Vector3.ZERO
+var _moving := Vector3.ZERO
+var _push := Vector3.ZERO
+var _primed := false
 
 
 func _ready() -> void:
@@ -150,11 +171,7 @@ func tick(delta: float) -> void:
 	if cards == null:
 		return
 	_time += delta
-	cards.rotation = Vector3(
-		sin(clock * WOBBLE_RATE) * WOBBLE,
-		deg_to_rad(turn),
-		sin(clock * WOBBLE_RATE * 1.3 + 1.0) * WOBBLE
-	)
+	_balance(delta)
 	match state:
 		State.STANDING:
 			if alive and not cashing and wanted() != storeys:
@@ -183,6 +200,37 @@ func tick(delta: float) -> void:
 				cards.multimesh.set_instance_transform(i, _from[i].interpolate_with(deck, folded))
 			if _time >= FOLD + HOLD:
 				stand(wanted())
+
+
+## Its lean on its middle, see [constant PUSH_LEAN], and its wobble, laid on the cards as a turn.
+func _balance(delta: float) -> void:
+	if cards.is_inside_tree() and delta > 0.0:
+		var at := cards.global_position
+		if _primed and at.distance_to(_last) <= JUMP:
+			var follow := 1.0 - exp(-FOLLOW * delta)
+			var moving := _moving.lerp((at - _last) / delta, follow)
+			_push = _push.lerp((moving - _moving) / delta, follow)
+			_moving = moving
+		else:
+			_moving = Vector3.ZERO
+			_push = Vector3.ZERO
+		_last = at
+		_primed = true
+	# The push as the house feels it, in its own turned space, the other way: speeding up forward,
+	# its top goes back.
+	var pushed := Vector3.ZERO
+	if cards.is_inside_tree():
+		var held := cards.get_parent_node_3d().global_basis.orthonormalized()
+		pushed = Basis(Vector3.UP, -deg_to_rad(turn)) * held.inverse() * _push
+	var leaning_to := Vector2(-pushed.z, pushed.x) * PUSH_LEAN
+	_leaning += ((leaning_to - _lean) * STIFF - _leaning * SETTLE_LEAN) * delta
+	_lean = (_lean + _leaning * delta).limit_length(MOST_LEAN)
+	var shaking := WOBBLE * (1.0 + _moving.length() * WOBBLE_SPEED)
+	cards.rotation = Vector3(
+		_lean.x + sin(clock * WOBBLE_RATE) * shaking,
+		deg_to_rad(turn),
+		_lean.y + sin(clock * WOBBLE_RATE * 1.3 + 1.0) * shaking
+	)
 
 
 ## Where each card shown stands now.

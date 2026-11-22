@@ -360,6 +360,15 @@ func test_the_house_of_cards_answers_to_the_pot() -> void:
 	house.observe(HouseOfCards.FOLD + HouseOfCards.HOLD + 0.1, true, false, 0.0, 0)
 	assert_int(house.state).is_equal(HouseOfCards.State.STANDING)
 	assert_int(house.storeys).is_equal(1)
+	# Balanced on its middle, it leans back as its kart speeds up forward, and rights itself.
+	var upright := house.cards.rotation.x
+	for i: int in 20:
+		hat.position = Vector3(0.0, 0.0, -0.05 * i * i)
+		house.observe(0.05, true, false, 0.0, 0)
+	assert_float(house._lean.x).is_greater(0.05)
+	for i: int in 80:
+		house.observe(0.05, true, false, 0.0, 0)
+	assert_float(absf(house._lean.x)).is_less(absf(upright) + 0.05)
 	remove_child(hat)
 
 
