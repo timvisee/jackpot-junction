@@ -755,6 +755,32 @@ func test_the_about_page_offers_the_pack() -> void:
 	remove_child(tab)
 
 
+## A click on the card taped up in the bay holds it up once, not twice over: a button's own press
+## and its pressed signal both reach a handler named as the engine's own is.
+func test_a_click_holds_the_card_up_once() -> void:
+	Supporter.pretend = Supporter.Pretend.OWNED
+	Game.settings.supporter_thanked = true
+	var dialog := KartDialog.open(_holder)
+	for i: int in 3:
+		await get_tree().process_frame
+	var card := dialog.find_child("BayThanks", true, false) as BayThanks
+	assert_bool(card.visible).is_true()
+	var at := card.get_global_rect().get_center()
+	for down: bool in [true, false]:
+		var click := InputEventMouseButton.new()
+		click.button_index = MOUSE_BUTTON_LEFT
+		click.pressed = down
+		click.button_mask = MOUSE_BUTTON_MASK_LEFT if down else 0
+		click.position = at
+		click.global_position = at
+		get_viewport().push_input(click, true)
+	await get_tree().process_frame
+	assert_int(dialog.find_children("*", "SupporterThanks", true, false).size()).is_equal(1)
+	dialog.queue_free()
+	# The mouse in hand no longer, for the suites after this, as the keys were before it.
+	Game.last_input_pointer = false
+
+
 ## Where the pack is offered and not owned, its flyer is taped up in the bay where the card goes,
 ## its press opening the pack's store page; bought and the card shown, the flyer turns into the
 ## card.

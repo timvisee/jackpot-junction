@@ -57,13 +57,13 @@ func _ready() -> void:
 	hide()
 	for look: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"focus"]:
 		add_theme_stylebox_override(look, StyleBoxEmpty.new())
-	pressed.connect(_pressed)
+	pressed.connect(_on_press)
 	for told: Signal in [focus_entered, focus_exited, mouse_entered, mouse_exited]:
 		told.connect(queue_redraw)
 
 
 ## The flyer's press opens the pack's store page; the card's holds it up again.
-func _pressed() -> void:
+func _on_press() -> void:
 	var bay := stage.bay_set() if stage != null else null
 	if bay != null and bay.taped == BaySet.Taped.FLYER:
 		Audio.play_sfx(&"ui_click" if Store.open_supporter() else &"ui_back", -4.0, 0.05)

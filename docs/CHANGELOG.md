@@ -16,6 +16,11 @@ below, and hands the notes to the release workflow.
 - **Server page links open in a new tab.** A dedicated server's web page opens Steam, itch.io
   and GitHub in a tab of their own, so the page stays open.
 
+### Fixed
+
+- **The thank-you card in the bay.** Clicking the supporter pack's card on the Garage wall holds
+  it up once, where it came up twice.
+
 ## [0.23.0] - 2026-11-22
 
 ### Added
