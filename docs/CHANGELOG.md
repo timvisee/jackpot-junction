@@ -42,6 +42,8 @@ below, and hands the notes to the release workflow.
   and every kart wears one as the countdown starts.
 - **Kart rings and a marker.** Accessibility can put a ring in each kart's color on the floor under
   your kart or every kart, and a marker over your own; both off by default.
+- **Drag the rack.** The kart dialog's rack of pieces follows the mouse dragged along it, and a
+  finger on a phone, where it never moved under one.
 - **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
   itself rather than the floor round it, which left the table sitting a little high.
 - **The seal on the desktop.** The game's icon shows the whole seal from 64 pixels up, where it
