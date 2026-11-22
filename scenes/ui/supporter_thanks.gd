@@ -28,6 +28,9 @@ const BUTTON_WIDE := 330.0
 const BUTTON_GAP := 30.0
 ## The one lamp over it, just off the top of the stage.
 const LAMPS: Array[Vector2] = [Vector2(790.0, -170.0)]
+## How much farther on than the invitation's its beam goes, fading out: the card is still on its way
+## in when the lamp comes up, so the beam's far end is seen rather than hidden behind it.
+const BEAM_FADE := 360.0
 ## How it comes on, each part from and to so many seconds after [method start], and how it goes.
 const ENVELOPE_IN := Vector2(0.4, 1.0)
 const CARD_OUT := Vector2(1.2, 2.2)
@@ -105,7 +108,8 @@ func _ready() -> void:
 	_beams = Node2D.new()
 	_beams.name = "Beams"
 	_beams.draw.connect(
-		func() -> void: OpeningInvitation.draw_beams(_beams, _at, [Vector2(_at.x, LAMPS[0].y)])
+		func() -> void:
+			OpeningInvitation.draw_beams(_beams, _at, [Vector2(_at.x, LAMPS[0].y)], BEAM_FADE)
 	)
 	_stage.add_child(_beams)
 	_envelope_place = Node2D.new()
