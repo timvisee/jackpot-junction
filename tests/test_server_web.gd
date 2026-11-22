@@ -47,6 +47,10 @@ func test_the_page_carries_how_to_join_and_the_games() -> void:
 	assert_str(response).contains('data-copy="address"')
 	assert_str(response).contains("store.steampowered.com/app/5652730")
 	assert_str(response).contains("itch.io")
+	# Each opens in a tab of its own.
+	assert_str(response).contains(
+		'href="https://store.steampowered.com/app/5652730" target="_blank" rel="noopener"'
+	)
 	assert_str(response).contains("Big Game")
 
 

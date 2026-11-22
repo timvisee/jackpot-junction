@@ -227,7 +227,8 @@ func _games(list: Array) -> String:
 
 
 ## The links to get the game: the three it always carries, and the operator's own last, see
-## [member ServerArgs.web_link].
+## [member ServerArgs.web_link]; each opening in a tab of its own, the page with the games left
+## where it is.
 func _links() -> String:
 	var links: Array[Array] = [
 		["Get it on Steam", STEAM], ["Get it on itch.io", ITCH], ["Source on GitHub", GITHUB]
@@ -236,7 +237,12 @@ func _links() -> String:
 		links.append([args.web_link, args.web_link])
 	var out := PackedStringArray(['<p class="links">'])
 	for link: Array in links:
-		out.append('<a href="%s">%s</a>' % [_escape(str(link[1])), _escape(str(link[0]))])
+		out.append(
+			(
+				'<a href="%s" target="_blank" rel="noopener">%s</a>'
+				% [_escape(str(link[1])), _escape(str(link[0]))]
+			)
+		)
 	out.append("</p>")
 	return "".join(out)
 

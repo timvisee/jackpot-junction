@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Server page links open in a new tab.** A dedicated server's web page opens Steam, itch.io
+  and GitHub in a tab of their own, so the page stays open.
+
 ## [0.23.0] - 2026-11-22
 
 ### Added
