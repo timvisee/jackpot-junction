@@ -17,9 +17,11 @@ const PS5_ART: Texture2D = preload("res://assets/controllers/playstation_5.png")
 const PS4_ART: Texture2D = preload("res://assets/controllers/playstation_4.png")
 ## How big a button under the thumb is on Xelu's drawings, in their own pixels.
 const FACE_RADIUS := 44.0
-## The Steam Deck's drawings, there in a Steam build alone; how many of the drawing's pixels each of
-## their own units is, drawn about as big as the other pads; the part of its top view shown, in its
-## units, turned over so its front faces the front view under it, and the room between the two.
+## The Steam Deck's drawings, there in a Steam build alone; its width in its own units, which each
+## drawing is laid out over, the top view being drawn wider than the front; how many of the
+## drawing's pixels each unit is, drawn about as big as the other pads; the part of its top view
+## shown, in its units, turned over so its front faces the front view under it, and the room
+## between the two.
 const DECK_FRONT := "res://addons/godotsteam/steamdeck/front.svg"
 const DECK_TOP := "res://addons/godotsteam/steamdeck/top.svg"
 const DECK_WIDE := 1024.0
@@ -205,9 +207,10 @@ func _one(picture: Texture2D, at: Dictionary[StringName, Vector2]) -> void:
 func _deck() -> void:
 	var front: Texture2D = load(DECK_FRONT)
 	var top: Texture2D = load(DECK_TOP)
-	var pixels := front.get_width() / DECK_WIDE
+	# The two drawings are not the same width: each is laid out over the Deck's width, and taken in
+	# its own pixels.
 	var below := DECK_TOP_PART.size.y + DECK_GAP
-	var tall := front.get_height() / pixels
+	var tall := front.get_height() / (front.get_width() / DECK_WIDE)
 	# What the middle left out takes off its width, the room at the break kept.
 	var gone := DECK_CUT.y - DECK_CUT.x - DECK_CUT_GAP
 	art = front
@@ -224,6 +227,7 @@ func _deck() -> void:
 	]
 	for view: Array in views:
 		var part: Rect2 = view[1]
+		var pixels: float = (view[0] as Texture2D).get_width() / DECK_WIDE
 		for piece: Vector3 in [
 			Vector3(0.0, DECK_CUT.x, 0.0), Vector3(DECK_CUT.y, DECK_WIDE, DECK_CUT.y - gone)
 		]:
