@@ -188,7 +188,8 @@ static func tip_jar(worn: Node3D) -> void:
 	word.text = TIPS
 	word.font = load("res://assets/fonts/PermanentMarker-Regular.ttf")
 	word.font_size = 64
-	word.pixel_size = 0.0024
+	# Small enough to leave the tape a margin round its word.
+	word.pixel_size = 0.0016
 	word.modulate = CAT_INK
 	word.outline_size = 0
 	word.position = Vector3(0.0, 0.0, -0.006)
