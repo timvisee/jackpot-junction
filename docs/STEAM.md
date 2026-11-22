@@ -424,6 +424,67 @@ Additional notes, the same for both:
   own art is CC BY 4.0. Music by Ovani Sound, licensed to the game's developer.
   Third-party assets are listed in the game's credits."
 
+## The supporter pack
+
+The supporter pack, GAME.md 10.8, is a DLC of the app: a purchase that lets its pieces be worn,
+with nothing to download, since they are in every build already. The game asks Steam at every start
+whether the account owns it, and again whenever a DLC is installed or the overlay closes, so one
+bought in the overlay unlocks at once. A build that names no DLC offers none of it. To put it up:
+
+1. **Make it** (the app's page, All Associated Packages, DLC, Demos and Tools: Add New DLC), named
+   as in the words below. Steamworks gives it an app id of its own.
+2. **No depot.** The DLC holds no files: for a DLC without content, Steam's answer to whether it
+   is installed is whether the account owns it, which is all the game asks.
+3. **Price**: about a euro or two, on the DLC's store package. Valve looks prices over before they
+   go live.
+4. **Store page** (the DLC's own Edit Store Page): the words below, and its capsules at the sizes
+   of the game's, in the table above. `make steam-art` does not render the DLC's yet. Steam reviews
+   the page before the DLC can be released.
+5. **The id in the build**: set the repository variable `STEAM_SUPPORTER_DLC` to the DLC's app id.
+   The Steam workflow writes it into the build's `data/steam/app.cfg`, and from that build on the
+   pack is offered. For a build by hand, `make steam-export STEAM_APP_ID=5652730
+   STEAM_SUPPORTER_DLC=<id>`.
+6. **Trying it**: add the DLC to the Developer Comp package, so the team's accounts own it, and
+   start a Steam build: the pieces are worn, and the thank-you card comes on the title. An account
+   without it sees them locked on the kart dialog's rack, picking one opens the DLC's page in the
+   overlay, and buying it there unlocks them in place. `++ --supporter` and `++ --supporter=locked`
+   show both in a debug build without Steam.
+7. **Release** it by hand on its Steamworks page once its store page is approved, on the game's
+   release day or any day after.
+
+### Words for its store page
+
+| Field | What to put |
+|---|---|
+| Name | Jackpot Junction - Supporter Pack |
+| Type | DLC, cosmetic only |
+
+Short description:
+
+> A small thank-you for a free game. Eleven pieces of kart dress that glow, spin and answer to
+> your pot, three card backs, a star for your license plate and a card from the maker. Nothing that
+> wins a match: just a way to show you chipped in.
+
+About This Content:
+
+> Jackpot Junction is free, and stays free. The Supporter Pack is for those who would like to give
+> something back, and to show it at the table.
+>
+> - **Hats**: a lighthouse that sweeps the felt with its beam, a halo, a house of cards that grows
+>   with your pot and falls when you do, a lucky cat that waves faster after chips, and a tip jar
+>   that fills as you win.
+> - **Flags**: a paper lantern that glows in your color and a pinwheel that spins with your speed.
+> - **Trails**: Prism, a ribbon of light that leaves rainbow arcs in a drift, and Stardust,
+>   twinkles that hang where you have been.
+> - **Paint and finish**: Night sky, your color as a starry sky, and Starlight, a finish of
+>   drifting stars for any piece you wear.
+> - **Card backs**: Beacon, Constellation and Aurora.
+> - **And**: a star for your license plate, a Supporter endorsement on your driver's license, and
+>   a thank-you card from the maker, taped up in your garage.
+>
+> Everything in it is for looks. It changes nothing about how a match is played or won, and every
+> joker, power-up and arena stays free for everyone.
+
 ## Testing with app 480
 
 - `make steam-addon` once, then `make steam-run`, or `make steam-check` to see what

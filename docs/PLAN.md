@@ -4037,15 +4037,24 @@ as the pack's star pinned to the outline and a night-blue tape.
       rack beside Close and on Tab or a pad's Y; on trails and tire marks too.
 - [x] The three supporter card backs in `CardBack`, drawn by `SupporterBacks`, and their pictures
       for the table from `make card-backs`: Beacon, Constellation, Aurora.
-- [ ] Owned or not: the dashed outline and the "Supporter Pack" tape, the store page in the
+- [x] Owned or not: the dashed outline and the "Supporter Pack" tape, the store page in the
       overlay, nothing in a GitHub build, `++ --supporter` in a debug build.
 - [x] The extras: the license endorsement, the ★ on the plate (typed as `*`), and the thank-you
       card (`SupporterThanks`, `ThankYouCard`, `ThankYouEnvelope`) on the title once an install
       and Steam account, kept in the machine's settings, then taped up in the bay (`BayThanks`).
-- [ ] The thank-you card's words in the user's own voice: `ThankYouCard.NOTE` is a draft.
-- [ ] Starlight's shimmer held under fewer flashes: the finish shader has no such setting yet.
-- [ ] The card taped up in the bay reached by keys and a pad: it is the mouse's and a finger's.
-- [ ] The DLC on Steamworks, its store page, and the game seeing it at start-up.
+- [x] The thank-you card's words: the user, 2026-11-22, keeps the draft in `ThankYouCard.NOTE`
+      for now, signed timvisee, to change later.
+- [x] Starlight held still under fewer flashes: its stars neither drift nor twinkle, its trail
+      keeps its own color.
+- [x] The card taped up in the bay reached by the dialog's cursor, across from the hat's hook,
+      with the press bind under it. The user to look it over.
+- [x] The night sky's stars twinkling, slowly and hard to spot (`night_twinkle.gdshader`, a pass
+      between the paint and its finish), held under fewer flashes.
+- [x] The game's side of the DLC: offered only by a Steam build naming it, Steam asked again
+      whenever a DLC is installed or the overlay closes, the rack out unlocked in place; the steps
+      and the store page's words in STEAM.md, "The supporter pack".
+- [ ] The DLC on Steamworks, its price and store page, and `STEAM_SUPPORTER_DLC` set: the user's,
+      later. Its capsules are not rendered yet.
 
 ### S9: Steam Deck, later
 
