@@ -649,6 +649,26 @@ func test_the_thank_you_comes_once() -> void:
 	assert_bool(SupporterThanks.due()).is_false()
 
 
+## Bought while a menu is up, the title or the settings, the thank-you card comes at once over it,
+## and only once; never over anything else, as a match is, and never before the pack is owned.
+func test_bought_in_the_menus_the_card_comes_at_once() -> void:
+	Supporter.start(PackedStringArray(), false, true)
+	var menu: Control = auto_free(Control.new())
+	menu.scene_file_path = Game.TITLE_SCENE
+	add_child(menu)
+	assert_object(SupporterWatch.thank(menu)).is_null()
+	Supporter.set_owned(true)
+	var thanks := SupporterWatch.thank(menu)
+	assert_object(thanks).is_not_null()
+	assert_bool(thanks.again).is_false()
+	assert_object(SupporterWatch.thank(menu)).is_null()
+	var room: Control = auto_free(Control.new())
+	add_child(room)
+	assert_object(SupporterWatch.thank(room)).is_null()
+	remove_child(menu)
+	remove_child(room)
+
+
 ## The settings' Me page has a Supporter Pack section where the pack is owned, with the day it was
 ## first seen and the way to the thank-you card, held up again over the settings; none where not.
 func test_the_me_page_has_a_supporter_section() -> void:

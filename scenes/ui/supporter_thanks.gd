@@ -240,8 +240,9 @@ func is_up() -> bool:
 func _input(event: InputEvent) -> void:
 	if not _started or _gone:
 		return
-	# Held up again over the kart dialog, the dialog's own keys wait till it is put away.
-	if again and _for_the_dialog(event):
+	# Over the kart dialog, held up again or come at once on the pack bought there, the dialog's
+	# own keys wait till it is put away.
+	if _for_the_dialog(event):
 		get_viewport().set_input_as_handled()
 		return
 	for walk: StringName in WALKS:
@@ -309,6 +310,8 @@ func _close(trying: bool) -> void:
 			var under := get_parent() as Control
 			put_away.emit()
 			if trying and under != null:
-				KartDialog.open(under)
+				# Not a second dialog over one already open, the pack bought from it.
+				if under.find_children("*", "KartDialog", false, false).is_empty():
+					KartDialog.open(under)
 			queue_free()
 	)

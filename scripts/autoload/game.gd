@@ -26,6 +26,9 @@ const DEMO_HOST := "res://scenes/demo/demo_host.gd"
 const STEAM_PRESENCE := "res://scripts/store/steam_presence.gd"
 const STEAM_JOINS := "res://scripts/store/steam_joins.gd"
 const STEAM_KEYBOARD := "res://scripts/store/steam_keyboard.gd"
+## The supporter pack bought while the game runs, its thank-you card at once in the menus,
+## GAME.md 10.8, see [SupporterWatch], made from its path too.
+const SUPPORTER_WATCH := "res://scenes/ui/supporter_watch.gd"
 ## Frames a `--bench` run throws away before it starts counting: the shader compiles and the
 ## first arena build belong to loading rather than to running.
 const BENCH_WARMUP := 120
@@ -185,6 +188,8 @@ func _ready() -> void:
 		add_child(load(STEAM_PRESENCE).new())
 		add_child(load(STEAM_JOINS).new())
 		add_child(load(STEAM_KEYBOARD).new())
+	if Supporter.offered() and not serving:
+		add_child(load(SUPPORTER_WATCH).new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:
 		KeyboardBar.add_to(self)
