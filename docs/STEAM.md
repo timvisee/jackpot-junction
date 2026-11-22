@@ -432,7 +432,8 @@ whether the account owns it, and again whenever a DLC is installed or the overla
 bought in the overlay unlocks at once. A build that names no DLC offers none of it. To put it up:
 
 1. **Make it** (the app's page, All Associated Packages, DLC, Demos and Tools: Add New DLC), named
-   as in the words below. Steamworks gives it an app id of its own.
+   as in the words below. Steamworks gives it an app id of its own: the supporter pack is app
+   5680650, made on 2026-11-22.
 2. **No depot.** The DLC holds no files: for a DLC without content, Steam's answer to whether it
    is installed is whether the account owns it, which is all the game asks.
 3. **Price**: about a euro or two, on the DLC's store package. Valve looks prices over before they
@@ -442,7 +443,7 @@ bought in the overlay unlocks at once. A build that names no DLC offers none of 
 5. **The id in the build**: set the repository variable `STEAM_SUPPORTER_DLC` to the DLC's app id.
    The Steam workflow writes it into the build's `data/steam/app.cfg`, and from that build on the
    pack is offered. For a build by hand, `make steam-export STEAM_APP_ID=5652730
-   STEAM_SUPPORTER_DLC=<id>`.
+   STEAM_SUPPORTER_DLC=5680650`.
 6. **Trying it**: add the DLC to the Developer Comp package, so the team's accounts own it, and
    start a Steam build: the pieces are worn, and the thank-you card comes on the title. An account
    without it sees them locked on the kart dialog's rack, picking one opens the DLC's page in the
