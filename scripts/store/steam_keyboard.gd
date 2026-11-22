@@ -8,16 +8,21 @@ extends Node
 ## [PointerHand] gives the hand. It comes up only for a box the player pressed: A on it with a pad,
 ## the cursor at the end of what it reads, or a click or a tap; not for a box a screen handed the
 ## cursor, nor one a pad only walked onto, which brought it up as the settings' pages were paged
-## through. Steam is told where the box is once it stays put, see [constant STILL]. Never for a
-## player with a keyboard in hand, see [member keys_in_hand]. The keyboard goes with the box, once
-## it is done with or gone, and the box is left as the player left it. Made by [Game] from its path
-## with Steam on, so nothing it names is compiled with the autoloads.
+## through. A box low on the screen, which the keyboard would come up over, is typed into in a
+## dialog of its own instead, see [constant IN_DIALOG]. Steam is told where the box is once it stays
+## put, see [constant STILL]. Never for a player with a keyboard in hand, see [member keys_in_hand].
+## The keyboard goes with the box, once it is done with or gone, and the box is left as the player
+## left it. Made by [Game] from its path with Steam on, so nothing it names is compiled with the
+## autoloads.
 
 ## Steam's word that the player put its floating keyboard away, by its own close or by Enter.
 const DISMISSED := &"floating_gamepad_text_input_dismissed"
-## What a box is marked with, as a meta, whose keyboard comes up as soon as it starts being typed
-## into, it being in a dialog put up for nothing else.
+## What a box is marked with, as a meta: one whose keyboard comes up as soon as it starts being
+## typed into, it being in a dialog put up for nothing else, see [method NameDialog.retype]; and one
+## low on the screen, typed into in such a dialog where the keyboard would come up over it, the
+## mark holding the dialog's title.
 const AT_ONCE := &"keyboard_at_once"
+const IN_DIALOG := &"keyboard_in_dialog"
 ## Steam's floating keyboard's kinds, GodotSteam's `FloatingGamepadTextInputMode`: for a line of
 ## words, for an email address, and for digits.
 const SINGLE_LINE := 0
@@ -187,11 +192,12 @@ func _on_editing(on: bool, box: LineEdit) -> void:
 		_done_with.call_deferred()
 
 
-## A press on [param box]: a pad's A, which has the cursor on it, or a click or a tap. A brings
-## Steam's keyboard up, or back after it was put away, the cursor at the end of what the box reads:
-## Enter or a click starts a box being typed into, and a pad has neither. Taken only when the
-## keyboard comes; otherwise A does what it did. A click or a tap brings it up as the box starts
-## being typed into, or at once where it is being typed into already.
+## A press on [param box]: a pad's A, which has the cursor on it, or a click or a tap. A box low on
+## the screen is typed into in a dialog instead, see [constant IN_DIALOG]. A brings Steam's keyboard
+## up, or back after it was put away, the cursor at the end of what the box reads: Enter or a click
+## starts a box being typed into, and a pad has neither. Taken only when the keyboard or the dialog
+## comes; otherwise A does what it did. A click or a tap brings it up as the box starts being typed
+## into, or at once where it is being typed into already.
 func _on_box_input(event: InputEvent, box: LineEdit) -> void:
 	var pad := event is InputEventJoypadButton and event.is_action_pressed(&"ui_accept")
 	var click := event as InputEventMouseButton
@@ -201,6 +207,10 @@ func _on_box_input(event: InputEvent, box: LineEdit) -> void:
 		or (touch != null and touch.pressed)
 	)
 	if not pad and not pointed:
+		return
+	if box.has_meta(IN_DIALOG) and wanted(box):
+		box.accept_event()
+		NameDialog.retype(box, str(box.get_meta(IN_DIALOG)))
 		return
 	if pointed:
 		if box.is_editing():

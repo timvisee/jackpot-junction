@@ -39,6 +39,9 @@ const ENTRY := "Customize kart"
 const SHADE := Color(0.0, 0.0, 0.0, 0.55)
 const BACK := "Back"
 const BACK_PRINTED := "BACK"
+## The titles of the dialogs the name and the plate are typed into with Steam's keyboard.
+const NAME_TYPED := "Driver's name"
+const PLATE_TYPED := "License plate"
 ## The card back's part, past the kart's own parts, and the shuffle's hook past that.
 const CARD_BACK := 7
 const SHUFFLE := BoardArt.SHUFFLE
@@ -251,6 +254,8 @@ func _exit_tree() -> void:
 ## the paint chip card by them, and the plate.
 func _build_bench() -> void:
 	name_box = BayControls.name_box()
+	# Low in the bay, under where Steam's keyboard comes up: typed into in a dialog of its own there.
+	name_box.set_meta(SteamKeyboard.IN_DIALOG, NAME_TYPED)
 	name_box.text_submitted.connect(func(_typed: String) -> void: _keep_name())
 	name_box.focus_entered.connect(_typing.bind(true))
 	name_box.focus_exited.connect(
@@ -286,6 +291,7 @@ func _build_bench() -> void:
 	plate_field.name = "Plate"
 	plate_field.position = BayArt.PLATE_AT
 	plate_field.plate_changed.connect(_on_plate_typed)
+	plate_field.set_meta(SteamKeyboard.IN_DIALOG, PLATE_TYPED)
 	plate_field.focus_entered.connect(_typing.bind(true))
 	plate_field.focus_exited.connect(_typing.bind(false))
 	_stage_node.add_child(plate_field)

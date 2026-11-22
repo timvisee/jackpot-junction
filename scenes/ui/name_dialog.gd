@@ -15,6 +15,8 @@ signal named_also(name: String)
 signal put_away
 
 const CANCEL := "Cancel"
+## The button that goes ahead in a box's words typed again, see [method retype].
+const DONE := "Done"
 ## How wide the box is.
 const WIDE := 420.0
 ## The tooltip on the die that rolls a name, where the box has one.
@@ -43,7 +45,13 @@ var _roll: Callable
 ## [param also] a second way ahead beside it, which says [signal named_also] instead; and with
 ## [param roll] a die beside the box that fills it with what [param roll] makes up.
 static func open(
-	from: Control, title: String, text: String, ok: String, also := "", roll := Callable()
+	from: Control,
+	title: String,
+	text: String,
+	ok: String,
+	also := "",
+	roll := Callable(),
+	like: LineEdit = null
 ) -> NameDialog:
 	var top: Control = from
 	while top.get_parent() is Control:
@@ -53,11 +61,57 @@ static func open(
 	dialog._roll = roll
 	# Over the screen it is on; a page on its own has the window, under whatever holds it.
 	(top if top != from else from.get_parent()).add_child(dialog)
-	dialog._build(title, text, ok, also)
+	dialog._build(title, text, ok, also, like)
 	return dialog
 
 
-func _build(title: String, text: String, ok: String, also: String) -> void:
+## [param box]'s words typed again over the whole screen it is on, under [param title], GAME.md
+## 10.8: for a box low on the screen, which Steam's keyboard would come up over, see
+## [SteamKeyboard]. The box in the dialog is one like [param box], a plate for a plate, with Steam's
+## keyboard up for it at once and the cursor at the end of what it reads; gone ahead with, what was
+## typed goes back into [param box] as if it had been typed there, Enter and all, and the cursor
+## goes back onto it.
+static func retype(box: LineEdit, title: String) -> NameDialog:
+	var dialog := open(box, title, box.text, DONE, "", Callable(), box)
+	dialog.named.connect(_put_back.bind(box))
+	dialog.put_away.connect(
+		func() -> void:
+			if is_instance_valid(box) and box.is_visible_in_tree():
+				box.grab_focus()
+	)
+	return dialog
+
+
+## [param typed] into [param box], as if typed there: what listens to the box hears it change and
+## be gone ahead with.
+static func _put_back(typed: String, box: LineEdit) -> void:
+	if not is_instance_valid(box):
+		return
+	box.text = typed
+	box.text_changed.emit(box.text)
+	box.text_submitted.emit(box.text)
+
+
+## A box for [param text] like [param like], see [method retype]: a plate for a plate, and otherwise
+## one as long and as hinted as it; a box for a name where there is none to be like.
+static func _box_like(like: LineEdit, text: String) -> LineEdit:
+	if like is PlateField:
+		var plate := PlateField.make(text)
+		plate.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		return plate
+	var longest := PlayerNames.MAX_LENGTH
+	var hint := PlayerNames.PLACEHOLDER
+	if like != null:
+		longest = like.max_length if like.max_length > 0 else longest
+		hint = like.placeholder_text if not like.placeholder_text.is_empty() else hint
+	var box := MenuTheme.field(text, hint, longest)
+	box.custom_minimum_size.x = WIDE
+	if like != null:
+		box.virtual_keyboard_type = like.virtual_keyboard_type
+	return box
+
+
+func _build(title: String, text: String, ok: String, also: String, like: LineEdit) -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	var shade := ColorRect.new()
@@ -78,8 +132,7 @@ func _build(title: String, text: String, ok: String, also: String) -> void:
 	pane.add_child(column)
 	column.add_child(MenuTheme.title(title, Type.TITLE))
 	column.add_child(MenuTheme.perforation())
-	field = MenuTheme.field(text, PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH)
-	field.custom_minimum_size.x = WIDE
+	field = _box_like(like, text)
 	field.text_changed.connect(func(_typed: String) -> void: _say_ok())
 	field.text_submitted.connect(func(_typed: String) -> void: _go_ahead())
 	if _roll.is_valid():
@@ -116,8 +169,22 @@ func _build(title: String, text: String, ok: String, also: String) -> void:
 	_confine()
 	_say_ok()
 	PlayerInput.typing = true
-	field.grab_focus.call_deferred()
-	field.select_all.call_deferred()
+	if like == null:
+		field.grab_focus.call_deferred()
+		field.select_all.call_deferred()
+		return
+	# A box's words typed again: Steam's keyboard up at once, the cursor at the end of them.
+	field.set_meta(SteamKeyboard.AT_ONCE, true)
+	_start_at_end.call_deferred()
+
+
+func _start_at_end() -> void:
+	if not is_instance_valid(field):
+		return
+	field.grab_focus()
+	field.edit()
+	field.deselect()
+	field.caret_column = field.text.length()
 
 
 ## The cursor stays on the box, the die and the buttons, rather than walking off them onto the page

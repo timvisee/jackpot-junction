@@ -25,7 +25,8 @@ below, and hands the notes to the release workflow.
 ### Changed
 
 - **Steam's keyboard waits to be asked.** On a Steam Deck or Steam Machine it comes up only for a
-  box you press, with the cursor at the end, not as you page through the settings.
+  box you press, with the cursor at the end; the bay's name and plate, a seat's name and the Me
+  page's plate are typed into in a dialog above it.
 - **A calmer camera on a TV.** Auto follows your kart and the rivals near it on a TV, a handheld
   or a small window, rather than your kart alone, which was too close; My kart is yours to pick.
 - **Server page links open in a new tab.** A dedicated server's web page opens Steam, itch.io

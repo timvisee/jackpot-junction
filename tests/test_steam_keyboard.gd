@@ -3,11 +3,12 @@ extends GdUnitTestSuite
 ## hardware or in Big Picture, asks Steam for its floating keyboard beside the box's place in the
 ## window, of the kind the box wants, once the box stays put and is drawn whole; a box only handed
 ## the cursor asks nothing until it is; a pad's A on a box starts it and brings the keyboard, the
-## cursor at the end, back too after Steam's close put it away; the keyboard is handed from one box
-## straight to the next and goes with the box; Enter on it submits the box. Nothing is asked without
-## Steam, off Steam's hardware outside Big Picture, or with a keyboard in hand. Steam here is always
-## [FakeSteam]. Most boxes here are a dialog's, whose keyboard comes as soon as they are typed into,
-## see [constant SteamKeyboard.AT_ONCE], so a box handed the cursor stands for one pressed.
+## cursor at the end, back too after Steam's close put it away; a box low on the screen is typed
+## into in a dialog of its own; the keyboard is handed from one box straight to the next and goes
+## with the box; Enter on it submits the box. Nothing is asked without Steam, off Steam's hardware
+## outside Big Picture, or with a keyboard in hand. Steam here is always [FakeSteam]. Most boxes
+## here are a dialog's, whose keyboard comes as soon as they are typed into, see
+## [constant SteamKeyboard.AT_ONCE], so a box handed the cursor stands for one pressed.
 
 const SHOW := "showFloatingGamepadTextInput"
 const HIDE := "dismissFloatingGamepadTextInput"
@@ -399,3 +400,45 @@ func test_a_box_handed_the_cursor_waits_to_be_pressed() -> void:
 	other.gui_input.emit(touch)
 	await _settle()
 	assert_int(_asked().size()).is_equal(3)
+
+
+## A box low on the screen, marked so, is typed into in a dialog of its own, the keyboard up for its
+## box at once and the cursor at the end; gone ahead with, what was typed goes back into the box as
+## if typed there. A plate's dialog has a plate in it. With a keyboard in hand it is typed into
+## where it is.
+func test_a_box_low_on_the_screen_is_typed_into_in_a_dialog() -> void:
+	var box := _box(Vector2(100.0, 900.0), false)
+	box.text = "Ann"
+	box.set_meta(SteamKeyboard.IN_DIALOG, "Driver's name")
+	var submitted: Array[String] = []
+	box.text_submitted.connect(func(typed: String) -> void: submitted.append(typed))
+	box.grab_focus()
+	box.gui_input.emit(_pad(JOY_BUTTON_A))
+	await _settle()
+	var dialog := _holder.get_node_or_null("NameDialog") as NameDialog
+	assert_object(dialog).is_not_null()
+	assert_str(dialog.field.text).is_equal("Ann")
+	assert_int(dialog.field.caret_column).is_equal(3)
+	assert_int(_asked().size()).is_equal(1)
+	assert_object(_keyboard.field).is_same(dialog.field)
+	dialog.field.text = "Bo"
+	dialog.ok_button.pressed.emit()
+	await _settle()
+	assert_str(box.text).is_equal("Bo")
+	assert_array(submitted).is_equal(["Bo"])
+	assert_bool(box.has_focus()).is_true()
+	# A plate's.
+	var plate := PlateField.make("JJ 1")
+	plate.position = Vector2(100.0, 950.0)
+	plate.set_meta(SteamKeyboard.IN_DIALOG, "License plate")
+	_holder.add_child(plate)
+	plate.gui_input.emit(_pad(JOY_BUTTON_A))
+	var plated := _holder.get_node_or_null("NameDialog") as NameDialog
+	assert_object(plated).is_not_null()
+	assert_bool(plated.field is PlateField).is_true()
+	plated.close()
+	await _settle()
+	# With a keyboard in hand, where it is.
+	_keyboard.keys_in_hand = true
+	box.gui_input.emit(_pad(JOY_BUTTON_A))
+	assert_object(_holder.get_node_or_null("NameDialog")).is_null()

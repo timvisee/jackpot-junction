@@ -625,6 +625,8 @@ func _license(column: VBoxContainer) -> void:
 	var plate := _section("PlateSection", PLATE)
 	field = PlateField.make(_settings.license_plate)
 	field.plate_changed.connect(_on_plate_typed)
+	# Typed into in a dialog of its own with Steam's keyboard, which would come up over it here.
+	field.set_meta(SteamKeyboard.IN_DIALOG, KartDialog.PLATE_TYPED)
 	var typed := HBoxContainer.new()
 	typed.add_theme_constant_override("separation", 16)
 	typed.add_child(field)

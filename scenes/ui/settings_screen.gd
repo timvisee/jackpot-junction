@@ -569,6 +569,7 @@ func _seat_card(seat: int) -> SeatCard:
 	)
 	field.custom_minimum_size = Vector2(300.0, 40.0)
 	ScreenReader.name(field, KartOwner.SEAT % (seat + 1), says)
+	field.set_meta(SteamKeyboard.IN_DIALOG, "%s's name" % (KartOwner.SEAT % (seat + 1)))
 	field.text_changed.connect(
 		func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
 	)

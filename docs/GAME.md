@@ -10688,7 +10688,12 @@ pressed: A on it with a pad, which also starts it being typed into, the cursor p
 what it reads with nothing chosen, and brings the keyboard back after Steam's own close has put it
 away; or a click or a tap. Not for a box only given the cursor, by its screen as the name dialog's
 box is, or by a pad walking onto it: that put the keyboard up as the settings' pages were paged
-through, before the player had asked to type anything. Asked for on 2026-11-22. A port's box gets Steam's keypad, any other the
+through, before the player had asked to type anything. A box low on the screen, which the keyboard
+would come up over, is typed into in a dialog of its own over the screen instead, a name dialog
+whose box is like it, a plate for a plate, with the keyboard up for it at once and the cursor at the
+end; gone ahead with, Done, what was typed goes back into the box as if typed there and the cursor
+with it (`NameDialog.retype`): the bay's name tape and plate, 4.4a, and in the settings a seat's
+name and the Me page's plate, 8.5. Asked for on 2026-11-22. A port's box gets Steam's keypad, any other the
 keyboard for a line of words, and Steam keeps it clear of the box. Steam is told where the box is
 once it has come to rest, two frames standing still and drawn whole, or after 0.6 s whatever it
 does: a box handed the cursor as its pane is made is not laid out yet, and a pane dealt in rises
