@@ -24,6 +24,8 @@ const MOVED := 0.75
 const FADE := 0.3
 ## How long it waits for a kart that is not there yet, on a client whose snapshot has not moved it.
 const ARRIVING := 2.0
+## Every ring held on a kart, see [method on].
+const GROUP := &"held_spawn_rings"
 
 var color := Color.WHITE
 
@@ -53,7 +55,20 @@ static func spawn(parent: Node, at: Vector3, player_color: Color) -> SpawnRing:
 ## long they take.
 func hold_on(kart: Node3D) -> SpawnRing:
 	_held = kart
+	add_to_group(GROUP)
 	return self
+
+
+## Whether a ring is held on [param kart] just now, from its flare until it has gone: the one ring
+## round that kart, which its kart ring of 8.5 makes way for, see [KartRings].
+static func on(kart: Node3D) -> bool:
+	if not kart.is_inside_tree():
+		return false
+	for node: Node in kart.get_tree().get_nodes_in_group(GROUP):
+		var ring := node as SpawnRing
+		if ring != null and ring._held == kart and not ring.is_queued_for_deletion():
+			return true
+	return false
 
 
 func _process(delta: float) -> void:

@@ -109,6 +109,34 @@ func test_the_rings_go_under_the_karts_asked_for() -> void:
 	assert_int(rings._rings.size()).is_equal(0)
 
 
+## Never two rings round a kart: while it wears the ring it came back with, its kart ring makes
+## way, and comes in once that has gone.
+func test_a_kart_ring_makes_way_for_the_ring_it_came_back_with() -> void:
+	var match_node := await _playing()
+	var rings := match_node.hud.get_node("KartRings") as KartRings
+	var kart := match_node.kart_of(0)
+	var id := kart.get_instance_id()
+	Game.settings.kart_rings = ViewChoices.RINGS_HERE
+	# The countdown's ring is round it still, standing where it started, and one it came back with.
+	SpawnRing.spawn(match_node, kart.global_position, Color.RED).hold_on(kart)
+	for i: int in 30:
+		rings._process(1.0 / 60.0)
+	var ring: MeshInstance3D = rings._rings[id][1]
+	assert_bool(ring.visible).is_false()
+	for held: Node in get_tree().get_nodes_in_group(SpawnRing.GROUP):
+		held.free()
+	for i: int in 6:
+		rings._process(1.0 / 60.0)
+	# Coming in, not there at once.
+	assert_bool(ring.visible).is_true()
+	assert_float(rings._shown[id]).is_less(1.0)
+	for i: int in roundi(KartRings.COME_IN * 60.0):
+		rings._process(1.0 / 60.0)
+	assert_float(rings._shown[id]).is_equal(1.0)
+	var material := ring.material_override as StandardMaterial3D
+	assert_float(material.albedo_color.a).is_equal_approx(KartRings.COLOR_ALPHA, 0.001)
+
+
 ## Every kart's ring breathing where it stands as the countdown starts.
 func test_the_countdown_rings_every_kart() -> void:
 	var match_node := await _playing()

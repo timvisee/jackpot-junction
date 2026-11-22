@@ -5463,7 +5463,10 @@ from a section's button low in its box was the one beside it.
   the floor under the karts driven here, or under every kart, each a ring in its
   kart's color edged in ink, so a kart reads as its color from across a room and on
   any felt; at least 1.35 m across and growing as the camera goes back, so never
-  smaller on the screen than with the camera close in. The marker over my kart is a
+  smaller on the screen than with the camera close in. Never two rings round a kart:
+  while it wears the ring it came back with or the countdown's, 3.6, its kart ring
+  makes way in 0.1 s, and it comes in over 0.3 s once that ring has gone, as the
+  kart drives off. The marker over my kart is a
   point in the player's color, edged in ink, hung 2.4 m over each kart driven here
   at a size on the screen that does not change, and over the top of a hint hung
   over the kart while one is up, such as the drive hint at the start, 3.8. Both are off until asked for: a
