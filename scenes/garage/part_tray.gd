@@ -15,11 +15,12 @@ extends Control
 ## [method TrayCell.set_fresh]. The cursor on a piece, or the mouse over it for as long as it is
 ## there, has the kart try it on, see [signal tried] and [signal left]; pressed, it is worn, see
 ## [signal chosen]. More pieces than the rack holds at once scroll along it, by the cursor, a drag
-## or the chevrons at its ends; Close, a black plate stenciled as the motto's is, puts it away, see
-## [signal done]. Along its top the part, how many of it are won, and the keys that wear a piece and
-## put the rack away, drawn for the device in hand, see [method show_binds]. Hung out, it rises
-## into its place from behind the bench's bottom edge, a little past and back; put away, it drops
-## back behind it, see [method slide_in] and [method well].
+## of the mouse or a finger, see [method _input], or the chevrons at its ends; Close, a black plate
+## stenciled as the motto's is, puts it away, see [signal done]. Along its top the part, how many of
+## it are won, and the keys that wear a piece and put the rack away, drawn for the device in hand,
+## see [method show_binds]. Hung out, it rises into its place from behind the bench's bottom edge,
+## a little past and back; put away, it drops back behind it, see [method slide_in] and
+## [method well].
 
 ## The cursor came to [param index]'s place, or the mouse over it; the mouse went off it; it was
 ## pressed; Close was.
@@ -101,6 +102,9 @@ const WORDS_ON_RED := Color("#f6eedc")
 const SLIDE := 220.0
 const SLIDE_IN := 0.26
 const SLIDE_OUT := 0.16
+## How far the mouse moves with its button down on the rack before it is a drag, which scrolls the
+## rack rather than wearing what it was pressed on, in the rack's own units.
+const DRAG_SLOP := 10.0
 
 var part := 0
 var cells: Array[TrayCell] = []
@@ -121,6 +125,12 @@ var _on_arrow: Button
 var _hinted: Array = [false, true, false]
 ## Whether the supporter pack was owned when it was last filled, see [signal pack_changed].
 var _filled_owned := false
+## The mouse's left button down on the rack and where, whether it has moved far enough to be a
+## drag, and whether one was just let go of, so the press it began with wears nothing.
+var _pressing := false
+var _press_at := Vector2.ZERO
+var _dragging := false
+var _let_go := false
 
 
 ## Out, and the supporter pack owned or no longer since it was filled, says so, see
@@ -134,6 +144,52 @@ func _process(_delta: float) -> void:
 		if cell.has_focus():
 			on = cell.index
 	pack_changed.emit(on)
+
+
+## The mouse dragging the rack along, its left button held down on it and moved past
+## [constant DRAG_SLOP]: the rack follows the mouse, the pieces it passes over not tried on, and
+## let go, the piece it was pressed on is not worn. Heard before the pieces are; a finger's drag is
+## [TouchScroll]'s.
+func _input(event: InputEvent) -> void:
+	if not _out or TouchInput.enabled or not is_visible_in_tree():
+		return
+	var click := event as InputEventMouseButton
+	if click != null and click.button_index == MOUSE_BUTTON_LEFT:
+		if click.pressed:
+			_pressing = _over(click.position)
+			_press_at = click.position
+			_dragging = false
+		elif _pressing:
+			_pressing = false
+			if _dragging:
+				_dragging = false
+				# The piece's own press comes after this, from the same letting go.
+				_let_go = true
+				(func() -> void: _let_go = false).call_deferred()
+		return
+	var motion := event as InputEventMouseMotion
+	if motion == null or not _pressing:
+		return
+	var scale := maxf(_scroll.get_global_transform_with_canvas().get_scale().x, 0.001)
+	if not _dragging and motion.position.distance_to(_press_at) > DRAG_SLOP * scale:
+		_dragging = true
+		DisplayServer.cursor_set_shape(DisplayServer.CURSOR_DRAG)
+	if _dragging:
+		_scroll.scroll_horizontal -= roundi(motion.relative.x / scale)
+		get_viewport().set_input_as_handled()
+
+
+## Whether [param at], a point on the screen, is on the rack's row of pieces.
+func _over(at: Vector2) -> bool:
+	var local := _scroll.get_global_transform_with_canvas().affine_inverse() * at
+	return Rect2(Vector2.ZERO, _scroll.size).has_point(local)
+
+
+## [param index] pressed and worn, but for the press a drag of the rack began with, see
+## [method _input].
+func _chosen(index: int) -> void:
+	if not _let_go:
+		chosen.emit(index)
 
 
 ## What it slides in and out of behind the bench's edge: the stage, cut off at its foot, hung on the
@@ -374,7 +430,7 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 		cell.focus_entered.connect(tried.emit.bind(i))
 		cell.mouse_entered.connect(tried.emit.bind(i))
 		cell.mouse_exited.connect(left.emit.bind(i))
-		cell.pressed.connect(chosen.emit.bind(i))
+		cell.pressed.connect(_chosen.bind(i))
 		_row.add_child(cell)
 		cells.append(cell)
 		won += 1 if cell.owned else 0

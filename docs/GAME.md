@@ -1999,7 +1999,8 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   goes. The cursor on a piece has the kart try it on, and so does
   the mouse over one, for as long as it is over it: gone off it, the kart wears what it
   did. Pressed, a piece is worn and kept, and the kart cheers; a piece not won is neither.
-  More pieces than the rack holds scroll along it, by the cursor, a drag, or the chevrons
+  More pieces than the rack holds scroll along it, by the cursor, a drag of the mouse, its
+  button held down on the rack, which wears nothing when let go, or of a finger, or the chevrons
   stenciled on black plates at its ends, pressed a rackful at a time and faded where there
   is nothing more. Close, a black plate stenciled with a cross as the motto's plate is,
   screwed on and standing up over its top edge where it is easily found and pressed, Back, or the hook pressed again puts the rack away, the kart in what it
