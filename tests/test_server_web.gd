@@ -12,6 +12,15 @@ const GAME := {
 }
 
 
+## A game's map reads as words: an id made words, a name as it is, and on a Grand Prix which map
+## of how many with a slash, as the players are counted.
+func test_a_games_map_reads_as_words() -> void:
+	assert_str(ServerWeb.map_words("the_yard")).is_equal("The Yard")
+	assert_str(ServerWeb.map_words("The Vault")).is_equal("The Vault")
+	assert_str(ServerWeb.map_words("The Vault, map 1 of 2")).is_equal("The Vault, Map 1 / 2")
+	assert_str(ServerWeb.map_words("")).is_equal("")
+
+
 ## The web port follows the game's port unless set, and 0 turns the page off.
 func test_the_web_port_follows_the_game_port_unless_set() -> void:
 	assert_int(ServerArgs.read(["--server"]).web()).is_equal(ServerArgs.PORT)

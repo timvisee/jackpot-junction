@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Server page links open in a new tab.** A dedicated server's web page opens Steam, itch.io
   and GitHub in a tab of their own, so the page stays open.
+- **Grand Prix maps on the server page.** A game partway through a Grand Prix reads as The Vault,
+  Map 1 / 2.
 
 ### Fixed
 

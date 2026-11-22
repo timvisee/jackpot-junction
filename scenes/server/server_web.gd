@@ -268,6 +268,18 @@ func _list(list: Array) -> String:
 	return "".join(out)
 
 
+## A game's map as the page shows it, from what its game says: an id made words, "the_yard" as The
+## Yard; a name as it is; and on a Grand Prix which map of how many, "The Vault, Map 1 / 2".
+static func map_words(said: String) -> String:
+	var parts := said.split(", map ", true, 1)
+	var named := parts[0]
+	if not named.contains(" "):
+		named = named.capitalize()
+	if parts.size() < 2:
+		return named
+	return "%s, Map %s" % [named, parts[1].replace(" of ", " / ")]
+
+
 ## One game's row: its name, its map, how many are in it of how many it holds, and whether it is in
 ## the lobby or being played, with a lock where it needs a password of its own.
 func _row(game: Dictionary) -> String:
@@ -277,7 +289,7 @@ func _row(game: Dictionary) -> String:
 	var state := "In the lobby" if bool(game.get("lobby", false)) else "Playing"
 	var cells := PackedStringArray()
 	cells.append("<td>%s%s</td>" % [_escape(str(game.get("name", "Host"))), lock])
-	cells.append("<td>%s</td>" % _escape(str(game.get("map", "")).capitalize()))
+	cells.append("<td>%s</td>" % _escape(map_words(str(game.get("map", "")))))
 	cells.append("<td>%s</td>" % who)
 	cells.append('<td class="state">%s</td>' % state)
 	return "<tr>%s</tr>" % "".join(cells)
