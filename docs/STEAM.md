@@ -483,7 +483,7 @@ its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands
 | Picture | Alt text |
 |---|---|
 | `heading_supporter_thanks.png` | A thank-you you can wear |
-| `picture_supporter_karts.png` | Five karts wearing the house of cards, the lucky cat, the lighthouse, the halo and the tip jar, with lanterns, pinwheels and the night sky paint |
+| `picture_supporter_karts.png` | Five karts wearing the house of cards, the lucky cat, the lighthouse with its beam, the halo and the tip jar, with lanterns, pinwheels and the night sky paint |
 | `heading_supporter_pieces.png` | Everything in the pack |
 | `picture_supporter_backs.png` | A hand of three cards showing the Beacon, Constellation and Aurora card backs |
 

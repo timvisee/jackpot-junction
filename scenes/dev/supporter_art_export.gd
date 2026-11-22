@@ -72,12 +72,20 @@ const PARKED_CAMERA: Array = [Vector3(0.0, 2.3, 7.8), Vector3(0.0, 1.0, 2.4), 32
 const PARKED: Array[Array] = [[3, 2], [1, 3], [7, 4]]
 ## The row of five karts in the description: each its seat and its outfit, see [SupporterArt].
 const ROW: Array[Array] = [[3, 6], [1, 3], [0, 0], [4, 5], [7, 4]]
+## The beam of the lighthouse in the middle of the row: how far its lamp is turned from facing the
+## camera, in degrees, so the beam falls back and away to the side, behind the karts. `-- --beam=`
+## tries another.
+const ROW_BEAM := -160.0
+
+var _beam_turn := ROW_BEAM
 
 
 func _ready() -> void:
 	for arg: String in OS.get_cmdline_user_args():
 		if arg.begins_with("--only="):
 			_only = arg.trim_prefix("--only=").split(",", false)
+		elif arg.begins_with("--beam="):
+			_beam_turn = float(arg.trim_prefix("--beam="))
 	for folder: String in ["", "/store", "/description", "/screenshots"]:
 		make_out(PACK_OUT + folder)
 	make_out(PACK_DESCRIBED)
@@ -176,22 +184,59 @@ static func _pack_name(tall: int) -> HBoxContainer:
 	return line
 
 
-## The row of five karts in the pack's dress, see [constant ROW], as the game's row is, their light
-## left out as the rack's pictures leave it, on nothing.
+## The row of five karts in the pack's dress, see [constant ROW], as the game's row is, on nothing;
+## the lighthouse's beam behind them, see [constant ROW_BEAM]. A beam is light added over what is
+## under it, which on nothing is next to nothing, so it is drawn on its own on black, its light
+## taken for how much it covers, and the karts laid over it.
 func _karts() -> void:
-	var high := 200
-	var room := studio(Vector2i(PICTURE, high) * OVER)
+	var size := Vector2i(PICTURE, 200)
+	var karts := await taken(_row(false), 8)
+	straighten(karts)
+	var picture := _light_as_cover(await taken(_row(true), 8))
+	picture.blend_rect(karts, Rect2i(Vector2i.ZERO, karts.get_size()), Vector2i.ZERO)
+	_pack_described(picture, "picture_supporter_karts.png", size)
+
+
+## The row in a studio of its own: the karts with no light of their own, or for [param beam] the
+## lighthouse's beam and glow alone, on black.
+func _row(beam: bool) -> SubViewport:
+	var room := studio(Vector2i(PICTURE, 200) * OVER)
 	for i: int in ROW.size():
 		var outfit := SupporterArt.fields_of(SupporterArt.OUTFITS[ROW[i][1]])
 		var model := _model(room, ROW[i][0], outfit, PI + (2 - i) * 0.22)
 		model.position = Vector3((i - 2) * 1.45, -KartVisuals.MODEL_LIFT, -absf(i - 2) * 0.4)
-		for node: Node in model.find_children("*", "MeshInstance3D", true, false):
-			if SupporterDress.is_light(node):
-				(node as MeshInstance3D).visible = false
+		var lamps := model.find_children("*", "LighthouseLamp", true, false)
+		for lamp: Node in lamps:
+			lamp.set_process(false)
+			(lamp as LighthouseLamp).head.rotation.y = deg_to_rad(_beam_turn)
+		for node: Node in model.find_children("*", "GeometryInstance3D", true, false):
+			var light := SupporterDress.is_light(node)
+			(node as GeometryInstance3D).visible = (
+				light and not lamps.is_empty() if beam else not light
+			)
+	if beam:
+		room.transparent_bg = false
+		var air := room.find_children("*", "WorldEnvironment", true, false)[0] as WorldEnvironment
+		air.environment.background_mode = Environment.BG_COLOR
+		air.environment.background_color = Color.BLACK
 	look_in(room, Vector3(0.0, 1.9, 6.3), Vector3(0.0, 1.1, -0.3), 25.0)
-	var karts := await taken(room, 8)
-	straighten(karts)
-	_pack_described(karts, "picture_supporter_karts.png", Vector2i(PICTURE, high))
+	return room
+
+
+## [param shone], light drawn on black, as that light in its own color covering as much as it is
+## bright: what a light on nothing looks like laid over anything.
+static func _light_as_cover(shone: Image) -> Image:
+	var light := shone.duplicate() as Image
+	light.convert(Image.FORMAT_RGBA8)
+	for y: int in light.get_height():
+		for x: int in light.get_width():
+			var lit := light.get_pixel(x, y)
+			var cover := maxf(lit.r, maxf(lit.g, lit.b))
+			if cover <= 0.0:
+				light.set_pixel(x, y, Color(0.0, 0.0, 0.0, 0.0))
+			else:
+				light.set_pixel(x, y, Color(lit.r / cover, lit.g / cover, lit.b / cover, cover))
+	return light
 
 
 ## A hand of the pack's three card backs, as the game's hands of cards are, see [method _fan].
