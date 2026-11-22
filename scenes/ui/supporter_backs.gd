@@ -73,20 +73,17 @@ static func _beacon(
 		star(
 			on, at, 2.2 if big else 1.1, Color(CREAM, minf((0.75 if big else 0.45) * strength, 1.0))
 		)
-	var lamp := Vector2(middle, 62.0)
+	# The lamp in the middle of its room, under the roof; its two beams out either side of it, level
+	# and alike, from behind the lamp room.
+	var lamp := Vector2(middle, 68.0)
 	var rings := Engraving.inside(Engraving.rings(lamp, 22.0, 2.5, 10, 8, 160), box)
 	Engraving.draw_on(on, rings, Color(LAMP, minf(0.3 * strength, 1.0)), 0.7)
 	var far := Color(BEAM, 0.0)
-	on.draw_polygon(
-		PackedVector2Array([lamp, Vector2(inner.end.x, 22.0), Vector2(inner.end.x, 58.0)]),
-		PackedColorArray([Color(BEAM, 0.55), far, far])
-	)
-	on.draw_polygon(
-		PackedVector2Array(
-			[lamp, Vector2(inner.position.x, 52.0), Vector2(inner.position.x, 70.0)]
-		),
-		PackedColorArray([Color(BEAM, 0.3), far, far])
-	)
+	for edge: float in [inner.position.x, inner.end.x]:
+		on.draw_polygon(
+			PackedVector2Array([lamp, Vector2(edge, lamp.y - 10.0), Vector2(edge, lamp.y + 8.0)]),
+			PackedColorArray([Color(BEAM, 0.45), far, far])
+		)
 	var sea := Rect2(inner.position.x, 118.0, inner.size.x, inner.end.y - 118.0)
 	var waves := Engraving.inside(Engraving.waves(sea, 3.6, 1.6, 26.0, 0.6, 3.0), box)
 	Engraving.draw_on(on, waves, Color(CREAM, minf(0.42 * strength, 1.0)), 0.7)
@@ -117,7 +114,7 @@ static func _beacon(
 		)
 	on.draw_rect(Rect2(middle - 8.0, 72.0, 16.0, 2.5), IRON)
 	on.draw_rect(Rect2(middle - 5.0, 64.0, 10.0, 8.0), LAMP)
-	on.draw_circle(lamp + Vector2(0.0, 6.0), 7.0, Color(LAMP, 0.25))
+	on.draw_circle(lamp, 7.0, Color(LAMP, 0.25))
 	on.draw_colored_polygon(
 		PackedVector2Array(
 			[Vector2(middle - 6.5, 64.0), Vector2(middle + 6.5, 64.0), Vector2(middle, 56.0)]
