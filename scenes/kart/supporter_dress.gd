@@ -27,14 +27,15 @@ const CAP_TALL := 0.15
 ## How bright the lamp's bulb is, and how big and how strong the glow round it.
 const BULB_GLOW := 3.0
 const HALO_SIZE := 0.6
-const HALO_STRENGTH := 0.6
+const HALO_STRENGTH := 0.5
 ## The beam, in meters: how far out it reaches, how far down it falls over that so that it ends at
 ## the felt, how wide it is at its far end, how strong at the lamp, its color, and how finely it is
-## cut, along and across, for its fade to be smooth.
-const BEAM_REACH := 4.2
-const BEAM_DROP := 1.6
-const BEAM_HALF := 0.95
-const BEAM_STRENGTH := 0.55
+## cut, along and across, for its fade to be smooth. Toned down after the first play-test, as it
+## drew the other drivers' eyes; the strength is the one to tune.
+const BEAM_REACH := 3.6
+const BEAM_DROP := 1.4
+const BEAM_HALF := 0.8
+const BEAM_STRENGTH := 0.36
 const BEAM := Color(1.0, 0.93, 0.76)
 const BEAM_ROWS := 12
 const BEAM_COLUMNS := 14
