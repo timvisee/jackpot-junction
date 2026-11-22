@@ -398,6 +398,8 @@ func _controls_tab() -> Control:
 		var touch := DrivePicker.make(_settings.touch_layout, Settings.TOUCH_LAYOUTS)
 		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
 		column.add_child(MenuTheme.row("Touch driving", touch))
+	# The pad drawn whole with what each button does, GAME.md 8.3b.
+	column.add_child(PadLeaflet.row(self))
 	var header := HBoxContainer.new()
 	for text: String in BINDING_HEADS:
 		var label := Label.new()

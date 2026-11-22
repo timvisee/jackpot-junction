@@ -270,6 +270,7 @@ func _ready() -> void:
 	var settings := MenuTheme.button("Settings")
 	settings.pressed.connect(open_settings)
 	buttons.add_child(settings)
+	settings.add_sibling(PadLeaflet.entry(self))
 	_quit = MenuTheme.button("Back to title")
 	_quit.pressed.connect(_back_to_title)
 	buttons.add_child(_quit)

@@ -99,6 +99,12 @@ const THINGS: Array[Dictionary] = [
 		"where": "iginomarini.com/fell",
 	},
 	{
+		"what": "Free Controller Prompts, the pads on How to hold the wheel",
+		"who": 'Nicolae "Xelu" Berbece',
+		"terms": "CC0 1.0",
+		"where": "thoseawesomeguys.com/prompts",
+	},
+	{
 		"what": "Material Symbols, the tap",
 		"who": "Google",
 		"terms": "Apache License 2.0",

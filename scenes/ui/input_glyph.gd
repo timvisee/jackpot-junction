@@ -514,6 +514,7 @@ func _draw_dark_face(box: Rect2) -> void:
 
 ## A PlayStation pad's shape for the button [param face] is, drawn on [param on] at [param middle],
 ## [param reach] out from it, in [param tone]: the cross, the circle, the square or the triangle.
+## The leaflet of the whole pad prints them too, see [PadDiagram].
 static func draw_shape(
 	on: CanvasItem, face: JoyButton, middle: Vector2, reach: float, tone: Color
 ) -> void:

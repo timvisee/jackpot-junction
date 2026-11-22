@@ -5033,6 +5033,39 @@ Three shapes, two of them `dim` and one `ink`, everything between 0.12 and 0.84 
 the box, and the only thing drawn in full color is the thing the card is named
 for.
 
+### 8.3b How to hold the wheel
+
+A leaflet of the pad in the player's hands (`PadLeaflet`), up over the screen from Show
+gamepad: in the room's menu under Settings, and on the Controls page of 8.5 as the
+Controller row; on a phone only once a pad is plugged in, and not in the booth's demo of 9.8,
+whose menus are kept to what a passer-by needs. It is a form of the Dept. of Karts, cream stock in a double rule torn from
+its pad down the left edge, FORM 8.3 in the fine print and HOW TO HOLD THE WHEEL in the
+display cut, the House's red AS BOUND stamp in the corner: what it shows is what the player
+has bound, so a rebinding moves its words to the button it is on now.
+
+- **The pad, whole** (`PadDiagram`): Xelu's free controller drawings, public domain, see
+  THIRD_PARTY.md, line art printed in the leaflet's ink, in their plain cut with no maker's
+  logo. The pad touched last is the one drawn, by its family, see 8.3: an Xbox Series pad, a
+  DualSense, a DualShock 4. A Nintendo pad has an Xbox pad's layout and no free drawing of
+  its own, so it is drawn as one with its own letters; a generic pad, and the pad of a player
+  who has touched none, is drawn as an Xbox pad, the layout most pads copy. The four under
+  the thumb, blank on the drawings, are printed as the family has them: an Xbox pad's
+  letters in their colors, a PlayStation pad's shapes in theirs, a Nintendo pad's letters.
+- **The lines**: from each button something is bound to, a line out to its words, the
+  shoulders, the left stick and the D-pad to the left of the pad and the rest to the right,
+  each as near its button as the one above lets it be; the middle buttons have theirs over
+  the pad. Under the words, small, the button's name as the pad prints it, R2 or ZR. Two
+  things on one button are one line, Pause · join. A line to one of the four under the thumb
+  starts at its rim, so what is printed on it stays clear, and the one from the left of them
+  goes down round the bottom one rather than through the two beside it. A few have a note
+  beside them in red pen: squeeze, don't stab, by the gas.
+- **Three pages**: Driving, the jokers, and the menus, the tabs under the title, turned with
+  the page keys or a click, the keys drawn beside the tabs as the big dialogs have them.
+  Driving says Steer, or Drive where the first player drives the simple way, 4.2.
+- Back, the pause button, a right click or a click beside the card put it away, and the
+  cursor goes back to Show gamepad; nothing under it hears a key while it is up. Each
+  page's tab tells a screen reader what the page shows, button by button.
+
 ### 8.4 Audio
 
 - **Music**: three tracks by Ovani Sound -- "Deceased Rodent" at 120 BPM,
@@ -5327,7 +5360,8 @@ from a section's button low in its box was the one beside it.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
-  4.2; rebinding per player for gamepad and keyboard, the keyboard's side taking
+  4.2; Show gamepad, the leaflet of the pad in hand of 8.3b; rebinding per player for
+  gamepad and keyboard, the keyboard's side taking
   a mouse button as well as a key, fire on the left button say, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
