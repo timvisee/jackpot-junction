@@ -11,6 +11,8 @@ signal lobby_joined(lobby: int, permissions: int, locked: bool, response: int)
 signal join_requested(lobby: int, friend: int)
 signal lobby_chat_update(lobby: int, changed: int, making_change: int, state: int)
 signal floating_gamepad_text_input_dismissed
+signal dlc_installed(app: int)
+signal overlay_toggled(active: bool, user_initiated: bool, app_id: int)
 
 ## What starting answers, [constant SteamStore.STARTED] or why not.
 var status := SteamStore.STARTED

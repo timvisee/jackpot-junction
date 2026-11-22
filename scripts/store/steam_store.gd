@@ -59,6 +59,8 @@ var _waiting := false
 var _checked := false
 ## What Steam's rich presence says now, key by key, GAME.md 10.8.
 var _presence: Dictionary = {}
+## Told whenever the account's DLC may have changed while the game runs, see [method watch_dlc].
+var _dlc_told := Callable()
 
 
 func _init(steam_api: Object) -> void:
@@ -213,6 +215,27 @@ func owns(dlc: int) -> bool:
 ## Opens the store page of [param app], a DLC as well, in Steam's overlay, GAME.md 10.8.
 func show_store(app: int) -> void:
 	api.call(&"activateGameOverlayToStore", app, OVERLAY_TO_STORE)
+
+
+## [param told] called whenever the account's DLC may have changed while the game runs, GAME.md
+## 10.8: a DLC installed, as one just bought in the overlay is, and the overlay closed, where one
+## may have been bought.
+func watch_dlc(told: Callable) -> void:
+	_dlc_told = told
+	for wiring: Array in [
+		[&"dlc_installed", _on_dlc_installed], [&"overlay_toggled", _on_overlay_toggled]
+	]:
+		if api.has_signal(wiring[0]) and not api.is_connected(wiring[0], wiring[1]):
+			api.connect(wiring[0], wiring[1])
+
+
+func _on_dlc_installed(_dlc: int) -> void:
+	_dlc_told.call()
+
+
+func _on_overlay_toggled(active: bool, _by_user := false, _app := 0) -> void:
+	if not active:
+		_dlc_told.call()
 
 
 ## Whether Steam's keyboard on the screen is the way to type here, GAME.md 10.8: on Steam's own

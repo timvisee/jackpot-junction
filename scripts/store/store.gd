@@ -65,6 +65,7 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 	if missing.is_empty():
 		steam = store
 		asked_lobby = lobby_in(OS.get_cmdline_args())
+		store.watch_dlc(recheck_supporter)
 
 
 ## The lobby `+connect_lobby <id>` among [param args], Godot's own arguments, names: Steam starts
@@ -96,8 +97,8 @@ static func supporter_dlc(path := APP_FILE) -> int:
 
 
 ## Opens the supporter pack's store page, GAME.md 10.8, in Steam's overlay where there is one, else
-## in the browser, and asks Steam again whether it is owned, for when it was bought; false with no
-## pack to open, as in a build whose DLC is not set yet.
+## in the browser; Steam is asked again once the overlay closes, see [method recheck_supporter].
+## False with no pack to open, as in a build whose DLC is not set yet.
 static func open_supporter() -> bool:
 	Supporter.store_asked += 1
 	var dlc := supporter_dlc()
@@ -105,10 +106,16 @@ static func open_supporter() -> bool:
 		return false
 	if steam != null:
 		steam.show_store(dlc)
-		Supporter.set_owned(owns_supporter_pack())
 	else:
 		OS.shell_open(STORE_PAGE % dlc)
 	return true
+
+
+## Steam asked again whether the supporter pack is owned, GAME.md 10.8, for when it was bought while
+## the game runs: whenever a DLC is installed and whenever the overlay closes, see
+## [method SteamStore.watch_dlc]; the DLC as [param path], [constant APP_FILE], names it.
+static func recheck_supporter(path := APP_FILE) -> void:
+	Supporter.set_owned(owns_supporter_pack(path))
 
 
 ## The Steam app this build is, from [param path], [constant APP_FILE], or [constant SPACEWAR]

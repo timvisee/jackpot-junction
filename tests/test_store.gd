@@ -9,6 +9,7 @@ func after_test() -> void:
 	Store.steam = null
 	Store.missing = ""
 	Store.restarting = false
+	Supporter.start(PackedStringArray(), false, false)
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(APP))
 
 
@@ -90,3 +91,29 @@ func test_the_supporter_pack_is_steams_word() -> void:
 	assert_bool(Store.owns_supporter_pack(APP)).is_true()
 	fake.dlcs.clear()
 	assert_bool(Store.owns_supporter_pack(APP)).is_false()
+
+
+## A pack bought while the game runs is noticed: Steam is asked again as a DLC is installed and as
+## the overlay closes, never as it opens; asked, its word is the pack's.
+func test_a_pack_bought_while_playing_is_noticed() -> void:
+	var file := ConfigFile.new()
+	file.set_value("steam", "supporter_dlc", 3141600)
+	file.save(APP)
+	var fake := FakeSteam.new()
+	var store := SteamStore.new(fake)
+	store.start(3141590)
+	var asked: Array[int] = []
+	store.watch_dlc(func() -> void: asked.append(1))
+	fake.dlc_installed.emit(3141600)
+	assert_int(asked.size()).is_equal(1)
+	fake.overlay_toggled.emit(true, true, 3141590)
+	assert_int(asked.size()).is_equal(1)
+	fake.overlay_toggled.emit(false, true, 3141590)
+	assert_int(asked.size()).is_equal(2)
+	Store.steam = store
+	Supporter.start(PackedStringArray(), false, true)
+	Store.recheck_supporter(APP)
+	assert_bool(Supporter.owned()).is_false()
+	fake.dlcs.append(3141600)
+	Store.recheck_supporter(APP)
+	assert_bool(Supporter.owned()).is_true()

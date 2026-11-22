@@ -10710,7 +10710,8 @@ masking tape of the rest; the cursor's gold tape is the same on them as on any. 
 without the pack they hang after the pieces worn, before those not won, dimmed in the dashed
 outline with "Supporter Pack" on the tape, left out of the count of pieces won; the cursor on one
 tries it on the kart all the same, since seeing it there is what it is offered for, and picking
-one opens the DLC's store page in Steam's overlay, after which Steam is asked again. In a GitHub
+one opens the DLC's store page in Steam's overlay. Steam is asked again whenever a DLC is
+installed, as one just bought is, and whenever the overlay closes. In a GitHub
 build they are not on the rack at all, nor at the lobby's stalls. A debug build started with
 `++ --supporter` plays as if the pack were owned, and with `++ --supporter=locked` as a Steam build
 without it, for trying both without Steam. No server of ours is needed, as microtransactions would
