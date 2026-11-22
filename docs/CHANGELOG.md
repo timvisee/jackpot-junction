@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-11-22
+
 ### Added
 
 - **A supporter pack on Steam.** A small DLC to say thanks for a free game: eleven pieces of kart
@@ -50,7 +52,6 @@ below, and hands the notes to the release workflow.
   showed the chip alone.
 - **On Steam.** The About page and a dedicated server's web page link the game's Steam page,
   beside itch.io and the source.
-
 ## [0.22.1] - 2026-10-27
 
 ### Changed
@@ -2982,7 +2983,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.22.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.0
 [0.22.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.22.1
 [0.22.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.22.0
 [0.21.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.21.1
