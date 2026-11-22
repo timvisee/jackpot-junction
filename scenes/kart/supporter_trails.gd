@@ -6,12 +6,12 @@ extends RefCounted
 
 ## Stardust: how big a twinkle is, how far above the exhaust they hang and how widely they are
 ## scattered round it, their pale starlight, how long each hangs and how many there are at most.
-const TWINKLE := 0.5
+const TWINKLE := 0.3
 const TWINKLE_RISE := 0.35
 const TWINKLE_SCATTER := Vector3(0.3, 0.25, 0.3)
-const STARLIGHT := Color(0.92, 0.88, 1.0, 0.9)
+const STARLIGHT := Color(0.92, 0.88, 1.0, 0.55)
 const TWINKLE_LIFE := 1.6
-const TWINKLES := 72
+const TWINKLES := 56
 
 ## A four-pointed twinkle's picture, made once.
 static var _star: ImageTexture
@@ -33,7 +33,7 @@ static func stardust(process: ParticleProcessMaterial, smoke: GPUParticles3D) ->
 	process.initial_velocity_max = 0.12
 	process.gravity = Vector3(0.0, -0.05, 0.0)
 	process.scale_min = 0.5
-	process.scale_max = 1.4
+	process.scale_max = 1.15
 	process.scale_curve = _twinkling(Game.settings.flash_reduction)
 	process.color = STARLIGHT
 	var quad := QuadMesh.new()
