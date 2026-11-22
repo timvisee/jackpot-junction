@@ -329,6 +329,35 @@ func test_the_trails_are_stardust_and_a_ribbon() -> void:
 	prism.free()
 
 
+## The prism's bands meet at every point however the kart turns: a stretch's far edge is the next
+## one's near edge, so no gap opens between them on a bend.
+func test_the_prism_has_no_gaps_on_a_bend() -> void:
+	var ribbon := PrismRibbon.new()
+	add_child(ribbon)
+	ribbon.set_process(false)
+	for at: Vector3 in [
+		Vector3(0.0, 0.0, 0.0),
+		Vector3(0.3, 0.0, 0.0),
+		Vector3(0.6, 0.0, 0.0),
+		Vector3(0.85, 0.0, 0.2),
+		Vector3(0.95, 0.0, 0.5),
+		Vector3(0.95, 0.0, 0.8),
+	]:
+		ribbon.step(0.02, at)
+	var corners: PackedVector3Array = ribbon.mesh.surface_get_arrays(0)[Mesh.ARRAY_VERTEX]
+	var per_stretch := PrismRibbon.BANDS.size() * 6
+	var stretches := corners.size() / per_stretch
+	assert_int(stretches).is_equal(5)
+	for stretch: int in stretches - 1:
+		for band: int in PrismRibbon.BANDS.size():
+			var here := stretch * per_stretch + band * 6
+			var next := (stretch + 1) * per_stretch + band * 6
+			assert_vector(corners[here + 1]).is_equal_approx(corners[next], Vector3.ONE * 0.001)
+			assert_vector(corners[here + 2]).is_equal_approx(corners[next + 5], Vector3.ONE * 0.001)
+	remove_child(ribbon)
+	ribbon.free()
+
+
 ## The house of cards stands three storeys on a kart only to look at, one for a small pot and
 ## more as it grows; collapses at a death and stands again at the respawn; and folds into a deck
 ## at a cash-out, then builds again.

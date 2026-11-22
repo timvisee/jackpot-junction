@@ -82,7 +82,8 @@ func length() -> int:
 
 
 ## The ribbon from the exhaust at [param at] back along its points, each band a strip whose light
-## fades with how old the point is.
+## fades with how old the point is. Each point is crossed one way for both stretches it joins, along
+## the line through its neighbors, so the bands meet at it with no gap however the kart turns.
 func _build(at: Vector3, now: float) -> void:
 	_drawn.clear_surfaces()
 	var line := _points.duplicate()
@@ -94,6 +95,14 @@ func _build(at: Vector3, now: float) -> void:
 		ages.append(0.0)
 	if line.size() < 2:
 		return
+	var sides := PackedVector3Array()
+	var last_side := Vector3.ZERO
+	for i: int in line.size():
+		var through := line[mini(i + 1, line.size() - 1)] - line[maxi(i - 1, 0)]
+		through.y = 0.0
+		if through.length_squared() > 0.0001:
+			last_side = through.normalized().cross(Vector3.UP)
+		sides.append(last_side)
 	var corners := PackedVector3Array()
 	var lights := PackedColorArray()
 	for i: int in range(line.size() - 1, 0, -1):
@@ -103,7 +112,6 @@ func _build(at: Vector3, now: float) -> void:
 		along.y = 0.0
 		if along.length_squared() < 0.0001:
 			continue
-		var side := along.normalized().cross(Vector3.UP)
 		var near_age := ages[i]
 		var far_age := ages[i - 1]
 		var near_wide := WIDE * lerpf(1.0, TAIL, near_age)
@@ -116,14 +124,15 @@ func _build(at: Vector3, now: float) -> void:
 			var edge := 1.0 if band > 0 and band < BANDS.size() - 1 else EDGE
 			var color := BANDS[band]
 			for corner: Array in [
-				[near, left, near_wide, near_light],
-				[far, left, far_wide, far_light],
-				[far, right, far_wide, far_light],
-				[near, left, near_wide, near_light],
-				[far, right, far_wide, far_light],
-				[near, right, near_wide, near_light],
+				[near, left, near_wide, near_light, sides[i]],
+				[far, left, far_wide, far_light, sides[i - 1]],
+				[far, right, far_wide, far_light, sides[i - 1]],
+				[near, left, near_wide, near_light, sides[i]],
+				[far, right, far_wide, far_light, sides[i - 1]],
+				[near, right, near_wide, near_light, sides[i]],
 			]:
 				var point: Vector3 = corner[0]
+				var side: Vector3 = corner[4]
 				lights.append(Color(color, float(corner[3]) * edge))
 				corners.append(point + side * float(corner[1]) * float(corner[2]))
 	if corners.is_empty():
