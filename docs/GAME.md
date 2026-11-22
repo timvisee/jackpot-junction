@@ -4302,6 +4302,14 @@ counted last for one that came back elsewhere, which is any kart that went
 further in a frame than a kart drives, 6 m. The first karts of a shot are taken
 where they are, as the shot opens on them, and a kart gone from the shot that
 comes back glides in again. The floor ahead of a kart driven here comes with it.
+The one kart driven here coming back out of the picture is cut to rather than
+glided to (`CameraCut`): following that one kart, the glide took the camera back
+over the whole floor and across it, and it took seconds to come in again. The
+picture dips to dark over 0.1 s, under the HUD, which stays; the camera is put
+where the framing wants it, nothing gliding and nothing held; and the picture
+comes back over 0.22 s. Out of the picture is outside its middle 80%: a kart
+back nearer than that glides, which is a small move. With two or more driven here
+it always glides, since the others are still driving through the dark.
 The camera then eases toward the framing in two steps: an aim follows the framing
 as the camera itself used to, and the camera follows the aim on a critically
 damped spring of 0.2 s that carries its speed from frame to frame. Eased by the
@@ -4439,6 +4447,7 @@ arena, since it holds the pad and who stands on it rather than the room.
 | Clear of the HUD | No tracked kart's middle, with 1.1 m round it and 0.25 s of its travel more (at most 3 m), under a respawn pick that shares the screen, nor the floor ahead of a kart driven here; on a touch screen the stick, the slider and the round buttons count too, while they are up, each the middle 70% of its size across and down; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s, four a frame, and moved toward a step of 20% at a time; each answer faded over to in a straight line over the 0.1 s to the next; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
 | Floor ahead      | For each kart driven on this machine, a point 0.6 s of its travel ahead (3 m to 7 m, its facing when nearly still), inside the walls, held on screen and clear of the HUD |
 | Coming into the shot | A kart that joins, or comes back more than 6 m from where it was a frame before, glides into the framing over 1 s, smoothstep: from the nearest edge of the others' box when new, from where it was counted when it came back. The first karts of a shot are taken as they are |
+| Cut on coming back | The one kart driven here coming back more than 6 m off and outside the picture's middle 80%: dark over 0.1 s (the House's ink, under the HUD), the camera put where the framing wants it, back over 0.22 s. Never with two or more driven here |
 | Smoothing        | In two steps: an exponential aim and a critically damped spring of 0.2 s after it, taking together 0.6 s to catch up with something moving steadily for the pan and 1.2 s for the distance, 0.6 s when the aim is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
 | Ultrawide        | Shows more floor on the sides, never fewer karts                  |

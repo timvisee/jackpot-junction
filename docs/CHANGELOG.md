@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
   now sits closer and the karts are bigger; Accessibility can turn it off.
 - **The picture stays over the table.** Driving along a wall no longer fills half the screen with
   crowd: at most a strip at each edge shows what is past the arena.
+- **A cut when you come back.** Coming back out of the picture, the camera dips to dark for a moment
+  and opens on your kart, where it used to pull back over the whole arena and swoop across.
 - **Who the camera follows.** Camera follows on the Video page keeps everyone, your kart and the
   rivals near it, or only your kart in the picture, with arrows at the edge of the screen pointing
   at karts out of it. Auto follows only your kart on a TV, a handheld or a scaled-up UI.

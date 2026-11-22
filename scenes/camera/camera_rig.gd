@@ -163,6 +163,8 @@ var _hold := CameraHold.new()
 var _framing := FramedKarts.new()
 ## The way each kart driven here is traveling, eased, see [KartTravel].
 var _travel := KartTravel.new()
+## The dip to dark to a kart driven here come back out of the picture; made as the rig goes in.
+var _cut: CameraCut
 var _clock := 0.0
 var _zoom := 1.0
 var _shake := 0.0
@@ -248,6 +250,8 @@ func _ready() -> void:
 	listener.top_level = true
 	add_child(listener)
 	listener.make_current()
+	_cut = CameraCut.new()
+	add_child(_cut)
 	get_viewport().size_changed.connect(_refit)
 	_settle()
 	_place(_distance, Vector3.ZERO, 1.0)
@@ -395,8 +399,18 @@ func shake(strength: float) -> void:
 
 func _process(delta: float) -> void:
 	_clock += delta
-	_travel.follow(_valid(listener_targets), delta)
-	_pan_ease.follow(_target_pan(), smoothing, delta)
+	# Dark for a cut, see [CameraCut]: the camera is put where it is going rather than eased there.
+	var here := _valid(listener_targets)
+	var cutting := _cut != null and _cut.follow(here, camera, delta, _following())
+	if cutting:
+		_spots.reset()
+		_hold.reset()
+		_travel.reset()
+	_travel.follow(here, delta)
+	var pan_to := _target_pan()
+	if cutting:
+		_pan_ease.place(pan_to)
+	_pan_ease.follow(pan_to, smoothing, delta)
 	_pan = _pan_ease.value
 	_zoom = lerpf(_zoom, _target_zoom(), 1.0 - exp(-delta / maxf(smoothing, 0.001)))
 	_clear_left -= delta
@@ -409,12 +423,15 @@ func _process(delta: float) -> void:
 	var easing := distance_smoothing
 	if framing.x > _frame_ease.aim.x and not _opening_up:
 		easing *= OUT_QUICKER
-	_frame_ease.follow(Vector3(framing.x, framing.y, _clear_shown.z), easing, delta)
+	var frame_to := Vector3(framing.x, framing.y, _clear_shown.z)
+	if cutting:
+		_frame_ease.place(frame_to)
+	_frame_ease.follow(frame_to, easing, delta)
 	_distance = _frame_ease.value.x
 	_lift = _frame_ease.value.y
 	_across = _frame_ease.value.z
 	_come_in(delta)
-	_keep_on_table(delta)
+	_keep_on_table(delta, cutting)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
@@ -451,13 +468,8 @@ func _come_in(delta: float) -> void:
 func _place_listener() -> void:
 	if listener == null:
 		return
-	var center := _center + _pan
 	var alive := _valid(listener_targets)
-	if not alive.is_empty():
-		center = Vector3.ZERO
-		for target: Node3D in alive:
-			center += target.global_position
-		center /= alive.size()
+	var center := KartVoices.middle(alive, _center + _pan)
 	listener.global_position = Vector3(center.x, listener_height, center.z)
 	listener.global_basis = camera.global_basis
 	_voices.place(center, alive, _valid(targets))
@@ -525,16 +537,21 @@ func _target_pan() -> Vector3:
 ## follows the karts with nothing to keep them out from under, see [member covers]: a pick, a thumb
 ## on the glass or a HUD that is not see-through comes first. The framing never hears of it, so
 ## nothing it decides is undone.
-func _keep_on_table(delta: float) -> void:
+func _keep_on_table(delta: float, snap := false) -> void:
 	var want := Vector3.ZERO
-	var following := _framed and not _fixed() and not _opening_up and _opening_left <= 0.0
-	if following and _closing_time <= 0.0 and _covers_flat.is_empty():
+	if _following() and _covers_flat.is_empty():
 		var tan_v := tan(deg_to_rad(base_fov) * 0.5)
 		var view := Vector2(tan_v * _aspect(), tan_v)
 		var look := _center + _pan + _up_axis() * _lift + Vector3.RIGHT * _across
 		var half := _arena_size * 0.5
 		want = TableBounds.shift(look, _center, half, _distance, pitch_degrees, view)
-	_table_shift = _table_shift.lerp(want, 1.0 - exp(-delta / TABLE_EASE))
+	_table_shift = want if snap else _table_shift.lerp(want, 1.0 - exp(-delta / TABLE_EASE))
+
+
+## Whether it follows the karts: framing them, not fixed, nor opening or closing on the room.
+func _following() -> bool:
+	var opening := _opening_up or _opening_left > 0.0 or _closing_time > 0.0
+	return _framed and not _fixed() and not opening
 
 
 ## Whether the field is settled enough to come in on, see [CameraHold]: no kart still gliding into

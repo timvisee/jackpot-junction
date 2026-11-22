@@ -11,6 +11,17 @@ extends RefCounted
 var _moved := false
 
 
+## Where the ears go: the middle of [param here], the karts driven here, or with none, [param
+## otherwise], where the camera is looking, so the room still sounds like it is in front.
+static func middle(here: Array[Node3D], otherwise: Vector3) -> Vector3:
+	if here.is_empty():
+		return otherwise
+	var center := Vector3.ZERO
+	for target: Node3D in here:
+		center += target.global_position
+	return center / here.size()
+
+
 ## Puts the voices of [param karts] for the ears at [param center], over [param here], the karts
 ## driven here.
 func place(center: Vector3, here: Array[Node3D], karts: Array[Node3D]) -> void:
