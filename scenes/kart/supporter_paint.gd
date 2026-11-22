@@ -3,7 +3,8 @@ extends RefCounted
 ## The supporter pack's paint, GAME.md 10.8, Night sky: the player's color as a night sky, deeper
 ## shades and lighter wisps of it drifting over the body, never darker than any paint may go,
 ## [constant KartDress.SHADE], so the color is still the kart's; and small stars glowing in it,
-## lit from within rather than by the room. Laid over the paint every kart has, see
+## lit from within rather than by the room, now and then one brightening a little and fading back,
+## slowly, hard to spot until it is seen. Laid over the paint every kart has, see
 ## [method KartDress.paint], so the body's print and a finish lie over it as over any.
 
 ## How big the sky is laid on, of the patterns' own measure; how many stars are in a tile of it,
@@ -15,10 +16,17 @@ const STAR_GLOW := 2.2
 ## How big a tile of the sky and of its stars is, in pixels.
 const SKY := 128
 const STARRY := 256
+## The twinkle: how bright a star grows at the top of its beat, of its own light, and the pass it is
+## drawn in, see [method twinkle].
+const TWINKLE := 0.9
+const TWINKLE_SHADER := preload("res://scenes/kart/night_twinkle.gdshader")
 
-## The sky's tones and its stars, each made once.
+## The sky's tones, its stars and their beats, each made once.
 static var _sky: ImageTexture
 static var _stars: ImageTexture
+static var _beats: ImageTexture
+## The twinkle's pass handing on to each finish's sheen, made once each, see [method twinkle].
+static var _twinkles: Dictionary[int, ShaderMaterial] = {}
 
 
 ## The paint of a kart in [param color] wearing the night sky in [param style], with
@@ -39,7 +47,24 @@ static func paint(color: Color, style: KartStyle, body_print: Texture2D) -> Stan
 	material.emission_energy_multiplier = STAR_GLOW
 	# The color times the stars, so only the stars glow; added, the color lit the whole body.
 	material.emission_operator = BaseMaterial3D.EMISSION_OP_MULTIPLY
+	material.next_pass = twinkle(style.finish(0))
 	return material
+
+
+## The pass over the night sky in which now and then one of its stars brightens a little and fades
+## back, see [code]night_twinkle.gdshader[/code], handing on to finish [param level]'s sheen, so an
+## edition still lies over it; nothing for a player who asked for fewer flashes, see
+## [method SupporterDress.steady].
+static func twinkle(level: int) -> ShaderMaterial:
+	if not _twinkles.has(level):
+		var beating := ShaderMaterial.new()
+		beating.shader = TWINKLE_SHADER
+		beating.set_shader_parameter("beats", beats())
+		beating.set_shader_parameter("scale", Vector3.ONE * KartDress.PATTERN_SCALE * SKY_SCALE)
+		beating.set_shader_parameter("strength", TWINKLE)
+		beating.next_pass = KartDress.finish_material(level)
+		_twinkles[level] = beating
+	return SupporterDress.steadied(_twinkles[level])
 
 
 ## The night sky's patch on the kart dialog's rack in [param box] on [param on], in
@@ -85,16 +110,31 @@ static func sky() -> ImageTexture:
 ## The stars: small soft points of light on black, some brighter and bigger than the rest, laid so
 ## that the tile repeats without a seam.
 static func stars() -> ImageTexture:
-	if _stars != null:
-		return _stars
+	if _stars == null:
+		_lay_stars()
+	return _stars
+
+
+## The stars' beats, laid as the stars are: each star's light in red and in green a beat of its own,
+## the brighter star's where two meet, for the twinkle, see [method twinkle].
+static func beats() -> ImageTexture:
+	if _beats == null:
+		_lay_stars()
+	return _beats
+
+
+static func _lay_stars() -> void:
 	var picture := Image.create_empty(STARRY, STARRY, true, Image.FORMAT_RGB8)
 	picture.fill(Color.BLACK)
+	var beating := Image.create_empty(STARRY, STARRY, true, Image.FORMAT_RGB8)
+	beating.fill(Color.BLACK)
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 13
 	for i: int in STARS:
 		var at := Vector2(rng.randf() * STARRY, rng.randf() * STARRY)
 		var reach := STAR_REACH * (1.0 if rng.randf() < 0.2 else 0.55)
 		var bright := rng.randf_range(0.55, 1.0)
+		var beat := float(i) / STARS
 		var span := ceili(reach * 2.0)
 		for dy: int in range(-span, span + 1):
 			for dx: int in range(-span, span + 1):
@@ -103,6 +143,9 @@ static func stars() -> ImageTexture:
 				var y := posmod(int(at.y) + dy, STARRY)
 				var under := picture.get_pixel(x, y)
 				picture.set_pixel(x, y, Color.WHITE * minf(under.r + light, 1.0))
+				if light > beating.get_pixel(x, y).r:
+					beating.set_pixel(x, y, Color(light, beat, 0.0))
 	picture.generate_mipmaps()
+	beating.generate_mipmaps()
 	_stars = ImageTexture.create_from_image(picture)
-	return _stars
+	_beats = ImageTexture.create_from_image(beating)

@@ -422,7 +422,28 @@ func test_the_night_sky_paint() -> void:
 	assert_object(paint.emission_texture).is_same(SupporterPaint.stars())
 	# Only the stars glow: the color times the texture, not added to it.
 	assert_int(paint.emission_operator).is_equal(BaseMaterial3D.EMISSION_OP_MULTIPLY)
-	assert_object(paint.next_pass).is_same(KartDress.finish_material(2))
+	# Its stars twinkle in a pass of their own, which hands on to the finish; held for a player who
+	# asked for fewer flashes.
+	var twinkle := paint.next_pass as ShaderMaterial
+	assert_object(twinkle.shader).is_same(SupporterPaint.TWINKLE_SHADER)
+	assert_object(twinkle.next_pass).is_same(KartDress.finish_material(2))
+	assert_bool(twinkle.get_shader_parameter("steady")).is_false()
+	Game.settings.flash_reduction = true
+	(
+		assert_bool(KartDress.paint(Color.BLUE, style).next_pass.get_shader_parameter("steady"))
+		. is_true()
+	)
+	Game.settings.flash_reduction = false
+	# Each star beats to its own time, where it shines.
+	var beats := SupporterPaint.beats().get_image()
+	var stars := SupporterPaint.stars().get_image()
+	var seen := {}
+	for y: int in beats.get_height():
+		for x: int in beats.get_width():
+			if stars.get_pixel(x, y).r > 0.5:
+				assert_float(beats.get_pixel(x, y).r).is_greater(0.0)
+				seen[snappedf(beats.get_pixel(x, y).g, 0.01)] = true
+	assert_int(seen.size()).is_greater(int(SupporterPaint.STARS * 0.5))
 	var tones := SupporterPaint.sky().get_image()
 	var darkest := 1.0
 	for y: int in range(0, tones.get_height(), 4):

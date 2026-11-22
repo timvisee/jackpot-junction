@@ -10653,7 +10653,7 @@ rounds of a shortlist rendered on the real kart, PLAN.md M19 S8.
 | Prism | Trail | A thin ribbon of light split into the spectrum | Laid along the kart's line and gone in about a second, brighter in a drift, so a slide leaves an arc of rainbow on the felt; it frays apart at a death |
 | Stardust | Trail | Four-pointed twinkles over a faint violet haze | They hang where the kart has been and go out one by one, thicker in a drift, a puff of them at the respawn; they never fly, since sparks that fly from the wheels say a drift boost is ready, 4.3 |
 | Starlight | Finish | A fourth finish beside Foil, Holographic and Polychrome, 8.9 | Stars drifting through a sheen, laid on any piece of dress a supporter has |
-| Night sky | Paint | The paint as a night sky in the player's color | Deeper shades and lighter wisps of the color, never darker than any paint may go, and small stars glowing in it, lit from within rather than by the room; the color still the kart's, and an edition lies over it as over any paint |
+| Night sky | Paint | The paint as a night sky in the player's color | Deeper shades and lighter wisps of the color, never darker than any paint may go, and small stars glowing in it, lit from within rather than by the room, now and then one brightening a little and fading back, slowly, each to a beat of its own, hard to spot until it is seen; the color still the kart's, and an edition lies over it as over any paint |
 | Beacon, Constellation and Aurora | Card back | Three backs: a lighthouse over an engraved sea, its beam across a night of stars; the house's lattice as a star chart round a bright star; the engraved waves lit as curtains of teal and violet | Drawn as the other backs are, 8.9, and like them seen only on its own screen |
 
 - **Light.** Every piece but the three hats of character and the card backs gives off light, and
@@ -10676,8 +10676,9 @@ rounds of a shortlist rendered on the real kart, PLAN.md M19 S8.
   edition is back; the profile keeps which pieces are starlit. A trail in Starlight twinkles pale
   and a little blue twice as it goes, and tire marks take a pale night blue flecked with stars.
 - **Fewer flashes.** For a player who asked for fewer flashes, 8.5, the lighthouse's beam holds
-  still, pointing ahead, the stars hold rather than twinkle, Stardust's and Starlight's, whose stars
-  stop drifting too and whose trail keeps its own color, and the lantern never flares.
+  still, pointing ahead, the stars hold rather than twinkle, Stardust's, the night sky's and
+  Starlight's, whose stars stop drifting too and whose trail keeps its own color, and the lantern
+  never flares.
 - **Never a bot's.** Bots, 4.4, and the karts of the demo for a booth, 9.8, never wear a supporter
   piece, so one on a kart always means a person who backed the game.
 - **The extras.** An endorsement on the driver license, 9.4a, SUPPORTER, stamped and dated the

@@ -486,8 +486,8 @@ func _finishes() -> void:
 
 ## The supporter pack's dress, GAME.md 10.8, every hat and flag of it: what of it is drawn in a way
 ## no other dress is, the lighthouse's glass, glowing bulbs, halos and paper, light added over the
-## felt, a beam, a glow and a pool, the pinwheel's fading vanes and disc, and the trails, the
-## prism's ribbon and stardust's twinkles.
+## felt, a beam, a glow and a pool, the pinwheel's fading vanes and disc, the trails, the prism's
+## ribbon and stardust's twinkles, and the night sky's twinkle on a kart.
 func _supporter_dress() -> void:
 	var color := Palette.player_color(0)
 	var pieces: Array[Node3D] = []
@@ -499,6 +499,12 @@ func _supporter_dress() -> void:
 	for i: int in pieces.size():
 		pieces[i].position = _spot(Vector3(6.0 + 1.5 * float(i), 0.0, -6.0))
 		_match.add_child(pieces[i])
+	# A kart in the night sky, its stars twinkling in a pass of their own.
+	var kart := _kart(2)
+	var was := kart.style
+	kart.style = was.duplicate_style()
+	kart.style.paint = KartStyle.SUPPORTER[0][0]
+	KartVisuals.redress(kart, was)
 	# The pinwheel at speed, its disc of colors showing as well as its vanes.
 	for spin: Node in _match.find_children("*", "PinwheelSpin", true, false):
 		(spin as PinwheelSpin).step(1.0, PinwheelSpin.BLUR_FROM + 1.0)
