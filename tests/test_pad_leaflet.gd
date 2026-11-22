@@ -165,6 +165,9 @@ func test_its_button_opens_it_for_the_pad_in_hand() -> void:
 	assert_object(leaflet).is_not_null()
 	assert_int(leaflet.family).is_equal(PadFamily.Family.NINTENDO)
 	var tab := leaflet.get_node("Sheet/Tab0") as Button
+	# Its tabs light up along their own edges, so the gold frame the cursor slides in leaves them.
+	assert_bool(FocusGlide._glides(tab)).is_false()
+	assert_bool(FocusGlide._glides(leaflet.get_node("Sheet/Back") as Button)).is_false()
 	assert_str(tab.accessibility_name).contains(PadLeaflet.TITLE)
 	assert_str(tab.accessibility_description).contains("Gas: ZR")
 	leaflet.close()

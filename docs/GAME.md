@@ -5077,7 +5077,9 @@ button it is on now.
   controller, as you have it bound".
 - Back, its key, the pause button, a right click or a click beside the sheet put it away, and the
   cursor goes back to Show gamepad; nothing under it hears a key while it is up. The cursor goes
-  along the tabs and on to Back. Each sheet's tab tells a screen reader what the sheet shows,
+  along the tabs and on to Back, and the tab it is on, or the one under the mouse while the mouse
+  is in hand, lights up along its own slanted edges with a glow round them: no box round it, and
+  the gold frame the cursor slides in elsewhere, 8.1a, leaves the blueprint's tabs alone. Each sheet's tab tells a screen reader what the sheet shows,
   button by button.
 
 ### 8.4 Audio

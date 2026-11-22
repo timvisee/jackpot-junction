@@ -18,6 +18,10 @@ const LAYER := 126
 ## What the frame slides between besides the house's buttons: controls that take the cursor and
 ## wear this same frame with it, such as the catalog's cards, see [CatalogCell].
 const GROUP := &"focus_glides"
+## Buttons that show the cursor their own way, in a shape the frame does not fit, which it leaves
+## alone: the tabs of the gamepad's blueprint, which light up along their own edges, see
+## [PadLeaflet].
+const OWN := &"focus_own"
 
 var _from := Rect2()
 var _at := Rect2()
@@ -107,6 +111,8 @@ static func _rect_of(control: Control) -> Rect2:
 ## and not one that cannot be pressed, which the cursor only passes over on its way, such as the
 ## match settings blacked out for the Final Hand; and whatever else is in [constant GROUP].
 static func _glides(control: Control) -> bool:
+	if control.is_in_group(OWN):
+		return false
 	if control.is_in_group(GROUP):
 		return true
 	return control is BaseButton and not (control as BaseButton).disabled

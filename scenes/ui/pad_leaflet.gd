@@ -257,8 +257,7 @@ func _ready() -> void:
 	create_tween().tween_property(self, "modulate:a", 1.0, 0.12)
 
 
-## A tab's button: its words alone, the tab itself drawn on the sheet, see [method _draw_sheet], and
-## the cursor's tab ringed in the sheet's white.
+## A tab's button: its words alone, the tab itself drawn on the sheet, see [method _draw_sheet].
 func _tab_button(words: String) -> Button:
 	var tab := Button.new()
 	tab.text = words
@@ -268,15 +267,20 @@ func _tab_button(words: String) -> Button:
 	plain.content_margin_top = 6.0
 	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
 		tab.add_theme_stylebox_override(state, plain)
-	var ringed := StyleBoxFlat.new()
-	ringed.draw_center = false
-	ringed.border_color = Color(INK, 0.7)
-	ringed.set_border_width_all(2)
-	ringed.set_corner_radius_all(6)
-	ringed.set_expand_margin_all(-6.0)
-	tab.add_theme_stylebox_override(&"focus", ringed)
+	# The cursor and the mouse light the tab up along its own edges, see [method BlueprintArt.tab],
+	# rather than a frame round it, the house's or the glide's.
+	tab.add_theme_stylebox_override(&"focus", StyleBoxEmpty.new())
+	tab.add_to_group(FocusGlide.OWN)
+	for told: Signal in [tab.focus_entered, tab.focus_exited, tab.mouse_entered, tab.mouse_exited]:
+		told.connect(_sheet.queue_redraw)
 	_sheet.add_child(tab)
 	return tab
+
+
+## Whether [param button] is lit up: the cursor on it, or the mouse while the mouse is in hand, so a
+## pointer left resting on a tab lights no second one for a player on a pad.
+static func _lit(button: Button) -> bool:
+	return button.has_focus() or (button.is_hovered() and Game.last_input_pointer)
 
 
 ## The tabs' words: the page's in the sheet's white, the rest quieter, Back as the pages behind.
@@ -403,10 +407,10 @@ func _on_card(spot: StringName, around := false) -> Vector2:
 func _draw_sheet() -> void:
 	for i: int in PAGES.size():
 		if i != page:
-			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), false)
-	BlueprintArt.tab(_sheet, BACK_TAB, false)
+			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), false, _lit(_tabs[i]))
+	BlueprintArt.tab(_sheet, BACK_TAB, false, _lit(_back))
 	BlueprintArt.sheet(_sheet, SHEET)
-	BlueprintArt.tab(_sheet, _tabs[page].get_rect(), true)
+	BlueprintArt.tab(_sheet, _tabs[page].get_rect(), true, _lit(_tabs[page]))
 	BlueprintArt.folds(_sheet, SHEET)
 	var inside := SHEET.grow(-BlueprintArt.BORDER)
 	BlueprintArt.marks(_sheet, inside, Type.micro_font())
