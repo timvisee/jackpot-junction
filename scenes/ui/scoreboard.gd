@@ -65,6 +65,14 @@ var _heads: Dictionary[int, Dictionary] = {}
 ## Where the blink is in its cycle, shared by every row so they flash together rather than
 ## drifting apart into a fairground.
 var _beat := 0.0
+## How much of it shows while a kart is under it, see [method see_through].
+var _see_through := 1.0
+
+
+## Shows [param share] of it, for a kart under it, see [HudCovers]: on top of going out altogether
+## while a joker blinds it.
+func see_through(share: float) -> void:
+	_see_through = share
 
 
 func _ready() -> void:
@@ -168,7 +176,7 @@ func _process(delta: float) -> void:
 	if match_node == null or match_node.slots.is_empty() or not visible:
 		return
 	_beat += delta
-	modulate.a = 0.0 if blinded() else 1.0
+	modulate.a = 0.0 if blinded() else _see_through
 	var ranked := order()
 	if match_node.rules.teams > 0:
 		_show_teams()

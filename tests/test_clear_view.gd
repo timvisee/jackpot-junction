@@ -177,10 +177,10 @@ func test_a_moving_kart_is_kept_further_clear() -> void:
 	going.velocity = Vector3(8.0, 0.0, 0.0)
 	var flying: CharacterBody3D = auto_free(CharacterBody3D.new())
 	flying.velocity = Vector3(0.0, 0.0, -80.0)
-	var rooms := CameraRig._rooms([parked, going, flying] as Array[Node3D])
+	var rooms := ClearView.rooms([parked, going, flying] as Array[Node3D])
 	assert_float(rooms[0]).is_equal_approx(ClearView.KART_ROOM, 0.001)
-	assert_float(rooms[1]).is_equal_approx(ClearView.KART_ROOM + 8.0 * CameraRig.SOON, 0.001)
-	assert_float(rooms[2]).is_equal_approx(ClearView.KART_ROOM + CameraRig.SOON_MOST, 0.001)
+	assert_float(rooms[1]).is_equal_approx(ClearView.KART_ROOM + 8.0 * ClearView.SOON, 0.001)
+	assert_float(rooms[2]).is_equal_approx(ClearView.KART_ROOM + ClearView.SOON_MOST, 0.001)
 
 
 ## The fixed camera never follows anybody, so it keeps the whole floor out from under the HUD: it
@@ -332,9 +332,10 @@ static func _held(covers: Array[Rect2], point: Vector2) -> bool:
 	return covers.any(func(cover: Rect2) -> bool: return cover.has_point(point))
 
 
-## What the HUD tells the camera is over the room: each corner, the standings and the cards of a
-## hand, each as big as it is drawn rather than the whole screen a hand is laid out in; and a pick
-## only where it shares the screen, since alone it may cover the table.
+## What the HUD has over the room: each corner, the standings and the cards of a hand, each as big
+## as it is drawn rather than the whole screen a hand is laid out in; and a pick only where it
+## shares the screen, since alone it may cover the table. The camera is told only of that pick: the
+## rest goes see-through over a kart, see [HudCovers].
 func test_the_hud_tells_the_camera_what_it_covers() -> void:
 	for seats: int in [1, 2]:
 		var match_node := _match_here(seats)
@@ -347,7 +348,8 @@ func test_the_hud_tells_the_camera_what_it_covers() -> void:
 		var gathering := hud.get_node("Covers") as HudCovers
 		gathering._process(HudCovers.EVERY)
 		var covers := gathering.covers()
-		assert_array(match_node.camera_rig.covers).is_equal(covers)
+		# Of which the camera keeps clear only what nothing shows through, see [HudCovers].
+		assert_array(match_node.camera_rig.covers).is_equal(gathering.kept())
 		assert_bool(_held(covers, _middle_of(hud.block_of(0)))).is_true()
 		assert_bool(_held(covers, _middle_of(hud.scoreboard()))).is_true()
 		for cover: Rect2 in covers:
@@ -355,6 +357,9 @@ func test_the_hud_tells_the_camera_what_it_covers() -> void:
 		var picker := hud.picker_of(0)
 		var card := picker._cards[picker._cards.size() - 1]
 		assert_bool(_held(covers, _middle_of(card))).is_equal(seats > 1)
+		# And a shared pick, which nothing shows through, is the one the camera keeps clear of.
+		assert_bool(_held(gathering.kept(), _middle_of(card))).is_equal(seats > 1)
+		assert_bool(_held(gathering.kept(), _middle_of(hud.block_of(0)))).is_false()
 		# Sharing, the pick has the hand's place, and the hand steps aside for it.
 		var hand := hud.hand_of(0)
 		assert_bool(hand.visible).is_equal(seats == 1)

@@ -86,7 +86,7 @@ func test_the_camera_keeps_the_karts_out_from_under_the_touch_controls() -> void
 	var gathering := hud.get_node("Covers") as HudCovers
 	gathering._process(HudCovers.EVERY)
 	var covers := controls.match_node.camera_rig.covers
-	assert_array(covers).is_equal(gathering.covers())
+	assert_array(covers).is_equal(gathering.kept())
 	var screen := hud.get_viewport().get_visible_rect().size
 	var stick := controls.get_global_transform() * controls.stick.center
 	var held := covers.any(func(cover: Rect2) -> bool: return cover.has_point(stick / screen))

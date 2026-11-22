@@ -50,8 +50,10 @@ const CLEAR_TRIES := 4
 const KART_MIDDLE := 0.5
 const RIM_IN := 1.2
 const RIM_STEP := 5.0
-## How much quicker the rig goes back than it comes in, as a share of the time it takes.
-const OUT_QUICKER := 0.25
+## How much quicker the rig goes back than it comes in, as a share of the time it takes. It goes
+## back only when the karts need it to, see [CameraHold], and with a little to spare, so it can
+## take its time over it: at a quarter of the time in, it went back in a jolt.
+const OUT_QUICKER := 0.5
 ## The floor kept in view ahead of each kart driven here, GAME.md 8.2, so its player sees what they
 ## are driving toward: as far as the kart gets in [constant AHEAD_SECONDS] of its travel, never less
 ## than [constant AHEAD_LEAST] nor more than [constant AHEAD_MOST] meters, the way it faces while it
@@ -61,11 +63,8 @@ const AHEAD_SECONDS := 0.6
 const AHEAD_LEAST := 3.0
 const AHEAD_MOVING := 1.5
 const AHEAD_MOST := 7.0
-## How far ahead of where a kart is the camera keeps clear of the HUD, as seconds of its travel
-## and at most in meters: about how long the rig takes to ease back, so a kart driven fast at a
-## panel finds the camera already clear of it rather than catching up, see [method _rooms].
-const SOON := 0.25
-const SOON_MOST := 3.0
+## How long the slide that keeps the picture over the arena takes to come in, in seconds.
+const TABLE_EASE := 0.3
 
 @export var pitch_degrees := 55.0
 @export var base_fov := 35.0
@@ -127,9 +126,8 @@ var covers: Array[Rect2] = []:
 		covers = value
 		_covers_flat = ClearView.flat(value)
 
-## Whether the karts' voices have been moved off them for two or more players here, so they are
-## put back once there is one again.
-var _voices_moved := false
+## Where each kart's voice is put, see [KartVoices].
+var _voices := KartVoices.new()
 var _lens: CameraAttributesPractical
 var _center := Vector3.ZERO
 var _arena_size := Vector2(40.0, 22.5)
@@ -160,6 +158,11 @@ var _frame_ease := CameraEase.new()
 ## Where each kart counts for the framing, gliding into it as it comes into the shot somewhere new,
 ## see [FramedSpots]; and the rig's own clock, in seconds, which the glides are timed by.
 var _spots := FramedSpots.new()
+## How far back it holds itself while it follows, see [CameraHold], and whom, see [FramedKarts].
+var _hold := CameraHold.new()
+var _framing := FramedKarts.new()
+## The way each kart driven here is traveling, eased, see [KartTravel].
+var _travel := KartTravel.new()
 var _clock := 0.0
 var _zoom := 1.0
 var _shake := 0.0
@@ -185,6 +188,10 @@ var _closing_fill := 1.0
 ## How far the aim is slid along the camera's up axis to put the slack on both sides of what is
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
+## Where the framing would put the aim, see [method _still], and how far the picture is slid to
+## stay over the arena, see [method _keep_on_table].
+var _pan_wanted := Vector3.ZERO
+var _table_shift := Vector3.ZERO
 ## The look-ahead in force, worked out with the pan and used again by the framing so that the two
 ## agree about where the camera is looking and what it has to hold on screen.
 var _led := Vector3.ZERO
@@ -282,6 +289,10 @@ func frame_arena(bounds: AABB) -> void:
 	_slide = Vector2.ZERO
 	_look = null
 	_spots.reset()
+	_hold.reset()
+	_framing.reset()
+	_travel.reset()
+	_table_shift = Vector3.ZERO
 	_settle()
 	_place(_distance, _pan, _zoom)
 
@@ -384,6 +395,7 @@ func shake(strength: float) -> void:
 
 func _process(delta: float) -> void:
 	_clock += delta
+	_travel.follow(_valid(listener_targets), delta)
 	_pan_ease.follow(_target_pan(), smoothing, delta)
 	_pan = _pan_ease.value
 	_zoom = lerpf(_zoom, _target_zoom(), 1.0 - exp(-delta / maxf(smoothing, 0.001)))
@@ -402,6 +414,7 @@ func _process(delta: float) -> void:
 	_lift = _frame_ease.value.y
 	_across = _frame_ease.value.z
 	_come_in(delta)
+	_keep_on_table(delta)
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
@@ -447,35 +460,7 @@ func _place_listener() -> void:
 		center /= alive.size()
 	listener.global_position = Vector3(center.x, listener_height, center.z)
 	listener.global_basis = camera.global_basis
-	_place_voices(center, alive)
-
-
-## With two or more karts driven here the ears sit between them, and each player would hear their
-## own kart from halfway across the room. So every kart's voice is put where it would be if the ears
-## were over whichever kart driven here is nearest it, GAME.md 8.4: each player hears their own at
-## the level it is written for, and the others as they sound from where that player is.
-func _place_voices(center: Vector3, here: Array[Node3D]) -> void:
-	var moved := here.size() > 1
-	if not moved and not _voices_moved:
-		return
-	_voices_moved = moved
-	for target: Node3D in _valid(targets):
-		var kart := target as Kart
-		if kart == null or kart.sound == null:
-			continue
-		kart.sound.top_level = moved
-		if not moved:
-			kart.sound.position = Vector3.ZERO
-			continue
-		var nearest := here[0]
-		var gap := nearest.global_position.distance_squared_to(kart.global_position)
-		for each: Node3D in here:
-			var this_gap := each.global_position.distance_squared_to(kart.global_position)
-			if this_gap < gap:
-				nearest = each
-				gap = this_gap
-		var offset := kart.global_position - nearest.global_position
-		kart.sound.global_position = Vector3(center.x, 0.0, center.z) + offset
+	_voices.place(center, alive, _valid(targets))
 
 
 ## Whether the rig is holding the whole arena rather than following anybody: the fixed camera of
@@ -493,8 +478,14 @@ func _fixed() -> bool:
 	return _framed and Game.settings.fixed_camera
 
 
+## The karts it follows, see [FramedKarts]: every one of [member targets], or those driven here and
+## the rivals near them, or those driven here alone, as the player chose.
 func _alive_targets() -> Array[Node3D]:
-	return _valid(targets)
+	var all := _valid(targets)
+	if not _framed:
+		return all
+	var way := ViewChoices.follows(get_viewport().get_visible_rect().size)
+	return _framing.pick(all, _valid(listener_targets), way, _arena_size)
 
 
 static func _valid(list: Array[Node3D]) -> Array[Node3D]:
@@ -518,12 +509,61 @@ func _target_pan() -> Vector3:
 	_spots.place(alive, _clock, _center + _pan)
 	_ahead.clear()
 	if _opening_up or _fixed() or alive.is_empty():
+		_hold.aim = Vector3.ZERO
+		_pan_wanted = Vector3.ZERO
 		return Vector3.ZERO
 	_ahead = _aheads()
 	var offset := (_target_box(_spots.placed).get_center() - _center) * pan_weight
 	offset.y = 0.0
 	_led = _lead(_center + offset)
-	return (offset + _led).limit_length(pan_limit)
+	_pan_wanted = (offset + _led).limit_length(pan_limit)
+	return _still(_pan_wanted)
+
+
+## The picture slid back to go no more than a little past the arena, see [TableBounds], eased over
+## [constant TABLE_EASE] so it comes to a stop at the edge rather than against it. Only while it
+## follows the karts with nothing to keep them out from under, see [member covers]: a pick, a thumb
+## on the glass or a HUD that is not see-through comes first. The framing never hears of it, so
+## nothing it decides is undone.
+func _keep_on_table(delta: float) -> void:
+	var want := Vector3.ZERO
+	var following := _framed and not _fixed() and not _opening_up and _opening_left <= 0.0
+	if following and _closing_time <= 0.0 and _covers_flat.is_empty():
+		var tan_v := tan(deg_to_rad(base_fov) * 0.5)
+		var view := Vector2(tan_v * _aspect(), tan_v)
+		var look := _center + _pan + _up_axis() * _lift + Vector3.RIGHT * _across
+		var half := _arena_size * 0.5
+		want = TableBounds.shift(look, _center, half, _distance, pitch_degrees, view)
+	_table_shift = _table_shift.lerp(want, 1.0 - exp(-delta / TABLE_EASE))
+
+
+## Whether the field is settled enough to come in on, see [CameraHold]: no kart still gliding into
+## the shot, see [FramedSpots], and none driven here down, which comes back wherever the match puts
+## it, as likely as not out past the edge of a close shot.
+func _settled() -> bool:
+	if not _spots.settled(_clock):
+		return false
+	for target: Node3D in _valid(listener_targets):
+		var kart := target as Kart
+		if kart != null and not kart.alive:
+			return false
+	return true
+
+
+## [param wanted], the aim the framing would put the camera at, held where the camera already aims
+## while the field still fits from there, see [method CameraHold.hold_aim]: the floor the screen
+## spans at the distance held, and every kart's fit from an aim.
+func _still(wanted: Vector3) -> Vector3:
+	if not _framed or _hold.distance <= 0.0:
+		_hold.aim = wanted
+		return wanted
+	var tan_v := tan(deg_to_rad(base_fov * zoom_min) * 0.5)
+	var deep := 1.0 / sin(deg_to_rad(pitch_degrees))
+	var span := Vector2(_aspect(), deep) * 2.0 * _hold.distance * tan_v
+	var corners := _framed_corners(_spots.placed, _led)
+	var budget := _hold.distance / _distance_pull()
+	var fits := func(at: Vector3) -> bool: return _needed_distance(corners, _center + at) <= budget
+	return _hold.hold_aim(wanted, span, fits)
 
 
 ## The floor ahead of each kart driven here, at a kart's middle: see [constant AHEAD_SECONDS]. From
@@ -538,10 +578,7 @@ func _aheads() -> Array[Vector3]:
 		var kart := target as Kart
 		if kart != null and not kart.alive:
 			continue
-		var travel := Vector3.ZERO
-		var body := target as CharacterBody3D
-		if body != null:
-			travel = Vector3(body.velocity.x, 0.0, body.velocity.z)
+		var travel := _travel.of(target)
 		var speed := travel.length()
 		var way := travel / speed if speed > AHEAD_MOVING else -target.global_basis.z
 		way.y = 0.0
@@ -575,9 +612,7 @@ func _lead(at: Vector3) -> Vector3:
 		return Vector3.ZERO
 	var ahead := Vector3.ZERO
 	for target: Node3D in driven:
-		var body := target as CharacterBody3D
-		if body != null:
-			ahead += Vector3(body.velocity.x, 0.0, body.velocity.z)
+		ahead += _travel.of(target)
 	var want := (ahead * (lead_seconds / float(driven.size()))).limit_length(lead_limit)
 	return _afforded(want, _spots.placed, at)
 
@@ -653,50 +688,28 @@ func _target_framing() -> Vector2:
 	# clearance still adds its own on top, so coming in never hides a kart under the HUD, see [_clear].
 	var pull := _distance_pull()
 	var floor_far := follow_min_distance * pull
-	var far := clampf(_needed_distance(corners, at) * pull, floor_far, _arena_distance)
+	# Held rather than followed: back as soon as the karts need it, in again only once they have
+	# stayed close for a moment, see [CameraHold].
+	var wanted := _needed_distance(corners, at) * pull
+	var ideal := _needed_distance(corners, _center + _pan_wanted) * pull
+	var far := _hold.hold(wanted, _clock, floor_far, _arena_distance, _settled(), ideal)
 	var middles: Array[Vector3] = []
 	for place: Vector3 in _spots.placed:
 		middles.append(place + Vector3.UP * KART_MIDDLE)
 	# And the floor ahead of each kart driven here, kept out from under the HUD as the karts are.
 	middles.append_array(_ahead)
-	var rooms := _rooms(alive)
-	return _clear(middles, corners, at, far, _aim_lift(corners, at, far), floor_far, rooms)
+	var rooms := ClearView.rooms(alive)
+	# Never in past the distance held for the HUD's sake: what it keeps clear of goes on top.
+	return _clear(middles, corners, at, far, _aim_lift(corners, at, far), far, rooms)
 
 
 ## The distance the player keeps the camera at, GAME.md 8.5: [member Settings.camera_distance], or
-## worked out from the screen when that is 0, Auto. The bigger the UI is drawn and the smaller the
-## screen, the closer it comes in, where the karts are hardest to make out; a wide desktop sits a
-## little further back.
+## worked out from the screen when that is 0, Auto, see [method ViewChoices.auto_distance].
 func _distance_pull() -> float:
 	var chosen := Game.settings.camera_distance
 	if chosen > 0.0:
 		return chosen
-	return auto_distance(get_viewport().get_visible_rect().size)
-
-
-## What Auto settles the distance on for a screen [param screen] pixels across, for the rig and for
-## the Video page to show in brackets: the bigger the UI and the smaller the screen, the closer it
-## comes in; a wide desktop sits a little further back.
-static func auto_distance(screen: Vector2) -> float:
-	var ui := (
-		Settings.ui_scale_for_now if Settings.ui_scale_for_now > 0.0 else Game.settings.ui_scale
-	)
-	var factor := 0.8 - maxf(ui - 1.0, 0.0) * 0.35
-	if OS.has_feature("mobile") or minf(screen.x, screen.y) < 760.0:
-		factor -= 0.05
-	return clampf(factor, 0.52, 0.9)
-
-
-## How far round each of [param alive] the HUD is kept off, see [constant SOON]: a kart and a little
-## air round it, and as far as it gets in a moment more on the move. The floor ahead of a kart
-## driven here, which comes after them, keeps the room of a kart standing still.
-static func _rooms(alive: Array[Node3D]) -> PackedFloat32Array:
-	var rooms := PackedFloat32Array()
-	for target: Node3D in alive:
-		var body := target as CharacterBody3D
-		var speed := Vector2(body.velocity.x, body.velocity.z).length() if body != null else 0.0
-		rooms.append(ClearView.KART_ROOM + minf(speed * SOON, SOON_MOST))
-	return rooms
+	return ViewChoices.auto_distance(get_viewport().get_visible_rect().size)
 
 
 ## The framing that keeps every one of [param points] out from under the HUD's [member covers],
@@ -817,7 +830,7 @@ func _target_zoom() -> float:
 
 func _place(distance: float, pan: Vector3, zoom: float) -> void:
 	var pitch := deg_to_rad(pitch_degrees + _tilt)
-	var look_at_point := _center + pan + _up_axis() * _lift + Vector3.RIGHT * _across
+	var look_at_point := _center + pan + _up_axis() * _lift + Vector3.RIGHT * _across + _table_shift
 	var offset := Vector3(0.0, sin(pitch), cos(pitch)) * distance
 	if _shake > 0.0:
 		offset += (

@@ -18,7 +18,19 @@ below, and hands the notes to the release workflow.
   who steered left and right.
 - **The clipboard calls again.** Standing about in the driving school, or getting nowhere for a
   while, brings the clipboard's rings back round it, so a learner who never looked up there finds it.
-
+- **A steadier camera.** It holds its distance and aim while the karts shift about, going back only
+  when they need the room and coming in once they have settled, where it used to drift and breathe
+  in and out all match.
+- **See-through HUD.** A corner, the standings, the clock or a hand of jokers goes see-through while
+  a kart is under it. The camera used to lurch and pull back to get the kart out from under, so it
+  now sits closer and the karts are bigger; Accessibility can turn it off.
+- **The picture stays over the table.** Driving along a wall no longer fills half the screen with
+  crowd: at most a strip at each edge shows what is past the arena.
+- **Who the camera follows.** Camera follows on the Video page keeps everyone, your kart and the
+  rivals near it, or only your kart in the picture, with arrows at the edge of the screen pointing
+  at karts out of it. Auto follows only your kart on a TV, a handheld or a scaled-up UI.
+- **What you play on.** Screen type on the Video page, Desk, TV or Handheld, brings the camera in
+  for a TV across the room and sets the UI scale it suits.
 - **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
   itself rather than the floor round it, which left the table sitting a little high.
 - **The seal on the desktop.** The game's icon shows the whole seal from 64 pixels up, where it

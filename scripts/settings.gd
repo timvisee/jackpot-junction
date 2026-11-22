@@ -114,6 +114,10 @@ var show_clearance := false
 var render_scale := 0.8 if OS.has_feature("mobile") else 1.0
 ## How far the camera sits, 0 to suit the screen, else 1 fits the karts and lower comes in closer.
 var camera_distance := 0.0
+## What the game is played on, one of [constant ViewChoices.SCREENS].
+var screen := ViewChoices.default_screen()
+## Who the camera keeps in the picture, one of [constant ViewChoices.FOLLOWS].
+var camera_follows := ViewChoices.FOLLOW_AUTO
 ## One of [constant UPSCALERS].
 var upscaler := UPSCALE_BILINEAR
 ## How the room is drawn, one of [method RenderLook.ids], GAME.md 8.1b: by default as it is
@@ -180,6 +184,9 @@ var color_vision := ""
 ## default, because coming in is what makes a kart big enough to read; on, for a player who would
 ## rather have a picture that never moves than one that is close.
 var fixed_camera := false
+## A panel of the HUD over a kart going see-through, GAME.md 8.2; off, the camera keeps the karts
+## out from under the HUD instead, as it used to.
+var see_through_hud := true
 var stick_deadzone := 0.15
 ## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
 ## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
@@ -373,6 +380,12 @@ func load_machine(file: ConfigFile) -> void:
 	show_clearance = file.get_value("debug", "show_clearance", show_clearance)
 	render_scale = file.get_value("video", "render_scale", render_scale)
 	camera_distance = clampf(file.get_value("video", "camera_distance", camera_distance), 0.0, 1.4)
+	screen = str(file.get_value("video", "screen", screen))
+	if screen not in ViewChoices.SCREENS:
+		screen = ViewChoices.default_screen()
+	camera_follows = str(file.get_value("video", "camera_follows", camera_follows))
+	if camera_follows not in ViewChoices.FOLLOWS:
+		camera_follows = ViewChoices.FOLLOW_AUTO
 	var upscaled := str(file.get_value("video", "upscaler", upscaler))
 	upscaler = upscaled if upscaled in UPSCALERS else upscaler
 	var looked := str(file.get_value("video", "look", look))
@@ -446,6 +459,7 @@ func load_machine(file: ConfigFile) -> void:
 	if color_vision not in VISIONS:
 		color_vision = ""
 	fixed_camera = file.get_value("accessibility", "fixed_camera", fixed_camera)
+	see_through_hud = bool(file.get_value("accessibility", "see_through_hud", see_through_hud))
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
@@ -508,6 +522,8 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("debug", "show_clearance", show_clearance)
 	file.set_value("video", "render_scale", render_scale)
 	file.set_value("video", "camera_distance", camera_distance)
+	file.set_value("video", "screen", screen)
+	file.set_value("video", "camera_follows", camera_follows)
 	file.set_value("video", "upscaler", upscaler)
 	file.set_value("video", "shadows", shadows)
 	file.set_value("video", "texture_detail", texture_detail)
@@ -541,6 +557,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("accessibility", "always_drive_hints", always_drive_hints)
 	file.set_value("accessibility", "color_vision", color_vision)
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
+	file.set_value("accessibility", "see_through_hud", see_through_hud)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "touch_layout", touch_layout)
 	file.set_value("controls", "bindings", bindings)

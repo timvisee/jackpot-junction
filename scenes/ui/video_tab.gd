@@ -37,9 +37,28 @@ const TEXTURES_TIP := (
 	"How finely the floor's print is drawn. Auto suits your screen, Low saves video memory, High"
 	+ " is sharper up close and Ultra sharpest, for the most memory. It changes at once."
 )
+## The Screen type and Camera follows boxes, GAME.md 8.5, and what they say to the mouse and a
+## screen reader; and the names the camera's own choices go by after Auto.
+const SCREEN := "Screen type"
+const SCREEN_TIP := (
+	"What you play on. A TV across the room or a handheld brings the camera in closer and keeps"
+	+ " only your own kart in the picture on Auto; picking one also sets the UI scale it suits."
+)
+const FOLLOWS := "Camera follows"
+const FOLLOWS_TIP := (
+	"Who the camera keeps in the picture: every kart, your kart and the rivals near it, or only"
+	+ " your kart, rivals off the screen pointed at from its edge. Auto suits your screen."
+)
+const FOLLOW_NAMES: Array[String] = ["Everyone", "Nearby rivals", "My kart"]
+const DISTANCE_NAMES: Array[String] = ["Closest", "Close", "Medium", "Far", "Farthest"]
 
 var _settings: Settings
 var _column: VBoxContainer
+## The boxes whose Auto says what it comes to on this screen, and the UI scale box, which picking a
+## screen moves.
+var _distance_box: OptionButton
+var _follows_box: OptionButton
+var _ui_box: OptionButton
 ## Whether this is a phone or a tablet, and whether the renderer is the desktop's, for the tests to
 ## build the page as another platform would.
 var _handheld := false
@@ -102,26 +121,27 @@ func _ready() -> void:
 			_apply()
 	)
 	_add("Render scale", scale)
+	_add_screen()
 	# Picked from a list, not slid, so the frame does not pump in and out under the pointer dragging
 	# it; Auto comes in closer on a small or a high-DPI screen, where the karts are hardest to see.
-	var levels := ["Closest", "Close", "Medium", "Far", "Farthest"]
-	# Auto says in brackets which distance it settles on for this screen, GAME.md 8.5, the nearest
-	# of the levels to the share of the fit it works out, see [method CameraRig.auto_distance].
-	var auto := CameraRig.auto_distance(Vector2(DisplayServer.window_get_size()))
-	var near := 0
-	for j: int in CAMERA_STEPS.size():
-		if absf(CAMERA_STEPS[j] - auto) < absf(CAMERA_STEPS[near] - auto):
-			near = j
-	var spots := (["Auto (%s)" % levels[near]] as Array) + levels
 	var at := 0
 	if _settings.camera_distance > 0.0:
 		at = maxi(CAMERA_STEPS.find(_settings.camera_distance), 0) + 1
-	var distance := MenuTheme.option(spots, at)
-	distance.item_selected.connect(
+	_distance_box = MenuTheme.option((["Auto"] as Array) + DISTANCE_NAMES, at)
+	_distance_box.item_selected.connect(
 		func(index: int) -> void:
 			_settings.camera_distance = 0.0 if index == 0 else CAMERA_STEPS[index - 1]
 	)
-	_add("Camera distance", distance)
+	_add("Camera distance", _distance_box)
+	var follows := ViewChoices.FOLLOWS.find(_settings.camera_follows)
+	_follows_box = MenuTheme.option((["Auto"] as Array) + FOLLOW_NAMES, maxi(follows, 0))
+	_follows_box.tooltip_text = FOLLOWS_TIP
+	ScreenReader.name(_follows_box, FOLLOWS, FOLLOWS_TIP)
+	_follows_box.item_selected.connect(
+		func(index: int) -> void: _settings.camera_follows = ViewChoices.FOLLOWS[index]
+	)
+	_add(FOLLOWS, _follows_box)
+	_say_autos()
 	var offered := upscalers()
 	var names: Array = []
 	for each: String in offered:
@@ -142,13 +162,14 @@ func _ready() -> void:
 	var sizes: Array = []
 	for size: float in Settings.UI_SCALES:
 		sizes.append("%d%%" % roundi(size * 100.0))
-	var ui := MenuTheme.option(sizes, ui_scale_index(_settings.ui_scale))
-	ui.item_selected.connect(
+	_ui_box = MenuTheme.option(sizes, ui_scale_index(_settings.ui_scale))
+	_ui_box.item_selected.connect(
 		func(index: int) -> void:
 			_settings.ui_scale = Settings.UI_SCALES[index]
 			_apply()
+			_say_autos()
 	)
-	_add("UI scale", ui)
+	_add("UI scale", _ui_box)
 	# What a room pays for on the card, GAME.md 8.5, each the room's own strength the player keeps a
 	# share of; relit at once, since the room is standing. Brightness is over the room's own exposure.
 	var bloom := MenuTheme.option(BLOOM_NAMES, maxi(BLOOM_LEVELS.find(_settings.bloom), 0))
@@ -304,6 +325,42 @@ func _add_window() -> void:
 			_apply()
 	)
 	_add("V-sync", vsync)
+
+
+## What the game is played on, GAME.md 8.5. Picking one puts the UI at the size it suits, which the
+## UI scale box then shows, and Auto's distance and framing come out as they suit it.
+func _add_screen() -> void:
+	var at := maxi(ViewChoices.SCREENS.find(_settings.screen), 0)
+	var screen := MenuTheme.option(ViewChoices.SCREEN_NAMES, at)
+	screen.tooltip_text = SCREEN_TIP
+	ScreenReader.name(screen, SCREEN, SCREEN_TIP)
+	screen.item_selected.connect(
+		func(index: int) -> void:
+			_settings.screen = ViewChoices.SCREENS[index]
+			_settings.ui_scale = ViewChoices.SCREEN_UI_SCALES[index]
+			if _ui_box != null:
+				_ui_box.select(ui_scale_index(_settings.ui_scale))
+			_apply()
+			_say_autos()
+	)
+	_add(SCREEN, screen)
+
+
+## Auto in the Camera distance and Camera follows boxes says in brackets what it comes to on this
+## screen, GAME.md 8.5: the nearest of the distances to the share of the fit Auto works out, see
+## [method ViewChoices.auto_distance], and whom it follows, see [method ViewChoices.follows].
+func _say_autos() -> void:
+	var screen := Vector2(DisplayServer.window_get_size())
+	var auto := ViewChoices.auto_distance(screen)
+	var near := 0
+	for j: int in CAMERA_STEPS.size():
+		if absf(CAMERA_STEPS[j] - auto) < absf(CAMERA_STEPS[near] - auto):
+			near = j
+	if _distance_box != null:
+		_distance_box.set_item_text(0, "Auto (%s)" % DISTANCE_NAMES[near])
+	if _follows_box != null:
+		var way := ViewChoices.FOLLOWS.find(ViewChoices.follows_auto(screen)) - 1
+		_follows_box.set_item_text(0, "Auto (%s)" % FOLLOW_NAMES[way])
 
 
 ## The entry of [constant Settings.UI_SCALES] nearest [param size].

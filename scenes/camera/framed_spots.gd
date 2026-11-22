@@ -40,6 +40,8 @@ var placed := PackedVector3Array()
 var _spots: Dictionary[int, Spot] = {}
 var _fresh := true
 var _placed_at := -INF
+## Until when on the rig's clock a kart is still gliding into the framing.
+var _gliding_until := -INF
 
 
 ## Forgets every kart: the next ones are the first of a new shot and are taken where they are.
@@ -48,6 +50,7 @@ func reset() -> void:
 	placed.clear()
 	_fresh = true
 	_placed_at = -INF
+	_gliding_until = -INF
 
 
 ## Works out [member placed] for [param alive], the karts in the shot, at [param now] on the rig's
@@ -71,6 +74,7 @@ func place(alive: Array[Node3D], now: float, aim: Vector3) -> void:
 		if real.distance_squared_to(spot.last) > JUMP * JUMP:
 			spot.from = spot.at
 			spot.since = now
+			_gliding_until = maxf(_gliding_until, now + GLIDE)
 		spot.last = real
 		spot.at = real if now - spot.since >= GLIDE else _glided(spot, real, now)
 		placed[i] = spot.at
@@ -102,9 +106,16 @@ func _take_in(alive: Array[Node3D], now: float, aim: Vector3) -> void:
 		if not _fresh:
 			spot.from = real.clamp(box.position, box.end) if boxed else Vector3(aim.x, 0.0, aim.z)
 			spot.since = now
+			_gliding_until = maxf(_gliding_until, now + GLIDE)
 		spot.at = _glided(spot, real, now)
 		placed[i] = spot.at
 		_spots[alive[i].get_instance_id()] = spot
+
+
+## Whether every kart is where it counts, none still gliding into the framing at [param now] on
+## the rig's clock: a field with one gliding in is about to need more room, not less.
+func settled(now: float) -> bool:
+	return now >= _gliding_until
 
 
 ## Where [param target] counts for the framing, as [method place] last worked it out: where it is,

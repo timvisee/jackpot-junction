@@ -4206,6 +4206,10 @@ middle.
 Only the karts somebody is driving here get it: a rival's kart is something to
 watch rather than somewhere to look, and leading for all four would be four leads
 canceling each other out.
+The travel it goes by is eased over about a third of a second, 0.35 s, rather than
+taken as it is each frame: a bump, a wall or a spin turns a kart round in a frame,
+and the aim used to swing half the screen across and back with it for a knock that
+was over before anybody saw it.
 
 Sliding the aim has to be paid for, because the fit still has to hold every kart on
 screen from wherever the aim ends up. Most of it is free: the margin of floor behind
@@ -4217,13 +4221,28 @@ that pulls back to look ahead has made everything smaller in order to show more 
 it, which is the trade the wrong way round; left to take what it wanted, seven
 meters of lead pulled the camera half again as far out in a close fight.
 
-Nothing the HUD lays over the screen is let cover a kart. The corners of 8.3, the
-hints hung off them, the standings, the clock, the hands of jokers, a respawn
-pick that shares the screen and the driving test's clipboard of 9.4a, hung in its
-corner, are each a rectangle of it, drawn things only: a hand
-is as big as its cards, a line of words as wide as its words. On a touch screen
-so are the stick, the slider and each round button of 4.2 while they are up, each
-only its middle, seven tenths of its size across and down: they are see-through,
+Nothing the HUD lays over the screen is let hide a kart. The corners of 8.3, the
+hints hung off them, the standings, the clock, the hands of jokers and the
+driving test's clipboard of 9.4a, hung in its corner, are each a rectangle of it,
+drawn things only: a hand is as big as its cards, a line of words as wide as its
+words. While a kart is under one, its middle with 1.1 m round it touching it, it
+goes see-through, down to a quarter of itself in an eighth of a second, so the
+kart shows through it; and it comes back over two fifths of a second once no kart
+has been under it for half of one, so a kart running along under its edge does not
+make it blink. The standings already go out altogether while a joker blinds them,
+and see-through is a share of whatever they are showing.
+
+The camera used to keep the karts out from under all of it instead, going further
+back or sliding its aim across or up ten times a second as karts drove up to a
+panel and away again. That was most of what moved the screen that nobody had
+asked to move: a kart driving up to a corner took the camera back fifteen meters
+and its aim four meters across and back, every few seconds, and a picture that
+lurches for the HUD's sake is worse for the player than a corner they can see
+through. Two things cannot be seen through, and the camera still keeps the karts
+out from under those: a respawn pick that shares the screen, which somebody is
+choosing from, and on a touch screen the stick, the slider and each round button
+of 4.2 while they are up, where a thumb is on the glass. Each of those is only its
+middle, seven tenths of its size across and down: the controls are see-through,
 and a kart partly under the edge of one is still seen, so the camera gives up
 less of the screen for them than they take. Wherever a kart
 being framed would come out under one of them, the camera goes further back,
@@ -4245,6 +4264,28 @@ kart gets in 0.6 s of its travel, at least 3 m and at most 7 m, the way it faces
 while it is nearly still, and inside the walls, past which there is nothing to
 drive toward. It is held on the screen with the karts and out from under the HUD
 as they are. A rival's road is not this player's, so nobody else's kart gets one.
+
+The distance is held rather than followed. Framing every kart, it used to chase
+the spread of the field every frame, and a field closes up and spreads out all the
+time: the camera crept in for seconds and went back out in half of one, over and
+over, turning round about forty times a minute. Now it goes back as soon as the
+karts need it to, with 6% to spare, so a field spreading a little further does not
+take it straight back out again, and comes in only once the field has left it 15%
+of room for a second and a half. Coming in, it follows the field in while it closes
+up and stops where the field stops, and does not follow it back out until the
+field needs more than it has. It goes back over half the time it takes to come in,
+where it used to take a quarter, which was a jolt. A field already well inside the
+closest shot is held at the closest shot, not a little behind it. Nor does it come
+in while a kart is still gliding into the shot, below: that field is about to need
+more room, not less, and a player whose kart comes back across the room should not
+find the camera coming in away from it.
+
+The aim is held the same way. The middle of the box the karts are in moves whenever
+any of them does, and the camera drifted after it the whole time, a picture never
+quite still. Now the aim stays where it is while the middle it would go to is
+within a twentieth of the screen of it, across or down, and only then follows,
+that much behind; and never so far that a kart would not fit from where it is held
+at the distance held, where it gives up just enough of it for them to.
 
 Whatever it is asked, the camera moves smoothly. A kart that joins, or comes back
 across the room after going down, used to be in the framing all at once, and the
@@ -4273,7 +4314,9 @@ kart appearing in the far corner of a close shot used to take the camera to abou
 500 m/s² went from 85 to none.
 
 All of it runs on a phone too, so it is kept cheap, 10.7. The HUD says what it
-covers ten times a second rather than every frame; the camera works out afresh
+covers ten times a second rather than every frame, and looks for karts under its
+panels as often, a ring round each kart's middle against each panel; the fades
+between are a number a frame per panel going see-through. The camera works out afresh
 how to keep the karts clear ten times a second as well, keeping what it found on
 top of the framing it works out every frame in between, and spreads each of those
 looks over a few frames, a few slides of the aim a frame, so no one frame carries
@@ -4282,14 +4325,49 @@ off it and one of the rest in turn, and leaves out every kart and panel that cou
 never meet whatever it tries.
 
 For testing, a debug build's Debug page, or `--show-clearance` on any build, draws
-what the camera keeps clear over the match: every panel the HUD reports, the
-middles of the touch controls among them on a touch screen, shaded red, the frame
+what the camera keeps clear over the match: every panel it keeps the karts out
+from under, a shared pick and the middles of the touch controls, shaded red, the frame
 the karts are fitted into, a ring round each kart's middle, green while it is clear
 and red while it is under a panel, a bar from each kart driven here out to the
 floor kept in view ahead of it, ringed the same, and a line saying how far back
 the camera is and how its aim is slid. It costs next to nothing while it is up:
 the panels are drawn again only as they change, and the rings and bars are drawn
 once and then moved.
+
+Whom it keeps in the picture is the player's to choose, 8.5: every kart, the karts
+driven here and the rivals near them, or the karts driven here alone. Framing every
+kart puts the camera wherever the rivals spread to, which nobody at this screen
+chose, and on a small screen it makes every kart small; framing only their own,
+the camera sits at its closest and only pans, and the karts come out nearly twice
+the size. Measured with a kart driven here and three bots, the camera stood 38 m
+back on average framing everybody as it used to, 30 m with the steadier camera
+above, and 20 m with only the player's own kart, which pans about twice as much,
+following the player's own steering. Near is within 0.45 of the arena's longer
+side of a kart driven here, and a rival kept goes again only once a quarter
+further than that, so one driving along the line does not come and go. Auto follows
+everybody at a desk and only the karts driven here on a small screen. With nobody
+driving at a screen, one watching, it follows everybody whatever was chosen.
+
+Every kart out of the picture is pointed at from the edge of the screen, an arrow
+in its color edged in ink, 30 px in from the edge on the line from the middle of
+the screen to it, bigger for a kart driven here: a rival left out of the shot is
+still somewhere the player knows, and a kart that comes back past the edge of the
+shot, as a kart driven here may for a moment as it glides in, is found at once.
+
+While it follows, the picture goes only a little past the arena: no more than a
+tenth of the screen at any edge shows what is beyond it, so the walls and the room's
+things just past them are seen and the crowd is not half the screen. A camera
+following a kart along a wall used to aim at the kart, half the screen the stands.
+It is counted on the screen rather than on the floor, since a meter of floor past
+the near wall fills far more of the screen than one past the far wall, and on the
+near side at the height of the stands, 1.2 m, which rise toward the camera and fill
+the foot of the screen more again. Where the view is wider than the arena, the arena
+is put in its middle. The picture is slid over afterward, eased over 0.3 s so it
+comes to a stop at the edge rather than against it, and the framing never hears of
+it: nothing it held a kart on screen for is undone, since a kart is inside the walls
+and the strip allowed past them is as wide as the floor kept round a kart. It holds
+off while the camera keeps a kart out from under something, a shared pick, a thumb
+on a touch screen or a HUD that is not see-through, which comes first.
 
 A match opens on the room it is played in: the moment the map is built the camera
 is placed to hold the arena, the crowd round it and nine meters of the floor past
@@ -4341,17 +4419,22 @@ arena, since it holds the pad and who stands on it rather than the room.
 |------------------|-------------------------------------------------------------------|
 | Projection       | Perspective, FOV 35°                                              |
 | Pitch            | 55° below horizontal                                              |
-| Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin |
+| Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin. Held: back at once with 6% to spare when the field needs it, in only once the field has left 15% of room for 1.5 s and no kart is gliding into the shot, following it in and stopping where it stops |
+| Still aim        | The aim stays put while where it would go is within 5% of the screen of it, across and down, as far as every kart still fits from there at the distance held |
+| Who is framed    | Auto (everybody at a desk; only the karts driven here on a TV, a handheld, a window under 760 lines or a UI over 100%), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that) or My kart; everybody with nobody driving here |
+| Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
+| Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here and 18 for a rival |
 | Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
 | Fixed camera     | Off by default, in the accessibility settings of 8.5. Holds the arena exactly, without the 1 m margin the waiting framing keeps, for the whole match: no pan, no coming in, no look-ahead, and no opening out at the whistle. The opening shot and the move in from it still happen |
-| Look-ahead       | The aim slides the way the karts being driven on this machine are traveling, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
+| Look-ahead       | The aim slides the way the karts being driven on this machine are traveling, their travel eased over 0.35 s, 0.45 s of it and at most 6 m, which is about a fifth of the width of the screen at the distance the rig usually sits. Paid for out of the trailing margin first, up to 70% of it, and then out of the distance, up to 12% more. Applied before the pan clamp, so a player already driving at the wall gets none of it: there is nothing out there to look ahead at |
 | Aim              | Slid along the camera's own up axis so that what is framed sits as far below the middle of the screen as it does above. The camera is tilted, so the near edge of a thing lands lower than the far edge lands high; a fit that only picks a distance puts whichever binds hard against its edge and piles all the slack on the other side. Holding the whole arena, it is the arena itself that is centered, not the margin round it, which shows bigger at the near side |
 | Zoom             | Fixed. The distance does the framing, so a kart the same size on screen is the same distance away wherever it is standing. The fit is worked out against a view 7% narrower than the real one, which is the margin that keeps a kart off the very edge |
-| Clear of the HUD | No tracked kart's middle, with 1.1 m round it and 0.25 s of its travel more (at most 3 m), under anything the HUD draws over the room, nor the floor ahead of a kart driven here; on a touch screen the stick, the slider and the round buttons count too, while they are up, each the middle 70% of its size across and down; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s, four a frame, and moved toward a step of 20% at a time; each answer faded over to in a straight line over the 0.1 s to the next; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
+| See-through HUD  | Anything the HUD draws over the room but a shared pick goes to 25% of itself while a tracked kart's middle, with 1.1 m round it, touches it: down over 0.12 s, back over 0.4 s once none has for 0.5 s; looked for every 0.1 s |
+| Clear of the HUD | No tracked kart's middle, with 1.1 m round it and 0.25 s of its travel more (at most 3 m), under a respawn pick that shares the screen, nor the floor ahead of a kart driven here; on a touch screen the stick, the slider and the round buttons count too, while they are up, each the middle 70% of its size across and down; slides of the aim of up to 40% of half the screen each way, looked for every 0.1 s, four a frame, and moved toward a step of 20% at a time; each answer faded over to in a straight line over the 0.1 s to the next; at most 1.6 times the distance that holds the arena; the fixed camera keeps the floor 1.2 m in from the walls clear instead |
 | Floor ahead      | For each kart driven on this machine, a point 0.6 s of its travel ahead (3 m to 7 m, its facing when nearly still), inside the walls, held on screen and clear of the HUD |
 | Coming into the shot | A kart that joins, or comes back more than 6 m from where it was a frame before, glides into the framing over 1 s, smoothstep: from the nearest edge of the others' box when new, from where it was counted when it came back. The first karts of a shot are taken as they are |
-| Smoothing        | In two steps: an exponential aim and a critically damped spring of 0.2 s after it, taking together 0.6 s to catch up with something moving steadily for the pan and 1.2 s for the distance, 0.3 s when the aim is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
+| Smoothing        | In two steps: an exponential aim and a critically damped spring of 0.2 s after it, taking together 0.6 s to catch up with something moving steadily for the pan and 1.2 s for the distance, 0.6 s when the aim is going back out, applied every drawn frame. The distance is slower on purpose: a camera that pumps in and out with every bump is worse than one that is too far off. The rig opts out of the engine's physics interpolation for that reason: it follows karts that move on the physics tick, but the following is what this smoothing is, and having both would smooth an already smoothed camera |
 | Shake            | Small on deaths, larger on cash-outs of 500 or more               |
 | Ultrawide        | Shows more floor on the sides, never fewer karts                  |
 
@@ -4366,6 +4449,9 @@ corners, in single-player and online only the local block is shown. Local means
 somebody at this machine: a block, a hand of cards and a joker pick are all things
 a player here has to be able to answer, so a host never shows them for a player at
 the other end of a wire, who has their own screen for all three.
+Whatever of the HUD is over a kart goes see-through while it is, so the kart shows
+through, 8.2; only a shared pick, which somebody is choosing from, does not, and
+the camera keeps the karts out from under that instead.
 
 The corners are handed out by who is sitting at this screen, not by seat number at
 the table: the first player here takes the top left, the second the top right, then
@@ -5224,12 +5310,24 @@ from a section's button low in its box was the one beside it.
 - **Video**: window mode, vsync, frame rate limit, show FPS, render scale, camera
   distance, upscaler, UI scale, brightness, bloom, ambient occlusion, shadows,
   texture detail, MSAA, screen
-  smoothing, the look, tire marks and the crowd. Camera distance is how far the
+  smoothing, the look, tire marks and the crowd, with the screen type and whom the camera
+  follows. The screen type is what the game is played on: Desk, TV or Handheld, a phone
+  or a tablet starting on Handheld and everything else on Desk. Picking one puts the
+  UI scale at the size it suits, 100%, 125% and 150%, which the UI scale box then
+  shows and the player can change again, and Auto suits the camera to it: a TV
+  watched from across a room and a handheld held in the hand show the karts smaller
+  than a desk's screen an arm's length away. Camera distance is how far the
   camera sits from the karts, 8.2: Auto by default, which comes in closer on a
-  small or a high-DPI screen, where the karts are hardest to make out, and sits a
-  little further back on a wide desktop; or a fixed distance, Closest to Farthest,
-  for a player who would rather. The look is how the room is drawn, 8.1b: Cel on
-  a desktop and Toon on a phone to start with, and any of the others for a player
+  small or a high-DPI screen, where the karts are hardest to make out, closer again
+  on a TV and a little on a handheld, and sits a little further back on a wide
+  desktop; or a fixed distance, Closest to Farthest, for a player who would rather.
+  Camera follows is whom the camera keeps in the picture, 8.2: Auto, Everyone,
+  Nearby rivals or My kart. Auto follows everyone at a desk and only the karts
+  driven here on a small screen: a TV, a handheld, a window under 760 lines, or a
+  UI drawn bigger than 100%, which is somebody saying the screen is hard to read.
+  Both Autos say in brackets what they come to on this screen. The look is how
+  the room is drawn, 8.1b: Cel on a desktop and Toon on a phone to start with, and
+  any of the others for a player
   who would rather. A phone or a tablet starts full screen, with the system's own
   bars out of the way, and so does a released game on a desktop; a build from the
   editor or a debug export starts in a window, beside whatever it is being worked
@@ -5320,8 +5418,9 @@ from a section's button low in its box was the one beside it.
   of foil, the first seat's kart on a strip of felt by the rail swinging its nose slowly to and fro
   with the dots ahead of it, in the palette for color blindness the moment one is chosen, as the
   karts and their guides over a room are, the disco lights Full, Few or Off, the control hints on or off,
-  speed in km/h or mph, always show drive hints, off by default, crowd Full, Half or Off, and the
-  fixed camera on or off. Speed in is the speedometer's unit, 8.3: until it is chosen, the country of
+  speed in km/h or mph, always show drive hints, off by default, crowd Full, Half or Off, the
+  fixed camera on or off, and the HUD see-through over a kart, on by default. Speed in is the
+  speedometer's unit, 8.3: until it is chosen, the country of
   the system's locale says, `SpeedUnits`, the measures' own where the system keeps them apart, Linux's
   LC_ALL, LC_MEASUREMENT and LANG in that order, and otherwise its locale; mph only where the
   roads are signed in miles an hour, the United States, the United Kingdom, Liberia and the
@@ -5333,7 +5432,9 @@ from a section's button low in its box was the one beside it.
   the thousand moving things around the table rather than the party that is worth
   being able to stop. The fixed camera is off by default and is described in 8.2:
   a camera that never goes anywhere is a smaller picture of the karts, which is a
-  real cost, and a still one, which for some players is worth more.
+  real cost, and a still one, which for some players is worth more. The HUD
+  see-through over a kart is 8.2's; off, the camera keeps the karts out from under
+  the HUD instead, going back and sliding its aim, as it used to.
   Color-blind roof markers are always on. First on the tab, the player colors
   can be drawn for color blindness: off, protanopia, deuteranopia or
   tritanopia, with the eight colors it gives beside the choice. Each is a palette

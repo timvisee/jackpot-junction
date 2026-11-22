@@ -25,6 +25,11 @@ extends RefCounted
 ## on the move is given more, see [method CameraRig._rooms], so the camera is clear of where it is
 ## going by the time it has eased there.
 const KART_ROOM := 1.1
+## How much further round a kart on the move is kept clear, as seconds of its travel and at most in
+## meters: about how long the rig takes to ease back, so a kart driven fast at a panel finds the
+## camera already clear of it rather than catching up, see [method rooms].
+const SOON := 0.25
+const SOON_MOST := 3.0
 ## The most the rig is let go back for this, as a share of how far back the whole arena is framed
 ## from: past that a kart is left under a panel rather than every kart shrunk to a speck.
 const FURTHEST := 1.6
@@ -94,6 +99,18 @@ static func flat(covers: Array[Rect2]) -> PackedFloat32Array:
 		run.append(1.0 - cover.end.y * 2.0)
 		run.append(1.0 - cover.position.y * 2.0)
 	return run
+
+
+## How far round each of [param karts] it keeps clear, see [constant SOON]: a kart and a little air
+## round it, and as far as it gets in a moment more on the move. The floor ahead of a kart driven
+## here, which comes after them, keeps the room of a kart standing still.
+static func rooms(karts: Array[Node3D]) -> PackedFloat32Array:
+	var each := PackedFloat32Array()
+	for target: Node3D in karts:
+		var body := target as CharacterBody3D
+		var speed := Vector2(body.velocity.x, body.velocity.z).length() if body != null else 0.0
+		each.append(KART_ROOM + minf(speed * SOON, SOON_MOST))
+	return each
 
 
 ## The answer for [param covers], panels as [method flat] gives them, over [param points] that

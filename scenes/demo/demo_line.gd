@@ -30,6 +30,8 @@ var keyboard := true
 var _clock := 0.0
 ## What the words were last drawn for, the keys or a pad, -1 before they were.
 var _drawn := -1
+## How much of it shows while a kart is under it, see [method see_through].
+var _see_through := 1.0
 
 
 ## A line called "DemoLine" in [param parent], the HUD or the title, on a layer of its own called
@@ -92,6 +94,11 @@ func _say() -> void:
 
 
 ## What it says, for a test: the words, the key or the button as its name.
+## Shows [param share] of it, for a kart under it, see [HudCovers]: on top of its breathing.
+func see_through(share: float) -> void:
+	_see_through = share
+
+
 func said() -> String:
 	return WORDS % InputActions.short_binding_text(InputActions.PAUSE, keyboard)
 
@@ -103,4 +110,4 @@ func _process(delta: float) -> void:
 		_say()
 	_clock = fmod(_clock + delta, BREATH)
 	var breath := 0.5 + 0.5 * cos(TAU * _clock / BREATH)
-	modulate.a = lerpf(FAINTEST, 1.0, breath)
+	modulate.a = lerpf(FAINTEST, 1.0, breath) * _see_through
