@@ -11,6 +11,8 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-11-22
+
 ### Added
 
 - **Your own pad's buttons.** Hints show a PlayStation pad's cross, circle, square and triangle,
@@ -42,7 +44,6 @@ below, and hands the notes to the release workflow.
   one of them, where the stick and the D-pad did nothing.
 - **The thank-you card in the bay.** Clicking the supporter pack's card on the Garage wall holds
   it up once, where it came up twice.
-
 ## [0.23.0] - 2026-11-22
 
 ### Added
@@ -3015,7 +3016,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.23.1...HEAD
+[0.23.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.1
 [0.23.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.0
 [0.22.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.22.1
 [0.22.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.22.0
