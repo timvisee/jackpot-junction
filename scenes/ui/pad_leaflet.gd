@@ -414,7 +414,6 @@ func _draw_sheet() -> void:
 	BlueprintArt.folds(_sheet, SHEET)
 	var inside := SHEET.grow(-BlueprintArt.BORDER)
 	BlueprintArt.marks(_sheet, inside, Type.micro_font())
-	_draw_strip()
 	_draw_foot(inside)
 	var art := _art_rect()
 	_sheet.draw_texture_rect(diagram.art, art, false, Color(INK, 0.96))
@@ -428,22 +427,17 @@ func _draw_sheet() -> void:
 	_draw_over(sides[1], said)
 
 
-## The title, in the room over the sheet between the page keys and Back.
-func _draw_strip() -> void:
-	var at := Vector2(BACK_TAB.position.x - 30.0, 60.0)
-	_words(Type.display_font(), TITLE.to_upper(), at, 34, INK, -1)
-
-
-## The sheet's foot: its scale bar on the left, and on the right what sheet it is, in the fine print
-## a title block has, and in red pencil over that whose pad it is drawn for.
+## The sheet's foot: its scale bar on the left, and on the right what drawing and which sheet it
+## is, in the fine print a title block has, its name among it, and in red pencil over that whose
+## pad it is drawn for. The room over the sheet is the tabs' and Back's alone.
 func _draw_foot(inside: Rect2) -> void:
 	BlueprintArt.scale_bar(
 		_sheet, inside.position + Vector2(40.0, inside.size.y - 40.0), Type.micro_font()
 	)
 	var corner := inside.end - Vector2(24.0, 22.0)
 	var sheet := (
-		"DEPT. OF KARTS   ·   FORM 8.3   ·   SHEET %d OF %d   ·   %s"
-		% [page + 1, PAGES.size(), PAGES[page].to_upper()]
+		"DEPT. OF KARTS   ·   %s   ·   SHEET %d OF %d   ·   %s"
+		% [TITLE.to_upper(), page + 1, PAGES.size(), PAGES[page].to_upper()]
 	)
 	_words(Type.micro_font(), sheet, corner, 14, FAINT, -1)
 	var whose := "%s, as you have it bound" % FAMILY_WORDS[family]

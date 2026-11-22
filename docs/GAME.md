@@ -5070,11 +5070,11 @@ button it is on now.
   the page's in front and joined to it, the others behind; turned with the page keys, drawn beside
   the tabs as the big dialogs have them, or a click. Driving says Steer, or Drive where the first
   player drives the simple way, 4.2.
-- **Back** is a tab across from them at the top right, with its key on it; over the sheet between
-  them, HOW TO HOLD THE WHEEL. In the sheet's foot, no title block or other box to take room from
-  the pad: a scale bar of one pad on the left, and on the right the fine print a title block has,
-  the department, the form and which sheet, under whose pad it is in red pencil, "PlayStation
-  controller, as you have it bound".
+- **Back** is a tab across from them at the top right, with its key on it, and nothing else over
+  the sheet between them. In the sheet's foot, no title block or other box to take room from the
+  pad: a scale bar of one pad on the left, and on the right the fine print a title block has, the
+  department, the drawing's name, How to hold the wheel, and which sheet, under whose pad it is in
+  red pencil, "PlayStation controller, as you have it bound".
 - Back, its key, the pause button, a right click or a click beside the sheet put it away, and the
   cursor goes back to Show gamepad; nothing under it hears a key while it is up. The cursor goes
   along the tabs and on to Back, and the tab it is on, or the one under the mouse while the mouse
