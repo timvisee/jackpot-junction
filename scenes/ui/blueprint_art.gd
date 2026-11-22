@@ -95,8 +95,8 @@ static func marks(on: CanvasItem, inside: Rect2, font: Font) -> void:
 
 ## A tab over [param rect], its foot on the sheet's top edge: [param front] for the page's, in the
 ## sheet's own blue and joined to it, drawn after the sheet; behind it a darker one, a little lower,
-## drawn before. [param lit] where the cursor or the mouse is on it: its edges drawn bright and a
-## glow along them, a little light over it, in its own shape rather than a box round it.
+## drawn before. Its edges are drawn only [param lit], where the cursor or the mouse is on it:
+## bright, with a glow along them and a little light over it, the cursor's marker in its own shape.
 static func tab(on: CanvasItem, rect: Rect2, front: bool, lit := false) -> void:
 	var top := rect.position.y + (0.0 if front else TAB_BEHIND)
 	var shape := PackedVector2Array(
@@ -111,7 +111,6 @@ static func tab(on: CanvasItem, rect: Rect2, front: bool, lit := false) -> void:
 	var span := Rect2(rect.position.x, top, rect.size.x, rect.end.y - top)
 	on.draw_texture_rect(FeltArt.patches(), span, true, Color(0.0, 0.05, 0.15, 0.2))
 	if not lit:
-		on.draw_polyline(shape, Color(INK if front else FAINT, 0.5), 1.5, true)
 		return
 	on.draw_colored_polygon(shape, Color(INK, 0.08))
 	on.draw_polyline(shape, Color(INK, 0.16), 7.0, true)
