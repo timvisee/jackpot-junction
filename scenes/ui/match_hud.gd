@@ -239,7 +239,7 @@ func _on_kart_wounded(slot: int, _by_slot: int, _cause: StringName) -> void:
 ## the kart there, and the ring used to open over the spot they had died on.
 func _on_kart_respawned(slot: int, at: Vector3) -> void:
 	if _kart(slot) != null:
-		SpawnRing.spawn(match_node, at, _slot_color(slot))
+		SpawnRing.spawn(match_node, at, _slot_color(slot)).hold_on(_kart(slot))
 
 
 func _on_life_restored(slot: int) -> void:

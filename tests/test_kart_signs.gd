@@ -1,11 +1,26 @@
 extends GdUnitTestSuite
-## Where the karts are when they cannot be seen, GAME.md 8.2 and 8.5: an arrow at the edge of the
-## screen for a kart out of the picture, see [KartPointers].
+## Where the karts are when they are hard to see, GAME.md 8.2, 8.5 and 3.6: an arrow at the edge of
+## the screen for a kart out of the picture, see [KartPointers]; the rings under the karts and the
+## marker over a player's own, both asked for, see [KartRings]; and the ring a kart comes back with
+## breathing where it stands until it drives off, see [SpawnRing].
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const RULES: MatchRules = preload("res://data/match/default.tres")
 
 var _runner: GdUnitSceneRunner
+var _was: Dictionary = {}
+
+
+func before_test() -> void:
+	var settings := Game.settings
+	_was = {rings = settings.kart_rings, marker = settings.kart_marker}
+	settings.kart_rings = ViewChoices.RINGS_OFF
+	settings.kart_marker = false
+
+
+func after_test() -> void:
+	Game.settings.kart_rings = _was.rings
+	Game.settings.kart_marker = _was.marker
 
 
 ## A match with a player at this screen and a bot, its HUD up.
@@ -37,3 +52,77 @@ func test_a_kart_out_of_the_picture_is_pointed_at_from_the_edge() -> void:
 	var at: Vector2 = arrows[0].at
 	assert_float(at.x).is_equal_approx(pointers.size.x - KartPointers.INSET, 1.0)
 	assert_float((arrows[0].way as Vector2).x).is_greater(0.5)
+
+
+func test_the_marker_is_over_my_kart_only_when_asked_for() -> void:
+	var match_node := await _playing()
+	var pointers := match_node.hud.get_node("KartPointers") as KartPointers
+	var mine := match_node.slots[0].color()
+	pointers._process(0.0)
+	(
+		assert_bool(pointers._signs.any(func(each: Dictionary) -> bool: return each.color == mine))
+		. is_false()
+	)
+	Game.settings.kart_marker = true
+	pointers._process(0.0)
+	var marks := pointers._signs.filter(func(each: Dictionary) -> bool: return each.color == mine)
+	assert_int(marks.size()).is_equal(1)
+	assert_vector(marks[0].way as Vector2).is_equal(Vector2.DOWN)
+
+
+func test_the_rings_go_under_the_karts_asked_for() -> void:
+	var match_node := await _playing()
+	var rings := match_node.hud.get_node("KartRings") as KartRings
+	rings._process(0.0)
+	assert_int(rings._rings.size()).is_equal(0)
+	Game.settings.kart_rings = ViewChoices.RINGS_HERE
+	rings._process(0.0)
+	assert_array(rings._rings.keys()).contains_exactly([match_node.kart_of(0).get_instance_id()])
+	Game.settings.kart_rings = ViewChoices.RINGS_ALL
+	rings._process(0.0)
+	assert_int(rings._rings.size()).is_equal(2)
+	Game.settings.kart_rings = ViewChoices.RINGS_OFF
+	rings._process(0.0)
+	assert_int(rings._rings.size()).is_equal(0)
+
+
+## Every kart's ring breathing where it stands as the countdown starts.
+func test_the_countdown_rings_every_kart() -> void:
+	var match_node := await _playing()
+	var rings := match_node.hud.get_node("KartRings") as KartRings
+	rings._on_state_changed(Match.State.COUNTDOWN)
+	var held := match_node.get_children().filter(
+		func(node: Node) -> bool: return node is SpawnRing and (node as SpawnRing)._held != null
+	)
+	assert_int(held.size()).is_greater_equal(match_node.slots.size())
+
+
+## The ring a kart comes back with stays round it, breathing, as long as it stands there, and goes
+## once it drives off.
+func test_a_held_ring_breathes_until_the_kart_drives_off() -> void:
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(3.0, 0.0, 2.0)
+	var ring := SpawnRing.spawn(self, kart.global_position, Color.RED).hold_on(kart)
+	for i: int in int((SpawnRing.LIFETIME + 3.0) * 60.0):
+		ring._process(1.0 / 60.0)
+	assert_bool(ring.is_queued_for_deletion()).is_false()
+	assert_float(ring._ring_material.albedo_color.a).is_greater(0.1)
+	kart.global_position += Vector3(2.0, 0.0, 0.0)
+	for i: int in int((SpawnRing.FADE + 0.1) * 60.0):
+		ring._process(1.0 / 60.0)
+	assert_bool(ring.is_queued_for_deletion()).is_true()
+
+
+## Held on a kart that never gets there, as on a client whose snapshot has not moved it yet and
+## then never does, it does not stay for good.
+func test_a_held_ring_does_not_wait_for_good() -> void:
+	var kart: Node3D = auto_free(Node3D.new())
+	add_child(kart)
+	kart.global_position = Vector3(30.0, 0.0, 2.0)
+	var ring := SpawnRing.spawn(self, Vector3.ZERO, Color.RED).hold_on(kart)
+	var frames := SpawnRing.LIFETIME + SpawnRing.ARRIVING + SpawnRing.FADE + 0.2
+	for i: int in int(frames * 60.0):
+		if not ring.is_queued_for_deletion():
+			ring._process(1.0 / 60.0)
+	assert_bool(ring.is_queued_for_deletion()).is_true()

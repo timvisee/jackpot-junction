@@ -18,6 +18,11 @@ const FOLLOW_EVERYONE := "everyone"
 const FOLLOW_NEARBY := "nearby"
 const FOLLOW_MINE := "mine"
 const FOLLOWS: Array[String] = [FOLLOW_AUTO, FOLLOW_EVERYONE, FOLLOW_NEARBY, FOLLOW_MINE]
+## The rings under the karts, GAME.md 8.5: none, under the karts driven here, or under every kart.
+const RINGS_OFF := "off"
+const RINGS_HERE := "here"
+const RINGS_ALL := "all"
+const RINGS: Array[String] = [RINGS_OFF, RINGS_HERE, RINGS_ALL]
 
 
 ## What a machine is played on until its player says, GAME.md 8.5: a phone or a tablet in the hand,

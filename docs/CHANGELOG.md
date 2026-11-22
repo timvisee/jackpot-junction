@@ -31,6 +31,10 @@ below, and hands the notes to the release workflow.
   at karts out of it. Auto follows only your kart on a TV, a handheld or a scaled-up UI.
 - **What you play on.** Screen type on the Video page, Desk, TV or Handheld, brings the camera in
   for a TV across the room and sets the UI scale it suits.
+- **Find your kart.** The ring a kart comes back with keeps breathing round it until it drives off,
+  and every kart wears one as the countdown starts.
+- **Kart rings and a marker.** Accessibility can put a ring in each kart's color on the floor under
+  your kart or every kart, and a marker over your own; both off by default.
 - **The lobby's table in the middle.** Holding the whole arena, the camera centers the table
   itself rather than the floor round it, which left the table sitting a little high.
 - **The seal on the desktop.** The game's icon shows the whole seal from 64 pixels up, where it

@@ -902,9 +902,19 @@ func _accessibility_tab() -> Control:
 			_check(_settings.fixed_camera, func(on: bool) -> void: _settings.fixed_camera = on)
 		)
 	)
-	# The HUD see-through over a kart, rather than the camera dodging it, GAME.md 8.2 and 8.5.
+	# The HUD see-through over a kart, rather than the camera dodging it, and the rings under the
+	# karts and the marker over a player's own, both asked for, GAME.md 8.2 and 8.5.
 	var see := func(on: bool) -> void: _settings.see_through_hud = on
 	column.add_child(MenuTheme.row("See-through HUD", _check(_settings.see_through_hud, see)))
+	var rings := MenuTheme.option(
+		["Off", "My kart", "All karts"], maxi(ViewChoices.RINGS.find(_settings.kart_rings), 0)
+	)
+	rings.item_selected.connect(
+		func(index: int) -> void: _settings.kart_rings = ViewChoices.RINGS[index]
+	)
+	column.add_child(MenuTheme.row("Kart rings", rings))
+	var mark := func(on: bool) -> void: _settings.kart_marker = on
+	column.add_child(MenuTheme.row("Marker over my kart", _check(_settings.kart_marker, mark)))
 	var assist := HSlider.new()
 	assist.min_value = 0.0
 	assist.max_value = 1.0

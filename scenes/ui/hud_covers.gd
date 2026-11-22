@@ -58,10 +58,11 @@ static func add_to(to: MatchHud) -> HudCovers:
 	covers.hud = to
 	to.add_child(covers)
 	# And what it covers drawn over the room, while the Debug page says to, see [ClearanceView];
-	# and where the karts are when they cannot be seen, see [KartPointers], which the camera's
-	# choices of whom to keep in the picture lean on.
+	# and where the karts are when they cannot be seen, or are asked to be shown, see [KartPointers]
+	# and [KartRings], which the camera's choices of whom to keep in the picture lean on.
 	ClearanceView.add_to(to)
 	KartPointers.add_to(to)
+	KartRings.add_to(to)
 	return covers
 
 

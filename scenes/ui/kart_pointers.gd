@@ -2,9 +2,9 @@ class_name KartPointers
 extends Control
 ## Where the karts are when they cannot be seen, GAME.md 8.2 and 8.5: an arrow in its color at the
 ## edge of the screen for every kart out of the picture, pointing at it, bigger for a kart driven
-## here. A camera that keeps only some karts in the picture, see [FramedKarts], leaves the rest to
-## these, and one that keeps them all still has a kart come back out past the edge for a moment, see
-## [FramedSpots].
+## here; and, asked for in Accessibility, a marker over each kart driven here. A camera that keeps
+## only some karts in the picture, see [FramedKarts], leaves the rest to these, and one that keeps
+## them all still has a kart come back out past the edge for a moment, see [FramedSpots].
 ##
 ## Drawn in a handful of triangles, again only on a frame with any to draw, GAME.md 10.7.
 
@@ -13,12 +13,17 @@ extends Control
 const INSET := 30.0
 const ARROW := 18.0
 const ARROW_HERE := 26.0
-## The ink round every arrow, so it reads on the brightest felt and the darkest vault.
+## The marker over a kart driven here: how wide it is, and how high over the kart's middle it
+## floats, in meters, so it clears a hat and a flag.
+const MARKER := 26.0
+const MARKER_LIFT := 2.4
+## The ink round every arrow and marker, so it reads on the brightest felt and the darkest vault.
 const INK := Color(0.06, 0.05, 0.08, 0.9)
 const EDGE := 3.0
 
 var hud: MatchHud
-## What is drawn this frame: where, which way, how big and in what color.
+## What is drawn this frame: where, which way, how big and in what color, and whether it is a
+## marker rather than an arrow.
 var _signs: Array[Dictionary] = []
 
 
@@ -46,6 +51,7 @@ func _process(_delta: float) -> void:
 ## [member _signs] for every kart of [param match_node] seen by [param rig].
 func _place(match_node: Match, rig: CameraRig) -> void:
 	var here := CameraRig._valid(rig.listener_targets)
+	var marking := Game.settings.kart_marker
 	var screen := Rect2(Vector2.ZERO, size)
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
@@ -56,6 +62,11 @@ func _place(match_node: Match, rig: CameraRig) -> void:
 		var behind := rig.camera.is_position_behind(middle)
 		var at := rig.camera.unproject_position(middle)
 		if not behind and screen.has_point(at):
+			if mine and marking:
+				var over := rig.camera.unproject_position(middle + Vector3.UP * MARKER_LIFT)
+				_signs.append(
+					{at = over, way = Vector2.DOWN, length = MARKER, color = slot.color()}
+				)
 			continue
 		var middle_of := size * 0.5
 		var way := (at - middle_of) * (-1.0 if behind else 1.0)
@@ -84,7 +95,7 @@ func _draw() -> void:
 		var way: Vector2 = each.way
 		var length: float = each.length
 		var tip: Vector2 = each.at
-		# An arrow points out past the edge.
+		# The marker hangs over the kart, its point down at it; an arrow points out past the edge.
 		var base := tip - way * length
 		var side := way.orthogonal() * length * 0.55
 		var shape := PackedVector2Array([tip, base + side, base - side])

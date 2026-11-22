@@ -187,6 +187,10 @@ var fixed_camera := false
 ## A panel of the HUD over a kart going see-through, GAME.md 8.2; off, the camera keeps the karts
 ## out from under the HUD instead, as it used to.
 var see_through_hud := true
+## The rings under the karts, one of [constant ViewChoices.RINGS], and the marker over each kart
+## driven here, GAME.md 8.5: both off unless asked for.
+var kart_rings := ViewChoices.RINGS_OFF
+var kart_marker := false
 var stick_deadzone := 0.15
 ## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
 ## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
@@ -460,6 +464,10 @@ func load_machine(file: ConfigFile) -> void:
 		color_vision = ""
 	fixed_camera = file.get_value("accessibility", "fixed_camera", fixed_camera)
 	see_through_hud = bool(file.get_value("accessibility", "see_through_hud", see_through_hud))
+	kart_rings = str(file.get_value("accessibility", "kart_rings", kart_rings))
+	if kart_rings not in ViewChoices.RINGS:
+		kart_rings = ViewChoices.RINGS_OFF
+	kart_marker = bool(file.get_value("accessibility", "kart_marker", kart_marker))
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
@@ -558,6 +566,8 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("accessibility", "color_vision", color_vision)
 	file.set_value("accessibility", "fixed_camera", fixed_camera)
 	file.set_value("accessibility", "see_through_hud", see_through_hud)
+	file.set_value("accessibility", "kart_rings", kart_rings)
+	file.set_value("accessibility", "kart_marker", kart_marker)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "touch_layout", touch_layout)
 	file.set_value("controls", "bindings", bindings)

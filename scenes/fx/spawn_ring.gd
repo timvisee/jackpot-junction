@@ -15,10 +15,23 @@ const COLUMN_HEIGHT := 3.4
 const COLUMN_RADIUS := 0.55
 ## The column has gone by this share of the flare's life; the ring keeps going to the end.
 const COLUMN_LIFE := 0.55
+## Held on a kart, see [method hold_on], the ring stays round where it came back once the flare has
+## opened, breathing, until the kart drives off: how big it is, how long a breath takes, how far the
+## kart goes before it counts as gone, and how long the ring takes to go then and to come.
+const HELD_RADIUS := 1.9
+const BREATH := 1.2
+const MOVED := 0.75
+const FADE := 0.3
+## How long it waits for a kart that is not there yet, on a client whose snapshot has not moved it.
+const ARRIVING := 2.0
 
 var color := Color.WHITE
 
 var _age := 0.0
+## The kart it is held on, whether that has been there yet, and how far gone the ring is, 0 to 1.
+var _held: Node3D
+var _arrived := false
+var _going := 0.0
 var _ring: MeshInstance3D
 var _ring_material: StandardMaterial3D
 var _column: MeshInstance3D
@@ -35,9 +48,20 @@ static func spawn(parent: Node, at: Vector3, player_color: Color) -> SpawnRing:
 	return flare
 
 
+## Keeps the ring round where [param kart] came back once the flare has opened, breathing, until it
+## drives off, GAME.md 3.6: a player who has not found their kart yet finds it still marked, however
+## long they take.
+func hold_on(kart: Node3D) -> SpawnRing:
+	_held = kart
+	return self
+
+
 func _process(delta: float) -> void:
 	_age += delta
 	var life := _age / LIFETIME
+	if life >= 1.0 and _held != null:
+		_breathe(delta)
+		return
 	if life >= 1.0:
 		queue_free()
 		return
@@ -50,6 +74,31 @@ func _process(delta: float) -> void:
 		1.0 - 0.4 * column_life, 1.0 + 0.5 * column_life, 1.0 - 0.4 * column_life
 	)
 	_column_material.albedo_color.a = 0.5 * (1.0 - column_life)
+
+
+## The ring held round [member _held] after the flare, see [method hold_on]: breathing in and out
+## until the kart drives further than [constant MOVED] off the spot, is wrecked or is gone, then
+## going over [constant FADE].
+func _breathe(delta: float) -> void:
+	_column.visible = false
+	var kart := _held as Kart
+	var gone := not is_instance_valid(_held) or (kart != null and not kart.alive)
+	if not gone:
+		var off := _held.global_position - global_position
+		var near := Vector2(off.x, off.z).length() <= MOVED
+		_arrived = _arrived or near
+		gone = (_arrived and not near) or (not _arrived and _age > LIFETIME + ARRIVING)
+	if gone:
+		_going = minf(_going + delta / FADE, 1.0)
+		if _going >= 1.0:
+			queue_free()
+			return
+	var held := _age - LIFETIME
+	var breath := 0.5 - 0.5 * cos(TAU * held / BREATH)
+	var radius := HELD_RADIUS * (0.92 + 0.08 * breath)
+	_ring.scale = Vector3(radius, 1.0, radius)
+	var coming := clampf(held / FADE, 0.0, 1.0)
+	_ring_material.albedo_color.a = (0.35 + 0.4 * breath) * coming * (1.0 - _going)
 
 
 func _build() -> void:

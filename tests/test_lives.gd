@@ -349,16 +349,24 @@ func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	match_node.start(inputs, 11)
 	await _runner.simulate_frames(12, 17)
 	var victim := match_node.kart_of(1)
-	assert_array(_rings(match_node)).is_empty()
+	# Every kart already wears the ring it breathes where it stands from the countdown, GAME.md 3.6.
+	var before := _rings(match_node).map(func(ring: Node) -> int: return ring.get_instance_id())
 	victim.die(&"pit", -1)
 	await _runner.simulate_frames(20, 17)
-	var rings := _rings(match_node)
+	var rings := _rings(match_node).filter(
+		func(ring: Node) -> bool: return ring.get_instance_id() not in before
+	)
 	assert_int(rings.size()).is_equal(1)
 	var flare: SpawnRing = rings[0]
 	assert_object(flare.color).is_equal(match_node.slots[1].color())
-	# And it is gone again on its own a moment later.
+	# Its column is gone a moment later, and the ring stays round the kart while it stands there.
 	await _runner.simulate_frames(80, 17)
-	assert_array(_rings(match_node)).is_empty()
+	assert_bool(is_instance_valid(flare) and not flare.is_queued_for_deletion()).is_true()
+	assert_bool(flare._column.visible).is_false()
+	# Driven off the spot, it goes.
+	victim.global_position += Vector3(3.0, 0.0, 0.0)
+	await _runner.simulate_frames(40, 17)
+	assert_bool(is_instance_valid(flare)).is_false()
 
 
 ## A client hears that a kart is back before the snapshot that puts it there, so the ring opens

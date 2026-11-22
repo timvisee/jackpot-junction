@@ -60,6 +60,8 @@ func test_the_choices_are_remembered() -> void:
 	settings.screen = ViewChoices.SCREEN_TV
 	settings.camera_follows = ViewChoices.FOLLOW_NEARBY
 	settings.see_through_hud = false
+	settings.kart_rings = ViewChoices.RINGS_ALL
+	settings.kart_marker = true
 	assert_int(settings.save_to_disk()).is_equal(OK)
 	var read := Settings.new()
 	read.path = settings.path
@@ -67,13 +69,17 @@ func test_the_choices_are_remembered() -> void:
 	assert_str(read.screen).is_equal(ViewChoices.SCREEN_TV)
 	assert_str(read.camera_follows).is_equal(ViewChoices.FOLLOW_NEARBY)
 	assert_bool(read.see_through_hud).is_false()
+	assert_str(read.kart_rings).is_equal(ViewChoices.RINGS_ALL)
+	assert_bool(read.kart_marker).is_true()
 	Settings.remove_files(settings.path)
 
 
-## Out of the box: see-through on, Auto for the camera.
+## Out of the box: see-through on, rings and marker off until asked for, Auto for the camera.
 func test_the_defaults() -> void:
 	var fresh := Settings.new()
 	assert_bool(fresh.see_through_hud).is_true()
+	assert_str(fresh.kart_rings).is_equal(ViewChoices.RINGS_OFF)
+	assert_bool(fresh.kart_marker).is_false()
 	assert_str(fresh.camera_follows).is_equal(ViewChoices.FOLLOW_AUTO)
 	assert_str(fresh.screen).is_equal(ViewChoices.default_screen())
 

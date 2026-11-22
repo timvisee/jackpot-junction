@@ -322,10 +322,15 @@ uncontrollable, and dies whatever its lives. On death, in this order:
    shots pass through it, and anybody's through a kart gone down a hole; a ram
    still knocks coins loose, see 4.1, though a pot just reset has none. Picking
    up coins and items is allowed. Coming back opens a ring across the floor in
-   the player's color with a column of light standing in it, gone inside a
-   second. The blinking says something about that kart to whoever is already
-   looking at it; the flare says to the whole room that somebody is back, and
-   where.
+   the player's color with a column of light standing in it, the column gone
+   inside a second. The blinking says something about that kart to whoever is
+   already looking at it; the flare says to the whole room that somebody is back,
+   and where. The ring then settles round the kart, 1.9 m across, breathing in and
+   out every 1.2 s, and stays until the kart drives 0.75 m off the spot, so a
+   player who has not found their kart yet finds it still marked however long they
+   take. Every kart wears one where it stands as a map's countdown starts, for the
+   same reason. On a client, whose snapshot moves the kart after the flare, it waits
+   up to 2 s for the kart to arrive.
 
 Every screen shows how the pot split, since a number over a wreck saying half was
 banked left a player to work out what became of the rest. The share that banks
@@ -5419,7 +5424,8 @@ from a section's button low in its box was the one beside it.
   with the dots ahead of it, in the palette for color blindness the moment one is chosen, as the
   karts and their guides over a room are, the disco lights Full, Few or Off, the control hints on or off,
   speed in km/h or mph, always show drive hints, off by default, crowd Full, Half or Off, the
-  fixed camera on or off, and the HUD see-through over a kart, on by default. Speed in is the
+  fixed camera on or off, the HUD see-through over a kart, on by default, kart rings Off, My kart
+  or All karts, Off by default, and a marker over my kart, off by default. Speed in is the
   speedometer's unit, 8.3: until it is chosen, the country of
   the system's locale says, `SpeedUnits`, the measures' own where the system keeps them apart, Linux's
   LC_ALL, LC_MEASUREMENT and LANG in that order, and otherwise its locale; mph only where the
@@ -5434,7 +5440,15 @@ from a section's button low in its box was the one beside it.
   a camera that never goes anywhere is a smaller picture of the karts, which is a
   real cost, and a still one, which for some players is worth more. The HUD
   see-through over a kart is 8.2's; off, the camera keeps the karts out from under
-  the HUD instead, going back and sliding its aim, as it used to.
+  the HUD instead, going back and sliding its aim, as it used to. Kart rings lie on
+  the floor under the karts driven here, or under every kart, each a ring in its
+  kart's color edged in ink, so a kart reads as its color from across a room and on
+  any felt; at least 1.35 m across and growing as the camera goes back, so never
+  smaller on the screen than with the camera close in. The marker over my kart is a
+  point in the player's color, edged in ink, hung 2.4 m over each kart driven here
+  at a size on the screen that does not change. Both are off until asked for: a
+  table of rings is busier, and a marker over each of four karts on a shared screen
+  is four more things in the picture.
   Color-blind roof markers are always on. First on the tab, the player colors
   can be drawn for color blindness: off, protanopia, deuteranopia or
   tritanopia, with the eight colors it gives beside the choice. Each is a palette
