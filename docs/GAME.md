@@ -10702,7 +10702,9 @@ in the Garage's bay, 4.4a, on the back wall under the calendar, where a
   click or a tap holds it up again, the card alone with Close, and the dialog's cursor reaches it
   across from the hat's hook, which it is level with, outlined in the house's gold. The License tab
   of the settings, 8.5, holds it up again too: an owner has a Supporter Pack section there, with
-  its thanks, the day the pack was first seen and Read the thank-you card. It stays out of Kit's folder, STORY.md 7.2, which is the story's and is not
+  its thanks, the day the pack was first seen and Read the thank-you card; where the pack is
+  offered and not owned the section says what the pack is, with See the Supporter Pack, which
+  opens its store page, and turns into the owner's in place once it is bought. It stays out of Kit's folder, STORY.md 7.2, which is the story's and is not
   there before the first note or with the story off. Its words are a draft for the maker to
   write in their own voice, `ThankYouCard`.
 

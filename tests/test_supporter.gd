@@ -670,7 +670,9 @@ func test_bought_in_the_menus_the_card_comes_at_once() -> void:
 
 
 ## The settings' Me page has a Supporter Pack section where the pack is owned, with the day it was
-## first seen and the way to the thank-you card, held up again over the settings; none where not.
+## first seen and the way to the thank-you card, held up again over the settings; where it is
+## offered and not owned, the way to its store page, turned into the owner's once it is bought;
+## none where it is not offered.
 func test_the_me_page_has_a_supporter_section() -> void:
 	var room: Control = auto_free(Control.new())
 	room.size = Vector2(1600.0, 900.0)
@@ -682,6 +684,25 @@ func test_the_me_page_has_a_supporter_section() -> void:
 	assert_object(tab.thanks).is_null()
 	room.remove_child(tab)
 	tab.free()
+	Supporter.start(PackedStringArray(), false, true)
+	tab = LicenseTab.make(Game.settings)
+	room.add_child(tab)
+	await await_idle_frame()
+	assert_object(tab.find_child("SupporterSection", true, false)).is_not_null()
+	assert_object(tab.thanks).is_null()
+	assert_object(tab.offer).is_not_null()
+	tab.offer.pressed.emit()
+	assert_int(Supporter.store_asked).is_equal(1)
+	tab.offer.grab_focus()
+	Supporter.set_owned(true)
+	await get_tree().process_frame
+	await get_tree().process_frame
+	assert_object(tab.offer).is_null()
+	assert_object(tab.thanks).is_not_null()
+	assert_bool(tab.thanks.has_focus()).is_true()
+	room.remove_child(tab)
+	tab.free()
+	Supporter.start(PackedStringArray(), false, false)
 	Supporter.pretend = Supporter.Pretend.OWNED
 	Game.settings.supporter_since = "2026-11-22"
 	tab = LicenseTab.make(Game.settings)

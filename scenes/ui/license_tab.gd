@@ -56,12 +56,18 @@ const EARNED := "%d of %d earned"
 const PROGRAM_LINE := "The House's map of bets, and what each one pays."
 const PROGRAM_BUTTON := "Open the map"
 const WON := "%d of %d landmarks won"
-## The Steam supporter pack's section, GAME.md 10.8, for a player who owns it: its title, its
-## thanks, since when, and the way to its thank-you card held up again.
+## The Steam supporter pack's section, GAME.md 10.8: its title; for a player who owns it its thanks,
+## since when, and the way to its thank-you card held up again; and where it is offered and not
+## owned, what it is and the way to its store page.
 const SUPPORTER := "Supporter Pack"
 const SUPPORTER_LINE := "Thank you for chipping in. The pack's pieces are yours in the Garage."
 const SUPPORTER_SINCE := "Supporter since %s"
 const THANKS_BUTTON := "Read the thank-you card"
+const OFFER_LINE := (
+	"Jackpot Junction is free. If you'd like to chip in, the Supporter Pack on Steam says thanks"
+	+ " with a few pieces of kart dress."
+)
+const OFFER_BUTTON := "See the Supporter Pack"
 ## The page's heading over the cards, and the line under it: whose it is, its number and its day,
 ## as the Statistics page says whose record it is.
 const TITLE := "License"
@@ -117,10 +123,11 @@ var achievements_dialog: AchievementsDialog
 ## The way to the kart dialog, and the dialog while it is up over the settings; none over a room.
 var kart: Button
 var kart_dialog: KartDialog
-## The way to the supporter pack's thank-you card, and the card while it is held up, see
-## [method _supporter].
+## The way to the supporter pack's thank-you card, and the card while it is held up, or the way to
+## its store page where it is offered and not owned, see [method _supporter].
 var thanks: Button
 var thanks_card: SupporterThanks
+var offer: Button
 
 ## Kit's folder beside the license, once the story has a note in it, and the notes open over the
 ## settings while they are up, STORY.md 7.2.
@@ -135,6 +142,10 @@ var _settings: Settings
 var _resit_line: Label
 ## Laid over a room rather than a screen of its own, see [member SettingsScreen.overlay].
 var _over_room := false
+## The supporter pack's section, and whether the pack was owned when it was filled, see
+## [method _fill_supporter].
+var _supporter_section: VBoxContainer
+var _supporter_owned := false
 ## The license, which the cursor reaches as it does a button, and what had the cursor before the
 ## license or the notes came up in full.
 var _card: LicenseCard
@@ -187,7 +198,7 @@ func _ready() -> void:
 	_achievements(grid)
 	if not DrivingSchool.underway:
 		_story(grid)
-	if Supporter.owned():
+	if Supporter.owned() or Supporter.offered():
 		_supporter(grid)
 	_link_focus(grid)
 
@@ -248,7 +259,7 @@ func _card_row() -> Node:
 ## What in [param section] takes the cursor: the plate's field, or its one button or switch.
 func _taker(section: Node) -> Control:
 	for each: Control in [
-		field, retake, kart, program, catalog, achievements, story_switch, thanks
+		field, retake, kart, program, catalog, achievements, story_switch, thanks, offer
 	]:
 		if each != null and section.is_ancestor_of(each):
 			return each
@@ -426,23 +437,60 @@ func open_catalog() -> void:
 	catalog_dialog.put_away.connect(func() -> void: catalog_dialog = null)
 
 
-## The Steam supporter pack's own section, GAME.md 10.8, for a player who owns it: its thanks, the
-## day it was first seen here, and the way to its thank-you card, held up again over the screen the
-## settings are on.
+## The Steam supporter pack's own section, GAME.md 10.8, filled as the pack is, see
+## [method _fill_supporter].
 func _supporter(grid: GridContainer) -> void:
-	var section := _section("SupporterSection", SUPPORTER)
-	section.add_child(_section_line(SUPPORTER_LINE))
+	_supporter_section = _section("SupporterSection", SUPPORTER)
+	grid.add_child(_supporter_section)
+	_fill_supporter()
+
+
+## The supporter pack's section under its title: for a player who owns it, its thanks, the day it
+## was first seen here and the way to its thank-you card, held up again over the screen the
+## settings are on; where it is offered and not owned, what it is and the way to its store page in
+## Steam's overlay. Filled again in place once the pack is bought, see [method _process].
+func _fill_supporter() -> void:
+	_supporter_owned = Supporter.owned()
+	for child: Node in _supporter_section.get_children().slice(1):
+		_supporter_section.remove_child(child)
+		child.queue_free()
+	thanks = null
+	offer = null
+	if not _supporter_owned:
+		_supporter_section.add_child(_section_line(OFFER_LINE))
+		offer = MenuTheme.button(OFFER_BUTTON, Type.BODY)
+		offer.name = "Offer"
+		offer.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+		offer.pressed.connect(
+			func() -> void:
+				Audio.play_sfx(&"ui_click" if Store.open_supporter() else &"ui_back", -4.0, 0.05)
+		)
+		_supporter_section.add_child(offer)
+		return
+	_supporter_section.add_child(_section_line(SUPPORTER_LINE))
 	if not _settings.supporter_since.is_empty():
 		var since := _section_line(SUPPORTER_SINCE % _settings.supporter_since)
 		since.name = "Since"
 		since.add_theme_color_override("font_color", StatsTab.VALUE_INK)
-		section.add_child(since)
+		_supporter_section.add_child(since)
 	thanks = MenuTheme.button(THANKS_BUTTON, Type.BODY)
 	thanks.name = "Thanks"
 	thanks.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	thanks.pressed.connect(open_thanks)
-	section.add_child(thanks)
-	grid.add_child(section)
+	_supporter_section.add_child(thanks)
+
+
+## The supporter pack bought while the page is up: its section filled again as an owner's, the
+## cursor kept on it, and the page's ways round it laid again.
+func _process(_delta: float) -> void:
+	if _supporter_section == null or Supporter.owned() == _supporter_owned:
+		return
+	var had := offer != null and offer.has_focus()
+	_fill_supporter()
+	_link_focus(_supporter_section.get_parent() as GridContainer)
+	var now: Button = thanks if thanks != null else offer
+	if had and now != null:
+		now.grab_focus.call_deferred()
 
 
 ## The thank-you card held up again over the whole screen the settings are on; put away, the cursor
