@@ -8,23 +8,36 @@ extends TutorialLesson
 ## exam starts with nothing in hand. A pot emptied any other way, a death say, sends the player
 ## back to the Jackpot. The bank comes into the corner with the Junction, a shut padlock on it and
 ## an open one on the pot, and a joker that banks of its own accord, Direct Debit, may from then.
+##
+## It teaches the cards the profile playing has opened, GAME.md 3.17: the Royal Flush pads only
+## once the House has opened them, the Jackpot likewise, and with neither, chips scattered over the
+## lot to pick up before the Junction comes. A retake teaches what has opened since.
 
 ## What the clipboard says at each part.
 const FLUSH_WORDS := "{Royal Flush} pads pay out {chips} while you hold them. Hold all four."
 const JACKPOT_WORDS := "Stand on a {Jackpot} to collect its {chips}."
 const BANK_WORDS := "You lose part of your {pot} when you die. Only {banked} points are safe."
+const PICK_UP_WORDS := "Drive over {chips} to put them in your {pot}."
+## With neither the pads nor the Jackpot opened: how many chips to pick up, and the ones scattered
+## for it, as the exam scatters its own.
+const PICK_UP := 20
+## How long after chips are scattered more may be, in seconds, for a pot lost with none left.
+const SCATTER_AGAIN := 12.0
 ## How much floor a Jackpot and the Junction stand on, in cells.
 const JACKPOT_CELLS := 2
 const JUNCTION_CELLS := 4
 
 var _flush: TutorialTask
 var _drain: TutorialTask
+var _pick_up: TutorialTask
 var _bank: TutorialTask
 var _pads: Array[FlushPad] = []
 var _zone: JackpotZone
 var _junction: JunctionPad
 ## The most the pot has held while banking, for the bar.
 var _peak := 0.0
+## Whether chips were scattered just now, see [constant SCATTER_AGAIN].
+var _scattering := false
 
 
 func _init() -> void:
@@ -32,11 +45,20 @@ func _init() -> void:
 	spawn_cell = TestGround.ACROSS
 	facing = TestGround.WEST
 	reveals = [[&"pot", "Your {pot}", []]]
-	_flush = add_task("Hold all four {Royal Flush} pads at once", "")
-	_flush.arrow = TestGround.FLUSH_PADS[0]
-	_drain = add_task("Drain the {Jackpot}", "", [], true)
-	_drain.arrow = TestGround.JACKPOT
-	_drain.arrow_rect = TestGround.JACKPOT_RECT
+	var opened := Game.settings.profile.table_opened()
+	# The lives come with the jokers lesson; with it left out, here.
+	if not TableCards.has(opened, TableCards.Card.JOKERS):
+		reveals.append([&"lives", "", []])
+	if TableCards.has(opened, TableCards.Card.FLUSH):
+		_flush = add_task("Hold all four {Royal Flush} pads at once", "")
+		_flush.arrow = TestGround.FLUSH_PADS[0]
+	if TableCards.has(opened, TableCards.Card.JACKPOT):
+		_drain = add_task("Drain the {Jackpot}", "", [], _flush != null)
+		_drain.arrow = TestGround.JACKPOT
+		_drain.arrow_rect = TestGround.JACKPOT_RECT
+	if _flush == null and _drain == null:
+		_pick_up = add_task("Pick up %d {chips}" % PICK_UP, "")
+		_pick_up.arrow = TutorialFight.CHIPS_AT[0]
 	_bank = add_task("{Bank} your {pot} at the {Junction}", "", [], true)
 	_bank.arrow = TestGround.JUNCTION
 	_bank.arrow_rect = TestGround.JUNCTION_RECT
@@ -56,10 +78,16 @@ func _prepare() -> void:
 		keep_back(pad, Vector2.ONE * size * JUNCTION_CELLS, RisingPiece.Way.DROP)
 
 
-## The pads first, and a line about them.
+## The pads first, and a line about them; or the Jackpot, or the chips, without them.
 func _begin() -> void:
-	bring_up(_pads, 0.25)
-	run.list.say(&"flush", FLUSH_WORDS)
+	if _flush != null:
+		bring_up(_pads, 0.25)
+		run.list.say(&"flush", FLUSH_WORDS)
+	elif _drain != null:
+		_bring_jackpot()
+	else:
+		_scatter()
+		run.list.say(&"chips", PICK_UP_WORDS)
 	Events.flush_completed.connect(_on_flush)
 	Events.jackpot_emptied.connect(_on_emptied)
 	Events.bank_completed.connect(_on_banked)
@@ -89,6 +117,11 @@ func step(_delta: float) -> void:
 	var task := current()
 	if task == _flush:
 		_aim_at_pad()
+	elif task == _pick_up and task != null:
+		_pick_up.progress = clampf(float(kart().pot.coins) / float(PICK_UP), 0.0, 1.0)
+		if kart().pot.coins >= PICK_UP:
+			_pick_up.complete()
+			_bring_junction()
 	elif task == _drain and _zone != null and _zone.active:
 		_drain.progress = clampf(1.0 - _zone.chips / maxf(float(_zone.cap()), 1.0), 0.0, 1.0)
 	elif task == _bank:
@@ -98,8 +131,14 @@ func step(_delta: float) -> void:
 		_peak = maxf(_peak, pot.exact_value())
 		_bank.progress = clampf(1.0 - pot.exact_value() / maxf(_peak, 1.0), 0.0, 1.0)
 		var empty := pot.is_empty()
-		_bank.arrow = TestGround.JACKPOT if empty else TestGround.JUNCTION
-		_bank.arrow_rect = TestGround.JACKPOT_RECT if empty else TestGround.JUNCTION_RECT
+		if empty and _zone == null and not _scattering:
+			# Nothing to drain: more chips over the lot, for a pot lost to a death.
+			_scatter()
+		var source := TestGround.JACKPOT if _zone != null else TutorialFight.CHIPS_AT[0]
+		_bank.arrow = source if empty else TestGround.JUNCTION
+		_bank.arrow_rect = (
+			TestGround.JACKPOT_RECT if empty and _zone != null else (TestGround.JUNCTION_RECT)
+		)
 
 
 ## The arrow on the nearest Royal Flush pad that is not the player's yet.
@@ -115,14 +154,33 @@ func _aim_at_pad() -> void:
 			_flush.arrow = run.grid().cell_of(pad.global_position)
 
 
-## The flush is in: the Jackpot comes up, full, and the line is about it.
+## The flush is in: the Jackpot comes up, full, and the line is about it; or, without one, the
+## Junction.
 func _on_flush(slot_index: int) -> void:
-	if slot_index != kart().slot or _flush.done:
+	if _flush == null or slot_index != kart().slot or _flush.done:
 		return
 	_flush.complete()
+	if _drain != null:
+		_bring_jackpot()
+	else:
+		_bring_junction()
+
+
+## The Jackpot up, full, and the line about it.
+func _bring_jackpot() -> void:
 	if _zone != null:
 		bring_up([_zone], 0.0, 0.0, _fill)
 	run.list.say(&"jackpot", JACKPOT_WORDS)
+
+
+## Chips scattered over the lot to pick up, as the exam scatters its own, GAME.md 9.4a; once at a
+## time, and again only once the last of them is gone.
+func _scatter() -> void:
+	_scattering = true
+	for at: Vector2i in TutorialFight.CHIPS_AT:
+		arena().spawn_chips(run.cell(at), TutorialFight.CHIPS_EACH, 0.0, 0.15)
+	var settle := run.get_tree().create_timer(SCATTER_AGAIN)
+	settle.timeout.connect(func() -> void: _scattering = false)
 
 
 ## The Jackpot up, and full.
@@ -139,6 +197,12 @@ func _on_emptied(zone_index: int) -> void:
 	if _zone == null or zone_index != _zone.index or current() != _drain:
 		return
 	_drain.complete()
+	_bring_junction()
+
+
+## The Junction up in the middle, the bank into the corner with it, and the line about what is
+## safe.
+func _bring_junction() -> void:
 	if _junction != null:
 		bring_up([_junction])
 	kart().banks_passively = true

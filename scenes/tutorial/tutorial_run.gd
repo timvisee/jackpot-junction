@@ -86,14 +86,12 @@ static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> Tuto
 	run.arrow.kart = run._slot.kart
 	if in_match.hud != null:
 		run.reveal = HudReveal.add_to(in_match.hud, run._slot)
-	run.lessons = [
-		TutorialDrive.new(),
-		TutorialNitro.new(),
-		TutorialShoot.new(),
-		TutorialJokers.new(),
-		TutorialChips.new(),
-		TutorialFight.new(),
-	]
+	run.lessons = [TutorialDrive.new(), TutorialNitro.new(), TutorialShoot.new()]
+	# Jokers are taught once the House has opened them, GAME.md 3.17.
+	if in_match.rules.has_card(TableCards.Card.JOKERS):
+		run.lessons.append(TutorialJokers.new())
+	run.lessons.append(TutorialChips.new())
+	run.lessons.append(TutorialFight.new())
 	parent.add_child(run)
 	return run
 

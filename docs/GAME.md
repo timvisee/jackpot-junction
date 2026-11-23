@@ -8337,6 +8337,17 @@ is near them the clipboard says what they are and that the menu changes it any t
 from the lot once the first lesson is done, shrinking away to nothing: the exam is played over
 where they lay, and a switch of the way of driving in the middle of it would be nobody's choice.
 
+**What the test teaches.** The cards of the table the House has opened for the profile, 3.17 and
+8.9a, and nothing it has not: a card not opened is not on the lot at all, its pieces cleared off it
+as a match's are. So a first test, with power-ups alone opened, has no jokers lesson and no parked
+kart for it; its chips lesson scatters chips over the lot to pick up, twenty of them, the pot in
+the corner as they come, and the lives with it, before the Junction comes up to bank them, more
+chips scattered for a pot lost to a death; and its exam offers the hints of the cards it teaches
+alone, five of them. With the Royal Flush or the Jackpot opened, the chips lesson starts with
+those as below, and with Jokers opened the jokers lesson is back between the item and the chips. A
+retake, once more of the table has opened, teaches what has opened since and can earn the
+endorsements of it: the license keeps the endorsements it had and adds the ones the retake earned.
+
 The lessons, in order, each bringing its pieces into the one lot:
 
 1. **Driving.** A lane of cones rises ahead of the start, up the west side of the lot, and a ring

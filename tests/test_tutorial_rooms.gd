@@ -312,13 +312,14 @@ func test_the_exam_brings_the_bots_up_in_turn_and_ends_the_tutorial() -> void:
 	license.stamp.pressed.emit()
 	await await_millis(int((RubberStamp.LIFT + RubberStamp.DROP) * 1000.0) + 150)
 	assert_bool(license.card.stamped).is_true()
-	# Done again, the license keeps its number, what this exam earned replaces what it had, and
-	# it carries the name enrolled under this time.
+	# Done again, the license keeps its number, keeps what it had and adds what this exam earned,
+	# GAME.md 9.4a, and carries the name enrolled under this time.
 	Game.settings.license_endorsements = PackedStringArray(["JACKPOT"])
 	Game.settings.license_holder = "Somebody Before"
 	tutorial._on_finished()
 	assert_str(Game.settings.license_number).is_equal(number)
-	assert_bool("JACKPOT" in Game.settings.license_endorsements).is_false()
+	assert_bool("JACKPOT" in Game.settings.license_endorsements).is_true()
+	assert_bool("KO" in Game.settings.license_endorsements).is_true()
 	assert_str(Game.settings.license_holder).is_equal(run.slot().display_name())
 
 

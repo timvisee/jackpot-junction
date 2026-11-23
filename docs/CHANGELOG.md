@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
 - **Tonight's table.** A match's loading screen deals the features it plays with, and names a new
   one.
 - **Shown the way.** The first match with a new feature points your kart at it.
+- **The driving test teaches your table.** Jokers, the Royal Flush and the Jackpot wait until the
+  House has opened them; a retake teaches them and keeps the endorsements you had.
 - **Penny table and Roulette.** Two new presets: power-ups alone for a plain game, or three
   features dealt at random each map. Quick hand is gone.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and

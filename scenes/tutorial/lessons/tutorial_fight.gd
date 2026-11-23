@@ -60,14 +60,24 @@ func _init() -> void:
 	reveals = [[&"stats", "", []], [&"feed", "", []], [&"mult", "Your {mult}", []]]
 	_bank = add_task("{Bank} points", "", [], true)
 	_bank.of = NEED
+	# The hints of the cards the profile playing has opened alone, GAME.md 3.17: a retake once more
+	# have opened can earn theirs.
+	var opened := Game.settings.profile.table_opened()
 	_kill = add_task("Take out another kart", "")
 	_mult = add_task("Reach a {mult} of 4", "")
-	_jackpot = add_task("Drain a {Jackpot}", "")
-	_flush = add_task("Claim a {Royal Flush}", "")
+	if TableCards.has(opened, TableCards.Card.JACKPOT):
+		_jackpot = add_task("Drain a {Jackpot}", "")
+	if TableCards.has(opened, TableCards.Card.FLUSH):
+		_flush = add_task("Claim a {Royal Flush}", "")
 	_cash = add_task("{Bank} your whole {pot} at the {Junction}", "")
 	_use = add_task("Use an item", "")
-	_hand = add_task("Hold three jokers", "")
-	stations = [[_bank], [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]]
+	if TableCards.has(opened, TableCards.Card.JOKERS):
+		_hand = add_task("Hold three jokers", "")
+	var hints: Array[TutorialTask] = []
+	for task: TutorialTask in [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]:
+		if task != null:
+			hints.append(task)
+	stations = [[_bank], hints]
 	station_heads = [OPTIONAL]
 
 
@@ -137,7 +147,7 @@ func step(delta: float) -> void:
 	_collected_lately = maxf(_collected_lately - delta, 0.0)
 	if kart().pot.mult >= 4.0:
 		_earn(_mult, ENDORSEMENTS[1])
-	if kart().jokers.count() >= HAND:
+	if _hand != null and kart().jokers.count() >= HAND:
 		_earn(_hand, ENDORSEMENTS[6])
 	var held := _banked + kart().pot.value()
 	while _released < BOTS and _released < RELEASE_AT.size() and held >= RELEASE_AT[_released]:
@@ -165,7 +175,7 @@ func endorsements() -> Dictionary[String, bool]:
 
 ## [param task] done on its own, which is the endorsement [param word] earned.
 func _earn(task: TutorialTask, word: String) -> void:
-	if task.done:
+	if task == null or task.done:
 		return
 	_earned[word] = true
 	task.complete()

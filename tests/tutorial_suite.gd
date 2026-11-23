@@ -19,6 +19,7 @@ var _was_endorsements := PackedStringArray()
 var _was_spot := true
 var _was_nudge := true
 var _was_distance := 1.0
+var _was_maps := -1.0
 
 
 func before_test() -> void:
@@ -42,6 +43,11 @@ func before_test() -> void:
 	# test_camera_rig.gd does; the "closer camera" scales the follow floor by the pull otherwise.
 	_was_distance = Game.settings.camera_distance
 	Game.settings.camera_distance = 1.0
+	# Every card of the table opened, GAME.md 8.9a, so every lesson is taught: a first test teaches
+	# the first table alone, which has a test of its own.
+	var stats := Game.settings.profile.stats
+	_was_maps = stats.get(&"maps", -1.0)
+	stats[&"maps"] = float(TableCards.Card.size())
 
 
 func after_test() -> void:
@@ -63,6 +69,10 @@ func after_test() -> void:
 	SpotFraming.on = _was_spot
 	TutorialNudge.on = _was_nudge
 	Game.settings.camera_distance = _was_distance
+	if _was_maps < 0.0:
+		Game.settings.profile.stats.erase(&"maps")
+	else:
+		Game.settings.profile.stats[&"maps"] = _was_maps
 
 
 ## Every cell that can be driven to from the player's spawn, the corridor's, treating

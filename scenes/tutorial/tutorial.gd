@@ -52,7 +52,15 @@ func _ready() -> void:
 	match_node.name = "Match"
 	# A copy: the lessons turn the joker pick on when they get to it, GAME.md 9.4a.
 	match_node.rules = RULES.duplicate()
+	# The test teaches the cards the House has opened for the profile, 3.17: the rest are not on
+	# the lot at all.
+	var opened := Game.settings.profile.table_opened()
+	match_node.rules.table = TableCards.playable(opened)
 	match_node.arena_layout = LAYOUT
+	if TableCards.glyphs_off(opened) != "":
+		var cleared: ArenaLayout = LAYOUT.duplicate()
+		cleared.cleared = TableCards.glyphs_off(opened)
+		match_node.arena_layout = cleared
 	match_node.joker_catalog = catalog_without_cursed()
 	match_node.bot_difficulty = EASY
 	# The line over the kart is the tutorial's own, a task at a time.
@@ -66,8 +74,10 @@ func _ready() -> void:
 	Turret.hunts_targets = true
 	await LoadingScreen.put_up(self, match_node, "Driving test")
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
-	for i: int in TutorialJokers.DUMMIES:
-		inputs.append(DummyInput.new())
+	# The parked kart is the jokers lesson's, there only where it is taught.
+	if match_node.rules.has_card(TableCards.Card.JOKERS):
+		for i: int in TutorialJokers.DUMMIES:
+			inputs.append(DummyInput.new())
 	for i: int in TutorialFight.BOTS:
 		inputs.append(BotInput.new())
 	# The player drives the kart they dressed and answers to the name they gave, GAME.md 4.4.
@@ -196,12 +206,13 @@ func _on_finished() -> void:
 	profile.test_time = run.elapsed
 	if profile.test_best <= 0.0 or run.elapsed < profile.test_best:
 		profile.test_best = run.elapsed
-	settings.license_endorsements.clear()
+	# What a license earned before is kept, so a retake, with more of the table opened, adds the
+	# endorsements of the cards it now teaches, GAME.md 9.4a.
 	var fight := run.lessons[run.lessons.size() - 1] as TutorialFight
 	if fight != null:
 		var earned := fight.endorsements()
 		for word: String in earned:
-			if earned[word]:
+			if earned[word] and word not in settings.license_endorsements:
 				settings.license_endorsements.append(word)
 	settings.save_to_disk()
 	Audio.play_sfx(&"fanfare", -4.0, 0.0)

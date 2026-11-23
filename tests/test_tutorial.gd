@@ -641,3 +641,40 @@ func _past_the_stamp(run: TutorialRun) -> void:
 		if not run.list.is_checking():
 			return
 		await _runner.simulate_frames(1, 17)
+
+
+## A first test teaches the first table, GAME.md 3.17 and 9.4a: no jokers lesson and no parked
+## kart, chips picked up off the lot rather than off Flush pads or a Jackpot, which are not on it,
+## and only the exam's hints of the cards opened.
+func test_a_first_test_teaches_the_first_table() -> void:
+	Game.settings.profile.stats[&"maps"] = 0.0
+	var tutorial := await _start()
+	var titles: Array[String] = []
+	for lesson: TutorialLesson in tutorial.run.lessons:
+		titles.append(lesson.title)
+	assert_array(titles).not_contains(["Jokers"])
+	assert_array(tutorial.run.dummies).is_empty()
+	var arena := tutorial.match_node.arena
+	assert_array(arena.flush_pads).is_empty()
+	assert_array(arena.jackpot_zones).is_empty()
+	var chips := tutorial.run.lessons[3] as TutorialChips
+	assert_object(chips).is_not_null()
+	assert_int(chips.tasks.size()).is_equal(2)
+	assert_str(chips.tasks[0].text).contains("Pick up")
+	var fight := tutorial.run.lessons[4] as TutorialFight
+	var hints: Array[String] = []
+	for task: TutorialTask in fight.tasks:
+		hints.append(task.text)
+	assert_int(hints.size()).is_equal(5)
+	for word: String in ["Jackpot", "Royal Flush", "jokers"]:
+		for hint: String in hints:
+			assert_str(hint).not_contains(word)
+	# The chips picked up, the Junction comes for them.
+	for i: int in 3:
+		tutorial.run.skip()
+		await _runner.simulate_frames(3, 17)
+	assert_object(tutorial.run.current_lesson()).is_same(chips)
+	tutorial.run.kart().collect_coins(TutorialChips.PICK_UP, null)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(chips.tasks[0].done).is_true()
+	assert_object(chips.current()).is_same(chips.tasks[1])
