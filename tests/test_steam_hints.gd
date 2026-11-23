@@ -135,3 +135,32 @@ func test_a_hint_for_everybody_follows_the_pad_picked_up() -> void:
 	_pads.free()
 	glyph._process(0.0)
 	assert_int(glyph.face).is_equal(JOY_BUTTON_A)
+
+
+func test_the_controls_page_shows_steams_bindings_for_its_controller() -> void:
+	_start(XBOX)
+	_steam.origins["fire"] = [XBOX_Y]
+	assert_int(SteamInputRow.pad()).is_equal(PAD)
+	assert_str(SteamInputRow.head(SteamInputRow.PAD_HEAD)).is_equal(SteamInputRow.IN_STEAM)
+	var row: HBoxContainer = auto_free(SettingsScreen._bound_glyphs(InputActions.FIRE, false))
+	assert_int((row.get_child(0) as InputGlyph).face).is_equal(JOY_BUTTON_Y)
+	assert_str(SteamInputRow.bound_text(InputActions.FIRE, false)).contains("Y")
+	# One Steam has on nothing is not bound, whatever the game's own pad has.
+	var none: HBoxContainer = auto_free(SettingsScreen._bound_glyphs(InputActions.NITRO, false))
+	assert_str((none.get_child(0) as Label).text).is_equal(SettingsScreen.NOT_BOUND)
+	# A binding asked to change opens Steam's settings for it.
+	var status: Label = auto_free(Label.new())
+	assert_bool(SteamInputRow.rebound_in_steam(status)).is_true()
+	assert_array(_steam.calls).contains(["showBindingPanel %d" % HANDLE])
+	assert_str(status.text).is_equal(SteamInputRow.OPENED)
+
+
+func test_a_pad_of_the_engines_in_hand_shows_the_games_own_bindings() -> void:
+	_start(XBOX)
+	_steam.origins["fire"] = [XBOX_Y]
+	DeviceInput.touched(0)
+	assert_int(SteamInputRow.pad()).is_equal(-1)
+	assert_str(SteamInputRow.head(SteamInputRow.PAD_HEAD)).is_equal(SteamInputRow.PAD_HEAD)
+	var row: HBoxContainer = auto_free(SettingsScreen._bound_glyphs(InputActions.FIRE, false))
+	assert_int((row.get_child(0) as InputGlyph).face).is_equal(JOY_BUTTON_A)
+	assert_bool(SteamInputRow.rebound_in_steam(auto_free(Label.new()))).is_false()

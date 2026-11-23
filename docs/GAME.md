@@ -10814,7 +10814,11 @@ time asked. A layout binding a button to a pad's own button rather than an actio
 the game a pad of the engine's as well, carrying those, which is a second pad to the game.
 
 **Rebinding and turning it off.** The game's own rebinding, 8.5, goes on for the keyboard and for
-pads the engine reads; a controller Steam Input reads is bound in Steam. The Controls page of a
+pads the engine reads; a controller Steam Input reads is bound in Steam. With one in hand, the pad
+touched last or, with no pad of the engine's touched last, the first of Steam's, the Controls
+page's Gamepad column is headed Gamepad, in Steam and shows each action where Steam has it on that
+controller, drawn as its hints are, or Not bound where Steam has it on nothing; a cell pressed opens
+Steam's settings for it rather than waiting for a button, and says so (`SteamInputRow`). The Controls page of a
 game with Steam on has Steam Input, on to start with and kept with the machine's settings, and
 Controller layout, Change in Steam, which opens Steam's settings for the layout of the controller
 in hand, or none with Steam's overlay off. The switch stops or starts the reading at once;

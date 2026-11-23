@@ -406,7 +406,7 @@ func _controls_tab() -> Control:
 	var header := HBoxContainer.new()
 	for text: String in BINDING_HEADS:
 		var label := Label.new()
-		label.text = text
+		label.text = SteamInputRow.head(text)
 		label.uppercase = true
 		label.custom_minimum_size = Vector2(300.0, 0.0)
 		Type.strong(label, Type.LABEL, HouseTheme.FOIL)
@@ -464,6 +464,8 @@ func _binding_row(action: StringName) -> HBoxContainer:
 
 
 func _start_listening(action: StringName, keyboard: bool, button: Button) -> void:
+	if not keyboard and SteamInputRow.rebound_in_steam(status):
+		return
 	_listening_action = action
 	_listening_keyboard = keyboard
 	_clear(button)
@@ -498,7 +500,7 @@ func _refresh_binding(action: StringName) -> void:
 		row.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		button.add_child(row)
 		# Its keys are pictures: a screen reader is told the action, the column and what is bound.
-		var bound := InputActions.binding_text(action, i == 0)
+		var bound := SteamInputRow.bound_text(action, i == 0)
 		var named := ScreenReader.line([_action_words(action), BINDING_HEADS[i + 1]])
 		ScreenReader.name(button, named, NOT_BOUND if bound == "-" else bound)
 
@@ -513,7 +515,9 @@ static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 6)
-	if InputMap.has_action(action):
+	if not keyboard and SteamInputRow.pad() >= 0:
+		SteamInputRow.add_glyph(row, action, BINDING_INK, BINDING_SIZE)
+	elif InputMap.has_action(action):
 		for event: InputEvent in InputMap.action_get_events(action):
 			var descriptor := InputActions.descriptor_from_event(event)
 			if descriptor.is_empty() or InputActions.is_keyboard_descriptor(descriptor) != keyboard:
