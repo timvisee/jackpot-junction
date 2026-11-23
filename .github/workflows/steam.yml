@@ -66,7 +66,8 @@ jobs:
           STEAM_SUPPORTER_DLC: ${{ vars.STEAM_SUPPORTER_DLC || '0' }}
         run: make steam-export
 
-      # Every depot carries Valve's library beside the game, or Steam has nothing to talk to.
+      # Every depot carries Valve's library beside the game, or Steam has nothing to talk to, and
+      # Steam Input's manifest, which Steamworks names.
       - name: Check the builds
         run: |
           set -e
@@ -75,6 +76,8 @@ jobs:
           test -f build/steam/linux/arm64/libsteam_api.so
           test ! -e build/steam/linux/libsteam_api.so
           test -x build/steam/linux/jackpot-junction
+          test -f build/steam/windows/steam_input/action_manifest.vdf
+          test -f build/steam/linux/steam_input/action_manifest.vdf
           test -x build/steam/linux/jackpot-junction.x86_64
           test -x build/steam/linux/jackpot-junction.arm64
           # The game's data beside each binary, Linux's once for both CPUs' binaries.

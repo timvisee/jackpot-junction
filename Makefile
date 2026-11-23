@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-input steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -261,6 +261,12 @@ steam-addon:
 	tools/steam_addon
 	$(GODOT) --headless --path . --import
 
+# The game's actions for Steam Input, GAME.md 10.8: the action manifest and the layout each kind of
+# controller starts on, into data/steam/input, from SteamActions. Run whenever an action comes or
+# goes or a pad's default button changes: test_steam_actions fails until it is.
+steam-input: | $(CACHE)
+	$(GODOT) --headless --path . -s tools/steam_input.gd
+
 # The game from this checkout with Steam on, as Spacewar, app 480, unless data/steam/app.cfg names
 # another: Steam has to be running. Without --steam nothing ever talks to Steam, GAME.md 10.8.
 steam-run: | $(CACHE)
@@ -277,7 +283,8 @@ steam-check: | $(CACHE)
 # jackpot-junction.x86_64 and .arm64, on the one .pck they share, the ARM64 build's, which has every
 # texture format; Valve's libsteam_api.so, the same name for both, in x86_64/ and arm64/; and
 # tools/steam-launcher, which starts the one for the machine, since Steam cannot pick a depot by
-# CPU, docs/STEAM.md. No macOS: Steam takes a Mac build only notarized by Apple, so it waits, its preset kept for then.
+# CPU, docs/STEAM.md. Each has steam_input/ beside its game, Steam Input's action manifest and
+# layouts, which Steamworks names, docs/STEAM.md. No macOS: Steam takes a Mac build only notarized by Apple, so it waits, its preset kept for then.
 # STEAM_APP_ID is the app they start as, Spacewar's 480 when none is named, and STEAM_SUPPORTER_DLC
 # the supporter pack's DLC, none until there is one. Fetches GodotSteam first if it is not here.
 STEAM_APP_ID ?= 480
@@ -295,3 +302,6 @@ steam-export: | $(CACHE)
 	$(GODOT) --headless --path . --export-release "Linux ARM64 Steam" build/steam/linux/jackpot-junction.arm64
 	mv build/steam/linux/libsteam_api.so build/steam/linux/arm64/libsteam_api.so
 	install -m 755 tools/steam-launcher build/steam/linux/jackpot-junction
+	mkdir -p build/steam/windows/steam_input build/steam/linux/steam_input
+	cp data/steam/input/*.vdf build/steam/windows/steam_input/
+	cp data/steam/input/*.vdf build/steam/linux/steam_input/
