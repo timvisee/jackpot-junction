@@ -6,7 +6,7 @@
 	"description"		"Every button does what it does on a gamepad in the game."
 	"controller_type"		"controller_ps4"
 	"major_revision"		"0"
-	"minor_revision"		"1"
+	"minor_revision"		"2"
 	"actions"
 	{
 		"Play"
@@ -85,54 +85,54 @@
 		"english"
 		{
 			"Set_Play"		"Play"
-			"Action_steer_stick"		"Steer and drive"
-			"Action_aim_stick"		"Aim, emote and scroll"
-			"Action_throttle_trigger"		"Throttle"
-			"Action_brake_trigger"		"Brake and reverse"
+			"Action_steer_stick"		"Steer"
+			"Action_aim_stick"		"Aim and emote"
+			"Action_throttle_trigger"		"Gas"
+			"Action_brake_trigger"		"Brake"
 			"Action_fire"		"Fire"
-			"Action_use_item"		"Use power-up"
+			"Action_use_item"		"Use item"
 			"Action_nitro"		"Nitro"
-			"Action_handbrake"		"Handbrake and drift"
-			"Action_throttle"		"Throttle (button)"
-			"Action_brake"		"Brake and reverse (button)"
+			"Action_handbrake"		"Drift"
+			"Action_throttle"		"Gas"
+			"Action_brake"		"Brake"
 			"Action_steer_left"		"Steer left"
 			"Action_steer_right"		"Steer right"
-			"Action_drive_up"		"Drive up (simple driving)"
-			"Action_drive_down"		"Drive down (simple driving)"
-			"Action_joker_menu"		"Joker menu"
-			"Action_joker_prev"		"Joker menu: previous card"
-			"Action_joker_next"		"Joker menu: next card"
-			"Action_joker_drop"		"Joker menu: drop"
-			"Action_joker_destroy"		"Joker menu: destroy"
-			"Action_joker_select_1"		"Joker card 1"
-			"Action_joker_select_2"		"Joker card 2"
-			"Action_joker_select_3"		"Joker card 3"
-			"Action_joker_select_4"		"Joker card 4"
-			"Action_joker_select_5"		"Joker card 5"
-			"Action_details"		"Joker card: details"
+			"Action_drive_up"		"Drive up"
+			"Action_drive_down"		"Drive down"
+			"Action_joker_menu"		"Joker hand"
+			"Action_joker_prev"		"Previous joker"
+			"Action_joker_next"		"Next joker"
+			"Action_joker_drop"		"Drop joker"
+			"Action_joker_destroy"		"Destroy joker"
+			"Action_joker_select_1"		"Joker 1"
+			"Action_joker_select_2"		"Joker 2"
+			"Action_joker_select_3"		"Joker 3"
+			"Action_joker_select_4"		"Joker 4"
+			"Action_joker_select_5"		"Joker 5"
+			"Action_details"		"Joker details"
 			"Action_emote_1"		"Emote 1"
 			"Action_emote_2"		"Emote 2"
 			"Action_emote_3"		"Emote 3"
 			"Action_emote_4"		"Emote 4"
-			"Action_emote_wheel"		"Emote wheel"
+			"Action_emote_wheel"		"Emotes"
 			"Action_pause"		"Pause"
 			"Action_join"		"Join"
-			"Action_match_settings"		"Lobby: match settings"
+			"Action_match_settings"		"Match settings"
 			"Action_mute_music"		"Mute music"
-			"Action_ui_accept"		"Menu: press"
-			"Action_ui_cancel"		"Menu: back"
-			"Action_ui_up"		"Menu: up"
-			"Action_ui_down"		"Menu: down"
-			"Action_ui_left"		"Menu: left"
-			"Action_ui_right"		"Menu: right"
-			"Action_menu_page_prev"		"Menu: previous page"
-			"Action_menu_page_next"		"Menu: next page"
-			"Action_menu_view"		"Menu: view"
-			"Action_menu_option"		"Menu: option"
-			"Action_menu_filter"		"Menu: filter"
-			"Action_menu_sort"		"Menu: sort"
-			"Action_menu_next_new"		"Menu: next new"
-			"Action_menu_help"		"Menu: help"
+			"Action_ui_accept"		"Choose"
+			"Action_ui_cancel"		"Back"
+			"Action_ui_up"		"Menu up"
+			"Action_ui_down"		"Menu down"
+			"Action_ui_left"		"Menu left"
+			"Action_ui_right"		"Menu right"
+			"Action_menu_page_prev"		"Previous page"
+			"Action_menu_page_next"		"Next page"
+			"Action_menu_view"		"Change view"
+			"Action_menu_option"		"Option"
+			"Action_menu_filter"		"Filter"
+			"Action_menu_sort"		"Sort"
+			"Action_menu_next_new"		"Next new"
+			"Action_menu_help"		"Help"
 		}
 	}
 	"group"
@@ -152,8 +152,8 @@
 						"bindings"
 						{
 							"binding"		"game_action Play fire, Fire"
-							"binding"		"game_action Play joker_drop, Joker menu: drop"
-							"binding"		"game_action Play ui_accept, Menu: press"
+							"binding"		"game_action Play joker_drop, Drop joker"
+							"binding"		"game_action Play ui_accept, Choose"
 						}
 					}
 				}
@@ -166,8 +166,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play use_item, Use power-up"
-							"binding"		"game_action Play menu_option, Menu: option"
+							"binding"		"game_action Play use_item, Use item"
+							"binding"		"game_action Play menu_option, Option"
 						}
 					}
 				}
@@ -180,8 +180,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play joker_menu, Joker menu"
-							"binding"		"game_action Play menu_view, Menu: view"
+							"binding"		"game_action Play joker_menu, Joker hand"
+							"binding"		"game_action Play menu_view, Change view"
 						}
 					}
 				}
@@ -194,8 +194,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play joker_destroy, Joker menu: destroy"
-							"binding"		"game_action Play ui_cancel, Menu: back"
+							"binding"		"game_action Play joker_destroy, Destroy joker"
+							"binding"		"game_action Play ui_cancel, Back"
 						}
 					}
 				}
@@ -219,7 +219,7 @@
 						"bindings"
 						{
 							"binding"		"game_action Play nitro, Nitro"
-							"binding"		"game_action Play menu_page_next, Menu: next page"
+							"binding"		"game_action Play menu_page_next, Next page"
 						}
 					}
 				}
@@ -232,8 +232,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play handbrake, Handbrake and drift"
-							"binding"		"game_action Play menu_page_prev, Menu: previous page"
+							"binding"		"game_action Play handbrake, Drift"
+							"binding"		"game_action Play menu_page_prev, Previous page"
 						}
 					}
 				}
@@ -260,8 +260,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play match_settings, Lobby: match settings"
-							"binding"		"game_action Play menu_next_new, Menu: next new"
+							"binding"		"game_action Play match_settings, Match settings"
+							"binding"		"game_action Play menu_next_new, Next new"
 						}
 					}
 				}
@@ -284,8 +284,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play joker_prev, Joker menu: previous card"
-							"binding"		"game_action Play ui_left, Menu: left"
+							"binding"		"game_action Play joker_prev, Previous joker"
+							"binding"		"game_action Play ui_left, Menu left"
 						}
 					}
 				}
@@ -298,8 +298,8 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play joker_next, Joker menu: next card"
-							"binding"		"game_action Play ui_right, Menu: right"
+							"binding"		"game_action Play joker_next, Next joker"
+							"binding"		"game_action Play ui_right, Menu right"
 						}
 					}
 				}
@@ -312,7 +312,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play ui_up, Menu: up"
+							"binding"		"game_action Play ui_up, Menu up"
 						}
 					}
 				}
@@ -325,7 +325,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play ui_down, Menu: down"
+							"binding"		"game_action Play ui_down, Menu down"
 						}
 					}
 				}
@@ -348,7 +348,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play menu_help, Menu: help"
+							"binding"		"game_action Play menu_help, Help"
 						}
 					}
 				}
@@ -375,7 +375,7 @@
 					{
 						"bindings"
 						{
-							"binding"		"game_action Play details, Joker card: details"
+							"binding"		"game_action Play details, Joker details"
 						}
 					}
 				}

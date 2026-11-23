@@ -10872,9 +10872,11 @@ turned.
 **The actions.** One action set, Play, with everything in it: a menu set beside a driving one, as
 Valve suggests, needs a moment to tell Steam the menus are up, and the game's menus and its
 driving share the screen too often for one, the lobby, the joker pick, the menu over a match. Its
-two sticks, Steer and drive and Aim, emote and scroll, and its two triggers, Throttle and Brake
-and reverse, are Steam's sticks and analog triggers; every other action is a button by its own
-name, the game's as Steam's, titled in the words of 4.2, the menus' with "Menu:" before them. Left
+two sticks, Steer and Aim and emote, and its two triggers, Gas and Brake, are Steam's sticks and
+analog triggers; every other action is a button by its own name, the game's as Steam's, titled in
+the fewest words that say it, those of the picture of the pad, 8.3b: Fire, Drift, Joker hand, Drop
+joker, Choose, Back, Menu up, Previous page. The buttons Gas and Brake share the triggers' words,
+Steam offering each only where it fits. Left
 out are the dialogs' second set of arrows on WASD and the four ways to aim, which are the aim
 stick. Each layout a kind of controller starts on binds it as the game's own pad: A fires, drops a
 joker and presses a menu's button at once, the left shoulder is the handbrake and the page before,

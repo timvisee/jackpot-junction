@@ -18,61 +18,63 @@ const SET_TITLE := "Play"
 ## The sticks, Steam's joysticks, by Steam's name: what Steam calls it, and the actions its right
 ## and its down are, the stick of the game's whose axes it moves, see [SteamPads].
 const STICKS: Dictionary[String, Array] = {
-	"steer_stick": ["Steer and drive", InputActions.STEER_RIGHT, InputActions.DRIVE_DOWN],
-	"aim_stick": ["Aim, emote and scroll", InputActions.AIM_RIGHT, InputActions.AIM_DOWN],
+	"steer_stick": ["Steer", InputActions.STEER_RIGHT, InputActions.DRIVE_DOWN],
+	"aim_stick": ["Aim and emote", InputActions.AIM_RIGHT, InputActions.AIM_DOWN],
 }
 ## The triggers, Steam's analog triggers: what Steam calls each, and the action it is.
 const TRIGGERS: Dictionary[String, Array] = {
-	"throttle_trigger": ["Throttle", InputActions.THROTTLE],
-	"brake_trigger": ["Brake and reverse", InputActions.BRAKE],
+	"throttle_trigger": ["Gas", InputActions.THROTTLE],
+	"brake_trigger": ["Brake", InputActions.BRAKE],
 }
 ## Every button action, by the game's name, which is Steam's too, in the order Steam lists them,
-## with what Steam calls it: driving, the jokers, the emotes, the room, and the menus.
+## with what Steam calls it: driving, the jokers, the emotes, the room, and the menus. In the fewest
+## words that say it, those of the game's own picture of a pad, see [PadLeaflet]; a button's Gas
+## and Brake are the triggers' words too, Steam offering each only where it fits.
 const BUTTONS: Dictionary[StringName, String] = {
 	InputActions.FIRE: "Fire",
-	InputActions.USE_ITEM: "Use power-up",
+	InputActions.USE_ITEM: "Use item",
 	InputActions.NITRO: "Nitro",
-	InputActions.HANDBRAKE: "Handbrake and drift",
-	InputActions.THROTTLE: "Throttle (button)",
-	InputActions.BRAKE: "Brake and reverse (button)",
+	InputActions.HANDBRAKE: "Drift",
+	InputActions.THROTTLE: "Gas",
+	InputActions.BRAKE: "Brake",
 	InputActions.STEER_LEFT: "Steer left",
 	InputActions.STEER_RIGHT: "Steer right",
-	InputActions.DRIVE_UP: "Drive up (simple driving)",
-	InputActions.DRIVE_DOWN: "Drive down (simple driving)",
-	InputActions.JOKER_MENU: "Joker menu",
-	InputActions.JOKER_PREV: "Joker menu: previous card",
-	InputActions.JOKER_NEXT: "Joker menu: next card",
-	InputActions.JOKER_DROP: "Joker menu: drop",
-	InputActions.JOKER_DESTROY: "Joker menu: destroy",
-	InputActions.JOKER_SELECT_1: "Joker card 1",
-	InputActions.JOKER_SELECT_2: "Joker card 2",
-	InputActions.JOKER_SELECT_3: "Joker card 3",
-	InputActions.JOKER_SELECT_4: "Joker card 4",
-	InputActions.JOKER_SELECT_5: "Joker card 5",
-	InputActions.DETAILS: "Joker card: details",
+	InputActions.DRIVE_UP: "Drive up",
+	InputActions.DRIVE_DOWN: "Drive down",
+	InputActions.JOKER_MENU: "Joker hand",
+	InputActions.JOKER_PREV: "Previous joker",
+	InputActions.JOKER_NEXT: "Next joker",
+	InputActions.JOKER_DROP: "Drop joker",
+	InputActions.JOKER_DESTROY: "Destroy joker",
+	InputActions.JOKER_SELECT_1: "Joker 1",
+	InputActions.JOKER_SELECT_2: "Joker 2",
+	InputActions.JOKER_SELECT_3: "Joker 3",
+	InputActions.JOKER_SELECT_4: "Joker 4",
+	InputActions.JOKER_SELECT_5: "Joker 5",
+	InputActions.DETAILS: "Joker details",
 	InputActions.EMOTE_1: "Emote 1",
 	InputActions.EMOTE_2: "Emote 2",
 	InputActions.EMOTE_3: "Emote 3",
 	InputActions.EMOTE_4: "Emote 4",
-	InputActions.EMOTE_WHEEL: "Emote wheel",
+	InputActions.EMOTE_WHEEL: "Emotes",
 	InputActions.PAUSE: "Pause",
 	InputActions.JOIN: "Join",
-	InputActions.MATCH_SETTINGS: "Lobby: match settings",
+	InputActions.MATCH_SETTINGS: "Match settings",
 	InputActions.MUTE_MUSIC: "Mute music",
-	&"ui_accept": "Menu: press",
-	&"ui_cancel": "Menu: back",
-	&"ui_up": "Menu: up",
-	&"ui_down": "Menu: down",
-	&"ui_left": "Menu: left",
-	&"ui_right": "Menu: right",
-	InputActions.MENU_PAGE_PREV: "Menu: previous page",
-	InputActions.MENU_PAGE_NEXT: "Menu: next page",
-	InputActions.MENU_VIEW: "Menu: view",
-	InputActions.MENU_OPTION: "Menu: option",
-	InputActions.MENU_FILTER: "Menu: filter",
-	InputActions.MENU_SORT: "Menu: sort",
-	InputActions.MENU_NEXT_NEW: "Menu: next new",
-	InputActions.MENU_HELP: "Menu: help",
+	&"ui_accept": "Choose",
+	&"ui_cancel": "Back",
+	&"ui_up": "Menu up",
+	&"ui_down": "Menu down",
+	&"ui_left": "Menu left",
+	&"ui_right": "Menu right",
+	InputActions.MENU_PAGE_PREV: "Previous page",
+	InputActions.MENU_PAGE_NEXT: "Next page",
+	InputActions.MENU_VIEW: "Change view",
+	InputActions.MENU_OPTION: "Option",
+	InputActions.MENU_FILTER: "Filter",
+	InputActions.MENU_SORT: "Sort",
+	InputActions.MENU_NEXT_NEW: "Next new",
+	InputActions.MENU_HELP: "Help",
 }
 ## The menus' own buttons on a pad, Godot's, which [constant InputActions.DEFAULTS] has no part in:
 ## the A and B of [constant InputActions.UI_EXTRAS] and the D-pad's four ways.
@@ -167,8 +169,8 @@ const LAYOUT_TITLE := "Default"
 const LAYOUT_SAYS := "Every button does what it does on a gamepad in the game."
 const BACK_SAYS := " The buttons behind repeat A, B, X and Y."
 ## The layouts' revision, raised whenever one changes, for Steam to take the new one up in place of
-## what it has kept: 1 for the title in plain words.
-const LAYOUT_REVISION := 1
+## what it has kept: 1 for the title in plain words, 2 for the actions' shorter words.
+const LAYOUT_REVISION := 2
 ## The manifest's file, and where Steam's files are kept in the project.
 const MANIFEST := "action_manifest.vdf"
 const FOLDER := "res://data/steam/input"
