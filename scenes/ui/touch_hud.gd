@@ -52,6 +52,9 @@ static func covers(controls: TouchControls) -> Array[Rect2]:
 	var to_screen := controls.get_global_transform()
 	rects.append(to_screen * _middle(_ring(controls.stick.center, TouchStick.RADIUS)))
 	for id: StringName in controls.driving_buttons():
+		# The item button, hidden at a table without Power-ups, covers nothing, GAME.md 3.17.
+		if id == TouchControls.ITEM and not controls.item_shown():
+			continue
 		var each := controls.pad(id)
 		rects.append(to_screen * _middle(_ring(each.center, each.radius)))
 	if controls.uses_slider():

@@ -1269,7 +1269,7 @@ turbo pads and Last Call are always on.
 
 | Card          | What it is                                   | Off, the match has                                                   |
 |---------------|----------------------------------------------|----------------------------------------------------------------------|
-| Power-ups     | The item pads of 7.1                         | No item pads on the floor, so nothing to hold and nothing to use     |
+| Power-ups     | The item pads of 7.1                         | No item pads on the floor, so nothing to hold and nothing to use, and no item button on a touch screen, 4.2 |
 | Jackpot       | The Jackpot zones of 3.5                     | Both Jackpot tiles plain floor                                       |
 | Jokers        | The pick on coming back and the hand, 3.7     | No pick, no hand, no cards on the floor: none from a death and none thrown out by a hot table, 3.11 |
 | Royal Flush   | The four suit pads of 3.9                     | The four pads plain floor                                            |
@@ -1588,8 +1588,11 @@ a missed press. The rumble
 switch of 8.5 turns it off with the rest, and the Android build asks for leave to vibrate for it. The nitro tank is a bar across the
 bottom of the nitro. Fire is a round button beside the slider at the height of the gas, and a
 thumb rolled across off the slider onto it fires as well as driving, which is how one thumb
-drives and shoots at once; the item button is under fire. The item button is always there, and
-faint while there is nothing in hand to play, so a thumb knows where it is before it is needed;
+drives and shoots at once; the item button is under fire. The item button is there at any table
+with Power-ups on it, 3.17, and faint while there is nothing in hand to play, so a thumb knows where
+it is before it is needed; at a table without them it is not drawn and not pressed, but for an
+item the kart is handed all the same, a Shield coming back Suited in Hearts, and while what that
+started runs, the other buttons staying where they are either way;
 with an item it wears the item's own picture, and while a box is still opening the pictures
 flick past the way they do in the corner. Something an item started and has still to finish, a
 shield up or shots loaded, keeps its picture on the button after the item has left the hand,

@@ -105,9 +105,10 @@ const TANK_WIDTH := 6.0
 ## the gray their words go.
 const GRAYED := 0.35
 const GRAY_INK := Color(0.62, 0.62, 0.66, 0.7)
-## The item button is always there, and this faint while there is nothing in hand to play, so a
-## thumb knows where it is before it is needed. With an item it wears the item's own picture, and
-## while a box is still opening the pictures flick past as they do in the corner, GAME.md 8.3.
+## The item button is there at a table with Power-ups, see [method item_shown], and this faint
+## while there is nothing in hand to play, so a thumb knows where it is before it is needed. With
+## an item it wears the item's own picture, and while a box is still opening the pictures flick
+## past as they do in the corner, GAME.md 8.3.
 const FAINT := 0.3
 const ITEM_ART := 0.62
 ## Something an item started and has still to finish, a shield up or shots loaded, keeps its
@@ -792,7 +793,7 @@ func _on_the_menu() -> Array[int]:
 func _driving_pads_at(at: Vector2) -> Array[StringName]:
 	var on: Array[StringName] = []
 	for id: StringName in driving_buttons():
-		if pad(id).reaches(at):
+		if pad(id).reaches(at) and (id != ITEM or item_shown()):
 			on.append(id)
 	return on
 
@@ -865,7 +866,7 @@ func _publish() -> void:
 		TouchInput.nitro = live and _held(TouchSlider.NITRO)
 		TouchInput.handbrake = live and _held(TouchSlider.DRIFT)
 	TouchInput.fire = live and (pad(FIRE).held > 0 or _rolled_onto_fire())
-	TouchInput.use_item = live and pad(ITEM).held > 0
+	TouchInput.use_item = live and pad(ITEM).held > 0 and item_shown()
 	var kart := _kart()
 	var holding := kart != null and kart.held_item != null and kart.item_reveal_left <= 0.0
 	TouchInput.item_id = kart.held_item.id if holding else &""
@@ -890,7 +891,8 @@ func _draw() -> void:
 	for id: StringName in driving_buttons():
 		var each := pad(id)
 		if id == ITEM:
-			_draw_item(each, kart)
+			if item_shown():
+				_draw_item(each, kart)
 			continue
 		# One of the slider's four on a button of its own is grayed as it would be on the slider.
 		var dim := strength if TouchSlider.zone_ready(id, kart) else strength * GRAYED
@@ -939,6 +941,17 @@ func running() -> Dictionary:
 	var kart := _kart()
 	var going := ItemRow.going_on(kart) if kart != null else []
 	return going[0] if not going.is_empty() else {}
+
+
+## Whether the item button is on the screen, GAME.md 3.17 and 4.2: at a table without Power-ups
+## it is not, there being nothing to pick up, but for an item the kart is handed all the same, a
+## Shield coming back Suited in Hearts, and for as long as what that started runs. The other
+## buttons stay where they are either way.
+func item_shown() -> bool:
+	var kart := _kart()
+	if kart == null or kart.rules == null or kart.rules.has_card(TableCards.Card.ITEMS):
+		return true
+	return kart.held_item != null or not running().is_empty()
 
 
 ## Whether the kart has an item it can play right now.
