@@ -47,7 +47,7 @@ const LABEL_SIZE := 22
 ## How much narrower than a button the word on it must be.
 const LABEL_ROOM := 16.0
 ## A finger a little off the edge of a button is still on it: a thumb is not a point.
-const REACH := 1.15
+const REACH := TouchPad.REACH
 ## The menu button in the top right corner, which opens the room's menu: the way back to the title
 ## and out of the game for a player with no Escape key, GAME.md 3.8.
 const MENU := &"menu"
@@ -114,25 +114,6 @@ const ITEM_ART := 0.62
 ## picture on the button after the item has gone from the hand, with a ring round the inside of
 ## the rim counting it down, in the item's color, the way the nitro button's tank does.
 
-
-## One round button.
-class Pad:
-	var id: StringName
-	var label := ""
-	var center := Vector2.ZERO
-	var radius := 0.0
-	## How many fingers are on it.
-	var held := 0
-
-	func _init(pad_id: StringName, pad_radius: float, pad_label := "") -> void:
-		id = pad_id
-		radius = pad_radius
-		label = pad_label
-
-	func reaches(point: Vector2) -> bool:
-		return point.distance_to(center) <= radius * REACH
-
-
 var match_node: Match
 ## How many clicks the slider has given, for asking whether it did.
 var clicks := 0
@@ -146,7 +127,7 @@ var _layout_name := ""
 var _simple_built := false
 var _pedals_built := false
 
-var _pads: Array[Pad] = []
+var _pads: Array[TouchPad] = []
 ## Which pads each finger is on, by the finger's index. The stick's finger is not among them.
 var _fingers: Dictionary[int, Array] = {}
 ## The finger resting on a card in the hand, or -1, the card it is on, since when, and whether it
@@ -249,10 +230,10 @@ func _build_pads() -> void:
 	slider.go_simple(_simple_built and not _pedals_built)
 	stick.free = _simple_built
 	_pads.clear()
-	_pads.append(Pad.new(MENU, MENU_RADIUS))
+	_pads.append(TouchPad.new(MENU, MENU_RADIUS))
 	var buttons := driving_buttons()
 	for id: StringName in buttons:
-		_pads.append(Pad.new(id, buttons[id][0], buttons[id][2]))
+		_pads.append(TouchPad.new(id, buttons[id][0], buttons[id][2]))
 	_layout()
 
 
@@ -261,8 +242,8 @@ func _exit_tree() -> void:
 
 
 ## The pad called [param id], for asking where it is and whether it is held.
-func pad(id: StringName) -> Pad:
-	for each: Pad in _pads:
+func pad(id: StringName) -> TouchPad:
+	for each: TouchPad in _pads:
 		if each.id == id:
 			return each
 	return null
@@ -841,7 +822,7 @@ func _release(on: Array) -> void:
 func _let_go() -> void:
 	var kept := _on_the_menu()
 	_fingers.clear()
-	for each: Pad in _pads:
+	for each: TouchPad in _pads:
 		each.held = 0
 	for finger: int in kept:
 		_fingers[finger] = [MENU]
@@ -936,7 +917,7 @@ func _draw() -> void:
 	stick.draw(self, strength)
 
 
-func _draw_disc(each: Pad, strength := 1.0, lit := false) -> void:
+func _draw_disc(each: TouchPad, strength := 1.0, lit := false) -> void:
 	var fill := TouchInk.fill_down() if each.held > 0 or lit else FILL
 	draw_circle(each.center, each.radius, Color(fill, fill.a * strength))
 	draw_arc(
@@ -966,7 +947,7 @@ func has_item() -> bool:
 	return kart != null and kart.held_item != null and kart.item_reveal_left <= 0.0
 
 
-func _draw_item(each: Pad, kart: Kart) -> void:
+func _draw_item(each: TouchPad, kart: Kart) -> void:
 	var holding := kart != null and kart.held_item != null
 	var going := running()
 	_draw_disc(each, 1.0 if has_item() and can_drive() else FAINT)
@@ -986,14 +967,14 @@ func _draw_item(each: Pad, kart: Kart) -> void:
 
 
 ## The ring counting down what is running, from the top round, as the nitro tank is drawn.
-func _draw_running(each: Pad, going: Dictionary) -> void:
+func _draw_running(each: TouchPad, going: Dictionary) -> void:
 	var sweep := TAU * clampf(float(going["left"]), 0.0, 1.0)
 	var start := -PI * 0.5
 	var ink: Color = going["color"]
 	draw_arc(each.center, each.radius - TANK_WIDTH, start, start + sweep, 40, ink, TANK_WIDTH)
 
 
-func _draw_label(each: Pad, ink: Color) -> void:
+func _draw_label(each: TouchPad, ink: Color) -> void:
 	var font := Type.STRONG
 	var width := font.get_string_size(each.label, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_SIZE).x
 	var baseline := each.center + Vector2(-width * 0.5, LABEL_SIZE * 0.36)
