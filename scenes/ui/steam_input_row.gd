@@ -1,8 +1,9 @@
 class_name SteamInputRow
 extends RefCounted
 ## The Controls page's rows for Steam Input, GAME.md 10.8, in a game with Steam on alone: its
-## switch, which reads the controllers through Steam or leaves them to the game, and the way to
-## Steam's own settings for the layout of the controller in hand. And its Gamepad column with such
+## switch, which reads the controllers through Steam or leaves them to the game, asking first, as
+## Steam has a say of its own in the game's properties that has to agree; and the way to Steam's
+## own settings for the layout of the controller in hand. And its Gamepad column with such
 ## a controller in hand: each action where Steam has it on that controller, a binding asked to
 ## change opening Steam's settings, Steam binding it rather than the game.
 
@@ -17,9 +18,34 @@ const OPENED := "Steam binds this controller: change it in Steam's controller se
 const NO_OVERLAY := "Steam binds this controller: turn on the Steam overlay to change it there"
 const TIP := (
 	"On, Steam reads your controllers, each with the layout you pick for it in Steam. Off, the game"
-	+ " reads them itself: then pick a gamepad layout for the game in Steam too, or turn Steam"
-	+ " Input off for it in its Steam properties."
+	+ " reads them itself. Steam has the same switch in the game's properties: set both alike."
 )
+## What the switch asks before it goes, and the two answers.
+const OFF := "Turn Steam Input off?"
+const OFF_LINE := (
+	"Turn it off in Steam too, or Steam keeps your controllers from the game: in your Steam"
+	+ " Library, open Jackpot Junction's Properties, then Controller, and pick Disable Steam Input."
+)
+const OFF_YES := "Turn off"
+const ON := "Turn Steam Input on?"
+const ON_LINE := (
+	"Turn it on in Steam too, or Steam leaves your controllers to the game: in your Steam Library,"
+	+ " open Jackpot Junction's Properties, then Controller, and pick Enable Steam Input."
+)
+const ON_YES := "Turn on"
+const CANCEL := "Cancel"
+
+
+## The question over the screen: Back answers it as Cancel does, rather than leaving the page.
+class Question:
+	extends Control
+
+	var pane: ConfirmPane
+
+	func _unhandled_input(event: InputEvent) -> void:
+		if event.is_action_pressed(&"ui_cancel") and pane != null:
+			get_viewport().set_input_as_handled()
+			pane.answered.emit(false)
 
 
 ## The rows put in [param column] as [param settings] has Steam Input, with Steam on; none without.
@@ -33,12 +59,11 @@ static func add_to(column: VBoxContainer, settings: Settings) -> void:
 	layout.name = "SteamLayout"
 	layout.tooltip_text = TIP
 	layout.disabled = not settings.steam_input
-	switch.toggled.connect(
-		func(on: bool) -> void:
-			settings.steam_input = on
-			Store.use_steam_input(Game, on)
-			layout.disabled = not on
-	)
+	var turn := func(on: bool) -> void:
+		settings.steam_input = on
+		Store.use_steam_input(Game, on)
+		layout.disabled = not on
+	switch.toggled.connect(func(on: bool) -> void: ask(switch, on, turn.bind(on)))
 	layout.pressed.connect(
 		func() -> void:
 			if SteamPads.running != null:
@@ -46,6 +71,47 @@ static func add_to(column: VBoxContainer, settings: Settings) -> void:
 	)
 	column.add_child(MenuTheme.row(SWITCH, switch))
 	column.add_child(MenuTheme.row(LAYOUT_ROW, layout))
+
+
+## Asks over the screen before [param switch] goes [param on], saying to set Steam's own switch
+## alike; [param go] is called on a yes, and the switch stays as it was on a no, the cursor back on
+## it either way.
+static func ask(switch: Button, on: bool, go: Callable) -> ConfirmPane:
+	switch.set_pressed_no_signal(not on)
+	var top: Control = switch
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	var holder := Question.new()
+	holder.name = "SteamInputQuestion"
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	top.add_child(holder)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	var pane := ConfirmPane.new()
+	holder.pane = pane
+	middle.add_child(pane)
+	pane.answered.connect(
+		func(yes: bool) -> void:
+			if holder.is_queued_for_deletion():
+				return
+			holder.queue_free()
+			if yes:
+				switch.set_pressed_no_signal(on)
+				go.call()
+			if switch.is_inside_tree():
+				switch.grab_focus()
+	)
+	if on:
+		pane.ask(ON, ON_LINE, ON_YES, CANCEL, RoadSign.Kind.QUESTION)
+	else:
+		pane.ask(OFF, OFF_LINE, OFF_YES, CANCEL, RoadSign.Kind.QUESTION)
+	return pane
 
 
 ## The pad of Steam Input's whose bindings the Gamepad column shows: the one touched last, or, with
