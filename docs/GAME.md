@@ -10881,8 +10881,10 @@ joker and presses a menu's button at once, the left shoulder is the handbrake an
 the left stick steers, the right one aims, the triggers are the pedals. There is one for an Xbox
 pad, which Steam uses for the Xbox 360's too, the DualShock 4, the DualSense, the Switch Pro, the
 Steam Deck, the Steam Controllers of 2015 and of 2026 and any other pad; the 2015 one's trackpads
-stand in for the right stick and the D-pad it lacks, and the Deck's back buttons are left free, as
-Valve's own gamepad layout leaves them. The action manifest, naming the set, its actions, their
+stand in for the right stick and the D-pad it lacks. The buttons behind a controller repeat front
+ones, so a thumb stays on its stick: on the Deck and the 2026 Steam Controller the upper right one
+is A, the lower right X, the upper left Y and the lower left B, and on the 2015 one the right grip
+is A and the left X (`SteamActions.BACK_BUTTONS`). The action manifest, naming the set, its actions, their
 English words and the layouts, and the layouts themselves are in `data/steam/input/`, written by
 `make steam-input` from `SteamActions`, and a test fails while they are behind the code.
 `make steam-export` puts them beside the game as `steam_input/`, which Steamworks names,

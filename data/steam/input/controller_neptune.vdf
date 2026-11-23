@@ -212,6 +212,35 @@
 		"description"		""
 		"inputs"
 		{
+			"button_back_right_upper"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play fire, Fire"
+							"binding"		"game_action Play joker_drop, Joker menu: drop"
+							"binding"		"game_action Play ui_accept, Menu: press"
+						}
+					}
+				}
+			}
+			"button_back_right"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play use_item, Use power-up"
+							"binding"		"game_action Play menu_option, Menu: option"
+						}
+					}
+				}
+			}
 			"right_bumper"
 			{
 				"activators"
@@ -236,6 +265,34 @@
 						{
 							"binding"		"game_action Play handbrake, Handbrake and drift"
 							"binding"		"game_action Play menu_page_prev, Menu: previous page"
+						}
+					}
+				}
+			}
+			"button_back_left_upper"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play joker_menu, Joker menu"
+							"binding"		"game_action Play menu_view, Menu: view"
+						}
+					}
+				}
+			}
+			"button_back_left"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play joker_destroy, Joker menu: destroy"
+							"binding"		"game_action Play ui_cancel, Menu: back"
 						}
 					}
 				}

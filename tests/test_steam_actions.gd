@@ -73,6 +73,23 @@ func test_a_layout_binds_a_controller_as_the_games_own_pad() -> void:
 	assert_str(gordon).not_contains('"right_joystick active"')
 
 
+func test_the_buttons_behind_repeat_the_fronts() -> void:
+	var deck := SteamActions.layout("controller_neptune")
+	# The Deck's upper right one is A, the lower left one B; the Xbox pad has none.
+	var upper := deck.substr(deck.find('"button_back_right_upper"'), 400)
+	for action: String in ["fire", "joker_drop", "ui_accept"]:
+		assert_str(upper).contains("game_action Play %s," % action)
+	var lower := deck.substr(deck.find('"button_back_left"'), 300)
+	assert_str(lower).contains("game_action Play joker_destroy,")
+	assert_str(lower).contains("game_action Play ui_cancel,")
+	assert_str(SteamActions.layout("controller_triton")).contains('"button_back_left_upper"')
+	var gordon := SteamActions.layout("controller_steamcontroller_gordon")
+	assert_str(gordon.substr(gordon.find('"button_back_left"'), 300)).contains(
+		"game_action Play use_item,"
+	)
+	assert_str(SteamActions.layout("controller_xboxone")).not_contains("button_back")
+
+
 func test_every_binding_is_an_action_of_the_sets() -> void:
 	var known: Array[String] = []
 	for action: StringName in SteamActions.BUTTONS:

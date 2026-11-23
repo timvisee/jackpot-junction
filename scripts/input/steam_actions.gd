@@ -131,6 +131,26 @@ const CONTROLLERS: Array[String] = [
 	"controller_steamcontroller_gordon",
 	"controller_generic",
 ]
+## The buttons behind a controller, by the kind that has them: each the pad's own button whose
+## actions it repeats, so a thumb never leaves its stick to fire or to open the jokers. The Steam
+## Deck and the Steam Controller of 2026 have four, the upper two the pad's A and Y and the lower
+## its X and B; the first Steam Controller has its two grips, A on the right and X on the left. All
+## are on the layout's switches, as Steam keeps them.
+const FOUR_BACK: Dictionary[String, int] = {
+	"button_back_right_upper": JOY_BUTTON_A,
+	"button_back_right": JOY_BUTTON_X,
+	"button_back_left_upper": JOY_BUTTON_Y,
+	"button_back_left": JOY_BUTTON_B,
+}
+const BACK_BUTTONS: Dictionary[String, Dictionary] = {
+	"controller_neptune": FOUR_BACK,
+	"controller_triton": FOUR_BACK,
+	"controller_steamcontroller_gordon":
+	{
+		"button_back_right": JOY_BUTTON_A,
+		"button_back_left": JOY_BUTTON_X,
+	},
+}
 ## A source a kind of controller lacks, and the one standing in for it there.
 const STAND_INS: Dictionary[String, Dictionary] = {
 	"controller_steamcontroller_gordon":
@@ -202,11 +222,12 @@ static func manifest() -> String:
 ## The layout [param controller], one of [constant CONTROLLERS], starts on: every button of the
 ## game's pad bound to the actions it is bound to as the game starts, which on a pad's own button
 ## Steam presses all at once, the left stick steering, the right one aiming and the triggers the
-## pedals, as on the game's own pad.
+## pedals, as on the game's own pad, and the buttons behind it repeating some of the front's, see
+## [constant BACK_BUTTONS].
 static func layout(controller: String) -> String:
 	var groups: Array = []
 	var bound: Dictionary[String, int] = {}
-	var inputs := _inputs()
+	var inputs := _inputs(controller)
 	for source: String in MODES:
 		var actions_of: Array = []
 		for input: String in inputs.get(source, {}):
@@ -257,19 +278,26 @@ static func files() -> Dictionary[String, String]:
 	return all
 
 
-## The buttons bound on a layout, by source and input, each with the actions it is bound to.
-static func _inputs() -> Dictionary[String, Dictionary]:
+## The buttons bound on [param controller]'s layout, by source and input, each with the actions it
+## is bound to: the pad's own, and those behind it with the actions of the button each repeats.
+static func _inputs(controller: String) -> Dictionary[String, Dictionary]:
 	var inputs: Dictionary[String, Dictionary] = {}
 	for action: StringName in BUTTONS:
 		for button: int in pad_buttons(action):
-			var at: Array = SOURCES[button]
-			if not inputs.has(at[0]):
-				inputs[at[0]] = {}
-			var on: Dictionary = inputs[at[0]]
-			if not on.has(at[1]):
-				on[at[1]] = [] as Array[StringName]
-			(on[at[1]] as Array[StringName]).append(action)
+			_bind(inputs, SOURCES[button], action)
+			for back: String in BACK_BUTTONS.get(controller, {}):
+				if BACK_BUTTONS[controller][back] == button:
+					_bind(inputs, ["switch", back], action)
 	return inputs
+
+
+static func _bind(inputs: Dictionary[String, Dictionary], at: Array, action: StringName) -> void:
+	if not inputs.has(at[0]):
+		inputs[at[0]] = {}
+	var on: Dictionary = inputs[at[0]]
+	if not on.has(at[1]):
+		on[at[1]] = [] as Array[StringName]
+	(on[at[1]] as Array[StringName]).append(action)
 
 
 ## The stick or trigger action [param source] is, or empty.
