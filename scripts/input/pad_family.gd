@@ -12,10 +12,10 @@ extends RefCounted
 ## one yet, is a generic pad: its buttons named and drawn as an Xbox pad's, the layout the engine
 ## names its buttons after and most other pads print on theirs, where a picture of the whole pad
 ## shows no maker's. A debug build started with `++ --pad=playstation`, `--pad=playstation4`,
-## `--pad=nintendo`, `--pad=steamdeck`, `--pad=xbox` or `--pad=generic` draws every pad as that
-## family, for trying one without the pad.
+## `--pad=nintendo`, `--pad=steamdeck`, `--pad=steamcontroller`, `--pad=xbox` or `--pad=generic`
+## draws every pad as that family, for trying one without the pad.
 
-enum Family { GENERIC, XBOX, PLAYSTATION, PLAYSTATION_4, NINTENDO, STEAM_DECK }
+enum Family { GENERIC, XBOX, PLAYSTATION, PLAYSTATION_4, NINTENDO, STEAM_DECK, STEAM_CONTROLLER }
 
 ## The makers' USB ids, and Sony's pads with a Share button rather than the DualSense's Create:
 ## the DualShock 4, both models and its wireless adapter, and the PS3's, which is nearest to it.
@@ -23,13 +23,19 @@ const SONY := 0x054C
 const NINTENDO := 0x057E
 const MICROSOFT := 0x045E
 const SHARE_PADS: Array[int] = [0x05C4, 0x09CC, 0x0BA0, 0x0268]
-## Valve's, and of its pads the Steam Deck's own controls and the Steam Controller, wired, through
-## its dongle and over Bluetooth, lettered as an Xbox pad is.
+## Valve's, and of its pads the Steam Deck's own controls; the first Steam Controller of 2015,
+## wired, through its dongle and over Bluetooth, lettered as an Xbox pad is; and the Steam
+## Controller of 2026, wired, over Bluetooth, through its puck and through a Steam Machine's own
+## receiver, named as the Deck's controls are. The engine's SDL knows the second only from 4.8 on:
+## before that it comes through Steam Input alone, told apart by Steam's word, see
+## [member behind_steam].
 const VALVE := 0x28DE
 const STEAM_DECK_PAD := 0x1205
 const STEAM_CONTROLLERS: Array[int] = [0x1102, 0x1142, 0x1106]
-## Steam Input's word on a pad, GodotSteam's `InputType`, and the family each is: a Steam
-## Controller lettered as an Xbox pad, a Switch 2's as a Switch's, any other as generic.
+const STEAM_CONTROLLERS_2026: Array[int] = [0x1302, 0x1303, 0x1304, 0x1305]
+## Steam Input's word on a pad, GodotSteam's `InputType`, and the family each is: the first Steam
+## Controller lettered as an Xbox pad, the 2026 one its own, a Switch 2's as a Switch's, any other
+## as generic.
 const STEAM_TYPES: Dictionary[int, Family] = {
 	1: Family.XBOX,
 	2: Family.XBOX,
@@ -43,7 +49,7 @@ const STEAM_TYPES: Dictionary[int, Family] = {
 	13: Family.PLAYSTATION,
 	14: Family.STEAM_DECK,
 	16: Family.NINTENDO,
-	17: Family.XBOX,
+	17: Family.STEAM_CONTROLLER,
 }
 ## Words in a pad's name that say its family, for a pad whose maker's id does not, in the order
 ## they are looked for.
@@ -123,6 +129,15 @@ const WORDS: Dictionary[Family, Dictionary] = {
 		"LS": "L3",
 		"RS": "R3",
 	},
+	Family.STEAM_CONTROLLER:
+	{
+		"LB": "L1",
+		"RB": "R1",
+		"LT": "L2",
+		"RT": "R2",
+		"LS": "L3",
+		"RS": "R3",
+	},
 }
 ## What `--pad=` says for each family.
 const ASKED: Dictionary[String, Family] = {
@@ -132,6 +147,7 @@ const ASKED: Dictionary[String, Family] = {
 	"playstation4": Family.PLAYSTATION_4,
 	"nintendo": Family.NINTENDO,
 	"steamdeck": Family.STEAM_DECK,
+	"steamcontroller": Family.STEAM_CONTROLLER,
 }
 
 ## The family every pad is drawn as in a debug build started with `--pad=`, or -1.
@@ -197,6 +213,8 @@ static func of_pad(info: Dictionary, named: String) -> Family:
 		return Family.XBOX
 	if maker == VALVE and product == STEAM_DECK_PAD:
 		return Family.STEAM_DECK
+	if maker == VALVE and product in STEAM_CONTROLLERS_2026:
+		return Family.STEAM_CONTROLLER
 	if maker == VALVE and product in STEAM_CONTROLLERS:
 		return Family.XBOX
 	var words := ("%s %s" % [named, info.get("raw_name", "")]).to_lower()

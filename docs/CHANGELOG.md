@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **The new Steam Controller.** Played through Steam, its buttons are named as it prints them, L1 to
+  R2.
+
 ### Changed
 
 - **Your kart's ring, yours alone.** The ring that breathes round a kart until it drives off is only

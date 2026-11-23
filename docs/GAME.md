@@ -4730,18 +4730,23 @@ lane beside it is as wide as it was.
   circle, a pink square and a green triangle, and its shoulders, triggers and stick
   clicks are L1 to R2, L3 and R3, its middle two Create and Options, Share on a
   DualShock 4. A Nintendo pad's four are dark with their white letter, B at the bottom
-  and A to the right as Nintendo has them, with L, R, ZL, ZR, − and +. A Steam Deck's
-  are dark with their letters, L1 to R2 and L3 and R3 round them. An Xbox pad, a Steam
-  Controller, and any other pad, a generic one, keep the letters in their colors. The
-  family is told by the maker's USB id, Sony's, Nintendo's, Microsoft's or Valve's, and
-  by the pad's name where it does not say, as on a phone. In a Steam build, a pad Steam
-  Input stands in for with a pad of its own is the pad Steam says is behind it, asked
-  through Steam Input by the index the engine gives Steam's pad (`SteamStore`), which is
-  started for that alone: the game reads its pads itself. The words follow too, in the
-  rebinding rows and for a screen reader. A debug build started with
-  `++ --pad=playstation`, `playstation4`, `nintendo`, `steamdeck`, `xbox` or `generic`
-  draws every pad as that family; any build started with `++ --pads` prints each pad as
-  the engine and Steam tell of it whenever one comes or goes, and what it is drawn as.
+  and A to the right as Nintendo has them, with L, R, ZL, ZR, − and +. A Steam Deck's,
+  and the Steam Controller of 2026's, are dark with their letters, L1 to R2 and L3 and
+  R3 round them. An Xbox pad, the first Steam Controller of 2015, and any other pad, a
+  generic one, keep the letters in their colors. The family is told by the maker's USB
+  id, Sony's, Nintendo's, Microsoft's or Valve's, and by the pad's name where it does
+  not say, as on a phone. In a Steam build, a pad Steam Input stands in for with a pad
+  of its own is the pad Steam says is behind it, asked through Steam Input by the
+  index the engine gives Steam's pad (`SteamStore`), which is started for that alone:
+  the game reads its pads itself. The Steam Controller of 2026 reaches the game this
+  way alone until the engine's SDL knows it, from Godot 4.8, Steam Input's type 17;
+  its USB ids, wired, over Bluetooth, through its puck and a Steam Machine's receiver,
+  are known for then. Asked for on 2026-11-23. The words follow too, in the rebinding
+  rows and for a screen reader. A debug build started with `++ --pad=playstation`,
+  `playstation4`, `nintendo`, `steamdeck`, `steamcontroller`, `xbox` or `generic`
+  draws every pad as that family; any build started with `++ --pads` prints each pad
+  as the engine and Steam tell of it whenever one comes or goes, and what it is drawn
+  as.
 - Every hint is drawn for the scheme that player is using: their own device when
   they are pinned to one, and otherwise whichever they last touched, which the
   game tracks from the input events themselves. The joker hand, the respawn

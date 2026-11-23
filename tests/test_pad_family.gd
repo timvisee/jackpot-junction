@@ -187,6 +187,18 @@ func test_valves_pads() -> void:
 	assert_str(trigger).is_equal("R2")
 	assert_str(InputActions.event_text(_button(JOY_BUTTON_A), family.STEAM_DECK)).is_equal("A")
 	assert_bool(PadFamily.lettered(family.STEAM_DECK)).is_false()
+	# The Steam Controller of 2026, wired, over Bluetooth, through its puck or a Steam Machine's
+	# receiver: named as the Deck's controls are.
+	for product: int in PadFamily.STEAM_CONTROLLERS_2026:
+		var pad := _info(PadFamily.VALVE, product, "Steam Controller")
+		assert_int(PadFamily.of_pad(pad, "")).is_equal(family.STEAM_CONTROLLER)
+	var bumper := InputActions.event_text(
+		_button(JOY_BUTTON_RIGHT_SHOULDER), family.STEAM_CONTROLLER
+	)
+	assert_str(bumper).is_equal("R1")
+	assert_str(InputActions.event_text(_button(JOY_BUTTON_Y), family.STEAM_CONTROLLER)).is_equal(
+		"Y"
+	)
 
 
 ## In a Steam build, a pad Steam Input stands in for is the pad Steam says is behind it, asked by
@@ -202,6 +214,9 @@ func test_steam_says_which_pad_is_behind_its_own() -> void:
 	# An index that is the pad's handle itself.
 	fake.pad_types[7] = 14
 	assert_int(store.pad_family(7)).is_equal(PadFamily.Family.STEAM_DECK)
+	# The Steam Controller of 2026, which reaches the engine through Steam Input alone.
+	fake.pad_types[8] = 17
+	assert_int(store.pad_family(8)).is_equal(PadFamily.Family.STEAM_CONTROLLER)
 	assert_int(store.pad_family(9)).is_equal(-1)
 	PadFamily.behind_steam = store.pad_family
 	var virtual := _info(PadFamily.VALVE, 0x11FF, "Steam Virtual Gamepad")
