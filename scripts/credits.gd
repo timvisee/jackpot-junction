@@ -116,7 +116,6 @@ const THINGS: Array[Dictionary] = [
 		"who": "Valve Corporation",
 		"terms": "CC BY-NC-SA 4.0, with Valve's permission",
 		"where": "gitlab.steamos.cloud/SteamHardware/SteamController",
-		"steam": true,
 	},
 	{
 		"what": "Material Symbols, the tap",

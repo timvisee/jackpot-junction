@@ -56,14 +56,9 @@ jobs:
           fi
           echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
 
-      # GodotSteam, pinned and checked against its checksum, then the project imported to know it;
-      # with it Valve's drawings of the Deck and the Steam Controller, the Controller's out of a PDF,
-      # which pdftocairo writes as SVGs.
+      # GodotSteam, pinned and checked against its checksum, then the project imported to know it.
       - name: GodotSteam
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq --no-install-recommends poppler-utils
-          make steam-addon
+        run: make steam-addon
 
       - name: Export
         env:

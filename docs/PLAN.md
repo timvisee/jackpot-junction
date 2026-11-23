@@ -4096,13 +4096,12 @@ Checked 2026-11-23, after the user played 0.23.1 on a Steam Deck and a Steam Mac
       `steam_controller_reference_20260429.pdf` in
       https://gitlab.steamos.cloud/SteamHardware/SteamController: CC BY-NC-SA 4.0, no commercial
       use, so the user asked Valve for the game's use. Built 2026-11-23 on branch
-      `steam-controller-drawing`, merged once Valve allows. `tools/steam_controller_art`, from
-      `tools/steam_addon`, fetches it pinned to the repository's commit e10919b4 and its checksum,
-      into `addons/godotsteam/steamcontroller`, Steam builds only; pdftocairo, of poppler-utils,
-      installed in `steam.yml`, writes its two sheets as SVGs, and `tools/steam_controller_svg.py`
-      keeps the controller's pens, 1.44 point black and 0.36 point gray, and leaves the notes'. The
-      top view off sheet 2, turned over, over the front off sheet 1, `PadDiagram._steam_controller`,
-      Valve's letters on the four (`PadDiagram.lettered`); THIRD_PARTY.md and Credits.
+      `steam-controller-drawing`, merged once Valve allows. Its two views kept as SVGs in
+      `assets/controllers`, the user's word, rather than fetched at build time: pdftocairo wrote
+      the sheets as SVGs, and of them only the controller's pens were kept, 1.44 point black and
+      0.36 point gray, the notes' left out. The top view off sheet 2, turned over, over the front
+      off sheet 1, `PadDiagram._steam_controller`, Valve's letters on the four
+      (`PadDiagram.lettered`); THIRD_PARTY.md and Credits.
 
 ### S10: Linux ARM64 in the Linux depot, after the first release [10.8]
 

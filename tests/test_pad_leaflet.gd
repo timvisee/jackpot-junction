@@ -241,17 +241,12 @@ func test_the_steam_deck_is_drawn_from_valves_drawings_where_they_are() -> void:
 		assert_bool(whole.has_point(deck.spots[spot])).is_true()
 
 
-## The Steam Controller is drawn from Valve's reference drawing where a Steam build has it, its top
-## above its front with its letters on its four already, and as an Xbox pad elsewhere, with its own
-## names either way.
-func test_the_steam_controller_is_drawn_from_valves_drawing_where_it_is() -> void:
+## The Steam Controller is drawn from Valve's reference drawing, its top above its front with its
+## letters on its four already, and its own names.
+func test_the_steam_controller_is_drawn_from_valves_drawing() -> void:
 	var pad := PadDiagram.of(PadFamily.Family.STEAM_CONTROLLER)
 	assert_str(pad.name_of(&"rt")).is_equal("R2")
 	assert_str(pad.name_of(&"south")).is_equal("A")
-	if not ResourceLoader.exists(PadDiagram.PAD_FRONT):
-		assert_object(pad.art).is_same(PadDiagram.XBOX_ART)
-		assert_bool(pad.lettered).is_false()
-		return
 	assert_int(pad.layers.size()).is_equal(2)
 	assert_bool(pad.lettered).is_true()
 	assert_float(pad.face_radius).is_equal_approx(

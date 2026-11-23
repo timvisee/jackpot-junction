@@ -10,8 +10,9 @@ extends RefCounted
 ## one with its own letters; a generic pad is drawn as an Xbox pad, the layout most pads copy. A
 ## Steam Deck is drawn from Valve's own drawings, its top over its front to show its shoulders, in a
 ## Steam build, which has them, see tools/steam_deck_art, its screen broken out of the middle as a
-## long drawing is; as an Xbox pad elsewhere. So is the Steam Controller of 2026, from Valve's
-## reference drawing of it, see tools/steam_controller_art, which has its four's letters on it.
+## long drawing is; as an Xbox pad elsewhere. The Steam Controller of 2026 is drawn from Valve's
+## reference drawing of it, see THIRD_PARTY.md, its top over its front as the Deck's, its four's
+## letters on it already.
 
 const XBOX_ART: Texture2D = preload("res://assets/controllers/xbox_series.png")
 const PS5_ART: Texture2D = preload("res://assets/controllers/playstation_5.png")
@@ -56,11 +57,11 @@ const DECK_SPOTS: Dictionary[StringName, Vector2] = {
 	&"west": Vector2(929, 274),
 	&"south": Vector2(958, 304),
 }
-## The Steam Controller's drawings, there in a Steam build alone, both as wide, in the drawing's
-## points; how tall each is; how many of the drawing's pixels each point is, drawn about as big as
-## the other pads; the room between the two; and how big a button under the thumb is.
-const PAD_FRONT := "res://addons/godotsteam/steamcontroller/front.svg"
-const PAD_TOP := "res://addons/godotsteam/steamcontroller/top.svg"
+## The Steam Controller's drawings, loaded only when it is the pad drawn, both as wide, in the
+## drawing's points; how tall each is; how many of the drawing's pixels each point is, drawn about
+## as big as the other pads; the room between the two; and how big a button under the thumb is.
+const PAD_FRONT := "res://assets/controllers/steam_controller_front.svg"
+const PAD_TOP := "res://assets/controllers/steam_controller_top.svg"
 const PAD_WIDE := 920.0
 const PAD_TALL := Vector2(335.0, 647.0)
 const PAD_UNIT := 1.05
@@ -215,7 +216,7 @@ static func of(family: PadFamily.Family) -> PadDiagram:
 			diagram._one(PS4_ART, PS4_SPOTS)
 		PadFamily.Family.STEAM_DECK when ResourceLoader.exists(DECK_FRONT):
 			diagram._deck()
-		PadFamily.Family.STEAM_CONTROLLER when ResourceLoader.exists(PAD_FRONT):
+		PadFamily.Family.STEAM_CONTROLLER:
 			diagram._steam_controller()
 		_:
 			diagram._one(XBOX_ART, XBOX_SPOTS)
@@ -286,7 +287,7 @@ func _deck() -> void:
 
 
 ## Drawn from Valve's two views of the Steam Controller, its top above its front, both already
-## turned as they are shown, see tools/steam_controller_art.
+## turned as they are shown.
 func _steam_controller() -> void:
 	var top: Texture2D = load(PAD_TOP)
 	var front: Texture2D = load(PAD_FRONT)
