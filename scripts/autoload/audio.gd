@@ -401,12 +401,12 @@ func music_beat_index() -> int:
 	return posmod(floori(_beats()), BEATS_PER_BAR)
 
 
-## Beats since the start of the track. With the music stopped, in the menus or headless, a
-## free-running clock keeps time so anything dancing to it carries on.
+## Beats since the start of the track; with it stopped a free-running clock so anything dancing
+## carries on, or the seconds a recording sets as the Engine's music_at meta, see tools/trailer.
 func _beats() -> float:
 	var player := _music_players[_active_player]
-	var position := Time.get_ticks_msec() * 0.001
-	if player.playing:
+	var position: float = Engine.get_meta(&"music_at", Time.get_ticks_msec() * 0.001)
+	if player.playing and not Engine.has_meta(&"music_at"):
 		position = player.get_playback_position() + AudioServer.get_time_since_last_mix()
 	return position * bpm() / 60.0
 
