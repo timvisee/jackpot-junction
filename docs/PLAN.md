@@ -4197,12 +4197,16 @@ settings; and what to set on Steamworks. Built in the worktree `steam-input`.
 - [x] The switch on the Controls page, kept per machine, with Change in Steam; `--steam-input`,
       `--no-steam-input`.
 - [x] `make steam-export` copies the files in as `steam_input/`; `steam.yml` checks them.
+- [x] The user's picks of the follow-ups offered, same day: the back buttons of the Deck and of
+      both Steam Controllers repeating A, X, Y and B (`SteamActions.BACK_BUTTONS`); hints drawn
+      where Steam has each action, Steam's own pictures for what a pad has not got
+      (`SteamPads.place`); each pad lit in its seat's color (`PadLights`); the Controls page's
+      Gamepad column showing Steam's bindings with one of Steam's controllers in hand.
 - [ ] The user: the template and the controllers ticked on Steamworks, `docs/STEAM.md`, "Steam
       Input".
 - [ ] The user: a look on each controller at hand, the Deck and a Steam Controller among them,
-      the sticks' up checked with `++ --pads` (`SteamPads.UP_IS_MORE`).
-- [ ] Later: hints drawing the button Steam has an action on, from Steam's origins, for a layout
-      changed in Steam; a menu set beside Play, should one be wanted.
+      the sticks' up checked with `++ --pads` (`SteamPads.UP_IS_MORE`), and Remote Play Together.
+- [ ] Not wanted for now (the user, 2026-11-23): a menu set beside Play; aiming by the gyro.
 
 ## M20: the story, retold
 

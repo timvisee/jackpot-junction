@@ -159,6 +159,20 @@ static func of_action(action: StringName, keyboard: bool, ink: Color, font_size:
 	return glyph
 
 
+## [param action] as Steam has it bound on its pad [param device], GAME.md 10.8, and drawn again as
+## that changes; null where Steam has it on nothing.
+static func of_steam(action: StringName, device: int, ink: Color, font_size: int) -> InputGlyph:
+	if DeviceInput.steam_bound(action, device).is_empty():
+		return null
+	# Any button of a pad's to start from: Steam's place for the action is drawn in its stead.
+	var stand_in := InputEventJoypadButton.new()
+	stand_in.button_index = JOY_BUTTON_A
+	var glyph := of_event(stand_in, ink, font_size)
+	glyph._action = action
+	glyph.pin(device)
+	return glyph
+
+
 ## [param action] as the touch screen has it: a pill with the word on its button, or the steering
 ## wheel the stick is drawn as for steering, see [TouchStick]. Null for an action the screen has
 ## no button for.
