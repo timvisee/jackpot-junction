@@ -1,10 +1,16 @@
 #!/bin/sh
 # The Linux Steam build's launch option, GAME.md 10.8 and docs/STEAM.md, "Linux ARM64": Steam has
-# no way to pick a depot by CPU, so the Linux depot holds a whole export for each, x86_64/ and
-# arm64/, and this starts the one for the machine, handing on what Steam passes, a friend's lobby
-# among it. `make steam-export` copies it in beside them as jackpot-junction.
+# no way to pick a depot by CPU, so the Linux depot holds both CPUs' binaries,
+# jackpot-junction.x86_64 and jackpot-junction.arm64, beside the game's data they share,
+# jackpot-junction.pck, which each finds by its own name; and Valve's libsteam_api.so, the same
+# name for both, in x86_64/ and arm64/. This starts the one for the machine with its
+# libsteam_api.so in reach, GodotSteam looking beside itself first and there after, handing on what
+# Steam passes, a friend's lobby among it. `make steam-export` copies it in as jackpot-junction.
 here="$(dirname "$(readlink -f "$0")")"
 case "$(uname -m)" in
-aarch64 | arm64) exec "$here/arm64/jackpot-junction" "$@" ;;
-*) exec "$here/x86_64/jackpot-junction" "$@" ;;
+aarch64 | arm64) cpu=arm64 ;;
+*) cpu=x86_64 ;;
 esac
+LD_LIBRARY_PATH="$here/$cpu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH
+exec "$here/jackpot-junction.$cpu" "$@"

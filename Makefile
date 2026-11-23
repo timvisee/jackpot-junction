@@ -266,9 +266,12 @@ steam-run: | $(CACHE)
 steam-check: | $(CACHE)
 	$(GODOT) --headless --path . -s tools/steam_check.gd -- --steam
 
-# The Steam builds, GAME.md 10.8, into build/steam, a folder each, Windows and Linux: Linux's holds
-# an export for each CPU, x86_64/ and arm64/, and tools/steam-launcher beside them, which starts the
-# one for the machine, since Steam cannot pick a depot by CPU, docs/STEAM.md. No macOS: Steam takes a Mac build only notarized by Apple, so it waits, its preset kept for then.
+# The Steam builds, GAME.md 10.8, into build/steam, a folder each, Windows and Linux, each with its
+# game data in a .pck beside the binary rather than in it. Linux's holds both CPUs' binaries,
+# jackpot-junction.x86_64 and .arm64, on the one .pck they share, the ARM64 build's, which has every
+# texture format; Valve's libsteam_api.so, the same name for both, in x86_64/ and arm64/; and
+# tools/steam-launcher, which starts the one for the machine, since Steam cannot pick a depot by
+# CPU, docs/STEAM.md. No macOS: Steam takes a Mac build only notarized by Apple, so it waits, its preset kept for then.
 # STEAM_APP_ID is the app they start as, Spacewar's 480 when none is named, and STEAM_SUPPORTER_DLC
 # the supporter pack's DLC, none until there is one. Fetches GodotSteam first if it is not here.
 STEAM_APP_ID ?= 480
@@ -281,6 +284,8 @@ steam-export: | $(CACHE)
 	rm -rf build/steam
 	mkdir -p build/steam/windows build/steam/linux/x86_64 build/steam/linux/arm64
 	$(GODOT) --headless --path . --export-release "Windows Steam" build/steam/windows/jackpot-junction.exe
-	$(GODOT) --headless --path . --export-release "Linux Steam" build/steam/linux/x86_64/jackpot-junction
-	$(GODOT) --headless --path . --export-release "Linux ARM64 Steam" build/steam/linux/arm64/jackpot-junction
+	$(GODOT) --headless --path . --export-release "Linux Steam" build/steam/linux/jackpot-junction.x86_64
+	mv build/steam/linux/libsteam_api.so build/steam/linux/x86_64/libsteam_api.so
+	$(GODOT) --headless --path . --export-release "Linux ARM64 Steam" build/steam/linux/jackpot-junction.arm64
+	mv build/steam/linux/libsteam_api.so build/steam/linux/arm64/libsteam_api.so
 	install -m 755 tools/steam-launcher build/steam/linux/jackpot-junction

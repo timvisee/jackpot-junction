@@ -4107,11 +4107,14 @@ ARM64, after the first release", has the plan in full.
 - [x] `steam.yml` checks both `libsteam_api.so` and the launcher.
 - [ ] The user: ARM64 declared on Steamworks, or asked of Valve; the build on `staging` first.
 - [x] GAME.md 10.8 and `docs/STEAM.md` say the Linux depot holds both.
-- [ ] Parked here by the user, 2026-11-23, once the plain way works: one shared `.pck`, the ARM64
+- [x] Parked here by the user, 2026-11-23, once the plain way works: one shared `.pck`, the ARM64
       build's, beside the launcher and handed on with `--main-pack` (`embed_pck` off for the two
       Linux Steam presets), some 192 MB rather than 231. "Windows Steam" goes the same way at the
       same time, so the Steam builds match: its own `jackpot-junction.pck` beside the `.exe`, and
-      `steam.yml` checks for it. `docs/STEAM.md`, "The cost".
+      `steam.yml` checks for it. `docs/STEAM.md`, "The cost". Done 2026-11-23, without
+      `--main-pack`, which Godot's release templates refuse: both Linux binaries in one folder,
+      `jackpot-junction.x86_64` and `.arm64`, find `jackpot-junction.pck` by their own name, and
+      the launcher points GodotSteam at its CPU's `libsteam_api.so` in `x86_64/` or `arm64/`.
 - [ ] Parked here too: `.godot/imported` cached in `steam.yml`, so the kart `.glb` imports stop
       changing every release without a source change. `docs/STEAM.md`, "Patches".
 

@@ -85,26 +85,47 @@ every Linux player in the one Linux depot, and a shell script, the launch option
 starts the one for the machine. Half-Life: Alyx, Dota 2, Counter-Strike 2 and
 Portal 2 have no ARM64 build at all; their app info lists x86_64 only.
 
-**The depot.** Linux's, 5652732, holds the launcher and a folder per CPU, each a
-whole export. They cannot share a folder: both carry a `libsteam_api.so` of the
-same name, which each binary finds beside itself.
+**The depot.** Linux's, 5652732, holds both CPUs' binaries in one folder, on the
+one copy of the game's data, a `.pck` beside them, and the launcher. Each binary
+finds the data by its own name, `jackpot-junction` with its extension taken off,
+which is how Godot names a Linux export's binary and its `.pck`. Godot's release
+templates are built without path overrides: they take no `--main-pack`, and find
+no `.pck` in the folder they are started in, so the data has to stand beside the
+binary under that name. Only Valve's `libsteam_api.so` goes in a folder per CPU,
+since both are called that and GodotSteam asks for it by that name: it looks
+beside itself first, `$ORIGIN`, and then where the launcher points it,
+`LD_LIBRARY_PATH`. No symlinks, which SteamPipe is not known to keep.
 
 ```text
-jackpot-junction             the launcher, still the launch option
-x86_64/jackpot-junction      with libgodotsteam.linux.template_release.x86_64.so and libsteam_api.so
-arm64/jackpot-junction       with libgodotsteam.linux.template_release.arm64.so and libsteam_api.so
+jackpot-junction           the launcher, still the launch option
+jackpot-junction.x86_64    the x86_64 binary
+jackpot-junction.arm64     the ARM64 binary
+jackpot-junction.pck       the game's data, the ARM64 export's, for both
+libgodotsteam.linux.template_release.x86_64.so
+libgodotsteam.linux.template_release.arm64.so
+x86_64/libsteam_api.so
+arm64/libsteam_api.so
 ```
 
 **The launcher**, `tools/steam-launcher`, copied in by `make steam-export`:
 
 ```sh
 #!/bin/sh
-# Starts the build for this machine's CPU, handing on Steam's arguments.
+# The Linux Steam build's launch option, GAME.md 10.8 and docs/STEAM.md, "Linux ARM64": Steam has
+# no way to pick a depot by CPU, so the Linux depot holds both CPUs' binaries,
+# jackpot-junction.x86_64 and jackpot-junction.arm64, beside the game's data they share,
+# jackpot-junction.pck, which each finds by its own name; and Valve's libsteam_api.so, the same
+# name for both, in x86_64/ and arm64/. This starts the one for the machine with its
+# libsteam_api.so in reach, GodotSteam looking beside itself first and there after, handing on what
+# Steam passes, a friend's lobby among it. `make steam-export` copies it in as jackpot-junction.
 here="$(dirname "$(readlink -f "$0")")"
 case "$(uname -m)" in
-aarch64 | arm64) exec "$here/arm64/jackpot-junction" "$@" ;;
-*) exec "$here/x86_64/jackpot-junction" "$@" ;;
+aarch64 | arm64) cpu=arm64 ;;
+*) cpu=x86_64 ;;
 esac
+LD_LIBRARY_PATH="$here/$cpu${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export LD_LIBRARY_PATH
+exec "$here/jackpot-junction.$cpu" "$@"
 ```
 
 `"$@"` hands on what Steam passes, `+connect_lobby <id>` for a friend's game among
@@ -114,12 +135,17 @@ is never in a Steam build.
 
 **In the repository**, done:
 
-1. `make steam-export` exports "Linux Steam" into `build/steam/linux/x86_64/` and
-   "Linux ARM64 Steam" into `build/steam/linux/arm64/` and copies the launcher in as
-   `build/steam/linux/jackpot-junction`, executable; `build/steam/linux-arm64/` is
-   gone. Tried on 2026-11-23: the launcher starts the x86_64 build on a desktop.
-2. `steam.yml` checks for both `libsteam_api.so` files and the launcher, and
-   uploads `linux` as before; nothing else of the upload changes.
+1. `make steam-export` exports "Linux Steam" as
+   `build/steam/linux/jackpot-junction.x86_64` and "Linux ARM64 Steam" as
+   `jackpot-junction.arm64` beside it, the ARM64 export's
+   `.pck` written over the x86_64 one's, moves each `libsteam_api.so` into its CPU's
+   folder, and copies the launcher in as `jackpot-junction`, executable. Tried on
+   2026-11-23: through the launcher the x86_64 binary runs on the shared `.pck` and
+   GodotSteam finds its `libsteam_api.so` in `x86_64/`, and without the launcher's
+   path it does not.
+2. `steam.yml` checks for the binaries, the `.pck`, both `libsteam_api.so` files in
+   their folders and none beside the binaries, and the launcher, and uploads `linux`
+   as before; nothing else of the upload changes.
 3. GAME.md 10.8 and this file say the Linux depot holds both.
 
 **On Steamworks:**
@@ -134,22 +160,19 @@ is never in a Steam build.
 
 **Trying it.** The x86_64 path is tried as every build is, from `staging` on a
 desktop, now through the launcher. The ARM64 path runs under Steam only on a
-Steam Frame. Outside Steam, `arm64/jackpot-junction --no-steam` runs on any ARM64
-Linux machine, a Raspberry Pi 5 for one. Put the first one on `staging` before
-setting it live, as Factorio put theirs on its experimental branch first.
+Steam Frame. Outside Steam, `./jackpot-junction --no-steam` in the folder runs on
+any ARM64 Linux machine, a Raspberry Pi 5 for one. Put the first one on `staging`
+before setting it live, as Factorio put theirs on its experimental branch first.
 
-**The cost.** Each binary carries the game's data, so Linux players download both
-builds whole: 113 MB for x86_64 and 118 MB for ARM64, measured on 0.23.1, rather
-than 113. Windows is unchanged. A shared `.pck` beside the launcher, handed to both
-binaries with `--main-pack`, would bring that down to some 192 MB: the x86_64
-binary (74 MB), the ARM64 binary (67 MB) and one PCK (51 MB). It has to be the
-ARM64 build's, which holds the ETC2/ASTC textures as well, so x86_64 players get
-11 MB they never use. Only once the plain way has been seen to work: `embed_pck`
-off for the two Linux Steam presets, nothing else in the game. "Windows Steam" turns
-it off at the same time, so every Steam build ships its data the same way (the
-user, 2026-11-23): `jackpot-junction.pck` beside `jackpot-junction.exe`, which
-Godot finds by its name, so the launch option stays as it is. It saves Windows
-players little, at most a chunk per patch, see below.
+**The cost.** With the data shared, Linux players download 202 MB for both
+binaries, measured on 2026-11-23: the x86_64 binary (74 MB), the ARM64 binary (67
+MB), the one `.pck` (51 MB) and the libraries, rather than 231 MB for two whole
+exports. It is the ARM64 export's `.pck`, which holds the ETC2/ASTC textures as
+well, so x86_64 players get 11 MB they never use. "Windows Steam" keeps its data
+beside its binary too, so every Steam build ships it the same way (the user,
+2026-11-23): `jackpot-junction.pck` beside `jackpot-junction.exe`, which Godot finds
+by its name, so the launch option stays as it is. It saves Windows players little,
+at most a chunk per patch, see below.
 
 **Patches.** Splitting the PCK out does not make Steam's updates smaller by itself,
 measured on 2026-11-23 from the 0.23.0 and 0.23.1 builds and steamcmd's depot logs.

@@ -73,7 +73,13 @@ jobs:
           test -f build/steam/windows/steam_api64.dll
           test -f build/steam/linux/x86_64/libsteam_api.so
           test -f build/steam/linux/arm64/libsteam_api.so
+          test ! -e build/steam/linux/libsteam_api.so
           test -x build/steam/linux/jackpot-junction
+          test -x build/steam/linux/jackpot-junction.x86_64
+          test -x build/steam/linux/jackpot-junction.arm64
+          # The game's data beside each binary, Linux's once for both CPUs' binaries.
+          test -f build/steam/windows/jackpot-junction.pck
+          test -f build/steam/linux/jackpot-junction.pck
 
       - name: Keep the builds
         uses: actions/upload-artifact@v4
