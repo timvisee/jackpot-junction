@@ -4057,7 +4057,7 @@ as the pack's star pinned to the outline and a night-blue tape.
 - [x] Starlight held still under fewer flashes: its stars neither drift nor twinkle, its trail
       keeps its own color.
 - [x] The card taped up in the bay reached by the dialog's cursor, across from the hat's hook,
-      with the press bind under it. The user to look it over.
+      with the press bind under it. Looked over by the user, 2026-11-23: the cursor reaches it.
 - [x] The night sky's stars twinkling, slowly and hard to spot (`night_twinkle.gdshader`, a pass
       between the paint and its finish), held under fewer flashes.
 - [x] The game's side of the DLC: offered only by a Steam build naming it, Steam asked again
