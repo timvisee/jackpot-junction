@@ -74,6 +74,8 @@ var catalog := CatalogState.new()
 var loyalty := LoyaltyState.new()
 ## Its achievements, GAME.md 8.10, see [Achievements].
 var achievements := AchievementState.new()
+## Its table, the cards the House has opened for it and how it sets them, GAME.md 3.17.
+var table := TableState.new()
 
 
 ## The profile kept as [param id] in [param folder], read from its file if it has one, or new.
@@ -83,6 +85,21 @@ static func at(folder: String, id_in: String) -> Profile:
 	profile.path = folder.path_join(id_in + ".cfg") if not folder.is_empty() else ""
 	profile.load_from_disk()
 	return profile
+
+
+## How many maps it has played to the whistle, which the House opens its cards by, GAME.md 8.9a.
+func maps_played() -> float:
+	return stats.get(&"maps", 0.0)
+
+
+## The cards the House has opened for it, GAME.md 3.17.
+func table_opened() -> int:
+	return table.opened(maps_played())
+
+
+## The table it sets out: the cards opened, but those it turned face down.
+func table_set() -> int:
+	return table.table(maps_played())
 
 
 ## What it is called: its first player's name, or "Player" and its number before they gave one.
@@ -146,6 +163,11 @@ func load_from_disk() -> void:
 	catalog.read(file)
 	loyalty.read(file)
 	achievements.read(file)
+	table.read(file)
+	# A profile from before the table has played what it has played: what its maps opened it has
+	# met, so the House tells it of none of them, GAME.md 8.9a.
+	if not file.has_section(TableState.SECTION):
+		table.told = table_opened()
 
 
 func save_to_disk() -> Error:
@@ -178,4 +200,5 @@ func save_to_disk() -> Error:
 	catalog.write(file)
 	loyalty.write(file)
 	achievements.write(file)
+	table.write(file)
 	return SafeFile.save(file, path)

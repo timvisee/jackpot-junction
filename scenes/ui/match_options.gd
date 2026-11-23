@@ -189,6 +189,8 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"own_bullets_hurt": config.own_bullets_hurt,
 		"overtime": config.overtime,
 		"catch_up": config.catch_up,
+		"table": config.table,
+		"roulette": config.roulette,
 		"teams": config.teams,
 		"friendly_fire": config.friendly_fire,
 		"joker_slots": config.joker_slots,
@@ -231,6 +233,9 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 	config.own_bullets_hurt = bool(plan.get("own_bullets_hurt", config.own_bullets_hurt))
 	config.overtime = bool(plan.get("overtime", config.overtime))
 	config.catch_up = bool(plan.get("catch_up", config.catch_up))
+	# The say's own table, GAME.md 3.17: the cards it set out, as its own profile has them opened.
+	config.table = int(plan.get("table", config.table)) & TableCards.ALL
+	config.roulette = bool(plan.get("roulette", config.roulette))
 	var teams := int(plan.get("teams", -1))
 	if teams in Teams.COUNTS:
 		config.teams = teams
@@ -265,6 +270,9 @@ func apply_to(config: MatchConfig) -> void:
 	config.teams = Teams.COUNTS[teams_option.selected]
 	config.friendly_fire = FRIENDLY_FIRE[friendly_fire_option.selected]
 	config.joker_slots = JOKER_SLOTS[slots_option.selected]
+	# The table the profile playing sets out, GAME.md 3.17.
+	config.table = Game.settings.profile.table_set()
+	config.roulette = Game.settings.profile.table.roulette
 
 
 ## Keeps the choices for next time. Not written to disk here: the caller saves once, with

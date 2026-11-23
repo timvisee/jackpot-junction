@@ -30,7 +30,11 @@ const ENVIRONMENT: Dictionary[String, String] = {
 	"JJ_WEB_ADDRESS": "--web-address",
 	"JJ_WEB_LINK": "--web-link",
 	"JJ_WEB_DESCRIPTION": "--web-description",
+	"JJ_TABLE": "--table",
 }
+## The tables a server's games set out until whoever has the host's say chooses, GAME.md 3.17:
+## every card, power-ups alone, or every card dealt a few at a time each map.
+const TABLES: Array[String] = ["standard", "penny", "roulette"]
 ## The longest password a server takes, the same as a lobby's, [constant NetDoor.PASSWORD_LENGTH].
 const PASSWORD_LENGTH := 64
 
@@ -64,6 +68,9 @@ var web_link := ""
 ## `JJ_WEB_DESCRIPTION`: a welcome, the rules, when it is up; empty for none. Its line breaks are
 ## kept, see [ServerWeb].
 var web_description := ""
+## Which of [constant TABLES] the server's games set out, from `--table=` or `JJ_TABLE`, until the
+## host's say chooses its own: "standard" unless told.
+var table := "standard"
 ## In a game of the server's: its number, from 1, and where the server hears from it, a port on this
 ## machine, with the key its word is taken on. 0 in the server itself.
 var game := 0
@@ -118,6 +125,8 @@ static func read(args: PackedStringArray, environment := {}) -> ServerArgs:
 			read.web_link = arg.trim_prefix("--web-link=").strip_edges().left(PASSWORD_LENGTH * 4)
 		elif arg.begins_with("--web-description="):
 			read.web_description = arg.trim_prefix("--web-description=").strip_edges().left(2000)
+		elif arg.begins_with("--table="):
+			read.table = value.strip_edges().to_lower()
 		elif arg.begins_with("--game="):
 			read.game = int(value)
 		elif arg.begins_with("--report="):
@@ -147,6 +156,8 @@ func problem() -> String:
 		return "--port (JJ_PORT) must be a port, 1 to 65535"
 	if first_game_port == 0 and port + games > 65535:
 		return "--port (JJ_PORT) must leave room for its games' ports below 65536"
+	if table not in TABLES:
+		return "--table (JJ_TABLE) must be one of %s" % ", ".join(TABLES)
 	if web_port != -1 and (web_port < 0 or web_port > 65535):
 		return "--web-port (JJ_WEB_PORT) must be a port, 1 to 65535, or 0 for no page"
 	return _range_problem() if first_game_port != 0 else ""

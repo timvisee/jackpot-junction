@@ -285,4 +285,7 @@ static func from_settings(settings: Settings) -> MatchConfig:
 	config.xl_maps = settings.grand_prix_xl
 	config.tie_breaker = settings.grand_prix_tie_breaker
 	config.small_maps = settings.small_maps
+	# The table the profile playing sets out, GAME.md 3.17.
+	config.table = settings.profile.table_set()
+	config.roulette = settings.profile.table.roulette
 	return config

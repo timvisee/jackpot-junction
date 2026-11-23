@@ -14,6 +14,8 @@ const MAKER_NAME := "Dealer"
 
 func _run() -> void:
 	Game.settings = Settings.new()
+	# Every card of the table opened, GAME.md 8.9a: the checks play the whole floor.
+	Game.settings.profile.stats[&"maps"] = float(TableCards.Card.size())
 	Game.settings.path = "user://server_check_house_%s.cfg" % _role
 	Game.settings.player_names[0] = _role.capitalize()
 	Game.settings.last_server = "127.0.0.1"

@@ -64,6 +64,10 @@ func _ready() -> void:
 	config.human_styles = []
 	config.port = args.port
 	config.server_password = args.password
+	# Every card the server's table holds, GAME.md 3.17, not those of a profile nobody plays: the
+	# host's say sets out its own once it chooses.
+	config.table = TableCards.FIRST if args.table == "penny" else TableCards.ALL
+	config.roulette = args.table == "roulette"
 	open_room.call(config)
 
 

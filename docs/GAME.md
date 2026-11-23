@@ -1284,6 +1284,16 @@ made floor, so the bots and the camera never meet what is not there. The table g
 with the rest of the rules, so a client builds the same floor and draws the same hand. The Final
 Hand of STORY.md 8 plays every card.
 
+Which cards a match plays is the host's: the table of the profile playing at this machine, the
+cards the House has opened for it, 8.9a, but those it turned face down in the match settings, 9.6.
+Turned down rather than up is what is kept, so a card the House opens comes face up on a table that
+had every other card up, and stays down on one that had them all down. Online the host's table is
+everybody's, and a client meets whatever cards it holds, opened for the client or not; playing a card
+at somebody else's table opens nothing. At a dedicated server, 9.3a, whoever has the host's say sends
+the table their own profile sets out; until somebody chooses, the server's games set out what it
+was started with, `--table=` or `JJ_TABLE`: `standard`, every card, `penny`, power-ups alone, or
+`roulette`.
+
 ## 4. Kart
 
 ### 4.1 Handling
@@ -6854,6 +6864,29 @@ program is for the few dozen things worth a road. Tests hold the grid together: 
 from the slip road, every road joining two landmarks, every character in the grid a line and every line
 in the grid, no two ids alike, a keystone's roads in, and every bet of the House's one that can be gone
 round on the way to a keystone. Milestone M10 of PLAN.md is the order it is built in.
+
+### 8.9a The House opens the floor
+
+A new player sits down at a small table and the House opens the rest of the floor to them a card at
+a time, 3.17: power-ups from the first map, then one card after every map the profile plays to the
+whistle, anywhere, a quick match, a map of a Grand Prix or online, in this order:
+
+| After map | The House opens |
+|-----------|-----------------|
+| 1         | Jackpot         |
+| 2         | Jokers          |
+| 3         | Royal Flush     |
+| 4         | Room tricks     |
+| 5         | Slot machines   |
+| 6         | Bounty          |
+| 7         | Suits & hands   |
+
+That is the whole floor in eight maps, about an evening. It is counted off the maps the profile's
+statistics hold, so a profile from before the table opened what its maps had played, and is told
+of none of them, having met them all already. The later items and the twenty later jokers stay
+with the loyalty program, 8.9. A card can be opened early from the match settings, 9.6; it stays
+opened. What the profile has opened, turned down, opened early and been told of is kept with it,
+in a section of its own (`TableState`).
 
 ### 8.10 Achievements
 

@@ -86,6 +86,8 @@ func open() -> Error:
 		# started in, which they inherit from this one: never on a command line anybody on the
 		# machine can list.
 		OS.set_environment("JJ_PASSWORD", args.password)
+	# The table its games set out until a host's say chooses, GAME.md 3.17, the same way.
+	OS.set_environment("JJ_TABLE", args.table)
 	_open_web()
 	return OK
 

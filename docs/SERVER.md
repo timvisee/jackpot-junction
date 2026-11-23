@@ -38,6 +38,7 @@ overrides:
 | `JJ_WEB_ADDRESS` | `--web-address` | none, so the page uses the address a visitor came in by |
 | `JJ_WEB_LINK`   | `--web-link`   | none, so the page links only Steam, itch.io and the source |
 | `JJ_WEB_DESCRIPTION` | `--web-description` | none, so the page has no text of your own |
+| `JJ_TABLE`      | `--table`      | `standard`, every card on the table; `penny` for power-ups alone, `roulette` for a few cards dealt each map, GAME.md 3.17 |
 
 A game is about a quarter of a gigabyte of memory, and a server with no game
 running about 90 MB and next to no processor: a game's process is only started

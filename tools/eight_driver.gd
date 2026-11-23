@@ -28,6 +28,8 @@ func _run() -> void:
 	multiplayer.server_disconnected.connect(func() -> void: _say("the server hung up"))
 	# Settings of its own, by process, since three clients run at once.
 	Game.settings = Settings.new()
+	# Every card of the table opened, GAME.md 8.9a: the checks play the whole floor.
+	Game.settings.profile.stats[&"maps"] = float(TableCards.Card.size())
 	Game.settings.path = "user://multiplayer_check_eight_%s_%d.cfg" % [_role, OS.get_process_id()]
 	match _role:
 		"host":

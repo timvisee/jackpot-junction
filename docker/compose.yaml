@@ -41,6 +41,9 @@ services:
       # JJ_WEB_LINK: "https://example.com/jackpot-junction"
       # A line or two of your own for the top of the web page: a welcome, the rules, when it is up.
       # JJ_WEB_DESCRIPTION: "Casual games every Friday 8pm CET. Be nice, have fun."
+      # The cards its games set out until whoever makes a game chooses their own: standard for
+      # every card, penny for power-ups alone, roulette for a few cards dealt each map.
+      # JJ_TABLE: "standard"
       # The time zone of the log's times, UTC unless set.
       # TZ: "Europe/Amsterdam"
     ports:
