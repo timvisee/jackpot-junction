@@ -8454,9 +8454,10 @@ its karts reach it. Nitro comes back as fast as it does in the Garage, a tank in
 few seconds, on every machine in the room: a client works its own tank out, see 10.3, and so
 works out the room's rate for it, and the room's heat on a map, from its own meter.
 
-And a football, in front of the pad, to knock about. It rolls on the floor and nowhere else: its
-height is held, so no kick lifts it, and the walls and props throw it back the way they throw
-back a kart. It is not solid to karts. A kart that meets it is not stopped by it as by a wall; the
+And a football, in front of the pad and clear of it however far it grows, to knock about. It
+rolls on the floor and nowhere else: its height is held, so no kick lifts it, and the walls and
+props throw it back the way they throw back a kart. It is not solid to karts. A kart that meets
+it is not stopped by it as by a wall; the
 ball is kicked out of its way instead, off whichever side of the kart it met, with however fast
 that side was coming at it, and rolls to a stop on the mat. The kart is the heavy thing.
 A kart on nitro kicks it twice as hard, and the ball may go twice as fast for it. A shot kicks
@@ -8494,11 +8495,11 @@ is heard as one: the same chime run up through its third and fifth to the octave
 0.09 s, the last a little louder. The player who fills the room hears that run instead of their
 own chime, since the two on top of each other would be neither.
 
-Ready lasts exactly as long as the standing does. Roll off the pad and the charge and the tick
-go with it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a
-room that started because everybody was ready a moment ago would start without them. It holds
-in the second the ring is green as well: somebody knocked off the pad, or somebody new taking a
-seat, calls the start off until the room is full again.
+Ready lasts as long as the standing does. Roll off the pad and the charge and the tick go with
+it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a room that
+started because everybody was ready a moment ago would start without them. It holds in the second
+the ring is green as well: somebody driving off the pad, or somebody new taking a seat, calls the
+start off until the room is full again.
 
 The ring of blocks round the pad is split between whoever is in the room -- an arc each, in
 their own color, filling as they hold it. One ring showing whoever had got furthest read as a
@@ -8507,9 +8508,28 @@ forty-eight blocks, so a room of eight, 9.3, still has an arc of six each; a cha
 no more ticks than a player alone on the pad heard when it was twenty-four, so the ticks of a
 lone player do not run twice as fast.
 
+**Room on the pad.** A room of eight has to get eight karts onto one pad and keep them there,
+and in a room of four it was already hard: every touch between two karts threw them apart, so a
+kart nosing in among the parked ones knocked somebody off, and getting back on cost the whole
+charge again. So the pad makes room. Up to four players it is the size the room built it, five
+meters across; past four it grows with every player who sits down, so each has as much of it as in
+a room of four, seven meters across with eight, easing out over half a second, its face drawn out
+and the ring of blocks moved out and widened with it. It shrinks back the same way as players
+leave. Coming onto the pad takes any part of the kart over it, as ever; staying on it takes only
+being within a meter of its edge, so a kart that rolled a little too far, or that the pad shrank
+out from under, has not left it. And nothing on the pad can be knocked off it. Two karts drive
+through each other while either is on the pad or within that meter of it, so nobody arriving
+shoves anybody off and nobody parked is in anybody's way; past it they bump as anywhere, and two
+karts that drove through each other are only made solid again once they are clear of each other,
+never while one is inside the other. A shot at a kart there is spent on it with a flash, as on a
+kart just back, and costs it nothing. Every machine works all of this out from the karts it can
+see, as it fills the ring: how big the pad is from how many are in the room, who stands on it from
+where their karts are, so a client's own kart drives through the others there as it does at the
+host.
+
 **Crashing.** Nothing in here costs anything, so dying costs nothing either. A kart that falls
-down a hole or gets rammed off the pad is back on the floor on the next tick, with no wait to
-sit through and no hand of cards to pick from: there is no run being built in a waiting room, and
+down a hole or gets rammed away from the pad is back on the floor on the next tick, with no wait
+to sit through and no hand of cards to pick from: there is no run being built in a waiting room, and
 a joker pick over the screen is a player who cannot see the pad they are meant to be driving
 onto, at the moment everybody else is waiting for them to.
 

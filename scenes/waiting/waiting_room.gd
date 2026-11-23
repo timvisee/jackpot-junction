@@ -20,8 +20,9 @@ signal loaded
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
-## Where the football starts: in front of the pad, on open floor, clear of every prop and spawn.
-const BALL_SPOT := Vector3(0.0, 0.0, 5.0)
+## Where the football starts: in front of the pad, on open floor, clear of every prop and spawn,
+## and of the pad and its ring grown for a room of eight, see [LobbyPad].
+const BALL_SPOT := Vector3(0.0, 0.0, 6.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 ## What a Steam game's room says about friends coming in, GAME.md 10.8.
 const STEAM_HINT := "Friends join through Steam: invite them from the menu, or Join game"

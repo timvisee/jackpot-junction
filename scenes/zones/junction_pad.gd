@@ -46,6 +46,11 @@ var _channels: Dictionary[int, Dictionary] = {}
 ## rather than on the kart, and kept while the kart is away, so that driving off the pad and
 ## straight back on is not a way around the wait.
 var _patch_wait: Dictionary[int, float] = {}
+## What the pad stands on: its reach, the radius it was built at, and each piece of the face the
+## room built on it with where that piece stood, for [method resize] to draw out.
+var _cylinder: CylinderShape3D
+var _built := 0.0
+var _face: Dictionary[Node3D, Vector3] = {}
 
 
 func _ready() -> void:
@@ -62,8 +67,28 @@ func _ready() -> void:
 	shape.shape = cylinder
 	shape.position = Vector3(0.0, 1.0, 0.0)
 	add_child(shape)
+	_cylinder = cylinder
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+
+
+## Makes the pad [param to] meters in radius once it has been built: the lobby's grows as its room
+## fills, GAME.md 9.6. Its reach and the face the room built on it are drawn out together, the
+## face's pieces moved out from the middle and widened, never made taller.
+func resize(to: float) -> void:
+	if _built <= 0.0:
+		_built = radius
+		for child: Node in get_children():
+			var piece := child as Node3D
+			if piece != null and not piece is CollisionShape3D:
+				_face[piece] = piece.position
+	radius = to
+	_cylinder.radius = to
+	var stretch := Vector3(to / _built, 1.0, to / _built)
+	for piece: Node3D in _face:
+		if is_instance_valid(piece):
+			piece.scale = stretch
+			piece.position = _face[piece] * stretch
 
 
 ## The call to attention, GAME.md 3.4: quiet below the hint threshold, then louder the more is

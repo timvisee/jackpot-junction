@@ -52,8 +52,7 @@ var team := -1
 ## Whose roof marker shape it wears, GAME.md 4.4: its player's own color's, which in team play is
 ## not the color it is painted, so teammates are still told apart. -1 for [member color_index]'s.
 var marker_index := -1
-## How this kart is dressed, GAME.md 4.4. Set before the kart enters the tree; the body is built
-## from it once.
+## Its dress, GAME.md 4.4, set before the kart enters the tree: the body is built from it once.
 var style := KartStyle.new()
 
 var input: KartInput = KartInput.new():
@@ -108,6 +107,8 @@ var held := false
 ## Set by the match at the whistle: the driver lets go of the wheel. The kart still rolls, but
 ## nobody steers it and nothing can touch it any more.
 var coasting := false
+## Set while it stands on the lobby's pad, GAME.md 9.6: no shot hurts it there, see [LobbyPad].
+var sheltered := false
 var protection_left := 0.0
 ## How much of the aim assist this kart's next shot gets and how long it has been standing
 ## still, GAME.md 5.2. Worked out by [KartAim].
@@ -338,7 +339,7 @@ func is_active() -> bool:
 ## countdown is still fair game once the flag drops; one rolling out the finish never is, nor one
 ## the driving test holds under its floor until its lesson, see [RisingPiece].
 func is_targetable() -> bool:
-	if coasting or process_mode == Node.PROCESS_MODE_DISABLED:
+	if coasting or sheltered or process_mode == Node.PROCESS_MODE_DISABLED:
 		return false
 	return alive and not falling and protection_left <= 0.0 and hurt_left <= 0.0
 
@@ -933,8 +934,7 @@ func _fire() -> void:
 		Input.vibrate_handheld(SHOT_RUMBLE_MS, SHOT_RUMBLE_STRENGTH)
 
 
-## How long the kart has been standing still and how much of the aim assist that leaves it,
-## GAME.md 5.2.
+## How long the kart has stood still and how much of the aim assist that leaves it, GAME.md 5.2.
 func _step_assist(delta: float) -> void:
 	var moving := (
 		cannon_stats != null and motor.speed_fraction() >= cannon_stats.assist_moving_fraction

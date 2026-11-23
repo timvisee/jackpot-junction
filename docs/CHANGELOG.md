@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Room for eight on the lobby's pad.** The pad grows as more players join, karts on it drive
+  through each other, and a kart may stop a little past its edge, so nobody is knocked off it.
 - **Your kart's ring, yours alone.** The ring that breathes round a kart until it drives off is only
   round the karts played on your screen. Every kart still flares as it comes back, a rival's
   thinner.

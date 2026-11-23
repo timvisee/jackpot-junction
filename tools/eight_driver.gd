@@ -1,9 +1,11 @@
 extends "res://tools/multiplayer_driver.gd"
 ## Development harness: a room of eight online, GAME.md 9.3, through the real scenes and short.
 ## The host with two players at it and three clients with two each, so every seat of the room is
-## somebody's at four machines; the room goes to a quick match on a map at the usual size, which
-## eight karts play as its XL; every machine sees the eight start on spots of their own, the
-## whistle goes, and every podium has a row for each of them. Started by tools/multiplayer_check.gd
+## somebody's at four machines; the pad grows for eight on every machine, and all eight drive onto
+## it straight across, through the karts already parked there, GAME.md 9.6, until the room goes on
+## its own; it goes to a quick match on a map at the usual size, which eight karts play as its XL;
+## every machine sees the eight start on spots of their own, the whistle goes, and every podium has
+## a row for each of them. Started by tools/multiplayer_check.gd
 ## with --eight, and says what it saw the way tools/multiplayer_driver.gd does, a line starting
 ## MPCHECK for every step.
 ##
@@ -18,6 +20,8 @@ const CHOSEN := &"lucky_crossing"
 const PLAYED := &"loose_threads"
 ## How far apart any two karts start, in meters, at the least.
 const APART := 2.0
+## How far from the middle of the pad each seat parks, on a spot of its own round it.
+const PARKED := 2.0
 
 
 func _run() -> void:
@@ -74,9 +78,7 @@ func _host() -> void:
 		return
 	_check(SeatLimit.full(match_node, room.session), "and the room is full")
 	await _seconds(1.0)
-	# Readying up on the pad has checks of its own; this is about the room of eight that goes.
-	room.ready_room.everybody_ready.emit()
-	var arena := await _arena()
+	var arena := await _ready_up(room, match_node)
 	if arena == null:
 		return
 	var played: Match = arena.match_node
@@ -135,7 +137,7 @@ func _client() -> void:
 	):
 		return
 	session.seats[1].input = KartInput.new()
-	var arena := await _arena()
+	var arena := await _parked_till_it_goes(room, match_node)
 	if arena == null:
 		return
 	var played: Match = arena.match_node
@@ -193,3 +195,55 @@ func _apart(match_node: Match) -> bool:
 			if Vector2(karts[i].x, karts[i].z).distance_to(Vector2(karts[j].x, karts[j].z)) < APART:
 				return false
 	return karts.size() == KARTS
+
+
+## Whether the pad in [param room] has grown to its size for a room of eight, see [LobbyPad].
+func _grown(room: Node) -> bool:
+	var pad: LobbyPad = room.ready_room.lobby_pad
+	return is_equal_approx(pad.radius, LobbyPad.grown(pad.base, KARTS))
+
+
+## Brings every kart played at this machine to a spot of its own on the pad, straight from wherever
+## it is, across the pad and through any kart in the way. True, so it can sit in a condition.
+func _park_eight(match_node: Match) -> bool:
+	if not is_instance_valid(match_node) or match_node.arena == null:
+		return true
+	var middle := match_node.arena.junction.global_position
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human() and slot.kart != null and slot.kart.is_inside_tree():
+			var turn := TAU * float(slot.index) / float(KARTS)
+			_walk(match_node, slot.index, middle + Vector3(cos(turn), 0.0, sin(turn)) * PARKED)
+	return true
+
+
+## Keeps the karts at this client parked on the pad for as long as [param room] is up.
+func _keep_parked(room: Node, match_node: Match) -> void:
+	while is_instance_valid(room) and _scene() == room and not _failed:
+		_park_eight(match_node)
+		await get_tree().process_frame
+
+
+## At the host: the pad grown for eight, everybody here driven onto it while the clients drive
+## theirs on, and the room gone on its own to the arena, which is returned, or null.
+func _ready_up(room: Node, match_node: Match) -> Node:
+	_check(_grown(room), "the pad has grown for eight")
+	if not await _until(
+		func() -> bool: return _park_eight(match_node) and _scene() != room,
+		40.0,
+		"all eight stood on the pad and the room went"
+	):
+		if is_instance_valid(room):
+			_say(_readout(match_node, room.ready_room))
+		return null
+	return await _arena()
+
+
+## At a client: the pad grown for eight here too, and the karts here kept parked on it until the
+## room goes, the arena it went to returned, or null.
+func _parked_till_it_goes(room: Node, match_node: Match) -> Node:
+	if not await _until(
+		func() -> bool: return _grown(room), 30.0, "the pad has grown for eight here too"
+	):
+		return null
+	_keep_parked(room, match_node)
+	return await _arena()

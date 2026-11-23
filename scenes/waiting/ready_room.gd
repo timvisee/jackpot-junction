@@ -9,9 +9,11 @@ extends Node
 ## waiting anywhere in particular. The pad does both: a kart parked on the pad is a player who has
 ## said yes, in the one place everybody is already looking.
 ##
-## Ready lasts exactly as long as the standing does. Roll off the pad and it is taken back at
-## once, which is the honest reading of a pad somebody is not on: a room that starts because
-## everybody was ready a moment ago starts without them.
+## Ready lasts as long as the standing does. Roll off the pad and it is taken back at once, which
+## is the honest reading of a pad somebody is not on: a room that starts because everybody was ready
+## a moment ago starts without them. What standing on it is, is generous, see [LobbyPad]: the pad
+## grows with the room, a kart may roll a little past its edge, and nothing on it can be knocked
+## off.
 ##
 ## Each player charges their own arc of the ring, in their own color, so that a room with four
 ## people in it can see which of them the pad has taken and which of them it is waiting for.
@@ -90,6 +92,8 @@ const FULL := "Maximum number of players reached"
 
 var match_node: Match
 var pad: JunctionPad
+## The pad as the room fills it, see [LobbyPad]: how big it is and who stands on it.
+var lobby_pad: LobbyPad
 ## Whether this machine decides who is ready. The host simulates every kart, so it is the one
 ## that can see who is standing on the pad; a client is told, the same way it is told everything
 ## else about somebody else's kart, GAME.md 10.3.
@@ -114,6 +118,8 @@ var seat_limit := 0
 var stamp: NetStamp
 
 var _segments: Array[MeshInstance3D] = []
+## The pad's radius the ring was last put round.
+var _ring_radius := 0.0
 ## Seat to how many blocks of its arc were lit last frame, to hear each new one as it lights.
 var _lit: Dictionary[int, int] = {}
 var _ticks: Dictionary[int, Node3D] = {}
@@ -272,6 +278,7 @@ func _process(delta: float) -> void:
 			Events.player_ready.emit(index, now >= 1.0)
 		_show_tick(slot)
 	_count_down(delta)
+	_place_ring()
 	_paint_ring()
 	_say_the_count()
 	_show_the_way_in()
@@ -511,14 +518,9 @@ func say_how_to_join(online: String) -> void:
 	_fit_the_way_in()
 
 
-## Which players are standing on the pad this frame.
+## Which players are standing on the pad this frame, as the pad has them, see [LobbyPad].
 func _karts_on_the_pad() -> Dictionary[int, bool]:
-	var standing: Dictionary[int, bool] = {}
-	for body: Node3D in pad.get_overlapping_bodies():
-		var kart := body as Kart
-		if kart != null and kart.alive and kart.rules == match_node.rules:
-			standing[kart.slot] = true
-	return standing
+	return lobby_pad.standing
 
 
 ## The ring, split between whoever is in the room: an arc each, in their own color, filling as
@@ -557,6 +559,22 @@ func _paint_ring() -> void:
 		skin.albedo_color = READY_INK.darkened(GREEN_BODY) if green else inks[i]
 		skin.emission = READY_INK if green else inks[i]
 		skin.emission_energy_multiplier = GREEN_GLOW if green else (1.4 if on else 0.0)
+
+
+## The ring round the pad as big as the pad is now, out from its edge and its blocks widened with
+## it, so a pad grown for a room of eight is still ringed as closely and as solidly as one of four.
+func _place_ring() -> void:
+	var radius := lobby_pad.radius
+	if is_equal_approx(radius, _ring_radius):
+		return
+	_ring_radius = radius
+	var wide := radius / lobby_pad.base
+	for i: int in _segments.size():
+		var turn := TAU * float(i) / float(SEGMENTS)
+		_segments[i].position = (
+			pad.position + Vector3(sin(turn), 0.06, cos(turn)) * radius * RING_OUT
+		)
+		_segments[i].scale = Vector3(wide, 1.0, 1.0)
 
 
 ## The players the ring is divided between, in slot order so that an arc stays where it was as
@@ -616,9 +634,8 @@ func _build() -> void:
 	pad = match_node.arena.junction
 	if pad == null:
 		return
-	var radius := match_node.arena.junction_radius * RING_OUT
+	lobby_pad = LobbyPad.add_to(match_node)
 	for i: int in SEGMENTS:
-		var turn := TAU * float(i) / float(SEGMENTS)
 		var skin := StandardMaterial3D.new()
 		skin.albedo_color = WAITING_INK
 		skin.emission_enabled = true
@@ -629,12 +646,10 @@ func _build() -> void:
 		mesh.size = Vector3(SEGMENT_SIZE.x, 0.05, SEGMENT_SIZE.y)
 		block.mesh = mesh
 		block.material_override = skin
-		block.position = (
-			pad.position + Vector3(sin(turn), 0.06, cos(turn)) * radius + Vector3(0.0, 0.0, 0.0)
-		)
-		block.rotation.y = turn
+		block.rotation.y = TAU * float(i) / float(SEGMENTS)
 		match_node.arena.add_child(block)
 		_segments.append(block)
+	_place_ring()
 	_build_board()
 	_build_counter()
 
