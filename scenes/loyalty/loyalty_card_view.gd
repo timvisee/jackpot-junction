@@ -38,9 +38,10 @@ var _pointer := false
 
 ## [param profile]'s card, small, [param scale] of its size, for a place in a layout to grow its
 ## full view off: picked as a button is, by the mouse over it or the cursor moved onto it, its mark
-## round it, and a click, a tap or accept calls [param shown], which shows it in full.
+## round it with its chevrons on [param side], see [method FocusMark.draw_on], and a click, a tap or
+## accept calls [param shown], which shows it in full.
 static func corner(
-	profile: Profile, scale: float, shown: Callable, takes_cursor := true
+	profile: Profile, scale: float, shown: Callable, takes_cursor := true, side := SIDE_LEFT
 ) -> Control:
 	var corner := ScreenReader.Pressable.new()
 	corner.name = "Card"
@@ -69,7 +70,7 @@ static func corner(
 		func() -> void:
 			if corner.has_focus():
 				var whole := Rect2(Vector2.ZERO, LoyaltyCard.SIZE * scale)
-				FocusMark.draw_on(mark, whole, LoyaltyCard.CORNER * scale, SIDE_LEFT)
+				FocusMark.draw_on(mark, whole, LoyaltyCard.CORNER * scale, side)
 	)
 	corner.add_child(mark)
 	corner.focus_entered.connect(mark.queue_redraw)

@@ -20,7 +20,8 @@ const CASED := 2.0
 
 
 ## The mark round [param rect] of [param item], its corners rounded by [param radius], the chevrons
-## outside it on [param side] (SIDE_LEFT or SIDE_RIGHT) pointing in; [param scale] is what the item
+## outside it on [param side] pointing in: SIDE_LEFT or SIDE_RIGHT, or SIDE_BOTTOM for a thing with
+## others either side of it, whose chevrons would lie over them; [param scale] is what the item
 ## is drawn at, so the lines come out the same on screen. With a [param casing] of some color, the
 ## edge and the chevrons are cased in it, [constant CASED] wider either side, so the gold shows on
 ## gold or on paper as well as on the dark.
@@ -43,19 +44,23 @@ static func draw_on(
 		ring.set_corner_radius_all(roundi(radius + (OUT + more) * by))
 		ring.anti_aliasing = true
 		item.draw_style_box(ring, rect.grow((OUT + more) * by))
+	# Worked out as if on the left or the right, and turned onto the bottom for SIDE_BOTTOM.
+	var down := side == SIDE_BOTTOM
 	var way := 1.0 if side == SIDE_LEFT else -1.0
 	var edge := rect.position.x if side == SIDE_LEFT else rect.end.x
-	var middle := rect.get_center().y
+	if down:
+		edge = rect.end.y
+	var middle := rect.get_center().x if down else rect.get_center().y
 	for i: int in 2:
 		var tip := edge - way * (CHEVRON_OUT + OUT + float(1 - i) * CHEVRON_GAP) * by
 		var back := tip - way * CHEVRON_HALF * 0.85 * by
-		var points := PackedVector2Array(
-			[
-				Vector2(back, middle - CHEVRON_HALF * by),
-				Vector2(tip, middle),
-				Vector2(back, middle + CHEVRON_HALF * by),
-			]
-		)
+		var points := PackedVector2Array()
+		for at: Vector2 in [
+			Vector2(back, middle - CHEVRON_HALF * by),
+			Vector2(tip, middle),
+			Vector2(back, middle + CHEVRON_HALF * by),
+		]:
+			points.append(Vector2(at.y, at.x) if down else at)
 		var ink := Color(INK, 0.5 if i == 0 else 1.0)
 		if cased:
 			item.draw_polyline(points, casing, (CHEVRON_WIDTH + CASED * 2.0) * by, true)

@@ -610,12 +610,18 @@ func _license(column: VBoxContainer) -> void:
 			side.add_child(line)
 		row.add_child(side)
 	if profile.loyalty.welcomed:
-		loyalty_card = LoyaltyCardView.corner(profile, LOYALTY_SCALE, show_loyalty_card)
-		loyalty_card.name = "LoyaltyCard"
 		var across := LicenseCard.SIZE.x * CARD_SCALE + BESIDE + LoyaltyCard.SIZE.x * LOYALTY_SCALE
 		if folder != null:
 			across += BESIDE + FolderPeek.SIZE.x * FOLDER_SCALE
-		if across <= get_viewport_rect().size.x - PAGE_ROOM:
+		var beside := across <= get_viewport_rect().size.x - PAGE_ROOM
+		# The cursor's chevrons on the side nothing is: under it between the license and the folder,
+		# on the right of it last in the row, on the left of it on a line of its own.
+		var side := SIDE_LEFT
+		if beside:
+			side = SIDE_BOTTOM if folder != null else SIDE_RIGHT
+		loyalty_card = LoyaltyCardView.corner(profile, LOYALTY_SCALE, show_loyalty_card, true, side)
+		loyalty_card.name = "LoyaltyCard"
+		if beside:
 			# Next to the license, in the wallet's order: the school's, the House's, then Kit's.
 			row.add_child(loyalty_card)
 			row.move_child(loyalty_card, 1)
