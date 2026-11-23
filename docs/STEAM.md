@@ -266,9 +266,9 @@ with three of its own: `jj_royal_flush`, `jj_777` and `jj_cards`. Draw them with
 `make steam-timeline-icons` (needs a display), which writes each as a white PNG on transparency,
 256 pixels square, to `build/steam-timeline-icons/`. Upload them at
 https://partner.steamgames.com/apps/timelinemarkers/5652730, each under the name its file has
-without `.png`, which is what the game asks Steam for. Until they are there, Steam draws its plain
-marker in their place. Valve's documentation gives no size or format for these icons, so check what
-the page asks for and say so here.
+without `.png`, which is what the game asks Steam for; without them, Steam draws its plain marker.
+Valve's documentation gives no size or format for these icons, and the 256-pixel PNGs were taken as
+they are. All three were uploaded on 2026-11-23.
 
 To see the markers, turn on Steam's game recording, play a map, and open the recording from the
 overlay or from Recordings & Screenshots.

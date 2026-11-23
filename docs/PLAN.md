@@ -3728,7 +3728,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
-| S13 | The game-recording timeline | Done but the user's upload of three icons |
+| S13 | The game-recording timeline | Done, but for the user's look on a release |
 
 ### Questions, and the answers
 
@@ -4175,8 +4175,9 @@ big one. "Beat the House" became the Final Hand marked whole, its result not mat
 - [x] `TimelineRecord` on every map and the driving test; `SteamTimeline` for the bar, its words
       and the end of a phase.
 - [x] `make steam-timeline-icons` for the three icons of the game's own.
-- [ ] The user: upload the three icons on Steamworks, docs/STEAM.md, and note the size the page
-      asks for.
+- [x] The user: upload the three icons on Steamworks, docs/STEAM.md. Done on 2026-11-23, the
+      256-pixel PNGs taken as they are.
+- [ ] The user: a look at the markers with game recording on, once a release with them is on Steam.
 
 ## M20: the story, retold
 
