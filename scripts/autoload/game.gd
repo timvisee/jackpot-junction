@@ -116,7 +116,8 @@ func _init() -> void:
 	if fresh:
 		# Steam's own machines start as what they are, GAME.md 8.5: a Steam Deck in the hand.
 		var on_deck := OS.get_environment(STEAM_DECK_ENV) == "1"
-		ViewChoices.play_on(settings, ViewChoices.first_screen(Store.hardware(), on_deck))
+		settings.screen = ViewChoices.first_screen(Store.hardware(), on_deck)
+		settings.ui_scale = ViewChoices.ui_scale_of(settings.screen)
 	if fresh and settings.profile.player_names[0].is_empty():
 		# The first profile a Steam account plays is named after it, GAME.md 10.8.
 		settings.profile.player_names[0] = Store.persona()

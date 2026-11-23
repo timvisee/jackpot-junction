@@ -11,6 +11,12 @@ const SCREEN_HANDHELD := "handheld"
 const SCREENS: Array[String] = [SCREEN_DESK, SCREEN_TV, SCREEN_HANDHELD]
 const SCREEN_NAMES: Array[String] = ["Desk", "TV", "Handheld"]
 const SCREEN_UI_SCALES: Array[float] = [1.0, 1.25, 1.5]
+## Steam's word on its own machines, GodotSteam's `SteamHardwareType`, see
+## [constant SteamStore.NOT_STEAM_HARDWARE]: a Steam Deck and a Steam Machine. Numbers of its own
+## here rather than [SteamStore]'s: naming that class, or [Settings], from this one, which the
+## camera and the match read, closed a loop of preloads that broke an exported build.
+const STEAM_DECK := 1
+const STEAM_MACHINE := 2
 ## Who the camera keeps in the picture, GAME.md 8.2: as suits the screen, every kart, the karts
 ## driven here and the rivals near them, or the karts driven here alone.
 const FOLLOW_AUTO := "auto"
@@ -32,22 +38,21 @@ static func default_screen() -> String:
 
 
 ## What a machine is played on at its first start, GAME.md 8.5: on Steam's own, what it is,
-## [param hardware] Steam's word on it, see [constant SteamStore.NOT_STEAM_HARDWARE]: a Steam Deck
+## [param hardware] Steam's word on it, see [constant STEAM_DECK]: a Steam Deck
 ## in the hand, as it is too where SteamOS says so, [param on_deck], in a build without Steam; a
 ## Steam Machine under a television. Anywhere else, see [method default_screen].
 static func first_screen(hardware: int, on_deck: bool) -> String:
-	if hardware == SteamStore.STEAM_DECK or on_deck:
+	if hardware == STEAM_DECK or on_deck:
 		return SCREEN_HANDHELD
-	if hardware == SteamStore.STEAM_MACHINE:
+	if hardware == STEAM_MACHINE:
 		return SCREEN_TV
 	return default_screen()
 
 
-## [param settings] played on [param screen], one of [constant SCREENS], at the UI scale it starts
-## at, see [constant SCREEN_UI_SCALES].
-static func play_on(settings: Settings, screen: String) -> void:
-	settings.screen = screen
-	settings.ui_scale = SCREEN_UI_SCALES[maxi(SCREENS.find(screen), 0)]
+## The UI scale [param screen], one of [constant SCREENS], starts at, see
+## [constant SCREEN_UI_SCALES].
+static func ui_scale_of(screen: String) -> float:
+	return SCREEN_UI_SCALES[maxi(SCREENS.find(screen), 0)]
 
 
 ## The UI scale drawn just now: a size being tried on the Video page, or the one kept.

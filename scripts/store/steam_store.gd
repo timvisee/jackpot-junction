@@ -28,10 +28,9 @@ const EVERY := 5.0
 ## How many batches an achievement Steam would not take is offered in.
 const TRIES := 5
 ## What Steam answers for a machine that is none of its own, GodotSteam's `SteamHardwareType`:
-## anything else is a Steam Deck, a Steam Machine or a Steam Frame, in that order.
+## anything else is a Steam Deck, a Steam Machine or a Steam Frame, in that order, see
+## [constant ViewChoices.STEAM_DECK].
 const NOT_STEAM_HARDWARE := 0
-const STEAM_DECK := 1
-const STEAM_MACHINE := 2
 ## How the overlay opens a store page, GodotSteam's OverlayToStoreFlag: just the page, nothing
 ## added to the cart.
 const OVERLAY_TO_STORE := 0

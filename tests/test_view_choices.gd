@@ -125,20 +125,14 @@ func test_picking_a_screen_sets_the_ui_scale_it_suits() -> void:
 ## it is where SteamOS says so without Steam, and a Steam Machine under a television at 125%; any
 ## other machine as a desk's.
 func test_steams_own_machines_start_as_what_they_are() -> void:
-	var steam := SteamStore
-	assert_str(ViewChoices.first_screen(steam.STEAM_DECK, false)).is_equal(
-		ViewChoices.SCREEN_HANDHELD
+	var deck := ViewChoices.STEAM_DECK
+	var none := SteamStore.NOT_STEAM_HARDWARE
+	assert_str(ViewChoices.first_screen(deck, false)).is_equal(ViewChoices.SCREEN_HANDHELD)
+	assert_str(ViewChoices.first_screen(none, true)).is_equal(ViewChoices.SCREEN_HANDHELD)
+	assert_str(ViewChoices.first_screen(ViewChoices.STEAM_MACHINE, false)).is_equal(
+		ViewChoices.SCREEN_TV
 	)
-	assert_str(ViewChoices.first_screen(steam.NOT_STEAM_HARDWARE, true)).is_equal(
-		ViewChoices.SCREEN_HANDHELD
-	)
-	assert_str(ViewChoices.first_screen(steam.STEAM_MACHINE, false)).is_equal(ViewChoices.SCREEN_TV)
-	assert_str(ViewChoices.first_screen(steam.NOT_STEAM_HARDWARE, false)).is_equal(
-		ViewChoices.default_screen()
-	)
-	var settings := Settings.new()
-	ViewChoices.play_on(settings, ViewChoices.SCREEN_HANDHELD)
-	assert_str(settings.screen).is_equal(ViewChoices.SCREEN_HANDHELD)
-	assert_float(settings.ui_scale).is_equal(1.5)
-	ViewChoices.play_on(settings, ViewChoices.SCREEN_TV)
-	assert_float(settings.ui_scale).is_equal(1.25)
+	assert_str(ViewChoices.first_screen(none, false)).is_equal(ViewChoices.default_screen())
+	assert_float(ViewChoices.ui_scale_of(ViewChoices.SCREEN_HANDHELD)).is_equal(1.5)
+	assert_float(ViewChoices.ui_scale_of(ViewChoices.SCREEN_TV)).is_equal(1.25)
+	assert_float(ViewChoices.ui_scale_of(ViewChoices.SCREEN_DESK)).is_equal(1.0)
