@@ -99,8 +99,9 @@ static func apply(options: MatchOptions, index: int) -> void:
 	options.overtime_option.select(MatchOptions.OVERTIME.find(preset["overtime"]))
 	options.catch_up_option.select(MatchOptions.CATCH_UP.find(preset["catch_up"]))
 	var strip := options.table_strip
+	# Turned over in a wave along the row, the cards the preset turns, GAME.md 9.6.
 	strip.set_table(
-		strip.opened & ~int(preset["off"]), preset["roulette"], strip.opened, strip.fresh
+		strip.opened & ~int(preset["off"]), preset["roulette"], strip.opened, strip.fresh, true
 	)
 
 

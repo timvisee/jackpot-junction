@@ -352,7 +352,9 @@ func open_early(card: int) -> void:
 	var up := TableCards.bit(card)
 	if card == TableCards.Card.SUITS:
 		up |= TableCards.bit(TableCards.Card.JOKERS)
-	table_strip.set_table(table_strip.table | up, table_strip.roulette, opened, profile.table.fresh)
+	table_strip.set_table(
+		table_strip.table | up, table_strip.roulette, opened, profile.table.fresh, true
+	)
 	_refresh()
 
 

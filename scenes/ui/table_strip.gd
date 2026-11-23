@@ -19,8 +19,10 @@ const CARD := Vector2(94.0, 94.0 * TableCardArt.ASPECT)
 ## UI scale, whose screen is short as well.
 const CARD_SMALL := Vector2(70.0, 70.0 * TableCardArt.ASPECT)
 const GAP := 10.0
-## How long a card takes to turn over, out to its edge and back.
+## How long a card takes to turn over, out to its edge and back, and how long after the card
+## before it the next one starts when a preset turns several, a wave along the row.
 const TURN := 0.22
+const WAVE := 0.06
 ## How far over the card under the mouse or the cursor its hint stands.
 const TIP_GAP := 10.0
 ## The felt the cards lie on, a strip of the table itself, and how much of it shows round them.
@@ -107,13 +109,27 @@ func _build() -> void:
 
 
 ## Sets out [param table_in], the deck of a Roulette with [param roulette_in], for a profile with
-## [param opened_in] opened and [param fresh_in] not yet played.
-func set_table(table_in: int, roulette_in: bool, opened_in: int, fresh_in := 0) -> void:
+## [param opened_in] opened and [param fresh_in] not yet played. With [param turning] the cards it
+## turns over turn as a press turns one, one after another along the row, a preset's wave.
+func set_table(
+	table_in: int, roulette_in: bool, opened_in: int, fresh_in := 0, turning := false
+) -> void:
+	var was: Array[bool] = []
+	for each: TableCardButton in _cards:
+		was.append(each.up and not each.sealed)
 	table = table_in & opened_in
 	roulette = roulette_in
 	opened = opened_in
 	fresh = fresh_in
 	_show()
+	if not turning:
+		return
+	var turned := 0
+	for i: int in _cards.size():
+		var each := _cards[i]
+		if not each.sealed and each.up != was[i]:
+			each.turn(WAVE * float(turned))
+			turned += 1
 
 
 ## The cards at their small size where [param on], for a narrow pane, see [constant CARD_SMALL].
@@ -253,6 +269,7 @@ class TableCardButton:
 	var fresh := false
 	var _back: Texture2D
 	var _turning := 0.0
+	var _wait := 0.0
 
 	func _init() -> void:
 		flat = true
@@ -276,12 +293,18 @@ class TableCardButton:
 		mouse_entered.connect(queue_redraw)
 		mouse_exited.connect(queue_redraw)
 
-	## Turns it over: narrowed to its edge, and the other side shown as it widens again.
-	func turn() -> void:
+	## Turns it over: narrowed to its edge, and the other side shown as it widens again, after
+	## [param wait] seconds, the side it showed shown till then.
+	func turn(wait := 0.0) -> void:
 		_turning = 1.0
+		_wait = wait
 		set_process(true)
+		queue_redraw()
 
 	func _process(delta: float) -> void:
+		if _wait > 0.0:
+			_wait -= delta
+			return
 		_turning = maxf(_turning - delta / TableStrip.TURN, 0.0)
 		scale.x = absf(_turning * 2.0 - 1.0) if _turning > 0.0 else 1.0
 		if _turning <= 0.0:

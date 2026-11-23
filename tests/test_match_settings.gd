@@ -534,3 +534,21 @@ func test_a_card_says_what_it_is_under_the_cursor() -> void:
 	strip._point(TableCards.Card.ITEMS, true, true)
 	assert_bool(tip.visible).is_false()
 	pane._panel.visible = false
+
+
+## A preset turns the cards it changes over as a press would, one after another along the row, and
+## leaves the rest still, GAME.md 9.6.
+func test_a_preset_turns_its_cards_in_a_wave() -> void:
+	var options := _pane().options
+	var strip := options.table_strip
+	options.presets.button(0).pressed.emit()
+	var items := strip.button(TableCards.Card.ITEMS)
+	assert_float(items._turning).is_zero()
+	var waits: Array[float] = []
+	for card: int in range(TableCards.Card.JACKPOT, TableCards.Card.size()):
+		var each := strip.button(card)
+		assert_float(each._turning).override_failure_message(TableCards.NAMES[card]).is_greater(0.0)
+		waits.append(each._wait)
+	for i: int in range(1, waits.size()):
+		assert_float(waits[i]).is_greater(waits[i - 1])
+	assert_float(waits[0]).is_zero()
