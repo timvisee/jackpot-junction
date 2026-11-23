@@ -409,12 +409,13 @@ func get_card() -> void:
 	_kept()
 
 
-## The welcome owed again: up at the title the next time it comes up, as after a first map.
+## The welcome owed again: up at the title the next time it comes up, as after the maps that bring
+## it, GAME.md 8.9.
 func welcome_again() -> void:
 	var profile := _settings.profile
 	profile.loyalty.welcomed = false
 	profile.story.kept_letter = false
-	profile.stats[&"maps"] = maxf(float(profile.stats.get(&"maps", 0.0)), 1.0)
+	profile.stats[&"maps"] = maxf(profile.maps_played(), float(LoyaltyWelcome.WELCOME_AFTER))
 	_kept()
 
 

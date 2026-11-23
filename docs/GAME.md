@@ -6197,9 +6197,11 @@ before the program has what its statistics already hold counted for it; the bets
 starts from nothing.
 
 **When it comes.** Not at once, so that a new player has one thing less to take in and a reason to
-play a second map. The first time the title comes up after the profile playing has played a map to
-its whistle, a quick match's or a map of a Grand Prix, at this screen or online, the house's welcome
-is on the table, with the ceremony its invitation had, STORY.md 6.1a: the table dark a moment, then
+play on. The first time the title comes up after the profile playing has played three maps to their
+whistle, a quick match's or a map of a Grand Prix, at this screen or online, the house's welcome is
+on the table, the Jackpot, Jokers and the Royal Flush its first bets ask of being open by then, 8.9a.
+It came after the first map until 0.24, when play-testers found too much to take in at once. It
+comes with the ceremony its invitation had, STORY.md 6.1a: the table dark a moment, then
 the house's letter sliding in from below, on its cream letterhead with a card glued to it, and two
 spotlights flickering on and settling on the card. The card is the program's: black plastic edged in
 gold, the program's name in foil, the profile's name embossed and its member number, the number on

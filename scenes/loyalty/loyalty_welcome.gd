@@ -20,6 +20,8 @@ extends Control
 signal welcomed(dialog: LoyaltyDialog)
 
 const STAGE := OpeningInvitation.STAGE
+## How many maps played to the whistle bring the welcome: as many as open the Royal Flush, 8.9a.
+const WELCOME_AFTER := TableCards.Card.FLUSH
 ## Where the letter's middle lies on the stage and how far it is turned, how big it is shown, and
 ## from how far below it slides in; and how high the button under it stands, near the foot of the
 ## screen with the letter's lowest corner clear of it, tilted toward the mouse or the phone as it
@@ -117,9 +119,12 @@ static func due(of: Profile) -> bool:
 	return owed(of)
 
 
-## Whether [param of] has the welcome still to see: a map played to its whistle, and not welcomed.
+## Whether [param of] has the welcome still to see: as many maps played to the whistle as open the
+## Royal Flush, GAME.md 8.9a, so that the Jackpot, Jokers and the pads its first bets ask of are on
+## the table first and a new player has a few maps of the game before its progression; and not
+## welcomed.
 static func owed(of: Profile) -> bool:
-	return not of.loyalty.welcomed and float(of.stats.get(&"maps", 0.0)) >= 1.0
+	return not of.loyalty.welcomed and of.maps_played() >= float(WELCOME_AFTER)
 
 
 ## The number on [param of]'s card: its invitation's, the House having kept it, or one like it for

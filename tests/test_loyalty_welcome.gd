@@ -36,12 +36,14 @@ func after_test() -> void:
 	Game.settings = _settings_were
 
 
-## Owed once a map has been played to its whistle and the profile not welcomed; never shown where
-## nothing is drawn unless asked for.
-func test_due_after_the_first_map() -> void:
+## Owed once as many maps have been played to the whistle as open the Royal Flush, GAME.md 8.9a,
+## and the profile not welcomed; never shown where nothing is drawn unless asked for.
+func test_due_after_the_third_map() -> void:
 	var profile := Game.settings.profile
 	assert_bool(LoyaltyWelcome.owed(profile)).is_false()
-	profile.stats[&"maps"] = 1.0
+	profile.stats[&"maps"] = 2.0
+	assert_bool(LoyaltyWelcome.owed(profile)).is_false()
+	profile.stats[&"maps"] = 3.0
 	assert_bool(LoyaltyWelcome.owed(profile)).is_true()
 	assert_bool(LoyaltyWelcome.due(profile)).is_false()
 	LoyaltyWelcome.again = true
@@ -69,7 +71,7 @@ func test_the_member_number() -> void:
 ## first bets open, and a count already met won at once.
 func test_joining_settles_the_first_map() -> void:
 	var profile := Game.settings.profile
-	profile.stats[&"maps"] = 1.0
+	profile.stats[&"maps"] = float(LoyaltyWelcome.WELCOME_AFTER)
 	profile.stats[&"driven"] = 12000.0
 	assert_bool(profile.loyalty.has_won(&"slip_road")).is_false()
 	LoyaltyWelcome.join(profile)
@@ -87,7 +89,7 @@ func test_joining_settles_the_first_map() -> void:
 func test_the_ceremony_ends_in_the_map() -> void:
 	LoyaltyOpening.watched = true
 	var profile := Game.settings.profile
-	profile.stats[&"maps"] = 1.0
+	profile.stats[&"maps"] = float(LoyaltyWelcome.WELCOME_AFTER)
 	profile.player_names[0] = "Ada"
 	profile.story.invitation = "7343 4238"
 	var welcome := LoyaltyWelcome.over(_holder, profile)
@@ -139,7 +141,7 @@ func test_the_ceremony_ends_in_the_map() -> void:
 func test_the_card_drops_where_the_map_has_no_place_for_it() -> void:
 	LoyaltyOpening.watched = true
 	var profile := Game.settings.profile
-	profile.stats[&"maps"] = 1.0
+	profile.stats[&"maps"] = float(LoyaltyWelcome.WELCOME_AFTER)
 	var welcome := LoyaltyWelcome.over(_holder, profile)
 	var opened: Array[LoyaltyDialog] = []
 	# The program as a short screen lays it out, its card left out of the corner.
@@ -168,7 +170,7 @@ func test_the_card_drops_where_the_map_has_no_place_for_it() -> void:
 ## away the program's button is the first of the Clubhouse's.
 func test_the_title_gains_the_program() -> void:
 	var profile := Game.settings.profile
-	profile.stats[&"maps"] = 1.0
+	profile.stats[&"maps"] = float(LoyaltyWelcome.WELCOME_AFTER)
 	OpeningInvitation.again = true
 	LoyaltyWelcome.again = true
 	var first: Control = auto_free(TITLE_SCENE.instantiate())

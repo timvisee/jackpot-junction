@@ -37,6 +37,8 @@ below, and hands the notes to the release workflow.
 - **Shown the way.** The first match with a new feature points your kart at it.
 - **The driving test teaches your table.** Jokers, the Royal Flush and the Jackpot wait until the
   House has opened them; a retake teaches them and keeps the endorsements you had.
+- **The loyalty program waits a little.** It welcomes you after your third map rather than your
+  first, so the first maps are about the game.
 - **Penny table and Roulette.** Two new presets: power-ups alone for a plain game, or three
   features dealt at random each map. Quick hand is gone.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and
