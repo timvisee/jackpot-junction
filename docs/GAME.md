@@ -1353,11 +1353,15 @@ assigns physical devices to player slots, see 10.2.
 
 A pad that goes while it is played on, out of battery or pulled out, brings the room's menu up
 for the player holding it, as if they had pressed Pause, which stops a room played alone and asks
-for a stop online (`LostPads`); they keep their seat, and the next pad that comes is theirs, or the
-same one plugged back in. Holding it is playing on it, or for a player reading every device having
-last driven with it; a pad nobody holds goes unremarked. They get up from their switch in the menu
-should they mean to go. At a client, whose players are no seats of its room, it is not done yet.
-It once handed the kart to a bot, as getting up does: a pad running flat is no player leaving.
+for a stop online (`LostPads`); while the menu is up they keep their seat, and the next pad that
+comes is theirs, or the same one plugged back in. Played on without it, the menu put away with
+the pad still gone, a bot takes their kart over, as from somebody who got up, at once in a room
+with no menu; and should that pad come again, in that room, it takes the same kart back, in their
+name and dress, as long as a bot still has it (`Match.take_back`): a pad running flat is no player
+leaving. Another pad that comes meanwhile is somebody else's, sitting down with Start as anybody
+does. Holding it is playing on it, or for a player reading every device having last driven with
+it, who plays on with whatever else they have, and no bot; a pad nobody holds goes unremarked. At
+a client, whose players are no seats of its room, none of this is done yet.
 
 | Action                      | Gamepad             | Keyboard and mouse        |
 |-----------------------------|---------------------|---------------------------|
@@ -7474,8 +7478,8 @@ taken by people nobody else can join, and nor can a fifth at one machine. A play
 
 With more than one player at a screen, each of their switches in the pause menu, 4.2, ends in
 Leave, for one of them to get up and go while the others play on; with one there is nothing to
-leave from, and no button. On a map a bot takes the kart and its score on; a pad that is unplugged
-pauses instead, its player keeping the seat, 4.2. In the lobby and the Garage the seat is emptied the way a seat left online is,
+leave from, and no button. On a map a bot takes the kart and its score on, as it does for a pad that
+is unplugged once the room plays on without it, 4.2. In the lobby and the Garage the seat is emptied the way a seat left online is,
 9.3, its kart gone until somebody sits down in it. Online it is the players at this machine it
 is for, at a client as at the host; the other machines see the kart go the way they see any other.
 

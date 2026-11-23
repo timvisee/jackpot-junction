@@ -319,6 +319,16 @@ func leave_human(slot: PlayerSlot) -> void:
 	Events.player_left.emit(slot.index)
 
 
+## [param input] at the wheel of [param slot] again, which a bot took over from a player whose pad
+## went, GAME.md 4.2, see [LostPads]: in the name the kart kept, theirs, and their dress.
+func take_back(slot: PlayerSlot, input: KartInput) -> void:
+	if slot.is_human() or slot.is_dummy():
+		return
+	var named := slot.player_name
+	_make_human(slot, input)
+	slot.player_name = named
+
+
 ## The first local seat nobody here is sitting in, for somebody joining, so they drive the way that
 ## seat drives, GAME.md 4.2.
 func _free_seat() -> int:

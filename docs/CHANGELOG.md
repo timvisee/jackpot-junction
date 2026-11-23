@@ -44,7 +44,8 @@ below, and hands the notes to the release workflow.
 - **Readying up forgives a slip.** A kart that rolls off the pad and straight back is ready again at
   once, and a full lobby charges the pad faster.
 - **A pad that dies pauses the game.** If your gamepad runs flat or comes unplugged mid-match, the
-  game pauses and keeps your seat; plug it or another pad in and play on.
+  game pauses. Plug a pad in and play on, or resume without one: a bot drives your kart until your
+  pad comes back and takes it over again.
 - **Your kart's ring, yours alone.** The ring that breathes round a kart until it drives off is only
   round the karts played on your screen. Every kart still flares as it comes back, a rival's
   thinner.
