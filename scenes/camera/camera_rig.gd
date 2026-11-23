@@ -186,9 +186,11 @@ var _closing_fill := 1.0
 ## being framed rather than all of it above, see [method _frame_points].
 var _lift := 0.0
 ## Where the framing would put the aim, see [method _still], and how far the picture is slid to
-## stay over the arena, see [method _keep_on_table].
+## stay over the arena, see [method _keep_on_table], and then to keep the karts driven here on the
+## screen, see [method _keep_mine].
 var _pan_wanted := Vector3.ZERO
 var _table_shift := Vector3.ZERO
+var _mine_shift := Vector3.ZERO
 ## The look-ahead in force, worked out with the pan and used again by the framing so that the two
 ## agree about where the camera is looking and what it has to hold on screen.
 var _led := Vector3.ZERO
@@ -292,6 +294,7 @@ func frame_arena(bounds: AABB) -> void:
 	_framing.reset()
 	_travel.reset()
 	_table_shift = Vector3.ZERO
+	_mine_shift = Vector3.ZERO
 	_settle()
 	_place(_distance, _pan, _zoom)
 
@@ -427,6 +430,7 @@ func _process(delta: float) -> void:
 	_across = _frame_ease.value.z
 	_come_in(delta)
 	_keep_on_table(delta, cutting)
+	_keep_mine()
 	_shake = maxf(_shake - shake_decay * delta * maxf(_shake, 0.1), 0.0)
 	if tremble > 0.0:
 		shake(tremble * TREMBLE_SHAKE)
@@ -525,7 +529,19 @@ func _target_pan() -> Vector3:
 	offset.y = 0.0
 	_led = _lead(_center + offset)
 	_pan_wanted = (offset + _led).limit_length(pan_limit)
+	_pan_wanted += _mine_aim(_center + _pan_wanted)
 	return _still(_pan_wanted)
+
+
+## How far across the floor the aim at [param at] has to move for every kart driven here to be on
+## the screen, see [KeptInView], at the distance and lift the camera is at or coming to: a field
+## framed closer than it fits may go off the edge, the player's own kart may not. Up and down as a
+## move of the aim along the floor, the screen's up axis being partly the camera's depth.
+func _mine_aim(at: Vector3) -> Vector3:
+	var far := _distance if _hold.distance <= 0.0 else minf(_distance, _hold.distance)
+	var seen := _in_view(_mine(KeptInView.AIMED), at)
+	var slid := KeptInView.slide(seen, _fit_view(), far, Vector2(0.0, _lift))
+	return Vector3(slid.x, 0.0, (_lift - slid.y) / sin(deg_to_rad(pitch_degrees)))
 
 
 ## The picture slid back to go no more than a little past the arena, see [TableBounds], eased over
@@ -548,6 +564,26 @@ func _keep_on_table(delta: float, snap := false) -> void:
 func _following() -> bool:
 	var opening := _opening_up or _opening_left > 0.0 or _closing_time > 0.0
 	return _framed and not _fixed() and not opening
+
+
+## The last word on the picture while it follows: slid the least it can for every kart driven here
+## to be on the screen, see [KeptInView], whatever the eases are still catching up on.
+func _keep_mine() -> void:
+	var kept := _mine(KeptInView.ROOM) if _following() else ([] as Array[Vector3])
+	var look := _center + _pan + _up_axis() * _lift + Vector3.RIGHT * _across + _table_shift
+	var slid := KeptInView.slide(_in_view(kept, look), _fit_view(), _distance)
+	_mine_shift = Vector3.RIGHT * slid.x + _up_axis() * slid.y
+
+
+## What has to be on the screen round each kart driven here still in play, where it counts for the
+## framing, see [FramedSpots], [param room] each way, see [KeptInView].
+func _mine(room: float) -> Array[Vector3]:
+	var places := PackedVector3Array()
+	for target: Node3D in _valid(listener_targets):
+		var kart := target as Kart
+		if kart == null or kart.alive:
+			places.append(_spots.place_of(target))
+	return KeptInView.around(places, room)
 
 
 ## Whether the field is settled enough to come in on, see [CameraHold]: no kart still gliding into
@@ -701,6 +737,9 @@ func _target_framing() -> Vector2:
 	# clearance still adds its own on top, so coming in never hides a kart under the HUD, see [_clear].
 	var pull := _distance_pull()
 	var floor_far := _framing.least(follow_min_distance * pull, _arena_distance)
+	# Never so close, whatever the pull, that a kart driven here is off the screen, see [KeptInView].
+	var kept := _mine(KeptInView.AIMED)
+	floor_far = minf(maxf(floor_far, _needed_distance(kept, at)), _arena_distance)
 	# Held rather than followed: back as soon as the karts need it, in again only once they have
 	# stayed close for a moment, see [CameraHold].
 	var wanted := _needed_distance(corners, at) * pull
@@ -712,8 +751,14 @@ func _target_framing() -> Vector2:
 	# And the floor ahead of each kart driven here, kept out from under the HUD as the karts are.
 	middles.append_array(_ahead)
 	var rooms := ClearView.rooms(alive)
+	# The floor above and below balanced over what it aims at, see [method FramedKarts.aim_places],
+	# never so far off that a kart driven here leaves the screen.
+	var here := _valid(listener_targets)
+	var aimed := _framed_corners(_framing.aim_places(alive, _spots.placed, here), _led)
+	var lift := Vector2(0.0, _aim_lift(aimed, at, far))
+	lift = KeptInView.slide(_in_view(kept, at), _fit_view(), minf(far, _distance), lift)
 	# Never in past the distance held for the HUD's sake: what it keeps clear of goes on top.
-	return _clear(middles, corners, at, far, _aim_lift(corners, at, far), far, rooms)
+	return _clear(middles, corners, at, far, lift.y, far, rooms)
 
 
 ## The distance the player keeps the camera at, GAME.md 8.5: [member Settings.camera_distance], or
@@ -834,7 +879,9 @@ func _target_zoom() -> float:
 
 func _place(distance: float, pan: Vector3, zoom: float) -> void:
 	var pitch := deg_to_rad(pitch_degrees + _tilt)
-	var look_at_point := _center + pan + _up_axis() * _lift + Vector3.RIGHT * _across + _table_shift
+	var look_at_point := (
+		_center + pan + _up_axis() * _lift + Vector3.RIGHT * _across + _table_shift + _mine_shift
+	)
 	var offset := Vector3(0.0, sin(pitch), cos(pitch)) * distance
 	if _shake > 0.0:
 		offset += (

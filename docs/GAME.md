@@ -4388,10 +4388,22 @@ rivals, so the player's own kart stays in the middle of the screen as rivals com
 and go, and it comes no closer than half the distance that holds the whole arena: on
 a handheld it came in on a kart alone until the table round it was lost, and with
 its aim between a kart and a rival it put the kart off the edge of the screen. The
-slide that keeps the picture over the arena still has the last word. Auto follows
-everybody at a desk and the karts driven here with the rivals near them on a small
-screen. With nobody driving at a screen, one watching, it follows everybody whatever
-was chosen.
+floor above and below is balanced over the karts driven here too, not over their
+rivals. Auto follows everybody at a desk and the karts driven here with the rivals
+near them on a small screen. With nobody driving at a screen, one watching, it
+follows everybody whatever was chosen.
+
+A kart driven here is never off the screen, whoever is followed and however close
+the player has the camera. The framing keeps 3.5 m of floor round it in view, from
+the floor to 1.5 m up: the aim moves along the floor and slides up and down as far
+as that takes, and the camera comes no closer than holds it. A kart that outruns the
+camera's eases is caught by a last word after every other slide: the picture slides
+at once, the least it can, to keep 2 m round it. Coming in closer than the karts it
+followed fit, as Auto does on a handheld, the camera used to balance what it left
+out above and below over all of them, and a rival near the bottom of the picture
+took the player's own kart off its top, for seconds at a time. Over two minutes of
+bots on each map at a Steam Deck's screen, the kart is now off it only while a
+respawn's cut dips to dark.
 
 Every kart out of the picture is pointed at from the edge of the screen, an arrow
 in its color edged in ink, 30 px in from the edge on the line from the middle of
@@ -4472,6 +4484,7 @@ arena, since it holds the pad and who stands on it rather than the room.
 | Still aim        | The aim stays put while where it would go is within 5% of the screen of it, across and down, as far as every kart still fits from there at the distance held |
 | Who is framed    | Auto (everybody at a desk; the karts driven here and the rivals near them on a TV, a handheld, a window under 760 lines or a UI over 100%, never My kart, which followed one kart so close on a TV the table was lost round it), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that; aimed at the karts driven here, no closer than half the whole arena's distance) or My kart; everybody with nobody driving here |
 | Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; at a desk more as the UI is turned down, 14% at 90% and 20% at 75%; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
+| Own kart         | Always on the screen: 3.5 m of floor round each kart driven here, 1.5 m tall, kept by the aim, the slide up and down and the least distance; past the eases, the picture slid at once to keep 2 m, after every other slide |
 | Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here and 18 for a rival |
 | Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |

@@ -56,6 +56,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Your kart never leaves the screen.** However close the camera comes and whoever else it
+  follows, your own kart stays in view, where on a handheld a rival could push it off the top.
 - **Keys named as your keyboard prints them.** On an AZERTY or other keyboard, the hints name the
   key you press, Z rather than W.
 - **Steam's keyboard in a name or password dialog.** On a Steam Deck it comes up as soon as the
