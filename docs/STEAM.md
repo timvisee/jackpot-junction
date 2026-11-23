@@ -259,6 +259,51 @@ account says at https://steamcommunity.com/dev/testrichpresence while it plays.
 Under app 480 nothing of ours can be uploaded, so the friends list shows nothing
 of it, but the test page still lists the keys.
 
+## Steam Input
+
+A Steam build reads its controllers through Steam Input, GAME.md 10.8, with every
+action of the game's named in Steam's controller settings. The action manifest and
+the layout each kind of controller starts on are in `data/steam/input/`, written by
+`make steam-input`, and `make steam-export` puts them in both depots as
+`steam_input/`, beside the game.
+
+1. **The template** (App Admin > Application > Steam Input): "Custom Configuration
+   (Bundled with Game)", with the path `steam_input/action_manifest.vdf`, the same
+   on Linux and Windows. Save, then publish (Edit Steamworks Settings > Publish).
+   Not the Workshop's "Custom Configuration": Valve no longer recommends it for a
+   new game, and the bundled files change with each build as the game does.
+2. **Which controllers** (same page): tick PlayStation, Xbox, Switch, Generic, and
+   Any Future Devices, as Valve asks of a game using Steam Input's API. A kind left
+   unticked goes to the game as an ordinary pad, which still works, but without the
+   game's actions in Steam for it, unless its player turns Steam Input on for it.
+   Xbox is the one some games leave unticked; ticking it too keeps every controller
+   the same.
+3. **A build with `steam_input/`** live on `staging`: the Steam workflow's next
+   upload. Steam reads the manifest from the depot once the template names it; the
+   game hands Steam the same file itself as Steam Input starts, so it works on a
+   branch before the template is published as well.
+4. **A look on each controller** you have, from `staging`: Steam's controller
+   settings for the game should be on the layout "Jackpot Junction", with every
+   action of the set "Play" named. Start the build with `++ --pads` in its launch
+   options (`%command% ++ --pads`, from a terminal to see what it prints) and push
+   each stick all the way up: it prints what Steam said, and Steam's up should be
+   "y more". If it says "y less", turn `SteamPads.UP_IS_MORE` off. Steam follows
+   the window in front; `steam://forceinputappid/5652730` in a browser holds Steam
+   Input on the game while another window has the focus, and
+   `steam://forceinputappid/0` lets go.
+5. **A layout made by hand**, should one need more than `SteamActions` writes, a
+   Deck's back buttons say: in Big Picture, Settings > System, turn on Developer
+   mode, then under Developer "Steam Input Layout Dev Mode"; change the layout in
+   Steam's controller settings, export it from the gear menu, and open
+   `steam://dumpcontrollerconfig?appid=5652730`, which writes the layout's `.vdf`
+   (on Linux into `/tmp`). Keep it in `data/steam/input/` under the controller's
+   name, and take that controller out of what `SteamActions.files` writes, or
+   `make steam-input` writes over it.
+
+The 2026 Steam Controller's layout is `controller_triton.vdf`, Steam's own name for
+it in the client's `controller_base`; Valve's list of controller names for the
+manifest does not have it yet.
+
 ## Store and library art
 
 `make steam-art` renders every picture Steamworks asks for but the achievements'
@@ -330,7 +375,7 @@ out: the links go in Basic Info's fields.
 | Developer, publisher | timvisee, as on itch.io and GitHub |
 | Supported languages | English: interface only, since nothing is voiced or subtitled |
 | Platforms | Windows, and SteamOS + Linux; macOS once it is on Steam, see [Builds](#builds) |
-| Controllers | Full controller support: Xbox and PlayStation controllers, which the game reads itself rather than through Steam Input, the buttons named as Xbox names them |
+| Controllers | Full controller support: Xbox and PlayStation controllers, and every other controller through Steam Input, with the game's actions named in Steam's controller settings; if the controller questions ask whether the game uses the Steam Input API, it does |
 | Genres | Action, Casual, Indie, Racing, Free to Play |
 | Website | `https://github.com/timvisee/jackpot-junction` |
 | Support | The repository's issues: `https://github.com/timvisee/jackpot-junction/issues` |

@@ -340,7 +340,7 @@ func _show_the_way_in() -> void:
 func _seat_within_reach() -> bool:
 	if not TouchInput.enabled:
 		return true
-	var devices := 1 + Input.get_connected_joypads().size()
+	var devices := 1 + DeviceInput.pads().size()
 	return devices > SeatLimit.players_here(match_node, Net.session)
 
 

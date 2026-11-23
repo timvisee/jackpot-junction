@@ -241,12 +241,13 @@ func _tabs_row() -> HBoxContainer:
 
 
 ## Whether a gamepad is plugged in, for the shoulder buttons to be drawn: one the engine knows for
-## a gamepad, which a keyboard that says it is a joystick as well, as some do, is not.
+## a gamepad, which a keyboard that says it is a joystick as well, as some do, is not, or one of
+## Steam Input's.
 static func pad_plugged_in() -> bool:
 	for pad: int in Input.get_connected_joypads():
 		if Input.is_joy_known(pad):
 			return true
-	return false
+	return not DeviceInput.steam_pads.is_empty()
 
 
 ## Another profile is playing now, or one was made or thrown away: the settings come up again for
@@ -513,7 +514,7 @@ static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
 	if InputMap.has_action(action):
 		for event: InputEvent in InputMap.action_get_events(action):
 			var descriptor := InputActions.descriptor_from_event(event)
-			if InputActions.is_keyboard_descriptor(descriptor) != keyboard:
+			if descriptor.is_empty() or InputActions.is_keyboard_descriptor(descriptor) != keyboard:
 				continue
 			var glyph := InputGlyph.of_event(event, BINDING_INK, BINDING_SIZE)
 			# At its own height in the middle of the socket rather than stretched to fill it.

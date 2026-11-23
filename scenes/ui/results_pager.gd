@@ -22,9 +22,8 @@ const PILL := Color(HouseTheme.STOCK, 0.92)
 const PILL_EDGE := Color(HouseTheme.FOIL, 0.45)
 const PILL_ROOM := Vector2(9.0, 9.0)
 const FAINT := Color(1.0, 1.0, 1.0, 0.3)
-## The shoulders and the keys that turn the pages back and on, besides up and down.
-const BACK_BUTTON := JOY_BUTTON_LEFT_SHOULDER
-const ON_BUTTON := JOY_BUTTON_RIGHT_SHOULDER
+## The keys that turn the pages back and on, besides up and down, and on a pad the shoulders, the
+## dialogs' page binds, [constant InputActions.MENU_PAGE_PREV] and its next.
 const BACK_KEY := KEY_PAGEUP
 const ON_KEY := KEY_PAGEDOWN
 
@@ -70,8 +69,9 @@ func turn(event: InputEvent) -> bool:
 	var pad := event as InputEventJoypadButton
 	var key := event as InputEventKey
 	if pad != null:
-		arrow = back if pad.button_index == BACK_BUTTON else arrow
-		arrow = on if pad.button_index == ON_BUTTON else arrow
+		# By the dialogs' page binds, the shoulders, which Steam Input presses as well.
+		arrow = back if pad.is_action(InputActions.MENU_PAGE_PREV) else arrow
+		arrow = on if pad.is_action(InputActions.MENU_PAGE_NEXT) else arrow
 	elif key != null:
 		var pressed := key.physical_keycode if key.physical_keycode != KEY_NONE else key.keycode
 		arrow = back if pressed == BACK_KEY else arrow

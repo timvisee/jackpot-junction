@@ -859,9 +859,9 @@ static func turn_of(event: InputEvent) -> int:
 			return 1
 	var pad := event as InputEventJoypadButton
 	if pad != null and pad.pressed:
-		if pad.button_index == JOY_BUTTON_LEFT_SHOULDER:
+		if pad.is_action(InputActions.MENU_PAGE_PREV):
 			return -1
-		if pad.button_index == JOY_BUTTON_RIGHT_SHOULDER:
+		if pad.is_action(InputActions.MENU_PAGE_NEXT):
 			return 1
 	if event.is_action_pressed(&"ui_left", true):
 		return -1

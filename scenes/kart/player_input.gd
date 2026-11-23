@@ -322,7 +322,7 @@ func _detect_device() -> void:
 		InputActions.DRIVE_DOWN,
 		InputActions.FIRE
 	]
-	for joypad: int in Input.get_connected_joypads():
+	for joypad: int in DeviceInput.pads():
 		for action: StringName in actions:
 			if DeviceInput.strength(action, joypad) > 0.2:
 				last_device = joypad

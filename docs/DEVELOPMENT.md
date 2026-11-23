@@ -54,7 +54,8 @@ make steam-art  # every other Steamworks picture and the store's screenshots in 
 
 Steam, GAME.md 10.8, is never on unless asked for: only a Steam export, from
 `make steam-export`, or `--steam` turns it on, so no test or tool ever talks to
-Steam; the tests hand the game a fake of it, `tests/fake_steam.gd`. With Steam
+Steam; the tests hand the game a fake of it, `tests/fake_steam.gd`, and with Steam Input's
+controllers `tests/fake_steam_input.gd`. With Steam
 running and logged in, `make steam-addon` once, then `make steam-run` plays as
 Spacewar, app 480. `JJ_STEAM_PEER=1` in the environment sends every online game
 through the Steam game's own connection, `SteamPeer`, over ENet on this machine:

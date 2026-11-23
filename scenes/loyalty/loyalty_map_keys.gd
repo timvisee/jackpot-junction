@@ -63,7 +63,7 @@ static func zoom_by(view: LoyaltyMapView, event: InputEvent) -> bool:
 static func pads() -> Vector3:
 	var zooming := 0.0
 	var push := Vector2.ZERO
-	for pad: int in Input.get_connected_joypads():
+	for pad: int in DeviceInput.pads():
 		var into := Input.get_joy_axis(pad, LoyaltyDialog.ZOOM_IN)
 		var out := Input.get_joy_axis(pad, LoyaltyDialog.ZOOM_OUT)
 		var rest := LoyaltyDialog.TRIGGER_REST

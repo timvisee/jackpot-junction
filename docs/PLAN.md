@@ -3728,6 +3728,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
+| S13 | Steam Input | Built; the user's Steamworks steps and a look on each controller |
 
 ### Questions, and the answers
 
@@ -4161,6 +4162,28 @@ drafts on a review page before settling.
 - [x] The description's headings and pictures, kept in `docs/description` for ITCH.md too.
 - [x] Ten screenshots at 1920 × 1080 from `tools/screenshots --steam`, and the README's retaken at
       that size: a run's settings had sized its window back down, halving every shot.
+
+### S13: Steam Input [10.8]
+
+Asked for by the user on 2026-11-23: the Steam Input API in Steam builds, on to start with, in place
+of the game reading Steam's pads itself, through a layer handing the game what Steam reads; a switch
+to turn it off should it cause trouble; every action of the game's named in Steam's controller
+settings; and what to set on Steamworks. Built in the worktree `steam-input`.
+
+- [x] `SteamActions`: one set, Play, its two sticks and two triggers, every button action by the
+      game's own name; the manifest and a layout for each kind of controller in
+      `data/steam/input/`, `make steam-input`, `test_steam_actions` holding them to the code.
+- [x] `SteamPads`: each controller a pad of its own from 32, presses by the controller's
+      buttons, the pad's own button where one is bound to just those actions or a chord
+      (`InputActions.chord`), sticks and triggers on the game's axes, knocks through Steam,
+      Steam's controller settings. `DeviceInput.pads()` wherever a pad list was the engine's.
+- [x] `make steam-export` copies the files in as `steam_input/`; `steam.yml` checks them.
+- [ ] The user: the template and the controllers ticked on Steamworks, `docs/STEAM.md`, "Steam
+      Input".
+- [ ] The user: a look on each controller at hand, the Deck and a Steam Controller among them,
+      the sticks' up checked with `++ --pads` (`SteamPads.UP_IS_MORE`).
+- [ ] Later: hints drawing the button Steam has an action on, from Steam's origins, for a layout
+      changed in Steam; a menu set beside Play, should one be wanted.
 
 ## M20: the story, retold
 

@@ -632,7 +632,9 @@ func _gone() -> void:
 
 
 func _process(delta: float) -> void:
-	var push := Input.get_joy_axis(0, JOY_AXIS_RIGHT_Y)
+	var push := 0.0
+	for pad: int in DeviceInput.pads():
+		push += Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)
 	if absf(push) > 0.25 and scroll != null:
 		scroll.scroll_vertical += roundi(push * STICK_SCROLL * delta)
 

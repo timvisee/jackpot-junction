@@ -701,7 +701,7 @@ func _on_plate_typed(cleaned: String) -> void:
 
 func _process(delta: float) -> void:
 	var stick := 0.0
-	for pad: int in Input.get_connected_joypads():
+	for pad: int in DeviceInput.pads():
 		stick += Input.get_joy_axis(pad, JOY_AXIS_RIGHT_X)
 	if absf(stick) > STICK_DEAD:
 		var pushed := (absf(stick) - STICK_DEAD) / (1.0 - STICK_DEAD)

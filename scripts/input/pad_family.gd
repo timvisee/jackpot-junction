@@ -189,6 +189,9 @@ static func of_device(device: int) -> Family:
 		return _shown
 	if _known.has(device):
 		return _known[device]
+	# A pad of Steam Input's, which the engine never sees, is what Steam says it is.
+	if DeviceInput.steam_pads.has(device):
+		return DeviceInput.steam_pads[device] as Family
 	# A pad the engine has not got, a seat's own that was unplugged, say: nothing to ask about.
 	if not Input.get_connected_joypads().has(device):
 		return Family.GENERIC
@@ -260,13 +263,16 @@ static func told() -> PackedStringArray:
 		var family: String = Family.keys()[of_device(device)]
 		lines.append("pad %d: %s, %s" % [device, Input.get_joy_name(device), info])
 		lines.append("pad %d: drawn as %s" % [device, family.capitalize()])
+	for device: int in DeviceInput.steam_pads:
+		var family: String = Family.keys()[of_device(device)]
+		lines.append("pad %d: Steam Input's, drawn as %s" % [device, family.capitalize()])
 	return lines
 
 
 ## A pad came or went: the engine may give its id to another pad, so every family is asked again.
 static func forget() -> void:
 	_known.clear()
-	if _last_pad >= 0 and not Input.get_connected_joypads().has(_last_pad):
+	if _last_pad >= 0 and not DeviceInput.pads().has(_last_pad):
 		_last_pad = -1
 	_look_again()
 	epoch += 1

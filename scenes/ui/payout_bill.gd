@@ -441,7 +441,7 @@ func _covered() -> bool:
 func _stick_on(delta: float) -> void:
 	var push := 0.0
 	if is_visible_in_tree() and not _covered():
-		for pad: int in Input.get_connected_joypads():
+		for pad: int in DeviceInput.pads():
 			var down := Input.get_joy_axis(pad, JOY_AXIS_RIGHT_Y)
 			if absf(down) > absf(push):
 				push = down

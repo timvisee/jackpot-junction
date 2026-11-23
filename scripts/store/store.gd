@@ -19,6 +19,8 @@ const SINGLETON := &"Steam"
 const NO_BAR: Array[StringName] = [&"know_every_street"]
 ## A DLC's store page on the web, for a build with no overlay to open it in.
 const STORE_PAGE := "https://store.steampowered.com/app/%d"
+## Steam Input's controllers as the game's pads, GAME.md 10.8, by path: [SteamPads].
+const STEAM_PADS := "res://scripts/store/steam_pads.gd"
 
 ## Steam, once started, or null: none wanted, none in this build, or none answering.
 static var steam: SteamStore
@@ -69,6 +71,18 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 		# Which pad stands behind a pad Steam Input shows the game, for its buttons, GAME.md 8.3.
 		store.watch_pads()
 		PadFamily.behind_steam = store.pad_family
+
+
+## Steam Input started for the game, [param game], or stopped, as [param on] says, GAME.md 10.8:
+## its controllers come as pads, or go. Nothing without Steam.
+static func use_steam_input(game: Node, on: bool) -> void:
+	var running := game.get_node_or_null(^"SteamPads")
+	if on and running == null and steam != null:
+		game.add_child(load(STEAM_PADS).new(steam.api))
+	elif not on and running != null:
+		# Out of the way at once, for it to be started again before the frame is out.
+		running.name = "SteamPadsGoing"
+		running.queue_free()
 
 
 ## The lobby `+connect_lobby <id>` among [param args], Godot's own arguments, names: Steam starts
