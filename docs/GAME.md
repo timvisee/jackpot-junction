@@ -9251,7 +9251,9 @@ plate, 4.4, made up for it.
 
 **The runs.** Every run is a Grand Prix, 9.7, of three maps dealt from the normal maps and the XL
 maps alike, three minutes a map to a target of 3000, with Overtime, Pick one to keep and
-Tie-breaker on, every kart for itself. The waiting room is left out: the playlist is dealt as the
+Tie-breaker on, every kart for itself, and the table played as Roulette, 3.17: power-ups and three
+of the other cards dealt each map, so a visitor sees a few of them at a time rather than all at
+once, and a different few the next map. The waiting room is left out: the playlist is dealt as the
 run starts, and the first map's lamps go once its room is up.
 
 **The picks.** A seat's picks are worked where everybody sees them, the way a player works them,

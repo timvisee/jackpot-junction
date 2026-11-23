@@ -48,6 +48,10 @@ static func deal(rng: RandomNumberGenerator) -> MatchConfig:
 	config.item_set = "all"
 	config.overtime = true
 	config.teams = 0
+	# Roulette, GAME.md 9.8 and 3.17: a booth's visitors see a different few of the table's cards
+	# every map rather than all of them at once.
+	config.table = TableCards.ALL
+	config.roulette = true
 	config.seats = maxi(config.seats, config.karts())
 	# A table too big for the usual size deals the XL maps alone, GAME.md 6.3.
 	var maps := ArenaMaps.pool(not config.crowded(), true)

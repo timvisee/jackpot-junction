@@ -39,6 +39,7 @@ below, and hands the notes to the release workflow.
   House has opened them; a retake teaches them and keeps the endorsements you had.
 - **The loyalty program waits a little.** It welcomes you after your third map rather than your
   first, so the first maps are about the game.
+- **The booth demo plays Roulette.** Each map deals a few features rather than all of them.
 - **Penny table and Roulette.** Two new presets: power-ups alone for a plain game, or three
   features dealt at random each map. Quick hand is gone.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and

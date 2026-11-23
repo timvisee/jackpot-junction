@@ -48,6 +48,14 @@ func test_a_run_is_a_grand_prix_dealt_at_once() -> void:
 	assert_int(config.teams).is_equal(0)
 	assert_str(config.item_set).is_equal("all")
 	assert_int(run.bots.size()).is_equal(2)
+	# Roulette, GAME.md 9.8: a few of every card dealt each map.
+	assert_bool(config.roulette).is_true()
+	assert_int(config.table).is_equal(TableCards.ALL)
+	var rules := config.rules(load("res://data/match/default.tres"), _rng(5))
+	assert_int(TableCards.cards_of(rules.table & ~TableCards.FIRST).size()).is_greater_equal(
+		TableCards.DEAL
+	)
+	assert_bool(rules.dealt).is_true()
 
 
 ## Each seat has a funny name, a color nobody else has and a dress of its own; its bot a way of
