@@ -38,12 +38,13 @@ const DECK_CUT_GAP := 28.0
 const DECK_TOP_BODY := Vector2(68.0, 139.0)
 const DECK_FRONT_BODY := Vector2(4.0, 410.0)
 const DECK_ZIG := Vector2(7.0, 10.0)
-## Where its buttons are, in its units, the top view's shoulders over the front view's rest.
+## Where its buttons are, in its units, the top view's shoulders over the front view's rest. The
+## top view being turned over, a trigger is the scoop at its top, its bumper the bar under it.
 const DECK_SPOTS: Dictionary[StringName, Vector2] = {
-	&"lt": Vector2(55, 90),
-	&"lb": Vector2(55, 139),
-	&"rt": Vector2(969, 90),
-	&"rb": Vector2(969, 139),
+	&"lt": Vector2(60, 43),
+	&"lb": Vector2(72, 94),
+	&"rt": Vector2(964, 43),
+	&"rb": Vector2(952, 94),
 	&"ls": Vector2(163, 290),
 	&"rs": Vector2(860, 290),
 	&"dpad": Vector2(40, 273),

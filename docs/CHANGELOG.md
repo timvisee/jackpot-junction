@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Steam Deck's triggers in Show gamepad.** Their lines point at the triggers now, not at the
+  bumpers under them.
+
 ## [0.23.1] - 2026-11-22
 
 ### Added
