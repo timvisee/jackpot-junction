@@ -52,8 +52,12 @@ static func spawn(parent: Node, at: Vector3, player_color: Color) -> SpawnRing:
 
 ## Keeps the ring round where [param kart] came back once the flare has opened, breathing, until it
 ## drives off, GAME.md 3.6: a player who has not found their kart yet finds it still marked, however
-## long they take.
+## long they take. Only a kart driven at this machine: a rival's, or a bot's, is nobody's here to
+## find, and its flare goes as it would.
 func hold_on(kart: Node3D) -> SpawnRing:
+	var driven := kart as Kart
+	if driven != null and not driven.input is PlayerInput:
+		return self
 	_held = kart
 	add_to_group(GROUP)
 	return self

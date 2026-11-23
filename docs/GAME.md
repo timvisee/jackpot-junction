@@ -325,12 +325,14 @@ uncontrollable, and dies whatever its lives. On death, in this order:
    the player's color with a column of light standing in it, the column gone
    inside a second. The blinking says something about that kart to whoever is
    already looking at it; the flare says to the whole room that somebody is back,
-   and where. The ring then settles round the kart, 1.9 m across, breathing in and
-   out every 1.2 s, and stays until the kart drives 0.75 m off the spot, so a
-   player who has not found their kart yet finds it still marked however long they
-   take. Every kart wears one where it stands as a map's countdown starts, for the
-   same reason. On a client, whose snapshot moves the kart after the flare, it waits
-   up to 2 s for the kart to arrive.
+   and where. Round a kart driven at this machine the ring then settles round it,
+   1.9 m across, breathing in and out every 1.2 s, and stays until the kart drives
+   0.75 m off the spot, so a player who has not found their kart yet finds it still
+   marked however long they take; a rival's, or a bot's, nobody here has to find, and
+   its ring goes with the flare. Every kart flares where it stands as a map's
+   countdown starts, the ones driven here then held the same way. On a client, whose
+   snapshot moves the kart after the flare, it waits up to 2 s for the kart to
+   arrive. Asked for on 2026-11-23.
 
 Every screen shows how the pot split, since a number over a wreck saying half was
 banked left a player to work out what became of the rest. The share that banks

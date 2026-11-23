@@ -345,11 +345,13 @@ func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	match_node.with_hud = true
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
-	var inputs: Array[KartInput] = [KartInput.new(), KartInput.new()]
+	# A bot, and a kart driven at this machine, whose ring is held round it.
+	var inputs: Array[KartInput] = [KartInput.new(), PlayerInput.new(DeviceInput.ANY, -1)]
 	match_node.start(inputs, 11)
 	await _runner.simulate_frames(12, 17)
 	var victim := match_node.kart_of(1)
-	# Every kart already wears the ring it breathes where it stands from the countdown, GAME.md 3.6.
+	# The karts driven here already wear the ring they breathe where they stand from the countdown,
+	# GAME.md 3.6.
 	var before := _rings(match_node).map(func(ring: Node) -> int: return ring.get_instance_id())
 	victim.die(&"pit", -1)
 	await _runner.simulate_frames(20, 17)
@@ -367,6 +369,16 @@ func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	victim.global_position += Vector3(3.0, 0.0, 0.0)
 	await _runner.simulate_frames(40, 17)
 	assert_bool(is_instance_valid(flare)).is_false()
+	# A bot's flares as it comes back, and goes with the flare: nobody here has it to find.
+	var bot := match_node.kart_of(0)
+	var bot_color := match_node.slots[0].color()
+	bot.die(&"pit", -1)
+	await _runner.simulate_frames(20, 17)
+	var bot_flares := _rings(match_node).filter(
+		func(ring: Node) -> bool: return (ring as SpawnRing).color == bot_color
+	)
+	assert_int(bot_flares.size()).is_greater_equal(1)
+	assert_bool(SpawnRing.on(bot)).is_false()
 
 
 ## A client hears that a kart is back before the snapshot that puts it there, so the ring opens

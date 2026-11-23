@@ -137,15 +137,18 @@ func test_a_kart_ring_makes_way_for_the_ring_it_came_back_with() -> void:
 	assert_float(material.albedo_color.a).is_equal_approx(KartRings.COLOR_ALPHA, 0.001)
 
 
-## Every kart's ring breathing where it stands as the countdown starts.
-func test_the_countdown_rings_every_kart() -> void:
+## Every kart's ring as the countdown starts, breathing where it stands only round the karts driven
+## here: a rival's flare goes as it would, nobody here having it to find.
+func test_the_countdown_rings_every_kart_and_holds_the_ones_driven_here() -> void:
 	var match_node := await _playing()
 	var rings := match_node.hud.get_node("KartRings") as KartRings
 	rings._on_state_changed(Match.State.COUNTDOWN)
-	var held := match_node.get_children().filter(
-		func(node: Node) -> bool: return node is SpawnRing and (node as SpawnRing)._held != null
+	var flares := match_node.get_children().filter(
+		func(node: Node) -> bool: return node is SpawnRing
 	)
-	assert_int(held.size()).is_greater_equal(match_node.slots.size())
+	assert_int(flares.size()).is_greater_equal(match_node.slots.size())
+	assert_bool(SpawnRing.on(match_node.kart_of(0))).is_true()
+	assert_bool(SpawnRing.on(match_node.kart_of(1))).is_false()
 
 
 ## The ring a kart comes back with stays round it, breathing, as long as it stands there, and goes

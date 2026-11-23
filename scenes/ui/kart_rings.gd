@@ -6,8 +6,8 @@ extends Node
 ## as the camera goes back, never smaller on the screen than they are with it close in.
 ##
 ## And at the start of a map every kart's own ring of 3.6, the one it comes back with, breathing
-## where it stands until it drives off, see [method SpawnRing.hold_on]: a player finds their kart
-## on the grid by its color before the lights.
+## where it stands until it drives off for a kart driven here, see [method SpawnRing.hold_on]: a
+## player finds their kart on the grid by its color before the lights.
 ##
 ## Never two rings round a kart: while it wears the ring it came back with, or the countdown's, its
 ## kart ring makes way, see [method SpawnRing.on], and comes in once that has gone, over
