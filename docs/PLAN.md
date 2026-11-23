@@ -5191,6 +5191,26 @@ and the achievements, which came onto master meanwhile, so the branch was rebase
 - **Shaders.** Every rising piece and the trench must be warmed up, or the first rise hitches.
 - **Retakes and old profiles.** Nothing in the middle of a test is saved, so nothing to migrate.
 
+## M23: a simpler first table
+
+Asked for by the user on 2026-11-23 after play-testers found too many mechanics in their first
+matches. Proposal and answers: https://claude.ai/artifact/NgUpmScnbdxmPUCSj1hjja (Q1-Q18 in its
+db, `picks/main`). Built in worktree `.claude/worktrees/simple-start`, branch `simple-start`, from
+master at afe62e53. The rules go over the wire, so it ships as 0.24.0.
+
+| Step | What | State |
+|------|------|-------|
+| T1 | The table's eight cards in the match rules: glyphs cleared off the map, gates in the rules, `table` on the wire (GAME.md 3.17) | Done |
+| T2 | A table per profile, a card opened a map, the server's `--table` (8.9a) | Done |
+| T3 | The match settings: Penny table and Roulette presets, the On the table strip, sealed cards opened early (9.6) | Done |
+| T4 | The coupon on the payout slip | Done |
+| T5 | The loading screen deals the table, the new card named (8.6) | Done |
+| T6 | The arrow at the new card once | Done |
+| T7 | The driving test teaches the opened cards, endorsements kept across retakes (9.4a) | Done |
+| T8 | The loyalty welcome after the third map (8.9) | Done |
+| T9 | The booth demo plays Roulette (9.8) | Done |
+| T10 | A play-test round with the user; then decide on cuts (poker hands first) | Open |
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
