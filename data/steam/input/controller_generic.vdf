@@ -2,11 +2,11 @@
 {
 	"version"		"3"
 	"revision"		"1"
-	"title"		"#Title"
-	"description"		"#Description"
+	"title"		"Default"
+	"description"		"Every button does what it does on a gamepad in the game."
 	"controller_type"		"controller_generic"
 	"major_revision"		"0"
-	"minor_revision"		"0"
+	"minor_revision"		"1"
 	"actions"
 	{
 		"Play"
@@ -84,8 +84,6 @@
 	{
 		"english"
 		{
-			"Title"		"Jackpot Junction"
-			"Description"		"The game's own layout: every button where the game's own pad has it."
 			"Set_Play"		"Play"
 			"Action_steer_stick"		"Steer and drive"
 			"Action_aim_stick"		"Aim, emote and scroll"

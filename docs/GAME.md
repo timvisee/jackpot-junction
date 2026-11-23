@@ -10880,7 +10880,9 @@ stick. Each layout a kind of controller starts on binds it as the game's own pad
 joker and presses a menu's button at once, the left shoulder is the handbrake and the page before,
 the left stick steers, the right one aims, the triggers are the pedals. There is one for an Xbox
 pad, which Steam uses for the Xbox 360's too, the DualShock 4, the DualSense, the Switch Pro, the
-Steam Deck, the Steam Controllers of 2015 and of 2026 and any other pad; the 2015 one's trackpads
+Steam Deck, the Steam Controllers of 2015 and of 2026 and any other pad, each titled Default, which Steam
+shows after "Official Layout for Jackpot Junction", in plain words rather than a `#` word of the
+localization, which Steam showed as it was, and raised a revision whenever one changes; the 2015 one's trackpads
 stand in for the right stick and the D-pad it lacks. The buttons behind a controller repeat front
 ones, so a thumb stays on its stick: on the Deck and the 2026 Steam Controller the upper right one
 is A, the lower right X, the upper left Y and the lower left B, and on the 2015 one the right grip

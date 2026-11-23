@@ -297,8 +297,8 @@ the layout each kind of controller starts on are in `data/steam/input/`, written
    game hands Steam the same file itself as Steam Input starts, so it works on a
    branch before the template is published as well.
 4. **A look on each controller** you have, from `staging`: Steam's controller
-   settings for the game should be on the layout "Jackpot Junction", with every
-   action of the set "Play" named. Start the build with `++ --pads` in its launch
+   settings for the game should be on "Official Layout for Jackpot Junction -
+   Default", with every action of the set "Play" named. Start the build with `++ --pads` in its launch
    options (`%command% ++ --pads`, from a terminal to see what it prints) and push
    each stick all the way up: it prints what Steam said, and Steam's up should be
    "y more". If it says "y less", turn `SteamPads.UP_IS_MORE` off. Steam follows

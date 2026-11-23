@@ -159,9 +159,16 @@ const STAND_INS: Dictionary[String, Dictionary] = {
 		"dpad": "left_trackpad",
 	},
 }
-## What each layout is called on Steam, and what it says it is.
-const LAYOUT_TITLE := "Jackpot Junction"
-const LAYOUT_SAYS := "The game's own layout: every button where the game's own pad has it."
+## What each layout is called on Steam, after Steam's own "Official Layout for Jackpot Junction",
+## and what it says it is, and of a controller with buttons behind. In plain words, not the `#`
+## words of the localization: Steam looks a layout's title up as Valve spells it, and showed
+## "#Title" for one it did not find.
+const LAYOUT_TITLE := "Default"
+const LAYOUT_SAYS := "Every button does what it does on a gamepad in the game."
+const BACK_SAYS := " The buttons behind repeat A, B, X and Y."
+## The layouts' revision, raised whenever one changes, for Steam to take the new one up in place of
+## what it has kept: 1 for the title in plain words.
+const LAYOUT_REVISION := 1
 ## The manifest's file, and where Steam's files are kept in the project.
 const MANIFEST := "action_manifest.vdf"
 const FOLDER := "res://data/steam/input"
@@ -248,7 +255,7 @@ static func manifest() -> String:
 				[
 					["configurations", configurations],
 					["actions", _actions(false)],
-					["localization", [["english", _words(false)]]],
+					["localization", [["english", _words()]]],
 				]
 			]
 		]
@@ -292,13 +299,13 @@ static func layout(controller: String) -> String:
 	var body: Array = [
 		["version", "3"],
 		["revision", "1"],
-		["title", "#Title"],
-		["description", "#Description"],
+		["title", LAYOUT_TITLE],
+		["description", LAYOUT_SAYS + (BACK_SAYS if BACK_BUTTONS.has(controller) else "")],
 		["controller_type", controller],
 		["major_revision", "0"],
-		["minor_revision", "0"],
+		["minor_revision", str(LAYOUT_REVISION)],
 		["actions", _actions(true)],
-		["localization", [["english", _words(true)]]],
+		["localization", [["english", _words()]]],
 	]
 	body.append_array(groups)
 	body.append(["preset", [["id", "0"], ["name", SET], ["group_source_bindings", sources]]])
@@ -370,12 +377,9 @@ static func _actions(in_layout: bool) -> Array:
 	return [[SET, play]]
 
 
-## The words in English: the set's and every action's, and a layout's own title and description.
-static func _words(in_layout: bool) -> Array:
-	var words: Array = []
-	if in_layout:
-		words.append_array([["Title", LAYOUT_TITLE], ["Description", LAYOUT_SAYS]])
-	words.append(["Set_" + SET, SET_TITLE])
+## The words in English: the set's and every action's.
+static func _words() -> Array:
+	var words: Array = [["Set_" + SET, SET_TITLE]]
 	for stick: String in STICKS:
 		words.append(["Action_" + stick, STICKS[stick][0]])
 	for trigger: String in TRIGGERS:

@@ -66,6 +66,11 @@ func test_a_layout_binds_a_controller_as_the_games_own_pad() -> void:
 	assert_str(xbox).contains('"Play"\t\t"aim_stick"')
 	assert_str(xbox).contains('"Play"\t\t"throttle_trigger"')
 	assert_str(xbox).contains('"right_joystick active"')
+	# Named in plain words, which Steam shows as they are.
+	assert_str(xbox).contains('"title"\t\t"%s"' % SteamActions.LAYOUT_TITLE)
+	assert_str(xbox).not_contains('"#Title"')
+	assert_str(xbox).not_contains(SteamActions.BACK_SAYS)
+	assert_str(SteamActions.layout("controller_neptune")).contains(SteamActions.BACK_SAYS)
 	# The first Steam Controller's trackpads stand in for the right stick and the D-pad.
 	var gordon := SteamActions.layout("controller_steamcontroller_gordon")
 	assert_str(gordon).contains('"right_trackpad active"')
