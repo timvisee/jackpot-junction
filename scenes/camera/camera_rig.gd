@@ -45,11 +45,10 @@ const CLEAR_EVERY := 0.1
 ## a few frames, and no one frame carries the whole of it.
 const CLEAR_TRIES := 4
 ## How high over the floor a kart's middle is, for keeping it clear of the HUD, and how far in
-## from the arena's walls the fixed camera keeps the floor clear, and every how far along them, in
-## meters: no kart's middle gets closer to a wall than about that.
+## from the arena's walls the fixed camera keeps the floor clear, in meters: no kart's middle gets
+## closer to a wall than about that, see [method TableBounds.rim].
 const KART_MIDDLE := 0.5
 const RIM_IN := 1.2
-const RIM_STEP := 5.0
 ## How much quicker the rig goes back than it comes in, as a share of the time it takes. It goes
 ## back only when the karts need it to, see [CameraHold], and with a little to spare, so it can
 ## take its time over it: at a quarter of the time in, it went back in a jolt.
@@ -688,8 +687,8 @@ func _target_framing() -> Vector2:
 		if Game.is_scripted():
 			_want_clear(Vector3.ZERO)
 			return Vector2(far, _fixed_lift)
-		var rim := _arena_points(-RIM_IN)
-		var whole := _arena_points(0.0, true)
+		var rim := TableBounds.rim(_center, _arena_size, -RIM_IN, KART_MIDDLE)
+		var whole := TableBounds.corners(_center, _arena_size, 0.0, _wall_height)
 		return _clear(rim, whole, _center, far, _fixed_lift, far)
 	var alive := _alive_targets()
 	if _opening_up or alive.is_empty():
@@ -859,35 +858,12 @@ func _place(distance: float, pan: Vector3, zoom: float) -> void:
 ## round it: a meter of floor shows bigger at the near side than at the far one, so balancing the
 ## margin left the table sitting high.
 func _fit_arena(extra := 0.0, table := false) -> Vector2:
-	var corners := _arena_points(margin + extra, true)
+	var corners := TableBounds.corners(_center, _arena_size, margin + extra, _wall_height)
 	var far := _needed_distance(corners, _center)
-	var balanced := _arena_points(0.0, true) if table else corners
+	var balanced := (
+		TableBounds.corners(_center, _arena_size, 0.0, _wall_height) if table else corners
+	)
 	return Vector2(far, _aim_lift(balanced, _center, far))
-
-
-## Points round the arena's floor [param out] meters out past its walls, in for less than none:
-## its corners, and with [param tall] the tops of its walls over them; or, without, the corners and
-## the points between them every [constant RIM_STEP] meters or so, at a kart's middle, which is what
-## the fixed camera keeps clear of the HUD.
-func _arena_points(out: float, tall := false) -> Array[Vector3]:
-	var half := _arena_size * 0.5 + Vector2.ONE * out
-	var points: Array[Vector3] = []
-	if tall:
-		for x: int in [-1, 1]:
-			for z: int in [-1, 1]:
-				points.append(_center + Vector3(x * half.x, 0.0, z * half.y))
-				points.append(_center + Vector3(x * half.x, _wall_height, z * half.y))
-		return points
-	var steps := Vector2i(ceili(half.x / RIM_STEP), ceili(half.y / RIM_STEP))
-	for i: int in range(-steps.x, steps.x + 1):
-		var x := half.x * float(i) / float(steps.x)
-		points.append(_center + Vector3(x, KART_MIDDLE, -half.y))
-		points.append(_center + Vector3(x, KART_MIDDLE, half.y))
-	for j: int in range(-steps.y + 1, steps.y):
-		var z := half.y * float(j) / float(steps.y)
-		points.append(_center + Vector3(-half.x, KART_MIDDLE, z))
-		points.append(_center + Vector3(half.x, KART_MIDDLE, z))
-	return points
 
 
 ## Aspect ratio of the viewport the camera renders to.

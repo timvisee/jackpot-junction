@@ -191,7 +191,9 @@ func test_the_fixed_camera_keeps_the_floor_clear() -> void:
 	var covers: Array[Rect2] = [CORNER]
 	var rig := _watching([Vector3(4.0, 0.0, 2.0)], covers)
 	assert_float(rig._distance).is_greater(rig._fixed_distance)
-	var rim := rig._arena_points(-CameraRig.RIM_IN)
+	var rim := TableBounds.rim(
+		rig._center, rig._arena_size, -CameraRig.RIM_IN, CameraRig.KART_MIDDLE
+	)
 	for point: Vector3 in rim:
 		var shown := (
 			rig.camera.unproject_position(point) / rig.get_viewport().get_visible_rect().size

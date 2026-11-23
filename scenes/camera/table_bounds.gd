@@ -9,6 +9,8 @@ extends RefCounted
 ## to the camera and fills far more of the screen than a meter past the far one, and the stands on
 ## the near side rise toward the camera and fill more again, so that side is counted at their
 ## height rather than at the floor's.
+## And the points round the arena the rig fits it by and keeps clear of the HUD, see
+## [method corners] and [method rim].
 
 ## How much of the screen at each edge may show what is past the arena, as a share of it; and the
 ## most it grows to at a desk with the UI drawn small, see [method edge_now], with how fast.
@@ -18,6 +20,8 @@ const EDGE_PER_SCALE := 0.4
 ## How high the room past the near wall rises toward the camera, in meters: the stands and the
 ## crowd on them, which a near edge counted on the floor would let fill the bottom of the screen.
 const NEAR_HEIGHT := 1.2
+## Every how far along the walls [method rim] puts a point, in meters.
+const RIM_STEP := 5.0
 
 
 ## The strip at each edge of this screen that may show what is past the arena, GAME.md 8.2:
@@ -75,3 +79,34 @@ static func _slide(low: float, high: float, limit: float) -> float:
 	if low < -limit:
 		return -limit - low
 	return 0.0
+
+
+## The corners of an arena [param size] across about [param center], [param out] meters out past
+## its walls, in for less than none: on the floor and [param height] over it, the tops of its walls.
+static func corners(center: Vector3, size: Vector2, out: float, height: float) -> Array[Vector3]:
+	var half := size * 0.5 + Vector2.ONE * out
+	var points: Array[Vector3] = []
+	for x: int in [-1, 1]:
+		for z: int in [-1, 1]:
+			points.append(center + Vector3(x * half.x, 0.0, z * half.y))
+			points.append(center + Vector3(x * half.x, height, z * half.y))
+	return points
+
+
+## Points round an arena [param size] across about [param center], [param out] meters out past its
+## walls, in for less than none, [param middle] over the floor: its corners and the points between
+## them every [constant RIM_STEP] meters or so, which is what the fixed camera keeps clear of the
+## HUD at a kart's middle.
+static func rim(center: Vector3, size: Vector2, out: float, middle: float) -> Array[Vector3]:
+	var half := size * 0.5 + Vector2.ONE * out
+	var points: Array[Vector3] = []
+	var steps := Vector2i(ceili(half.x / RIM_STEP), ceili(half.y / RIM_STEP))
+	for i: int in range(-steps.x, steps.x + 1):
+		var x := half.x * float(i) / float(steps.x)
+		points.append(center + Vector3(x, middle, -half.y))
+		points.append(center + Vector3(x, middle, half.y))
+	for j: int in range(-steps.y + 1, steps.y):
+		var z := half.y * float(j) / float(steps.y)
+		points.append(center + Vector3(-half.x, middle, z))
+		points.append(center + Vector3(half.x, middle, z))
+	return points
