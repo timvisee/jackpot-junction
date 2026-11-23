@@ -36,9 +36,15 @@ class Ear:
 var _steam: FakeSteamInput
 var _pads: SteamPads
 var _ear: Ear
+## What the game took the last input for before, which the pads' presses here change, as any pad's
+## do: put back after, or a suite after this one reads keys as a pad's.
+var _keyboard_was := true
+var _pointer_was := false
 
 
 func before_test() -> void:
+	_keyboard_was = Game.last_input_keyboard
+	_pointer_was = Game.last_input_pointer
 	_steam = FakeSteamInput.new()
 	var names: Array = []
 	for action: StringName in SteamActions.BUTTONS:
@@ -57,6 +63,8 @@ func after_test() -> void:
 	InputActions.register_defaults()
 	DeviceInput.recent.clear()
 	PadFamily.reset()
+	Game.last_input_keyboard = _keyboard_was
+	Game.last_input_pointer = _pointer_was
 
 
 ## Steam Input started with the controllers plugged in so far.
