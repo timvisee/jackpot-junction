@@ -317,7 +317,8 @@ func test_driving_off_in_the_last_second_calls_it_off() -> void:
 
 
 ## Ready lasts as long as the standing does. Driving off the pad takes it back on the spot, along
-## with the charge and the tick: a pad nobody is on does not speak for anybody.
+## with the tick: a pad nobody is on does not speak for anybody. The charge waits a moment for a
+## kart that comes straight back, and is gone after it, see [constant ReadyRoom.GRACE].
 func test_ready_is_taken_back_by_driving_off() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
@@ -330,8 +331,9 @@ func test_ready_is_taken_back_by_driving_off() -> void:
 	await _runner.simulate_frames(10, 17)
 	assert_bool(ready_room.all_ready()).is_false()
 	assert_int(ready_room.ready_count()).is_equal(0)
-	assert_float(ready_room.charge[0]).is_equal(0.0)
 	assert_bool(ready_room._ticks.has(0)).is_false()
+	await _runner.simulate_frames(int(ReadyRoom.GRACE * 60.0), 17)
+	assert_float(ready_room.charge[0]).is_equal(0.0)
 
 
 ## Dying in here costs nothing and takes no time. There is no run to build, so there is no hand

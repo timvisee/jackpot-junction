@@ -8481,9 +8481,11 @@ Nothing else is in it. There is no clock, nothing to shoot but the ball, nothing
 no score: the room asks one thing of anybody in it.
 
 **Readying up.** The cash-out pad is the ready marker. Driving onto it charges it, a ring of
-blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart.
-When everybody in the room has one, the whole ring turns green and the match begins a second
-later. The room says it is going before it goes: a cut to the arena on the frame the last
+blocks round it fills as it charges, and after a couple of seconds a tick lights over the kart:
+2.5 s alone, less the more are in the room, down to 1.5 s in a room of eight, so the last of eight
+does not keep seven waiting long. When everybody in the room has one, the whole ring turns green
+and the match begins a second later. The room says it is going before it goes: a cut to the
+arena on the frame the last
 tick lit would take the last player's own moment of readying away from them.
 
 It is heard as well, quietly. A player charging the pad hears a soft tick for every block of
@@ -8495,11 +8497,13 @@ is heard as one: the same chime run up through its third and fifth to the octave
 0.09 s, the last a little louder. The player who fills the room hears that run instead of their
 own chime, since the two on top of each other would be neither.
 
-Ready lasts as long as the standing does. Roll off the pad and the charge and the tick go with
-it, on the frame the kart leaves. That is the honest reading of a pad nobody is on: a room that
-started because everybody was ready a moment ago would start without them. It holds in the second
-the ring is green as well: somebody driving off the pad, or somebody new taking a seat, calls the
-start off until the room is full again.
+Ready lasts as long as the standing does. Roll off the pad and the tick goes with it, on the
+frame the kart leaves. That is the honest reading of a pad nobody is on: a room that started
+because everybody was ready a moment ago would start without them. It holds in the second the
+ring is green as well: somebody driving off the pad, or somebody new taking a seat, calls the
+start off until the room is full again. The charge is kinder than the tick: it waits two seconds
+for a kart that left, its arc lit to a block short of full, so a kart that overshot and comes
+straight back is ready again at once, and after that it is gone.
 
 The ring of blocks round the pad is split between whoever is in the room -- an arc each, in
 their own color, filling as they hold it. One ring showing whoever had got furthest read as a

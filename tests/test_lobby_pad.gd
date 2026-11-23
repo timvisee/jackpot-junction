@@ -2,7 +2,8 @@ extends GdUnitTestSuite
 ## The lobby's pad as a room fills it, GAME.md 9.6, see [LobbyPad]: a room of eight has to be able
 ## to get all eight karts onto it and keep them there. The pad grows past four players, a kart may
 ## roll a little past its edge and still be on it, nothing on it bumps into anything, nor can a shot
-## hurt a kart there.
+## hurt a kart there; and the charge waits a moment for a kart that leaves, and fills faster in a
+## full room.
 
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 
@@ -113,7 +114,7 @@ func test_the_pad_grows_with_the_room() -> void:
 
 
 ## Eight karts parked on the pad, some of them on top of one another, all ready up and the room
-## goes: nobody is shoved off by anybody else.
+## goes: nobody is shoved off by anybody else, and the pad takes as long as a full room's charge.
 func test_a_room_of_eight_all_stand_on_the_pad_and_go() -> void:
 	var room := await _open()
 	var match_node: Match = room.get_node("Match")
@@ -123,6 +124,7 @@ func test_a_room_of_eight_all_stand_on_the_pad_and_go() -> void:
 	_fill_to(match_node, 8)
 	await _runner.simulate_frames(60, 17)
 	assert_int(ready_room.player_count()).is_equal(8)
+	assert_float(ready_room.charge_time()).is_equal(ReadyRoom.CHARGE_FULL)
 	var middle := match_node.arena.junction.global_position
 	var spots: Array[Vector3] = []
 	for i: int in 8:
@@ -130,7 +132,7 @@ func test_a_room_of_eight_all_stand_on_the_pad_and_go() -> void:
 		var turn := TAU * float(i / 2) / 4.0
 		spots.append(middle + Vector3(cos(turn), 0.0, sin(turn)) * 1.6)
 		_put(match_node.slots[i].kart, spots[i], Vector3(sin(float(i)), 0.0, cos(float(i))))
-	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 60.0) + 10, 17)
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_FULL * 60.0) + 10, 17)
 	assert_int(ready_room.ready_count()).is_equal(8)
 	assert_bool(ready_room.all_ready()).is_true()
 	for i: int in 8:
@@ -193,10 +195,53 @@ func test_a_kart_may_roll_a_little_past_the_edge() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_bool(ready_room.all_ready()).is_false()
 	assert_bool(kart.sheltered).is_false()
-	# Back to the spot inside the slack, which is not the pad.
+	# Long after its charge has gone, back to the spot inside the slack, which is not the pad.
+	await _runner.simulate_frames(int(ReadyRoom.GRACE * 60.0) + 10, 17)
 	_put(kart, middle + Vector3(edge, 0.0, 0.0), Vector3.FORWARD)
 	await _runner.simulate_frames(30, 17)
 	assert_float(ready_room.charge[0]).is_equal(0.0)
+
+
+## The charge waits a moment for a kart that leaves the pad: back within [constant
+## ReadyRoom.GRACE] seconds it is ready again at once, and later it starts over.
+func test_coming_straight_back_is_ready_at_once() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	var kart := match_node.kart_of(0)
+	var middle := match_node.arena.junction.global_position
+	_put(kart, middle, Vector3.FORWARD)
+	await _runner.simulate_frames(int(ReadyRoom.CHARGE_TIME * 60.0) + 10, 17)
+	assert_bool(ready_room.all_ready()).is_true()
+	_put(kart, Vector3(10.0, 0.0, 6.0), Vector3.FORWARD)
+	await _runner.simulate_frames(45, 17)
+	assert_bool(ready_room.all_ready()).is_false()
+	_put(kart, middle, Vector3.FORWARD)
+	await _runner.simulate_frames(3, 17)
+	assert_bool(ready_room.all_ready()).is_true()
+	assert_bool(ready_room._ticks.has(0)).is_true()
+	# Away for longer than that, and the pad has to be charged again.
+	_put(kart, Vector3(10.0, 0.0, 6.0), Vector3.FORWARD)
+	await _runner.simulate_frames(int(ReadyRoom.GRACE * 60.0) + 10, 17)
+	_put(kart, middle, Vector3.FORWARD)
+	await _runner.simulate_frames(10, 17)
+	assert_bool(ready_room.all_ready()).is_false()
+	assert_float(ready_room.charge[0]).is_less(0.5)
+
+
+## The pad charges faster the more are in the room: a player alone takes the usual time, a room
+## of eight the shorter one, so the last of eight keeps nobody long.
+func test_a_full_room_charges_faster() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	assert_float(ready_room.charge_time()).is_equal(ReadyRoom.CHARGE_TIME)
+	_fill_to(match_node, 4)
+	var four := ready_room.charge_time()
+	assert_float(four).is_less(ReadyRoom.CHARGE_TIME)
+	assert_float(four).is_greater(ReadyRoom.CHARGE_FULL)
+	_fill_to(match_node, 8)
+	assert_float(ready_room.charge_time()).is_equal(ReadyRoom.CHARGE_FULL)
 
 
 ## A shot at a kart on the pad is spent on it harmlessly: nothing knocks a kart off the pad, and a

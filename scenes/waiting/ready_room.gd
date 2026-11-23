@@ -13,7 +13,8 @@ extends Node
 ## is the honest reading of a pad somebody is not on: a room that starts because everybody was ready
 ## a moment ago starts without them. What standing on it is, is generous, see [LobbyPad]: the pad
 ## grows with the room, a kart may roll a little past its edge, and nothing on it can be knocked
-## off.
+## off. And the charge waits a moment for a kart that does leave, so one that comes straight back is
+## ready again at once.
 ##
 ## Each player charges their own arc of the ring, in their own color, so that a room with four
 ## people in it can see which of them the pad has taken and which of them it is waiting for.
@@ -31,9 +32,14 @@ signal readied(seat: int)
 ## see [method _on_filled]: the room filling is a bigger moment than one more player in it.
 signal filled
 
-## How long a kart has to hold the pad. Leaving it does not fade: the charge is gone and so is the
-## ready, on the frame the kart rolls off.
+## How long a kart has to hold the pad: alone, and in a room of [constant FULL_ROOM], where it
+## is shorter so the last of eight is not kept long, see [method charge_time]. Leaving it takes the
+## ready on the frame the kart rolls off; the charge is kept for [constant GRACE] seconds, and is
+## gone after that.
 const CHARGE_TIME := 2.5
+const CHARGE_FULL := 1.5
+const FULL_ROOM := 8
+const GRACE := 2.0
 ## A full house turns the whole ring green and holds it, and the room goes a second after it
 ## filled. Green all the way round is the room saying everybody is in, for as long as that is
 ## true: somebody rolling off takes the green away with them. The glow carries the color over a
@@ -120,6 +126,8 @@ var stamp: NetStamp
 var _segments: Array[MeshInstance3D] = []
 ## The pad's radius the ring was last put round.
 var _ring_radius := 0.0
+## Slot index to how long that player has been off the pad, for the charge they leave behind.
+var _off_for: Dictionary[int, float] = {}
 ## Seat to how many blocks of its arc were lit last frame, to hear each new one as it lights.
 var _lit: Dictionary[int, int] = {}
 var _ticks: Dictionary[int, Node3D] = {}
@@ -188,7 +196,10 @@ func _on_player_ready(slot: int, ready: bool) -> void:
 	if ready_slots.get(slot, false) == ready:
 		return
 	ready_slots[slot] = ready
-	charge[slot] = 1.0 if ready else 0.0
+	# Taken back, the charge is left as it was: it waits a moment for a kart that comes straight
+	# back, see [constant GRACE], and the pad here works that out for itself.
+	if ready:
+		charge[slot] = 1.0
 	# Whoever fills the room is heard in the ring going green instead: the chime and the run on
 	# top of each other would be neither.
 	if ready and not (all_ready() and not held):
@@ -262,20 +273,20 @@ func _process(delta: float) -> void:
 	# screen as they do on the host's. Only the host says who is ready, see 10.3: a client's arc
 	# stops one block short of full until it is told, and its tick waits for the word too.
 	var standing := _karts_on_the_pad()
+	var takes := charge_time()
 	for slot: PlayerSlot in match_node.slots:
 		if not slot.is_human() or slot.kart == null:
 			continue
 		var index := slot.index
 		var on_it := standing.has(index)
-		var was: float = charge.get(index, 0.0)
-		var now := clampf(was + delta / CHARGE_TIME, 0.0, 1.0) if on_it else 0.0
-		charge[index] = now
+		var now := _charged(index, on_it, delta, takes)
 		var already: bool = ready_slots.get(index, false)
+		var ready := on_it and now >= 1.0
 		# Said, and taken in from the saying like any other machine does, see
 		# [method _on_player_ready]. Written down here first it was news to nobody, and the machine
 		# that decided it was the one that never heard the chime.
-		if deciding and (now >= 1.0) != already:
-			Events.player_ready.emit(index, now >= 1.0)
+		if deciding and ready != already:
+			Events.player_ready.emit(index, ready)
 		_show_tick(slot)
 	_count_down(delta)
 	_place_ring()
@@ -283,6 +294,32 @@ func _process(delta: float) -> void:
 	_say_the_count()
 	_show_the_way_in()
 	_show_the_settings_key()
+
+
+## How far [param index]'s player has charged the pad, [param on_it] or not, after [param delta]
+## more seconds of it: up while they stand on it, at a pace that fills it in [param takes] seconds;
+## held for [constant GRACE] seconds once they are off it, and then gone.
+func _charged(index: int, on_it: bool, delta: float, takes: float) -> float:
+	var was: float = charge.get(index, 0.0)
+	var now := was
+	if on_it:
+		_off_for.erase(index)
+		now = clampf(was + delta / takes, 0.0, 1.0)
+	else:
+		var off: float = _off_for.get(index, 0.0) + delta
+		_off_for[index] = off
+		if off >= GRACE:
+			now = 0.0
+	charge[index] = now
+	return now
+
+
+## How long the pad takes to charge in a room of this many: [constant CHARGE_TIME] alone, down to
+## [constant CHARGE_FULL] in a room of [constant FULL_ROOM], GAME.md 9.6. The more there are, the
+## more there are waiting on the last of them.
+func charge_time() -> float:
+	var crowd := float(player_count() - 1) / float(FULL_ROOM - 1)
+	return lerpf(CHARGE_TIME, CHARGE_FULL, clampf(crowd, 0.0, 1.0))
 
 
 ## The second between the room filling and the room going. A client runs it as well, off what it
