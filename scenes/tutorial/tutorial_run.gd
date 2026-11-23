@@ -62,6 +62,13 @@ var _over := false
 var _timing := false
 
 
+## The cards the driving test teaches, GAME.md 9.4a: those the House has opened for the profile
+## playing, and the Jackpot whether or not it has: without it the exam's chips are slow to come by,
+## and the House opens it after the first map anyway.
+static func taught() -> int:
+	return Game.settings.profile.table_opened() | TableCards.bit(TableCards.Card.JACKPOT)
+
+
 static func add_to(parent: Node, in_match: Match, on_layer: CanvasLayer) -> TutorialRun:
 	var run := TutorialRun.new()
 	run.name = "TutorialRun"

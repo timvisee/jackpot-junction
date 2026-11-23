@@ -8341,13 +8341,14 @@ from the lot once the first lesson is done, shrinking away to nothing: the exam 
 where they lay, and a switch of the way of driving in the middle of it would be nobody's choice.
 
 **What the test teaches.** The cards of the table the House has opened for the profile, 3.17 and
-8.9a, and nothing it has not: a card not opened is not on the lot at all, its pieces cleared off it
-as a match's are. So a first test, with power-ups alone opened, has no jokers lesson and no parked
-kart for it; its chips lesson scatters chips over the lot to pick up, twenty of them, the pot in
-the corner as they come, and the lives with it, before the Junction comes up to bank them, more
-chips scattered for a pot lost to a death; and its exam offers the hints of the cards it teaches
-alone, five of them. With the Royal Flush or the Jackpot opened, the chips lesson starts with
-those as below, and with Jokers opened the jokers lesson is back between the item and the chips. A
+8.9a, and the Jackpot whether or not it has (`TutorialRun.taught`): without a Jackpot the exam's
+500 took a long while to bank, and the House opens it after the first map anyway. A card not
+taught is not on the lot at all, its pieces cleared off it as a match's are. So a first test, with
+power-ups alone opened, has no jokers lesson and no parked kart for it; its chips lesson starts
+with the Jackpot, the lives coming into the corner with the pot, and goes on to the Junction; and
+its exam offers the hints of the cards it teaches alone, six of them, its two Jackpots on the lot.
+With the Royal Flush opened, the chips lesson starts with the pads as below, and with Jokers opened
+the jokers lesson is back between the item and the chips. A
 retake, once more of the table has opened, teaches what has opened since and can earn the
 endorsements of it: the license keeps the endorsements it had and adds the ones the retake earned.
 

@@ -62,7 +62,7 @@ func _init() -> void:
 	_bank.of = NEED
 	# The hints of the cards the profile playing has opened alone, GAME.md 3.17: a retake once more
 	# have opened can earn theirs.
-	var opened := Game.settings.profile.table_opened()
+	var opened := TutorialRun.taught()
 	_kill = add_task("Take out another kart", "")
 	_mult = add_task("Reach a {mult} of 4", "")
 	if TableCards.has(opened, TableCards.Card.JACKPOT):

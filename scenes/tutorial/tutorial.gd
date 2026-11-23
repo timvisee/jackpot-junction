@@ -52,9 +52,9 @@ func _ready() -> void:
 	match_node.name = "Match"
 	# A copy: the lessons turn the joker pick on when they get to it, GAME.md 9.4a.
 	match_node.rules = RULES.duplicate()
-	# The test teaches the cards the House has opened for the profile, 3.17: the rest are not on
-	# the lot at all.
-	var opened := Game.settings.profile.table_opened()
+	# The test teaches the cards the House has opened for the profile, and the Jackpot, 3.17: the
+	# rest are not on the lot at all, see [method TutorialRun.taught].
+	var opened := TutorialRun.taught()
 	match_node.rules.table = TableCards.playable(opened)
 	match_node.arena_layout = LAYOUT
 	if TableCards.glyphs_off(opened) != "":

@@ -36,8 +36,8 @@ below, and hands the notes to the release workflow.
 - **Tonight's table.** A match's loading screen deals the features it plays with, and names a new
   one.
 - **Shown the way.** The first match with a new feature points your kart at it.
-- **The driving test teaches your table.** Jokers, the Royal Flush and the Jackpot wait until the
-  House has opened them; a retake teaches them and keeps the endorsements you had.
+- **The driving test teaches your table.** Jokers and the Royal Flush wait until the House has
+  opened them; a retake teaches them and keeps the endorsements you had.
 - **The loyalty program waits a little.** It welcomes you after your third map rather than your
   first, so the first maps are about the game.
 - **The booth demo plays Roulette.** Each map deals a few features rather than all of them.
