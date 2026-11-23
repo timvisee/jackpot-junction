@@ -304,9 +304,16 @@ the layout each kind of controller starts on are in `data/steam/input/`, written
    "y more". If it says "y less", turn `SteamPads.UP_IS_MORE` off. Steam follows
    the window in front; `steam://forceinputappid/5652730` in a browser holds Steam
    Input on the game while another window has the focus, and
-   `steam://forceinputappid/0` lets go.
+   `steam://forceinputappid/0` lets go. On each controller, too: the back buttons
+   of a Deck or a Steam Controller do what A, X, Y and B do; an action moved to
+   another button in Steam's settings moves in the game's hints, a back button or
+   a trackpad drawn as Steam draws it; the Controls page's Gamepad column reads
+   "Gamepad, in Steam" and opens Steam's settings; a DualSense's or DualShock's
+   light takes the seat's color in a match and its own back after; and a friend
+   joining by Remote Play Together, whose controller Steam always reads through
+   Steam Input, takes a seat with Join as a pad of the game's.
 5. **A layout made by hand**, should one need more than `SteamActions` writes, a
-   Deck's back buttons say: in Big Picture, Settings > System, turn on Developer
+   radial menu of emotes say: in Big Picture, Settings > System, turn on Developer
    mode, then under Developer "Steam Input Layout Dev Mode"; change the layout in
    Steam's controller settings, export it from the gear menu, and open
    `steam://dumpcontrollerconfig?appid=5652730`, which writes the layout's `.vdf`
