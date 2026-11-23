@@ -3724,7 +3724,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S6 | Releasing on Steam | Done |
 | S7 | The Steamworks list and wrapping up | Done |
 | S8 | The supporter pack | Done, in 0.23.0 |
-| S9 | Steam Deck | Done but the Steam Controller's drawing, on Valve's word |
+| S9 | Steam Deck | Done |
 | S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
@@ -4092,18 +4092,17 @@ Checked 2026-11-23, after the user played 0.23.1 on a Steam Deck and a Steam Mac
       Deck told by SteamOS's `SteamDeck=1` too, for a build without Steam.
 - [x] The frame rate on a Deck at the first start's settings: the user's look. Played by the
       user on a Deck, 2026-11-23: "Works good."
-- [ ] The Steam Controller of 2026 drawn in Show controls from Valve's reference drawing,
+- [x] The Steam Controller of 2026 drawn in Show controls from Valve's reference drawing,
       `steam_controller_reference_20260429.pdf` in
       https://gitlab.steamos.cloud/SteamHardware/SteamController: CC BY-NC-SA 4.0, no commercial
-      use, so the user asks Valve for the game's use, as the Deck's drawings are offered; the
-      generic pad's drawing with its own names until
-      then, the user's word, 2026-11-23. Once allowed: fetched as the Deck's are
-      (`tools/steam_deck_art`), Steam builds only, THIRD_PARTY.md. The mock-up, a guide only as its
-      numbers hang on its crops of page 1: the top view (1550×560) over the front (1560×1080, 20
-      below), both scaled by 0.64, Valve's own letters on the four, its spots in the pair's pixels
-      before the scale: lt (290, 250), lb (290, 410), rt (1260, 250), rb (1260, 410), dpad (240,
-      835), view (515, 728), menu (1050, 728), north (1246, 748), east (1334, 835), west (1158,
-      835), south (1246, 925), ls (567, 945), rs (1001, 945).
+      use, so the user asked Valve for the game's use. Built 2026-11-23 on branch
+      `steam-controller-drawing`, merged once Valve allows. `tools/steam_controller_art`, from
+      `tools/steam_addon`, fetches it pinned to the repository's commit e10919b4 and its checksum,
+      into `addons/godotsteam/steamcontroller`, Steam builds only; pdftocairo, of poppler-utils,
+      installed in `steam.yml`, writes its two sheets as SVGs, and `tools/steam_controller_svg.py`
+      keeps the controller's pens, 1.44 point black and 0.36 point gray, and leaves the notes'. The
+      top view off sheet 2, turned over, over the front off sheet 1, `PadDiagram._steam_controller`,
+      Valve's letters on the four (`PadDiagram.lettered`); THIRD_PARTY.md and Credits.
 
 ### S10: Linux ARM64 in the Linux depot, after the first release [10.8]
 

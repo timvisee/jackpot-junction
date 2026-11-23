@@ -58,5 +58,6 @@ macos.universal = { "res://addons/godotsteam/osx/libsteam_api.dylib": "" }
 EOF
 echo "$version" >addons/godotsteam/VERSION
 echo "GodotSteam $version is in addons/godotsteam"
-# And the Steam Deck's drawings with it, for the gamepad's blueprint.
+# And the Steam Deck's and the Steam Controller's drawings with it, for the gamepad's blueprint.
 tools/steam_deck_art
+tools/steam_controller_art

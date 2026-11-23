@@ -41,7 +41,7 @@ make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
 make itch-art  # the itch.io page's cover and background in build/itch, see ITCH.md
 make screenshots  # the README's shots in docs/screenshots, oversampled; GODOT_HIDDEN=1 for no window
-make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for the Steam builds
+make steam-addon  # GodotSteam and Valve's pad drawings, pinned, in addons/godotsteam; needs pdftocairo
 make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
 make steam-check  # what the Steam client here answers: the account, presence, a lobby
 make steam-export  # the Steam builds in build/steam, STEAM_APP_ID=<id> for an app of its own

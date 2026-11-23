@@ -10,7 +10,8 @@ extends RefCounted
 ## one with its own letters; a generic pad is drawn as an Xbox pad, the layout most pads copy. A
 ## Steam Deck is drawn from Valve's own drawings, its top over its front to show its shoulders, in a
 ## Steam build, which has them, see tools/steam_deck_art, its screen broken out of the middle as a
-## long drawing is; as an Xbox pad elsewhere.
+## long drawing is; as an Xbox pad elsewhere. So is the Steam Controller of 2026, from Valve's
+## reference drawing of it, see tools/steam_controller_art, which has its four's letters on it.
 
 const XBOX_ART: Texture2D = preload("res://assets/controllers/xbox_series.png")
 const PS5_ART: Texture2D = preload("res://assets/controllers/playstation_5.png")
@@ -54,6 +55,35 @@ const DECK_SPOTS: Dictionary[StringName, Vector2] = {
 	&"east": Vector2(989, 274),
 	&"west": Vector2(929, 274),
 	&"south": Vector2(958, 304),
+}
+## The Steam Controller's drawings, there in a Steam build alone, both as wide, in the drawing's
+## points; how tall each is; how many of the drawing's pixels each point is, drawn about as big as
+## the other pads; the room between the two; and how big a button under the thumb is.
+const PAD_FRONT := "res://addons/godotsteam/steamcontroller/front.svg"
+const PAD_TOP := "res://addons/godotsteam/steamcontroller/top.svg"
+const PAD_WIDE := 920.0
+const PAD_TALL := Vector2(335.0, 647.0)
+const PAD_UNIT := 1.05
+const PAD_GAP := 15.0
+const PAD_FACE_RADIUS := 27.0
+## Where its buttons are, in its points, the top view's shoulders over the front view's rest, each
+## from the top of its own view.
+const PAD_TOP_SPOTS: Dictionary[StringName, Vector2] = {
+	&"lt": Vector2(180, 140),
+	&"lb": Vector2(185, 245),
+	&"rt": Vector2(740, 140),
+	&"rb": Vector2(735, 245),
+}
+const PAD_SPOTS: Dictionary[StringName, Vector2] = {
+	&"ls": Vector2(327, 221),
+	&"rs": Vector2(591, 221),
+	&"dpad": Vector2(135, 155),
+	&"view": Vector2(299, 91),
+	&"menu": Vector2(620, 91),
+	&"north": Vector2(737, 105),
+	&"east": Vector2(790, 157),
+	&"west": Vector2(684, 157),
+	&"south": Vector2(737, 207),
 }
 ## Where each button is on each drawing, in its own pixels: a trigger, a shoulder button, a stick,
 ## the D-pad by its left arm, the middle two, the touchpad, and the four under the thumb by where
@@ -170,6 +200,8 @@ var layers: Array[Dictionary] = []
 ## Where the drawing is broken off, the middle left out: a break line each, where it runs across
 ## and from where to where down, in its pixels.
 var breaks: Array[Vector3] = []
+## Whether the four under the thumb have their letters on the drawing already.
+var lettered := false
 
 
 ## The drawing of a pad of [param family].
@@ -183,6 +215,8 @@ static func of(family: PadFamily.Family) -> PadDiagram:
 			diagram._one(PS4_ART, PS4_SPOTS)
 		PadFamily.Family.STEAM_DECK when ResourceLoader.exists(DECK_FRONT):
 			diagram._deck()
+		PadFamily.Family.STEAM_CONTROLLER when ResourceLoader.exists(PAD_FRONT):
+			diagram._steam_controller()
 		_:
 			diagram._one(XBOX_ART, XBOX_SPOTS)
 	return diagram
@@ -251,6 +285,33 @@ func _deck() -> void:
 			breaks.append(Vector3(edge, body.x, body.y) * DECK_UNIT)
 
 
+## Drawn from Valve's two views of the Steam Controller, its top above its front, both already
+## turned as they are shown, see tools/steam_controller_art.
+func _steam_controller() -> void:
+	var top: Texture2D = load(PAD_TOP)
+	var front: Texture2D = load(PAD_FRONT)
+	var below := PAD_TALL.x + PAD_GAP
+	art = front
+	size = Vector2(PAD_WIDE, below + PAD_TALL.y) * PAD_UNIT
+	face_radius = PAD_FACE_RADIUS * PAD_UNIT
+	lettered = true
+	for spot: StringName in PAD_TOP_SPOTS:
+		spots[spot] = PAD_TOP_SPOTS[spot] * PAD_UNIT
+	for spot: StringName in PAD_SPOTS:
+		spots[spot] = (PAD_SPOTS[spot] + Vector2(0.0, below)) * PAD_UNIT
+	layers = []
+	for view: Array in [[top, PAD_TALL.x, 0.0], [front, PAD_TALL.y, below]]:
+		var picture: Texture2D = view[0]
+		var layer := {
+			"texture": picture,
+			"part": Rect2(Vector2.ZERO, picture.get_size()),
+			"at": Vector2(0.0, view[2]) * PAD_UNIT,
+			"size": Vector2(PAD_WIDE, view[1]) * PAD_UNIT,
+			"flip": false,
+		}
+		layers.append(layer)
+
+
 ## The drawing on [param canvas] with its top left corner at [param at], scaled by [param scale],
 ## in [param tint].
 func draw(canvas: CanvasItem, at: Vector2, scale: float, tint: Color) -> void:
@@ -304,8 +365,11 @@ func shows(spot: StringName) -> bool:
 
 ## The four under the thumb printed on [param canvas] over the drawing laid at [param at] and
 ## scaled by [param scale], in [param ink], as this family has them: a PlayStation pad's shapes, and
-## the letters of the rest where that family has them, in the one ink the drawing is in.
+## the letters of the rest where that family has them, in the one ink the drawing is in; nothing
+## where the drawing has them already.
 func print_faces(canvas: CanvasItem, at: Vector2, scale: float, ink: Color, font: Font) -> void:
+	if lettered:
+		return
 	var radius := face_radius * scale
 	var size := roundi(radius * 1.05)
 	for spot: StringName in FACES:
