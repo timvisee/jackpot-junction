@@ -60,6 +60,8 @@ below, and hands the notes to the release workflow.
   follows, your own kart stays in view, where on a handheld a rival could push it off the top.
 - **The loyalty card's cursor on the Me page.** Between your license and Kit's folder, its arrows
   point up from under the card instead of lying over your license.
+- **Y turns the loyalty card over.** As on your license and Kit's notes, its Turn over button shows
+  Y rather than A on a pad.
 - **Keys named as your keyboard prints them.** On an AZERTY or other keyboard, the hints name the
   key you press, Z rather than W.
 - **Steam's keyboard in a name or password dialog.** On a Steam Deck it comes up as soon as the

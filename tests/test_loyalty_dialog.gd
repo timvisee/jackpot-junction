@@ -622,7 +622,13 @@ func test_the_card_shows_in_full() -> void:
 	view.turn.pressed.emit()
 	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
 	assert_bool(view.card.back).is_false()
-	view.turn.pressed.emit()
+	# The hand's button turns it, Y on a pad, and its bind is the one drawn on Turn over, as on the
+	# license and Kit's notes.
+	assert_that(view.turn.get_meta(&"bind_action")).is_equal(InputActions.JOKER_MENU)
+	var hand := InputEventAction.new()
+	hand.action = InputActions.JOKER_MENU
+	hand.pressed = true
+	view._input(hand)
 	await get_tree().create_timer(LoyaltyCardView.TURN + 0.1).timeout
 	assert_bool(view.card.back).is_true()
 	# Put away with its back up, it turns face up again on the way down, as the license does.
