@@ -28,6 +28,10 @@ below, and hands the notes to the release workflow.
 - **A simpler first table.** A new profile plays with power-ups alone, and the House opens one more
   feature after each map: the Jackpot, jokers, the Royal Flush, room tricks, slot machines,
   bounties, then suits and hands. A dedicated server's `--table` sets what its games start with.
+- **The cards on the table.** The match settings show each feature as a card to turn face up or
+  down, and a card not opened yet can be opened early.
+- **Penny table and Roulette.** Two new presets: power-ups alone for a plain game, or three
+  features dealt at random each map. Quick hand is gone.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and
   mouse as you have them bound too, opening on whichever you used last.
 - **ARM64 Linux on Steam.** The Steam build for Linux carries a native ARM64 build beside the x86_64

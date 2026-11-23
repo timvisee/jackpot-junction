@@ -1,9 +1,10 @@
 class_name PresetBar
-extends HBoxContainer
+extends GridContainer
 ## The row of presets between the match settings' two big buttons and their columns, GAME.md 9.6:
 ## a chip for each of [constant MatchPresets.PRESETS] and Custom after them, each a poker chip of
 ## its own color, its name and a line of what it sets. The one the rows are set to is lit in gold,
-## the way the chosen kind of game is; Custom where they are set to none of them.
+## the way the chosen kind of game is; Custom where they are set to none of them. In one row where
+## the pane has room for them, and in two where it has not, see [method fit].
 
 ## A chip was pressed: preset [param index] of [constant MatchPresets.PRESETS], or -1 for Custom.
 signal picked(index: int)
@@ -23,11 +24,23 @@ var _lit := -2
 
 static func make() -> PresetBar:
 	var bar := PresetBar.new()
-	bar.add_theme_constant_override("separation", 10)
+	bar.add_theme_constant_override("h_separation", 10)
+	bar.add_theme_constant_override("v_separation", 10)
 	for preset: Dictionary in MatchPresets.PRESETS:
 		bar._add(preset)
 	bar._add(MatchPresets.CUSTOM)
+	bar.columns = bar._buttons.size()
 	return bar
+
+
+## In one row where [param room] across is enough for every chip side by side, and in two rows of
+## half of them where it is not, a phone's under a big UI scale, rather than the pane shrunk to fit.
+func fit(room: float) -> void:
+	var gap := float(get_theme_constant(&"h_separation"))
+	var across := gap * float(_buttons.size() - 1)
+	for chip: Button in _buttons:
+		across += chip.custom_minimum_size.x
+	columns = _buttons.size() if across <= room else ceili(_buttons.size() / 2.0)
 
 
 ## The button for preset [param index], or Custom for -1.

@@ -18,6 +18,9 @@ extends RefCounted
 ## Fires when a column is opened or folded by a press on its head, or opened by Custom, see
 ## [SettingsFold], for whoever holds the rows to fit them and to put the cursor in them.
 signal fold_turned(fold: SettingsFold)
+## A card not opened yet was pressed, GAME.md 9.6: the player asks to open [param card] early, which
+## whoever holds the rows asks them first, see [method open_early].
+signal open_asked(card: int)
 
 ## How long a map runs, in seconds. A minute is a quick one, for a Grand Prix of several maps
 ## as much as for a short game.
@@ -26,7 +29,7 @@ const LENGTHS: Array[int] = [60, 180, 300, 480]
 ## podium, to check what comes after it. Only in a debug build, because it is not a length
 ## anybody wants a real game to be.
 const DEBUG_LENGTH := 5
-const TARGETS: Array[int] = [0, 2000, 3000, 5000]
+const TARGETS: Array[int] = [0, 1500, 2000, 3000, 5000]
 ## How many bots a match may ask for, GAME.md 3.8: the row offers as many of them as the arena has
 ## seats for beside one player, see [method fit_seats].
 const BOTS: Array[int] = [0, 1, 2, 3, 4, 5, 6, 7]
@@ -84,6 +87,8 @@ var small_maps_toggle: CheckButton
 ## The presets, GAME.md 9.6, and the two columns that fold, The floor and House rules, side by side
 ## in [member columns] or one over the other.
 var presets: PresetBar
+## The cards on the table, GAME.md 3.17, under the presets.
+var table_strip: TableStrip
 var floor_fold: SettingsFold
 var rules_fold: SettingsFold
 var columns: BoxContainer
@@ -107,6 +112,7 @@ var _jokers_row: Control
 var _tie_row: Control
 var _sizes_row: Control
 var _items_row: Control
+var _slots_row: Control
 ## The perforation between the two columns.
 var _tear: ColumnTear
 var _length_label: Label
@@ -270,9 +276,8 @@ func apply_to(config: MatchConfig) -> void:
 	config.teams = Teams.COUNTS[teams_option.selected]
 	config.friendly_fire = FRIENDLY_FIRE[friendly_fire_option.selected]
 	config.joker_slots = JOKER_SLOTS[slots_option.selected]
-	# The table the profile playing sets out, GAME.md 3.17.
-	config.table = Game.settings.profile.table_set()
-	config.roulette = Game.settings.profile.table.roulette
+	config.table = table_strip.table
+	config.roulette = table_strip.roulette
 
 
 ## Keeps the choices for next time. Not written to disk here: the caller saves once, with
@@ -299,6 +304,14 @@ func remember(settings: Settings) -> void:
 	settings.grand_prix = is_grand_prix()
 	settings.floor_open = floor_fold.open
 	settings.rules_open = rules_fold.open
+	# Kept with the profile choosing, GAME.md 8.9a: the cards it turned face down of those opened,
+	# and with every card past power-ups down, as the Penny table has them, the ones not opened yet
+	# as well, so a card the House opens stays down on it.
+	var table := settings.profile.table
+	var down := TableCards.ALL & ~table_strip.table
+	var plain := table_strip.table & ~TableCards.FIRST == 0
+	table.off = down if plain else down & table_strip.opened
+	table.roulette = table_strip.roulette
 
 
 ## Shows [param config] in the rows, as the House sets the table, STORY.md 8.1: a quick match on
@@ -325,7 +338,20 @@ func show(config: MatchConfig) -> void:
 	slots_option.select(maxi(JOKER_SLOTS.find(config.joker_slots), 0))
 	small_maps_toggle.button_pressed = config.small_maps
 	tie_toggle.button_pressed = config.tie_breaker
+	table_strip.set_table(config.table, config.roulette, TableCards.ALL)
 	_show_room()
+	_refresh()
+
+
+## Opens [param card] for the profile choosing before the House would have, GAME.md 8.9a, and turns
+## it face up on the table or into the deck.
+func open_early(card: int) -> void:
+	var profile := Game.settings.profile
+	profile.table.open_early(card)
+	var opened := profile.table_opened()
+	table_strip.set_table(
+		table_strip.table | TableCards.bit(card), table_strip.roulette, opened, profile.table.fresh
+	)
 	_refresh()
 
 
@@ -352,6 +378,7 @@ func lock() -> void:
 		toggle.disabled = true
 	mode_picker.locked = true
 	presets.lock()
+	table_strip.lock()
 	# Open, and to stay so: folded, their fine print would say what the House has blacked out.
 	for fold: SettingsFold in [floor_fold, rules_fold]:
 		fold.open = true
@@ -389,6 +416,7 @@ func redact() -> void:
 		small_maps_toggle,
 	]
 	values.append_array(presets.buttons())
+	values.append_array(table_strip.buttons())
 	var turn := 0
 	for value: Control in in_reading_order(values):
 		RedactionBar.over(value, REDACT_FIRST + REDACT_EACH * float(turn))
@@ -491,6 +519,15 @@ func _build(column: Container, settings: Settings) -> void:
 	presets = PresetBar.make()
 	presets.picked.connect(_on_preset)
 	column.add_child(presets)
+	# The cards on the table under them, GAME.md 3.17, as the profile choosing has them opened.
+	table_strip = TableStrip.make()
+	var profile := Game.settings.profile
+	table_strip.set_table(
+		profile.table_set(), profile.table.roulette, profile.table_opened(), profile.table.fresh
+	)
+	table_strip.changed.connect(_refresh)
+	table_strip.open_asked.connect(func(card: int) -> void: open_asked.emit(card))
+	column.add_child(table_strip)
 	# Two columns, GAME.md 9.6: where and who with on the left, how it plays on the right, side by
 	# side where the screen is wide enough and one over the other where it is not, see [method
 	# set_wide]. Each folds.
@@ -589,11 +626,11 @@ func _build_rules(body: Container, settings: Settings) -> void:
 	slots_option = MenuTheme.option(
 		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
 	)
-	body.add_child(MenuTheme.row("Joker slots", slots_option))
+	_slots_row = MenuTheme.row("Joker slots", slots_option)
+	body.add_child(_slots_row)
 	# The later set is the loyalty program's to add, GAME.md 8.9: no choice until it has added one.
 	_items_row = MenuTheme.row("Items", items_option)
-	_items_row.visible = not Loyalty.unlocks_of(Game.settings.profile)["items"].is_empty()
-	if not _items_row.visible:
+	if not _later_items():
 		items_option.select(0)
 	body.add_child(_items_row)
 	own_bullets_option = MenuTheme.option(
@@ -631,7 +668,7 @@ func _show_mode() -> void:
 	var several := is_grand_prix()
 	_arena_row.visible = not several
 	_maps_row.visible = several
-	_jokers_row.visible = several
+	_jokers_row.visible = several and _jokers_dealt()
 	_tie_row.visible = several
 	_sizes_row.visible = several
 	_length_label.text = "Time per map" if several else "Match length"
@@ -664,6 +701,12 @@ func _show_room() -> void:
 func set_wide(wide: bool) -> void:
 	columns.vertical = not wide
 	_tear.across = not wide
+
+
+## The presets in one row where [param room] across has room for them, and in two where it has not.
+func fit_presets(room: float) -> void:
+	presets.fit(room)
+	table_strip.set_compact(presets.columns < presets.buttons().size())
 
 
 ## Where the cursor goes across from [param from] in a column, to the right for [param right],
@@ -739,7 +782,7 @@ func wide_need() -> float:
 
 ## Whether the Items row is offered, which only the loyalty program's later set makes it.
 func has_items() -> bool:
-	return _items_row.visible
+	return _later_items()
 
 
 ## The two columns as wide as each other, so the pane is the one width whichever of them is
@@ -814,6 +857,11 @@ func _refresh() -> void:
 	if not _built:
 		return
 	presets.light(MatchPresets.matching(self))
+	# The rows of a card that is not on the table ask nothing, GAME.md 3.17.
+	var jokers := _jokers_dealt()
+	_slots_row.visible = jokers
+	_jokers_row.visible = is_grand_prix() and jokers
+	_items_row.visible = _later_items() and TableCards.has(table_strip.table, TableCards.Card.ITEMS)
 	var several := is_grand_prix()
 	var where := ""
 	if several:
@@ -848,25 +896,36 @@ func _refresh() -> void:
 	var length := length_words(float(match_lengths()[maxi(minutes_option.selected, 0)]))
 	var target := TARGETS[maxi(target_option.selected, 0)]
 	var pace := (
-		"%s%s · %s · %d jokers"
+		"%s%s · %s"
 		% [
 			length,
 			" each" if several else "",
-			"first to %d" % target if target > 0 else "no target",
-			JOKER_SLOTS[maxi(slots_option.selected, 0)],
+			"first to %d" % target if target > 0 else "no target"
 		]
 	)
+	if jokers:
+		pace += " · %d jokers" % JOKER_SLOTS[maxi(slots_option.selected, 0)]
 	var rules: PackedStringArray = []
-	if has_items():
+	if _items_row.visible:
 		rules.append("all items" if items_option.selected > 0 else "basic items")
 	rules.append("own bullets %s" % ("deadly" if own_bullets_option.selected > 0 else "harmless"))
 	rules.append("match ends" if overtime_option.selected > 0 else "last one standing")
 	# Catch up is on by default, so only its absence is worth a word in the fine print.
 	if catch_up_option.selected > 0:
 		rules.append("no catch-up")
-	if several:
+	if several and jokers:
 		rules.append(KEEPS[jokers_option.selected].to_lower())
 	rules_fold.summarize(pace, " · ".join(rules))
+
+
+## Whether Jokers can be on the table these rows set: face up, or in a Roulette's deck.
+func _jokers_dealt() -> bool:
+	return TableCards.has(table_strip.table, TableCards.Card.JOKERS)
+
+
+## Whether the loyalty program has added the later items, GAME.md 8.9, which the Items row asks of.
+func _later_items() -> bool:
+	return not Loyalty.unlocks_of(Game.settings.profile)["items"].is_empty()
 
 
 ## The map the arena row has chosen.

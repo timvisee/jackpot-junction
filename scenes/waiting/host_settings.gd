@@ -49,6 +49,9 @@ var _by_the_house := false
 var _last_opened: SettingsFold
 ## The preset lit when the binds were last drawn, see [method _show_bind].
 var _bind_lit := -3
+## The question asked before a card of the table is opened early, GAME.md 9.6, and of which card.
+var _confirm: ConfirmPane
+var _asking := -1
 
 
 static func add_to(
@@ -110,6 +113,7 @@ func _ready() -> void:
 	_scroll.add_child(_rows)
 	options = MatchOptions.add_to(_rows, Game.settings)
 	options.fold_turned.connect(_on_fold)
+	options.open_asked.connect(_ask_open)
 	# The two kinds of game are tabs, see [method _tab_of], their keys or buttons on them.
 	ButtonBinds.mark(options.mode_picker.button(true), InputActions.MENU_PAGE_PREV)
 	ButtonBinds.mark(options.mode_picker.button(false), InputActions.MENU_PAGE_NEXT)
@@ -150,6 +154,7 @@ func _fit() -> void:
 		return
 	var sides := _pane.get_theme_stylebox(&"panel").get_minimum_size().x
 	options.set_wide(room.x - sides >= options.wide_need())
+	options.fit_presets(room.x - sides)
 	var around := _pane.get_combined_minimum_size().y - _scroll.custom_minimum_size.y
 	_fold_to_fit(room.y - around)
 	var rows := _rows.get_combined_minimum_size()
@@ -190,6 +195,39 @@ func _on_fold(fold: SettingsFold) -> void:
 	var first := fold.first_row()
 	if first != null:
 		first.grab_focus()
+
+
+## A sealed card of the table pressed, GAME.md 9.6: whether to open it before the House would have,
+## asked over the pane, the cursor on not.
+func _ask_open(card: int) -> void:
+	if _confirm == null:
+		_confirm = ConfirmPane.new()
+		_confirm.name = "OpenEarly"
+		_confirm.answered.connect(_on_open_answered)
+		_middle.add_child(_confirm)
+	_asking = card
+	var named := TableCards.NAMES[card]
+	_confirm.ask(
+		"Open %s early?" % named,
+		(
+			"The House opens it after map %d by itself. %s Opened, it stays open."
+			% [TableCards.opens_after(card), TableCards.LINES[card]]
+		),
+		"Open it",
+		"Not now",
+		RoadSign.Kind.QUESTION
+	)
+
+
+func _on_open_answered(yes: bool) -> void:
+	_confirm.visible = false
+	var card := _asking
+	_asking = -1
+	if yes and card >= 0:
+		options.open_early(card)
+		Game.settings.save_to_disk()
+	if card >= 0:
+		options.table_strip.button(card).grab_focus()
 
 
 ## Up, on the match settings, or with [param lobby_first] on the lobby's settings first when there
@@ -362,6 +400,12 @@ func close() -> void:
 ## somebody new takes a seat, and a friend sitting down should not close the host's menu for them.
 func _input(event: InputEvent) -> void:
 	if not _panel.visible:
+		return
+	# The question over the pane answers to its own buttons; Back is not.
+	if _confirm != null and _confirm.visible:
+		if event.is_action_pressed(&"ui_cancel"):
+			_on_open_answered(false)
+			get_viewport().set_input_as_handled()
 		return
 	var keyboard := LicenseView.keyboard_after(event, _keyboard)
 	var pointer := ButtonBinds.pointer_after(event, _pointer)

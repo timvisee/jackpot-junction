@@ -8799,16 +8799,41 @@ below, the next one along from the one lit, Custom after the four and Standard a
 key drawn on the chip lit.
 
 **Presets.** Between the big buttons and the columns a row of chips sets every one of House rules'
-rows at once, but for Jokers between maps: a poker chip of its own color on each, its name, and a
-line under the name of what it sets. The floor is left alone, since which map and who plays it are
-not a matter of how, but for a quick match's arena, which a preset deals afresh, 9.7.
+rows at once, but for Jokers between maps, and the cards on the table under them: a poker chip of
+its own color on each, its name, and a line under the name of what it sets. The floor is left alone,
+since which map and who plays it are not a matter of how, but for a quick match's arena, which a
+preset deals afresh, 9.7. Six chips stand in one row where the pane has room for them, and in two
+rows of three where it has not, a phone's under a big UI scale, rather than the pane shrunk to fit.
 
-| Preset      | Chip  | What it sets                                                                                 |
-|-------------|-------|----------------------------------------------------------------------------------------------|
-| Standard    | Gold  | 5 min, first to 3000, 5 jokers, basic items, own bullets harmless, last one standing, catch up on: the values in this document |
-| Quick hand  | Green | 3 min, first to 2000, 4 jokers, and the rest as Standard                                     |
-| High roller | Purple | 8 min, first to 5000, 8 jokers, all items once the loyalty program has added them, and the rest as Standard |
-| Cutthroat   | Red   | 5 min, no target, 3 jokers, basic items, own bullets deadly, the match ends at the whistle, and catch up off |
+| Preset      | Chip   | What it sets                                                                                 |
+|-------------|--------|----------------------------------------------------------------------------------------------|
+| Penny table | Copper | 3 min, first to 1500, 5 jokers, basic items, own bullets harmless, the match ends at the whistle, catch up on, and power-ups alone on the table: the plain game, 3.17 |
+| Standard    | Gold   | 5 min, first to 3000, 5 jokers, basic items, own bullets harmless, last one standing, catch up on, every card opened on the table: the values in this document |
+| Roulette    | Green  | Standard's rows, with each map dealing its own cards from those face up, 3.17               |
+| High roller | Purple | 8 min, first to 5000, 8 jokers, all items once the loyalty program has added them, every card opened, and the rest as Standard: the chaotic table |
+| Cutthroat   | Red    | 5 min, no target, 3 jokers, basic items, own bullets deadly, the match ends at the whistle, catch up off, every card opened |
+
+Quick hand, 3 min to 2000 with 4 jokers, made way for the Penny table in 0.24. Standard is every
+card the House has opened for the profile choosing, 8.9a, so it grows by itself as they open, and
+somebody new who never touches the settings plays each card from the map after it opens.
+
+**On the table.** Under the presets the cards of the table, 3.17, lie on a strip of the table's
+felt headed ON THE TABLE in foil, a card each in their order, `TableStrip`: face up, the House's
+cream with the card's picture and its name, for on, and face down, in the card back the player
+wears, 8.9, for off. A press turns one over, narrowing to its edge and widening on its other side,
+and lights Custom. Suits & hands lie grayed while Jokers are down and do not turn; turning Jokers
+down turns them down too. A card the House has not opened yet, 8.9a, is sealed: its face grayed
+under a padlock and a gold band along its foot, AFTER MAP 5. Pressed, it asks first, the round blue
+sign's question, "Open Slot machines early?", what the card does and that it stays opened, with
+Open it and Not now, the cursor on not; opened, it comes face up. A card opened and not yet played
+wears a NEW tag. With Roulette lit the strip is headed IN THE DECK, and says that power-ups and
+three of the rest are dealt each map; turning a card takes it out of the deck and Roulette stays
+lit. The rows of a card that is off go: Joker slots and Jokers between maps without Jokers, Items
+without Power-ups, and the fine print of House rules says no jokers. The cursor walks the cards
+left and right and goes up to the presets and down to the columns. Each face is a picture drawn
+once a run, 10.7, so the strip costs a draw a card. It is a row taller, so on a screen of 1080 lines
+the two columns no longer both stay open: opening one folds the other, as on a short screen. At
+the Final Hand every card is face up, blacked out and fixed.
 
 The chip of the preset the rows are set to is lit in gold, the way the chosen kind of game is. Rows
 set to none of them light Custom, a fifth chip, of steel; pressing Custom opens both columns, the

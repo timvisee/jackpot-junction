@@ -11,6 +11,8 @@ func before_test() -> void:
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = "user://test_match_settings.cfg"
+	# Every card of the table opened, GAME.md 8.9a, so the rows of each are there to set.
+	Game.settings.profile.stats[&"maps"] = float(TableCards.Card.size())
 
 
 func after_test() -> void:
@@ -69,38 +71,41 @@ func test_the_floor_says_the_arena_and_the_teams() -> void:
 	assert_str(options.rules_fold._lines[0].text).is_equal("5 min · first to 3000 · 5 jokers")
 
 
-## Standard is lit on the values of GAME.md; a preset sets House rules but leaves the floor, a row
-## set to none of them lights Custom, and Custom opens both columns with the cursor in House rules.
+## Standard is lit on the values of GAME.md; a preset sets House rules and the table but leaves the
+## floor, a row set to none of them lights Custom, and Custom opens both columns with the cursor in
+## House rules.
 func test_the_presets_set_house_rules() -> void:
 	var pane := _pane()
 	var options := pane.options
-	assert_bool(options.presets.button(0).button_pressed).is_true()
+	assert_bool(options.presets.button(1).button_pressed).is_true()
 	options.bots_option.select(1)
-	options.presets.button(1).pressed.emit()
+	options.presets.button(0).pressed.emit()
 	var config := MatchConfig.new()
 	options.apply_to(config)
 	assert_float(config.duration).is_equal(180.0)
-	assert_int(config.target_score).is_equal(2000)
-	assert_int(config.joker_slots).is_equal(4)
+	assert_int(config.target_score).is_equal(1500)
+	assert_bool(config.overtime).is_false()
+	assert_int(config.table).is_equal(TableCards.FIRST)
 	assert_int(config.bot_count).is_equal(1)
-	assert_bool(options.presets.button(1).button_pressed).is_true()
-	assert_bool(options.presets.button(0).button_pressed).is_false()
-	assert_str(options.rules_fold._lines[0].text).is_equal("3 min each · first to 2000 · 4 jokers")
+	assert_bool(options.presets.button(0).button_pressed).is_true()
+	assert_bool(options.presets.button(1).button_pressed).is_false()
+	assert_str(options.rules_fold._lines[0].text).is_equal("3 min each · first to 1500")
 	# Pressed again it stays lit, rather than letting go of itself as a toggle would.
-	options.presets.button(1).pressed.emit()
-	assert_bool(options.presets.button(1).button_pressed).is_true()
-	options.presets.button(3).pressed.emit()
+	options.presets.button(0).pressed.emit()
+	assert_bool(options.presets.button(0).button_pressed).is_true()
+	options.presets.button(4).pressed.emit()
 	options.apply_to(config)
 	assert_int(config.target_score).is_zero()
 	assert_bool(config.own_bullets_hurt).is_true()
 	assert_bool(config.overtime).is_false()
+	assert_int(config.table).is_equal(TableCards.ALL)
 	options.slots_option.select(5)
 	options.slots_option.item_selected.emit(5)
 	assert_bool(options.presets.button(-1).button_pressed).is_true()
-	assert_bool(options.presets.button(3).button_pressed).is_false()
+	assert_bool(options.presets.button(4).button_pressed).is_false()
 	assert_bool(options.rules_fold.open).is_false()
 	assert_bool(options.floor_fold.open).is_false()
-	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._panel.size = Vector2(1920.0, 1600.0)
 	options.presets.button(-1).pressed.emit()
 	assert_bool(options.rules_fold.open).is_true()
 	assert_bool(options.floor_fold.open).is_true()
@@ -143,7 +148,7 @@ func test_catch_up_is_a_house_rule() -> void:
 	options.presets.button(0).pressed.emit()
 	options.apply_to(config)
 	assert_bool(config.catch_up).is_true()
-	options.presets.button(3).pressed.emit()
+	options.presets.button(4).pressed.emit()
 	options.apply_to(config)
 	assert_bool(config.catch_up).is_false()
 
@@ -170,14 +175,14 @@ func test_a_click_on_a_presets_chip_presses_it() -> void:
 	pane._panel.size = Vector2(1920.0, 1080.0)
 	pane._fit()
 	await await_idle_frame()
-	var chip := pane.options.presets.button(1).find_children("*", "Control", true, false)[1]
+	var chip := pane.options.presets.button(0).find_children("*", "Control", true, false)[1]
 	assert_str(chip.get_class()).is_equal("Control")
 	var at := (chip as Control).get_global_rect().get_center()
 	var move := InputEventMouseMotion.new()
 	move.position = at
 	move.global_position = at
 	get_viewport().push_input(move, true)
-	assert_object(get_viewport().gui_get_hovered_control()).is_same(pane.options.presets.button(1))
+	assert_object(get_viewport().gui_get_hovered_control()).is_same(pane.options.presets.button(0))
 	for down: bool in [true, false]:
 		var click := InputEventMouseButton.new()
 		click.button_index = MOUSE_BUTTON_LEFT
@@ -186,8 +191,8 @@ func test_a_click_on_a_presets_chip_presses_it() -> void:
 		click.position = at
 		click.global_position = at
 		get_viewport().push_input(click, true)
-	assert_bool(pane.options.presets.button(1).button_pressed).is_true()
-	assert_int(pane.options.target_option.selected).is_equal(MatchOptions.TARGETS.find(2000))
+	assert_bool(pane.options.presets.button(0).button_pressed).is_true()
+	assert_int(pane.options.target_option.selected).is_equal(MatchOptions.TARGETS.find(1500))
 	pane._panel.visible = false
 
 
@@ -196,12 +201,12 @@ func test_a_click_on_a_presets_chip_presses_it() -> void:
 func test_high_roller_takes_all_items_only_when_there_are_any() -> void:
 	var options := _pane().options
 	assert_bool(options.has_items()).is_false()
-	options.presets.button(2).pressed.emit()
+	options.presets.button(3).pressed.emit()
 	var config := MatchConfig.new()
 	options.apply_to(config)
 	assert_str(config.item_set).is_equal("first")
 	assert_int(config.joker_slots).is_equal(8)
-	assert_bool(options.presets.button(2).button_pressed).is_true()
+	assert_bool(options.presets.button(3).button_pressed).is_true()
 
 
 ## A Grand Prix's map sizes are two chips, one of them always lit.
@@ -214,14 +219,15 @@ func test_one_map_size_is_always_lit() -> void:
 	assert_str(options.floor_fold._lines[0].text).is_equal("3 maps · Normal maps · tie-breaker")
 
 
-## Too short for both open, the one opened first is folded; too narrow for two side by side, they
-## stack with the perforation across between them; wide and tall, both stay open side by side.
+## Too short for both open, the one opened first is folded, which a screen of 1080 lines is now the
+## table's cards are over them; too narrow for two side by side, they stack with the perforation
+## across between them; wide and tall, both stay open side by side.
 func test_the_columns_fit_the_screen() -> void:
 	Game.settings.floor_open = true
 	Game.settings.rules_open = true
 	var pane := _pane()
 	var options := pane.options
-	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._panel.size = Vector2(1920.0, 1600.0)
 	pane._fit()
 	assert_bool(options.columns.vertical).is_false()
 	assert_bool(options.floor_fold.open).is_true()
@@ -276,16 +282,20 @@ func test_the_cursor_walks_the_columns() -> void:
 	Game.settings.floor_open = true
 	Game.settings.rules_open = true
 	var pane := _pane()
-	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._panel.size = Vector2(1920.0, 1600.0)
 	pane._fit()
 	await await_idle_frame()
 	var options := pane.options
 	options.mode_picker.button(true).grab_focus()
 	_press(&"ui_down")
 	assert_bool(options.presets.buttons().has(get_viewport().gui_get_focus_owner())).is_true()
-	options.presets.button(0).grab_focus()
+	options.presets.button(2).grab_focus()
+	_press(&"ui_down")
+	assert_bool(options.table_strip.buttons().has(get_viewport().gui_get_focus_owner())).is_true()
+	options.table_strip.button(TableCards.Card.ITEMS).grab_focus()
 	_walk(
 		[
+			[&"ui_right", options.table_strip.button(TableCards.Card.JACKPOT)],
 			[&"ui_down", options.floor_fold.head],
 			[&"ui_right", options.rules_fold.head],
 			[&"ui_down", options.minutes_option],
@@ -375,3 +385,92 @@ func _key(code: Key) -> InputEventKey:
 	key.keycode = code
 	key.pressed = true
 	return key
+
+
+## The cards on the table, GAME.md 3.17 and 9.6: a press turns one over and lights Custom, Suits &
+## hands lie grayed without Jokers, whose rows go with them, and what was turned is kept with the
+## profile.
+func test_the_cards_on_the_table() -> void:
+	var pane := _pane()
+	var options := pane.options
+	var strip := options.table_strip
+	assert_int(strip.table).is_equal(TableCards.ALL)
+	strip.button(TableCards.Card.SLOTS).pressed.emit()
+	assert_bool(TableCards.has(strip.table, TableCards.Card.SLOTS)).is_false()
+	assert_bool(options.presets.button(-1).button_pressed).is_true()
+	assert_bool(options._slots_row.visible).is_true()
+	strip.button(TableCards.Card.JOKERS).pressed.emit()
+	assert_bool(TableCards.has(strip.table, TableCards.Card.SUITS)).is_false()
+	assert_bool(options._slots_row.visible).is_false()
+	assert_str(options.rules_fold._lines[0].text).not_contains("jokers")
+	strip.button(TableCards.Card.SUITS).pressed.emit()
+	assert_bool(TableCards.has(strip.table, TableCards.Card.SUITS)).is_false()
+	strip.button(TableCards.Card.JOKERS).pressed.emit()
+	strip.button(TableCards.Card.SUITS).pressed.emit()
+	strip.button(TableCards.Card.SLOTS).pressed.emit()
+	assert_bool(options.presets.button(1).button_pressed).is_true()
+	strip.button(TableCards.Card.BOUNTY).pressed.emit()
+	var config := MatchConfig.new()
+	options.apply_to(config)
+	assert_bool(TableCards.has(config.table, TableCards.Card.BOUNTY)).is_false()
+	pane.close()
+	assert_int(Game.settings.profile.table.off).is_equal(TableCards.bit(TableCards.Card.BOUNTY))
+
+
+## Roulette's cards are its deck: one turned is out of it and Roulette stays lit.
+func test_roulette_deals_from_the_cards_turned_up() -> void:
+	var options := _pane().options
+	options.presets.button(2).pressed.emit()
+	assert_bool(options.table_strip.roulette).is_true()
+	options.table_strip.button(TableCards.Card.FLUSH).pressed.emit()
+	assert_bool(options.presets.button(2).button_pressed).is_true()
+	var config := MatchConfig.new()
+	options.apply_to(config)
+	assert_bool(config.roulette).is_true()
+	assert_bool(TableCards.has(config.table, TableCards.Card.FLUSH)).is_false()
+	options.presets.button(1).pressed.emit()
+	options.apply_to(config)
+	assert_bool(config.roulette).is_false()
+	assert_int(config.table).is_equal(TableCards.ALL)
+
+
+## A card the House has not opened yet is sealed: pressed, it asks first, and opened it comes face
+## up and stays opened; not now leaves it sealed.
+func test_a_sealed_card_asks_to_open_early() -> void:
+	Game.settings.profile.stats[&"maps"] = 1.0
+	var pane := _pane()
+	var strip := pane.options.table_strip
+	assert_int(strip.opened).is_equal(TableCards.opened_by(1))
+	strip.button(TableCards.Card.SLOTS).pressed.emit()
+	assert_bool(pane._confirm.visible).is_true()
+	assert_str(pane._confirm.said()).contains("Slot machines")
+	pane._confirm.no_button().pressed.emit()
+	assert_bool(TableCards.has(strip.opened, TableCards.Card.SLOTS)).is_false()
+	strip.button(TableCards.Card.SLOTS).pressed.emit()
+	pane._confirm.yes_button().pressed.emit()
+	assert_bool(pane._confirm.visible).is_false()
+	assert_bool(TableCards.has(strip.opened, TableCards.Card.SLOTS)).is_true()
+	assert_bool(TableCards.has(strip.table, TableCards.Card.SLOTS)).is_true()
+	(
+		assert_bool(TableCards.has(Game.settings.profile.table_opened(), TableCards.Card.SLOTS))
+		. is_true()
+	)
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(strip.button(TableCards.Card.SLOTS))
+	pane._panel.visible = false
+
+
+## The Penny table kept: a card the House opens after stays down on it, while on Standard it comes
+## up, GAME.md 8.9a.
+func test_a_card_opened_later_stays_down_on_the_penny_table() -> void:
+	Game.settings.profile.stats[&"maps"] = 2.0
+	var pane := _pane()
+	pane.options.presets.button(0).pressed.emit()
+	pane.close()
+	Game.settings.profile.stats[&"maps"] = 3.0
+	assert_int(Game.settings.profile.table_set()).is_equal(TableCards.FIRST)
+	var again: HostSettings = auto_free(HostSettings.add_to(self, true))
+	again.open()
+	again.options.presets.button(1).pressed.emit()
+	again.close()
+	Game.settings.profile.stats[&"maps"] = 4.0
+	assert_int(Game.settings.profile.table_set()).is_equal(TableCards.opened_by(4))

@@ -13,6 +13,8 @@ func before_test() -> void:
 	_settings_were = Game.settings
 	Game.settings = Settings.new()
 	Game.settings.path = "user://test_grand_prix.cfg"
+	# Every card of the table opened, GAME.md 8.9a: Jokers between maps is a row of the Jokers card.
+	Game.settings.profile.stats[&"maps"] = float(TableCards.Card.size())
 
 
 func after_test() -> void:
