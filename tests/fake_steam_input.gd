@@ -31,6 +31,8 @@ var panel_shows := true
 var xbox_of: Dictionary[int, int] = {}
 var pictures: Dictionary[int, String] = {}
 var words: Dictionary[int, String] = {}
+## The light of each controller, by handle: its color, or null for the player's own in Steam.
+var lights: Dictionary[int, Variant] = {}
 
 
 ## Knows the game's manifest: a handle for the set and for each of [param names], from 1.
@@ -123,6 +125,11 @@ func getGlyphSVGForActionOrigin(origin: int, _flags: int) -> String:
 
 func getStringForActionOrigin(origin: int) -> String:
 	return words.get(origin, "")
+
+
+func setLEDColor(input_handle: int, color_r: int, color_g: int, color_b: int, flags: int) -> void:
+	var restored := flags == SteamPads.LED_RESTORE
+	lights[input_handle] = null if restored else Color8(color_r, color_g, color_b)
 
 
 func showBindingPanel(input_handle: int) -> bool:

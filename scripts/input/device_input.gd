@@ -18,6 +18,9 @@ static var steam_pads: Dictionary[int, int] = {}
 ## Knocks one of [member steam_pads], as [method rumble] is asked: the pad, how hard its light
 ## motor and its heavy one go, and for how long. Set by [SteamPads]; nothing without it.
 static var steam_rumble := Callable()
+## Lights one of [member steam_pads] in a color, or with null puts the player's own back, as
+## [method light] and [method unlight] are asked. Set by [SteamPads]; nothing without it.
+static var steam_light := Callable()
 ## Where Steam has an action bound on one of [member steam_pads], for a hint to draw, see
 ## [method SteamPads.place]. Set by [SteamPads]; nothing without it.
 static var steam_place := Callable()
@@ -39,6 +42,24 @@ static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void
 			steam_rumble.call(pad, weak, strong, seconds)
 		return
 	Input.start_joy_vibration(pad, weak, strong, seconds)
+
+
+## Lights the pad [param pad] in [param color], its seat's, see [PadLights]: through Steam for a pad
+## of Steam Input's, and on a pad the engine reads where it has a light.
+static func light(pad: int, color: Color) -> void:
+	if steam_pads.has(pad):
+		if steam_light.is_valid():
+			steam_light.call(pad, color)
+		return
+	if Input.get_connected_joypads().has(pad) and Input.has_joy_light(pad):
+		Input.set_joy_light(pad, color)
+
+
+## Gives the pad [param pad] its own light back after [method light]: the player's color in Steam
+## for a pad of Steam Input's. One the engine reads keeps the last, the engine having no way back.
+static func unlight(pad: int) -> void:
+	if steam_pads.has(pad) and steam_light.is_valid():
+		steam_light.call(pad, null)
 
 
 ## How a hint draws [param action] for [param pad] as Steam has it bound, GAME.md 10.8, see

@@ -10919,6 +10919,14 @@ the game's layout, so a player turning it off also picks a gamepad layout for th
 turns Steam Input off for it in its Steam properties, as the switch's tip says. Steam Input is
 never started without Steam, so a GitHub build is as it was.
 
+**The light.** In a match and its lobby each local player's pad is lit in the color of the kart it
+drives, a team's in team play (`PadLights`), so four players at one screen tell their pads apart as
+they tell their karts: a DualSense's or a DualShock's light bar. A controller Steam Input reads is
+lit through Steam, which gives it the player's own color in Steam back as its seat empties, as the
+match ends and as Steam Input is turned off; a pad the engine reads is lit where the engine says it
+has a light, and keeps the last color, the engine having no way back. A player reading every device
+lights every pad no other seat has.
+
 **Hints.** A hint for a controller Steam Input reads, pinned to it or following it as the pad
 touched last, draws each action where Steam has it bound on that controller (`SteamPads.place`):
 Steam says which of the controller's buttons the action is on, translated to an Xbox One pad's, and

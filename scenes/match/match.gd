@@ -121,6 +121,7 @@ func _ready() -> void:
 	add_to_group(&"match")
 	Emotes.add_to(self)
 	BotEmotes.add_to(self)
+	PadLights.add_to(self)
 	if rules == null:
 		rules = load("res://data/match/default.tres")
 	if power_ups == null:
