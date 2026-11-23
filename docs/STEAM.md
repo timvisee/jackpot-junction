@@ -137,10 +137,25 @@ Steam Frame. Outside Steam, `arm64/jackpot-junction --no-steam` runs on any ARM6
 Linux machine, a Raspberry Pi 5 for one. Put the first one on `staging` before
 setting it live, as Factorio put theirs on its experimental branch first.
 
-**The cost.** Each binary carries the game's data, so Linux players download about
-twice as much, some 200 MB rather than 100; Windows is unchanged. A shared `.pck`
-beside the launcher, handed to the binary with `--main-pack`, would save the second
-copy of the data, but only once the plain way has been seen to work.
+**The cost.** Each binary carries the game's data, so Linux players download both
+builds whole: 113 MB for x86_64 and 118 MB for ARM64, measured on 0.23.1, rather
+than 113. Windows is unchanged. A shared `.pck` beside the launcher, handed to both
+binaries with `--main-pack`, would bring that down to some 192 MB: the x86_64
+binary (74 MB), the ARM64 binary (67 MB) and one PCK (51 MB). It has to be the
+ARM64 build's, which holds the ETC2/ASTC textures as well, so x86_64 players get
+11 MB they never use. Only once the plain way has been seen to work: `embed_pck`
+off for the two Linux Steam presets, nothing else in the game.
+
+**Patches.** Splitting the PCK out does not make Steam's updates smaller by itself,
+measured on 2026-11-23 from the 0.23.0 and 0.23.1 builds and steamcmd's depot logs.
+The binary part, Godot's own template, differs between releases only in the 3
+header bytes that hold the PCK's size, and SteamPipe already reuses the rest:
+0.23.1 went up as 12.0 MB for Linux and 13.1 MB for Windows, of 110 and 145 MB.
+That is ~1 MB chunks dirtied by small changes scattered through the PCK. Of the
+1.9 MiB that changed, 1.2 MiB had no source change behind it: the five kart `.glb`
+imports, which every CI run imports anew and differently, and Godot's caches.
+Caching `.godot/imported` in `steam.yml` should keep those the same. The user
+parked both with this work.
 
 ## Steam Cloud
 
