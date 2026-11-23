@@ -185,6 +185,28 @@ func test_a_short_screen_prints_the_slip_short() -> void:
 	root.content_scale_factor = scale_was
 
 
+## On a screen too narrow for the players' corners beside the slip, as a handheld's under its UI
+## scale is, they go while it is up, rather than standing half under it, and come back once it goes.
+func test_a_narrow_screen_clears_the_corners_off_the_slip() -> void:
+	var root := get_tree().root
+	var scale_was := root.content_scale_factor
+	root.content_scale_factor = 3.0
+	var match_node := _finished_match(2)
+	await _runner.simulate_frames(12, 17)
+	var corner := match_node.hud.get_node("Block0") as Control
+	assert_bool(corner.visible).is_true()
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	assert_bool(screen.visible).is_true()
+	assert_bool(corner.get_global_rect().intersects(screen.paper_column())).is_true()
+	assert_bool(corner.visible).is_false()
+	screen.visible = false
+	assert_bool(corner.visible).is_true()
+	root.content_scale_factor = scale_was
+
+
 ## The size the first line's name is written at.
 func _name_size(screen: ResultsScreen) -> int:
 	var line := screen.map_page.rows.get_child(0).get_child(0).get_child(0)

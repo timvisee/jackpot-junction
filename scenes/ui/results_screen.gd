@@ -47,6 +47,11 @@ const WATCHER_WAIT := 6.0
 const WAY_WIDTH := 240.0
 ## How far a turn of the wheel off the bill moves it, GAME.md 3.8.
 const SCROLL_STEP := 64
+## The match's own pieces that stand beside the slip, by name, the players' corners by the start of
+## theirs: on a screen too narrow for them beside it they go while the slip is up, see
+## [method _clear_beside].
+const BESIDE: Array[StringName] = [&"Scoreboard", &"KillFeed"]
+const BESIDE_CORNERS := "Block"
 
 var match_node: Match
 ## The bill the pages are printed on, and the pages: the map's, always, and the run's in a Grand
@@ -106,10 +111,15 @@ var _house_ways: Control
 var _torn := false
 ## Whether the stick has turned a page and not yet been let go back toward the middle.
 var _stick_held := false
+## The match's pieces put out of the way of the slip, to come back once it goes.
+var _cleared: Array[Control] = []
 
 
-## The pages and the foot of the bill that never made it onto the bill go with the screen.
+## The pieces put out of the slip's way come back as it goes, and the pages and the foot of the bill
+## that never made it onto the bill go with the screen.
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and not visible:
+		_put_back_beside()
 	if what != NOTIFICATION_PREDELETE:
 		return
 	for part: Node in [map_page, run_page, _end, _house_page, loyalty_page]:
@@ -588,6 +598,7 @@ func _process(delta: float) -> void:
 	if not visible:
 		return
 	_lay_out()
+	_clear_beside()
 	_update_pager()
 	var going_on := bill.page_count() > 1 or _continue.visible
 	var counting := going_on and bill.page == 0 and not _run_seen and _watching()
@@ -601,6 +612,47 @@ func _process(delta: float) -> void:
 		_watcher_left = WATCHER_WAIT
 		_run_seen = true
 		_on_standings()
+
+
+## Where the slip's paper is on the screen: across, its width and its torn edges; down, from the
+## top of the screen to the ways on, however it is scrolled. Nothing of the match's is to be over
+## it or half under it.
+func paper_column() -> Rect2:
+	var paper := bill.paper.get_global_rect()
+	var column := bill.get_global_rect()
+	var across := Rect2(paper.position.x, column.position.y, paper.size.x, column.size.y)
+	return across.grow_individual(EDGE, 0.0, EDGE, 0.0)
+
+
+## Where the ways on are on the screen, or nothing while there are none to press.
+func foot_rect() -> Rect2:
+	return _foot.get_global_rect() if _foot.visible else Rect2()
+
+
+## The match's pieces beside the slip, the players' corners, the standings and the kill feed, out of
+## the way while it is up where the screen is too narrow for them beside it, as a handheld's under
+## its UI scale is: the slip says who banked what itself, and one half under it, or over it for a
+## seat that sat down after it was made, crowds it. Every frame, so one shown again meanwhile goes
+## again.
+func _clear_beside() -> void:
+	var column := paper_column()
+	for child: Node in get_parent().get_children():
+		var piece := child as Control
+		if piece == null or not piece.visible:
+			continue
+		if not (piece.name in BESIDE or piece.name.begins_with(BESIDE_CORNERS)):
+			continue
+		if piece.get_global_rect().intersects(column):
+			piece.visible = false
+			_cleared.append(piece)
+
+
+func _put_back_beside() -> void:
+	var hud := get_parent() as MatchHud
+	for piece: Control in _cleared:
+		if is_instance_valid(piece) and not (hud != null and hud.dismissed):
+			piece.visible = true
+	_cleared.clear()
 
 
 static func _watching() -> bool:

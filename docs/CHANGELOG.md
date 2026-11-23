@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The payout slip on a small screen.** On a handheld, the players' corners and the standings no
+  longer crowd the slip.
 - **The Steam Deck's triggers in Show gamepad.** Their lines point at the triggers now, not at the
   bumpers under them.
 

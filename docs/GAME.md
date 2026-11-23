@@ -556,6 +556,9 @@ so every page stands the same. The bill runs down the middle of the screen and o
 scrolled over rather than paged through: it runs straight off the top of the screen, and fades out
 over the ways on at the foot, so the paper goes under them rather than being cut, its torn edges
 going with it. Turning the page brings the next one to the middle of the screen in a short scroll.
+The match's pieces beside it, the players' corners, the standings and the kill feed, stay beside
+it; on a screen too narrow for them there, as a handheld's under its UI scale is, any the bill
+would cover goes while it is up, the slip saying who banked what itself, and comes back after.
 Over the bill's left edge, reaching onto its margin and no further, clear of the standings down
 the right of the screen, the pages' arrows stand upright in foil, up and down, with a dot for each
 page between them on a pill of the house's dark and the page in view lit in gold; an arrow with
