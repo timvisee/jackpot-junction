@@ -1,0 +1,439 @@
+"controller_mappings"
+{
+	"version"		"3"
+	"revision"		"1"
+	"title"		"#Title"
+	"description"		"#Description"
+	"controller_type"		"controller_switch_pro"
+	"major_revision"		"0"
+	"minor_revision"		"0"
+	"actions"
+	{
+		"Play"
+		{
+			"title"		"#Set_Play"
+			"legacy_set"		"0"
+			"StickPadGyro"
+			{
+				"steer_stick"
+				{
+					"title"		"#Action_steer_stick"
+					"input_mode"		"joystick_move"
+				}
+				"aim_stick"
+				{
+					"title"		"#Action_aim_stick"
+					"input_mode"		"joystick_move"
+				}
+			}
+			"AnalogTrigger"
+			{
+				"throttle_trigger"		"#Action_throttle_trigger"
+				"brake_trigger"		"#Action_brake_trigger"
+			}
+			"Button"
+			{
+				"fire"		"#Action_fire"
+				"use_item"		"#Action_use_item"
+				"nitro"		"#Action_nitro"
+				"handbrake"		"#Action_handbrake"
+				"throttle"		"#Action_throttle"
+				"brake"		"#Action_brake"
+				"steer_left"		"#Action_steer_left"
+				"steer_right"		"#Action_steer_right"
+				"drive_up"		"#Action_drive_up"
+				"drive_down"		"#Action_drive_down"
+				"joker_menu"		"#Action_joker_menu"
+				"joker_prev"		"#Action_joker_prev"
+				"joker_next"		"#Action_joker_next"
+				"joker_drop"		"#Action_joker_drop"
+				"joker_destroy"		"#Action_joker_destroy"
+				"joker_select_1"		"#Action_joker_select_1"
+				"joker_select_2"		"#Action_joker_select_2"
+				"joker_select_3"		"#Action_joker_select_3"
+				"joker_select_4"		"#Action_joker_select_4"
+				"joker_select_5"		"#Action_joker_select_5"
+				"details"		"#Action_details"
+				"emote_1"		"#Action_emote_1"
+				"emote_2"		"#Action_emote_2"
+				"emote_3"		"#Action_emote_3"
+				"emote_4"		"#Action_emote_4"
+				"emote_wheel"		"#Action_emote_wheel"
+				"pause"		"#Action_pause"
+				"join"		"#Action_join"
+				"match_settings"		"#Action_match_settings"
+				"mute_music"		"#Action_mute_music"
+				"ui_accept"		"#Action_ui_accept"
+				"ui_cancel"		"#Action_ui_cancel"
+				"ui_up"		"#Action_ui_up"
+				"ui_down"		"#Action_ui_down"
+				"ui_left"		"#Action_ui_left"
+				"ui_right"		"#Action_ui_right"
+				"menu_page_prev"		"#Action_menu_page_prev"
+				"menu_page_next"		"#Action_menu_page_next"
+				"menu_view"		"#Action_menu_view"
+				"menu_option"		"#Action_menu_option"
+				"menu_filter"		"#Action_menu_filter"
+				"menu_sort"		"#Action_menu_sort"
+				"menu_next_new"		"#Action_menu_next_new"
+				"menu_help"		"#Action_menu_help"
+			}
+		}
+	}
+	"localization"
+	{
+		"english"
+		{
+			"Title"		"Jackpot Junction"
+			"Description"		"The game's own layout: every button where the game's own pad has it."
+			"Set_Play"		"Play"
+			"Action_steer_stick"		"Steer and drive"
+			"Action_aim_stick"		"Aim, emote and scroll"
+			"Action_throttle_trigger"		"Throttle"
+			"Action_brake_trigger"		"Brake and reverse"
+			"Action_fire"		"Fire"
+			"Action_use_item"		"Use power-up"
+			"Action_nitro"		"Nitro"
+			"Action_handbrake"		"Handbrake and drift"
+			"Action_throttle"		"Throttle (button)"
+			"Action_brake"		"Brake and reverse (button)"
+			"Action_steer_left"		"Steer left"
+			"Action_steer_right"		"Steer right"
+			"Action_drive_up"		"Drive up (simple driving)"
+			"Action_drive_down"		"Drive down (simple driving)"
+			"Action_joker_menu"		"Joker menu"
+			"Action_joker_prev"		"Joker menu: previous card"
+			"Action_joker_next"		"Joker menu: next card"
+			"Action_joker_drop"		"Joker menu: drop"
+			"Action_joker_destroy"		"Joker menu: destroy"
+			"Action_joker_select_1"		"Joker card 1"
+			"Action_joker_select_2"		"Joker card 2"
+			"Action_joker_select_3"		"Joker card 3"
+			"Action_joker_select_4"		"Joker card 4"
+			"Action_joker_select_5"		"Joker card 5"
+			"Action_details"		"Joker card: details"
+			"Action_emote_1"		"Emote 1"
+			"Action_emote_2"		"Emote 2"
+			"Action_emote_3"		"Emote 3"
+			"Action_emote_4"		"Emote 4"
+			"Action_emote_wheel"		"Emote wheel"
+			"Action_pause"		"Pause"
+			"Action_join"		"Join"
+			"Action_match_settings"		"Lobby: match settings"
+			"Action_mute_music"		"Mute music"
+			"Action_ui_accept"		"Menu: press"
+			"Action_ui_cancel"		"Menu: back"
+			"Action_ui_up"		"Menu: up"
+			"Action_ui_down"		"Menu: down"
+			"Action_ui_left"		"Menu: left"
+			"Action_ui_right"		"Menu: right"
+			"Action_menu_page_prev"		"Menu: previous page"
+			"Action_menu_page_next"		"Menu: next page"
+			"Action_menu_view"		"Menu: view"
+			"Action_menu_option"		"Menu: option"
+			"Action_menu_filter"		"Menu: filter"
+			"Action_menu_sort"		"Menu: sort"
+			"Action_menu_next_new"		"Menu: next new"
+			"Action_menu_help"		"Menu: help"
+		}
+	}
+	"group"
+	{
+		"id"		"0"
+		"mode"		"four_buttons"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+			"button_a"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play fire, Fire"
+							"binding"		"game_action Play joker_drop, Joker menu: drop"
+							"binding"		"game_action Play ui_accept, Menu: press"
+						}
+					}
+				}
+			}
+			"button_x"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play use_item, Use power-up"
+							"binding"		"game_action Play menu_option, Menu: option"
+						}
+					}
+				}
+			}
+			"button_y"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play joker_menu, Joker menu"
+							"binding"		"game_action Play menu_view, Menu: view"
+						}
+					}
+				}
+			}
+			"button_b"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play joker_destroy, Joker menu: destroy"
+							"binding"		"game_action Play ui_cancel, Menu: back"
+						}
+					}
+				}
+			}
+		}
+	}
+	"group"
+	{
+		"id"		"1"
+		"mode"		"switches"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+			"right_bumper"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play nitro, Nitro"
+							"binding"		"game_action Play menu_page_next, Menu: next page"
+						}
+					}
+				}
+			}
+			"left_bumper"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play handbrake, Handbrake and drift"
+							"binding"		"game_action Play menu_page_prev, Menu: previous page"
+						}
+					}
+				}
+			}
+			"button_escape"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play pause, Pause"
+							"binding"		"game_action Play join, Join"
+						}
+					}
+				}
+			}
+			"button_menu"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play match_settings, Lobby: match settings"
+							"binding"		"game_action Play menu_next_new, Menu: next new"
+						}
+					}
+				}
+			}
+		}
+	}
+	"group"
+	{
+		"id"		"2"
+		"mode"		"dpad"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+			"dpad_west"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play joker_prev, Joker menu: previous card"
+							"binding"		"game_action Play ui_left, Menu: left"
+						}
+					}
+				}
+			}
+			"dpad_east"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play joker_next, Joker menu: next card"
+							"binding"		"game_action Play ui_right, Menu: right"
+						}
+					}
+				}
+			}
+			"dpad_north"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play ui_up, Menu: up"
+						}
+					}
+				}
+			}
+			"dpad_south"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play ui_down, Menu: down"
+						}
+					}
+				}
+			}
+		}
+	}
+	"group"
+	{
+		"id"		"3"
+		"mode"		"joystick_move"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+			"click"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play menu_help, Menu: help"
+						}
+					}
+				}
+			}
+		}
+		"gameactions"
+		{
+			"Play"		"steer_stick"
+		}
+	}
+	"group"
+	{
+		"id"		"4"
+		"mode"		"joystick_move"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+			"click"
+			{
+				"activators"
+				{
+					"Full_Press"
+					{
+						"bindings"
+						{
+							"binding"		"game_action Play details, Joker card: details"
+						}
+					}
+				}
+			}
+		}
+		"gameactions"
+		{
+			"Play"		"aim_stick"
+		}
+	}
+	"group"
+	{
+		"id"		"5"
+		"mode"		"trigger"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+		}
+		"gameactions"
+		{
+			"Play"		"brake_trigger"
+		}
+	}
+	"group"
+	{
+		"id"		"6"
+		"mode"		"trigger"
+		"name"		""
+		"description"		""
+		"inputs"
+		{
+		}
+		"gameactions"
+		{
+			"Play"		"throttle_trigger"
+		}
+	}
+	"preset"
+	{
+		"id"		"0"
+		"name"		"Play"
+		"group_source_bindings"
+		{
+			"0"		"button_diamond active"
+			"1"		"switch active"
+			"2"		"dpad active"
+			"3"		"joystick active"
+			"4"		"right_joystick active"
+			"5"		"left_trigger active"
+			"6"		"right_trigger active"
+		}
+	}
+	"settings"
+	{
+		"left_trackpad_mode"		"0"
+		"right_trackpad_mode"		"0"
+	}
+}
