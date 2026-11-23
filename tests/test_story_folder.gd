@@ -812,6 +812,33 @@ func test_the_folder_peeks_in_beside_the_slip() -> void:
 	assert_object(SlipFolder.add_to(final)).is_not_null()
 
 
+## Where the slip leaves no room at the left edge, as on a handheld under its UI scale, the folder
+## peeks up from the bottom left corner under it instead, smaller, and is never over the slip.
+func test_a_narrow_screen_has_the_folder_under_the_slip() -> void:
+	var root := get_tree().root
+	var scale_was := root.content_scale_factor
+	root.content_scale_factor = 3.0
+	var match_node := _start_match()
+	await await_idle_frame()
+	var folder := SlipFolder.add_to(match_node)
+	var slip := match_node.hud.get_node("Results") as ResultsScreen
+	# Up as the whistle puts it up, the ways on under it.
+	slip.fill_in()
+	await await_idle_frame()
+	await await_idle_frame()
+	var column := slip.paper_column()
+	assert_float(folder.peek.low_room).is_greater(0.0)
+	assert_float(folder.peek.scale.x).is_less(1.0)
+	# Where it rests, its tilt and all: under the paper, or at the most over the foot it fades out
+	# at, where the screen is so short that there is not room enough under it.
+	var rest := folder.peek.middle(false)
+	var shown := FolderPeek.SIZE * folder.peek.scale
+	var top := rest.y - shown.y * 0.5 - shown.x * 0.5 * sin(FolderPeek.TILT)
+	assert_float(top).is_greater_equal(column.end.y - PayoutBill.FADE)
+	assert_float(rest.x - shown.x * 0.5).is_greater_equal(0.0)
+	root.content_scale_factor = scale_was
+
+
 ## Held over on a pad, the D-pad or the stick, the pages turn once and then on and on, quickly, as
 ## an arrow key held down turns them, though nothing in the folder has the cursor, see [PadRepeat];
 ## pushed and let go, once.

@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
 
 - **The payout slip on a small screen.** On a handheld, the players' corners and the standings no
   longer crowd the slip.
+- **Kit's folder on a small screen.** With no room beside the slip, it waits in the corner under
+  the slip instead of over it.
 - **The Steam Deck's triggers in Show gamepad.** Their lines point at the triggers now, not at the
   bumpers under them.
 

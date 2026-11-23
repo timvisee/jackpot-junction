@@ -1552,14 +1552,16 @@ would be read before its map was over.
 left edge beside the payout slip as it does on the title, its pencil mark on it, coming out from the
 edge and opening its cover a little and shutting it a few times to draw the eye, and opens over the
 slip on a click or a tap or on the button that opens the hand of jokers, drawn beside it for the
-device last touched, the way the title opens the license, GAME.md 3.8. Put away, it leaves the slip
-as it was, the cursor where it was. Nothing else is waiting on this machine offline, so reading costs
-nobody anything. Online it is offered too, a note found there being as much the player's: the room
-moves on at the host's word and takes the folder away with the slip, every note read in it kept read
-as it is read, and the rest waiting in the folder at the title. The Final Hand's slip waits for the
-stamp or the tear, so the folder is offered beside the House's page there whether or not a note was
-taken, and note 21 is meant to be read before either, 8.4. Everywhere else the
-folder is the title's, and the License tab's.
+device last touched, the way the title opens the license, GAME.md 3.8. Where the slip leaves no room
+at the left edge, as on a handheld under its UI scale, it peeks up from the bottom left corner under
+the slip instead, beside the ways on and as small as that room has it, never over the slip. Put
+away, it leaves the slip as it was, the cursor where it was. Nothing else is waiting on this machine
+offline, so reading costs nobody anything. Online it is offered too, a note found there being as
+much the player's: the room moves on at the host's word and takes the folder away with the slip,
+every note read in it kept read as it is read, and the rest waiting in the folder at the title. The
+Final Hand's slip waits for the stamp or the tear, so the folder is offered beside the House's page
+there whether or not a note was taken, and note 21 is meant to be read before either, 8.4.
+Everywhere else the folder is the title's, and the License tab's.
 
 After the ending the player keeps four more things in it, at the back: the House's invitation to
 the Final Hand and its golden ticket, ADMIT ONE torn off it, 8.1, the payout slip of the Final Hand

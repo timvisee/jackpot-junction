@@ -56,6 +56,11 @@ var standing := false
 ## A note taken in the map under way, not to be read until the map is over, STORY.md 7.2: grayed,
 ## an hourglass on it, and it neither takes the cursor nor opens. Set before it is added.
 var waiting := false
+## Short of room at the edge it peeks in by, how much of the screen's foot it has: it peeks up into
+## that from the bottom left corner instead, its top that far up and as far again as it comes out
+## by, at whatever [member Control.scale] it is given; 0 to peek in at the edge, see
+## [method middle].
+var low_room := 0.0
 
 ## The title's buttons, which going right comes back to, see [method add_to].
 var _buttons: Array[Control] = []
@@ -184,10 +189,15 @@ func is_beckoning() -> bool:
 	return _beckoning != null and _beckoning.is_valid()
 
 
-## Where its middle is, out or peeking in, on the left edge of its parent.
+## Where its middle is, out or peeking in, on the left edge of its parent, or up from its bottom
+## left corner short of room there, see [member low_room].
 func middle(is_out: bool) -> Vector2:
 	var parent := get_parent() as Control
 	var tall := parent.size.y if parent != null else 1080.0
+	if low_room > 0.0:
+		var half := SIZE * scale * 0.5
+		var shown := low_room + (IN if is_out else 0.0)
+		return Vector2(IN + half.x, tall - shown + half.y)
 	var y := tall - SIZE.y * 0.5 - BOTTOM
 	if is_out:
 		return Vector2(SIZE.x * 0.5 + IN, y)

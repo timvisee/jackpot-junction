@@ -14,6 +14,14 @@ extends Control
 const GLYPH_SIZE := 24
 ## Where the hand's button is drawn, over the folder's top right as it peeks in.
 const GLYPH_AT := Vector2(18.0, 60.0)
+## Where the slip leaves it no room at the left edge, see [method _fit_peek]: the room it keeps from
+## the slip and from the ways on; the least of the screen's foot it takes, over the foot the slip
+## fades out at, see [constant PayoutBill.FADE], where there is less under it; and how small it is
+## at the least and the most.
+const LOW_GAP := 10.0
+const LOW_LEAST := 64.0
+const LOW_SMALLEST := 0.45
+const LOW_LARGEST := 0.75
 
 var match_node: Match
 var peek: FolderPeek
@@ -47,16 +55,41 @@ func _ready() -> void:
 
 ## Up with the slip, and away with it.
 func _process(_delta: float) -> void:
-	var slip := match_node.hud.get_node_or_null("Results") as Control
+	var slip := match_node.hud.get_node_or_null("Results") as ResultsScreen
 	var showing := slip != null and slip.visible
 	if showing and peek == null:
-		_put_up()
+		_put_up(slip)
 	visible = showing
+	if showing:
+		_fit_peek(slip)
 
 
-func _put_up() -> void:
+## The folder peeking in at the left edge beside the slip where there is room for it there, and
+## where the slip leaves none, as on a handheld under its UI scale, up from the bottom left corner
+## under the slip instead, beside the ways on and as small as that room has it, so it is never over
+## the slip.
+func _fit_peek(slip: ResultsScreen) -> void:
+	var column := slip.paper_column()
+	var beside := FolderPeek.SIZE.x * FolderPeek.PEEK + FolderPeek.IN
+	var room := 0.0
+	var small := 1.0
+	if column.position.x < beside:
+		room = maxf(size.y - column.end.y - LOW_GAP, LOW_LEAST)
+		var foot := slip.foot_rect()
+		var wide := (foot.position.x if foot.has_area() else column.position.x) - LOW_GAP
+		small = clampf((wide - FolderPeek.IN) / FolderPeek.SIZE.x, LOW_SMALLEST, LOW_LARGEST)
+	if is_equal_approx(room, peek.low_room) and is_equal_approx(small, peek.scale.x):
+		return
+	peek.low_room = room
+	peek.scale = Vector2.ONE * small
+	peek.place()
+
+
+func _put_up(slip: ResultsScreen) -> void:
 	var none: Array[Control] = []
 	peek = FolderPeek.add_to(self, Game.settings.profile, none)
+	# Where it peeks in from, before it beckons from there.
+	_fit_peek(slip)
 	# The slip's buttons keep the cursor: the folder is a click, a tap or the hand's button away.
 	peek.focus_mode = Control.FOCUS_NONE
 	peek.opened.connect(open)
