@@ -4107,7 +4107,9 @@ ARM64, after the first release", has the plan in full.
 - [ ] GAME.md 10.8 and `docs/STEAM.md` say the Linux depot holds both.
 - [ ] Parked here by the user, 2026-11-23, once the plain way works: one shared `.pck`, the ARM64
       build's, beside the launcher and handed on with `--main-pack` (`embed_pck` off for the two
-      Linux Steam presets), some 192 MB rather than 231. `docs/STEAM.md`, "The cost".
+      Linux Steam presets), some 192 MB rather than 231. "Windows Steam" goes the same way at the
+      same time, so the Steam builds match: its own `jackpot-junction.pck` beside the `.exe`, and
+      `steam.yml` checks for it. `docs/STEAM.md`, "The cost".
 - [ ] Parked here too: `.godot/imported` cached in `steam.yml`, so the kart `.glb` imports stop
       changing every release without a source change. `docs/STEAM.md`, "Patches".
 

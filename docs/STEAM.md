@@ -144,7 +144,11 @@ binaries with `--main-pack`, would bring that down to some 192 MB: the x86_64
 binary (74 MB), the ARM64 binary (67 MB) and one PCK (51 MB). It has to be the
 ARM64 build's, which holds the ETC2/ASTC textures as well, so x86_64 players get
 11 MB they never use. Only once the plain way has been seen to work: `embed_pck`
-off for the two Linux Steam presets, nothing else in the game.
+off for the two Linux Steam presets, nothing else in the game. "Windows Steam" turns
+it off at the same time, so every Steam build ships its data the same way (the
+user, 2026-11-23): `jackpot-junction.pck` beside `jackpot-junction.exe`, which
+Godot finds by its name, so the launch option stays as it is. It saves Windows
+players little, at most a chunk per patch, see below.
 
 **Patches.** Splitting the PCK out does not make Steam's updates smaller by itself,
 measured on 2026-11-23 from the 0.23.0 and 0.23.1 builds and steamcmd's depot logs.
