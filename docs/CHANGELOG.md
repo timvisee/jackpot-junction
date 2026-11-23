@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Steam's keyboard in a name or password dialog.** On a Steam Deck it comes up as soon as the
+  dialog does, as Rename's on the Profiles page.
 - **The Rivals camera on a small screen.** It keeps your own kart in the middle and no longer comes
   in so close that the table round it is lost.
 - **The payout slip on a small screen.** On a handheld, the players' corners and the standings no

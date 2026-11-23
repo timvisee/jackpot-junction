@@ -169,12 +169,13 @@ func _build(title: String, text: String, ok: String, also: String, like: LineEdi
 	_confine()
 	_say_ok()
 	PlayerInput.typing = true
+	# A dialog put up for the box alone: Steam's keyboard comes up for it at once, GAME.md 10.8.
+	field.set_meta(SteamKeyboard.AT_ONCE, true)
 	if like == null:
 		field.grab_focus.call_deferred()
 		field.select_all.call_deferred()
 		return
-	# A box's words typed again: Steam's keyboard up at once, the cursor at the end of them.
-	field.set_meta(SteamKeyboard.AT_ONCE, true)
+	# A box's words typed again: the cursor at the end of them.
 	_start_at_end.call_deferred()
 
 

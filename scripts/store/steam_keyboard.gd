@@ -18,9 +18,9 @@ extends Node
 ## Steam's word that the player put its floating keyboard away, by its own close or by Enter.
 const DISMISSED := &"floating_gamepad_text_input_dismissed"
 ## What a box is marked with, as a meta: one whose keyboard comes up as soon as it starts being
-## typed into, it being in a dialog put up for nothing else, see [method NameDialog.retype]; and one
-## low on the screen, typed into in such a dialog where the keyboard would come up over it, the
-## mark holding the dialog's title.
+## typed into, it being in a dialog put up for nothing else, see [NameDialog] and [PasswordPane];
+## and one low on the screen, typed into in such a dialog where the keyboard would come up over it,
+## see [method NameDialog.retype], the mark holding the dialog's title.
 const AT_ONCE := &"keyboard_at_once"
 const IN_DIALOG := &"keyboard_in_dialog"
 ## Steam's floating keyboard's kinds, GodotSteam's `FloatingGamepadTextInputMode`: for a line of

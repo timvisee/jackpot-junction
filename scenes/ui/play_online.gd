@@ -368,6 +368,8 @@ func _build_password() -> void:
 	password_field.secret = true
 	password_field.custom_minimum_size = Vector2(320.0, 44.0)
 	password_field.text_submitted.connect(func(_typed: String) -> void: _give_password())
+	# A dialog for the box alone: Steam's keyboard comes up for it at once, GAME.md 10.8.
+	password_field.set_meta(SteamKeyboard.AT_ONCE, true)
 	password_dialog.add_box("Password", password_field)
 	password_button = password_dialog.add_button("Connect")
 	password_button.pressed.connect(_give_password)

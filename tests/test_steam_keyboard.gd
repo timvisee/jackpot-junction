@@ -442,3 +442,21 @@ func test_a_box_low_on_the_screen_is_typed_into_in_a_dialog() -> void:
 	_keyboard.keys_in_hand = true
 	box.gui_input.emit(_pad(JOY_BUTTON_A))
 	assert_object(_holder.get_node_or_null("NameDialog")).is_null()
+
+
+## A dialog put up for its box alone, a profile's New or Rename and the passwords asked for, is the
+## player asking to type: its box has the cursor as it comes up, and Steam's keyboard with it.
+func test_a_dialog_for_a_box_alone_brings_the_keyboard_at_once() -> void:
+	var dialog := NameDialog.open(_holder, "Rename", "Ann", "Rename")
+	await _settle()
+	assert_bool(dialog.field.has_focus()).is_true()
+	assert_int(_asked().size()).is_equal(1)
+	assert_object(_keyboard.field).is_same(dialog.field)
+	dialog.close()
+	await _settle()
+	var pane := PasswordPane.add_to(_holder)
+	await _settle()
+	var box := pane.find_children("*", "LineEdit", true, false)[0] as LineEdit
+	assert_bool(box.has_meta(SteamKeyboard.AT_ONCE)).is_true()
+	assert_int(_asked().size()).is_equal(2)
+	pane.free()

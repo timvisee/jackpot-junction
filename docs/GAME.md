@@ -10692,28 +10692,30 @@ nothing pauses. The title's version reads "0.18.0 · Steam".
 
 #### The keyboard on the screen
 
-A Steam Deck, a Steam Machine or a television has no keyboard to type a name on, so in a Steam
-build a box pressed brings up Steam's floating keyboard beside it, as a phone's keyboard comes up,
-4.2. Every box the game has gets it: a profile's and a seat's name, the kart's
-name tape, a password, a lobby's title, a server's name, address and port, the search over the
-friends to invite. Steam's keyboard types into the box as keys do, so the box hears it the way it
-hears a keyboard, and Enter on it does what Enter does there. It comes for a box the player
-pressed: A on it with a pad, which also starts it being typed into, the cursor put at the end of
-what it reads with nothing chosen, and brings the keyboard back after Steam's own close has put it
-away; or a click or a tap. Not for a box only given the cursor, by its screen as the name dialog's
-box is, or by a pad walking onto it: that put the keyboard up as the settings' pages were paged
-through, before the player had asked to type anything. A box low on the screen, which the keyboard
-would come up over, is typed into in a dialog of its own over the screen instead, a name dialog
-whose box is like it, a plate for a plate, with the keyboard up for it at once and the cursor at the
-end; gone ahead with, Done, what was typed goes back into the box as if typed there and the cursor
-with it (`NameDialog.retype`): the bay's name tape and plate, 4.4a, and in the settings a seat's
-name and the Me page's plate, 8.5. Asked for on 2026-11-22. A port's box gets Steam's keypad, any other the
-keyboard for a line of words, and Steam keeps it clear of the box. Steam is told where the box is
-once it has come to rest, two frames standing still and drawn whole, or after 0.6 s whatever it
-does: a box handed the cursor as its pane is made is not laid out yet, and a pane dealt in rises
-into place, 8.1a. The keyboard goes as the box is done with, the box left as the player left it
-with the cursor on it; the cursor going from one box straight to another keeps it up. Asked for on
-2026-10-18.
+A Steam Deck, a Steam Machine or a television has no keyboard to type a name on, so in a Steam build
+a box pressed brings up Steam's floating keyboard beside it, as a phone's keyboard comes up, 4.2.
+Every box the game has gets it: a profile's and a seat's name, the kart's name tape, a password, a
+lobby's title, a server's name, address and port, the search over the friends to invite. Steam's
+keyboard types into the box as keys do, so the box hears it the way it hears a keyboard, and Enter
+on it does what Enter does there. It comes for a box the player pressed: A on it with a pad, which
+also starts it being typed into, the cursor put at the end of what it reads with nothing chosen, and
+brings the keyboard back after Steam's own close has put it away; or a click or a tap. Not for a box
+only given the cursor by a screen it is one thing on, or by a pad walking onto it: that put the
+keyboard up as the settings' pages were paged through, before the player had asked to type anything.
+A dialog put up for its box alone, the name dialog of a profile's New and Rename, 8.5, and the
+password a server or a LAN game asks for, 9.6, is the player asking to type: its box has the cursor
+as it comes up, and the keyboard with it. Asked for on 2026-11-23. A box low on the screen, which
+the keyboard would come up over, is typed into in a dialog of its own over the screen instead, a
+name dialog whose box is like it, a plate for a plate, with the keyboard up for it at once and the
+cursor at the end; gone ahead with, Done, what was typed goes back into the box as if typed there
+and the cursor with it (`NameDialog.retype`): the bay's name tape and plate, 4.4a, and in the
+settings a seat's name and the Me page's plate, 8.5. Asked for on 2026-11-22. A port's box gets
+Steam's keypad, any other the keyboard for a line of words, and Steam keeps it clear of the box.
+Steam is told where the box is once it has come to rest, two frames standing still and drawn whole,
+or after 0.6 s whatever it does: a box handed the cursor as its pane is made is not laid out yet,
+and a pane dealt in rises into place, 8.1a. The keyboard goes as the box is done with, the box left
+as the player left it with the cursor on it; the cursor going from one box straight to another keeps
+it up. Asked for on 2026-10-18.
 
 It comes up only where Steam's keyboard is the way to type: on Steam's own hardware, a Steam Deck, a
 Steam Machine or a Steam Frame, and wherever Steam is in Big Picture. And not for a player with a

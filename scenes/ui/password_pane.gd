@@ -48,6 +48,8 @@ func _build() -> void:
 	ScreenReader.name(_box, _box.placeholder_text)
 	_box.custom_minimum_size = Vector2(WIDTH, 48.0)
 	_box.text_submitted.connect(func(_typed: String) -> void: _knock())
+	# Put up for the box alone: Steam's keyboard comes up for it at once, GAME.md 10.8.
+	_box.set_meta(SteamKeyboard.AT_ONCE, true)
 	column.add_child(_box)
 	_join = MenuTheme.primary(MenuTheme.button("Join"))
 	_join.pressed.connect(_knock)
