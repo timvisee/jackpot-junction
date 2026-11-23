@@ -632,8 +632,12 @@ func _set_tear(at: float) -> void:
 		falling = Transform2D(FALL_TURN * fall * fall, pivot + down) * Transform2D(0.0, -pivot)
 	_torn.transform = Transform2D(0.0, -OpeningCard.SIZE * 0.5) * falling * leaning
 	_torn.visible = true
+	var was_on := _attached.visible
 	_attached.visible = _front < OpeningCard.SIZE.x - OpeningCard.BITE
-	if at == 0.0 or not is_equal_approx(was, _front):
+	# Drawn again as the last of it comes away too, however little the tear moved to get there:
+	# its last steps are too small to count at a steady frame rate, and the torn part would fall
+	# without the corner and gold edge the part still on had held.
+	if at == 0.0 or not is_equal_approx(was, _front) or was_on != _attached.visible:
 		_attached.queue_redraw()
 		_torn.queue_redraw()
 

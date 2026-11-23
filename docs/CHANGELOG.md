@@ -109,6 +109,8 @@ below, and hands the notes to the release workflow.
   point up from under the card instead of lying over your license.
 - **Y turns the loyalty card over.** As on your license and Kit's notes, its Turn over button shows
   Y rather than A on a pad.
+- **The invitation's stub keeps its gold edge.** Torn off, it no longer falls away without its
+  last corner on some frame rates.
 - **Keys named as your keyboard prints them.** On an AZERTY or other keyboard, the hints name the
   key you press, Z rather than W.
 - **Steam's keyboard in a name or password dialog.** On a Steam Deck it comes up as soon as the
