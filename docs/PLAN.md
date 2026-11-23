@@ -3724,7 +3724,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S6 | Releasing on Steam | Done |
 | S7 | The Steamworks list and wrapping up | Done |
 | S8 | The supporter pack | Done, in 0.23.0 |
-| S9 | Steam Deck | Done but the user's look at its frame rate |
+| S9 | Steam Deck | Done but the Steam Controller's drawing, on Valve's word |
 | S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
@@ -4090,7 +4090,20 @@ Checked 2026-11-23, after the user played 0.23.1 on a Steam Deck and a Steam Mac
       Steam Machine as TV, 125%, from `isRunningOnSteamHardware`; the text at 1280×800 is what
       Valve's Deck Verified review reads first. Done 2026-11-23 (`ViewChoices.first_screen`), a
       Deck told by SteamOS's `SteamDeck=1` too, for a build without Steam.
-- [ ] The frame rate on a Deck at the first start's settings: the user's look.
+- [x] The frame rate on a Deck at the first start's settings: the user's look. Played by the
+      user on a Deck, 2026-11-23: "Works good."
+- [ ] The Steam Controller of 2026 drawn in Show controls from Valve's reference drawing,
+      `steam_controller_reference_20260429.pdf` in
+      https://gitlab.steamos.cloud/SteamHardware/SteamController: CC BY-NC-SA 4.0, no commercial
+      use, so the user asks Valve for the game's use, as the Deck's drawings are offered; the
+      generic pad's drawing with its own names until
+      then, the user's word, 2026-11-23. Once allowed: fetched as the Deck's are
+      (`tools/steam_deck_art`), Steam builds only, THIRD_PARTY.md. The mock-up, a guide only as its
+      numbers hang on its crops of page 1: the top view (1550×560) over the front (1560×1080, 20
+      below), both scaled by 0.64, Valve's own letters on the four, its spots in the pair's pixels
+      before the scale: lt (290, 250), lb (290, 410), rt (1260, 250), rb (1260, 410), dpad (240,
+      835), view (515, 728), menu (1050, 728), north (1246, 748), east (1334, 835), west (1158,
+      835), south (1246, 925), ls (567, 945), rs (1001, 945).
 
 ### S10: Linux ARM64 in the Linux depot, after the first release [10.8]
 
@@ -4106,6 +4119,8 @@ ARM64, after the first release", has the plan in full.
       x86_64 export on a desktop.
 - [x] `steam.yml` checks both `libsteam_api.so` and the launcher.
 - [ ] The user: ARM64 declared on Steamworks, or asked of Valve; the build on `staging` first.
+      Until then the Steam Frame runs the x86_64 build under FEX; the ARM64 build stays in the
+      depot all the same, the user's word, 2026-11-23.
 - [x] GAME.md 10.8 and `docs/STEAM.md` say the Linux depot holds both.
 - [x] Parked here by the user, 2026-11-23, once the plain way works: one shared `.pck`, the ARM64
       build's, beside the launcher and handed on with `--main-pack` (`embed_pck` off for the two
@@ -4116,7 +4131,8 @@ ARM64, after the first release", has the plan in full.
       `jackpot-junction.x86_64` and `.arm64`, find `jackpot-junction.pck` by their own name, and
       the launcher points GodotSteam at its CPU's `libsteam_api.so` in `x86_64/` or `arm64/`.
 - [ ] Parked here too: `.godot/imported` cached in `steam.yml`, so the kart `.glb` imports stop
-      changing every release without a source change. `docs/STEAM.md`, "Patches".
+      changing every release without a source change. `docs/STEAM.md`, "Patches". The user,
+      2026-11-23: as is for now, again with the next round of extensive optimizing.
 
 ### S11: macOS on Steam, later [10.8]
 
