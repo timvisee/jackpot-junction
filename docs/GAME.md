@@ -4747,6 +4747,11 @@ lane beside it is as wide as it was.
   draws every pad as that family; any build started with `++ --pads` prints each pad
   as the engine and Steam tell of it whenever one comes or goes, and what it is drawn
   as.
+- **A key as the player's keyboard prints it**: keys are bound by where they are, so
+  the one key is the same on every keyboard, and named as the player's own prints it
+  (`InputActions.label_of`, the system's word): on an AZERTY keyboard the key a QWERTY
+  one calls W is Z, and Q is A. A key with a name rather than a sign, Space or Ctrl,
+  keeps the engine's name for it. Asked for on 2026-11-23.
 - Every hint is drawn for the scheme that player is using: their own device when
   they are pinned to one, and otherwise whichever they last touched, which the
   game tracks from the input events themselves. The joker hand, the respawn

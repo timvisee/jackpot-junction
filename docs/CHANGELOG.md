@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Keys named as your keyboard prints them.** On an AZERTY or other keyboard, the hints name the
+  key you press, Z rather than W.
 - **Steam's keyboard in a name or password dialog.** On a Steam Deck it comes up as soon as the
   dialog does, as Rename's on the Profiles page.
 - **The Rivals camera on a small screen.** It keeps your own kart in the middle and no longer comes

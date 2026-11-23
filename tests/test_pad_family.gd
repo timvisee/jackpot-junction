@@ -225,3 +225,23 @@ func test_steam_says_which_pad_is_behind_its_own() -> void:
 	virtual["steam_input_index"] = "9"
 	assert_int(PadFamily.of_pad(virtual, "")).is_equal(PadFamily.Family.GENERIC)
 	PadFamily.behind_steam = Callable()
+
+
+## Keys are named as the player's own keyboard prints them where they are bound, GAME.md 8.3: on an
+## AZERTY keyboard the key a QWERTY one calls W is Z. A key with a name rather than a sign keeps it.
+func test_keys_are_named_as_the_players_keyboard_prints_them() -> void:
+	var was := InputActions.label_of
+	var azerty := {KEY_W: KEY_Z, KEY_Q: KEY_A, KEY_SEMICOLON: KEY_M}
+	InputActions.label_of = func(at: Key) -> Key: return azerty.get(at, at)
+	var w := InputEventKey.new()
+	w.physical_keycode = KEY_W
+	var space := InputEventKey.new()
+	space.physical_keycode = KEY_SPACE
+	var semicolon := InputEventKey.new()
+	semicolon.physical_keycode = KEY_SEMICOLON
+	assert_str(InputActions.event_text(w)).is_equal("Z")
+	assert_str(InputActions.event_text(semicolon)).is_equal("M")
+	assert_str(InputActions.event_text(space)).is_equal("Space")
+	InputActions.label_of = was
+	# Where the system says the same, the engine's name, as before.
+	assert_str(InputActions.event_text(space)).is_equal("Space")

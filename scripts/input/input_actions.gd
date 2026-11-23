@@ -188,6 +188,11 @@ const STICK_ACTIONS: Array[StringName] = [
 	STEER_LEFT, STEER_RIGHT, DRIVE_UP, DRIVE_DOWN, AIM_LEFT, AIM_RIGHT, AIM_UP, AIM_DOWN
 ]
 
+## The key printed on the player's own keyboard at a key's place, GAME.md 8.3: keys are bound by
+## where they are, so an AZERTY keyboard's Z is the key a QWERTY one calls W, and it is named Z.
+## The system's word on it, which a test stands in for.
+static var label_of := Callable(DisplayServer, &"keyboard_get_label_from_physical")
+
 
 ## Every action name, in a stable order.
 static func all() -> Array[StringName]:
@@ -345,7 +350,11 @@ static func binding_text(action: StringName, keyboard: bool, family: int = -1) -
 ## prints it, see [PadFamily], and for -1 as the pad touched last does.
 static func event_text(event: InputEvent, family: int = -1) -> String:
 	var text := event.as_text()
-	if event is InputEventKey:
+	var pressed := event as InputEventKey
+	if pressed != null:
+		var printed := _printed(pressed)
+		if not printed.is_empty():
+			return printed
 		var key := text.replace(" - Physical", "")
 		return KEY_SYMBOLS.get(key, key)
 	var motion := event as InputEventJoypadMotion
@@ -364,3 +373,16 @@ static func event_text(event: InputEvent, family: int = -1) -> String:
 			chosen += " +" if motion.axis_value > 0.0 else " -"
 		return PadFamily.word(PAD_NAMES.get(chosen, chosen) if motion == null else chosen, family)
 	return text
+
+
+## What the player's own keyboard prints on the key [param pressed] is bound to by its place, see
+## [member label_of], where that is a letter or a sign other than the one the engine names it by;
+## empty where it is the same, for a key with a name rather than a sign, Space or Ctrl, and where
+## the system does not say.
+static func _printed(pressed: InputEventKey) -> String:
+	if pressed.physical_keycode == KEY_NONE or not label_of.is_valid():
+		return ""
+	var label := int(label_of.call(pressed.physical_keycode))
+	if label == pressed.physical_keycode or label <= KEY_SPACE or label >= KEY_SPECIAL:
+		return ""
+	return String.chr(label).to_upper()
