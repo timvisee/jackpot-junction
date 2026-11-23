@@ -248,7 +248,7 @@ audio and art, published as a GitHub Release.
 - [x] `export_presets.cfg` for Linux, Windows and macOS, 4.7.2 templates
       installed, `.github/workflows/release.yml` building on tags and attaching
       the builds to a GitHub Release.
-- [ ] Tag `v0.1.0`.
+- [x] Tag `v0.1.0`.
 
 Verify: bot tests for goal selection with fixed inputs and for dodge
 prediction; a full match against 3 bots on each difficulty; the performance
@@ -289,8 +289,9 @@ and handing a kart back to a bot. The four-device session is still open.
       the host simulates, decides hits, pickups, banking and scoring, and
       relays gameplay events for HUD and audio.
 - [x] Bots on the host, no pause, mid-match join by the local rule.
-- [ ] Prediction and reconciliation for the local kart if latency tests call
-      for it.
+- [x] Prediction and reconciliation for the local kart if latency tests call
+      for it. `KartPrediction`, GAME.md 10.3: the client steps its own kart at once and replays
+      every tick since the host's numbered answer where the two differ.
 
 Verify: two machines on a LAN, then a WAN test over a direct IP.
 
@@ -316,7 +317,9 @@ own latency.
 - [x] Play Online in two screens, connecting and then the server's games, and a
       LAN game and a server telling each other apart at the door on 7777.
 - [x] Make host in Manage players, handing the say to another player.
-- [ ] Finding servers without typing an address, and join codes.
+- [ ] Finding servers without typing an address, and join codes. Checked 2026-11-23: finding is
+      done, the LAN tab's discovery, the kept servers and in a Steam build friends' games; join
+      codes, which need a relay, are not.
 
 Verify: `make server-check`, then a server on a machine of its own reached over
 the internet.
@@ -2884,7 +2887,8 @@ Built in worktree `.claude/worktrees/synergy`, branch `synergy`, from master at 
       smoke, multiplayer and the server check green, the benches in budget (catalog 142, HUD
       247). `make multiplayer-lag` failed once of four runs on host_b's second map never scoring,
       the ready-charge timeout already known, and passed the other three.
-- [ ] Play-test round: the numbers are all starting values, the user to say how it plays.
+- [x] Play-test round: the numbers are all starting values, the user to say how it plays. The
+      user's first round, 2026-10-15, below M15.
 
 ## M15: the slot machine
 
@@ -2909,7 +2913,8 @@ at 6561cddb.
       run green; `make server-check` failed once in eight runs, its output lost to a tail, and passed
       the other seven. The pads and the rail machines cost the room about thirty draw calls, a pad
       two meshes and its reels one.
-- [ ] Play-test round: the odds, the bet, the reroll's price and where the pads stand.
+- [x] Play-test round: the odds, the bet, the reroll's price and where the pads stand. The user's
+      first round, 2026-10-15, below.
 
 ### The user's first round on M14 and M15 (2026-10-15)
 
@@ -3132,7 +3137,7 @@ Liked: the pegboards and the frame. Asked for, each done:
       quick turn, the donut ending as it began and the card back; `test_loyalty_dress` the settled
       flag and the confetti's shades.
 - [x] About 125 draw calls a frame on the bench, 276 on the frame the rack first opens.
-- [ ] Play-tested by the user.
+- [x] Play-tested by the user: the rounds K3 to K20 that follow are theirs.
 
 ### K3: the bay in 3D, an experiment (2026-10-15) [4.4a, 10.7]
 
@@ -3407,7 +3412,8 @@ inside the dialog and its frame, and not too expensive.
 3. The pegboard hooks picked out the same way, kept as a picture each (`PartHook.draw_picked`),
    in place of the menus' frame and the hover ring; the shuffle keeps its frame.
 
-- [ ] Play-tested by the user.
+- [x] Play-tested by the user: the bay has been theirs since, its later rounds in the supporter
+      pack's S8 and the Steam Machine's quirks (0.23.1).
 
 ## M17: a demo for a booth
 
@@ -3689,7 +3695,7 @@ your speed"), both a rolling road and a speed trap, the rolling road at the righ
       and 114, of which the rail's slot machines are 19, as on every map with a slot machine;
       the close look 25 draws a frame it films, from 47. After the title's warm-up the Garage
       with the dyno's close look up compiles nothing.
-- [ ] Play-tested by the user.
+- [x] Played by the user: the Garage floor has been in every release since 0.17.0.
 
 ## M19: Steam
 
@@ -3709,17 +3715,17 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 
 | Phase | What | State |
 |---|---|---|
-| S0 | The addon, the Steam builds, the switch | Done but the first `make steam-check` |
+| S0 | The addon, the Steam builds, the switch | Done |
 | S1 | Saves | Done |
 | S2 | Achievements | Done |
 | S3 | Presence | Done |
 | S4 | The Steam network | Done |
 | S5 | Playing with Steam friends, on screen | Done but the user's two-account play |
-| S6 | Releasing on Steam | Done but a run on GitHub |
+| S6 | Releasing on Steam | Done |
 | S7 | The Steamworks list and wrapping up | Done |
-| S8 | The supporter pack | Designed; the pieces next |
-| S9 | Steam Deck | Later |
-| S10 | Linux ARM64 in the Linux depot | After the first Steam release |
+| S8 | The supporter pack | Done, in 0.23.0 |
+| S9 | Steam Deck | Done but the first start on Steam hardware |
+| S10 | Linux ARM64 in the Linux depot | Due: the first Steam release was 0.23.0 |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
 
@@ -3876,8 +3882,10 @@ The user played a Steam build and asked three questions and for four things.
       as 480, heard that Steam was not there, and played on.
 - [x] `Store`, `SteamStore`, `FakeSteam`: the switch, the start in `Game._init`, restart through
       Steam, Steam missing; `make steam-run`.
-- [ ] `make steam-check` (`tools/steam_check.gd`): starts on 480, prints the account, sets a
+- [x] `make steam-check` (`tools/steam_check.gd`): starts on 480, prints the account, sets a
       presence key, makes and leaves a lobby. Written; first run by the user, on their Steam.
+      Overtaken, 2026-11-23: the Steam builds of app 5652730 run on the user's Steam since 0.23.0,
+      saves, achievements, presence and the DLC with them.
 - [x] `THIRD_PARTY.md`, the README's section 7 notice; GodotSteam and the Steamworks SDK on the About
       page of a build that has them (`Credits.in_this_build`).
 - [x] Tests; the suite, lint and smoke green with the addon and without it.
@@ -3948,7 +3956,9 @@ The user played a Steam build and asked three questions and for four things.
 - [x] `release.yml` fails on a Steam library or GodotSteam in anything it publishes.
 - [x] Both checked with actionlint 1.7.7, and `make steam-export` run here: every depot with its
       `steam_api` beside the game, macOS's in the app's Frameworks.
-- [ ] A dry run of both on GitHub: needs the branch pushed, which is the user's to do.
+- [x] A dry run of both on GitHub: needs the branch pushed, which is the user's to do. Real runs
+      instead: Release and Steam green on every tag since v0.18.0, Steam uploading to `staging`
+      since `STEAM_APP_ID` was set (v0.23.0, v0.23.1).
 
 ### S7: the Steamworks list and wrapping up [10.8]
 
@@ -4053,8 +4063,9 @@ as the pack's star pinned to the outline and a night-blue tape.
 - [x] The game's side of the DLC: offered only by a Steam build naming it, Steam asked again
       whenever a DLC is installed or the overlay closes, the rack out unlocked in place; the steps
       and the store page's words in STEAM.md, "The supporter pack".
-- [ ] The DLC on Steamworks, its price and store page, and `STEAM_SUPPORTER_DLC` set: the user's,
-      later. Its pictures and words are ready: `make steam-supporter-art` and STEAM.md.
+- [x] The DLC on Steamworks, its price and store page, and `STEAM_SUPPORTER_DLC` set: the user's,
+      later. Its pictures and words are ready: `make steam-supporter-art` and STEAM.md. DLC app
+      5680650, `STEAM_SUPPORTER_DLC` set 2026-11-22, in 0.23.0.
 - [x] Play-test round 1 (the user, 2026-11-22): the lighthouse's beam toned down, to tune further;
       the house of cards drawn on the rack, balanced on its middle and leaning as the kart drives;
       the lucky cat beckoning forward and back, no bow; TIPS a margin on its tape; the Prism's bands
@@ -4066,9 +4077,19 @@ as the pack's star pinned to the outline and a night-blue tape.
       card backs, five screenshots, never the thank-you card, which stays a surprise; its long
       description with the exact list of its pieces.
 
-### S9: Steam Deck, later
+### S9: Steam Deck
 
-- [ ] Steam's keyboard for the text fields, the pad's glyphs, a look at 1280×800.
+Checked 2026-11-23, after the user played 0.23.1 on a Steam Deck and a Steam Machine.
+
+- [x] Steam's keyboard for the text fields, the pad's glyphs, a look at 1280×800. `SteamKeyboard`
+      (only on a press, a dialog for a box low on the screen, at once in a dialog for a box alone);
+      `PadFamily` and Steam Input's types, the Deck's L1 to R2, its own drawing in Show gamepad;
+      the user's look on a Deck, its fixes 26f61d7d to 76848711.
+- [ ] The first start on Steam hardware: a Steam Deck starts as Desk at a UI scale of 100%, since
+      `ViewChoices.default_screen` knows only a phone. It should start as Handheld, 150%, and a
+      Steam Machine as TV, 125%, from `isRunningOnSteamHardware`; the text at 1280×800 is what
+      Valve's Deck Verified review reads first.
+- [ ] The frame rate on a Deck at the first start's settings: the user's look.
 
 ### S10: Linux ARM64 in the Linux depot, after the first release [10.8]
 
@@ -4146,7 +4167,7 @@ names the STORY.md section it changes, in brackets. Spoilers throughout.
 | R8 | The choice | Done |
 | R9 | The ending, and after it | Done |
 | R10 | Kit's cards | Done |
-| R11 | Wrapping up | Done but the user's play-through and the 0.19.0 cut |
+| R11 | Wrapping up | Done but the user's play-through |
 
 ### What the six sessions agree on
 
@@ -4861,8 +4882,8 @@ e2df0335.
 | I3 | The dialog: the welcome into the tour, profiles welcomed before, How it works, where it opens | Done |
 | I4 | The pin's picture: the strip and the note drawn for a bet not pinned yet | Done |
 | I5 | The first bets, quicker, at the numbers the user confirms | Done: 20 cash-outs, 2.5 km |
-| I6 | Every screen and input: pictures, the screen reader, tests, the frame's cost | Done but play-testing |
-| I7 | Wrapping up: CHANGELOG, `make check` | |
+| I6 | Every screen and input: pictures, the screen reader, tests, the frame's cost | Done |
+| I7 | Wrapping up: CHANGELOG, `make check` | Done, landed 2026-10-19 and released |
 
 ## M22: the free lesson
 
@@ -4895,7 +4916,7 @@ https://claude.ai/artifact/C1rHVbrofyPEGXCgK9bp5L.
 | D5 | Cones, the test time, the plate off the end | Done |
 | D6 | Wrapping up | Done |
 | R1 | Play-test round 1 | Done |
-| R2 | The clipboard landing as Next new's finds do; air over the terms; no menu button but on touch | Done but the user's look |
+| R2 | The clipboard landing as Next new's finds do; air over the terms; no menu button but on touch | Done |
 
 ### What was decided
 
@@ -5078,7 +5099,7 @@ and the achievements, which came onto master meanwhile, so the branch was rebase
 - [x] The screen-wide ring and the bump gone from the clipboard; `ClosingRing` stays for the HUD
       pointers.
 - [x] Tests, GAME.md 9.4a, CHANGELOG.
-- [ ] The user's look.
+- [x] The user's look: the clipboard's landing came back in the tutorial nudge, 2026-11-21.
 
 ### Risks
 
