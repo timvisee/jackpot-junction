@@ -145,7 +145,15 @@ func _ready() -> void:
 	match_node.rules.teams = _teams
 	match_node.rules.friendly_fire = _friendly_fire
 	match_node.hold_start = _loading
-	match_node.start(inputs, 0, [], [], styles)
+	# The first seat's name and color as the settings give them, as its dress is, so a dressed
+	# profile's driver is the one at the wheel; the rest named by the match.
+	var names: Array[String] = [Game.settings.seat_name(0)]
+	var colors: Array[int] = [Game.settings.seat_color(0)]
+	# The rest each a color of their own, never the first seat's, so no two karts look like a team.
+	for color: int in Palette.PLAYER_COLORS.size():
+		if colors[0] >= 0 and colors.size() < inputs.size() and color != colors[0]:
+			colors.append(color)
+	match_node.start(inputs, 0, colors, names, styles)
 	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.
 	NoteDealer.add_to(match_node)
 	# The crowd's watchers and the bot in the player's dress, as a map has them, STORY.md 6.9.
