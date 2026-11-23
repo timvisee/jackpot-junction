@@ -56,3 +56,36 @@ func test_nearby_keeps_the_rivals_near_and_lets_them_go_further_out() -> void:
 	assert_array(framing.pick(all, here, ViewChoices.FOLLOW_NEARBY, ARENA)).not_contains([rival])
 	rival.global_position = Vector3(reach * 1.1, 0.0, 0.0)
 	assert_array(framing.pick(all, here, ViewChoices.FOLLOW_NEARBY, ARENA)).not_contains([rival])
+
+
+## Following the rivals near, the picture is aimed at the karts driven here, not at the middle of
+## them and their rivals, so the player's own kart stays in the middle of the screen; everywhere
+## else at the middle of every kart in the picture.
+func test_nearby_aims_at_the_karts_driven_here() -> void:
+	var mine := _kart(Vector3.ZERO)
+	var rival := _kart(Vector3(6.0, 0.0, 3.0))
+	var framing := FramedKarts.new()
+	var all: Array[Node3D] = [mine, rival]
+	var here: Array[Node3D] = [mine]
+	var places := PackedVector3Array([Vector3(0.5, 0.0, 0.0), Vector3(6.0, 0.0, 3.0)])
+	var kept := framing.pick(all, here, ViewChoices.FOLLOW_NEARBY, ARENA)
+	assert_array(kept).contains_exactly([mine, rival])
+	var aimed := framing.aim_places(kept, places, here)
+	assert_vector(FramedKarts.box(aimed).get_center()).is_equal(Vector3(0.5, 0.0, 0.0))
+	framing.pick(all, here, ViewChoices.FOLLOW_EVERYONE, ARENA)
+	aimed = framing.aim_places(all, places, here)
+	assert_vector(FramedKarts.box(aimed).get_center()).is_equal(Vector3(3.25, 0.0, 1.5))
+
+
+## Following the rivals near, the camera comes no closer than a share of the whole arena, however
+## close the rig would come for a kart alone; and never further than the whole arena for it.
+func test_nearby_comes_no_closer_than_a_share_of_the_arena() -> void:
+	var mine := _kart(Vector3.ZERO)
+	var framing := FramedKarts.new()
+	var here: Array[Node3D] = [mine]
+	framing.pick(here, here, ViewChoices.FOLLOW_NEARBY, ARENA)
+	assert_float(framing.least(14.0, 50.0)).is_equal_approx(50.0 * FramedKarts.NEARBY_CLOSEST, 0.01)
+	assert_float(framing.least(40.0, 50.0)).is_equal_approx(40.0, 0.01)
+	assert_float(framing.least(60.0, 50.0)).is_equal_approx(50.0, 0.01)
+	framing.pick(here, here, ViewChoices.FOLLOW_MINE, ARENA)
+	assert_float(framing.least(14.0, 50.0)).is_equal_approx(14.0, 0.01)

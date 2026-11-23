@@ -525,7 +525,8 @@ func _target_pan() -> Vector3:
 		_pan_wanted = Vector3.ZERO
 		return Vector3.ZERO
 	_ahead = _aheads()
-	var offset := (_target_box(_spots.placed).get_center() - _center) * pan_weight
+	var aimed := _framing.aim_places(alive, _spots.placed, _valid(listener_targets))
+	var offset := (FramedKarts.box(aimed).get_center() - _center) * pan_weight
 	offset.y = 0.0
 	_led = _lead(_center + offset)
 	_pan_wanted = (offset + _led).limit_length(pan_limit)
@@ -704,7 +705,7 @@ func _target_framing() -> Vector2:
 	# with it, so a closer setting really comes in rather than stopping at the follow floor. The HUD
 	# clearance still adds its own on top, so coming in never hides a kart under the HUD, see [_clear].
 	var pull := _distance_pull()
-	var floor_far := follow_min_distance * pull
+	var floor_far := _framing.least(follow_min_distance * pull, _arena_distance)
 	# Held rather than followed: back as soon as the karts need it, in again only once they have
 	# stayed close for a moment, see [CameraHold].
 	var wanted := _needed_distance(corners, at) * pull
@@ -815,7 +816,7 @@ func _fade_clear(delta: float) -> void:
 ## distance is what makes the first few meters of look-ahead free: the trailing corner ends up
 ## exactly as far from the aim as it was before the aim moved.
 func _framed_corners(places: PackedVector3Array, lead: Vector3) -> Array[Vector3]:
-	var box := _target_box(places).grow(follow_margin)
+	var box := FramedKarts.box(places).grow(follow_margin)
 	for axis: int in [Vector3.AXIS_X, Vector3.AXIS_Z]:
 		var give := minf(absf(lead[axis]), follow_margin * lead_margin)
 		box.size[axis] -= give
@@ -829,14 +830,6 @@ func _framed_corners(places: PackedVector3Array, lead: Vector3) -> Array[Vector3
 	for i: int in 8:
 		corners.append(box.get_endpoint(i))
 	return corners
-
-
-## The box every one of [param places] is inside: where the tracked karts count for the framing.
-static func _target_box(places: PackedVector3Array) -> AABB:
-	var box := AABB(places[0], Vector3.ZERO)
-	for place: Vector3 in places:
-		box = box.expand(place)
-	return box
 
 
 ## The zoom is the distance's job now. The field of view stays where it is, so a kart the same

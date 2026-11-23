@@ -20,6 +20,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The Rivals camera on a small screen.** It keeps your own kart in the middle and no longer comes
+  in so close that the table round it is lost.
 - **The payout slip on a small screen.** On a handheld, the players' corners and the standings no
   longer crowd the slip.
 - **Kit's folder on a small screen.** With no room beside the slip, it waits in the corner under

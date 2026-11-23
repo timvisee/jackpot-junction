@@ -4361,16 +4361,23 @@ once and then moved.
 Whom it keeps in the picture is the player's to choose, 8.5: every kart, the karts
 driven here and the rivals near them, or the karts driven here alone. Framing every
 kart puts the camera wherever the rivals spread to, which nobody at this screen
-chose, and on a small screen it makes every kart small; framing only their own,
-the camera sits at its closest and only pans, and the karts come out nearly twice
-the size. Measured with a kart driven here and three bots, the camera stood 38 m
-back on average framing everybody as it used to, 30 m with the steadier camera
-above, and 20 m with only the player's own kart, which pans about twice as much,
-following the player's own steering. Near is within 0.45 of the arena's longer
-side of a kart driven here, and a rival kept goes again only once a quarter
-further than that, so one driving along the line does not come and go. Auto follows
-everybody at a desk and only the karts driven here on a small screen. With nobody
-driving at a screen, one watching, it follows everybody whatever was chosen.
+chose, and on a small screen it makes every kart small; framing only their own, the
+camera sits at its closest and only pans, and the karts come out nearly twice the
+size. Measured with a kart driven here and three bots, the camera stood 38 m back on
+average framing everybody as it used to, 30 m with the steadier camera above, and
+20 m with only the player's own kart, which pans about twice as much, following the
+player's own steering. Near is within 0.45 of the arena's longer side of a kart
+driven here, and a rival kept goes again only once a quarter further than that, so
+one driving along the line does not come and go. Framing the rivals near, the camera
+is aimed at the karts driven here rather than at the middle of them and their
+rivals, so the player's own kart stays in the middle of the screen as rivals come
+and go, and it comes no closer than half the distance that holds the whole arena: on
+a handheld it came in on a kart alone until the table round it was lost, and with
+its aim between a kart and a rival it put the kart off the edge of the screen. The
+slide that keeps the picture over the arena still has the last word. Auto follows
+everybody at a desk and the karts driven here with the rivals near them on a small
+screen. With nobody driving at a screen, one watching, it follows everybody whatever
+was chosen.
 
 Every kart out of the picture is pointed at from the edge of the screen, an arrow
 in its color edged in ink, 30 px in from the edge on the line from the middle of
@@ -4449,7 +4456,7 @@ arena, since it holds the pad and who stands on it rather than the room.
 | Pitch            | 55° below horizontal                                              |
 | Framing          | Every tracked kart plus 4 m of floor fits the 16:9 view, between 24 m and the distance that holds the whole arena plus a 1 m margin. Held: back at once with 6% to spare when the field needs it, in only once the field has left 15% of room for 1.5 s and no kart is gliding into the shot, following it in and stopping where it stops |
 | Still aim        | The aim stays put while where it would go is within 5% of the screen of it, across and down, as far as every kart still fits from there at the distance held |
-| Who is framed    | Auto (everybody at a desk; the karts driven here and the rivals near them on a TV, a handheld, a window under 760 lines or a UI over 100%, never My kart, which followed one kart so close on a TV the table was lost round it), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that) or My kart; everybody with nobody driving here |
+| Who is framed    | Auto (everybody at a desk; the karts driven here and the rivals near them on a TV, a handheld, a window under 760 lines or a UI over 100%, never My kart, which followed one kart so close on a TV the table was lost round it), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that; aimed at the karts driven here, no closer than half the whole arena's distance) or My kart; everybody with nobody driving here |
 | Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; at a desk more as the UI is turned down, 14% at 90% and 20% at 75%; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
 | Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here and 18 for a rival |
 | Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
