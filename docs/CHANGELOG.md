@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **ARM64 Linux on Steam.** The Steam build for Linux carries a native ARM64 build beside the x86_64
+  one, for machines such as the Steam Frame, and starts the right one.
 - **A Steam Deck starts as a handheld.** On its first start the game sets itself up for the Deck,
   bigger text and all, and for a Steam Machine as a TV.
 - **The new Steam Controller.** Played through Steam, its buttons are named as it prints them, L1 to

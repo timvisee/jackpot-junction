@@ -10852,10 +10852,11 @@ need one.
 up a GitHub release. On every `v*` tag, and by hand for any ref, it fetches the addon, exports the
 Steam builds with the app id, and keeps them as the run's artifact for 7 days. With the
 repository variable `STEAM_APP_ID` set it also uploads them as a Steam build, Linux to depot 5652732
-and Windows to 5652733, set live on the beta branch `staging`. The Linux ARM64 build is kept, not
-uploaded, until the game has been released on Steam once: then both Linux builds go in the Linux
-depot behind a script that starts the one for the machine, as `docs/STEAM.md` plans, since Steam
-cannot pick a depot by CPU. Never on the default branch: Steam
+and Windows to 5652733, set live on the beta branch `staging`. The Linux depot holds both Linux
+builds, x86_64 and ARM64, each a whole export in a folder of its own, behind a script, the launch
+option, that starts the one for the machine (`tools/steam-launcher`, `docs/STEAM.md`), since Steam
+cannot pick a depot by CPU: since 2026-11-23, once the game had been released on Steam once. Never
+on the default branch: Steam
 does not let a script do that, and going live is a person's decision, as tagging is, 10.5. The
 upload is `tools/steam-upload`, Valve's steamcmd with all it says shown, as a builder account
 that can do nothing but upload, from two repository secrets: `STEAM_USERNAME`, and

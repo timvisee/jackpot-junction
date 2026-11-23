@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Uploads the Steam builds in build/steam to the app's depots with Valve's own steamcmd, GAME.md
-# 10.8 and docs/STEAM.md: the Linux build to depot 5652732 and the Windows build to 5652733, one
-# build of the app, set live on the beta branch given, or nowhere when that is empty. As the builder
-# account, logged in from the config.vdf of a steamcmd that has logged in as it once, so with no
-# password and no Steam Guard code: STEAM_USERNAME, and STEAM_CONFIG_VDF, that file in base64.
+# 10.8 and docs/STEAM.md: the Linux builds, x86_64 and ARM64 behind the launcher that starts the one
+# for the machine, to depot 5652732 and the Windows build to 5652733, one build of the app, set live
+# on the beta branch given, or nowhere when that is empty. As the builder account, logged in from
+# the config.vdf of a steamcmd that has logged in as it once, so with no password and no Steam Guard
+# code: STEAM_USERNAME, and STEAM_CONFIG_VDF, that file in base64.
 #
 # steamcmd's whole output is shown, and the build's own logs after it, so a refusal says why:
 # game-ci's steam-deploy, which this replaces, said only that a depot's build had failed. steamcmd

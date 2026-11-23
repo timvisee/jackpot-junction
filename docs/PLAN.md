@@ -3725,7 +3725,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S7 | The Steamworks list and wrapping up | Done |
 | S8 | The supporter pack | Done, in 0.23.0 |
 | S9 | Steam Deck | Done but the user's look at its frame rate |
-| S10 | Linux ARM64 in the Linux depot | Due: the first Steam release was 0.23.0 |
+| S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
 
@@ -4099,13 +4099,14 @@ depot and a shell script starting the one for the machine, but only once the gam
 on Steam once. Steam has no way to pick a depot or a launch option by CPU. `docs/STEAM.md`, "Linux
 ARM64, after the first release", has the plan in full.
 
-- [ ] The launcher script in the repository: `uname -m` picks `arm64/` or `x86_64/`, `"$@"`
-      handed on.
-- [ ] `make steam-export`: both Linux exports in `build/steam/linux/x86_64` and `arm64`, the
-      launcher beside them; no `build/steam/linux-arm64` any more.
-- [ ] `steam.yml` checks both `libsteam_api.so` and the launcher.
+- [x] The launcher script in the repository: `uname -m` picks `arm64/` or `x86_64/`, `"$@"`
+      handed on. `tools/steam-launcher`, 2026-11-23.
+- [x] `make steam-export`: both Linux exports in `build/steam/linux/x86_64` and `arm64`, the
+      launcher beside them; no `build/steam/linux-arm64` any more. Tried: the launcher starts the
+      x86_64 export on a desktop.
+- [x] `steam.yml` checks both `libsteam_api.so` and the launcher.
 - [ ] The user: ARM64 declared on Steamworks, or asked of Valve; the build on `staging` first.
-- [ ] GAME.md 10.8 and `docs/STEAM.md` say the Linux depot holds both.
+- [x] GAME.md 10.8 and `docs/STEAM.md` say the Linux depot holds both.
 - [ ] Parked here by the user, 2026-11-23, once the plain way works: one shared `.pck`, the ARM64
       build's, beside the launcher and handed on with `--main-pack` (`embed_pck` off for the two
       Linux Steam presets), some 192 MB rather than 231. "Windows Steam" goes the same way at the

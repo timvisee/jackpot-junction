@@ -1,0 +1,10 @@
+#!/bin/sh
+# The Linux Steam build's launch option, GAME.md 10.8 and docs/STEAM.md, "Linux ARM64": Steam has
+# no way to pick a depot by CPU, so the Linux depot holds a whole export for each, x86_64/ and
+# arm64/, and this starts the one for the machine, handing on what Steam passes, a friend's lobby
+# among it. `make steam-export` copies it in beside them as jackpot-junction.
+here="$(dirname "$(readlink -f "$0")")"
+case "$(uname -m)" in
+aarch64 | arm64) exec "$here/arm64/jackpot-junction" "$@" ;;
+*) exec "$here/x86_64/jackpot-junction" "$@" ;;
+esac

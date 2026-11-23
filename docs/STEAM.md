@@ -39,8 +39,8 @@ hand on Steamworks: Steam does not let a script do it.
    installs an empty folder. The macOS depot waits: Steam takes a Mac build only
    notarized by Apple, which needs an Apple Developer account, so it stays out of
    the packages and has no launch option until then. The GitHub releases and
-   itch.io keep their macOS build. The Linux ARM64 build is made and kept but not
-   uploaded. There is no Windows ARM64 build: neither GodotSteam nor Valve's SDK
+   itch.io keep their macOS build. The Linux depot holds both Linux builds, x86_64
+   and ARM64, behind a launcher, see "Linux ARM64". There is no Windows ARM64 build: neither GodotSteam nor Valve's SDK
    has a library for it.
 2. **Branches** (SteamPipe > Builds): the beta branch `staging`, with a password if
    only testers should see it. Steamworks lets a branch be made only once the
@@ -69,9 +69,10 @@ hand on Steamworks: Steam does not let a script do it.
 The GitHub release builds never hold anything of Steam: `release.yml` fails if a
 zip or the APK it would publish holds Valve's library or GodotSteam.
 
-## Linux ARM64, after the first release
+## Linux ARM64
 
-Planned for once the game has been released on Steam once, PLAN.md M19's S10.
+Built on 2026-11-23, once the game had been released on Steam once (0.23.0),
+PLAN.md M19's S10; Steamworks' side below is the user's.
 Steam runs on one ARM64 Linux machine, the Steam Frame, which plays an x86_64
 Linux build under FEX's emulation, so the game already runs there; a build of its
 own would run without it.
@@ -94,7 +95,7 @@ x86_64/jackpot-junction      with libgodotsteam.linux.template_release.x86_64.so
 arm64/jackpot-junction       with libgodotsteam.linux.template_release.arm64.so and libsteam_api.so
 ```
 
-**The launcher**, kept in the repository and copied in by `make steam-export`:
+**The launcher**, `tools/steam-launcher`, copied in by `make steam-export`:
 
 ```sh
 #!/bin/sh
@@ -111,12 +112,12 @@ it. Nothing else changes for the game: its saves go by the game's name, not the
 binary's folder, and the only code that starts the binary again, the server hall,
 is never in a Steam build.
 
-**In the repository:**
+**In the repository**, done:
 
 1. `make steam-export` exports "Linux Steam" into `build/steam/linux/x86_64/` and
-   "Linux ARM64 Steam" into `build/steam/linux/arm64/`, copies the launcher in as
-   `build/steam/linux/jackpot-junction`, executable, and stops making
-   `build/steam/linux-arm64/`.
+   "Linux ARM64 Steam" into `build/steam/linux/arm64/` and copies the launcher in as
+   `build/steam/linux/jackpot-junction`, executable; `build/steam/linux-arm64/` is
+   gone. Tried on 2026-11-23: the launcher starts the x86_64 build on a desktop.
 2. `steam.yml` checks for both `libsteam_api.so` files and the launcher, and
    uploads `linux` as before; nothing else of the upload changes.
 3. GAME.md 10.8 and this file say the Linux depot holds both.
