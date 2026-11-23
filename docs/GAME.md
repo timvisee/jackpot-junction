@@ -5043,12 +5043,15 @@ for.
 The gamepad drawn whole with what each button does (`PadLeaflet`), up over the screen from Show
 gamepad: in the room's menu under Settings, and on the Controls page of 8.5 as the Controller row;
 on a phone only once a pad is plugged in, and not in the booth's demo of 9.8, whose menus are kept
-to what a passer-by needs. It is a blueprint of the Dept. of Karts' engineers (`BlueprintArt`),
-its own thing rather than a pane like the catalog's or the loyalty program's: a sheet over the
-whole screen, mottled blue with its grid and a double border, folded in four and once across, a
-registration mark at each corner and the grid's references, letters down the left and numbers
-along the top. What it shows is what the player has bound, so a rebinding moves its words to the
-button it is on now.
+to what a passer-by needs. It is a blueprint of the Dept. of Karts' engineers (`BlueprintArt`), its
+own thing rather than a pane like the catalog's or the loyalty program's, but lying over the screen
+as they do: over nearly all of it, the screen dimmed round it to look round and a click there to put
+it away, dealt in and put away as their panes are, 8.1a, and over all of it on a short screen, 8.8.
+As wide and as tall as that room, whatever shape the screen is, with the pad and its words in its
+middle; mottled blue with its grid and a double border, folded in four and once across, a
+registration mark at each corner and the grid's references, letters down the left and numbers along
+the top. What it shows is what the player has bound, so a rebinding moves its words to the button it
+is on now.
 
 - **The pad, whole** (`PadDiagram`): Xelu's free controller drawings, public domain, see
   THIRD_PARTY.md, line art in the sheet's white, in their plain cut with no maker's logo. The pad

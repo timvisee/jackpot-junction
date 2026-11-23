@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Show gamepad as a dialog.** The blueprint lies over the screen like the catalog, comes and goes
+  the same way, and fills the screen only on a small one.
 - **Show gamepad's tabs.** The page's tab is cut from the blueprint itself, its feet flared into
   the sheet's edge, rather than laid over it.
 

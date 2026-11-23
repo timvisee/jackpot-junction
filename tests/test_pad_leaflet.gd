@@ -142,7 +142,7 @@ func test_the_leaflet_turns_its_pages_and_is_put_away() -> void:
 	leaflet._input(_pressed(InputActions.MENU_PAGE_PREV))
 	assert_int(leaflet.page).is_equal(2)
 	# A tab clicked turns to its page.
-	(leaflet.get_node("Sheet/Tab0") as Button).pressed.emit()
+	(leaflet.get_node("Around/Pane/Sheet/Tab0") as Button).pressed.emit()
 	assert_int(leaflet.page).is_equal(0)
 	var away := [false]
 	leaflet.put_away.connect(func() -> void: away[0] = true)
@@ -150,6 +150,28 @@ func test_the_leaflet_turns_its_pages_and_is_put_away() -> void:
 	assert_bool(away[0]).is_true()
 	assert_bool(leaflet.is_queued_for_deletion()).is_true()
 	assert_object(get_viewport().gui_get_focus_owner()).is_same(from)
+
+
+## It lies over the screen as the catalog does, the screen round it, and fills a short one; the
+## sheet as big as the pane, whatever its shape, the pad and its words fitting in it.
+func test_it_lies_over_the_screen_and_fills_a_short_one() -> void:
+	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.XBOX)
+	var around := leaflet.get_node("Around") as MarginContainer
+	var pane := leaflet.get_node("Around/Pane") as Control
+	var sheet := leaflet.get_node("Around/Pane/Sheet") as Control
+	for room: Vector2 in [Vector2(1920.0, 1080.0), Vector2(1600.0, 1200.0)]:
+		leaflet.size = room
+		await get_tree().process_frame
+		assert_int(around.get_theme_constant(&"margin_left")).is_greater(0)
+		assert_bool(pane.size.x < room.x and pane.size.y < room.y).is_true()
+		assert_vector(sheet.size * sheet.scale).is_equal_approx(pane.size, Vector2.ONE)
+		assert_bool(sheet.size.x >= PadLeaflet.SIZE.x - 0.5).is_true()
+		assert_bool(sheet.size.y >= PadLeaflet.SIZE.y - 0.5).is_true()
+	leaflet.size = Vector2(1280.0, 800.0) / 1.5
+	await get_tree().process_frame
+	assert_int(around.get_theme_constant(&"margin_left")).is_equal(0)
+	assert_vector(pane.size).is_equal_approx(leaflet.size, Vector2.ONE)
+	leaflet.close()
 
 
 ## Its tabs say for a screen reader what each page shows, and the button that puts it up opens it
@@ -164,10 +186,10 @@ func test_its_button_opens_it_for_the_pad_in_hand() -> void:
 	var leaflet := _holder.get_node("PadLeaflet") as PadLeaflet
 	assert_object(leaflet).is_not_null()
 	assert_int(leaflet.family).is_equal(PadFamily.Family.NINTENDO)
-	var tab := leaflet.get_node("Sheet/Tab0") as Button
+	var tab := leaflet.get_node("Around/Pane/Sheet/Tab0") as Button
 	# Its tabs light up along their own edges, so the gold frame the cursor slides in leaves them.
 	assert_bool(FocusGlide._glides(tab)).is_false()
-	assert_bool(FocusGlide._glides(leaflet.get_node("Sheet/Back") as Button)).is_false()
+	assert_bool(FocusGlide._glides(leaflet.get_node("Around/Pane/Sheet/Back") as Button)).is_false()
 	assert_str(tab.accessibility_name).contains(PadLeaflet.TITLE)
 	assert_str(tab.accessibility_description).contains("Gas: ZR")
 	leaflet.close()

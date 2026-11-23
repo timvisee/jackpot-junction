@@ -1,7 +1,9 @@
 class_name PadLeaflet
 extends Control
 ## The gamepad drawn whole, GAME.md 8.3b: How to hold the wheel, a blueprint of the Dept. of Karts'
-## engineers over the whole screen, see [BlueprintArt], with the pad drawn on it, see [PadDiagram],
+## engineers, see [BlueprintArt], lying over nearly all the screen as the catalog does, dealt in and
+## put away as its pane is, and over all of it on a short screen, with the pad drawn on it, see
+## [PadDiagram],
 ## and a line from each of its buttons out to what it does as the player has it bound, the button's
 ## name under it as their pad prints it. Three sheets, driving, the jokers and the menus, their tabs
 ## cut from its top edge and turned with the page keys or a click, and Back a tab across from them.
@@ -13,15 +15,19 @@ signal put_away
 const TITLE := "How to hold the wheel"
 const ENTRY := "Show gamepad"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
-## The screen it is drawn for, scaled to fit whatever screen it is up on, and the sheet on it, room
-## left over it for the tabs.
+## The room the pad and its words are laid out in, in the sheet's own units: the sheet is scaled so
+## that this fits its pane, and is as wide and as tall as the pane at that scale, so it fills the
+## pane whatever shape the screen is, with the pad and its words in its middle, see
+## [method _fit_sheet]. How far down the pane the sheet's top edge is, the room over it the tabs'.
 const SIZE := Vector2(1920.0, 1080.0)
-const SHEET := Rect2(30.0, 70.0, 1860.0, 984.0)
-## The tabs: where the first stands and how far on each next one, how big each is; and Back's.
-const TAB_FIRST := Vector2(90.0, 22.0)
+const SHEET_TOP := 48.0
+## The tabs: how far in from the sheet's left edge the first stands and how far on each next one,
+## and how big each is, down to the sheet's top edge; and Back's, how far in from its right edge.
+const TAB_FIRST := 60.0
 const TAB_STEP := 240.0
-const TAB_SIZE := Vector2(228.0, 56.0)
-const BACK_TAB := Rect2(1660.0, 22.0, 200.0, 56.0)
+const TAB_SIZE := Vector2(228.0, SHEET_TOP)
+const BACK_SIZE := Vector2(200.0, SHEET_TOP)
+const BACK_IN := 30.0
 ## Where the pad is drawn on the sheet and how big; how far out from it the words stand, how far the
 ## lines run level before them, and how close two lines of words come down a side.
 const ART_SCALE := 0.66
@@ -68,7 +74,13 @@ var simple := false
 var page := 0
 var diagram: PadDiagram
 
+var _shade: ColorRect
+var _around: MarginContainer
+var _pane: Control
 var _sheet: Control
+## Whether it fills the screen, short of room, rather than lying over it.
+var _full := false
+var _keys: Control
 var _tabs: Array[Button] = []
 var _back: Button
 var _from: Control
@@ -214,11 +226,26 @@ static func joined(words: Array[String]) -> String:
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	mouse_filter = Control.MOUSE_FILTER_STOP
+	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	diagram = PadDiagram.of(family)
-	var shade := MenuTheme.closer_shade(0.82)
-	shade.gui_input.connect(_on_beside)
-	add_child(shade)
+	_shade = ColorRect.new()
+	_shade.name = "Shade"
+	_shade.color = CatalogDialog.SHADE
+	_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_shade.gui_input.connect(_on_beside)
+	add_child(_shade)
+	_around = MarginContainer.new()
+	_around.name = "Around"
+	_around.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_around.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_around)
+	# The pane the sheet lies in, which is what is dealt in and put away; the sheet in it is scaled,
+	# which a container would undo, so the pane is a plain control.
+	_pane = Control.new()
+	_pane.name = "Pane"
+	_pane.mouse_filter = Control.MOUSE_FILTER_STOP
+	_pane.resized.connect(_fit_sheet)
+	_around.add_child(_pane)
 	_sheet = Control.new()
 	_sheet.name = "Sheet"
 	_sheet.size = SIZE
@@ -226,35 +253,37 @@ func _ready() -> void:
 	_sheet.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	_sheet.texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED
 	_sheet.draw.connect(_draw_sheet)
-	add_child(_sheet)
+	_pane.add_child(_sheet)
 	for i: int in PAGES.size():
 		var tab := _tab_button("%d  ·  %s" % [i + 1, PAGES[i].to_upper()])
 		tab.name = "Tab%d" % i
-		tab.position = TAB_FIRST + Vector2(i * TAB_STEP, 0.0)
+		tab.position = Vector2(TAB_FIRST + i * TAB_STEP, 0.0)
 		tab.pressed.connect(_turn_to.bind(i))
 		_tabs.append(tab)
-	# The page keys beside the tabs, as the big dialogs have them, on their own dark chips.
-	var keys := DialogBinds.pages(Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
-	keys.position = TAB_FIRST + Vector2(PAGES.size() * TAB_STEP + 10.0, 4.0)
-	_sheet.add_child(keys)
+	# The page keys beside the tabs, as the big dialogs have them, on their own dark chips, level
+	# with the words on the tabs behind.
+	_keys = DialogBinds.pages(Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
+	var keys_tall := _keys.get_combined_minimum_size().y
+	var band := (SHEET_TOP + BlueprintArt.TAB_BEHIND) * 0.5
+	_keys.position = Vector2(TAB_FIRST + PAGES.size() * TAB_STEP + 10.0, band - keys_tall * 0.5)
+	_sheet.add_child(_keys)
 	_back = _tab_button("BACK")
 	_back.name = "Back"
-	_back.position = BACK_TAB.position
-	_back.size = BACK_TAB.size
+	_back.size = BACK_SIZE
 	_back.pressed.connect(close)
 	ScreenReader.name(_back, "Back")
 	var key := InputGlyph.of_action(&"ui_cancel", Game.last_input_keyboard, INK, 16)
 	if key != null:
-		key.position = Vector2(24.0, (BACK_TAB.size.y - key.custom_minimum_size.y) * 0.5 + 2.0)
+		key.position = Vector2(24.0, band - key.custom_minimum_size.y * 0.5)
 		_back.add_child(key)
 		(_back.get_theme_stylebox(&"normal") as StyleBoxEmpty).content_margin_left = 40.0
 	_link_cursor()
 	resized.connect(_fit)
 	_fit()
+	_fit_sheet()
 	_turn_to(page, false)
 	_tabs[page].grab_focus()
-	modulate.a = 0.0
-	create_tween().tween_property(self, "modulate:a", 1.0, 0.12)
+	MenuTheme.deal(_pane)
 
 
 ## A tab's button: its words alone, the tab itself drawn on the sheet, see [method _draw_sheet].
@@ -263,8 +292,9 @@ func _tab_button(words: String) -> Button:
 	tab.text = words
 	tab.size = TAB_SIZE
 	Type.set_font(tab, Type.STRONG, 21)
+	# Its words level between the tops of the page's tab and of those behind.
 	var plain := StyleBoxEmpty.new()
-	plain.content_margin_top = 6.0
+	plain.content_margin_top = BlueprintArt.TAB_BEHIND * 0.5
 	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
 		tab.add_theme_stylebox_override(state, plain)
 	# The cursor and the mouse light the tab up along its own edges, see [method BlueprintArt.tab],
@@ -296,12 +326,31 @@ func _ink_tabs() -> void:
 	_back.add_theme_color_override(&"font_focus_color", INK)
 
 
-## The screen it is drawn for as big as the screen lets it be, in the middle of it.
+## The pane over nearly all the screen, the shade showing round it for a look round and a click
+## there to put it away, or over all of it short of room, as the catalog's is, see
+## [method CatalogDialog.fill_screen].
 func _fit() -> void:
 	var room := size if size != Vector2.ZERO else get_viewport_rect().size
-	var scale := minf(room.x / SIZE.x, room.y / SIZE.y)
+	_full = room.y < CatalogDialog.SHORT
+	var around := minf(room.x, room.y) * CatalogDialog.AROUND
+	var margin := 0.0 if _full else maxf(around, CatalogDialog.AROUND_LEAST)
+	for side: String in ["left", "right", "top", "bottom"]:
+		_around.add_theme_constant_override("margin_%s" % side, int(margin))
+	_sheet.queue_redraw()
+
+
+## The sheet scaled so the pad and its words fit the pane, see [constant SIZE], and as big as the
+## pane at that scale; Back at its right.
+func _fit_sheet() -> void:
+	if _back == null:
+		return
+	var scale := minf(_pane.size.x / SIZE.x, _pane.size.y / SIZE.y)
+	if scale <= 0.0:
+		return
 	_sheet.scale = Vector2.ONE * scale
-	_sheet.position = ((room - SIZE * scale) * 0.5).round()
+	_sheet.size = _pane.size / scale
+	_back.position = Vector2(_sheet.size.x - BACK_IN - BACK_SIZE.x, 0.0)
+	_sheet.queue_redraw()
 
 
 ## The cursor kept on the tabs, along them and on to Back and round again.
@@ -378,18 +427,24 @@ func _on_beside(event: InputEvent) -> void:
 		close()
 
 
+## Puts it away the way the catalog goes, the cursor back where it was.
 func close() -> void:
 	if _closing:
 		return
 	_closing = true
-	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_shade.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shades: Array[CanvasItem] = [_shade]
+	MenuTheme.put_away(_pane, _gone, shades)
+
+
+func _gone() -> void:
 	put_away.emit()
 	if _from != null and is_instance_valid(_from) and _from.is_visible_in_tree():
 		_from.grab_focus()
 	queue_free()
 
 
-## Where the pad's drawing is laid on the sheet, and how big.
+## Where the pad's drawing is laid among its words, see [constant SIZE], and how big.
 func _art_rect() -> Rect2:
 	var drawn := diagram.size * ART_SCALE
 	return Rect2(Vector2((SIZE.x - drawn.x) * 0.5, ART_TOP), drawn)
@@ -404,16 +459,22 @@ func _on_card(spot: StringName, around := false) -> Vector2:
 	return art.position + at * ART_SCALE
 
 
+## The tabs behind, the sheet with the page's tab cut from it, its marks and its foot, and the pad
+## and its words in its middle.
 func _draw_sheet() -> void:
+	var paper := Rect2(0.0, SHEET_TOP, _sheet.size.x, _sheet.size.y - SHEET_TOP)
+	if not _full:
+		BlueprintArt.shadow(_sheet, paper)
 	for i: int in PAGES.size():
 		if i != page:
 			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), _lit(_tabs[i]))
-	BlueprintArt.tab(_sheet, BACK_TAB, _lit(_back))
-	BlueprintArt.sheet(_sheet, SHEET, _tabs[page].get_rect(), _lit(_tabs[page]))
-	BlueprintArt.folds(_sheet, SHEET)
-	var inside := SHEET.grow(-BlueprintArt.BORDER)
+	BlueprintArt.tab(_sheet, _back.get_rect(), _lit(_back))
+	BlueprintArt.sheet(_sheet, paper, _tabs[page].get_rect(), _lit(_tabs[page]))
+	BlueprintArt.folds(_sheet, paper)
+	var inside := paper.grow(-BlueprintArt.BORDER)
 	BlueprintArt.marks(_sheet, inside, Type.micro_font())
 	_draw_foot(inside)
+	_sheet.draw_set_transform(((_sheet.size - SIZE) * 0.5).round())
 	var art := _art_rect()
 	diagram.draw(_sheet, art.position, ART_SCALE, Color(INK, 0.96))
 	diagram.print_faces(_sheet, art.position, ART_SCALE, INK, Type.STRONG)
@@ -424,6 +485,7 @@ func _draw_sheet() -> void:
 	_draw_column(sides[0], said, -1, art.position.x - COLUMN_OUT)
 	_draw_column(sides[2], said, 1, art.end.x + COLUMN_OUT)
 	_draw_over(sides[1], said)
+	_sheet.draw_set_transform(Vector2.ZERO)
 
 
 ## The sheet's foot: its scale bar on the left, and on the right what drawing and which sheet it
