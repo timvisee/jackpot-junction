@@ -4206,6 +4206,8 @@ settings; and what to set on Steamworks. Built in the worktree `steam-input`.
       Input".
 - [ ] The user: a look on each controller at hand, the Deck and a Steam Controller among them,
       the sticks' up checked with `++ --pads` (`SteamPads.UP_IS_MORE`), and Remote Play Together.
+- [ ] The user: the store page's controller survey saying the game uses the Steam Input API,
+      once this is on the default branch, `docs/STEAM.md`, "Steam Input" step 6.
 - [ ] Not wanted for now (the user, 2026-11-23): a menu set beside Play; aiming by the gyro.
 
 ## M20: the story, retold

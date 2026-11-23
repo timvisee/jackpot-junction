@@ -321,6 +321,12 @@ the layout each kind of controller starts on are in `data/steam/input/`, written
    name, and take that controller out of what `SteamActions.files` writes, or
    `make steam-input` writes over it.
 
+6. **The store page** (Edit Store Page > Basic Info, Controller support), once the
+   build reading the controllers through Steam Input is on the default branch: say
+   in the controller survey that the game uses the Steam Input API, with full
+   support for Xbox, PlayStation and other controllers, as the Controllers line of
+   [Basic Info](#basic-info) has it, then publish the store page.
+
 The 2026 Steam Controller's layout is `controller_triton.vdf`, Steam's own name for
 it in the client's `controller_base`; Valve's list of controller names for the
 manifest does not have it yet.
