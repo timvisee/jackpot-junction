@@ -58,7 +58,10 @@ Steam, GAME.md 10.8, is never on unless asked for: only a Steam export, from
 Steam; the tests hand the game a fake of it, `tests/fake_steam.gd`, and with Steam Input's
 controllers `tests/fake_steam_input.gd`. With Steam
 running and logged in, `make steam-addon` once, then `make steam-run` plays as
-Spacewar, app 480. `JJ_STEAM_PEER=1` in the environment sends every online game
+Spacewar, app 480, or as the app `data/steam/app.cfg` names. It leaves the gamepads
+plugged in to Steam Input, as Steam does for a game it starts, or each press would
+come twice (`tools/steam-run`); a run from the editor does not, and says so.
+`JJ_STEAM_PEER=1` in the environment sends every online game
 through the Steam game's own connection, `SteamPeer`, over ENet on this machine:
 `JJ_STEAM_PEER=1 make test multiplayer` plays the online suites and checks through
 what a Steam game plays through, but for the checks of ENet itself.

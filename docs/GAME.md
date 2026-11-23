@@ -10905,7 +10905,12 @@ to, so whatever reads those, a menu scrolled by the right stick, the loyalty map
 triggers, reads them. Steam's up on a stick is taken as more and the engine's as less; Valve does
 not say which, so `make steam-run ARGS="--pads"` prints each stick pushed all the way, and every
 press, for a look on a controller. A pad's knock goes through Steam for these, stopped after the
-time asked. A layout binding a button to a pad's own button rather than an action makes Steam show
+time asked. Steam hands a game it starts the controllers it reads in SDL's
+`SDL_GAMECONTROLLER_IGNORE_DEVICES`, so the engine leaves them alone; a run Steam did not start
+reads each twice, once from the engine and once through Steam, every press coming twice. A Steam
+build started outside Steam starts again through Steam, so only a checkout's run can: `make
+steam-run` names every gamepad plugged in there itself (`tools/steam-run`), and a run that does not,
+from the editor say, is warned as Steam Input starts. A layout binding a button to a pad's own button rather than an action makes Steam show
 the game a pad of the engine's as well, carrying those, which is a second pad to the game.
 
 **Rebinding and turning it off.** The game's own rebinding, 8.5, goes on for the keyboard and for

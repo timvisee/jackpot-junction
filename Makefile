@@ -268,9 +268,11 @@ steam-input: | $(CACHE)
 	$(GODOT) --headless --path . -s tools/steam_input.gd
 
 # The game from this checkout with Steam on, as Spacewar, app 480, unless data/steam/app.cfg names
-# another: Steam has to be running. Without --steam nothing ever talks to Steam, GAME.md 10.8.
+# another: Steam has to be running. Without --steam nothing ever talks to Steam, GAME.md 10.8. The
+# gamepads plugged in are left to Steam Input, as Steam leaves them for a game it starts, see
+# tools/steam-run.
 steam-run: | $(CACHE)
-	$(GODOT) --path . res://scenes/ui/title.tscn -- --steam $(ARGS)
+	tools/steam-run $(GODOT) $(ARGS)
 
 # What the Steam client on this machine answers about the app, the account, its keyboard on the
 # screen, rich presence and a lobby, see tools/steam_check.gd. By hand: it needs Steam running, so

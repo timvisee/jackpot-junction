@@ -21,6 +21,13 @@ const NO_BAR: Array[StringName] = [&"know_every_street"]
 const STORE_PAGE := "https://store.steampowered.com/app/%d"
 ## Steam Input's controllers as the game's pads, GAME.md 10.8, by path: [SteamPads].
 const STEAM_PADS := "res://scripts/store/steam_pads.gd"
+## Where Steam names the controllers it reads for a game it starts, for the engine to leave them
+## alone, see tools/steam-run; and what a run with Steam Input that has none says.
+const IGNORED_ENV := "SDL_GAMECONTROLLER_IGNORE_DEVICES"
+const TWICE := (
+	"Steam Input reads the controllers, but neither Steam nor make steam-run started the game, so"
+	+ " the engine reads them too and each press may come twice"
+)
 
 ## Steam, once started, or null: none wanted, none in this build, or none answering.
 static var steam: SteamStore
@@ -88,6 +95,9 @@ static func use_steam_input(game: Node, on: bool) -> void:
 	var running := game.get_node_or_null(^"SteamPads")
 	if on and running == null and steam != null:
 		game.add_child(load(STEAM_PADS).new(steam.api))
+		# A checkout's run that neither Steam nor `make steam-run` started, from the editor say.
+		if not OS.has_feature("template") and not OS.has_environment(IGNORED_ENV):
+			push_warning(TWICE)
 	elif not on and running != null:
 		# Out of the way at once, for it to be started again before the frame is out.
 		running.name = "SteamPadsGoing"

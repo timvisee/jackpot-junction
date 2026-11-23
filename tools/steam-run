@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# `make steam-run`: the game from this checkout with Steam on, GAME.md 10.8, started as Steam would
+# start it. Steam hands a game it starts the controllers it reads for it in SDL's
+# SDL_GAMECONTROLLER_IGNORE_DEVICES, so the engine leaves them to Steam Input; a game started
+# outside Steam reads each such controller twice, once from the engine and once through Steam, and
+# every press comes twice. So every gamepad plugged in, as Linux lists them, is named there too,
+# unless the run asks for --no-steam-input, which leaves them to the engine.
+#
+# Usage: tools/steam-run <godot> [game arguments...]
+set -eu
+godot="$1"
+shift
+steam_input=yes
+for arg in "$@"; do
+	[ "$arg" = "--no-steam-input" ] && steam_input=no
+done
+if [ "$steam_input" = yes ] && [ -r /proc/bus/input/devices ] \
+	&& [ -z "${SDL_GAMECONTROLLER_IGNORE_DEVICES:-}" ]; then
+	# A gamepad is a device with a joystick handler, js0 and on: its maker's id and its own.
+	pads="$(awk 'BEGIN { RS = "" } /Handlers=[^\n]*js[0-9]/ {
+		match($0, /Vendor=[0-9a-f]+/); maker = substr($0, RSTART + 7, RLENGTH - 7)
+		match($0, /Product=[0-9a-f]+/); made = substr($0, RSTART + 8, RLENGTH - 8)
+		printf "%s0x%s/0x%s", (n++ ? "," : ""), maker, made
+	}' /proc/bus/input/devices)"
+	# Set even when empty, which leaves nothing out: the game knows it was started this way.
+	echo "steam-run: leaving ${pads:-no gamepads} to Steam Input"
+	export SDL_GAMECONTROLLER_IGNORE_DEVICES="$pads"
+fi
+exec "$godot" --path . res://scenes/ui/title.tscn -- --steam "$@"
