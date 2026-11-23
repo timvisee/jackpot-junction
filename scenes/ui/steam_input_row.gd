@@ -20,17 +20,18 @@ const TIP := (
 	"On, Steam reads your controllers, each with the layout you pick for it in Steam. Off, the game"
 	+ " reads them itself. Steam has the same switch in the game's properties: set both alike."
 )
-## What the switch asks before it goes, and the two answers.
+## What the switch asks before it goes, the way to Steam's own switch a paragraph of its own, and
+## the two answers.
 const OFF := "Turn Steam Input off?"
 const OFF_LINE := (
-	"Turn it off in Steam too, or Steam keeps your controllers from the game: in your Steam"
+	"Turn it off in Steam too, or Steam keeps your controllers from the game:\n\nIn your Steam"
 	+ " Library, open Jackpot Junction's Properties, then Controller, and pick Disable Steam Input."
 )
 const OFF_YES := "Turn off"
 const ON := "Turn Steam Input on?"
 const ON_LINE := (
-	"Turn it on in Steam too, or Steam leaves your controllers to the game: in your Steam Library,"
-	+ " open Jackpot Junction's Properties, then Controller, and pick Enable Steam Input."
+	"Turn it on in Steam too, or Steam leaves your controllers to the game:\n\nIn your Steam"
+	+ " Library, open Jackpot Junction's Properties, then Controller, and pick Enable Steam Input."
 )
 const ON_YES := "Turn on"
 const CANCEL := "Cancel"

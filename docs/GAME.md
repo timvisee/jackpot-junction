@@ -10930,8 +10930,8 @@ in hand, or none with Steam's overlay off. The switch stops or starts the readin
 ++ --no-steam-input`. Off, Steam still keeps a controller it reads for the game from the engine, on
 the game's layout, so a player turning it off also turns Steam Input off for the game in its Steam
 properties, and one turning it on turns it on there. So the switch asks first, over the page: Turn
-Steam Input off? or on, with where Steam's own switch is, the game's Properties, Controller,
-Disable or Enable Steam Input, and Turn off or Turn on beside Cancel, which has the cursor; Cancel
+Steam Input off? or on, saying to do so in Steam too, and in a paragraph of its own where Steam's
+own switch is, the game's Properties, Controller, Disable or Enable Steam Input, and Turn off or Turn on beside Cancel, which has the cursor; Cancel
 and Back leave the switch as it was. Steam Input is
 never started without Steam, so a GitHub build is as it was.
 

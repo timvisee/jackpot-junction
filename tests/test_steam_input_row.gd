@@ -31,6 +31,8 @@ func test_turning_it_off_asks_first_and_says_to_in_steam() -> void:
 	# Still on while the question is up.
 	assert_bool(_switch.button_pressed).is_true()
 	assert_str(pane.said()).contains("Disable Steam Input")
+	# The way there a paragraph of its own, after the colon.
+	assert_str(pane.said()).contains(":\n\nIn your Steam Library")
 	pane.yes_button().pressed.emit()
 	assert_bool(_switch.button_pressed).is_false()
 	assert_array(_went).is_equal([false])
