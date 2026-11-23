@@ -14,10 +14,6 @@ extends Node3D
 ## What a unit of tremble is worth as a shake. A beat at the top level should land between a
 ## kart being wrecked and a bomb going off: felt through the floor, not read off the screen.
 const TREMBLE_SHAKE := 0.2
-## How many halvings the aim is solved in, see [method _aim_lift]. Fourteen take it to a couple of
-## millimeters over the whole arena, under a pixel on any screen anybody has, an 8K one included;
-## it is worked out every frame, so it takes no more than it needs, GAME.md 10.7.
-const AIM_STEPS := 14
 ## And how many the look-ahead is trimmed in, see [method _afforded]. Fewer, because the answer is
 ## a lead in meters rather than a position on the screen: a tenth of a meter is nobody's business.
 const LEAD_STEPS := 10
@@ -757,7 +753,6 @@ func _clear(
 		_clear_left = CLEAR_EVERY
 		_probe += 1
 		var tan_v := tan(deg_to_rad(base_fov) * 0.5)
-		var tan_fit := tan(deg_to_rad(base_fov * zoom_min) * 0.5)
 		_look = ClearView.start(
 			_covers_flat,
 			_in_view(points, at),
@@ -766,7 +761,7 @@ func _clear(
 			lift,
 			closest,
 			maxf(_arena_distance, far),
-			Vector2(tan_fit * _aspect(), tan_fit),
+			_fit_view(),
 			Vector2(tan_v * _aspect(), tan_v),
 			_slide,
 			_probe,
@@ -874,18 +869,8 @@ func _aspect() -> float:
 	return size.x / size.y
 
 
-## The smallest distance at which every one of [param points] projects inside the view of a
-## camera looking at [param at]. Worked out from the camera's own geometry rather than asked of
-## Godot, whose frustum queries only answer after a frame has rendered, and this has to answer at
-## load and again every frame.
-##
-## The camera only ever slides along one line, so in its own coordinates moving it back by d
-## moves every point d further away and nothing else. A point is on screen while its sideways
-## offset fits inside the cone at its depth, which rearranges into a smallest d per point; the
-## answer is the largest of those.
 ## Where [param points] land in the camera's own coordinates, looking at [param at] from a
-## distance of zero. Sliding the camera back by d takes d off the z of every one of them and
-## changes nothing else, which is what the two below are built on.
+## distance of zero, which is what [CameraFit] works in.
 func _in_view(points: Array[Vector3], at: Vector3) -> Array[Vector3]:
 	var pitch := deg_to_rad(pitch_degrees)
 	var back := Vector3(0.0, sin(pitch), cos(pitch))
@@ -896,69 +881,25 @@ func _in_view(points: Array[Vector3], at: Vector3) -> Array[Vector3]:
 	return seen
 
 
-## The smallest distance at which every one of [param points] projects inside the view of a
-## camera looking at [param at]. Worked out from the camera's own geometry rather than asked of
-## Godot, whose frustum queries only answer after a frame has rendered, and this has to answer at
-## load and again every frame.
-##
-## Sideways it is one inequality per point. Up and down it is a pair, because the aim slides too:
-## a point is on screen while |y - L| <= tan_v * (d - z), so d has to be big enough that some L
-## satisfies every point at once, which is where the two tightest of them meet.
-func _needed_distance(points: Array[Vector3], at: Vector3) -> float:
+## The tangents of half the view the fit is worked out against, across and down: a little
+## narrower than the camera's, see [member zoom_min].
+func _fit_view() -> Vector2:
 	var tan_v := tan(deg_to_rad(base_fov * zoom_min) * 0.5)
-	var tan_h := tan_v * _aspect()
-	var needed := (camera.near if camera != null else 0.5) + 1.0
-	var highest := -INF
-	var lowest := INF
-	for local: Vector3 in _in_view(points, at):
-		needed = maxf(needed, local.z + absf(local.x) / tan_h)
-		highest = maxf(highest, local.y + tan_v * local.z)
-		lowest = minf(lowest, local.y - tan_v * local.z)
-	if points.is_empty():
-		return needed
-	return maxf(needed, (highest - lowest) / (2.0 * tan_v))
+	return Vector2(tan_v * _aspect(), tan_v)
 
 
-## How far to slide the aim along the camera's up axis so that [param points], seen from
-## [param distance], sit as far below the middle of the screen as they do above it.
-##
-## The camera is tilted, so the floor does not project symmetrically: the near edge of a thing
-## lands lower than the far edge lands high. Left alone, the fit puts whichever of them binds
-## hard against its edge of the frame and piles all the slack on the other side, which is the
-## empty band above the arena. Sliding the aim costs nothing and splits the slack in two.
-##
-## Solved by bisection rather than in closed form: which two points end up at the edges depends on
-## the aim, since they sit at different depths and a slide is worth more to the near one. Each
-## point's height and depth do not change with the aim, so they are worked out once, and each
-## halving only asks how far the highest and lowest miss the middle by, added up: zero when they
-## straddle it evenly.
+## The smallest distance at which every one of [param points] is on the screen of a camera looking
+## at [param at], see [method CameraFit.needed]: the whole point of the rig, GAME.md 8.2.
+func _needed_distance(points: Array[Vector3], at: Vector3) -> float:
+	var nearest := (camera.near if camera != null else 0.5) + 1.0
+	return CameraFit.needed(_in_view(points, at), _fit_view(), nearest)
+
+
+## How far to slide the aim along the camera's up axis for [param points], seen from
+## [param distance] back looking at [param at], to sit as far below the middle of the screen as
+## they do above it, see [method CameraFit.lift].
 func _aim_lift(points: Array[Vector3], at: Vector3, distance: float) -> float:
-	if points.is_empty():
-		return 0.0
-	var heights := PackedFloat32Array()
-	var nearness := PackedFloat32Array()
-	var reach := 0.0
-	for local: Vector3 in _in_view(points, at):
-		heights.append(local.y)
-		nearness.append(1.0 / maxf(distance - local.z, 0.001))
-		reach = maxf(reach, absf(local.y))
-	var count := heights.size()
-	var low := -reach
-	var high := reach
-	for step: int in AIM_STEPS:
-		var mid := (low + high) * 0.5
-		var above := -INF
-		var below := INF
-		for i: int in count:
-			var ratio := (heights[i] - mid) * nearness[i]
-			above = maxf(above, ratio)
-			below = minf(below, ratio)
-		# Positive means more of it is above the middle than below, so the aim has to come up.
-		if above + below > 0.0:
-			low = mid
-		else:
-			high = mid
-	return (low + high) * 0.5
+	return CameraFit.lift(_in_view(points, at), distance)
 
 
 ## The camera's own up axis in world space, which the aim slides along.
