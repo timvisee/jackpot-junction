@@ -62,6 +62,8 @@ var run_page: SlipPage
 ## The loyalty program's page, GAME.md 8.9, once the map has been written down with something in
 ## it for a profile at this machine, see [LoyaltyRecord].
 var loyalty_page: LoyaltySlipPage
+## The House's coupon for a card of the table the map opened, GAME.md 8.9a.
+var coupon_page: CouponPage
 
 var _style: TicketStyle
 ## The barcode and the small print at the foot of the bill, numbered for the match it pays out.
@@ -122,7 +124,7 @@ func _notification(what: int) -> void:
 		_put_back_beside()
 	if what != NOTIFICATION_PREDELETE:
 		return
-	for part: Node in [map_page, run_page, _end, _house_page, loyalty_page]:
+	for part: Node in [map_page, run_page, _end, _house_page, loyalty_page, coupon_page]:
 		if part != null and is_instance_valid(part) and part.get_parent() == null:
 			part.free()
 
@@ -191,6 +193,7 @@ func fill_in() -> void:
 		run_page.fill_run(ranked, run)
 		pages.append(run_page)
 	_add_loyalty_page(pages)
+	_add_coupon_page(pages)
 	if _house_page != null:
 		pages.append(_house_page)
 	if not wears.is_empty():
@@ -248,6 +251,18 @@ func _add_loyalty_page(pages: Array[Control]) -> void:
 	var kit := LoyaltySlipPage.kit_lines(report)
 	LoyaltySlipPage.tape_onto(map_page, PackedStringArray() if printed else kit)
 	LoyaltySlipPage.tape_onto(loyalty_page, kit if printed else PackedStringArray(), true)
+
+
+## The House's coupon after the program's page, GAME.md 8.9a, for the cards of the table the map
+## opened for the profile playing, which its writing down, a moment after the whistle, says.
+func _add_coupon_page(pages: Array[Control]) -> void:
+	var news := int(match_node.get_meta(MatchRecord.TABLE_NEWS, 0))
+	if news == 0:
+		return
+	if coupon_page == null:
+		coupon_page = CouponPage.create()
+	if coupon_page.fill(news):
+		pages.append(coupon_page)
 
 
 func _on_loyalty_reported(_report: Array[Dictionary]) -> void:

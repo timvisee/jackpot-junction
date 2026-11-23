@@ -6888,6 +6888,16 @@ with the loyalty program, 8.9. A card can be opened early from the match setting
 opened. What the profile has opened, turned down, opened early and been told of is kept with it,
 in a section of its own (`TableState`).
 
+**The coupon.** A card is told on the payout slip of the map that opened it, 3.8, as a page of its
+own after the program's, `CouponPage`: headed Compliments of the House in the slip's ink, a line
+under it, "A new feature for your table, as a thank-you for playing", the foil rule, and a coupon
+cut out of the slip along a dashed red line: the card's face, NOW OPEN AT YOUR TABLE in red over its
+name in big capitals, its one line of what it does, and at its foot VALID FROM YOUR NEXT MAP · NO
+EXPIRY in the small print. It is the profile playing's, the first seat's, and comes on the slip
+because the end of a map is a moment of its own, where the title already has its welcome and its
+tour to show. A card opened early is never on a coupon, the asking having told it. Until the card
+has been played at a map, it wears NEW in the match settings and on the loading screen, 8.6.
+
 ### 8.10 Achievements
 
 Achievements are things worth having done once: a way of winning, a moment at a table, a hand held, a

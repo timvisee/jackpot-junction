@@ -14,6 +14,9 @@ extends Node
 const GROUP := &"match_record"
 ## How long after the whistle the match is written down, in seconds.
 const AFTER := 0.6
+## Where the match keeps the cards of the table its map opened for the profile playing, for the
+## payout slip's coupon, GAME.md 8.9a, as a table's bits.
+const TABLE_NEWS := &"table_news"
 
 ## For a test: a room left is written down wherever it is, headless or not, see [method leave].
 static var anywhere := false
@@ -135,6 +138,7 @@ func record(whistled := true) -> void:
 	if last:
 		standing = run.standings(match_node.slots)
 	var written: Array[Profile] = []
+	var counted: Array[Profile] = []
 	for slot: PlayerSlot in match_node.slots:
 		var profile := profile_of(slot)
 		if profile == null:
@@ -164,10 +168,18 @@ func record(whistled := true) -> void:
 		LoyaltyRecord.map_played(match_node, slot, profile, share, since, won)
 		AchievementRecord.map_played(match_node, slot, profile, won)
 		LifetimeStats.add_map(profile, slot, won, seconds, since)
+		counted.append(profile)
 		if last:
 			LifetimeStats.add_grand_prix(
 				profile, not standing.is_empty() and _first(standing[0], slot)
 			)
+	# The House opens a card a map, GAME.md 8.9a: the cards this map played are no longer new, and
+	# those the map opened are told on the slip's coupon, the profile playing's own.
+	for profile: Profile in counted:
+		profile.table.played(match_node.rules.table)
+		var news := profile.table.tell(profile.maps_played())
+		if profile == Game.settings.profile:
+			match_node.set_meta(TABLE_NEWS, news)
 	# What the statistics now hold may win bets of the loyalty program, GAME.md 8.9, which the
 	# payout slip's page of it reports, see [LoyaltyRecord].
 	for profile: Profile in written:

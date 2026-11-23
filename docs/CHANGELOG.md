@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
   bounties, then suits and hands. A dedicated server's `--table` sets what its games start with.
 - **The cards on the table.** The match settings show each feature as a card to turn face up or
   down, and a card not opened yet can be opened early.
+- **A coupon for each new feature.** The payout slip says when the House opens a feature at your
+  table, and what it does.
 - **Penny table and Roulette.** Two new presets: power-ups alone for a plain game, or three
   features dealt at random each map. Quick hand is gone.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and

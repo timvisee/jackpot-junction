@@ -98,3 +98,37 @@ func test_the_table_a_match_is_told() -> void:
 	assert_str(ServerArgs.read(["--table=Penny"]).table).is_equal("penny")
 	assert_str(ServerArgs.read([], {"JJ_TABLE": "roulette"}).table).is_equal("roulette")
 	assert_str(ServerArgs.read(["--table=chaos"]).problem()).contains("--table")
+
+
+## A map played to the whistle opens the next card for the profile playing, told on the payout
+## slip's coupon, and new until it is played; the cards the map played are no longer new.
+func test_a_map_played_opens_a_card_on_the_slip() -> void:
+	var settings_were := Game.settings
+	Game.settings = _settings()
+	var match_node: Match = auto_free(load("res://scenes/match/match.tscn").instantiate())
+	match_node.rules = load("res://data/match/waiting_room.tres")
+	match_node.arena_layout = load("res://data/maps/waiting_room.tres")
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	var runner := scene_runner(match_node)
+	match_node.start(
+		[PlayerInput.new(DeviceInput.KEYBOARD, 0), BotInput.new()] as Array[KartInput], 2
+	)
+	await runner.simulate_frames(2, 17)
+	var record := MatchRecord.add_to(match_node)
+	MatchRecord.anywhere = true
+	record.seconds = 60.0
+	record.record(true)
+	MatchRecord.anywhere = false
+	var profile := Game.settings.profile
+	var jackpot := TableCards.bit(TableCards.Card.JACKPOT)
+	assert_float(profile.maps_played()).is_equal(1.0)
+	assert_int(int(match_node.get_meta(MatchRecord.TABLE_NEWS, 0))).is_equal(jackpot)
+	assert_int(profile.table.fresh).is_equal(jackpot)
+	var page := CouponPage.create()
+	auto_free(page)
+	assert_bool(page.fill(jackpot)).is_true()
+	assert_int(page.rows.get_child_count()).is_equal(1)
+	assert_str(page.heading.text).is_equal("Compliments of the House")
+	assert_bool(page.fill(0)).is_false()
+	Game.settings = settings_were
