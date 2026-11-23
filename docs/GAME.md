@@ -5072,8 +5072,9 @@ button it is on now.
   it stays clear, and the one from the left of them goes down round the bottom one rather than
   through the two beside it. A few have a note beside them in red pencil: squeeze, don't stab, by
   the gas.
-- **Three sheets**: Driving, the jokers and the menus, numbered tabs cut from the sheet's top edge,
-  the page's in front and joined to it, the others behind, none of them outlined but the one the
+- **Three sheets**: Driving, the jokers and the menus, numbered tabs on the sheet's top edge, the
+  page's cut from the sheet itself, one piece of paper with it, its feet flared into the edge and
+  the edge's darkening running round it, the others behind, none of them outlined but the one the
   cursor or the mouse is on; turned with the page keys, drawn beside
   the tabs as the big dialogs have them, or a click. Driving says Steer, or Drive where the first
   player drives the simple way, 4.2.

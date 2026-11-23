@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Show gamepad's tabs.** The page's tab is cut from the blueprint itself, its feet flared into
+  the sheet's edge, rather than laid over it.
+
 ### Fixed
 
 - **The Steam Deck's triggers in Show gamepad.** Their lines point at the triggers now, not at the

@@ -407,10 +407,9 @@ func _on_card(spot: StringName, around := false) -> Vector2:
 func _draw_sheet() -> void:
 	for i: int in PAGES.size():
 		if i != page:
-			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), false, _lit(_tabs[i]))
-	BlueprintArt.tab(_sheet, BACK_TAB, false, _lit(_back))
-	BlueprintArt.sheet(_sheet, SHEET)
-	BlueprintArt.tab(_sheet, _tabs[page].get_rect(), true, _lit(_tabs[page]))
+			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), _lit(_tabs[i]))
+	BlueprintArt.tab(_sheet, BACK_TAB, _lit(_back))
+	BlueprintArt.sheet(_sheet, SHEET, _tabs[page].get_rect(), _lit(_tabs[page]))
 	BlueprintArt.folds(_sheet, SHEET)
 	var inside := SHEET.grow(-BlueprintArt.BORDER)
 	BlueprintArt.marks(_sheet, inside, Type.micro_font())

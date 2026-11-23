@@ -2,7 +2,8 @@ class_name BlueprintArt
 extends RefCounted
 ## The blueprint the gamepad is drawn on, GAME.md 8.3b, see [PadLeaflet]: a sheet of the Dept. of
 ## Karts' engineers, mottled blue with its grid, its border and its folds, the drafting marks round
-## it, and the tabs cut from its top edge; drawn as shapes onto whatever asks.
+## it, and the tabs on its top edge, the page's cut from the sheet itself; drawn as shapes onto
+## whatever asks.
 
 ## The sheet's blue, and the white its lines are drawn in and the white of what is said quietly on
 ## it; the red pencil a note in the margin is written in.
@@ -16,17 +17,41 @@ const BORDER := 26.0
 const GRID := 24.0
 const HEAVY := 5
 const FOLDS := Vector2i(3, 1)
-## How the tabs lean in at their tops, and how far down the ones behind stand.
+## How the tabs lean in at their tops, how far down the ones behind stand, how round their top
+## corners are, and how far the page's tab flares out at its foot into the sheet's top edge.
 const TAB_LEAN := 14.0
 const TAB_BEHIND := 8.0
+const TAB_ROUND := 7.0
+const TAB_FLARE := 10.0
+## How far in from its edge the paper darkens, as a print's edges do, a step a pixel.
+const EDGE_DARK := 16
+## How many steps each rounded corner and flare is drawn in.
+const CURVE := 6
 
 
-## The sheet over [param rect] on [param on]: the blue, mottled and grained, its grid and its double
-## border inside its edge, and its edges a little darker, as a print is.
-static func sheet(on: CanvasItem, rect: Rect2) -> void:
-	on.draw_rect(rect, BLUE)
-	on.draw_texture_rect(FeltArt.patches(), rect, true, Color(0.0, 0.05, 0.15, 0.24))
-	on.draw_texture_rect(FeltArt.grain(), rect, true, Color(1.0, 1.0, 1.0, 0.05))
+## The sheet over [param rect] on [param on], the page's tab over [param front] cut from its top
+## edge, the two one piece of paper: the blue, mottled and grained, the tab's feet flared into the
+## edge, its grid and its double border inside its edge, and its edges a little darker all round,
+## the tab's with them, as a print's are. The tab lit up where [param lit], as [method tab] is.
+static func sheet(on: CanvasItem, rect: Rect2, front := Rect2(), lit := false) -> void:
+	var paper := PackedVector2Array([Vector2(rect.position.x, rect.end.y), rect.position])
+	var edge := PackedVector2Array()
+	if front.has_area():
+		edge = _tab_edge(front, rect.position.y, front.position.y)
+		var last := edge.size() - 1
+		var foot_left := edge[0]
+		var foot_right := edge[last]
+		var up_left := foot_left + (edge[1] - foot_left).normalized() * TAB_FLARE
+		var up_right := foot_right + (edge[last - 1] - foot_right).normalized() * TAB_FLARE
+		var out := Vector2(TAB_FLARE, 0.0)
+		var flared := _curve(foot_left - out, foot_left, up_left)
+		flared.append_array(edge.slice(1, last))
+		flared.append_array(_curve(up_right, foot_right, foot_right + out))
+		paper.append_array(flared)
+		edge = flared
+	paper.append(Vector2(rect.end.x, rect.position.y))
+	paper.append(rect.end)
+	_paper(on, paper, BLUE, rect.position, 0.24)
 	var inside := rect.grow(-BORDER)
 	var lines := PackedVector2Array()
 	var heavy := PackedVector2Array()
@@ -46,9 +71,85 @@ static func sheet(on: CanvasItem, rect: Rect2) -> void:
 	on.draw_multiline(heavy, Color(1.0, 1.0, 1.0, 0.08), 1.0)
 	on.draw_rect(inside, Color(INK, 0.75), false, 2.0)
 	on.draw_rect(inside.grow(-6.0), Color(INK, 0.35), false, 1.0)
-	for i: int in 16:
-		var dark := 0.16 * pow(1.0 - i / 16.0, 2.0)
-		on.draw_rect(rect.grow(-i), Color(0.0, 0.0, 0.05, dark), false, 1.0)
+	for i: int in range(1, EDGE_DARK):
+		var dark := 0.16 * pow(1.0 - float(i) / EDGE_DARK, 2.0)
+		for ring: PackedVector2Array in Geometry2D.offset_polygon(paper, -i):
+			ring.append(ring[0])
+			on.draw_polyline(ring, Color(0.0, 0.0, 0.05, dark), 1.0)
+	if lit and not edge.is_empty():
+		_light(on, edge)
+
+
+## A soft shadow on [param on] under a sheet over [param rect] lying over the screen, rather than
+## filling it.
+static func shadow(on: CanvasItem, rect: Rect2) -> void:
+	for i: int in 12:
+		var shade := Color(0.0, 0.0, 0.0, 0.045 * (1.0 - i / 12.0))
+		on.draw_rect(Rect2(rect.position + Vector2(0.0, 6.0), rect.size).grow(2.0 + i * 2.0), shade)
+
+
+## A tab behind the sheet over [param rect], whose foot is the sheet's top edge, drawn before the
+## sheet: darker than it, standing a little lower than the page's, which is cut from the sheet
+## itself, see [method sheet]. Its edges are drawn only [param lit], where the cursor or the mouse
+## is on it: bright, with a glow along them and a little light over it, the cursor's marker in its
+## own shape.
+static func tab(on: CanvasItem, rect: Rect2, lit := false) -> void:
+	var edge := _tab_edge(rect, rect.end.y + TAB_BEHIND, rect.position.y + TAB_BEHIND)
+	_paper(on, edge, BLUE.darkened(0.3), rect.position, 0.2)
+	if lit:
+		_light(on, edge)
+
+
+## A tab's edge over [param rect], from its foot at [param foot] on the left, up its slanted side to
+## its top at [param top], round its corners and down the other side.
+static func _tab_edge(rect: Rect2, foot: float, top: float) -> PackedVector2Array:
+	var left := Vector2(rect.position.x, foot)
+	var right := Vector2(rect.end.x, foot)
+	var top_left := Vector2(rect.position.x + TAB_LEAN, top)
+	var top_right := Vector2(rect.end.x - TAB_LEAN, top)
+	var edge := PackedVector2Array([left])
+	for corner: Array in [[left, top_left, top_right], [top_left, top_right, right]]:
+		var at: Vector2 = corner[1]
+		var into := at + ((corner[0] as Vector2) - at).normalized() * TAB_ROUND
+		var out := at + ((corner[2] as Vector2) - at).normalized() * TAB_ROUND
+		edge.append_array(_curve(into, at, out))
+	edge.append(right)
+	return edge
+
+
+## A curve from [param from] to [param to], drawn towards [param pull].
+static func _curve(from: Vector2, pull: Vector2, to: Vector2) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for i: int in CURVE + 1:
+		var t := float(i) / CURVE
+		points.append(from.lerp(pull, t).lerp(pull.lerp(to, t), t))
+	return points
+
+
+## The paper inside [param shape] on [param on], in [param blue] mottled [param mottle] deep and
+## grained, both laid from [param origin], so a tab cut from the sheet is the same paper as it.
+static func _paper(
+	on: CanvasItem, shape: PackedVector2Array, blue: Color, origin: Vector2, mottle: float
+) -> void:
+	on.draw_colored_polygon(shape, blue)
+	var looks: Array[Array] = [
+		[FeltArt.patches(), Color(0.0, 0.05, 0.15, mottle)],
+		[FeltArt.grain(), Color(1.0, 1.0, 1.0, 0.05)],
+	]
+	for look: Array in looks:
+		var texture: Texture2D = look[0]
+		var uvs := PackedVector2Array()
+		for point: Vector2 in shape:
+			uvs.append((point - origin) / texture.get_size())
+		on.draw_colored_polygon(shape, look[1], uvs, texture)
+
+
+## A tab lit up along its [param edge] on [param on]: a little light over it, and the edge bright
+## with a glow along it.
+static func _light(on: CanvasItem, edge: PackedVector2Array) -> void:
+	on.draw_colored_polygon(edge, Color(INK, 0.08))
+	on.draw_polyline(edge, Color(INK, 0.16), 7.0, true)
+	on.draw_polyline(edge, Color(INK, 0.95), 2.2, true)
 
 
 ## The folds it was folded along, see [constant FOLDS]: a crease each, a little shadow on one side
@@ -91,30 +192,6 @@ static func marks(on: CanvasItem, inside: Rect2, font: Font) -> void:
 	for i: int in 12:
 		var x := inside.position.x + (i + 0.5) * inside.size.x / 12.0
 		_centered(on, font, str(i + 1), Vector2(x, inside.position.y - 8.0), 13, quiet)
-
-
-## A tab over [param rect], its foot on the sheet's top edge: [param front] for the page's, in the
-## sheet's own blue and joined to it, drawn after the sheet; behind it a darker one, a little lower,
-## drawn before. Its edges are drawn only [param lit], where the cursor or the mouse is on it:
-## bright, with a glow along them and a little light over it, the cursor's marker in its own shape.
-static func tab(on: CanvasItem, rect: Rect2, front: bool, lit := false) -> void:
-	var top := rect.position.y + (0.0 if front else TAB_BEHIND)
-	var shape := PackedVector2Array(
-		[
-			Vector2(rect.position.x, rect.end.y),
-			Vector2(rect.position.x + TAB_LEAN, top),
-			Vector2(rect.end.x - TAB_LEAN, top),
-			Vector2(rect.end.x, rect.end.y),
-		]
-	)
-	on.draw_colored_polygon(shape, BLUE if front else BLUE.darkened(0.3))
-	var span := Rect2(rect.position.x, top, rect.size.x, rect.end.y - top)
-	on.draw_texture_rect(FeltArt.patches(), span, true, Color(0.0, 0.05, 0.15, 0.2))
-	if not lit:
-		return
-	on.draw_colored_polygon(shape, Color(INK, 0.08))
-	on.draw_polyline(shape, Color(INK, 0.16), 7.0, true)
-	on.draw_polyline(shape, Color(INK, 0.95), 2.2, true)
 
 
 ## A scale bar from [param at], four blocks of it, and what it is the scale of, in [param font].
