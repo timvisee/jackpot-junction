@@ -5800,7 +5800,16 @@ pictures drawn once a run, moved rather than drawn again. The phases are the rea
 the room builds itself from -- so the bar moves when something has actually
 happened, and a room that takes longer to build shows a bar that takes longer to
 fill rather than one that lies faster. It is the same screen whether the match is
-local, hosted, or a client waiting on the host to say which room it is. The rooms
+local, hosted, or a client waiting on the host to say which room it is.
+
+Going up for a match, the hand is the table's, 3.17: a card for each card on it, fanned face down
+in the back worn, headed TONIGHT'S TABLE in foil over them, or TONIGHT'S DEAL for a Roulette map;
+as the bar fills they turn over one after another, left to right, each at its share of the bar, so
+everybody sees what the match plays with before it starts, a client too, from the host's rules.
+A card the House has opened and that has not yet been played at a map of the profile playing,
+8.9a, is the one that slides up out of the hand as the room nears up, edged in the neon's magenta,
+and under the bar a cream tag says it, NEW in magenta, its name and its line. With no new card none
+slides. The House's face of the card is kept for the rooms between the maps. The rooms
 between the maps go up the same way under their own names: the Garage, the test
 track and the waiting room, the last whether it is hosted, joined or followed back
 into from a match.

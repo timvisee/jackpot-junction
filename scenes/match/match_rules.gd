@@ -35,6 +35,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"final_hand",
 	&"catch_up",
 	&"table",
+	&"dealt",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -231,6 +232,9 @@ static var no_countdown := false
 ## match plays with, everything else being the core of it. On the wire, so a client builds the same
 ## floor and draws the same hand; a card that is off is off on every machine.
 @export var table := TableCards.ALL
+## Whether [member table] was dealt for this map by Roulette, GAME.md 3.17, which the loading
+## screen heads as the deal it is, 8.6.
+@export var dealt := false
 ## Which arena the match is played in, GAME.md 6.3. One of [constant ArenaMaps.IDS].
 @export var map := &"lucky_crossing"
 ## Whether the match runs against a clock. The Garage in 9.4 turns it off: no timer, no Last

@@ -56,9 +56,16 @@ const WAVE_LAG := 0.55
 ## What the toasts of GAME.md 8.10 wait for to be gone: an achievement earned as a room goes up
 ## comes up once it is up, rather than unseen under this.
 const GROUP := &"loading_screens"
+## The ink of the tag under the bar naming a card new to the player, GAME.md 8.6, and of its edge.
+const NEW_INK := Color("#ff4fa3")
 
 ## The House's face of the card, drawn once a run, see [method _deal].
 static var _house_face: Texture2D
+
+## The match's cards, 3.17, the hand being the table's, or -1 for a room between the maps, whose
+## hand is the House's, and whether they were dealt for the map by Roulette.
+var table := -1
+var dealt := false
 
 var room_name := ""
 ## A line under the room's name, the room itself when the heading is the Final Hand's,
@@ -80,6 +87,15 @@ var _back: TextureRect
 var _face: TextureRect
 var _wave := 0.0
 var _slid := 0.0
+## For a match, each card of the table in the hand, its face and its back, which are turned up as
+## the bar passes its share, see [method _turn_up]; and the card new to the player, slid out, with
+## the tag that names it under the bar, or -1 and null for none.
+var _table_cards: Array[int] = []
+var _faces: Array[Control] = []
+var _backs: Array[TextureRect] = []
+var _up: Array[bool] = []
+var _new_card := -1
+var _new_tag: Control
 ## How long the card to turn has been sliding out, or less than nothing before it starts.
 var _sliding := -1.0
 
@@ -87,11 +103,16 @@ var _sliding := -1.0
 ## Puts [param match_node]'s room up a phase at a time with a loading screen over [param parent]
 ## saying [param named], and comes back once it is up. Every room is put up this way, the maps and
 ## the rooms between them alike: the Garage, the test track and the waiting room, GAME.md 8.6.
-static func put_up(parent: Node, match_node: Match, named: String) -> void:
+## With [param a_match] the hand is the table's cards, 3.17, turned up as the room goes up.
+static func put_up(parent: Node, match_node: Match, named: String, a_match := false) -> void:
 	var arena := match_node.prepare_arena(true)
 	# The Final Hand is headed as the House heads it, the room's name under it, STORY.md 6.5.
 	var heading := StoryLines.FINAL_HAND if arena.final_hand else named
-	var screen := add_to(parent, heading, RoomEmblem.of(arena))
+	var screen := LoadingScreen.new()
+	if a_match and not arena.final_hand:
+		screen.table = match_node.rules.table
+		screen.dealt = match_node.rules.dealt
+	screen = add_to(parent, heading, RoomEmblem.of(arena), screen)
 	if arena.final_hand:
 		screen.room_under = named
 	await screen.run(arena.build_steps(), building(arena.final_hand))
@@ -106,8 +127,11 @@ static func building(final_hand := false) -> String:
 
 ## Puts a loading screen up over [param parent] for the room called [param room], with
 ## [param sticker] stuck down in the corner where it is given.
-static func add_to(parent: Node, room: String, sticker: Texture2D = null) -> LoadingScreen:
-	var screen := LoadingScreen.new()
+static func add_to(
+	parent: Node, room: String, sticker: Texture2D = null, screen: LoadingScreen = null
+) -> LoadingScreen:
+	if screen == null:
+		screen = LoadingScreen.new()
 	screen.name = "LoadingScreen"
 	screen.room_name = room
 	screen.sticker = sticker
@@ -128,6 +152,12 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 14)
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	add_child(column)
+	if table >= 0:
+		var tonight := Label.new()
+		tonight.text = "TONIGHT'S DEAL" if dealt else "TONIGHT'S TABLE"
+		tonight.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		Type.display(tonight, Type.LABEL, HouseTheme.FOIL)
+		column.add_child(tonight)
 	column.add_child(_deal())
 	if sticker != null:
 		_stick_down()
@@ -143,6 +173,9 @@ func _ready() -> void:
 	_phase.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.text(_phase, Type.LABEL, Color(0.66, 0.66, 0.72))
 	column.add_child(_phase)
+	if _new_card >= 0:
+		_new_tag = _tag_of(_new_card)
+		column.add_child(_new_tag)
 
 
 ## The room's table number for the loading screen, one of the millions the House runs, once the
@@ -179,10 +212,21 @@ func run(steps: Array[Callable], label: String) -> void:
 	for i: int in steps.size():
 		steps[i].call()
 		_bar.value = float(i + 1) / float(steps.size())
-		if _bar.value >= SLIDE_FROM:
+		_turn_up(_bar.value)
+		if _bar.value >= SLIDE_FROM and _card != null:
 			_slide_out()
 		Events.room_building.emit(_bar.value)
 		await get_tree().process_frame
+	if table >= 0:
+		# Up: every card of the table face up, the new one slid out and named, a moment to be read.
+		_turn_up(1.0)
+		if _card != null:
+			_slide_out()
+			while _slid < 1.0:
+				await get_tree().process_frame
+		await get_tree().create_timer(LINGER * (6.0 if _new_tag != null else 2.0)).timeout
+		queue_free()
+		return
 	# Up: the card, slid all the way out, turns over while the full bar is seen.
 	_slide_out()
 	while _slid < 1.0:
@@ -199,24 +243,30 @@ func run(steps: Array[Callable], label: String) -> void:
 ## once a run and shown from then on: the back by the title already, and the face the first time
 ## a room goes up.
 func _deal() -> Control:
+	if table >= 0:
+		_table_cards = TableCards.cards_of(table)
+		var fresh := Game.settings.profile.table.fresh & table if Game.settings != null else 0
+		var news := TableCards.cards_of(fresh)
+		_new_card = news[0] if not news.is_empty() else -1
+	var count := _hand()
 	var tall := JokerCard.SIZE.y * CARD_SCALE
 	var room := Control.new()
 	room.name = "Dealt"
 	# Down past the middle one's foot reach the outer cards, standing lower and tipped out, their
 	# outer corners lowest of all.
-	var outer := float(FAN - 1) * 0.5
+	var outer := float(count - 1) * 0.5
 	var tip := JokerCard.SIZE.x * CARD_SCALE * 0.5 * sin(deg_to_rad(FAN_TILT * outer))
 	var below := FAN_DROP * outer * outer + tip + FAN_CLEAR
 	room.custom_minimum_size = Vector2(
-		FAN_STEP * float(FAN - 1) + JokerCard.SIZE.x * CARD_SCALE * 1.4,
+		_step() * float(count - 1) + JokerCard.SIZE.x * CARD_SCALE * 1.4,
 		tall * (1.0 + SLIDE_OUT) + WAVE_RISE + below
 	)
 	room.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	room.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var foot := Vector2(room.custom_minimum_size.x * 0.5, room.custom_minimum_size.y - below)
 	var backs: Array[TextureRect] = []
-	for i: int in FAN:
-		var out := float(i) - float(FAN - 1) * 0.5
+	for i: int in count:
+		var out := float(i) - float(count - 1) * 0.5
 		var card := Control.new()
 		card.size = JokerCard.SIZE
 		card.pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, JokerCard.SIZE.y)
@@ -225,18 +275,12 @@ func _deal() -> Control:
 		# Each over the one before, as a hand held lies.
 		card.z_index = i
 		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		var rest := foot + Vector2(FAN_STEP * out, FAN_DROP * out * out) - card.pivot_offset
+		var rest := foot + Vector2(_step() * out, FAN_DROP * out * out) - card.pivot_offset
 		card.position = rest
 		room.add_child(card)
 		_cards.append(card)
 		_rests.append(rest)
 		backs.append(_side(card, "Back"))
-	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_out].
-	var drawn := randi() % FAN
-	_card = _cards[drawn]
-	_back = backs[drawn]
-	_face = _side(_card, "Face")
-	_face.visible = false
 	CardBack.picture(
 		CardBack.worn(),
 		self,
@@ -244,6 +288,15 @@ func _deal() -> Control:
 			for back: TextureRect in backs:
 				back.texture = drawn
 	)
+	if table >= 0:
+		_deal_table(backs)
+		return room
+	# A card of the hand, any one, to slide out of it and turn over, see [method _slide_out].
+	var drawn := randi() % FAN
+	_card = _cards[drawn]
+	_back = backs[drawn]
+	_face = _side(_card, "Face")
+	_face.visible = false
 	if _house_face != null:
 		_face.texture = _house_face
 	else:
@@ -268,7 +321,7 @@ func _process(delta: float) -> void:
 		_sliding += delta
 		_slid = smoothstep(0.0, 1.0, minf(_sliding / SLIDE_TIME, 1.0))
 	for i: int in _cards.size():
-		var rise := maxf(sin((_wave - float(i) * WAVE_LAG / float(FAN)) * TAU), 0.0)
+		var rise := maxf(sin((_wave - float(i) * WAVE_LAG / float(_hand())) * TAU), 0.0)
 		var up := WAVE_RISE * rise * rise
 		if _cards[i] == _card:
 			# Let go of by the wave as it slides out, held still once it is.
@@ -278,10 +331,104 @@ func _process(delta: float) -> void:
 
 ## The card to turn starting to slide out of the hand, over the others; once only.
 func _slide_out() -> void:
-	if _sliding >= 0.0:
+	if _sliding >= 0.0 or _card == null:
 		return
 	_sliding = 0.0
-	_card.z_index = FAN
+	_card.z_index = _hand()
+
+
+## How many cards the hand holds: the table's, or the House's [constant FAN].
+func _hand() -> int:
+	return maxi(_table_cards.size(), 1) if table >= 0 else FAN
+
+
+## How far apart the cards' middles are: closer in a hand of more than the House's five.
+func _step() -> float:
+	return FAN_STEP * minf(1.0, float(FAN) / float(_hand()) * 1.4)
+
+
+## The table's cards dealt into the hand, face down to start with, GAME.md 8.6: a face of each over
+## its [param backs], and the card new to the player the one to slide out.
+func _deal_table(backs: Array[TextureRect]) -> void:
+	for i: int in _cards.size():
+		var face := TableFace.new()
+		face.name = "Face"
+		face.card = _table_cards[i] if i < _table_cards.size() else 0
+		face.size = JokerCard.SIZE
+		face.visible = false
+		face.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		face.fresh = face.card == _new_card
+		_cards[i].add_child(face)
+		_faces.append(face)
+		_up.append(false)
+	_backs = backs
+	var at := _table_cards.find(_new_card)
+	_card = _cards[at] if at >= 0 else null
+
+
+## The table's cards turned up as far as [param done] of the bar has gone, each at its share of it,
+## left to right, GAME.md 8.6.
+func _turn_up(done: float) -> void:
+	for i: int in _faces.size():
+		if _up[i] or done < float(i + 1) / float(_faces.size() + 1):
+			continue
+		_up[i] = true
+		var card := _cards[i]
+		var face := _faces[i]
+		var back := _backs[i]
+		var turning := create_tween()
+		turning.tween_method(
+			func(turned: float) -> void:
+				card.scale.x = CARD_SCALE * maxf(absf(cos(turned * PI)), 0.02)
+				back.visible = turned < 0.5
+				face.visible = turned >= 0.5,
+			0.0,
+			1.0,
+			LINGER
+		)
+	if _new_tag != null and done >= 1.0 and _new_tag.modulate.a <= 0.0:
+		create_tween().tween_property(_new_tag, "modulate:a", 1.0, LINGER * 2.0)
+
+
+## The tag under the bar naming [param card], new to the player: NEW in the neon's magenta, its name
+## and its line, on the House's cream, GAME.md 8.6, unseen until the room is up.
+func _tag_of(card: int) -> Control:
+	var tag := PanelContainer.new()
+	tag.name = "NewCard"
+	var look := StyleBoxFlat.new()
+	look.bg_color = HouseTheme.PAPER
+	look.set_corner_radius_all(6)
+	look.set_content_margin_all(10)
+	tag.add_theme_stylebox_override(&"panel", look)
+	tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	tag.add_child(row)
+	var chip := Label.new()
+	chip.text = " NEW "
+	Type.display(chip, Type.LABEL, Color.WHITE)
+	var chip_look := StyleBoxFlat.new()
+	chip_look.bg_color = NEW_INK
+	chip_look.set_corner_radius_all(3)
+	chip_look.set_content_margin_all(3)
+	chip.add_theme_stylebox_override(&"normal", chip_look)
+	chip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	row.add_child(chip)
+	var words := VBoxContainer.new()
+	words.add_theme_constant_override("separation", 2)
+	row.add_child(words)
+	var named := Label.new()
+	named.text = TableCards.NAMES[card].to_upper()
+	Type.display(named, Type.BODY, HouseTheme.INK)
+	words.add_child(named)
+	var line := Label.new()
+	line.text = TableCards.LINES[card]
+	Type.text(line, Type.LABEL, HouseTheme.INK)
+	words.add_child(line)
+	# In its place from the start, so nothing moves as it fades up once the room is.
+	tag.modulate.a = 0.0
+	ScreenReader.name(tag, "New: %s" % TableCards.NAMES[card], TableCards.LINES[card])
+	return tag
 
 
 ## One side of [param card], the size of a card, its picture shrunk to fit.
@@ -347,3 +494,22 @@ static func bar() -> ProgressBar:
 	made.add_theme_stylebox_override("background", looks[0])
 	made.add_theme_stylebox_override("fill", looks[1])
 	return made
+
+
+## A card of the table's face in the hand, the size of a card, GAME.md 8.6; edged in the neon's
+## magenta where it is new to the player.
+class TableFace:
+	extends Control
+
+	var card := 0
+	var fresh := false
+
+	func _draw() -> void:
+		var box := Rect2(Vector2.ZERO, size)
+		if fresh:
+			var edge := StyleBoxFlat.new()
+			edge.bg_color = LoadingScreen.NEW_INK
+			edge.set_corner_radius_all(roundi(size.x * TableCardArt.CORNER) + 6)
+			edge.anti_aliasing = true
+			draw_style_box(edge, box.grow(7.0))
+		TableCardArt.face(self, box, card)

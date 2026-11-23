@@ -188,6 +188,7 @@ func styles() -> Array:
 func rules(base: MatchRules, rng: RandomNumberGenerator = null) -> MatchRules:
 	var copy: MatchRules = base.duplicate()
 	copy.table = TableCards.ALL if final_hand else TableCards.playable(table_dealt(rng))
+	copy.dealt = roulette and not final_hand
 	# A card off switches off what it is in the rules, GAME.md 3.17, as a showdown does: no pick on
 	# coming back and none thrown onto the floor without Jokers, no price on anybody without Bounty.
 	if not copy.has_card(TableCards.Card.JOKERS):

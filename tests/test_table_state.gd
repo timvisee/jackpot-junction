@@ -132,3 +132,28 @@ func test_a_map_played_opens_a_card_on_the_slip() -> void:
 	assert_str(page.heading.text).is_equal("Compliments of the House")
 	assert_bool(page.fill(0)).is_false()
 	Game.settings = settings_were
+
+
+## A match's loading screen deals the table, GAME.md 8.6: a card for each card on it, face down,
+## turned up as the room goes up, the one new to the player slid out and named under the bar.
+func test_the_loading_screen_deals_the_table() -> void:
+	var settings_were := Game.settings
+	Game.settings = _settings()
+	Game.settings.profile.table.fresh = TableCards.bit(TableCards.Card.FLUSH)
+	var screen := LoadingScreen.new()
+	screen.table = TableCards.opened_by(3)
+	LoadingScreen.add_to(self, "Lucky Crossing", null, screen)
+	assert_int(screen._cards.size()).is_equal(4)
+	assert_int(screen._new_card).is_equal(TableCards.Card.FLUSH)
+	assert_object(screen._new_tag).is_not_null()
+	assert_bool(screen._faces[0].visible).is_false()
+	screen._turn_up(1.0)
+	await get_tree().create_timer(LoadingScreen.LINGER * 2.0).timeout
+	for face: Control in screen._faces:
+		assert_bool(face.visible).is_true()
+	var plain := LoadingScreen.add_to(self, "Garage")
+	assert_int(plain._cards.size()).is_equal(LoadingScreen.FAN)
+	assert_object(plain._new_tag).is_null()
+	screen.free()
+	plain.free()
+	Game.settings = settings_were
