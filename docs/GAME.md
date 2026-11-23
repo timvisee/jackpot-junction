@@ -10917,9 +10917,18 @@ in hand, or none with Steam's overlay off. The switch stops or starts the readin
 ++ --no-steam-input`. Off, Steam still keeps a controller it reads for the game from the engine, on
 the game's layout, so a player turning it off also picks a gamepad layout for the game in Steam, or
 turns Steam Input off for it in its Steam properties, as the switch's tip says. Steam Input is
-never started without Steam, so a GitHub build is as it was. Hints draw the button the game binds
-an action to, which on the starting layouts is the one Steam has it on; a layout changed in Steam
-is not drawn as changed yet, Steam saying which of its buttons each action is on for when it is.
+never started without Steam, so a GitHub build is as it was.
+
+**Hints.** A hint for a controller Steam Input reads, pinned to it or following it as the pad
+touched last, draws each action where Steam has it bound on that controller (`SteamPads.place`):
+Steam says which of the controller's buttons the action is on, translated to an Xbox One pad's, and
+one that is the very same button there, A or a shoulder or a stick, is drawn as the game draws a
+pad's own, in the controller's family, 8.3, a stick pushed the way the action goes. A button in
+front comes before one behind. What a pad has not got, a back button, a trackpad, the gyro, is
+Steam's own picture of it, white on black, or Steam's name for it on a pill where Steam has no
+picture; a trackpad set to be a stick is the trackpad, Steam translating it as the stick it is
+nearest only. Steam is asked again as a layout loads and every second and a half, so a layout
+changed in Steam's settings is drawn as changed on the way back.
 
 #### A supporter pack
 

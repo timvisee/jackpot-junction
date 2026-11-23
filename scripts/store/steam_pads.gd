@@ -29,6 +29,52 @@ const BUILT_MANIFEST := "steam_input/action_manifest.vdf"
 const UP_IS_MORE := true
 ## How far a stick or trigger moves before the game hears it again, so a held stick says nothing.
 const STIR := 0.002
+## Steam's type of an Xbox One pad, whose buttons every other controller's are told as, and the
+## style of Steam's own pictures of a button: white on black, as the game's own hints are dark.
+const XBOX_ONE := 3
+const GLYPH_DARK := 2
+## How tall Steam's pictures are made, and how often the bindings drawn are asked of Steam again,
+## for a layout changed in Steam's settings.
+const PICTURE_TALL := 64.0
+const LOOK_AGAIN_MS := 1500
+## An Xbox One pad's buttons as Steam names them, its `InputActionOrigin`, by the engine's button
+## each is: the four under the thumb, the shoulders, Menu and View, the stick clicks and the D-pad.
+const XBOX_BUTTONS: Dictionary[int, JoyButton] = {
+	114: JOY_BUTTON_A,
+	115: JOY_BUTTON_B,
+	116: JOY_BUTTON_X,
+	117: JOY_BUTTON_Y,
+	118: JOY_BUTTON_LEFT_SHOULDER,
+	119: JOY_BUTTON_RIGHT_SHOULDER,
+	120: JOY_BUTTON_START,
+	121: JOY_BUTTON_BACK,
+	127: JOY_BUTTON_LEFT_STICK,
+	133: JOY_BUTTON_RIGHT_STICK,
+	138: JOY_BUTTON_DPAD_UP,
+	139: JOY_BUTTON_DPAD_DOWN,
+	140: JOY_BUTTON_DPAD_LEFT,
+	141: JOY_BUTTON_DPAD_RIGHT,
+}
+## Its sticks and triggers moved, by the engine's axes: a stick's across and up, a trigger's own,
+## pulled or clicked; and a stick pushed one way as a button, by the axis and the way.
+const XBOX_AXES: Dictionary[int, Array] = {
+	122: [JOY_AXIS_TRIGGER_LEFT],
+	123: [JOY_AXIS_TRIGGER_LEFT],
+	124: [JOY_AXIS_TRIGGER_RIGHT],
+	125: [JOY_AXIS_TRIGGER_RIGHT],
+	126: [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y],
+	132: [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y],
+}
+const XBOX_PUSHES: Dictionary[int, Array] = {
+	128: [JOY_AXIS_LEFT_Y, -1.0],
+	129: [JOY_AXIS_LEFT_Y, 1.0],
+	130: [JOY_AXIS_LEFT_X, -1.0],
+	131: [JOY_AXIS_LEFT_X, 1.0],
+	134: [JOY_AXIS_RIGHT_Y, -1.0],
+	135: [JOY_AXIS_RIGHT_Y, 1.0],
+	136: [JOY_AXIS_RIGHT_X, -1.0],
+	137: [JOY_AXIS_RIGHT_X, 1.0],
+}
 
 ## The one running, or null; for the settings, to show Steam's own controller settings.
 static var running: SteamPads
@@ -54,6 +100,11 @@ var _sent := false
 ## Whether to print what Steam says, `++ --pads`, and which way each stick was last told pushed.
 var _told := false
 var _pushed: Dictionary[String, String] = {}
+## By pad, where Steam has each action asked about bound, see [method place]: the origins and how
+## they are drawn; Steam's pictures, by origin; and when the bindings were last asked again.
+var _places: Dictionary[int, Dictionary] = {}
+var _pictures: Dictionary[int, Texture2D] = {}
+var _looked := 0
 
 
 func _init(steam_api: Object) -> void:
@@ -87,6 +138,7 @@ func _enter_tree() -> void:
 		if api.has_signal(wiring[0]) and not api.is_connected(wiring[0], wiring[1]):
 			api.connect(wiring[0], wiring[1])
 	DeviceInput.steam_rumble = rumble
+	DeviceInput.steam_place = place
 	# Read after Steam's own callbacks, which GodotSteam runs on the same signal, and before any node
 	# of the game's is processed, so a press is heard the frame Steam has it.
 	get_tree().process_frame.connect(poll)
@@ -109,6 +161,8 @@ func _exit_tree() -> void:
 			api.disconnect(wiring[0], wiring[1])
 	if DeviceInput.steam_rumble == rumble:
 		DeviceInput.steam_rumble = Callable()
+	if DeviceInput.steam_place == place:
+		DeviceInput.steam_place = Callable()
 	InputActions.forget_chords()
 	if running == self:
 		running = null
@@ -123,6 +177,8 @@ func poll() -> void:
 		_read_buttons(handle, _devices[handle])
 		_read_sticks(handle, _devices[handle])
 	_flush()
+	if Time.get_ticks_msec() - _looked >= LOOK_AGAIN_MS:
+		look_again()
 
 
 ## Steam's own settings for the layout of the controller [param device] is, GAME.md 10.8, or of the
@@ -144,6 +200,110 @@ func show_layout(device := DeviceInput.ANY) -> bool:
 ## Whether any controller of Steam's is here.
 func any() -> bool:
 	return not _devices.is_empty()
+
+
+## How a hint draws [param action] for the pad [param device], GAME.md 10.8, as Steam has it bound
+## there: `event`, the pad's own button, stick or trigger it is on, drawn as the game draws a pad's;
+## or `picture`, Steam's own, and `word`, Steam's name for it, for what a pad has not got, a back
+## button, a trackpad, the gyro. Of several, a pad's own first. Empty for a pad not Steam's, before
+## Steam has the manifest, and for an action Steam has on nothing.
+func place(action: StringName, device: int) -> Dictionary:
+	if not _handles.has(device) or not _ready_handles():
+		return {}
+	var known: Dictionary = _places[device]
+	if not known.has(action):
+		var origins := _origins_of(action, device)
+		known[action] = [origins, _place_of(action, device, origins)]
+	return known[action][1]
+
+
+## Asks Steam again where every action drawn is bound, and has every hint drawn again if anything
+## moved, as when the player changed a layout in Steam's settings.
+func look_again() -> void:
+	_looked = Time.get_ticks_msec()
+	for device: int in _places:
+		for action: StringName in _places[device]:
+			if _origins_of(action, device) != _places[device][action][0]:
+				_forget_places()
+				return
+
+
+func _forget_places() -> void:
+	for device: int in _places:
+		_places[device] = {}
+	PadFamily.epoch += 1
+
+
+## The origins Steam has [param action] on, on the pad [param device]: its stick's or trigger's
+## where it is one of those, else its button's.
+func _origins_of(action: StringName, device: int) -> Array:
+	var handle := _handles[device]
+	var origins: Array = []
+	var analog := SteamActions.analog_of(action)
+	var analog_handle: int = _sticks.get(analog, _triggers.get(analog, 0))
+	if analog_handle != 0:
+		origins = api.call(&"getAnalogActionOrigins", handle, _set, analog_handle)
+	if origins.is_empty() and _buttons.get(action, 0) != 0:
+		origins = api.call(&"getDigitalActionOrigins", handle, _set, _buttons[action])
+	return origins
+
+
+func _place_of(action: StringName, device: int, origins: Array) -> Dictionary:
+	if origins.is_empty():
+		return {}
+	var type := int(api.call(&"getInputTypeForHandle", _handles[device]))
+	for origin: int in origins:
+		var event := _event_of(origin, type, action, device)
+		if event != null:
+			return {"event": event}
+	var first := int(origins[0])
+	var picture := _picture(first)
+	var word := str(api.call(&"getStringForActionOrigin", first))
+	if picture == null and word.is_empty():
+		return {}
+	return {"picture": picture, "word": word}
+
+
+## Steam's [param origin], of a controller of Steam's [param type], as the pad's own button, stick
+## or trigger of [param device] it is, moved the way [param action] goes; null for one a pad has not
+## got. Only the very one: a trackpad set to be a stick, which Steam translates as the stick it is
+## nearest, is not the stick.
+func _event_of(origin: int, type: int, action: StringName, device: int) -> InputEvent:
+	var xbox := int(api.call(&"translateActionOrigin", XBOX_ONE, origin))
+	if int(api.call(&"translateActionOrigin", type, xbox)) != origin:
+		return null
+	if XBOX_BUTTONS.has(xbox):
+		return _button(device, XBOX_BUTTONS[xbox], true)
+	if XBOX_PUSHES.has(xbox):
+		return _motion(device, XBOX_PUSHES[xbox][0], XBOX_PUSHES[xbox][1])
+	return _axis_event(xbox, action, device)
+
+
+## An Xbox One pad's stick or trigger [param xbox] moved the way [param action] goes, or null.
+static func _axis_event(xbox: int, action: StringName, device: int) -> InputEvent:
+	var axes: Array = XBOX_AXES.get(xbox, [])
+	if axes.size() < 2:
+		return null if axes.is_empty() else _motion(device, axes[0], 1.0)
+	var way := SteamActions.way_of(action)
+	if way.y != 0.0:
+		return _motion(device, axes[1], way.y)
+	return _motion(device, axes[0], way.x if way.x != 0.0 else 1.0)
+
+
+## Steam's own picture of [param origin], white on black, or null where Steam has none.
+func _picture(origin: int) -> Texture2D:
+	if _pictures.has(origin):
+		return _pictures[origin]
+	var path := str(api.call(&"getGlyphSVGForActionOrigin", origin, GLYPH_DARK))
+	var bytes := FileAccess.get_file_as_bytes(path) if not path.is_empty() else PackedByteArray()
+	var picture: Texture2D = null
+	var image := Image.new()
+	if not bytes.is_empty() and image.load_svg_from_buffer(bytes) == OK and image.get_height() > 0:
+		image.load_svg_from_buffer(bytes, PICTURE_TALL / image.get_height())
+		image.generate_mipmaps()
+		picture = ImageTexture.create_from_image(image)
+	_pictures[origin] = picture
+	return picture
 
 
 ## Knocks the pad [param device], see [method DeviceInput.rumble]: Steam's left motor is the heavy
@@ -192,6 +352,7 @@ func _on_connected(handle: int) -> void:
 	_held[device] = {}
 	_presses[device] = []
 	_axes[device] = {}
+	_places[device] = {}
 	var type := int(api.call(&"getInputTypeForHandle", handle))
 	DeviceInput.steam_pads[device] = PadFamily.STEAM_TYPES.get(type, PadFamily.Family.GENERIC)
 	if _told:
@@ -214,6 +375,7 @@ func _on_disconnected(handle: int) -> void:
 	_held.erase(device)
 	_presses.erase(device)
 	_axes.erase(device)
+	_places.erase(device)
 	DeviceInput.steam_pads.erase(device)
 	if _told:
 		print("Steam Input: controller %d, pad %d, gone" % [handle, device])
@@ -221,9 +383,10 @@ func _on_disconnected(handle: int) -> void:
 
 
 ## A controller's layout was loaded again, as when the player changed it in Steam: the handles are
-## asked for again.
+## asked for again, and where each action is bound.
 func _on_configuration_loaded(_app: int, _handle: int, _data: Dictionary = {}) -> void:
 	_set = 0
+	_forget_places()
 
 
 ## The button actions held on [param handle], pressed and let go on its pad [param device].

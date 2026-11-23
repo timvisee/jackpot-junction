@@ -246,12 +246,22 @@ static func shapes(family: Family) -> bool:
 	return family in [Family.PLAYSTATION, Family.PLAYSTATION_4]
 
 
-## The pad [param device] was just touched, see [method DeviceInput.touched].
+## The pad the player touched last, or -1 before any.
+static func last_pad() -> int:
+	return _last_pad
+
+
+## The pad [param device] was just touched, see [method DeviceInput.touched]. One of Steam Input's,
+## or one after it, has every hint drawn again: each such pad has its actions where its own layout
+## in Steam puts them, GAME.md 10.8.
 static func touched(device: int) -> void:
 	if device < 0 or device == _last_pad:
 		return
+	var steam := DeviceInput.steam_pads.has(device) or DeviceInput.steam_pads.has(_last_pad)
 	_last_pad = device
 	_look_again()
+	if steam:
+		epoch += 1
 
 
 ## Each pad plugged in as the engine and Steam tell of it, for `++ --pads`: what to send in where a

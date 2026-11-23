@@ -26,6 +26,11 @@ var manifest := ""
 var knocks: Array[Array] = []
 ## Whether Steam's overlay puts its controller settings up.
 var panel_shows := true
+## Each origin as Steam translates it to an Xbox One pad's, which an Xbox pad's own are already;
+## Steam's picture of an origin, by the file, and its name for it.
+var xbox_of: Dictionary[int, int] = {}
+var pictures: Dictionary[int, String] = {}
+var words: Dictionary[int, String] = {}
 
 
 ## Knows the game's manifest: a handle for the set and for each of [param names], from 1.
@@ -93,6 +98,31 @@ func getDigitalActionOrigins(
 	_input_handle: int, _action_set_handle: int, digital_action_handle: int
 ) -> Array:
 	return origins.get(_named(digital_action_handle), [])
+
+
+func getAnalogActionOrigins(
+	_input_handle: int, _action_set_handle: int, analog_action_handle: int
+) -> Array:
+	return origins.get(_named(analog_action_handle), [])
+
+
+## An origin to an Xbox One pad's, see [member xbox_of], and back to any other controller's: the
+## first origin translated to it, or itself.
+func translateActionOrigin(destination_input: int, source_origin: int) -> int:
+	if destination_input == SteamPads.XBOX_ONE:
+		return xbox_of.get(source_origin, source_origin)
+	for origin: int in xbox_of:
+		if xbox_of[origin] == source_origin:
+			return origin
+	return source_origin
+
+
+func getGlyphSVGForActionOrigin(origin: int, _flags: int) -> String:
+	return pictures.get(origin, "")
+
+
+func getStringForActionOrigin(origin: int) -> String:
+	return words.get(origin, "")
 
 
 func showBindingPanel(input_handle: int) -> bool:
