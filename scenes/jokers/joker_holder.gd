@@ -142,7 +142,8 @@ func _restack() -> void:
 		seen[joker.id] = true
 	for stand_in: Joker in stand_ins:
 		stand_in.held = copies[stand_in.id]
-	made = JokerHands.of(jokers)
+	# A table without Suits & hands makes no hand of them, GAME.md 3.17.
+	made = JokerHands.of(jokers) if _suits_on() else JokerHands.Made.new()
 	suited = made.suited
 	if _kart != null and not _kart.puppet:
 		for suit: int in suited:
@@ -171,6 +172,11 @@ func _restack() -> void:
 		var bonus := HandBonus.of(hand)
 		if bonus != null:
 			in_play.append(bonus)
+
+
+## Whether the table plays Suits & hands, GAME.md 3.17: always where there is no match to ask.
+func _suits_on() -> bool:
+	return _kart == null or _kart.rules == null or _kart.rules.has_card(TableCards.Card.SUITS)
 
 
 ## Pays [param chips] chips into the pot for [param payer], one of the hand's jokers, GAME.md 7.3,

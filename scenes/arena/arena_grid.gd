@@ -103,6 +103,9 @@ var flush_pads: Array[Vector2i] = []
 var targets: Array[Vector2i] = []
 var joker_pads: Array[Vector2i] = []
 var slot_pads: Array[Vector2i] = []
+## Whether the map stands its casino on the rail, GAME.md 3.15: a map with slot machines, whether
+## or not they are on the table this match, 3.17, the rail being the room's and not the card's.
+var slot_rail := false
 var portals: Array[Vector2i] = []
 var turbo_pads: Array[Vector2i] = []
 var crates: Array[Vector2i] = []

@@ -1259,6 +1259,31 @@ runaway game back without ever handing the win to whoever is behind:
 This sits on top of the comeback already in the game — the bounty itself, Last Call's doubled payout,
 and the Comeback joker — rather than replacing any of it.
 
+### 3.17 The table
+
+Play-testers found too much going on in their first matches. So the features a match can do without
+are cards on the table, each a playing card in the House's print, face up for on and face down for
+off, and a match plays with the ones dealt to it. The core of the game is no card: driving and
+nitro, the cannon, chips and the pot, the mult, the Junction, two lives, crates, targets, pits,
+turbo pads and Last Call are always on.
+
+| Card          | What it is                                   | Off, the match has                                                   |
+|---------------|----------------------------------------------|----------------------------------------------------------------------|
+| Power-ups     | The item pads of 7.1                         | No item pads on the floor, so nothing to hold and nothing to use     |
+| Jackpot       | The Jackpot zones of 3.5                     | Both Jackpot tiles plain floor                                       |
+| Jokers        | The pick on coming back and the hand, 3.7     | No pick, no hand, no cards on the floor: none from a death and none thrown out by a hot table, 3.11 |
+| Royal Flush   | The four suit pads of 3.9                     | The four pads plain floor                                            |
+| Room tricks   | A room's own pieces of 6.2: pop bumpers, live cabinets, conveyor belts, magnets, sewing needles, wind-up toys and laser tripwires | Each of them plain floor |
+| Slot machines | The machines in the floor of 3.15             | No machines in the floor; the casino on the far rail still stands, being the room's, and still lights for a big cash-out |
+| Bounty        | The price on a runaway leader, 3.10           | No bounty, and no tripwire, whose beam calls one                     |
+| Suits & hands | Suited and the hands of 7.3                   | Jokers without suits: no Suited, no hands, no pay table on the hand's key, no lean of the pick toward a suit, and no Flush Draw in the deck, a card that only bends the suits |
+
+Suits & hands are nothing without Jokers, so a table without Jokers has neither. A card that is off
+takes its pieces off the map before the room is built: each is a glyph of 6.3, and the glyph is
+made floor, so the bots and the camera never meet what is not there. The table goes over the wire
+with the rest of the rules, so a client builds the same floor and draws the same hand. The Final
+Hand of STORY.md 8 plays every card.
+
 ## 4. Kart
 
 ### 4.1 Handling

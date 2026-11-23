@@ -2,6 +2,10 @@ class_name MatchConfig
 extends RefCounted
 ## What the lobby hands to the match scene: who plays, how many bots, how hard, how long.
 
+## An excitement level no match reaches, for the floor jokers of a table without Jokers, GAME.md
+## 3.17, as a showdown has it.
+const UNDEALT := 1 << 20
+
 ## Devices of the human players, see [DeviceInput]. One human on any device by default.
 var human_devices: Array[int] = [DeviceInput.ANY]
 ## Color index per human, in the same order; empty means slot order.
@@ -59,6 +63,12 @@ var friendly_fire := false
 ## Whether rubber banding is on, GAME.md 3.16: players behind the leader earn coins faster, pull
 ## stronger items and draw a sooner bounty onto the leader. On by default, see [CatchUp].
 var catch_up := true
+## The cards on the table, GAME.md 3.17, see [TableCards]: those a match plays with, or with
+## [member roulette] the deck each map's are dealt from.
+var table := TableCards.ALL
+## Whether each map deals its own cards from [member table], the Roulette preset of 9.6, rather
+## than playing them all.
+var roulette := false
 ## How many jokers a hand holds, GAME.md 3.7.
 var joker_slots := 5
 ## Whether this is the story's Final Hand, STORY.md 8, set by the House rather than chosen, see
@@ -174,8 +184,17 @@ func styles() -> Array:
 	return result
 
 
-func rules(base: MatchRules) -> MatchRules:
+## [param rng] deals a Roulette table, 3.17; the host's own when none is given.
+func rules(base: MatchRules, rng: RandomNumberGenerator = null) -> MatchRules:
 	var copy: MatchRules = base.duplicate()
+	copy.table = TableCards.ALL if final_hand else TableCards.playable(table_dealt(rng))
+	# A card off switches off what it is in the rules, GAME.md 3.17, as a showdown does: no pick on
+	# coming back and none thrown onto the floor without Jokers, no price on anybody without Bounty.
+	if not copy.has_card(TableCards.Card.JOKERS):
+		copy.offer_jokers = false
+		copy.wild_joker_level = UNDEALT
+	if not copy.has_card(TableCards.Card.BOUNTY):
+		copy.bounties = false
 	copy.duration = duration
 	copy.target_score = target_score if target_score > 0 else 1 << 30
 	copy.own_bullets_hurt = own_bullets_hurt
@@ -188,6 +207,17 @@ func rules(base: MatchRules) -> MatchRules:
 	copy.max_players = seats
 	copy.final_hand = final_hand
 	return copy
+
+
+## The cards this map is played with, GAME.md 3.17: [member table], or with [member roulette] a
+## deal from it, drawn with [param rng].
+func table_dealt(rng: RandomNumberGenerator = null) -> int:
+	if not roulette:
+		return table
+	if rng == null:
+		rng = RandomNumberGenerator.new()
+		rng.randomize()
+	return TableCards.deal(table, rng)
 
 
 ## How many karts the arena starts with: everybody here, everybody kept a seat from elsewhere, and

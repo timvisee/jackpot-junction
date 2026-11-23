@@ -251,7 +251,12 @@ static func deal_table(match_node: Match, items: PowerUpTable, dedicated: bool) 
 	var catalog: JokerCatalog = match_node.joker_catalog
 	if catalog == null:
 		catalog = load("res://data/jokers/catalog.tres")
-	match_node.joker_catalog = catalog.dealing(deck_from(table, catalog))
+	var deck := deck_from(table, catalog)
+	# A card that is only a suit's is no card at a table without Suits & hands, GAME.md 3.17.
+	if match_node.rules != null and not match_node.rules.has_card(TableCards.Card.SUITS):
+		for id: StringName in TableCards.SUITS_ONLY:
+			deck.erase(id)
+	match_node.joker_catalog = catalog.dealing(deck)
 
 
 ## Tells the host this machine is a client of what its program has added, after a settling that

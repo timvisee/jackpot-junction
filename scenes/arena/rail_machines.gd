@@ -63,7 +63,7 @@ var _jar_chips := 0
 
 ## Puts the row on [param arena]'s far rail, should its map have slot machines.
 static func add_to(arena: Arena) -> void:
-	if arena.grid == null or arena.grid.slot_pads.is_empty():
+	if arena.grid == null or (arena.grid.slot_pads.is_empty() and not arena.grid.slot_rail):
 		return
 	var machines := RailMachines.new()
 	machines.name = "RailMachines"

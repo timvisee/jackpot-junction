@@ -184,6 +184,9 @@ func _ready() -> void:
 	add_child(_detail)
 	_build_count()
 	_build_suited()
+	# No pay table of the hands at a table without Suits & hands, GAME.md 3.17.
+	if kart != null and kart.rules != null and not kart.rules.has_card(TableCards.Card.SUITS):
+		pay_table = false
 	Events.joker_went_off.connect(_on_went_off)
 	Events.joker_used_up.connect(_on_used_up)
 

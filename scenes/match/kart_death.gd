@@ -195,7 +195,7 @@ static func _pay_killer(match_node: Match, cause: StringName, killer: PlayerSlot
 ## see [method _bot_pick].
 static func _offer(match_node: Match, slot: PlayerSlot) -> JokerOffer:
 	var kart := slot.kart
-	var lead := JokerSuits.leading(kart.jokers.jokers)
+	var lead := JokerSuits.lean(kart)
 	var choices := match_node.joker_catalog.offer(
 		match_node.rng, kart.offer_count(match_node.offer_size), kart.jokers.ids(), lead
 	)

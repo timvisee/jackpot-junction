@@ -34,6 +34,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"team_size",
 	&"final_hand",
 	&"catch_up",
+	&"table",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -226,6 +227,10 @@ static var no_countdown := false
 @export var hurt_protection := 1.2
 
 @export_group("Match")
+## The cards on the table, GAME.md 3.17, a bit for each of [enum TableCards.Card]: the features the
+## match plays with, everything else being the core of it. On the wire, so a client builds the same
+## floor and draws the same hand; a card that is off is off on every machine.
+@export var table := TableCards.ALL
 ## Which arena the match is played in, GAME.md 6.3. One of [constant ArenaMaps.IDS].
 @export var map := &"lucky_crossing"
 ## Whether the match runs against a clock. The Garage in 9.4 turns it off: no timer, no Last
@@ -260,6 +265,11 @@ var team_size := 1
 ## Whether this is the story's Final Hand, STORY.md 8, told a client with the rest, so that every
 ## screen at it plays it, each for its own player, 8.1.
 var final_hand := false
+
+
+## Whether [param card], one of [enum TableCards.Card], is on the table, GAME.md 3.17.
+func has_card(card: int) -> bool:
+	return TableCards.has(table, card)
 
 
 ## Whether this is a showdown, GAME.md 9.7a: a match on the showdown's map. Said here rather than

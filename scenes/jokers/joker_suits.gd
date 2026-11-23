@@ -128,6 +128,14 @@ static func leading(jokers: Array[Joker]) -> int:
 	return best
 
 
+## The suit a pick for [param kart] leans toward, GAME.md 7.3: the one its hand holds most of, or
+## -1 at a table without Suits & hands, 3.17, where a suit is only a corner of a card.
+static func lean(kart: Kart) -> int:
+	if kart.rules != null and not kart.rules.has_card(TableCards.Card.SUITS):
+		return -1
+	return leading(kart.jokers.jokers)
+
+
 ## The suits [param jokers] is Suited in, GAME.md 7.3: three of one, or as many as a joker in it
 ## says, the wild cards joining the suit held most of so that they count once.
 static func suited(jokers: Array[Joker]) -> Array[int]:

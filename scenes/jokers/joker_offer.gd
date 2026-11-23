@@ -180,7 +180,7 @@ func reroll(index: int) -> bool:
 	for card: Joker in choices:
 		for i: int in NOT_AGAIN:
 			held.append(card.id)
-	var lean := JokerSuits.leading(_kart.jokers.jokers)
+	var lean := JokerSuits.lean(_kart)
 	var dealt := table.joker_catalog.offer(table.rng, 1, held, lean)
 	if dealt.is_empty():
 		return false

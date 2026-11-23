@@ -17,6 +17,10 @@ extends Resource
 ## map is somewhere of its own in a room it shares, as the waiting room of 9.6 is in the Garage.
 ## None to wear the room's.
 @export var emblem: Texture2D
+## The glyphs this match takes off the floor, made floor as the grid is parsed: the pieces of the
+## cards off the table, GAME.md 3.17, see [method TableCards.glyphs_off]. Set on a copy for the
+## match, never on the map itself.
+var cleared := ""
 
 
 ## Non-empty lines of the grid with surrounding whitespace removed.
@@ -59,7 +63,8 @@ func parse() -> ArenaGrid:
 	assert(problems.is_empty(), "invalid arena layout: %s" % ", ".join(problems))
 	var result := ArenaGrid.new()
 	result.cell_size = cell_size
-	result.rows = lines()
+	result.rows = TableCards.clear_grid(lines(), cleared)
+	result.slot_rail = ArenaGrid.SLOT_PAD in grid
 	result.height = result.rows.size()
 	result.width = result.rows[0].length()
 	_collect_elements(result)

@@ -60,10 +60,15 @@ static func layout(id: StringName) -> ArenaLayout:
 static func layout_for(rules: MatchRules) -> ArenaLayout:
 	var own := layout(rules.map)
 	var path := "res://data/rooms/%s.tres" % String(rules.room)
-	if rules.room == &"" or not ResourceLoader.exists(path):
+	var dressing := rules.room != &"" and ResourceLoader.exists(path)
+	# The cards off the table take their pieces off the floor, GAME.md 3.17.
+	var off := TableCards.glyphs_off(rules.table)
+	if not dressing and off.is_empty():
 		return own
 	var dressed: ArenaLayout = own.duplicate()
-	dressed.room = load(path)
+	if dressing:
+		dressed.room = load(path)
+	dressed.cleared = off
 	return dressed
 
 
