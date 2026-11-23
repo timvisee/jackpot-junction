@@ -1278,7 +1278,8 @@ turbo pads and Last Call are always on.
 | Bounty        | The price on a runaway leader, 3.10           | No bounty, and no tripwire, whose beam calls one                     |
 | Suits & hands | Suited and the hands of 7.3                   | Jokers without suits: no Suited, no hands, no pay table on the hand's key, no lean of the pick toward a suit, and no Flush Draw in the deck, a card that only bends the suits |
 
-Suits & hands are nothing without Jokers, so a table without Jokers has neither. A card that is off
+Suits & hands are nothing without Jokers, so a table without Jokers has neither, and turning Suits &
+hands up in the match settings turns Jokers up with them. A card that is off
 takes its pieces off the map before the room is built: each is a glyph of 6.3, and the glyph is
 made floor, so the bots and the camera never meet what is not there. The table goes over the wire
 with the rest of the rules, so a client builds the same floor and draws the same hand. The Final
@@ -6896,7 +6897,7 @@ That is the whole floor in eight maps, about an evening. It is counted off the m
 statistics hold, so a profile from before the table opened what its maps had played, and is told
 of none of them, having met them all already. The later items and the twenty later jokers stay
 with the loyalty program, 8.9. A card can be opened early from the match settings, 9.6; it stays
-opened. What the profile has opened, turned down, opened early and been told of is kept with it,
+opened. Suits & hands opened early open Jokers with them, the question saying so. What the profile has opened, turned down, opened early and been told of is kept with it,
 in a section of its own (`TableState`).
 
 **The coupon.** A card is told on the payout slip of the map that opened it, 3.8, as a page of its
@@ -8860,8 +8861,8 @@ somebody new who never touches the settings plays each card from the map after i
 felt headed ON THE TABLE in foil, a card each in their order, `TableStrip`: face up, the House's
 cream with the card's picture and its name, for on, and face down, in the card back the player
 wears, 8.9, for off. A press turns one over, narrowing to its edge and widening on its other side,
-and lights Custom. Suits & hands lie grayed while Jokers are down and do not turn; turning Jokers
-down turns them down too. A card the House has not opened yet, 8.9a, is sealed: its face grayed
+and lights Custom. Suits & hands turned up with Jokers down turn Jokers up with them, both cards
+turning over; turning Jokers down turns Suits & hands down too. A card the House has not opened yet, 8.9a, is sealed: its face grayed
 under a padlock and a gold band along its foot, AFTER MAP 5. Pressed, it asks first, the round blue
 sign's question, "Open Slot machines early?", what the card does and that it stays opened, with
 Open it and Not now, the cursor on not; opened, it comes face up. A card opened and not yet played

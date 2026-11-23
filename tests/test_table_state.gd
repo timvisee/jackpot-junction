@@ -46,6 +46,15 @@ func test_a_card_turned_down_stays_down() -> void:
 	assert_int(profile.table_set()).is_equal(TableCards.FIRST)
 
 
+## Suits & hands opened early open Jokers with them, GAME.md 3.17.
+func test_suits_open_early_with_jokers() -> void:
+	var profile := _settings().profile
+	profile.table.off = TableCards.bit(TableCards.Card.JOKERS)
+	profile.table.open_early(TableCards.Card.SUITS)
+	assert_bool(TableCards.has(profile.table_set(), TableCards.Card.SUITS)).is_true()
+	assert_bool(TableCards.has(profile.table_set(), TableCards.Card.JOKERS)).is_true()
+
+
 ## Opened early, a card is opened, face up and never on a coupon.
 func test_a_card_opened_early() -> void:
 	var profile := _settings().profile

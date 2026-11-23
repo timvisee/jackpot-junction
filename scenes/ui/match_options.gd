@@ -344,14 +344,15 @@ func show(config: MatchConfig) -> void:
 
 
 ## Opens [param card] for the profile choosing before the House would have, GAME.md 8.9a, and turns
-## it face up on the table or into the deck.
+## it face up on the table or into the deck, Suits & hands with Jokers.
 func open_early(card: int) -> void:
 	var profile := Game.settings.profile
 	profile.table.open_early(card)
 	var opened := profile.table_opened()
-	table_strip.set_table(
-		table_strip.table | TableCards.bit(card), table_strip.roulette, opened, profile.table.fresh
-	)
+	var up := TableCards.bit(card)
+	if card == TableCards.Card.SUITS:
+		up |= TableCards.bit(TableCards.Card.JOKERS)
+	table_strip.set_table(table_strip.table | up, table_strip.roulette, opened, profile.table.fresh)
 	_refresh()
 
 

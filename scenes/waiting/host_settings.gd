@@ -207,11 +207,18 @@ func _ask_open(card: int) -> void:
 		_middle.add_child(_confirm)
 	_asking = card
 	var named := TableCards.NAMES[card]
+	var opened := options.table_strip.opened
+	# Suits & hands come with Jokers, GAME.md 3.17, opened with them where they are not yet.
+	var with_jokers := (
+		" Jokers open with it."
+		if card == TableCards.Card.SUITS and not TableCards.has(opened, TableCards.Card.JOKERS)
+		else ""
+	)
 	_confirm.ask(
 		"Open %s early?" % named,
 		(
-			"The House opens it after map %d by itself. %s Opened, it stays open."
-			% [TableCards.opens_after(card), TableCards.LINES[card]]
+			"The House opens it after map %d by itself. %s%s Opened, it stays open."
+			% [TableCards.opens_after(card), TableCards.LINES[card], with_jokers]
 		),
 		"Open it",
 		"Not now",

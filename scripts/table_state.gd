@@ -38,12 +38,16 @@ func table(maps: float) -> int:
 
 
 ## Opens [param card] before the House would have, from the match settings, 3.17: told already,
-## by the asking, and so never on a coupon.
+## by the asking, and so never on a coupon. Suits & hands bring Jokers with them, being nothing
+## without them.
 func open_early(card: int) -> void:
-	early |= TableCards.bit(card)
-	told |= TableCards.bit(card)
-	off &= ~TableCards.bit(card)
-	fresh |= TableCards.bit(card)
+	var cards := TableCards.bit(card)
+	if card == TableCards.Card.SUITS:
+		cards |= TableCards.bit(TableCards.Card.JOKERS)
+	early |= cards
+	told |= cards
+	off &= ~cards
+	fresh |= cards
 
 
 ## The cards opened by [param maps] maps that the House has not told of yet, now told, see

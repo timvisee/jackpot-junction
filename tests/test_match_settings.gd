@@ -387,9 +387,9 @@ func _key(code: Key) -> InputEventKey:
 	return key
 
 
-## The cards on the table, GAME.md 3.17 and 9.6: a press turns one over and lights Custom, Suits &
-## hands lie grayed without Jokers, whose rows go with them, and what was turned is kept with the
-## profile.
+## The cards on the table, GAME.md 3.17 and 9.6: a press turns one over and lights Custom, Jokers
+## down take Suits & hands and the jokers' rows with them, Suits & hands up bring Jokers back, and
+## what was turned is kept with the profile.
 func test_the_cards_on_the_table() -> void:
 	var pane := _pane()
 	var options := pane.options
@@ -404,9 +404,10 @@ func test_the_cards_on_the_table() -> void:
 	assert_bool(options._slots_row.visible).is_false()
 	assert_str(options.rules_fold._lines[0].text).not_contains("jokers")
 	strip.button(TableCards.Card.SUITS).pressed.emit()
-	assert_bool(TableCards.has(strip.table, TableCards.Card.SUITS)).is_false()
-	strip.button(TableCards.Card.JOKERS).pressed.emit()
-	strip.button(TableCards.Card.SUITS).pressed.emit()
+	assert_bool(TableCards.has(strip.table, TableCards.Card.SUITS)).is_true()
+	assert_bool(TableCards.has(strip.table, TableCards.Card.JOKERS)).is_true()
+	assert_bool(strip.button(TableCards.Card.JOKERS).up).is_true()
+	assert_bool(options._slots_row.visible).is_true()
 	strip.button(TableCards.Card.SLOTS).pressed.emit()
 	assert_bool(options.presets.button(1).button_pressed).is_true()
 	strip.button(TableCards.Card.BOUNTY).pressed.emit()
@@ -415,6 +416,31 @@ func test_the_cards_on_the_table() -> void:
 	assert_bool(TableCards.has(config.table, TableCards.Card.BOUNTY)).is_false()
 	pane.close()
 	assert_int(Game.settings.profile.table.off).is_equal(TableCards.bit(TableCards.Card.BOUNTY))
+
+
+## Suits & hands opened early bring Jokers with them where those are not opened yet either, the
+## question saying so, both face up.
+func test_suits_opened_early_open_jokers_too() -> void:
+	Game.settings.profile.stats[&"maps"] = 1.0
+	var pane := _pane()
+	var strip := pane.options.table_strip
+	strip.button(TableCards.Card.SUITS).pressed.emit()
+	assert_str(pane._confirm.said()).contains("Jokers open with it")
+	pane._confirm.yes_button().pressed.emit()
+	for card: int in [TableCards.Card.SUITS, TableCards.Card.JOKERS]:
+		assert_bool(TableCards.has(strip.opened, card)).is_true()
+		assert_bool(TableCards.has(strip.table, card)).is_true()
+	var config := MatchConfig.new()
+	pane.options.apply_to(config)
+	(
+		assert_bool(
+			TableCards.has(
+				config.rules(load("res://data/match/default.tres")).table, TableCards.Card.SUITS
+			)
+		)
+		. is_true()
+	)
+	pane._panel.visible = false
 
 
 ## Roulette's cards are its deck: one turned is out of it and Roulette stays lit.

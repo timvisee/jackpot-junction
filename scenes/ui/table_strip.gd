@@ -3,10 +3,10 @@ extends VBoxContainer
 ## The cards on the table in the match settings, GAME.md 9.6, under the presets: a card for each
 ## of the table's features, 3.17, face up for on and face down, in the card back the player wears,
 ## for off. One press turns a card over. A card the House has not opened yet, 8.9a, is sealed,
-## grayed under a padlock with the map it opens after, and a press asks to open it early; Suits &
-## hands lie grayed while Jokers are down, being nothing without them. A card opened and not yet
-## played wears NEW. With Roulette the cards face up are the deck each map's are dealt from, and the
-## strip says so over them.
+## grayed under a padlock with the map it opens after, and a press asks to open it early. Suits &
+## hands are nothing without Jokers: turning them up turns Jokers up with them, and turning Jokers
+## down turns them down. A card opened and not yet played wears NEW. With Roulette the cards face
+## up are the deck each map's are dealt from, and the strip says so over them.
 
 ## A card was turned over: [member table] says what is on the table now.
 signal changed
@@ -129,13 +129,19 @@ func _on_pressed(card: int) -> void:
 	if not TableCards.has(opened, card):
 		open_asked.emit(card)
 		return
-	# Nothing without Jokers, GAME.md 3.17.
-	if card == TableCards.Card.SUITS and not TableCards.has(table, TableCards.Card.JOKERS):
-		return
-	table = TableCards.with(table, card, not TableCards.has(table, card))
-	if card == TableCards.Card.JOKERS and not TableCards.has(table, card):
-		table = TableCards.with(table, TableCards.Card.SUITS, false)
+	var on := not TableCards.has(table, card)
+	table = TableCards.with(table, card, on)
 	_cards[card].turn()
+	# Suits & hands are nothing without Jokers, GAME.md 3.17: up, they bring Jokers up with them;
+	# Jokers down take them down.
+	var jokers := TableCards.Card.JOKERS
+	var suits := TableCards.Card.SUITS
+	if card == suits and on and not TableCards.has(table, jokers):
+		table = TableCards.with(table, jokers, true)
+		_cards[jokers].turn()
+	elif card == jokers and not on and TableCards.has(table, suits):
+		table = TableCards.with(table, suits, false)
+		_cards[suits].turn()
 	_show()
 	changed.emit()
 
@@ -149,12 +155,10 @@ func _show() -> void:
 		if roulette
 		else "Press a card to turn it over"
 	)
-	var jokers := TableCards.has(table, TableCards.Card.JOKERS)
 	for each: TableCardButton in _cards:
 		var card := each.card
 		each.sealed = not TableCards.has(opened, card)
 		each.up = TableCards.has(table, card)
-		each.dim = card == TableCards.Card.SUITS and not jokers and not each.sealed
 		each.fresh = TableCards.has(fresh, card) and not each.sealed
 		each.queue_redraw()
 		ScreenReader.name(each, TableCards.NAMES[card], _said(each))
@@ -183,7 +187,6 @@ class TableCardButton:
 	var card := 0
 	var up := true
 	var sealed := false
-	var dim := false
 	var fresh := false
 	var _back: Texture2D
 	var _turning := 0.0
@@ -226,7 +229,7 @@ class TableCardButton:
 	## a draw call or more each every frame, and a picture is one. Drawn at the screen's own pixels;
 	## until it is ready, the face is drawn as itself.
 	func _draw_face(box: Rect2) -> void:
-		var state := 2 if sealed else (1 if dim else 0)
+		var state := 2 if sealed else 0
 		var scale := KeptPictures.scale_of(self)
 		var pixels := Vector2i((box.size * scale).ceil())
 		var picture: Texture2D = null
@@ -245,7 +248,7 @@ class TableCardButton:
 		elif sealed:
 			TableCardArt.sealed(self, box, card)
 		else:
-			TableCardArt.face(self, box, card, dim)
+			TableCardArt.face(self, box, card)
 
 	func _draw() -> void:
 		var box := Rect2(Vector2.ZERO, size)
@@ -283,7 +286,7 @@ class TableCardButton:
 
 
 ## A card's face drawn once for its picture, see [method TableCardButton._draw_face]: [param state]
-## 0 up, 1 grayed, 2 sealed, laid out at the card's size and drawn at [param pixels].
+## 0 up, 2 sealed, laid out at the card's size and drawn at [param pixels].
 class _Face:
 	extends Control
 
