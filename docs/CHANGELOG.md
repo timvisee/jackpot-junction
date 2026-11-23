@@ -34,6 +34,7 @@ below, and hands the notes to the release workflow.
   table, and what it does.
 - **Tonight's table.** A match's loading screen deals the features it plays with, and names a new
   one.
+- **Shown the way.** The first match with a new feature points your kart at it.
 - **Penny table and Roulette.** Two new presets: power-ups alone for a plain game, or three
   features dealt at random each map. Quick hand is gone.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and

@@ -245,3 +245,37 @@ func test_bots_play_a_first_table() -> void:
 		assert_int(match_node.state).override_failure_message(id).is_equal(Match.State.PLAYING)
 		for slot: PlayerSlot in match_node.slots:
 			assert_int(slot.kart.jokers.count()).override_failure_message(id).is_equal(0)
+
+
+## The table's new card is pointed at once as the lamps go out, GAME.md 8.9a: the nearest of its
+## pieces, and none for a card with nothing on the floor.
+func test_the_new_card_is_pointed_at() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.profile.table.fresh = TableCards.bit(TableCards.Card.FLUSH)
+	var rules: MatchRules = DEFAULT_RULES.duplicate()
+	rules.countdown = 0.1
+	rules.map = &"lucky_crossing"
+	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
+	match_node.rules = rules
+	match_node.with_hud = false
+	match_node.offer_size = 0
+	_runner = scene_runner(match_node)
+	FreshPointer.add_to(match_node)
+	match_node.start([KartInput.new()], 3)
+	await _runner.simulate_frames(20, 17)
+	var arrow := match_node.get_node_or_null("GuideArrow") as GuideArrow
+	assert_object(arrow).is_not_null()
+	var nearest := FreshPointer.target(
+		match_node, TableCards.Card.FLUSH, arrow.kart.global_position
+	)
+	assert_vector(arrow.target).is_equal(nearest)
+	assert_bool(nearest.is_finite()).is_true()
+	for card: int in [TableCards.Card.ITEMS, TableCards.Card.JACKPOT, TableCards.Card.TRICKS]:
+		var spot := FreshPointer.target(match_node, card, Vector3.ZERO)
+		assert_bool(spot.is_finite()).override_failure_message(TableCards.NAMES[card]).is_true()
+	Game.settings.profile.table.fresh = TableCards.bit(TableCards.Card.JOKERS)
+	var before := match_node.get_child_count()
+	FreshPointer.add_to(match_node)
+	assert_int(match_node.get_child_count()).is_equal(before)
+	Game.settings = settings_were

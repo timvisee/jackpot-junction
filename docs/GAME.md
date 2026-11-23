@@ -6907,6 +6907,13 @@ because the end of a map is a moment of its own, where the title already has its
 tour to show. A card opened early is never on a coupon, the asking having told it. Until the card
 has been played at a map, it wears NEW in the match settings and on the loading screen, 8.6.
 
+**Pointed at once.** At the first map that puts a new card on the table, the driving test's arrow
+of 9.4a lies ahead of the first seat's kart as the lamps go out, pointing at the nearest of the
+card's pieces, the filling Jackpot, a suit pad, an item box, a slot machine or a room's trick, with
+a ring round it, until the kart gets there or nine seconds have gone (`FreshPointer`). Jokers,
+Bounty and Suits & hands have nothing on the floor to point at, and are said by the coupon and the
+loading screen alone. Never in the booth's demo, which counts for nobody.
+
 ### 8.10 Achievements
 
 Achievements are things worth having done once: a way of winning, a moment at a table, a hand held, a
