@@ -868,8 +868,8 @@ else's results screen, see 10.3.
   through a dialog opened over it, which keeps the screen's touches from whatever is drawn under
   it, see `TouchInput.keep_touches`, and while it is up each player at this screen has a switch
   over their own corner of the HUD for how they drive, see 4.2, and in the lobby
-  and the Garage for their name and color, see 4.4; a player who gets up while it is up, their pad
-  unplugged and their kart handed to a bot, takes their switch with them, the cursor on it coming
+  and the Garage for their name and color, see 4.4; a player who gets up while it is up, their kart
+  handed to a bot, takes their switch with them, the cursor on it coming
   back to the menu. Clubhouse, Staff Room once the story is over, puts in place of the menu's
   buttons what of the title's Clubhouse can be had in a room: the Loyalty Program of 8.9 once the
   house has welcomed the profile, the Catalog of 8.8, the Achievements of 8.10, in the lobby and
@@ -1350,6 +1350,14 @@ heading. Simple is screen-relative: the way pushed is the way on the screen the
 kart goes, see below. Aiming is forward-only by default. All bindings are
 remappable; in a Steam build a controller's are Steam's, Steam Input, 10.8. Every action exists once in the Godot input map; an input router
 assigns physical devices to player slots, see 10.2.
+
+A pad that goes while it is played on, out of battery or pulled out, brings the room's menu up
+for the player holding it, as if they had pressed Pause, which stops a room played alone and asks
+for a stop online (`LostPads`); they keep their seat, and the next pad that comes is theirs, or the
+same one plugged back in. Holding it is playing on it, or for a player reading every device having
+last driven with it; a pad nobody holds goes unremarked. They get up from their switch in the menu
+should they mean to go. At a client, whose players are no seats of its room, it is not done yet.
+It once handed the kart to a bot, as getting up does: a pad running flat is no player leaving.
 
 | Action                      | Gamepad             | Keyboard and mouse        |
 |-----------------------------|---------------------|---------------------------|
@@ -5642,7 +5650,7 @@ from a section's button low in its box was the one beside it.
   but the map, and so do the lobby and the driving school, which are no matches, the
   distance, the drifts, the shots, the kills and the rest, and the time spent in them,
   written as they are left. A player here who gets up in the middle of one, from
-  their switch, with their pad unplugged, or from a client, has what they did
+  their switch, or from a client, has what they did
   written into their profile there and then, the one sat in at their seat too,
   since the kart goes on without them; and somebody who sits down in a kart that has
   been going, a bot's or one somebody got up from, counts from then on only, so
@@ -7466,8 +7474,8 @@ taken by people nobody else can join, and nor can a fifth at one machine. A play
 
 With more than one player at a screen, each of their switches in the pause menu, 4.2, ends in
 Leave, for one of them to get up and go while the others play on; with one there is nothing to
-leave from, and no button. On a map a bot takes the kart and its score on, as it does for a pad
-that is unplugged. In the lobby and the Garage the seat is emptied the way a seat left online is,
+leave from, and no button. On a map a bot takes the kart and its score on; a pad that is unplugged
+pauses instead, its player keeping the seat, 4.2. In the lobby and the Garage the seat is emptied the way a seat left online is,
 9.3, its kart gone until somebody sits down in it. Online it is the players at this machine it
 is for, at a client as at the host; the other machines see the kart go the way they see any other.
 

@@ -122,6 +122,7 @@ func _ready() -> void:
 	Emotes.add_to(self)
 	BotEmotes.add_to(self)
 	PadLights.add_to(self)
+	LostPads.add_to(self)
 	if rules == null:
 		rules = load("res://data/match/default.tres")
 	if power_ups == null:
@@ -192,8 +193,6 @@ func start(
 	rules.team_size = Teams.biggest(slots) if rules.teams > 0 else 1
 	Showdown.set_up(self)
 	refresh_listener()
-	if not Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
-		Input.joy_connection_changed.connect(_on_joy_connection_changed)
 	_build_hud()
 	time_left = rules.duration
 	_bounty_wait = rules.bounty_first_delay
@@ -242,8 +241,6 @@ func _exit_tree() -> void:
 	if _counting != null:
 		_counting.stop()
 		_counting = null
-	if Input.joy_connection_changed.is_connected(_on_joy_connection_changed):
-		Input.joy_connection_changed.disconnect(_on_joy_connection_changed)
 
 
 ## A human joins on [param device], GAME.md 9.2: they take over a bot kart with its score, pot,
@@ -428,14 +425,6 @@ func _free_color(wanted := -1) -> int:
 	for slot: PlayerSlot in slots:
 		taken.append(slot.color_index)
 	return wanted if wanted >= 0 and wanted not in taken else MatchConfig.first_free(taken)
-
-
-func _on_joy_connection_changed(device: int, connected: bool) -> void:
-	if connected:
-		return
-	for slot: PlayerSlot in slots:
-		if slot.is_human() and slot.device() == device:
-			leave_human(slot)
 
 
 ## What a host and a client both have around the arena: the bullets, the excitement meter and

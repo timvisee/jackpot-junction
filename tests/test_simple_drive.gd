@@ -518,10 +518,10 @@ func test_the_pause_menu_has_a_switch_over_each_players_corner() -> void:
 	Settings.remove_files(Game.settings.path)
 
 
-## A player whose pad goes while the menu is up takes their switch with them, and the cursor on it
+## A player who gets up while the menu is up takes their switch with them, and the cursor on it
 ## comes back to the menu: the switch went on pointing at the corner the HUD had freed, an error
 ## every frame, which stopped the room where a debugger was watching.
-func test_a_player_whose_pad_goes_takes_their_switch_with_them() -> void:
+func test_a_player_who_gets_up_takes_their_switch_with_them() -> void:
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
 	match_node.with_hud = true
 	match_node.offer_size = 0
@@ -535,7 +535,7 @@ func test_a_player_whose_pad_goes_takes_their_switch_with_them() -> void:
 	menu.set_paused(true)
 	await await_idle_frame()
 	menu._switches.button(1).grab_focus()
-	Input.joy_connection_changed.emit(0, false)
+	match_node.leave_human(match_node.slots[1])
 	await await_idle_frame()
 	await await_idle_frame()
 	assert_bool(match_node.slots[1].is_human()).is_false()
