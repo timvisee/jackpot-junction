@@ -191,6 +191,42 @@ static func pad_buttons(action: StringName) -> Array[int]:
 	return buttons
 
 
+## The stick or trigger of Steam's [param action] is, by Steam's name, or empty for a button alone:
+## a dialog's that reads a trigger is that trigger's.
+static func analog_of(action: StringName) -> String:
+	var axis := int(_axis_bound(action).get("axis", -1))
+	if axis < 0:
+		return ""
+	for stick: String in STICKS:
+		if axis in [pad_axis(STICKS[stick][1]), pad_axis(STICKS[stick][2])]:
+			return stick
+	for trigger: String in TRIGGERS:
+		if axis == pad_axis(TRIGGERS[trigger][1]):
+			return trigger
+	return ""
+
+
+## Which way a stick goes for [param action] as the game starts, the engine's down being more: one
+## way along its across or its up; zero for an action on no stick.
+static func way_of(action: StringName) -> Vector2:
+	var descriptor := _axis_bound(action)
+	if descriptor.is_empty():
+		return Vector2.ZERO
+	var way := signf(float(descriptor.get("value", 1.0)))
+	var across := int(descriptor["axis"]) in [JOY_AXIS_LEFT_X, JOY_AXIS_RIGHT_X]
+	return Vector2(way, 0.0) if across else Vector2(0.0, way)
+
+
+## The binding of [param action] to a pad's axis as the game starts, the dialogs' among them; empty
+## for none.
+static func _axis_bound(action: StringName) -> Dictionary:
+	for table: Dictionary[StringName, Array] in [InputActions.DEFAULTS, InputActions.MENU]:
+		for descriptor: Dictionary in table.get(action, []):
+			if descriptor.has("axis"):
+				return descriptor
+	return {}
+
+
 ## The axis of the game's [param action] moves as the game starts, a stick's or a trigger's.
 static func pad_axis(action: StringName) -> int:
 	for descriptor: Dictionary in InputActions.DEFAULTS.get(action, []):

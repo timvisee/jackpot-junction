@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Steam Input.** On Steam, every action of the game's is named in Steam's controller settings, to
   put on any button, paddle, trackpad or the gyro. Turn it off on the Controls page.
+- **Hints follow your Steam layout.** Move an action to another button in Steam's controller
+  settings and the game's hints show that button, back buttons and trackpads as Steam draws them.
 - **Back buttons.** On a Steam Deck or a Steam Controller, the buttons behind it repeat A, B, X and
   Y, so your thumb stays on the stick.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and

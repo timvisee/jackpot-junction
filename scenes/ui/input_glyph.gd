@@ -6,13 +6,15 @@ extends Control
 ## a tap on a touch screen as a finger pointing down onto it, and a touch screen's steering as the
 ## wheel it is drawn as there. A pad's buttons are drawn as its family prints them, see
 ## [PadFamily]: a PlayStation pad's four as their shapes, a Nintendo pad's letters where they are.
+## For a controller Steam Input reads, an action's button is the one Steam has it on, GAME.md 10.8,
+## and Steam's own picture of it where it is on what a pad has not got, a back button, a trackpad.
 ##
 ## "Shift drift   Ctrl nitro" is a sentence to be read. The same line with the two keys drawn as
 ## keys is a picture to be recognized, which is what a hint glanced at mid-corner has to be. The
 ## shapes are drawn rather than loaded, because the bindings belong to the player: any key on the
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
-enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL, ITEM, MENU }
+enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL, ITEM, MENU, PICTURE }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
@@ -52,6 +54,8 @@ const SHAPE_COLORS: Dictionary[JoyButton, Color] = {
 ## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
 ## the arrows lose, coming out as nicks in the border.
 const STICK_WIDE := 1.55
+## How wide Steam's picture of a button may be drawn for how tall, at most and at least.
+const PICTURE_WIDE := Vector2(0.8, 2.5)
 ## How wide a mouse is for how tall it is, and how much room the mark of a double click takes
 ## beside it.
 const MOUSE_WIDE := 0.66
@@ -129,6 +133,11 @@ var _shown_item := &""
 var _event: InputEvent
 var _epoch := -1
 var _written := false
+## The action drawn, where the glyph is one of an action's on a pad; and where Steam has it bound on
+## that pad, see [method DeviceInput.steam_bound], with Steam's own picture of it, if that is drawn.
+var _action := &""
+var _steam: Dictionary = {}
+var _picture: Texture2D
 
 
 func _ready() -> void:
@@ -141,7 +150,13 @@ func _ready() -> void:
 ## bound to it there, which is what a hint should leave out rather than write a dash for.
 static func of_action(action: StringName, keyboard: bool, ink: Color, font_size: int) -> InputGlyph:
 	var event := InputActions.first_event(action, keyboard)
-	return null if event == null else of_event(event, ink, font_size)
+	if event == null:
+		return null
+	var glyph := of_event(event, ink, font_size)
+	if glyph._event != null:
+		glyph._action = action
+		glyph._refit()
+	return glyph
 
 
 ## [param action] as the touch screen has it: a pill with the word on its button, or the steering
@@ -278,19 +293,46 @@ func pin(device: int) -> void:
 	_refit()
 
 
-## Drawn again for the family of its pad, as that is now.
+## Drawn again for the family of its pad, as that is now, and where Steam has its action bound on
+## that pad.
 func _refit() -> void:
 	_epoch = PadFamily.epoch
 	if _event == null:
 		return
 	var now := PadFamily.of_device(pad)
-	if now == family:
+	var steam := _steam_bound()
+	if now == family and steam == _steam:
 		return
 	family = now
-	if not _written:
-		caption = _caption_of(_event, kind, family)
+	_steam = steam
+	_picture = steam.get("picture") as Texture2D
+	if _picture != null:
+		kind = Kind.PICTURE
+		caption = str(steam.get("word", ""))
+		# Made bigger than drawn, so it shrinks smoothly.
+		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	elif steam.has("word"):
+		# Steam's name for a button it has no picture of, on a pill.
+		kind = Kind.SHOULDER
+		caption = str(steam["word"])
+	else:
+		var drawn: InputEvent = steam.get("event", _event)
+		kind = _kind_of(drawn)
+		if kind == Kind.FACE:
+			face = (drawn as InputEventJoypadButton).button_index
+		if not _written:
+			caption = _caption_of(drawn, kind, family)
+		along = _along(drawn).abs() if both_ways else _along(drawn)
 	custom_minimum_size = _wanted()
 	queue_redraw()
+
+
+## Where Steam has the action drawn bound on the pad drawn for, or the pad touched last; empty for
+## a pad the game binds itself.
+func _steam_bound() -> Dictionary:
+	if _action.is_empty() or DeviceInput.steam_pads.is_empty():
+		return {}
+	return DeviceInput.steam_bound(_action, pad if pad >= 0 else PadFamily.last_pad())
 
 
 ## This glyph with [param words] written on it in place of its own caption, as a key cap can be: an
@@ -377,6 +419,9 @@ func _wanted() -> Vector2:
 		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
 	if kind in [Kind.FACE, Kind.DPAD, Kind.WHEEL, Kind.ITEM, Kind.MENU]:
 		return Vector2(tall, tall)
+	if kind == Kind.PICTURE:
+		var wide := float(_picture.get_width()) / maxf(float(_picture.get_height()), 1.0)
+		return Vector2(tall * clampf(wide, PICTURE_WIDE.x, PICTURE_WIDE.y), tall)
 	if kind == Kind.FINGER:
 		return Vector2(tall * FINGER_WIDE, tall)
 	if kind == Kind.MOUSE:
@@ -423,6 +468,8 @@ func _draw() -> void:
 			_draw_wheel(box)
 		Kind.MENU:
 			_draw_menu(box)
+		Kind.PICTURE:
+			draw_texture_rect(_picture, box, false)
 		_:
 			_draw_chip(box)
 			_draw_caption(box, ink)

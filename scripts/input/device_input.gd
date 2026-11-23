@@ -18,6 +18,9 @@ static var steam_pads: Dictionary[int, int] = {}
 ## Knocks one of [member steam_pads], as [method rumble] is asked: the pad, how hard its light
 ## motor and its heavy one go, and for how long. Set by [SteamPads]; nothing without it.
 static var steam_rumble := Callable()
+## Where Steam has an action bound on one of [member steam_pads], for a hint to draw, see
+## [method SteamPads.place]. Set by [SteamPads]; nothing without it.
+static var steam_place := Callable()
 
 
 ## Every pad there is: the engine's, then Steam Input's, see [member steam_pads].
@@ -36,6 +39,14 @@ static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void
 			steam_rumble.call(pad, weak, strong, seconds)
 		return
 	Input.start_joy_vibration(pad, weak, strong, seconds)
+
+
+## How a hint draws [param action] for [param pad] as Steam has it bound, GAME.md 10.8, see
+## [method SteamPads.place]; empty for a pad the game binds itself, not one of [member steam_pads].
+static func steam_bound(action: StringName, pad: int) -> Dictionary:
+	if not steam_pads.has(pad) or not steam_place.is_valid():
+		return {}
+	return steam_place.call(action, pad)
 
 
 ## [param device] was just used: the keyboard and mouse as [constant KEYBOARD], or a pad's id.
