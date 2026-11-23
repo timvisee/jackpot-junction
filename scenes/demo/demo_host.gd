@@ -164,7 +164,7 @@ func _note_the_hand(event: InputEvent) -> void:
 func shows_keyboard() -> bool:
 	if _touched:
 		return _keyboard
-	return Input.get_connected_joypads().is_empty()
+	return DeviceInput.pads().is_empty()
 
 
 ## The menu of the map a press on the title dealt, opened once the map is up and the loading

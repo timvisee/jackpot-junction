@@ -108,7 +108,7 @@ var _closing := false
 static func entry(parent: Node, size := Type.LARGE) -> Button:
 	var button := MenuTheme.button(ENTRY, size)
 	button.name = "PadLeafletButton"
-	var pad_here := not TouchInput.enabled or not Input.get_connected_joypads().is_empty()
+	var pad_here := not TouchInput.enabled or not DeviceInput.pads().is_empty()
 	button.visible = pad_here and not Demo.on
 	button.pressed.connect(
 		func() -> void:

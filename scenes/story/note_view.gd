@@ -661,7 +661,7 @@ func _process(delta: float) -> void:
 		return
 	var squeeze := 0.0
 	var move := Vector2.ZERO
-	for pad: int in Input.get_connected_joypads():
+	for pad: int in DeviceInput.pads():
 		squeeze = maxf(
 			squeeze,
 			maxf(
@@ -718,7 +718,7 @@ func _input(event: InputEvent) -> void:
 		event.is_action_pressed(InputActions.JOKER_MENU)
 		or event.is_action_pressed(&"ui_accept")
 		or (key != null and key.pressed and not key.echo and key.keycode == KEY_F)
-		or (pad != null and pad.pressed and pad.button_index == JOY_BUTTON_Y)
+		or (pad != null and pad.pressed and pad.is_action(InputActions.MENU_VIEW))
 	):
 		get_viewport().set_input_as_handled()
 		turn_over()

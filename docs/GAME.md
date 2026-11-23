@@ -1348,7 +1348,7 @@ There are two ways to drive, and each player picks their own. Advanced is
 kart-relative: left and right turn the nose, throttle and brake work along the
 heading. Simple is screen-relative: the way pushed is the way on the screen the
 kart goes, see below. Aiming is forward-only by default. All bindings are
-remappable. Every action exists once in the Godot input map; an input router
+remappable; in a Steam build a controller's are Steam's, Steam Input, 10.8. Every action exists once in the Godot input map; an input router
 assigns physical devices to player slots, see 10.2.
 
 | Action                      | Gamepad             | Keyboard and mouse        |
@@ -4735,11 +4735,12 @@ lane beside it is as wide as it was.
   R3 round them. An Xbox pad, the first Steam Controller of 2015, and any other pad, a
   generic one, keep the letters in their colors. The family is told by the maker's USB
   id, Sony's, Nintendo's, Microsoft's or Valve's, and by the pad's name where it does
-  not say, as on a phone. In a Steam build, a pad Steam Input stands in for with a pad
-  of its own is the pad Steam says is behind it, asked through Steam Input by the
-  index the engine gives Steam's pad (`SteamStore`), which is started for that alone:
-  the game reads its pads itself. The Steam Controller of 2026 reaches the game this
-  way alone until the engine's SDL knows it, from Godot 4.8, Steam Input's type 17;
+  not say, as on a phone. In a Steam build, a controller Steam Input reads for the
+  game, 10.8, is the family Steam says it is, and a pad Steam Input stands in for with
+  a pad of the engine's is the pad Steam says is behind it, asked through Steam Input
+  by the index the engine gives Steam's pad (`SteamStore`). The Steam Controller of
+  2026 reaches the game through Steam alone until the engine's SDL knows it, from
+  Godot 4.8, Steam Input's type 17;
   its USB ids, wired, over Bluetooth, through its puck and a Steam Machine's receiver,
   are known for then. Asked for on 2026-11-23. The words follow too, in the rebinding
   rows and for a screen reader. A debug build started with `++ --pad=playstation`,
@@ -10857,6 +10858,58 @@ Steam's older full-screen box for text, which hands the words back whole rather 
 not used as a fallback. The floating keyboard came with Steamworks SDK 1.53, and a Steam client older
 than that is too old for the SDK the game is built with: Steam does not start in the game at all,
 and Play Online says Steam needs updating.
+
+#### Steam Input
+
+Asked for on 2026-11-23: in a Steam build Steam Input reads the controllers for the game, and
+Steam's own controller settings show every action of the game's by name, for a player to put on
+whatever the controller has, a back button, a trackpad, the gyro, two actions on one button. The
+game gets each controller as a pad of its own, `SteamPads`, so whatever reads a pad reads these
+the same way: a seat taken with Join, a kart driven, the menus walked, the joker pick, the pages
+turned.
+
+**The actions.** One action set, Play, with everything in it: a menu set beside a driving one, as
+Valve suggests, needs a moment to tell Steam the menus are up, and the game's menus and its
+driving share the screen too often for one, the lobby, the joker pick, the menu over a match. Its
+two sticks, Steer and drive and Aim, emote and scroll, and its two triggers, Throttle and Brake
+and reverse, are Steam's sticks and analog triggers; every other action is a button by its own
+name, the game's as Steam's, titled in the words of 4.2, the menus' with "Menu:" before them. Left
+out are the dialogs' second set of arrows on WASD and the four ways to aim, which are the aim
+stick. Each layout a kind of controller starts on binds it as the game's own pad: A fires, drops a
+joker and presses a menu's button at once, the left shoulder is the handbrake and the page before,
+the left stick steers, the right one aims, the triggers are the pedals. There is one for an Xbox
+pad, which Steam uses for the Xbox 360's too, the DualShock 4, the DualSense, the Switch Pro, the
+Steam Deck, the Steam Controllers of 2015 and of 2026 and any other pad; the 2015 one's trackpads
+stand in for the right stick and the D-pad it lacks, and the Deck's back buttons are left free, as
+Valve's own gamepad layout leaves them. The action manifest, naming the set, its actions, their
+English words and the layouts, and the layouts themselves are in `data/steam/input/`, written by
+`make steam-input` from `SteamActions`, and a test fails while they are behind the code.
+`make steam-export` puts them beside the game as `steam_input/`, which Steamworks names,
+docs/STEAM.md. The game hands Steam the manifest itself too as Steam Input starts, the one beside
+the build or a checkout's, so `make steam-run` under Spacewar has the game's actions.
+
+**How a controller is read.** Each controller Steam reads for the game is a pad numbered from 32,
+past any the engine gives, drawn as the family Steam says it is, 8.3, and asked every frame, after
+Steam's own callbacks and before anything of the game's runs, what its actions are doing. Button
+actions that go down together on one of the controller's buttons, Steam saying which each is on,
+are one press, as a pad's own button is one press for every action bound to it: the pad's own
+button where one is bound to just those actions, as on the layouts the game starts controllers on,
+so a screen hears it as it would that button; otherwise a button no pad has, numbered from 64,
+bound to just those actions for the run (`InputActions.chord`) and never kept with the bindings,
+drawn or rebound. So the joker pick, which takes A as the pick before the drop, hears A once. The
+sticks and the triggers move the axes of the game's sticks and triggers their actions are bound
+to, so whatever reads those, a menu scrolled by the right stick, the loyalty map zoomed by the
+triggers, reads them. Steam's up on a stick is taken as more and the engine's as less; Valve does
+not say which, so `make steam-run ARGS="--pads"` prints each stick pushed all the way, and every
+press, for a look on a controller. A pad's knock goes through Steam for these, stopped after the
+time asked. A layout binding a button to a pad's own button rather than an action makes Steam show
+the game a pad of the engine's as well, carrying those, which is a second pad to the game.
+
+**Rebinding.** The game's own rebinding, 8.5, goes on for the keyboard and for pads the engine
+reads; a controller Steam Input reads is bound in Steam. Steam Input is never started without
+Steam, so a GitHub build is as it was. Hints draw the button the game binds
+an action to, which on the starting layouts is the one Steam has it on; a layout changed in Steam
+is not drawn as changed yet, Steam saying which of its buttons each action is on for when it is.
 
 #### A supporter pack
 

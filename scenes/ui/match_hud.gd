@@ -304,7 +304,7 @@ func _rumble(slot: int, strength: float, seconds: float) -> void:
 	var player := match_node.slots[slot]
 	var pad := player.knocked_pad() if player.is_local_human() else -1
 	if pad >= 0:
-		Input.start_joy_vibration(pad, strength * 0.5, strength, seconds)
+		DeviceInput.rumble(pad, strength * 0.5, strength, seconds)
 
 
 func _exit_tree() -> void:

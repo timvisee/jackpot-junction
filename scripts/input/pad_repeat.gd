@@ -50,7 +50,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	var pads := Input.get_connected_joypads()
+	var pads := DeviceInput.pads()
 	for pad: int in _was.keys():
 		if pad not in pads:
 			hold(pad, [], delta)

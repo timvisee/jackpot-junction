@@ -11,6 +11,31 @@ const KEYBOARD := -1
 ## match, see [method touched]: what a player reading every device was holding before somebody
 ## else picked up a pad, GAME.md 9.2, when they have not driven yet to say so themselves.
 static var recent: Array[int] = []
+## The pads Steam Input reads for the game, GAME.md 10.8, each by the id the game knows it by and
+## its [enum PadFamily.Family]: they are no pads of the engine's, which never sees them, see
+## [SteamPads]. Empty with no Steam Input.
+static var steam_pads: Dictionary[int, int] = {}
+## Knocks one of [member steam_pads], as [method rumble] is asked: the pad, how hard its light
+## motor and its heavy one go, and for how long. Set by [SteamPads]; nothing without it.
+static var steam_rumble := Callable()
+
+
+## Every pad there is: the engine's, then Steam Input's, see [member steam_pads].
+static func pads() -> Array[int]:
+	var all: Array[int] = []
+	all.assign(Input.get_connected_joypads())
+	all.append_array(steam_pads.keys())
+	return all
+
+
+## Knocks the pad [param pad], its light motor [param weak] and its heavy one [param strong], 0 to
+## 1, for [param seconds], GAME.md 4.2: through Steam for a pad of Steam Input's.
+static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void:
+	if steam_pads.has(pad):
+		if steam_rumble.is_valid():
+			steam_rumble.call(pad, weak, strong, seconds)
+		return
+	Input.start_joy_vibration(pad, weak, strong, seconds)
 
 
 ## [param device] was just used: the keyboard and mouse as [constant KEYBOARD], or a pad's id.
@@ -57,7 +82,7 @@ static func pad_strength(action: StringName, device: int) -> float:
 		return 0.0
 	var pads: Array[int] = []
 	if device == ANY:
-		pads.assign(Input.get_connected_joypads())
+		pads.assign(pads())
 	else:
 		pads.append(device)
 	var deadzone := InputMap.action_get_deadzone(action)

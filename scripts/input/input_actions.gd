@@ -117,6 +117,12 @@ const KEY_SYMBOLS: Dictionary[String, String] = {
 	"BackSlash": "\\",
 	"QuoteLeft": "`",
 }
+## The first of the buttons no pad has, which a controller of Steam Input's presses for a few
+## actions at once where no button of the pad's own does just those, see [method chord]: past
+## every button the engine names, and below the most it reads, 128.
+const CHORD_FROM := 64
+const CHORD_TO := 128
+
 ## A pad's buttons by the names today's pads print on them where the engine's are an older pad's:
 ## the button left of the middle is Back to the engine, after the Xbox 360's, which beside a
 ## dialog's own Back button reads as that one; today's Xbox calls it View, as the engine already
@@ -197,6 +203,9 @@ static var label_of := (
 	if DisplayServer.get_name() == "headless"
 	else Callable(DisplayServer, &"keyboard_get_label_from_physical")
 )
+## The chords handed out so far, see [method chord]: the button of each set of actions, by the
+## actions' names joined.
+static var _chords: Dictionary[String, int] = {}
 
 
 ## Every action name, in a stable order.
@@ -237,6 +246,45 @@ static func apply(bindings: Dictionary, deadzone: float) -> void:
 		InputMap.action_set_deadzone(action, deadzone)
 
 
+## The button no pad has that stands for [param actions] all at once, GAME.md 10.8, bound to each
+## of them and to nothing else, or -1 once every one is taken. A controller of Steam Input's
+## presses it where one of its buttons is bound to these actions in Steam and no button of the
+## pad's own is bound to just these here: one press, as a pad's own is, which every one of them
+## hears and nothing else does. A screen that takes a press of one action over another's, as the
+## joker pick takes A as the pick before the drop, then hears it once, as it would a pad's own A.
+## Bound again if the bindings were put back since, as [method apply] does.
+static func chord(actions: Array[StringName]) -> int:
+	var names: PackedStringArray = []
+	for action: StringName in actions:
+		names.append(action)
+	names.sort()
+	var key := ",".join(names)
+	if not _chords.has(key):
+		if CHORD_FROM + _chords.size() >= CHORD_TO:
+			return -1
+		_chords[key] = CHORD_FROM + _chords.size()
+	var event := make_event({"button": _chords[key]})
+	for action: StringName in actions:
+		if InputMap.has_action(action) and not InputMap.action_has_event(action, event):
+			InputMap.action_add_event(action, event)
+	return _chords[key]
+
+
+## Every chord taken off the actions again, see [method chord], as Steam Input stops.
+static func forget_chords() -> void:
+	for action: StringName in InputMap.get_actions():
+		for event: InputEvent in InputMap.action_get_events(action):
+			if is_chord(event):
+				InputMap.action_erase_event(action, event)
+	_chords.clear()
+
+
+## Whether [param event] is one of the buttons no pad has, see [method chord].
+static func is_chord(event: InputEvent) -> bool:
+	var button := event as InputEventJoypadButton
+	return button != null and button.button_index >= CHORD_FROM
+
+
 ## Puts a pad on Godot's own menu actions. Left alone otherwise: these are not in the rebinding
 ## table and nothing here erases what the keyboard already has on them.
 static func _add_ui_buttons() -> void:
@@ -274,8 +322,11 @@ static func make_event(descriptor: Dictionary) -> InputEvent:
 	return motion
 
 
-## The descriptor for an event a player pressed while rebinding, or empty when unsupported.
+## The descriptor for an event a player pressed while rebinding, or empty when unsupported, as a
+## chord is, which is Steam Input's and never kept, see [method chord].
 static func descriptor_from_event(event: InputEvent) -> Dictionary:
+	if is_chord(event):
+		return {}
 	var key := event as InputEventKey
 	if key != null:
 		return {"key": key.physical_keycode if key.physical_keycode != KEY_NONE else key.keycode}
@@ -301,7 +352,7 @@ static func rebind(action: StringName, descriptor: Dictionary) -> void:
 	var keyboard := is_keyboard_descriptor(descriptor)
 	for event: InputEvent in InputMap.action_get_events(action):
 		var existing := descriptor_from_event(event)
-		if is_keyboard_descriptor(existing) == keyboard:
+		if not existing.is_empty() and is_keyboard_descriptor(existing) == keyboard:
 			InputMap.action_erase_event(action, event)
 	InputMap.action_add_event(action, make_event(descriptor))
 
@@ -323,7 +374,8 @@ static func first_event(action: StringName, keyboard: bool) -> InputEvent:
 	if not InputMap.has_action(action):
 		return null
 	for event: InputEvent in InputMap.action_get_events(action):
-		if is_keyboard_descriptor(descriptor_from_event(event)) == keyboard:
+		var descriptor := descriptor_from_event(event)
+		if not descriptor.is_empty() and is_keyboard_descriptor(descriptor) == keyboard:
 			return event
 	return null
 
@@ -362,7 +414,8 @@ static func _axis_of(action: StringName) -> int:
 static func binding_text(action: StringName, keyboard: bool, family: int = -1) -> String:
 	var parts: PackedStringArray = []
 	for event: InputEvent in InputMap.action_get_events(action):
-		if is_keyboard_descriptor(descriptor_from_event(event)) == keyboard:
+		var descriptor := descriptor_from_event(event)
+		if not descriptor.is_empty() and is_keyboard_descriptor(descriptor) == keyboard:
 			parts.append(event_text(event, family))
 	return ", ".join(parts) if not parts.is_empty() else "-"
 

@@ -200,6 +200,8 @@ func _ready() -> void:
 		add_child(load(STEAM_JOINS).new())
 		add_child(load(STEAM_TIMELINE).new())
 		add_child(load(STEAM_KEYBOARD).new())
+		# Steam's controllers as pads, GAME.md 10.8.
+		Store.use_steam_input(self, true)
 	if Supporter.offered() and not serving:
 		add_child(load(SUPPORTER_WATCH).new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.

@@ -15,6 +15,8 @@ below, and hands the notes to the release workflow.
 
 - **Moments on Steam's timeline.** With Steam's game recording on, your Royal Flushes, sevens,
   kills, cash-outs and wins are marked on its timeline, and each Grand Prix is one entry.
+- **Steam Input.** On Steam, every action of the game's is named in Steam's controller settings, to
+  put on any button, paddle, trackpad or the gyro.
 - **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and
   mouse as you have them bound too, opening on whichever you used last.
 - **ARM64 Linux on Steam.** The Steam build for Linux carries a native ARM64 build beside the x86_64

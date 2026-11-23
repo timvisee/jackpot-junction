@@ -188,7 +188,7 @@ func knocked_pad() -> int:
 	if player == null or DemoInput.bot_drives(player):
 		return -1
 	var held := player.held_device()
-	return held if held >= 0 and held in Input.get_connected_joypads() else -1
+	return held if held >= 0 and held in DeviceInput.pads() else -1
 
 
 ## The device a human slot reads, or [constant DeviceInput.ANY].
