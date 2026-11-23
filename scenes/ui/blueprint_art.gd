@@ -90,12 +90,13 @@ static func shadow(on: CanvasItem, rect: Rect2) -> void:
 
 ## A tab behind the sheet over [param rect], whose foot is the sheet's top edge, drawn before the
 ## sheet: darker than it, standing a little lower than the page's, which is cut from the sheet
-## itself, see [method sheet]. Its edges are drawn only [param lit], where the cursor or the mouse
-## is on it: bright, with a glow along them and a little light over it, the cursor's marker in its
-## own shape.
-static func tab(on: CanvasItem, rect: Rect2, lit := false) -> void:
+## itself, see [method sheet], and nearer the sheet's own blue where it is the [param current] one
+## of a switch beside the pages. Its edges are drawn only [param lit], where the cursor or the
+## mouse is on it: bright, with a glow along them and a little light over it, the cursor's marker
+## in its own shape.
+static func tab(on: CanvasItem, rect: Rect2, lit := false, current := false) -> void:
 	var edge := _tab_edge(rect, rect.end.y + TAB_BEHIND, rect.position.y + TAB_BEHIND)
-	_paper(on, edge, BLUE.darkened(0.3), rect.position, 0.2)
+	_paper(on, edge, BLUE.darkened(0.1 if current else 0.3), rect.position, 0.2)
 	if lit:
 		_light(on, edge)
 
@@ -194,8 +195,9 @@ static func marks(on: CanvasItem, inside: Rect2, font: Font) -> void:
 		_centered(on, font, str(i + 1), Vector2(x, inside.position.y - 8.0), 13, quiet)
 
 
-## A scale bar from [param at], four blocks of it, and what it is the scale of, in [param font].
-static func scale_bar(on: CanvasItem, at: Vector2, font: Font) -> void:
+## A scale bar from [param at], four blocks of it, and what it is the scale of, [param of], in
+## [param font].
+static func scale_bar(on: CanvasItem, at: Vector2, font: Font, of := "ONE PAD") -> void:
 	for i: int in 4:
 		var block := Rect2(at + Vector2(i * 50.0, 0.0), Vector2(50.0, 8.0))
 		on.draw_rect(block, Color(INK, 0.8), i % 2 == 0, -1.0 if i % 2 == 0 else 1.2)
@@ -204,7 +206,7 @@ static func scale_bar(on: CanvasItem, at: Vector2, font: Font) -> void:
 	on.draw_string(
 		font,
 		at + Vector2(240.0, 9.0),
-		"SCALE 1:1  ·  ONE PAD",
+		"SCALE 1:1  ·  %s" % of,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		13,

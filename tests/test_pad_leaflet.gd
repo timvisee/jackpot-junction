@@ -182,7 +182,11 @@ func test_its_button_opens_it_for_the_pad_in_hand() -> void:
 	_holder.add_child(button)
 	assert_str(button.name).is_equal("PadLeafletButton")
 	assert_str(button.text).is_equal(PadLeaflet.ENTRY)
+	# A pad touched last, not keys.
+	var was := Game.last_input_keyboard
+	Game.last_input_keyboard = false
 	button.pressed.emit()
+	Game.last_input_keyboard = was
 	var leaflet := _holder.get_node("PadLeaflet") as PadLeaflet
 	assert_object(leaflet).is_not_null()
 	assert_int(leaflet.family).is_equal(PadFamily.Family.NINTENDO)
@@ -235,3 +239,42 @@ func test_the_steam_deck_is_drawn_from_valves_drawings_where_they_are() -> void:
 	var whole := Rect2(Vector2.ZERO, deck.size)
 	for spot: StringName in deck.spots:
 		assert_bool(whole.has_point(deck.spots[spot])).is_true()
+
+
+## The keyboard's sheets, GAME.md 8.3b: each key bound by its place says what it does there, a key
+## that does two things says both; the menus' sheet keeps to what a menu is mostly worked with.
+func test_the_keyboards_sheets_say_what_each_key_does() -> void:
+	var driving := KeyboardDiagram.said(0, false)
+	assert_array(driving[KEY_W]).contains(["Gas"])
+	assert_array(driving[KEY_SPACE]).is_equal(["Fire"])
+	assert_array(driving[KEY_SHIFT]).is_equal(["Drift"])
+	var menus := KeyboardDiagram.said(2, false)
+	assert_array(menus[KEY_E]).contains_exactly(["Next page", "Match settings"])
+	# Filter, Sort, How it works and Next new are left to the buttons that say them.
+	for gone: Key in [KEY_R, KEY_T, KEY_H, KEY_N]:
+		assert_bool(menus.has(gone)).is_false()
+	assert_bool(menus.has(KEY_ESCAPE)).is_true()
+	assert_str(KeyboardDiagram.name_of(KEY_SPACE)).is_equal("Space")
+
+
+## Opened from its button after keys or the mouse, it shows the keyboard, the switch beside the
+## page keys turning it to the pad and back, on its key or a click; the foot says whose it is.
+func test_it_opens_on_the_keyboard_after_keys_and_switches() -> void:
+	var was := Game.last_input_keyboard
+	Game.last_input_keyboard = true
+	var button := PadLeaflet.entry(_holder)
+	_holder.add_child(button)
+	button.pressed.emit()
+	Game.last_input_keyboard = was
+	var leaflet := _holder.get_node("PadLeaflet") as PadLeaflet
+	await get_tree().process_frame
+	assert_bool(leaflet.keyboard).is_true()
+	var tab := leaflet.get_node("Around/Pane/Sheet/Tab0") as Button
+	assert_str(tab.accessibility_description).contains("Fire: Space")
+	leaflet._input(_pressed(PadLeaflet.SWITCH))
+	assert_bool(leaflet.keyboard).is_false()
+	assert_str(tab.accessibility_description).contains("Fire: ")
+	(leaflet.get_node("Around/Pane/Sheet/Keyboard") as Button).pressed.emit()
+	assert_bool(leaflet.keyboard).is_true()
+	assert_str(button.text).is_equal("Show controls")
+	leaflet.close()

@@ -190,8 +190,13 @@ const STICK_ACTIONS: Array[StringName] = [
 
 ## The key printed on the player's own keyboard at a key's place, GAME.md 8.3: keys are bound by
 ## where they are, so an AZERTY keyboard's Z is the key a QWERTY one calls W, and it is named Z.
-## The system's word on it, which a test stands in for.
-static var label_of := Callable(DisplayServer, &"keyboard_get_label_from_physical")
+## The system's word on it, which a test stands in for; none where nothing is shown, the headless
+## server's and the tests', which cannot say and complain at every key asked.
+static var label_of := (
+	Callable()
+	if DisplayServer.get_name() == "headless"
+	else Callable(DisplayServer, &"keyboard_get_label_from_physical")
+)
 
 
 ## Every action name, in a stable order.

@@ -5062,8 +5062,9 @@ for.
 
 ### 8.3b How to hold the wheel
 
-The gamepad drawn whole with what each button does (`PadLeaflet`), up over the screen from Show
-gamepad: in the room's menu under Settings, and on the Controls page of 8.5 as the Controller row;
+The gamepad, or the keyboard and the mouse, drawn whole with what each button does (`PadLeaflet`),
+up over the screen from Show controls (Show gamepad until 2026-11-23): in the room's menu under
+Settings, and on the Controls page of 8.5 as the Overview row;
 on a phone only once a pad is plugged in, and not in the booth's demo of 9.8, whose menus are kept
 to what a passer-by needs. It is a blueprint of the Dept. of Karts' engineers (`BlueprintArt`), its
 own thing rather than a pane like the catalog's or the loyalty program's, but lying over the screen
@@ -5097,6 +5098,21 @@ is on now.
   it stays clear, and the one from the left of them goes down round the bottom one rather than
   through the two beside it. A few have a note beside them in red pencil: squeeze, don't stab, by
   the gas.
+- **The keyboard** (`KeyboardDiagram`), drawn where keys or the mouse were touched last, the pad
+  otherwise, and switched between on a switch of two small tabs after the page keys, Keyboard and
+  Gamepad, the shown one nearer the sheet's blue, and on its key, the menus' Change the view, Tab or
+  a pad's Y; no switch on a touch screen. A keyboard without its number pad in the US layout's
+  shape, which serves every layout since keys are bound by where they are, each key in outline with
+  its name as the player's keyboard prints it, 8.3, the ones bound on the sheet lit, the left one of
+  Shift, Ctrl and Alt alone; and a mouse beside it, its buttons lit where bound and on the driving
+  sheet Aim, the Swivel Cannon's. The words for a lit key stand over the keyboard for a key in its
+  top three rows and under it for the rest, in the order of their keys, each line running straight
+  out to a rail along the keyboard's edge and on to its words, so none cross: a key whose line would
+  run through another lit key goes the other way, and neighbours that do the same share their words
+  but where another lit key stands between them. A key that does two things says them one over the
+  other, Next page over Match settings. The menus' sheet leaves Filter, Sort, How it works and Next
+  new to the buttons that say them. The foot says "Your keyboard, as you have it bound", its scale
+  one keyboard. Asked for on 2026-11-23.
 - **Three sheets**: Driving, the jokers and the menus, numbered tabs on the sheet's top edge, the
   page's cut from the sheet itself, one piece of paper with it, its feet flared into the edge and
   the edge's darkening running round it, the others behind, none of them outlined but the one the
@@ -5109,7 +5125,7 @@ is on now.
   department, the drawing's name, How to hold the wheel, and which sheet, under whose pad it is in
   red pencil, "PlayStation controller, as you have it bound".
 - Back, its key, the pause button, a right click or a click beside the sheet put it away, and the
-  cursor goes back to Show gamepad; nothing under it hears a key while it is up. The cursor goes
+  cursor goes back to Show controls; nothing under it hears a key while it is up. The cursor goes
   along the tabs and on to Back, and the tab it is on, or the one under the mouse while the mouse
   is in hand, lights up along its own slanted edges with a glow round them: no box round it, and
   the gold frame the cursor slides in elsewhere, 8.1a, leaves the blueprint's tabs alone. Each sheet's tab tells a screen reader what the sheet shows,
@@ -5409,8 +5425,8 @@ from a section's button low in its box was the one beside it.
 - **Controls**: how the first player drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
-  4.2; Show gamepad, the blueprint of the pad in hand of 8.3b; rebinding per player for
-  gamepad and keyboard, the keyboard's side taking
+  4.2; Show controls, the blueprint of the pad in hand or the keyboard of 8.3b;
+  rebinding per player for gamepad and keyboard, the keyboard's side taking
   a mouse button as well as a key, fire on the left button say, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.

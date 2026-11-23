@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Your keyboard in Show controls.** Show gamepad is now Show controls, and draws your keyboard and
+  mouse as you have them bound too, opening on whichever you used last.
 - **ARM64 Linux on Steam.** The Steam build for Linux carries a native ARM64 build beside the x86_64
   one, for machines such as the Steam Frame, sharing the game's data with it, and starts the right
   one.
@@ -26,9 +28,9 @@ below, and hands the notes to the release workflow.
 - **Your kart's ring, yours alone.** The ring that breathes round a kart until it drives off is only
   round the karts played on your screen. Every kart still flares as it comes back, a rival's
   thinner.
-- **Show gamepad as a dialog.** The blueprint lies over the screen like the catalog, comes and goes
+- **Show controls as a dialog.** The blueprint lies over the screen like the catalog, comes and goes
   the same way, and fills the screen only on a small one.
-- **Show gamepad's tabs.** The page's tab is cut from the blueprint itself, its feet flared into
+- **Show controls' tabs.** The page's tab is cut from the blueprint itself, its feet flared into
   the sheet's edge, rather than laid over it.
 
 ### Fixed
@@ -43,7 +45,7 @@ below, and hands the notes to the release workflow.
   longer crowd the slip.
 - **Kit's folder on a small screen.** With no room beside the slip, it waits in the corner under
   the slip instead of over it.
-- **The Steam Deck's triggers in Show gamepad.** Their lines point at the triggers now, not at the
+- **The Steam Deck's triggers in Show controls.** Their lines point at the triggers now, not at the
   bumpers under them.
 
 ## [0.23.1] - 2026-11-22

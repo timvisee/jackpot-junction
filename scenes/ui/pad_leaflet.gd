@@ -13,7 +13,15 @@ extends Control
 signal put_away
 
 const TITLE := "How to hold the wheel"
-const ENTRY := "Show gamepad"
+const ENTRY := "Show controls"
+## The settings' Controls page's row it is on, 8.5.
+const ROW := "Overview"
+## The switch between the keyboard's sheets and the pad's, and the words on its two sides.
+const SWITCH := InputActions.MENU_VIEW
+const SWITCH_WORDS: Array[String] = ["KEYBOARD", "GAMEPAD"]
+const SWITCH_SIZE := Vector2(186.0, SHEET_TOP)
+## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
+const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
 ## The room the pad and its words are laid out in, in the sheet's own units: the sheet is scaled so
 ## that this fits its pane, and is as wide and as tall as the pane at that scale, so it fills the
@@ -70,6 +78,8 @@ const SIDES: Dictionary[StringName, int] = {
 const AROUND: Dictionary[StringName, Vector2] = {&"west": Vector2(0.0, 150.0)}
 
 var family := PadFamily.Family.GENERIC
+## Whether the keyboard and the mouse are drawn, see [KeyboardDiagram], rather than the pad.
+var keyboard := false
 ## Whether the first player drives the simple way, GAME.md 4.2, where the stick says the way to go.
 var simple := false
 var page := 0
@@ -84,13 +94,17 @@ var _full := false
 var _keys: Control
 var _tabs: Array[Button] = []
 var _back: Button
+## The keyboard's side of the switch and the pad's, and the switch's key; none on a touch screen.
+var _switch: Array[Button] = []
+var _switch_key: Control
 var _from: Control
 var _closing := false
 
 
-## The button that puts the leaflet up over [param parent], for the pad touched last; shown wherever
-## a pad may be in hand, which on a phone is only once one is plugged in, and not in the booth's
-## demo, whose menu is kept to what a passer-by needs, GAME.md 9.8.
+## The button that puts the leaflet up over [param parent], for the keyboard where keys or the
+## mouse were touched last, and otherwise for the pad touched last; shown wherever a pad may be in
+## hand, which on a phone is only once one is plugged in, and not in the booth's demo, whose menu
+## is kept to what a passer-by needs, GAME.md 9.8.
 static func entry(parent: Node, size := Type.LARGE) -> Button:
 	var button := MenuTheme.button(ENTRY, size)
 	button.name = "PadLeafletButton"
@@ -99,29 +113,35 @@ static func entry(parent: Node, size := Type.LARGE) -> Button:
 	button.pressed.connect(
 		func() -> void:
 			var simple_driving := Game.settings.drive_mode(0) == Settings.DRIVE_SIMPLE
-			open(parent, PadFamily.shown(), simple_driving, button)
+			var keys := Game.last_input_keyboard and not TouchInput.enabled
+			open(parent, PadFamily.shown(), simple_driving, button, keys)
 	)
 	return button
 
 
-## The Controller row of the settings' Controls page, 8.5, with the button in it: hidden where
-## the button is.
+## The Overview row of the settings' Controls page, 8.5, with the button in it: hidden where the
+## button is.
 static func row(parent: Node) -> HBoxContainer:
 	var button := entry(parent, Type.BODY)
-	var line := MenuTheme.row("Controller", button)
+	var line := MenuTheme.row(ROW, button)
 	line.visible = button.visible
 	button.visible = true
 	return line
 
 
-## The leaflet up over [param parent] for a pad of [param for_family]; the cursor back on
-## [param from] once it is put away.
+## The leaflet up over [param parent] for a pad of [param for_family], or with [param keys] for
+## the keyboard; the cursor back on [param from] once it is put away.
 static func open(
-	parent: Node, for_family: PadFamily.Family, simple_driving := false, from: Control = null
+	parent: Node,
+	for_family: PadFamily.Family,
+	simple_driving := false,
+	from: Control = null,
+	keys := false
 ) -> PadLeaflet:
 	var leaflet := PadLeaflet.new()
 	leaflet.name = "PadLeaflet"
 	leaflet.family = for_family
+	leaflet.keyboard = keys
 	leaflet.simple = simple_driving
 	leaflet._from = from
 	parent.add_child(leaflet)
@@ -179,16 +199,21 @@ static func entries(on_page: int, simple_driving: bool) -> Array[Dictionary]:
 			list.append(_entry([InputActions.MENU_PAGE_NEXT], "Next page"))
 			list.append(_entry([InputActions.MENU_VIEW], "Change the view"))
 			list.append(_entry([InputActions.MENU_OPTION], "Option"))
-			list.append(_entry([InputActions.MENU_FILTER], "Filter"))
-			list.append(_entry([InputActions.MENU_SORT], "Sort"))
-			list.append(_entry([InputActions.MENU_HELP], "How it works"))
-			list.append(_entry([InputActions.MENU_NEXT_NEW], "Next new"))
+			# The keyboard's sheet keeps to what a menu is mostly worked with: the rest are named on
+			# the buttons they press, and a keyboard has keys enough to crowd it.
+			list.append(_entry([InputActions.MENU_FILTER], "Filter", "", false))
+			list.append(_entry([InputActions.MENU_SORT], "Sort", "", false))
+			list.append(_entry([InputActions.MENU_HELP], "How it works", "", false))
+			list.append(_entry([InputActions.MENU_NEXT_NEW], "Next new", "", false))
 			list.append(_entry([InputActions.MATCH_SETTINGS], "Match settings"))
 	return list
 
 
-static func _entry(actions: Array[StringName], words: String, note := "") -> Dictionary:
-	return {"actions": actions, "words": words, "note": note}
+## An entry of [method entries]: [param keys] false for one the keyboard's sheet leaves out.
+static func _entry(
+	actions: Array[StringName], words: String, note := "", keys := true
+) -> Dictionary:
+	return {"actions": actions, "words": words, "note": note, "keys": keys}
 
 
 ## What the page [param on_page] says at each button [param drawn] shows, as the actions are bound
@@ -278,6 +303,8 @@ func _ready() -> void:
 		key.position = Vector2(24.0, band - key.custom_minimum_size.y * 0.5)
 		_back.add_child(key)
 		(_back.get_theme_stylebox(&"normal") as StyleBoxEmpty).content_margin_left = 40.0
+	if not TouchInput.enabled:
+		_make_switch(band)
 	_link_cursor()
 	resized.connect(_fit)
 	_fit()
@@ -285,6 +312,35 @@ func _ready() -> void:
 	_turn_to(page, false)
 	_tabs[page].grab_focus()
 	MenuTheme.deal(_pane)
+
+
+## The switch between the keyboard and the pad, two small tabs after the page keys with its key
+## before them, at [param band] down the room over the sheet.
+func _make_switch(band: float) -> void:
+	var x := TAB_FIRST + PAGES.size() * TAB_STEP + 10.0 + _keys.get_combined_minimum_size().x + 24.0
+	_switch_key = InputGlyph.of_action(SWITCH, Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
+	if _switch_key != null:
+		_switch_key.position = Vector2(x, band - _switch_key.custom_minimum_size.y * 0.5)
+		_sheet.add_child(_switch_key)
+		x += _switch_key.custom_minimum_size.x + 10.0
+	for i: int in SWITCH_WORDS.size():
+		var side := _tab_button(SWITCH_WORDS[i])
+		side.name = "Keyboard" if i == 0 else "Gamepad"
+		Type.set_font(side, Type.STRONG, 18)
+		side.size = SWITCH_SIZE
+		side.position = Vector2(x + i * (SWITCH_SIZE.x + 8.0), 0.0)
+		side.pressed.connect(show_keyboard.bind(i == 0))
+		ScreenReader.name(side, SWITCH_WORDS[i].capitalize())
+		_switch.append(side)
+
+
+## The keyboard's sheets for [param keys], or the pad's.
+func show_keyboard(keys: bool) -> void:
+	if keys == keyboard:
+		return
+	Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
+	keyboard = keys
+	_turn_to(page, false)
 
 
 ## A tab's button: its words alone, the tab itself drawn on the sheet, see [method _draw_sheet].
@@ -325,6 +381,11 @@ func _ink_tabs() -> void:
 		_back.add_theme_color_override(state, FAINT)
 	_back.add_theme_color_override(&"font_hover_color", INK)
 	_back.add_theme_color_override(&"font_focus_color", INK)
+	for i: int in _switch.size():
+		var ink := INK if keyboard == (i == 0) else FAINT
+		for state: StringName in [&"font_color", &"font_hover_color", &"font_pressed_color"]:
+			_switch[i].add_theme_color_override(state, ink)
+		_switch[i].add_theme_color_override(&"font_focus_color", INK)
 
 
 ## The pane over nearly all the screen, the shade showing round it for a look round and a click
@@ -357,6 +418,7 @@ func _fit_sheet() -> void:
 ## The cursor kept on the tabs, along them and on to Back and round again.
 func _link_cursor() -> void:
 	var row: Array[Button] = _tabs.duplicate()
+	row.append_array(_switch)
 	row.append(_back)
 	for i: int in row.size():
 		var button := row[i]
@@ -386,6 +448,12 @@ func _turn_to(to: int, sound := true) -> void:
 ## What the page [param on_page] says, for a screen reader: each button's words and its name.
 func _said(on_page: int) -> String:
 	var parts: PackedStringArray = []
+	if keyboard:
+		var by_key := KeyboardDiagram.said(on_page, simple)
+		for at: int in by_key:
+			var words: Array[String] = by_key[at]
+			parts.append("%s: %s" % [joined(words), KeyboardDiagram.name_of(at)])
+		return ". ".join(parts)
 	var said := labels(on_page, simple, diagram)
 	for spot: StringName in said:
 		var words: Array[String] = said[spot]["words"]
@@ -403,6 +471,8 @@ func _input(event: InputEvent) -> void:
 		_turn(-1)
 	elif event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
 		_turn(1)
+	elif event.is_action_pressed(SWITCH) and not _switch.is_empty():
+		show_keyboard(not keyboard)
 	elif event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(InputActions.PAUSE):
 		MenuTheme.back_sound()
 		close()
@@ -470,12 +540,19 @@ func _draw_sheet() -> void:
 		if i != page:
 			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), _lit(_tabs[i]))
 	BlueprintArt.tab(_sheet, _back.get_rect(), _lit(_back))
+	for i: int in _switch.size():
+		var shown := keyboard == (i == 0)
+		BlueprintArt.tab(_sheet, _switch[i].get_rect(), _lit(_switch[i]), shown)
 	BlueprintArt.sheet(_sheet, paper, _tabs[page].get_rect(), _lit(_tabs[page]))
 	BlueprintArt.folds(_sheet, paper)
 	var inside := paper.grow(-BlueprintArt.BORDER)
 	BlueprintArt.marks(_sheet, inside, Type.micro_font())
 	_draw_foot(inside)
 	_sheet.draw_set_transform(((_sheet.size - SIZE) * 0.5).round())
+	if keyboard:
+		KeyboardDiagram.draw(_sheet, page, simple)
+		_sheet.draw_set_transform(Vector2.ZERO)
+		return
 	var art := _art_rect()
 	diagram.draw(_sheet, art.position, ART_SCALE, Color(INK, 0.96))
 	diagram.print_faces(_sheet, art.position, ART_SCALE, INK, Type.STRONG)
@@ -494,7 +571,10 @@ func _draw_sheet() -> void:
 ## pad it is drawn for. The room over the sheet is the tabs' and Back's alone.
 func _draw_foot(inside: Rect2) -> void:
 	BlueprintArt.scale_bar(
-		_sheet, inside.position + Vector2(40.0, inside.size.y - 40.0), Type.micro_font()
+		_sheet,
+		inside.position + Vector2(40.0, inside.size.y - 40.0),
+		Type.micro_font(),
+		"ONE KEYBOARD" if keyboard else "ONE PAD"
 	)
 	var corner := inside.end - Vector2(24.0, 22.0)
 	var sheet := (
@@ -502,7 +582,7 @@ func _draw_foot(inside: Rect2) -> void:
 		% [TITLE.to_upper(), page + 1, PAGES.size(), PAGES[page].to_upper()]
 	)
 	_words(Type.micro_font(), sheet, corner, 14, FAINT, -1)
-	var whose := "%s, as you have it bound" % FAMILY_WORDS[family]
+	var whose := "%s, as you have it bound" % (KEYBOARD_WORDS if keyboard else FAMILY_WORDS[family])
 	_words(BayArt.hand_font(), whose, corner - Vector2(0.0, 26.0), 28, BlueprintArt.PENCIL, -1)
 
 
