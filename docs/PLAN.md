@@ -3729,7 +3729,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
 | S13 | The game-recording timeline | Done, but for the user's look on a release |
-| S14 | Steam Input | Built; the user's Steamworks steps and a look on each controller |
+| S14 | Steam Input | Done |
 
 ### Questions, and the answers
 
@@ -4202,13 +4202,20 @@ settings; and what to set on Steamworks. Built in the worktree `steam-input`.
       where Steam has each action, Steam's own pictures for what a pad has not got
       (`SteamPads.place`); each pad lit in its seat's color (`PadLights`); the Controls page's
       Gamepad column showing Steam's bindings with one of Steam's controllers in hand.
-- [ ] The user: the template and the controllers ticked on Steamworks, `docs/STEAM.md`, "Steam
+- [x] The second round, from the user's look the same day: `make steam-run` leaving the gamepads
+      to Steam Input, where every press came twice; the switch asking first, Steam's own switch
+      named in a paragraph of its own; the layouts titled in plain words; shorter action names; a
+      pad that goes pausing the room, its kart a bot's once played on without it and taken back
+      as it comes again (`LostPads`).
+- [x] The user: the template and the controllers ticked on Steamworks, `docs/STEAM.md`, "Steam
       Input".
-- [ ] The user: a look on each controller at hand, the Deck and a Steam Controller among them,
-      the sticks' up checked with `++ --pads` (`SteamPads.UP_IS_MORE`), and Remote Play Together.
-- [ ] The user: the store page's controller survey saying the game uses the Steam Input API,
-      once this is on the default branch, `docs/STEAM.md`, "Steam Input" step 6.
-- [ ] Not wanted for now (the user, 2026-11-23): a menu set beside Play; aiming by the gyro.
+- [x] The user: a look on a controller, a Switch Pro Controller from `staging` and from the
+      checkout, the sticks' up "y more" with `++ --pads` (`SteamPads.UP_IS_MORE` as it is). The
+      Deck is theirs to try at leisure.
+
+After the release: the store page's controller survey saying the game uses the Steam Input API,
+once this is on the default branch, `docs/STEAM.md`, "Steam Input" step 6. Not wanted for now (the
+user, 2026-11-23): a menu set beside Play; aiming by the gyro.
 
 ## M20: the story, retold
 

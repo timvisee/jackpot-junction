@@ -26,6 +26,7 @@ const MOST := 16
 ## Where the action manifest is beside a build, as Steamworks names it too, docs/STEAM.md.
 const BUILT_MANIFEST := "steam_input/action_manifest.vdf"
 ## Whether Steam's sticks say up as more, as Steam's own controller's do: the engine says down.
+## Valve does not say so; a Switch Pro Controller through Steam said it, 2026-11-23.
 const UP_IS_MORE := true
 ## How far a stick or trigger moves before the game hears it again, so a held stick says nothing.
 const STIR := 0.002

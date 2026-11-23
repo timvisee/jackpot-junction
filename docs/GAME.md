@@ -10920,7 +10920,7 @@ sticks and the triggers move the axes of the game's sticks and triggers their ac
 to, so whatever reads those, a menu scrolled by the right stick, the loyalty map zoomed by the
 triggers, reads them. Steam's up on a stick is taken as more and the engine's as less; Valve does
 not say which, so `make steam-run ARGS="--pads"` prints each stick pushed all the way, and every
-press, for a look on a controller. A pad's knock goes through Steam for these, stopped after the
+press, for a look on a controller, and a Switch Pro Controller said "y more" on 2026-11-23. A pad's knock goes through Steam for these, stopped after the
 time asked. Steam hands a game it starts the controllers it reads in SDL's
 `SDL_GAMECONTROLLER_IGNORE_DEVICES`, so the engine leaves them alone; a run Steam did not start
 reads each twice, once from the engine and once through Steam, every press coming twice. A Steam
