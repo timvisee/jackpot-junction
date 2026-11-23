@@ -9,8 +9,11 @@ extends Node3D
 const LIFETIME := 0.75
 const START_RADIUS := 0.5
 const END_RADIUS := 3.6
-## How thick the ring is, as a share of its radius, and how tall the column stands.
+## How thick the ring is, as a share of its radius, and round a kart not driven at this machine,
+## whose coming back is said to the room all the same, more quietly than a player's own; and how
+## tall the column stands.
 const THICKNESS := 0.16
+const THIN := 0.08
 const COLUMN_HEIGHT := 3.4
 const COLUMN_RADIUS := 0.55
 ## The column has gone by this share of the flare's life; the ring keeps going to the end.
@@ -53,10 +56,11 @@ static func spawn(parent: Node, at: Vector3, player_color: Color) -> SpawnRing:
 ## Keeps the ring round where [param kart] came back once the flare has opened, breathing, until it
 ## drives off, GAME.md 3.6: a player who has not found their kart yet finds it still marked, however
 ## long they take. Only a kart driven at this machine: a rival's, or a bot's, is nobody's here to
-## find, and its flare goes as it would.
+## find, and its flare goes as it would, its ring thinner, see [constant THIN].
 func hold_on(kart: Node3D) -> SpawnRing:
 	var driven := kart as Kart
 	if driven != null and not driven.input is PlayerInput:
+		(_ring.mesh as TorusMesh).inner_radius = 1.0 - THIN
 		return self
 	_held = kart
 	add_to_group(GROUP)

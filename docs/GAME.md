@@ -329,7 +329,7 @@ uncontrollable, and dies whatever its lives. On death, in this order:
    1.9 m across, breathing in and out every 1.2 s, and stays until the kart drives
    0.75 m off the spot, so a player who has not found their kart yet finds it still
    marked however long they take; a rival's, or a bot's, nobody here has to find, and
-   its ring goes with the flare. Every kart flares where it stands as a map's
+   its ring, half as thick, goes with the flare. Every kart flares where it stands as a map's
    countdown starts, the ones driven here then held the same way. On a client, whose
    snapshot moves the kart after the flare, it waits up to 2 s for the kart to
    arrive. Asked for on 2026-11-23.

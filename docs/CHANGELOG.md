@@ -14,7 +14,8 @@ below, and hands the notes to the release workflow.
 ### Changed
 
 - **Your kart's ring, yours alone.** The ring that breathes round a kart until it drives off is only
-  round the karts played on your screen. Every kart still flares as it comes back.
+  round the karts played on your screen. Every kart still flares as it comes back, a rival's
+  thinner.
 - **Show gamepad as a dialog.** The blueprint lies over the screen like the catalog, comes and goes
   the same way, and fills the screen only on a small one.
 - **Show gamepad's tabs.** The page's tab is cut from the blueprint itself, its feet flared into

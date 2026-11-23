@@ -361,6 +361,8 @@ func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	assert_int(rings.size()).is_equal(1)
 	var flare: SpawnRing = rings[0]
 	assert_object(flare.color).is_equal(match_node.slots[1].color())
+	var full := flare._ring.mesh as TorusMesh
+	assert_float(full.inner_radius).is_equal_approx(1.0 - SpawnRing.THICKNESS, 0.001)
 	# Its column is gone a moment later, and the ring stays round the kart while it stands there.
 	await _runner.simulate_frames(80, 17)
 	assert_bool(is_instance_valid(flare) and not flare.is_queued_for_deletion()).is_true()
@@ -379,6 +381,9 @@ func test_a_kart_coming_back_opens_a_ring_in_its_own_color() -> void:
 	)
 	assert_int(bot_flares.size()).is_greater_equal(1)
 	assert_bool(SpawnRing.on(bot)).is_false()
+	# Its ring thinner than the one round the kart driven here.
+	var thin := (bot_flares[-1] as SpawnRing)._ring.mesh as TorusMesh
+	assert_float(thin.inner_radius).is_equal_approx(1.0 - SpawnRing.THIN, 0.001)
 
 
 ## A client hears that a kart is back before the snapshot that puts it there, so the ring opens
