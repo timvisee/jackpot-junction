@@ -949,17 +949,7 @@ static func full_renderer() -> bool:
 
 ## Registers the default input map, then the player's rebindings and dead zone on top.
 func apply_input() -> void:
-	InputActions.register_defaults()
-	for action: String in bindings:
-		var descriptors: Array = bindings[action]
-		var name := StringName(action)
-		if not InputMap.has_action(name):
-			continue
-		InputMap.action_erase_events(name)
-		for descriptor: Dictionary in descriptors:
-			InputMap.action_add_event(name, InputActions.make_event(descriptor))
-	for action: StringName in InputActions.STICK_ACTIONS:
-		InputMap.action_set_deadzone(action, stick_deadzone)
+	InputActions.apply(bindings, stick_deadzone)
 
 
 ## Records the current input map for an action as an override.

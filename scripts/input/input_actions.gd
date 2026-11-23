@@ -221,6 +221,22 @@ static func register_defaults() -> void:
 	_add_ui_buttons()
 
 
+## The player's own bindings, [param bindings] (action names to descriptors, as the settings keep
+## them), put over the defaults, and [param deadzone] on the sticks, GAME.md 4.2.
+static func apply(bindings: Dictionary, deadzone: float) -> void:
+	register_defaults()
+	for action: String in bindings:
+		var descriptors: Array = bindings[action]
+		var name := StringName(action)
+		if not InputMap.has_action(name):
+			continue
+		InputMap.action_erase_events(name)
+		for descriptor: Dictionary in descriptors:
+			InputMap.action_add_event(name, make_event(descriptor))
+	for action: StringName in STICK_ACTIONS:
+		InputMap.action_set_deadzone(action, deadzone)
+
+
 ## Puts a pad on Godot's own menu actions. Left alone otherwise: these are not in the rebinding
 ## table and nothing here erases what the keyboard already has on them.
 static func _add_ui_buttons() -> void:
