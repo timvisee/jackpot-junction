@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art itch-art steam-art steam-supporter-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -120,6 +120,12 @@ achievement-art: | $(CACHE)
 # build/steam-achievements.
 steam-achievement-art: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/steam_achievement_export.tscn -- --app=$(STEAM_APP_ID)
+
+# The game's own icons for the timeline of Steam's game recording, GAME.md 10.8, to upload by hand
+# on Steamworks, docs/STEAM.md: each white on nothing at 256 pixels, named as the game calls it,
+# into build/steam-timeline-icons, emptied first. Needs a display.
+steam-timeline-icons: | $(CACHE)
+	$(GODOT) --path . res://scenes/dev/steam_timeline_icon_export.tscn
 
 # The pictures the game's page on itch.io wears, docs/ITCH.md: the cover, 630 by 500, and the
 # page's background, both put up from the game's own arena, karts and seal, into build/itch. At a

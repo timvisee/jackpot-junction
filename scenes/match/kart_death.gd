@@ -264,4 +264,4 @@ static func _announce_overtake(match_node: Match, slot: PlayerSlot, killer: Play
 	killer.stats.add(&"overtakes")
 	var first := match_node.standings()[0]
 	var leading := first == killer or Teams.teammates(first, killer)
-	Events.announced.emit(killer.index, "TAKING THE LEAD" if leading else "OVERTAKE")
+	Events.announced.emit(killer.index, Announcer.LEAD_CALL if leading else Announcer.OVERTAKE_CALL)

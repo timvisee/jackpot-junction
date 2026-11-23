@@ -3728,6 +3728,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
+| S13 | The game-recording timeline | Done but the user's upload of three icons |
 
 ### Questions, and the answers
 
@@ -4161,6 +4162,21 @@ drafts on a review page before settling.
 - [x] The description's headings and pictures, kept in `docs/description` for ITCH.md too.
 - [x] Ten screenshots at 1920 × 1080 from `tools/screenshots --steam`, and the README's retaken at
       that size: a run's settings had sized its window back down, halving every shot.
+
+### S13: the game-recording timeline [10.8]
+
+Asked for by the user on 2026-11-23: Steam Timeline support, its events and icons picked from a
+mock-up. Built in worktree `.claude/worktrees/steam-timeline`. The mock-up listed 33 moments and 11
+questions, each with a default; the user kept 27 moments, changed three icons (the winning cash-out
+a chest, the Final Hand a star, a streak a bolt) and marked only the cash-out that wins a map as the
+big one. "Beat the House" became the Final Hand marked whole, its result not mattering.
+
+- [x] `Timeline`, the table of GAME.md 10.8, and `SteamStore`'s calls; `FakeSteam` records them.
+- [x] `TimelineRecord` on every map and the driving test; `SteamTimeline` for the bar, its words
+      and the end of a phase.
+- [x] `make steam-timeline-icons` for the three icons of the game's own.
+- [ ] The user: upload the three icons on Steamworks, docs/STEAM.md, and note the size the page
+      asks for.
 
 ## M20: the story, retold
 

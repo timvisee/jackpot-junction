@@ -10656,6 +10656,69 @@ An online map adds the people in it, "· 4 players", bots not counted, and keeps
 the results. Friends in the same Steam game are grouped, Steam's player group being the lobby. Under
 app 480 the words cannot be uploaded, so the keys are checked on Steam's test page instead.
 
+#### The timeline
+
+Steam's game recording keeps a timeline of what was played, and the game marks it, so a player can
+find a Royal Flush in an hour of video and Steam can offer it as a clip. Chosen by the user from a
+mock-up of a two-map Grand Prix on 2026-11-23. `Timeline` holds the table, `TimelineRecord` hears a
+match, and `SteamTimeline` reads where the game is.
+
+**The bar.** Steam colors its bar by four game modes, read off the room four times a second: a room
+going up behind its loading screen is Loading; the pause menu of a game on this machine alone is
+Menus; a match's lobby and podium and the waiting room are Staging; a map, the Garage, the Driving
+School and the driving test are Playing; anywhere else is Menus. The words along the bar say the map
+and a Grand Prix's leg, "The Vault · leg 1 of 2", and the place between maps: Waiting room, Garage,
+Driving school; nothing in the menus.
+
+**A Grand Prix is one game phase**, a map played alone one of its own, so Steam's list of recordings
+shows a run as one entry. It is tagged with its mode (Grand Prix, Single map, Showdown or Final Hand,
+and Teams, Online, Shared screen or Watching), every map played in it, and its result, "Won" or the
+place, with a line "18 points · 1st of 4". Leaving the maps for anywhere else ends it.
+
+**The moments.** Each is marked for the seats at this machine, named in front, "Ann: Triple kill",
+when more than one is playing there; a client hears its seats out of what its host tells it, as the
+achievements do. Somebody only watching gets the match's clock alone. Steam marks achievements by
+itself, above anything a game sets, so the game leaves them alone. A suggested clip is Steam's
+Featured: offered first. The icons named `jj_` are the game's own, drawn by `make
+steam-timeline-icons` and uploaded by hand, docs/STEAM.md; a color after a Steam icon's name is one
+its client draws, though Valve's documentation does not list them.
+
+| # | Moment | When | Icon | Priority | Clip |
+|---|---|---|---|---|---|
+| 1 | Won The Vault | A map won, a team's too | `steam_trophy_yellow` | 900 | suggested |
+| 2 | Won the Grand Prix | The run's points on top, after its last map or showdown | `steam_starburst_yellow` | 950 | suggested |
+| 3 | Royal Flush | All four suit pads held, 3.9 | `jj_royal_flush` | 850 | suggested |
+| 4 | Three sevens · won 250 | A pull of 7 7 7, 3.15 | `jj_777` | 850 | suggested |
+| 5 | Triple kill | The announcer's run of kills, 3.12 | `steam_combat_red` | 800 | suggested |
+| 6 | Payment Interrupted | A kart taken out cashing out at Match Point | `steam_explosion_red` | 800 | suggested |
+| 7 | Collected the bounty on Kit · +150 | The crowned kart taken out, 3.10 | `steam_crown_yellow` | 750 | suggested |
+| 8 | Last one standing | Sudden death won by being left, 3.13 | `steam_person_yellow` | 800 | suggested |
+| 9 | Took the lead from Kit | The announcer's Taking the lead or Overtake | `steam_bolt_yellow` | 750 | suggested |
+| 10 | Cashed out 2,600 for the win | The cash-out that reaches the target, over its seconds on the Junction | `steam_chest_green` | 700 | suggested |
+| 11 | Final Hand | The House's Final Hand, flag to whistle, STORY.md 8 | `steam_star_purple` | 1000 | suggested |
+| 12 | Took out Kit | A kill | `steam_attack` | 300 | none |
+| 13 | Taken out by Kit | A death; "Fell into a pit" or "Out" with nobody to credit | `steam_death_red` | 250 | none |
+| 14 | Banked 540 | Any other cash-out banked to its last chip | `steam_purchase_green` | 300 | none |
+| 15 | Match Point | A pot that would win, called as the HUD calls it, 3.4 | `steam_flag_orange` | 600 | may |
+| 16 | Jackpot · 48 chips | The Jackpot's pile emptied, 3.5 | `steam_chest_yellow` | 500 | may |
+| 17 | On fire | The announcer's streak | `steam_bolt_orange` | 550 | may |
+| 18 | Bounty on your head | From the call until collected or lapsed | `steam_crown_orange` | 450 | none |
+| 19 | Full House | A poker hand made, the best of those made at once, 7.3 | `jj_cards` | 450 | may |
+| 20 | Trade kill: Kit | The announcer's trade | `steam_transfer` | 300 | none |
+| 21 | Three bells · won 60 | Any other three of a kind on a pull; a pair is none | `steam_gem_yellow` | 350 | none |
+| 22 | Finished 2nd on Crossfire | A map not won: the icon is the place's figure | `steam_2` | 400 | none |
+| 23 | Bet won: Chip Alley | A loyalty bet won during a map, 8.9 | `steam_ribbon_purple` | 300 | none |
+| 24 | Showdown | A tie-breaker showdown begins, 9.7a | `steam_combat_orange` | 600 | may |
+| 25 | Passed: Shooting | A driving test lesson passed, and the final exam; a skipped one is none | `steam_completed_green` | 500 | may |
+| 26 | Last Call | The last 30 s, as a stretch | `steam_timer_yellow` | 400 | none |
+| 27 | Overtime | Sudden death to the whistle, as a stretch | `steam_caution_red` | 650 | may |
+
+Left unmarked as too many or too small: a joker taken, a life lost, a pull voided, a pad claimed, a
+joker thrown down by a hot table, and a rival's big moments. The Final Hand's result does not matter,
+STORY.md 1, so the Final Hand is marked whole rather than won. Hands are counted by a host alone, so
+a client marks its own as its hand changes; an overtake is called by a host alone, so a client's is
+not marked.
+
 #### Playing with Steam friends
 
 A third way to play online beside LAN and the servers of 9.3a: over Steam's own network, which

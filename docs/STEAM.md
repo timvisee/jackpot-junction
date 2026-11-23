@@ -259,6 +259,20 @@ account says at https://steamcommunity.com/dev/testrichpresence while it plays.
 Under app 480 nothing of ours can be uploaded, so the friends list shows nothing
 of it, but the test page still lists the keys.
 
+## Timeline icons
+
+The game marks Steam's game-recording timeline, GAME.md 10.8, mostly with Steam's own icons, and
+with three of its own: `jj_royal_flush`, `jj_777` and `jj_cards`. Draw them with
+`make steam-timeline-icons` (needs a display), which writes each as a white PNG on transparency,
+256 pixels square, to `build/steam-timeline-icons/`. Upload them at
+https://partner.steamgames.com/apps/timelinemarkers/5652730, each under the name its file has
+without `.png`, which is what the game asks Steam for. Until they are there, Steam draws its plain
+marker in their place. Valve's documentation gives no size or format for these icons, so check what
+the page asks for and say so here.
+
+To see the markers, turn on Steam's game recording, play a map, and open the recording from the
+overlay or from Recordings & Screenshots.
+
 ## Store and library art
 
 `make steam-art` renders every picture Steamworks asks for but the achievements'

@@ -33,8 +33,9 @@ var pointer_until: TutorialTask
 ## The pieces of the HUD that are in the corner once this lesson is over, however it went: the
 ## item slot a lesson skipped never pointed at, say.
 var ensures: Array[StringName] = []
-## Whether the pause menu may pass this lesson: every lesson but the fight.
+## Whether the pause menu may pass this lesson: every lesson but the fight; and whether it did.
 var skippable := true
+var skipped := false
 ## Whether every task is on the list from the start though they are done in order: the fight's
 ## goal with its hints under it.
 var show_all := false
@@ -147,6 +148,7 @@ func headway() -> float:
 
 ## Every task done and every piece up at once, for the pause menu's Skip lesson.
 func skip() -> void:
+	skipped = true
 	for task: TutorialTask in tasks:
 		task.complete()
 	bring_all_at_once()

@@ -16,6 +16,11 @@ const TRADE_WINDOW := 2.5
 const COMBOS: Array[String] = ["DOUBLE KILL", "TRIPLE KILL", "QUAD KILL", "KILLING SPREE"]
 ## Kills without dying, and what each is called. Read in order; the last one reached wins.
 const STREAKS: Dictionary[int, String] = {3: "HOT STREAK", 5: "ON FIRE", 8: "UNTOUCHABLE"}
+## A kill straight back at whoever took the killer out, and an overtake in sudden death, to the top
+## of the running order or past the kart taken out, see [KartDeath].
+const TRADE_CALL := "TRADE KILL"
+const LEAD_CALL := "TAKING THE LEAD"
+const OVERTAKE_CALL := "OVERTAKE"
 ## A showdown's calls, GAME.md 9.7a: every kart that goes out of it, and whoever is left at the
 ## whistle, the tie broken in a Grand Prix's and the showdown won in a quick match's.
 const OUT_CALL := "OUT"
@@ -88,7 +93,7 @@ func _call_for(killer_slot: int, victim_slot: int, run: int, streak: int) -> Str
 	if STREAKS.has(streak):
 		return STREAKS[streak]
 	if _traded(killer_slot, victim_slot):
-		return "TRADE KILL"
+		return TRADE_CALL
 	return ""
 
 

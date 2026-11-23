@@ -1,9 +1,11 @@
+# gdlint: disable=max-public-methods
 class_name FakeSteam
 extends RefCounted
 ## Steam as the tests see it, GAME.md 10.8: the GodotSteam methods [SteamStore] calls, by
 ## GodotSteam's own names, answering as Steam would and keeping what it was told, so that no test
 ## ever talks to the real thing.
 
+# Every call SteamStore makes, by GodotSteam's own name, however many: the two rules off at the top.
 # gdlint: disable=function-name
 
 signal lobby_created(result: int, lobby: int)
@@ -57,6 +59,15 @@ var big_picture := false
 ## Whether Steam puts its floating keyboard up when asked, and whether it is up.
 var keyboard_shows := true
 var keyboard_up := false
+## What it was told for the timeline of its game recording, GAME.md 10.8: every event marked,
+## oldest first, with its words, icon, priority, offset, clip and handle, a stretch's length or
+## whether it is still open; the game mode and tooltip it shows now; its game phases, oldest first;
+## and the last handle given.
+var timeline: Array[Dictionary] = []
+var timeline_mode := 0
+var tooltip := ""
+var phases: Array[Dictionary] = []
+var next_handle := 0
 
 
 func restartAppIfNecessary(app_id: int) -> bool:
@@ -277,3 +288,107 @@ func dismissFloatingGamepadTextInput() -> bool:
 func close_keyboard() -> void:
 	keyboard_up = false
 	floating_gamepad_text_input_dismissed.emit()
+
+
+func addInstantaneousTimelineEvent(
+	title: String,
+	description: String,
+	icon: String,
+	icon_priority: int,
+	start_offset_seconds: float,
+	possible_clip: int
+) -> int:
+	return _marked(title, description, icon, icon_priority, start_offset_seconds, possible_clip)
+
+
+func addRangeTimelineEvent(
+	title: String,
+	description: String,
+	icon: String,
+	icon_priority: int,
+	start_offset_seconds: float,
+	duration_seconds: float,
+	possible_clip: int
+) -> int:
+	var handle := _marked(
+		title, description, icon, icon_priority, start_offset_seconds, possible_clip
+	)
+	timeline[-1]["lasting"] = duration_seconds
+	return handle
+
+
+func startRangeTimelineEvent(
+	title: String,
+	description: String,
+	icon: String,
+	icon_priority: int,
+	start_offset_seconds: float,
+	possible_clip: int
+) -> int:
+	var handle := _marked(
+		title, description, icon, icon_priority, start_offset_seconds, possible_clip
+	)
+	timeline[-1]["open"] = true
+	return handle
+
+
+func endRangeTimelineEvent(event: int, end_offset_seconds: float) -> void:
+	calls.append("endRangeTimelineEvent %d %s" % [event, end_offset_seconds])
+	for marked: Dictionary in timeline:
+		if marked["handle"] == event:
+			marked["open"] = false
+
+
+func setTimelineGameMode(mode: int) -> void:
+	calls.append("setTimelineGameMode %d" % mode)
+	timeline_mode = mode
+
+
+func setTimelineTooltip(description: String, _time_delta: float) -> void:
+	calls.append("setTimelineTooltip %s" % description)
+	tooltip = description
+
+
+func clearTimelineTooltip(_time_delta: float) -> void:
+	calls.append("clearTimelineTooltip")
+	tooltip = ""
+
+
+func startGamePhase() -> void:
+	calls.append("startGamePhase")
+	phases.append({"id": "", "tags": [], "attributes": {}, "open": true})
+
+
+func endGamePhase() -> void:
+	calls.append("endGamePhase")
+	if not phases.is_empty():
+		phases[-1]["open"] = false
+
+
+func setGamePhaseID(phase_id: String) -> void:
+	calls.append("setGamePhaseID %s" % phase_id)
+	if not phases.is_empty():
+		phases[-1]["id"] = phase_id
+
+
+func addGamePhaseTag(tag_name: String, tag_icon: String, tag_group: String, priority: int) -> void:
+	calls.append("addGamePhaseTag %s %s %s %d" % [tag_name, tag_icon, tag_group, priority])
+	if not phases.is_empty():
+		(phases[-1]["tags"] as Array).append([tag_group, tag_name])
+
+
+func setGamePhaseAttribute(attribute_group: String, attribute_value: String, priority: int) -> void:
+	calls.append("setGamePhaseAttribute %s %s %d" % [attribute_group, attribute_value, priority])
+	if not phases.is_empty():
+		phases[-1]["attributes"][attribute_group] = attribute_value
+
+
+func _marked(
+	title: String, description: String, icon: String, priority: int, offset: float, clip: int
+) -> int:
+	next_handle += 1
+	var event := {"title": title, "description": description, "icon": icon, "priority": priority}
+	event.merge({"offset": offset, "clip": clip, "handle": next_handle})
+	timeline.append(event)
+	calls.append("timeline %s" % title)
+	return next_handle

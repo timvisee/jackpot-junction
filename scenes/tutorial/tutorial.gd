@@ -118,6 +118,10 @@ func _ready() -> void:
 	if OS.is_debug_build():
 		menu.add_entry(DEBUG_SKIP, run.skip_to_end, _skip_entry)
 	run.lesson_started.connect(_on_lesson_started)
+	# Each lesson passed is marked on Steam's timeline, GAME.md 10.8; the test is no Grand Prix's map.
+	var timeline := TimelineRecord.add_to(match_node, false)
+	if timeline != null:
+		timeline.watch_lessons(run)
 	_ask_how_to_drive()
 	loaded.emit()
 

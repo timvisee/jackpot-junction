@@ -60,6 +60,10 @@ var _waiting := false
 var _checked := false
 ## What Steam's rich presence says now, key by key, GAME.md 10.8.
 var _presence: Dictionary = {}
+## What the timeline's bar and tooltip say now, GAME.md 10.8, so Steam is told only a change: the
+## game mode, 0 before any, and the words, empty for none.
+var _mode := 0
+var _tooltip := ""
 ## Told whenever the account's DLC may have changed while the game runs, see [method watch_dlc].
 var _dlc_told := Callable()
 
@@ -211,6 +215,90 @@ func present(keys: Dictionary) -> void:
 		if _presence.get(key, "") != keys[key]:
 			api.call(&"setRichPresence", key, keys[key])
 			_presence[key] = keys[key]
+
+
+## A moment marked on the timeline of Steam's game recording, GAME.md 10.8, [param offset] seconds
+## from now, a moment past being less than 0: its words, its icon on Steam's list or one uploaded
+## for the game, how far up it is drawn when the timeline is crowded, 0 to 1000, and whether Steam
+## offers a clip of it, [constant Timeline.CLIP_FEATURED] and the rest. Steam's handle for it.
+func timeline_mark(
+	title: String, description: String, icon: String, priority: int, offset: float, clip: int
+) -> int:
+	var args := [title, description, icon, priority, offset, clip]
+	return int(api.callv(&"addInstantaneousTimelineEvent", args))
+
+
+## A stretch of the timeline marked whole, GAME.md 10.8: as [method timeline_mark], begun
+## [param offset] seconds from now and [param lasting] seconds long.
+func timeline_span(
+	title: String,
+	description: String,
+	icon: String,
+	priority: int,
+	offset: float,
+	lasting: float,
+	clip: int,
+) -> int:
+	var args := [title, description, icon, priority, offset, lasting, clip]
+	return int(api.callv(&"addRangeTimelineEvent", args))
+
+
+## A stretch of the timeline begun now and left open, GAME.md 10.8, until [method timeline_close]
+## ends it: as [method timeline_mark]. Steam's handle for it.
+func timeline_open(
+	title: String, description: String, icon: String, priority: int, clip: int
+) -> int:
+	var args := [title, description, icon, priority, 0.0, clip]
+	return int(api.callv(&"startRangeTimelineEvent", args))
+
+
+## Ends the open stretch [param handle] now, GAME.md 10.8.
+func timeline_close(handle: int) -> void:
+	api.call(&"endRangeTimelineEvent", handle, 0.0)
+
+
+## The timeline's bar colored as [param mode], [constant Timeline.PLAYING] and the rest, GAME.md
+## 10.8; nothing said to Steam when it already is.
+func timeline_mode(mode: int) -> void:
+	if mode == _mode:
+		return
+	_mode = mode
+	api.call(&"setTimelineGameMode", mode)
+
+
+## What the timeline says along itself of where the player is, GAME.md 10.8: [param words], or
+## nothing for none; nothing said to Steam when it already says so.
+func timeline_tooltip(words: String) -> void:
+	if words == _tooltip:
+		return
+	_tooltip = words
+	if words.is_empty():
+		api.call(&"clearTimelineTooltip", 0.0)
+	else:
+		api.call(&"setTimelineTooltip", words, 0.0)
+
+
+## A game phase of the recording begun, GAME.md 10.8, called [param id] for good.
+func phase_start(id: String) -> void:
+	api.call(&"startGamePhase")
+	api.call(&"setGamePhaseID", id)
+
+
+## The game phase being recorded ended, GAME.md 10.8.
+func phase_end() -> void:
+	api.call(&"endGamePhase")
+
+
+## A tag on the game phase being recorded, GAME.md 10.8: [param words] in the group [param group],
+## with [param icon], kept beside any other tag of the group.
+func phase_tag(words: String, icon: String, group: String, priority: int) -> void:
+	api.call(&"addGamePhaseTag", words, icon, group, priority)
+
+
+## What the game phase being recorded says under [param group], GAME.md 10.8: [param words], the
+## last said being the one shown.
+func phase_attribute(group: String, words: String, priority: int) -> void:
+	api.call(&"setGamePhaseAttribute", group, words, priority)
 
 
 ## Whether the account owns the DLC [param dlc] and has it installed, GAME.md 10.8.

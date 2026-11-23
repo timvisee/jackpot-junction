@@ -178,6 +178,9 @@ func _ready() -> void:
 		PinnedStrip.add_to(match_node)
 		NoteDealer.add_to(match_node, FinalHandTable.note_for(Game.settings.profile))
 		StoryTable.add_to(match_node)
+	# What is worth a marker on Steam's timeline, GAME.md 10.8, a watcher's as well; with Steam on.
+	if not config.dedicated and not Demo.playing():
+		TimelineRecord.add_to(match_node)
 	if Story.final_hand_on:
 		FinalHandTable.add_to(match_node, config.house)
 		# A debug build may blow the House's whistle at once, to look at its slip without playing
