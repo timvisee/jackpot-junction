@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **A quieter cash-out.** The chime when you bank, and the fanfare over a big pot, a bounty or a
+  Royal Flush, no longer ring out over the room.
 - **Room for eight on the lobby's pad.** The pad grows as more players join, karts on it drive
   through each other, and a kart may stop a little past its edge, so nobody is knocked off it.
 - **Readying up forgives a slip.** A kart that rolls off the pad and straight back is ready again at

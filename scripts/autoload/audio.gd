@@ -64,6 +64,11 @@ const MUFFLE_RELEASE := 3.0
 const BANK_TICK_INTERVAL := 0.07
 ## The least time between two cash-out chimes for one player.
 const BANK_CHIME_GAP := 1.6
+## How loud the cash-out's chime is, which a bounty and a life patched up ring too, and the fanfare
+## over a big pot, a bounty or a Royal Flush, in decibels: a receipt under the room rather than over
+## it. At full level they rang out over it, louder than a joker taken or an achievement.
+const CHIME_DB := -8.0
+const FANFARE_DB := -6.0
 ## A steady four to the bar, so the beat reads off the playback position, see [member track].
 const BEATS_PER_BAR := 4
 
@@ -726,7 +731,9 @@ func _connect_events() -> void:
 	Events.kart_wounded.connect(
 		func(_victim: int, _by: int, _cause: StringName) -> void: play_sfx(&"wounded", -4.0, 0.1)
 	)
-	Events.life_restored.connect(func(_slot: int) -> void: play_sfx(&"patched", -6.0, 0.0))
+	Events.life_restored.connect(
+		func(_slot: int) -> void: play_sfx(&"patched", CHIME_DB - 6.0, 0.0)
+	)
 	Events.match_state_changed.connect(_on_state_changed)
 
 
@@ -840,12 +847,12 @@ func _on_bank_tick(_slot: int, _points: int) -> void:
 
 
 func _on_bounty_claimed(_killer: int, _victim: int, _amount: int) -> void:
-	play_sfx(&"bank_done", 0.0, 0.0)
-	play_sfx(&"fanfare", -2.0, 0.0)
+	play_sfx(&"bank_done", CHIME_DB, 0.0)
+	play_sfx(&"fanfare", FANFARE_DB - 2.0, 0.0)
 
 
 func _on_flush_completed(_slot: int) -> void:
-	play_sfx(&"fanfare", 0.0, 0.0)
+	play_sfx(&"fanfare", FANFARE_DB, 0.0)
 	play_sfx(&"chips_scatter", -2.0)
 
 
@@ -869,10 +876,10 @@ func _on_bank_completed(slot: int, _coins: int, _mult: float, total: int) -> voi
 	var now := Time.get_ticks_msec() * 0.001
 	var quiet: float = _banked_at.get(slot, -BANK_CHIME_GAP)
 	if now - quiet >= BANK_CHIME_GAP:
-		play_sfx(&"bank_done", 0.0, 0.0)
+		play_sfx(&"bank_done", CHIME_DB, 0.0)
 	_banked_at[slot] = now
 	if total >= 500:
-		play_sfx(&"fanfare", 0.0, 0.0)
+		play_sfx(&"fanfare", FANFARE_DB, 0.0)
 		play_sfx(&"chips_scatter", -2.0)
 
 
