@@ -8867,7 +8867,8 @@ under a padlock and a gold band along its foot, AFTER MAP 5. Pressed, it asks fi
 sign's question, "Open Slot machines early?", what the card does and that it stays opened, with
 Open it and Not now, the cursor on not; opened, it comes face up. A card opened and not yet played
 wears a NEW tag. The card under the mouse, or else the cursor, says what it is in a hint standing
-over it, kept on the screen and under it where there is no room above, the loading screen's tag of
+under it, so the presets over the strip stay in easy reach, kept on the screen and over the card
+where there is no room below, the loading screen's tag of
 8.6 (`TableTag`): its name and its line, with NEW on its chip for a new card and AFTER MAP 5 for a
 sealed one, since the loading screen is often up too briefly to be read. A preset that turns cards
 over turns them as a press does, one after another along the row, the next starting 0.06 s after

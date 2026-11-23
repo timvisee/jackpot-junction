@@ -23,7 +23,7 @@ const GAP := 10.0
 ## before it the next one starts when a preset turns several, a wave along the row.
 const TURN := 0.22
 const WAVE := 0.06
-## How far over the card under the mouse or the cursor its hint stands.
+## How far under the card under the mouse or the cursor its hint stands.
 const TIP_GAP := 10.0
 ## The felt the cards lie on, a strip of the table itself, and how much of it shows round them.
 const FELT := Color("#1f4434")
@@ -181,8 +181,9 @@ func _point(card: int, mouse: bool, on: bool) -> void:
 	_place_tip.call_deferred()
 
 
-## The hint over its card, in the middle of it and clear of its top, kept on the screen, and as big
-## as the card is shown, the pane being shrunk to fit a small screen, see [HostSettings].
+## The hint under its card, in the middle of it and clear of its foot, where it leaves the presets
+## over the strip to be reached, or over it where the screen has no room below; kept on the screen,
+## and as big as the card is shown, the pane being shrunk to fit a small screen, see [HostSettings].
 func _place_tip() -> void:
 	if not _tip.visible or _tip.card < 0:
 		return
@@ -192,13 +193,11 @@ func _place_tip() -> void:
 	_tip.scale = Vector2.ONE * grown
 	_tip.reset_size()
 	var wide := _tip.size * grown
-	var at := Vector2(
-		shown.get_center().x - wide.x * 0.5, shown.position.y - wide.y - TIP_GAP * grown
-	)
+	var at := Vector2(shown.get_center().x - wide.x * 0.5, shown.end.y + TIP_GAP * grown)
 	var screen := get_viewport_rect().size
 	at.x = clampf(at.x, 4.0, maxf(screen.x - wide.x - 4.0, 4.0))
-	if at.y < 4.0:
-		at.y = shown.end.y + TIP_GAP * grown
+	if at.y + wide.y > screen.y - 4.0:
+		at.y = shown.position.y - wide.y - TIP_GAP * grown
 	_tip.global_position = at
 
 

@@ -502,7 +502,7 @@ func test_a_card_opened_later_stays_down_on_the_penny_table() -> void:
 	assert_int(Game.settings.profile.table_set()).is_equal(TableCards.opened_by(4))
 
 
-## A card's hint, GAME.md 9.6: over the card under the mouse or the cursor, the mouse's first, its
+## A card's hint, GAME.md 9.6: under the card under the mouse or the cursor, the mouse's first, its
 ## name and line as the loading screen says them, a sealed card's map on a chip; none once the House
 ## has locked the table.
 func test_a_card_says_what_it_is_under_the_cursor() -> void:
@@ -520,8 +520,9 @@ func test_a_card_says_what_it_is_under_the_cursor() -> void:
 	assert_int(tip.card).is_equal(TableCards.Card.JACKPOT)
 	assert_str(tip._line.text).is_equal(TableCards.LINES[TableCards.Card.JACKPOT])
 	assert_bool(tip._chip.visible).is_false()
-	var card_top := strip.button(TableCards.Card.JACKPOT).get_global_rect().position.y
-	assert_float(tip.global_position.y + tip.size.y * tip.scale.y).is_less_equal(card_top)
+	# Under the card, clear of the presets over the strip.
+	var card_foot := strip.button(TableCards.Card.JACKPOT).get_global_rect().end.y
+	assert_float(tip.global_position.y).is_greater_equal(card_foot)
 	strip._point(TableCards.Card.BOUNTY, true, true)
 	assert_int(tip.card).is_equal(TableCards.Card.BOUNTY)
 	assert_str(tip._chip.text).contains("AFTER MAP 6")
