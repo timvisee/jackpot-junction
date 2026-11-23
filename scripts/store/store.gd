@@ -148,6 +148,12 @@ static func persona() -> String:
 	return PlayerNames.clean(steam.persona()) if steam != null else ""
 
 
+## Which of Steam's own machines the game runs on, [constant SteamStore.NOT_STEAM_HARDWARE] for
+## none or with no Steam.
+static func hardware() -> int:
+	return steam.hardware() if steam != null else SteamStore.NOT_STEAM_HARDWARE
+
+
 ## Where the Steam account playing keeps its settings, its profiles beside them, GAME.md 10.8, the
 ## GitHub build's copied in the first time; empty with no Steam.
 static func settings_path() -> String:

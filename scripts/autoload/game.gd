@@ -43,6 +43,8 @@ const QUIET_ROUNDS := 4
 ## the environment variable a tool that starts the game as a scene names them in.
 const TEST_SETTINGS := "user://tests.cfg"
 const SETTINGS_ENV := "JJ_SETTINGS"
+## What SteamOS sets on a Steam Deck, to 1, for every game it starts, Steam's or not.
+const STEAM_DECK_ENV := "SteamDeck"
 
 ## Whether this is a dedicated server or one of its games, GAME.md 9.3a: the server build, or the
 ## game started with `--server`. It plays to nobody, so it loads no sound at all: the build has
@@ -111,6 +113,10 @@ func _init() -> void:
 		settings.path = own
 	var fresh := not SafeFile.exists(settings.path)
 	settings.load_from_disk()
+	if fresh:
+		# Steam's own machines start as what they are, GAME.md 8.5: a Steam Deck in the hand.
+		var on_deck := OS.get_environment(STEAM_DECK_ENV) == "1"
+		ViewChoices.play_on(settings, ViewChoices.first_screen(Store.hardware(), on_deck))
 	if fresh and settings.profile.player_names[0].is_empty():
 		# The first profile a Steam account plays is named after it, GAME.md 10.8.
 		settings.profile.player_names[0] = Store.persona()

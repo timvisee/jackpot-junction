@@ -3724,7 +3724,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S6 | Releasing on Steam | Done |
 | S7 | The Steamworks list and wrapping up | Done |
 | S8 | The supporter pack | Done, in 0.23.0 |
-| S9 | Steam Deck | Done but the first start on Steam hardware |
+| S9 | Steam Deck | Done but the user's look at its frame rate |
 | S10 | Linux ARM64 in the Linux depot | Due: the first Steam release was 0.23.0 |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
@@ -4085,10 +4085,11 @@ Checked 2026-11-23, after the user played 0.23.1 on a Steam Deck and a Steam Mac
       (only on a press, a dialog for a box low on the screen, at once in a dialog for a box alone);
       `PadFamily` and Steam Input's types, the Deck's L1 to R2, its own drawing in Show gamepad;
       the user's look on a Deck, its fixes 26f61d7d to 76848711.
-- [ ] The first start on Steam hardware: a Steam Deck starts as Desk at a UI scale of 100%, since
+- [x] The first start on Steam hardware: a Steam Deck starts as Desk at a UI scale of 100%, since
       `ViewChoices.default_screen` knows only a phone. It should start as Handheld, 150%, and a
       Steam Machine as TV, 125%, from `isRunningOnSteamHardware`; the text at 1280×800 is what
-      Valve's Deck Verified review reads first.
+      Valve's Deck Verified review reads first. Done 2026-11-23 (`ViewChoices.first_screen`), a
+      Deck told by SteamOS's `SteamDeck=1` too, for a build without Steam.
 - [ ] The frame rate on a Deck at the first start's settings: the user's look.
 
 ### S10: Linux ARM64 in the Linux depot, after the first release [10.8]

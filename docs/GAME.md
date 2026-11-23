@@ -5431,7 +5431,10 @@ from a section's button low in its box was the one beside it.
   texture detail, MSAA, screen
   smoothing, the look, tire marks and the crowd, with the screen type and whom the camera
   follows. The screen type is what the game is played on: Desk, TV or Handheld, a phone
-  or a tablet starting on Handheld and everything else on Desk. Picking one puts the
+  or a tablet starting on Handheld and everything else on Desk, but for Steam's own: at
+  its first start a Steam Deck starts on Handheld, by Steam's word or SteamOS's, and a
+  Steam Machine on TV, each at its UI scale, so the text is as big as Valve's Deck
+  Verified review asks of the first start (2026-11-23). Picking one puts the
   UI scale at the size it suits, 100%, 125% and 150%, which the UI scale box then
   shows and the player can change again, and Auto suits the camera to it: a TV
   watched from across a room and a handheld held in the hand show the karts smaller

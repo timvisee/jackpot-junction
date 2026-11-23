@@ -336,8 +336,7 @@ func _add_screen() -> void:
 	ScreenReader.name(screen, SCREEN, SCREEN_TIP)
 	screen.item_selected.connect(
 		func(index: int) -> void:
-			_settings.screen = ViewChoices.SCREENS[index]
-			_settings.ui_scale = ViewChoices.SCREEN_UI_SCALES[index]
+			ViewChoices.play_on(_settings, ViewChoices.SCREENS[index])
 			if _ui_box != null:
 				_ui_box.select(ui_scale_index(_settings.ui_scale))
 			_apply()

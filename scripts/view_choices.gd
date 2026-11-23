@@ -31,6 +31,25 @@ static func default_screen() -> String:
 	return SCREEN_HANDHELD if OS.has_feature("mobile") else SCREEN_DESK
 
 
+## What a machine is played on at its first start, GAME.md 8.5: on Steam's own, what it is,
+## [param hardware] Steam's word on it, see [constant SteamStore.NOT_STEAM_HARDWARE]: a Steam Deck
+## in the hand, as it is too where SteamOS says so, [param on_deck], in a build without Steam; a
+## Steam Machine under a television. Anywhere else, see [method default_screen].
+static func first_screen(hardware: int, on_deck: bool) -> String:
+	if hardware == SteamStore.STEAM_DECK or on_deck:
+		return SCREEN_HANDHELD
+	if hardware == SteamStore.STEAM_MACHINE:
+		return SCREEN_TV
+	return default_screen()
+
+
+## [param settings] played on [param screen], one of [constant SCREENS], at the UI scale it starts
+## at, see [constant SCREEN_UI_SCALES].
+static func play_on(settings: Settings, screen: String) -> void:
+	settings.screen = screen
+	settings.ui_scale = SCREEN_UI_SCALES[maxi(SCREENS.find(screen), 0)]
+
+
 ## The UI scale drawn just now: a size being tried on the Video page, or the one kept.
 static func ui_scale_now() -> float:
 	return Settings.ui_scale_for_now if Settings.ui_scale_for_now > 0.0 else Game.settings.ui_scale

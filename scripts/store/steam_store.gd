@@ -28,8 +28,10 @@ const EVERY := 5.0
 ## How many batches an achievement Steam would not take is offered in.
 const TRIES := 5
 ## What Steam answers for a machine that is none of its own, GodotSteam's `SteamHardwareType`:
-## anything else is a Steam Deck, a Steam Machine or a Steam Frame.
+## anything else is a Steam Deck, a Steam Machine or a Steam Frame, in that order.
 const NOT_STEAM_HARDWARE := 0
+const STEAM_DECK := 1
+const STEAM_MACHINE := 2
 ## How the overlay opens a store page, GodotSteam's OverlayToStoreFlag: just the page, nothing
 ## added to the cart.
 const OVERLAY_TO_STORE := 0
@@ -91,6 +93,11 @@ func start(app_id: int) -> String:
 	lobbies = SteamLobby.new(api)
 	friends = SteamFriends.new(api, app)
 	return ""
+
+
+## Which of Steam's own machines the game runs on, see [constant NOT_STEAM_HARDWARE].
+func hardware() -> int:
+	return int(api.call(&"isRunningOnSteamHardware"))
 
 
 ## The account's name on Steam.
@@ -258,7 +265,7 @@ func _on_overlay_toggled(active: bool, _by_user := false, _app := 0) -> void:
 ## hardware, a Steam Deck, a Steam Machine or a Steam Frame, and wherever Steam is in Big Picture.
 ## Asked each time, since Steam can go into Big Picture and out again while the game plays.
 func keyboard_here() -> bool:
-	if int(api.call(&"isRunningOnSteamHardware")) != NOT_STEAM_HARDWARE:
+	if hardware() != NOT_STEAM_HARDWARE:
 		return true
 	return bool(api.call(&"isSteamInBigPictureMode"))
 
