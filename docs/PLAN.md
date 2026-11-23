@@ -4177,6 +4177,8 @@ settings; and what to set on Steamworks. Built in the worktree `steam-input`.
       buttons, the pad's own button where one is bound to just those actions or a chord
       (`InputActions.chord`), sticks and triggers on the game's axes, knocks through Steam,
       Steam's controller settings. `DeviceInput.pads()` wherever a pad list was the engine's.
+- [x] The switch on the Controls page, kept per machine, with Change in Steam; `--steam-input`,
+      `--no-steam-input`.
 - [x] `make steam-export` copies the files in as `steam_input/`; `steam.yml` checks them.
 - [ ] The user: the template and the controllers ticked on Steamworks, `docs/STEAM.md`, "Steam
       Input".

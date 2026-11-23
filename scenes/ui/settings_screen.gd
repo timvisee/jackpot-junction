@@ -401,6 +401,8 @@ func _controls_tab() -> Control:
 		column.add_child(MenuTheme.row("Touch driving", touch))
 	# The pad drawn whole with what each button does, GAME.md 8.3b.
 	column.add_child(PadLeaflet.row(self))
+	# Steam Input, GAME.md 10.8, in a game with Steam on.
+	SteamInputRow.add_to(column, _settings)
 	var header := HBoxContainer.new()
 	for text: String in BINDING_HEADS:
 		var label := Label.new()

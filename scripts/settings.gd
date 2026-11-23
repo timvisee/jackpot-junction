@@ -192,6 +192,8 @@ var see_through_hud := true
 var kart_rings := ViewChoices.RINGS_OFF
 var kart_marker := false
 var stick_deadzone := 0.15
+## Whether Steam Input reads the controllers in a Steam build, GAME.md 10.8; the machine's.
+var steam_input := true
 ## How a touch screen drives, GAME.md 4.2: [constant TOUCH_SLIDER], one slider under the right thumb
 ## for nitro, gas, brake and drift, or [constant TOUCH_BUTTONS], a round button for each.
 var touch_layout := TOUCH_SLIDER
@@ -474,6 +476,7 @@ func load_machine(file: ConfigFile) -> void:
 		kart_rings = ViewChoices.RINGS_OFF
 	kart_marker = bool(file.get_value("accessibility", "kart_marker", kart_marker))
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
+	steam_input = bool(file.get_value("controls", "steam_input", steam_input))
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
 	if touch_layout not in [TOUCH_SLIDER, TOUCH_BUTTONS]:
 		touch_layout = TOUCH_SLIDER
@@ -576,6 +579,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("accessibility", "kart_rings", kart_rings)
 	file.set_value("accessibility", "kart_marker", kart_marker)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
+	file.set_value("controls", "steam_input", steam_input)
 	file.set_value("controls", "touch_layout", touch_layout)
 	file.set_value("controls", "bindings", bindings)
 	_lobby_io().save_from(self, file)

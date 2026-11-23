@@ -216,3 +216,14 @@ func test_the_chords_are_never_kept_nor_drawn() -> void:
 	for event: InputEvent in InputMap.action_get_events(&"ui_accept"):
 		assert_bool(InputActions.is_chord(event)).is_false()
 
+
+func test_steam_input_is_on_as_the_player_has_it() -> void:
+	var was := Store.steam
+	Store.steam = null
+	assert_bool(Store.steam_input_wanted(PackedStringArray(), true)).is_false()
+	Store.steam = SteamStore.new(_steam)
+	assert_bool(Store.steam_input_wanted(PackedStringArray(), true)).is_true()
+	assert_bool(Store.steam_input_wanted(PackedStringArray(), false)).is_false()
+	assert_bool(Store.steam_input_wanted(PackedStringArray(["--steam-input"]), false)).is_true()
+	assert_bool(Store.steam_input_wanted(PackedStringArray(["--no-steam-input"]), true)).is_false()
+	Store.steam = was
