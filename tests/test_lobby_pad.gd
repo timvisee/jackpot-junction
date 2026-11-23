@@ -2,10 +2,11 @@ extends GdUnitTestSuite
 ## The lobby's pad as a room fills it, GAME.md 9.6, see [LobbyPad]: a room of eight has to be able
 ## to get all eight karts onto it and keep them there. The pad grows past four players, a kart may
 ## roll a little past its edge and still be on it, nothing on it bumps into anything, nor can a shot
-## hurt a kart there; and the charge waits a moment for a kart that leaves, and fills faster in a
-## full room.
+## hurt a kart there; the charge waits a moment for a kart that leaves, fills faster in a full room,
+## and whoever decides where the room goes can start it without waiting.
 
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
+const WaitingRoom := preload("res://scenes/waiting/waiting_room.gd")
 
 var _runner: GdUnitSceneRunner
 var _settings_were: Settings
@@ -258,3 +259,45 @@ func test_nothing_hurts_a_kart_on_the_pad() -> void:
 	await _runner.simulate_frames(3, 17)
 	assert_bool(kart.sheltered).is_false()
 	assert_bool(kart.is_targetable()).is_true()
+
+
+## Start now on the pause menu, at the machine that decides where the room goes: it asks first,
+## saying how many are not ready, and yes sends the room on the way a full room goes.
+func test_start_now_asks_and_goes() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	_fill_to(match_node, 3)
+	await _runner.simulate_frames(5, 17)
+	var went := {"count": 0}
+	ready_room.everybody_ready.connect(func() -> void: went["count"] += 1)
+	var menu: PauseMenu = room._menu
+	menu.set_paused(true)
+	await _runner.simulate_frames(2, 17)
+	var start: Button = room._start_now
+	assert_bool(start.is_visible_in_tree()).is_true()
+	start.pressed.emit()
+	assert_bool(menu.asking()).is_true()
+	assert_str(menu._confirm._message.text).contains("3 of 3 players are not ready")
+	# No stays.
+	menu._answered(false)
+	assert_bool(menu.asking()).is_false()
+	assert_int(went["count"]).is_equal(0)
+	start.pressed.emit()
+	menu._answered(true)
+	await _runner.simulate_frames(2, 17)
+	assert_int(went["count"]).is_equal(1)
+	assert_bool(menu.is_open()).is_false()
+
+
+## What Start now says: who is not ready, one or several, or that everybody is.
+func test_start_now_says_who_is_not_ready() -> void:
+	var room := await _open()
+	var match_node: Match = room.get_node("Match")
+	var ready_room: ReadyRoom = room.ready_room
+	_fill_to(match_node, 2)
+	ready_room.ready_slots[0] = true
+	assert_str(WaitingRoom.start_words(ready_room)[1]).starts_with("1 of 2 players is not ready")
+	ready_room.ready_slots[match_node.slots[1].index] = true
+	assert_str(WaitingRoom.start_words(ready_room)[1]).is_equal("Everybody is ready.")
+	assert_str(WaitingRoom.start_words(ready_room)[2]).is_equal(WaitingRoom.START_NOW)

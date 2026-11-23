@@ -24,6 +24,8 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## and of the pad and its ring grown for a room of eight, see [LobbyPad].
 const BALL_SPOT := Vector3(0.0, 0.0, 6.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
+## What the pause menu's way to go without waiting is called, see [method _offer_to_start].
+const START_NOW := "Start now"
 ## What a Steam game's room says about friends coming in, GAME.md 10.8.
 const STEAM_HINT := "Friends join through Steam: invite them from the menu, or Join game"
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
@@ -51,6 +53,8 @@ var _came_back := false
 var _menu: PauseMenu
 ## Whether the Final Hand's ticket has been torn at the door, STORY.md 8.1.
 var _admitted := false
+## The pause menu's Start now, at the machine that decides where the room goes, GAME.md 9.6.
+var _start_now: Button
 
 
 func _ready() -> void:
@@ -339,18 +343,61 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 		FinalHand.clear_table(config)
 	if config.dedicated:
 		# Nobody here chooses: a player at another machine has the say, see 9.3a, and the room
-		# goes to whatever they last said.
+		# goes to whatever they last said, and goes when they say so.
 		session.host_controls.planned.connect(_on_planned)
+		session.host_controls.asked_to_go.connect(_on_asked_to_go)
 		session.host_controls.changed_hands.connect(_on_hands_changed)
 		_say_the_plan()
 		return
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
-	menu.add_entry("Match settings", choose)
+	_offer_to_start(menu.add_entry("Match settings", choose))
 	_point_to_the_settings()
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them.
 	_choose_or_ask(not _came_back)
+
+
+## Start now on the pause menu, under [param under], GAME.md 9.6: the room goes without waiting for
+## whoever is not on the pad, everybody in it playing, once whoever decides where it goes says yes.
+## For the player who has wandered off, or the friend who cannot find the pad.
+func _offer_to_start(under: Button) -> void:
+	_start_now = MenuTheme.button(START_NOW)
+	_start_now.pressed.connect(
+		func() -> void: _menu.ask(start_words(ready_room), _start, _start_now)
+	)
+	under.add_sibling(_start_now)
+
+
+## What Start now asks first: the question, the line under it, the button that goes and the one that
+## stays, saying how many in [param room] are not ready.
+static func start_words(room: ReadyRoom) -> Array[String]:
+	var waiting := room.player_count() - room.ready_count()
+	var line := "Everybody is ready."
+	if waiting > 0:
+		line = (
+			"%d of %d players %s not ready. Everybody in the lobby plays, ready or not."
+			% [waiting, room.player_count(), "is" if waiting == 1 else "are"]
+		)
+	return ["Start the match now?", line, START_NOW, "Wait"]
+
+
+## Start now said yes to: through to the arena, or at a client with the say, the server asked to go
+## there, see 9.3a. Not while the match is still being chosen, which holds the room as ever.
+func _start() -> void:
+	_menu.set_paused(false)
+	if config.online == "join":
+		if session != null:
+			session.host_controls.go(&"start")
+		return
+	if not _choosing():
+		ready_room.go_now()
+
+
+## At a dedicated server, the player with the say pressed Start now, GAME.md 9.3a.
+func _on_asked_to_go(where: StringName) -> void:
+	if where == &"start" and not _choosing():
+		ready_room.go_now()
 
 
 ## While the Final Hand is due for the profile playing the House asks first, at whichever machine
@@ -386,6 +433,8 @@ func choose(lobby_first := false) -> void:
 ## kart go.
 func _process(_delta: float) -> void:
 	_hold(_menu_up())
+	if _start_now != null:
+		_start_now.visible = session == null or session.host_controls.mine()
 	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6, and
 	# everybody in it is told.
 	if config.online != "join" and SeatLimit.limit(match_node, session) != _said_limit:
@@ -447,7 +496,7 @@ func _take_the_say(arriving: bool) -> void:
 	if host_settings == null:
 		host_settings = HostSettings.add_to(self, false, session)
 		host_settings.closed.connect(_chosen)
-		_menu.add_entry("Match settings", choose)
+		_offer_to_start(_menu.add_entry("Match settings", choose))
 		_point_to_the_settings()
 	if config.creating:
 		# Who may come in starts where its maker last left it, as a host's door does, GAME.md 9.6.

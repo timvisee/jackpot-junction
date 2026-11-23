@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
   bigger text and all, and for a Steam Machine as a TV.
 - **The new Steam Controller.** Played through Steam, its buttons are named as it prints them, L1 to
   R2.
+- **Start now in the lobby.** Whoever runs the lobby can start the match from the pause menu
+  without waiting for everybody to be ready, after a question.
 
 ### Changed
 

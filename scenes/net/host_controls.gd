@@ -22,7 +22,8 @@ signal granted_changed(mine: bool)
 ## are still choosing it, GAME.md 9.6, for the waiting room to take in and tell everybody.
 signal planned(plan: Dictionary, still_choosing: bool)
 ## At a dedicated server: the player with the say wants the room to go [param where], one of
-## [constant PLACES]: back to the waiting room, on to the next map, or into a rematch.
+## [constant PLACES]: back to the waiting room, on to the next map, into a rematch, or from the
+## waiting room into the match without waiting for everybody to be ready, GAME.md 9.6.
 signal asked_to_go(where: StringName)
 ## At a dedicated server: the player with the say has changed Lobby settings, or shown [param
 ## player] out, for the server's log.
@@ -37,7 +38,7 @@ const REMOVED := "The host removed you from the game"
 ## the player with the say.
 const GUESTS_EVERY := 0.25
 ## Where the room can be asked to go.
-const PLACES: Array[StringName] = [&"lobby", &"next", &"rematch"]
+const PLACES: Array[StringName] = [&"lobby", &"next", &"rematch", &"start"]
 
 var session: NetSession
 ## Whether the host's say has stopped the match for everybody without waiting to be asked: on the

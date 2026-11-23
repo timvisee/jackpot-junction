@@ -8531,6 +8531,14 @@ see, as it fills the ring: how big the pad is from how many are in the room, who
 where their karts are, so a client's own kart drives through the others there as it does at the
 host.
 
+**Start now.** For the player who has wandered off, or the friend who cannot find the pad,
+whoever decides where the room goes has Start now on the pause menu, under Match settings: the
+host online, on one machine the machine itself, and at a dedicated server the player with the
+say, 9.3a, whose server is asked. It asks first, "Start the match now?", saying how many are not
+ready, "2 of 5 players are not ready. Everybody in the lobby plays, ready or not.", with Start
+now and Wait. Yes goes the way a full room goes, everybody in the room playing, ready or not; not
+while the match is still being chosen, which holds the room as ever.
+
 **Crashing.** Nothing in here costs anything, so dying costs nothing either. A kart that falls
 down a hole or gets rammed away from the pad is back on the floor on the next tick, with no wait
 to sit through and no hand of cards to pick from: there is no run being built in a waiting room, and

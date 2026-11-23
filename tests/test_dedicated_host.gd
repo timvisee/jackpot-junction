@@ -185,3 +185,52 @@ func test_the_room_hosted_with_nobody_at_it_has_nobody_in_it() -> void:
 	assert_bool(room.session.is_host).is_true()
 	assert_str(room.ready_room._plan.text).starts_with("Next: ")
 	assert_bool(room.ready_room.all_ready()).is_false()
+
+
+## Start now at a game of a dedicated server, GAME.md 9.6: the player with the say asks the server,
+## and the room goes the way a full room goes, nobody on the pad.
+func test_the_player_with_the_say_starts_the_room_now() -> void:
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.online = "host"
+	Game.pending_config.dedicated = true
+	Game.pending_config.human_devices = [] as Array[int]
+	Game.pending_config.port = port
+	var room: Node3D = auto_free(WAITING_SCENE.instantiate())
+	var runner := scene_runner(room)
+	await runner.simulate_frames(45, 17)
+	if room.ready_room.everybody_ready.is_connected(room._begin):
+		room.ready_room.everybody_ready.disconnect(room._begin)
+	var went := {"count": 0}
+	room.ready_room.everybody_ready.connect(func() -> void: went["count"] += 1)
+	var client := _client_of_the_room()
+	var given := await _wait_until(
+		func() -> bool: return client.local_slot >= 0 and client.host_controls.granted, 4000
+	)
+	assert_bool(given).override_failure_message("the say never came").is_true()
+	assert_int(room.ready_room.ready_count()).is_equal(0)
+	client.host_controls.go(&"start")
+	var started := await _wait_until(func() -> bool: return went["count"] == 1, 4000)
+	assert_bool(started).override_failure_message("the room never went").is_true()
+
+
+## A client of the real room, knocking at it: its session where the room's own is, under Net,
+## since a call from one machine finds its node on the other by the same path.
+func _client_of_the_room() -> NetSession:
+	var root: Node = auto_free(Node.new())
+	root.name = "Client%d" % _client_roots.size()
+	add_child(root)
+	get_tree().set_multiplayer(SceneMultiplayer.new(), root.get_path())
+	_client_roots.append(root)
+	var client_match := _waiting_match(root)
+	client_match.start_puppet()
+	var net := Node.new()
+	net.name = "Net"
+	root.add_child(net)
+	var session: NetSession = auto_free(NetSession.new())
+	session.name = "Session"
+	session.match_node = client_match
+	session.local_input = KartInput.new()
+	session.player_name = "Guest"
+	net.add_child(session)
+	assert_int(session.join("127.0.0.1", port)).is_equal(OK)
+	return session

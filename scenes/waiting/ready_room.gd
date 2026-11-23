@@ -20,7 +20,8 @@ extends Node
 ## people in it can see which of them the pad has taken and which of them it is waiting for.
 
 ## Everybody has been ready for [constant GO_DELAY]: the ring has gone green and the room is
-## going. Not the moment the last player readies up, since the room says so before it goes.
+## going. Not the moment the last player readies up, since the room says so before it goes. Or
+## whoever decides where the room goes said Start now, see [method go_now].
 signal everybody_ready
 ## Another block of the ring lit for a player at this screen as they charge, the [param step]th of
 ## [param of] in their arc. Heard as a soft tick climbing in pitch, see [method _on_charged].
@@ -334,6 +335,13 @@ func _count_down(delta: float) -> void:
 	if was < 0.0:
 		filled.emit()
 	if was < GO_DELAY and _full_for >= GO_DELAY:
+		everybody_ready.emit()
+
+
+## The room goes now, whoever is ready, GAME.md 9.6: Start now on the pause menu of the machine that
+## decides where it goes. Gone the way a full room goes, so it goes once whichever comes first.
+func go_now() -> void:
+	if player_count() > 0:
 		everybody_ready.emit()
 
 
