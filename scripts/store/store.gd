@@ -73,6 +73,15 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 		PadFamily.behind_steam = store.pad_family
 
 
+## Whether Steam Input reads the controllers for the game, GAME.md 10.8 "Steam Input": with Steam
+## on, as the player has it in the settings, [param setting], unless this run says otherwise,
+## `--steam-input` or `--no-steam-input` among [param args], the game's own arguments.
+static func steam_input_wanted(args: PackedStringArray, setting: bool) -> bool:
+	if steam == null or "--no-steam-input" in args:
+		return false
+	return setting or "--steam-input" in args
+
+
 ## Steam Input started for the game, [param game], or stopped, as [param on] says, GAME.md 10.8:
 ## its controllers come as pads, or go. Nothing without Steam.
 static func use_steam_input(game: Node, on: bool) -> void:

@@ -5429,7 +5429,8 @@ from a section's button low in its box was the one beside it.
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see
   4.2; Show controls, the blueprint of the pad in hand or the keyboard of 8.3b;
-  rebinding per player for gamepad and keyboard, the keyboard's side taking
+  with Steam on, Steam Input on or off and Change in Steam for the controller's
+  layout, 10.8; rebinding per player for gamepad and keyboard, the keyboard's side taking
   a mouse button as well as a key, fire on the left button say, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
@@ -10905,9 +10906,16 @@ press, for a look on a controller. A pad's knock goes through Steam for these, s
 time asked. A layout binding a button to a pad's own button rather than an action makes Steam show
 the game a pad of the engine's as well, carrying those, which is a second pad to the game.
 
-**Rebinding.** The game's own rebinding, 8.5, goes on for the keyboard and for pads the engine
-reads; a controller Steam Input reads is bound in Steam. Steam Input is never started without
-Steam, so a GitHub build is as it was. Hints draw the button the game binds
+**Rebinding and turning it off.** The game's own rebinding, 8.5, goes on for the keyboard and for
+pads the engine reads; a controller Steam Input reads is bound in Steam. The Controls page of a
+game with Steam on has Steam Input, on to start with and kept with the machine's settings, and
+Controller layout, Change in Steam, which opens Steam's settings for the layout of the controller
+in hand, or none with Steam's overlay off. The switch stops or starts the reading at once;
+`--steam-input` and `--no-steam-input` decide for one run, from Steam's launch options as `%command%
+++ --no-steam-input`. Off, Steam still keeps a controller it reads for the game from the engine, on
+the game's layout, so a player turning it off also picks a gamepad layout for the game in Steam, or
+turns Steam Input off for it in its Steam properties, as the switch's tip says. Steam Input is
+never started without Steam, so a GitHub build is as it was. Hints draw the button the game binds
 an action to, which on the starting layouts is the one Steam has it on; a layout changed in Steam
 is not drawn as changed yet, Steam saying which of its buttons each action is on for when it is.
 

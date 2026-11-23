@@ -126,6 +126,8 @@ Read on every scene, so they work in any build.
 | `--server`             | Runs a dedicated server instead of the game, see SERVER.md              | Yes   | Yes     |
 | `--steam`              | Steam on as in a Steam build, GAME.md 10.8; needs `make steam-addon`    | Yes   | Yes     |
 | `--no-steam`           | Steam off, even in a Steam build                                        | Yes   | Yes     |
+| `--steam-input`        | Steam Input reads the controllers this run, whatever the settings say   | Yes   | Yes     |
+| `--no-steam-input`     | Steam Input off this run: the game reads the pads it is shown itself    | Yes   | Yes     |
 | `--supporter`          | As if the Steam supporter pack were owned, GAME.md 10.8                 | Yes   | No      |
 | `--supporter=locked`   | As a Steam build without the supporter pack: its pieces offered, locked | Yes   | No      |
 | `--port=<port>`        | With `--server`: the port players connect to, 7777 unless given         | Yes   | Yes     |
