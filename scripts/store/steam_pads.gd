@@ -33,6 +33,9 @@ const STIR := 0.002
 ## style of Steam's own pictures of a button: white on black, as the game's own hints are dark.
 const XBOX_ONE := 3
 const GLYPH_DARK := 2
+## How Steam is told to light a controller: in the color given, or in the player's own again.
+const LED_SET := 0
+const LED_RESTORE := 1
 ## How tall Steam's pictures are made, and how often the bindings drawn are asked of Steam again,
 ## for a layout changed in Steam's settings.
 const PICTURE_TALL := 64.0
@@ -105,6 +108,8 @@ var _pushed: Dictionary[String, String] = {}
 var _places: Dictionary[int, Dictionary] = {}
 var _pictures: Dictionary[int, Texture2D] = {}
 var _looked := 0
+## The pads whose light the game set, to be given their own back.
+var _lit: Dictionary[int, bool] = {}
 
 
 func _init(steam_api: Object) -> void:
@@ -139,6 +144,7 @@ func _enter_tree() -> void:
 			api.connect(wiring[0], wiring[1])
 	DeviceInput.steam_rumble = rumble
 	DeviceInput.steam_place = place
+	DeviceInput.steam_light = light
 	# Read after Steam's own callbacks, which GodotSteam runs on the same signal, and before any node
 	# of the game's is processed, so a press is heard the frame Steam has it.
 	get_tree().process_frame.connect(poll)
@@ -147,6 +153,8 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
+	for device: int in _lit.keys():
+		light(device, null)
 	for handle: int in _devices.keys():
 		_on_disconnected(handle)
 	_flush()
@@ -163,6 +171,8 @@ func _exit_tree() -> void:
 		DeviceInput.steam_rumble = Callable()
 	if DeviceInput.steam_place == place:
 		DeviceInput.steam_place = Callable()
+	if DeviceInput.steam_light == light:
+		DeviceInput.steam_light = Callable()
 	InputActions.forget_chords()
 	if running == self:
 		running = null
@@ -319,6 +329,21 @@ func rumble(device: int, weak: float, strong: float, seconds: float) -> void:
 	get_tree().create_timer(seconds, true, false, true).timeout.connect(stop)
 
 
+## Lights the pad [param device] in [param color], see [method DeviceInput.light], or with null
+## gives it the player's own color in Steam back.
+func light(device: int, color: Variant) -> void:
+	if not _handles.has(device):
+		return
+	var handle := _handles[device]
+	if color is Color:
+		var lit: Color = color
+		api.call(&"setLEDColor", handle, lit.r8, lit.g8, lit.b8, LED_SET)
+		_lit[device] = true
+	elif _lit.has(device):
+		api.call(&"setLEDColor", handle, 0, 0, 0, LED_RESTORE)
+		_lit.erase(device)
+
+
 static func _speed(strength: float) -> int:
 	return clampi(roundi(clampf(strength, 0.0, 1.0) * 65535.0), 0, 65535)
 
@@ -376,6 +401,7 @@ func _on_disconnected(handle: int) -> void:
 	_presses.erase(device)
 	_axes.erase(device)
 	_places.erase(device)
+	_lit.erase(device)
 	DeviceInput.steam_pads.erase(device)
 	if _told:
 		print("Steam Input: controller %d, pad %d, gone" % [handle, device])
