@@ -22,6 +22,8 @@ below, and hands the notes to the release workflow.
   bigger text and all, and for a Steam Machine as a TV.
 - **The new Steam Controller.** Played through Steam, its buttons are named as it prints them, L1 to
   R2.
+- **The Steam Controller, drawn.** Show controls draws the new Steam Controller from Valve's own
+  drawing of it.
 
 ### Changed
 

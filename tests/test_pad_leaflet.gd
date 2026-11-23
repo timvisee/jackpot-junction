@@ -241,6 +241,32 @@ func test_the_steam_deck_is_drawn_from_valves_drawings_where_they_are() -> void:
 		assert_bool(whole.has_point(deck.spots[spot])).is_true()
 
 
+## The Steam Controller is drawn from Valve's reference drawing, its top above its front with its
+## letters on its four already, and its own names.
+func test_the_steam_controller_is_drawn_from_valves_drawing() -> void:
+	var pad := PadDiagram.of(PadFamily.Family.STEAM_CONTROLLER)
+	assert_str(pad.name_of(&"rt")).is_equal("R2")
+	assert_str(pad.name_of(&"south")).is_equal("A")
+	assert_int(pad.layers.size()).is_equal(2)
+	assert_bool(pad.lettered).is_true()
+	assert_float(pad.face_radius).is_equal_approx(
+		PadDiagram.PAD_FACE_RADIUS * PadDiagram.PAD_UNIT, 0.01
+	)
+	# The front under the top, the shoulders on the top and the rest on the front, and every button
+	# within the drawing.
+	var front_top: float = pad.layers[1]["at"].y
+	assert_float(front_top).is_greater(pad.layers[0]["size"].y)
+	for spot: StringName in PadDiagram.PAD_TOP_SPOTS:
+		assert_float(pad.spots[spot].y).is_less(front_top)
+	for spot: StringName in PadDiagram.PAD_SPOTS:
+		assert_float(pad.spots[spot].y).is_greater(front_top)
+	var whole := Rect2(Vector2.ZERO, pad.size)
+	for spot: StringName in PadDiagram.FACES:
+		assert_bool(pad.shows(spot)).is_true()
+	for spot: StringName in pad.spots:
+		assert_bool(whole.has_point(pad.spots[spot])).is_true()
+
+
 ## The keyboard's sheets, GAME.md 8.3b: each key bound by its place says what it does there, a key
 ## that does two things says both; the menus' sheet keeps to what a menu is mostly worked with.
 func test_the_keyboards_sheets_say_what_each_key_does() -> void:

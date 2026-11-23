@@ -5087,7 +5087,11 @@ is on now.
   over so its front faces the front view as an engineer lays two views out, for its L1 to R2; and
   the middle of both, its screen, which has no buttons, left out as a long part is drawn broken
   off, a break line with its zigzag at each edge, so it is drawn less wide and bigger. Elsewhere it
-  is drawn as an Xbox pad with its own names. The four under the thumb, blank on the
+  is drawn as an Xbox pad with its own names. The Steam Controller of 2026 is drawn from Valve's
+  reference drawing of it, CC BY-NC-SA 4.0 and used with Valve's permission, kept in
+  `assets/controllers`: its front off the drawing's first sheet and its top off the second, laid
+  out as the Deck's, with the engineering drawing's measurements, leaders, keep-out boxes and words
+  left out, and its letters on its four already. The four under the thumb, blank on the other
   drawings, are printed as the family has them, in the same white: a PlayStation pad's shapes, the
   others' letters.
 - **The lines**: from each button something is bound to, a line out to its words, the shoulders,
