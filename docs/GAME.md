@@ -8866,7 +8866,10 @@ turning over; turning Jokers down turns Suits & hands down too. A card the House
 under a padlock and a gold band along its foot, AFTER MAP 5. Pressed, it asks first, the round blue
 sign's question, "Open Slot machines early?", what the card does and that it stays opened, with
 Open it and Not now, the cursor on not; opened, it comes face up. A card opened and not yet played
-wears a NEW tag. With Roulette lit the strip is headed IN THE DECK, and says that power-ups and
+wears a NEW tag. The card under the mouse, or else the cursor, says what it is in a hint standing
+over it, kept on the screen and under it where there is no room above, the loading screen's tag of
+8.6 (`TableTag`): its name and its line, with NEW on its chip for a new card and AFTER MAP 5 for a
+sealed one, since the loading screen is often up too briefly to be read. With Roulette lit the strip is headed IN THE DECK, and says that power-ups and
 three of the rest are dealt each map; turning a card takes it out of the deck and Roulette stays
 lit. The rows of a card that is off go: Joker slots and Jokers between maps without Jokers, Items
 without Power-ups, and the fine print of House rules says no jokers. The cursor walks the cards

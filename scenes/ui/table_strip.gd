@@ -21,6 +21,8 @@ const CARD_SMALL := Vector2(70.0, 70.0 * TableCardArt.ASPECT)
 const GAP := 10.0
 ## How long a card takes to turn over, out to its edge and back.
 const TURN := 0.22
+## How far over the card under the mouse or the cursor its hint stands.
+const TIP_GAP := 10.0
 ## The felt the cards lie on, a strip of the table itself, and how much of it shows round them.
 const FELT := Color("#1f4434")
 const FELT_EDGE := Color("#14301f")
@@ -37,6 +39,11 @@ var _heading: Label
 var _note: Label
 var _cards: Array[TableCardButton] = []
 var _locked := false
+## The hint over the card under the mouse or the cursor, see [TableTag], and the cards it may be
+## over: the one the mouse is on, which goes first, and the one the cursor is on.
+var _tip: TableTag
+var _hovered := -1
+var _focused := -1
 
 
 static func make() -> TableStrip:
@@ -83,8 +90,19 @@ func _build() -> void:
 		button.name = TableCards.NAMES[card].replace(" ", "").replace("&", "And")
 		button.custom_minimum_size = CARD
 		button.pressed.connect(_on_pressed.bind(card))
+		button.mouse_entered.connect(func() -> void: _point(card, true, true))
+		button.mouse_exited.connect(func() -> void: _point(card, true, false))
+		button.focus_entered.connect(func() -> void: _point(card, false, true))
+		button.focus_exited.connect(func() -> void: _point(card, false, false))
 		row.add_child(button)
 		_cards.append(button)
+	# Its own place over everything, so the rows' scroll does not cut it off at the pane's top.
+	_tip = TableTag.make()
+	_tip.name = "Hint"
+	_tip.top_level = true
+	_tip.visible = false
+	_tip.z_index = 10
+	add_child(_tip)
 	_show()
 
 
@@ -116,11 +134,56 @@ func button(card: int) -> TableCardButton:
 	return _cards[card]
 
 
-## Every card shown and none to be turned, for a table the House has set.
+## Every card shown and none to be turned, for a table the House has set: no hint over them either,
+## which would say what the House keeps to itself.
 func lock() -> void:
 	_locked = true
+	_tip.visible = false
 	for each: TableCardButton in _cards:
 		each.disabled = true
+
+
+## The mouse, with [param mouse], or the cursor come onto [param card], [param on], or gone off it:
+## the hint over whichever card it is now, the mouse's before the cursor's, GAME.md 9.6.
+func _point(card: int, mouse: bool, on: bool) -> void:
+	if mouse:
+		_hovered = card if on else (-1 if _hovered == card else _hovered)
+	else:
+		_focused = card if on else (-1 if _focused == card else _focused)
+	var over := _hovered if _hovered >= 0 else _focused
+	if over < 0 or _locked:
+		_tip.visible = false
+		return
+	var each := _cards[over]
+	var chip := TableTag.Chip.NONE
+	if each.sealed:
+		chip = TableTag.Chip.SEALED
+	elif each.fresh:
+		chip = TableTag.Chip.NEW
+	_tip.show_card(over, chip)
+	_tip.visible = true
+	_place_tip.call_deferred()
+
+
+## The hint over its card, in the middle of it and clear of its top, kept on the screen, and as big
+## as the card is shown, the pane being shrunk to fit a small screen, see [HostSettings].
+func _place_tip() -> void:
+	if not _tip.visible or _tip.card < 0:
+		return
+	var each := _cards[_tip.card]
+	var shown := each.get_global_rect()
+	var grown := each.get_global_transform().get_scale().y
+	_tip.scale = Vector2.ONE * grown
+	_tip.reset_size()
+	var wide := _tip.size * grown
+	var at := Vector2(
+		shown.get_center().x - wide.x * 0.5, shown.position.y - wide.y - TIP_GAP * grown
+	)
+	var screen := get_viewport_rect().size
+	at.x = clampf(at.x, 4.0, maxf(screen.x - wide.x - 4.0, 4.0))
+	if at.y < 4.0:
+		at.y = shown.end.y + TIP_GAP * grown
+	_tip.global_position = at
 
 
 func _on_pressed(card: int) -> void:

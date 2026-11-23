@@ -390,41 +390,12 @@ func _turn_up(done: float) -> void:
 		create_tween().tween_property(_new_tag, "modulate:a", 1.0, LINGER * 2.0)
 
 
-## The tag under the bar naming [param card], new to the player: NEW in the neon's magenta, its name
-## and its line, on the House's cream, GAME.md 8.6, unseen until the room is up.
+## The tag under the bar naming [param card], new to the player, GAME.md 8.6, see [TableTag]:
+## unseen until the room is up.
 func _tag_of(card: int) -> Control:
-	var tag := PanelContainer.new()
+	var tag := TableTag.make()
 	tag.name = "NewCard"
-	var look := StyleBoxFlat.new()
-	look.bg_color = HouseTheme.PAPER
-	look.set_corner_radius_all(6)
-	look.set_content_margin_all(10)
-	tag.add_theme_stylebox_override(&"panel", look)
-	tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	tag.add_child(row)
-	var chip := Label.new()
-	chip.text = " NEW "
-	Type.display(chip, Type.LABEL, Color.WHITE)
-	var chip_look := StyleBoxFlat.new()
-	chip_look.bg_color = NEW_INK
-	chip_look.set_corner_radius_all(3)
-	chip_look.set_content_margin_all(3)
-	chip.add_theme_stylebox_override(&"normal", chip_look)
-	chip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	row.add_child(chip)
-	var words := VBoxContainer.new()
-	words.add_theme_constant_override("separation", 2)
-	row.add_child(words)
-	var named := Label.new()
-	named.text = TableCards.NAMES[card].to_upper()
-	Type.display(named, Type.BODY, HouseTheme.INK)
-	words.add_child(named)
-	var line := Label.new()
-	line.text = TableCards.LINES[card]
-	Type.text(line, Type.LABEL, HouseTheme.INK)
-	words.add_child(line)
+	tag.show_card(card, TableTag.Chip.NEW)
 	# In its place from the start, so nothing moves as it fades up once the room is.
 	tag.modulate.a = 0.0
 	ScreenReader.name(tag, "New: %s" % TableCards.NAMES[card], TableCards.LINES[card])

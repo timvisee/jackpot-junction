@@ -500,3 +500,37 @@ func test_a_card_opened_later_stays_down_on_the_penny_table() -> void:
 	again.close()
 	Game.settings.profile.stats[&"maps"] = 4.0
 	assert_int(Game.settings.profile.table_set()).is_equal(TableCards.opened_by(4))
+
+
+## A card's hint, GAME.md 9.6: over the card under the mouse or the cursor, the mouse's first, its
+## name and line as the loading screen says them, a sealed card's map on a chip; none once the House
+## has locked the table.
+func test_a_card_says_what_it_is_under_the_cursor() -> void:
+	Game.settings.profile.stats[&"maps"] = 2.0
+	var pane := _pane()
+	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._fit()
+	await await_idle_frame()
+	var strip := pane.options.table_strip
+	var tip := strip._tip
+	assert_bool(tip.visible).is_false()
+	strip.button(TableCards.Card.JACKPOT).grab_focus()
+	await await_idle_frame()
+	assert_bool(tip.visible).is_true()
+	assert_int(tip.card).is_equal(TableCards.Card.JACKPOT)
+	assert_str(tip._line.text).is_equal(TableCards.LINES[TableCards.Card.JACKPOT])
+	assert_bool(tip._chip.visible).is_false()
+	var card_top := strip.button(TableCards.Card.JACKPOT).get_global_rect().position.y
+	assert_float(tip.global_position.y + tip.size.y * tip.scale.y).is_less_equal(card_top)
+	strip._point(TableCards.Card.BOUNTY, true, true)
+	assert_int(tip.card).is_equal(TableCards.Card.BOUNTY)
+	assert_str(tip._chip.text).contains("AFTER MAP 6")
+	strip._point(TableCards.Card.BOUNTY, true, false)
+	assert_int(tip.card).is_equal(TableCards.Card.JACKPOT)
+	strip.button(TableCards.Card.JACKPOT).release_focus()
+	await await_idle_frame()
+	assert_bool(tip.visible).is_false()
+	strip.lock()
+	strip._point(TableCards.Card.ITEMS, true, true)
+	assert_bool(tip.visible).is_false()
+	pane._panel.visible = false
