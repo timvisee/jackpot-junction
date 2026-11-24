@@ -205,3 +205,30 @@ static func _switch(screen: SettingsScreen, page: String) -> CheckButton:
 		if label != null and label.text == VideoTab.FIXED:
 			return row.get_child(1) as CheckButton
 	return null
+
+
+## GAME.md 8.5: Render scale and Brightness say beside their sliders what they are set to, a share
+## of the screen's size and of the room's own exposure, and say it again as they move.
+func test_the_two_sliders_say_what_they_are_set_to() -> void:
+	var tab := _page(false, true)
+	for named: String in ["Render scale", "Brightness"]:
+		var both := _control(tab, named)
+		var slider := both.get_child(0) as HSlider
+		var said := both.get_node("Value") as Label
+		assert_str(said.text).is_equal("100%")
+		slider.value = 0.8
+		assert_str(said.text).is_equal("80%")
+		# The slider, which takes the cursor, is the one named for a screen reader.
+		assert_str(slider.accessibility_name).is_equal(named)
+	assert_float(tab._settings.render_scale).is_equal_approx(0.8, 0.001)
+	assert_float(tab._settings.brightness).is_equal_approx(0.8, 0.001)
+
+
+## What stands beside the row named [param named] on [param tab].
+static func _control(tab: VideoTab, named: String) -> Control:
+	for each: Node in tab._groups.get_children():
+		for row: Node in each.get_children():
+			var label := row.get_child(0) as Label
+			if row.name != "Heading" and label != null and label.text == named:
+				return row.get_child(1) as Control
+	return null

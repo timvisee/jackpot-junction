@@ -5555,7 +5555,10 @@ from a section's button low in its box was the one beside it.
   editor or a debug export starts in a window, beside whatever it is being worked
   on with. The setting, once changed, is kept either way. Brightness is how
   bright a room is drawn over its own exposure, 8.1: from half as bright to twice,
-  Normal in the middle, for a screen that runs dark or washed out. Bloom is the
+  Normal in the middle, for a screen that runs dark or washed out. Render scale and brightness
+  each say beside their slider what they are set to, 80% or 150%, as the Intense music slider
+  does: a knob alone tells neither what share of the screen's size a room is drawn at nor how
+  much brighter it is. Bloom is the
   halo over the neon, an amount now rather than an on-off switch — Off, Subtle,
   Normal or Intense — a share of the room's own glow. Ambient occlusion is the
   soft shadow where things meet, Off, Low or High, a share of the room's own.

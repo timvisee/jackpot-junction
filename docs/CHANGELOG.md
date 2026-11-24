@@ -59,6 +59,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Render scale and brightness in numbers.** Each slider says what it's set to beside it, such
+  as 80%.
 - **Fixed camera on the Video page.** It's under Camera there too, the same switch as in
   Accessibility.
 - **Accessibility settings in groups.** The Accessibility page sorts its settings under Seeing,

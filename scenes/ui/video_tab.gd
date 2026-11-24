@@ -135,18 +135,10 @@ func _add_display() -> void:
 	)
 	_add("UI scale", _ui_box)
 	# Over the room's own exposure, relit at once, since the room is standing.
-	var bright := HSlider.new()
-	bright.min_value = 0.5
-	bright.max_value = 2.0
-	bright.step = 0.05
-	bright.value = _settings.brightness
-	bright.custom_minimum_size = Vector2(320.0, 0.0)
-	bright.value_changed.connect(
-		func(v: float) -> void:
-			_settings.brightness = v
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Brightness", bright)
+	var bright := func(v: float) -> void:
+		_settings.brightness = v
+		ArenaEnvironment.relight(get_tree())
+	_add("Brightness", share_slider(0.5, 2.0, _settings.brightness, bright))
 
 
 ## How far the camera sits from the karts, whom it keeps in the picture, and whether it moves at
@@ -221,18 +213,10 @@ func _add_performance() -> void:
 			_apply()
 	)
 	_add("Frame rate limit", limit)
-	var scale := HSlider.new()
-	scale.min_value = 0.5
-	scale.max_value = 1.0
-	scale.step = 0.05
-	scale.value = _settings.render_scale
-	scale.custom_minimum_size = Vector2(320.0, 0.0)
-	scale.value_changed.connect(
-		func(v: float) -> void:
-			_settings.render_scale = v
-			_apply()
-	)
-	_add("Render scale", scale)
+	var scale := func(v: float) -> void:
+		_settings.render_scale = v
+		_apply()
+	_add("Render scale", share_slider(0.5, 1.0, _settings.render_scale, scale))
 	var offered := upscalers()
 	var names: Array = []
 	for each: String in offered:
@@ -318,6 +302,35 @@ static func crowd_box(settings: Settings) -> OptionButton:
 				house.select(maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0))
 	)
 	return house
+
+
+## A slider from [param low] to [param high] in steps of 5%, at [param value], with how much it is
+## set to written beside it, "80%", as the Intense music slider has, see [SwellSlider]: a share of
+## the screen's size or of the room's own exposure says nothing from where its knob is alone.
+## [param changed] is called with each new value.
+static func share_slider(low: float, high: float, value: float, changed: Callable) -> HBoxContainer:
+	var both := HBoxContainer.new()
+	both.add_theme_constant_override("separation", 12)
+	var slider := HSlider.new()
+	slider.min_value = low
+	slider.max_value = high
+	slider.step = 0.05
+	slider.value = value
+	slider.custom_minimum_size = Vector2(SwellSlider.WIDTH, 0.0)
+	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	both.add_child(slider)
+	var said := Label.new()
+	said.name = "Value"
+	said.custom_minimum_size = Vector2(72.0, 0.0)
+	Type.text(said, Type.BODY, Color(0.86, 0.86, 0.9))
+	said.text = "%d%%" % roundi(value * 100.0)
+	both.add_child(said)
+	slider.value_changed.connect(
+		func(v: float) -> void:
+			said.text = "%d%%" % roundi(v * 100.0)
+			changed.call(v)
+	)
+	return both
 
 
 ## The fixed camera on or off, GAME.md 8.2: one setting, offered under Camera here and in
