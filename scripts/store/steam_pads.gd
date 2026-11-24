@@ -19,6 +19,11 @@ extends Node
 ## as a pad of the engine's too. Started in a Steam build unless the player turned Steam Input off,
 ## and never in the tests, which hand it a [FakeSteam].
 
+## Told when the player may have changed a layout in Steam, GAME.md 10.8: a layout loaded again, or
+## the game back in front, from another window or from Steam's overlay, where Steam's controller
+## settings are. What draws the whole pad, see [PadLeaflet], asks Steam again then.
+signal rebound
+
 ## The id the first of Steam's controllers is a pad by, past every id the engine gives its own, and
 ## how many Steam reads at most.
 const FIRST_DEVICE := 32
@@ -69,6 +74,13 @@ const XBOX_AXES: Dictionary[int, Array] = {
 	126: [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y],
 	132: [JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y],
 }
+## Which side of an Xbox One pad each of its origins is on, the left's and the right's, for one a
+## pad has not got by the one Steam translates it to, the nearest: a back button by the grip on its
+## side, a trackpad by the stick. Any other, the gyro say, is on neither.
+const XBOX_LEFT: Array[int] = [118, 122, 123, 126, 127, 128, 129, 130, 131, 138, 139, 140, 141, 142]
+const XBOX_LEFT_GRIPS: Array[int] = [143, 144]
+const XBOX_RIGHT: Array[int] = [114, 115, 116, 117, 119, 124, 125, 132, 133, 134, 135, 136, 137]
+const XBOX_RIGHT_GRIPS: Array[int] = [145, 146]
 const XBOX_PUSHES: Dictionary[int, Array] = {
 	128: [JOY_AXIS_LEFT_Y, -1.0],
 	129: [JOY_AXIS_LEFT_Y, 1.0],
@@ -136,11 +148,7 @@ func _enter_tree() -> void:
 	var manifest := manifest_path()
 	if not manifest.is_empty() and not bool(api.call(&"setInputActionManifestFilePath", manifest)):
 		push_warning("Steam did not take the action manifest %s" % manifest)
-	for wiring: Array in [
-		[&"input_device_connected", _on_connected],
-		[&"input_device_disconnected", _on_disconnected],
-		[&"input_configuration_loaded", _on_configuration_loaded],
-	]:
+	for wiring: Array in _wirings():
 		if api.has_signal(wiring[0]) and not api.is_connected(wiring[0], wiring[1]):
 			api.connect(wiring[0], wiring[1])
 	DeviceInput.steam_rumble = rumble
@@ -161,11 +169,7 @@ func _exit_tree() -> void:
 	_flush()
 	if get_tree().process_frame.is_connected(poll):
 		get_tree().process_frame.disconnect(poll)
-	for wiring: Array in [
-		[&"input_device_connected", _on_connected],
-		[&"input_device_disconnected", _on_disconnected],
-		[&"input_configuration_loaded", _on_configuration_loaded],
-	]:
+	for wiring: Array in _wirings():
 		if api.has_signal(wiring[0]) and api.is_connected(wiring[0], wiring[1]):
 			api.disconnect(wiring[0], wiring[1])
 	if DeviceInput.steam_rumble == rumble:
@@ -177,6 +181,22 @@ func _exit_tree() -> void:
 	InputActions.forget_chords()
 	if running == self:
 		running = null
+
+
+## What of Steam's is heard, by its signal: the controllers coming and going, a layout loaded, and
+## the overlay put away.
+func _wirings() -> Array[Array]:
+	return [
+		[&"input_device_connected", _on_connected],
+		[&"input_device_disconnected", _on_disconnected],
+		[&"input_configuration_loaded", _on_configuration_loaded],
+		[&"overlay_toggled", _on_overlay_toggled],
+	]
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_IN:
+		_back_in_front()
 
 
 ## What every controller of Steam's has done since the last frame, pressed on its pad.
@@ -228,6 +248,28 @@ func place(action: StringName, device: int) -> Dictionary:
 	return known[action][1]
 
 
+## Whether Steam can say where the actions are bound on the pad [param device], see [method places]:
+## a pad of Steam's, once Steam has the manifest.
+func tells(device: int) -> bool:
+	return _handles.has(device) and _ready_handles()
+
+
+## Every place Steam has [param action] bound on the pad [param device] now, asked afresh, each
+## as [method place] gives one, for the drawing of the whole pad, see [PadLeaflet]. None where
+## Steam has it on nothing, or cannot say, see [method tells].
+func places(action: StringName, device: int) -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	if not tells(device):
+		return found
+	var type := int(api.call(&"getInputTypeForHandle", _handles[device]))
+	for origin: int in _origins_of(action, device):
+		var event := _event_of(origin, type, action, device)
+		var one := {"event": event} if event != null else _drawn(origin)
+		if not one.is_empty():
+			found.append(one)
+	return found
+
+
 ## Asks Steam again where every action drawn is bound, and has every hint drawn again if anything
 ## moved, as when the player changed a layout in Steam's settings.
 func look_again() -> void:
@@ -267,12 +309,24 @@ func _place_of(action: StringName, device: int, origins: Array) -> Dictionary:
 		var event := _event_of(origin, type, action, device)
 		if event != null:
 			return {"event": event}
-	var first := int(origins[0])
-	var picture := _picture(first)
-	var word := str(api.call(&"getStringForActionOrigin", first))
+	return _drawn(int(origins[0]))
+
+
+## How [param origin] is drawn, one a pad has not got: Steam's own picture of it and Steam's name
+## for it, empty where Steam has neither; and `side`, which side of the pad it is on, -1 the left, 1
+## the right and 0 neither, see [constant XBOX_LEFT].
+func _drawn(origin: int) -> Dictionary:
+	var picture := _picture(origin)
+	var word := str(api.call(&"getStringForActionOrigin", origin))
 	if picture == null and word.is_empty():
 		return {}
-	return {"picture": picture, "word": word}
+	var xbox := int(api.call(&"translateActionOrigin", XBOX_ONE, origin))
+	var side := 0
+	if xbox in XBOX_LEFT or xbox in XBOX_LEFT_GRIPS:
+		side = -1
+	elif xbox in XBOX_RIGHT or xbox in XBOX_RIGHT_GRIPS:
+		side = 1
+	return {"picture": picture, "word": word, "side": side}
 
 
 ## Steam's [param origin], of a controller of Steam's [param type], as the pad's own button, stick
@@ -414,6 +468,22 @@ func _on_disconnected(handle: int) -> void:
 func _on_configuration_loaded(_app: int, _handle: int, _data: Dictionary = {}) -> void:
 	_set = 0
 	_forget_places()
+	rebound.emit()
+
+
+func _on_overlay_toggled(active: bool, _by_user := false, _app := 0) -> void:
+	if not active:
+		_back_in_front()
+
+
+## The game in front again, from another window or from Steam's overlay, where a layout may have
+## been changed: every hint and the whole pad drawn as Steam has it now, at once rather than at the
+## next look, see [constant LOOK_AGAIN_MS].
+func _back_in_front() -> void:
+	if _devices.is_empty() or not _ready_handles():
+		return
+	look_again()
+	rebound.emit()
 
 
 ## The button actions held on [param handle], pressed and let go on its pad [param device].

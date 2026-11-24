@@ -74,17 +74,16 @@ static func _entry(
 
 
 ## What the page [param on_page] says at each button [param drawn] shows, as the actions are bound
-## now: by button, the words of everything bound to it there, once each, and the first note.
+## now: by button, the words of everything bound to it there, once each, and the first note. As
+## Steam has them in [param bound], by [method SteamPads.places], for a controller of Steam's.
 static func labels(
-	on_page: int, simple_driving: bool, drawn: PadDiagram
+	on_page: int, simple_driving: bool, drawn: PadDiagram, bound: Dictionary[StringName, Array] = {}
 ) -> Dictionary[StringName, Dictionary]:
 	var said: Dictionary[StringName, Dictionary] = {}
 	for each: Dictionary in entries(on_page, simple_driving):
 		var actions: Array[StringName] = each["actions"]
 		for action: StringName in actions:
-			if not InputMap.has_action(action):
-				continue
-			for event: InputEvent in InputMap.action_get_events(action):
+			for event: InputEvent in _events_of(action, bound):
 				var spot := PadDiagram.spot_of(event)
 				if spot.is_empty() or not drawn.shows(spot):
 					continue
@@ -96,6 +95,60 @@ static func labels(
 				if said[spot]["note"] == "":
 					said[spot]["note"] = each["note"]
 	return said
+
+
+## The pad's own buttons, sticks and triggers [param action] is on: where Steam has it in
+## [param bound], or else as the game binds it.
+static func _events_of(
+	action: StringName, bound: Dictionary[StringName, Array]
+) -> Array[InputEvent]:
+	var events: Array[InputEvent] = []
+	if bound.has(action):
+		for place: Dictionary in bound[action]:
+			if place.has("event"):
+				events.append(place["event"])
+	elif InputMap.has_action(action):
+		events.assign(InputMap.action_get_events(action))
+	return events
+
+
+## What the page [param on_page] has on what a pad has not got, as Steam has them in [param bound]:
+## a back button, a trackpad or the gyro, each once, by Steam's name for it, in the order the page
+## names them, with Steam's picture of it, the side of the pad it is on, and the words of everything
+## on it.
+static func behind(
+	on_page: int, simple_driving: bool, bound: Dictionary[StringName, Array]
+) -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	for each: Dictionary in entries(on_page, simple_driving):
+		var actions: Array[StringName] = each["actions"]
+		for action: StringName in actions:
+			for place: Dictionary in bound.get(action, []):
+				if place.has("event"):
+					continue
+				var one: Dictionary = {}
+				for already: Dictionary in found:
+					if already["word"] == place["word"]:
+						one = already
+				if one.is_empty():
+					var words: Array[String] = []
+					one = {"picture": place["picture"], "word": place["word"], "words": words}
+					one["side"] = place.get("side", 0)
+					found.append(one)
+				if not one["words"].has(each["words"]):
+					one["words"].append(each["words"])
+	return found
+
+
+## Every action the [param pages] sheets name, for Steam to be asked where each is.
+static func named_actions(simple_driving: bool, pages: int) -> Array[StringName]:
+	var all: Array[StringName] = []
+	for on_page: int in pages:
+		for each: Dictionary in entries(on_page, simple_driving):
+			for action: StringName in each["actions"]:
+				if not all.has(action):
+					all.append(action)
+	return all
 
 
 ## Several things one button does, as one line: "Pause · join".

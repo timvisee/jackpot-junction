@@ -11,7 +11,10 @@ extends Control
 ## player touched last, a generic one if they have touched none. Beside the page keys, a tab for the
 ## keyboard and one for each pad plugged in, numbered as the menus number them, or one stepping
 ## through the pads where there is no room for a tab each; the switch's key steps through them all,
-## and Mine, a pad's View or N, turns it to the keyboard or the pad it was pressed on.
+## and Mine, a pad's View or N, turns it to the keyboard or the pad it was pressed on. For a
+## controller Steam Input reads, GAME.md 10.8, what Steam has bound where, asked again as the game
+## comes back in front; what a pad has not got, a back button or a trackpad, is said down its side
+## of the pad by Steam's picture.
 
 signal put_away
 
@@ -72,6 +75,9 @@ const COLUMN_OUT := 70.0
 const ELBOW := 40.0
 const ROW_GAP := 84.0
 const LINE_WIDTH := 1.6
+## How tall Steam's picture of a button a pad has not got is drawn, where the line to its words
+## would be, see [method _draw_steam_row].
+const STEAM_TALL := 34.0
 const INK := BlueprintArt.INK
 const FAINT := BlueprintArt.FAINT
 ## What the sheet says of the pad drawn, by its family.
@@ -138,6 +144,9 @@ var _stepping := false
 var _band := 0.0
 var _from: Control
 var _closing := false
+## Where Steam has each action of the sheets bound on [member pad], for a controller of Steam's, by
+## [method SteamPads.places]; empty until Steam has said, and for any other pad.
+var _bound: Dictionary[StringName, Array] = {}
 
 
 ## The button that puts the leaflet up over [param parent], for the keyboard where keys or the
@@ -254,6 +263,9 @@ func _ready() -> void:
 		(_back.get_theme_stylebox(&"normal") as StyleBoxEmpty).content_margin_left = 40.0
 	if not TouchInput.enabled:
 		_make_switch(band)
+	_ask_steam()
+	if SteamPads.running != null:
+		SteamPads.running.rebound.connect(_ask_steam)
 	_link_cursor()
 	resized.connect(_fit)
 	_fit()
@@ -435,6 +447,8 @@ func show_pad(device: int) -> void:
 	pad = device
 	family = PadFamily.of_device(device)
 	diagram = PadDiagram.of(family)
+	_bound = {}
+	_ask_steam()
 	if not _switch.is_empty():
 		_word_switch()
 	_turn_to(page, false)
@@ -546,12 +560,39 @@ func _turn_to(to: int, sound := true) -> void:
 		Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
 	page = to
 	_ink_tabs()
-	for i: int in _tabs.size():
-		var said := _said(i)
-		ScreenReader.name(_tabs[i], ScreenReader.line([TITLE, "%s page" % PAGES[i]]), said)
+	_name_tabs()
 	if _tabs[page].is_inside_tree() and get_viewport().gui_get_focus_owner() in _tabs:
 		_tabs[page].grab_focus()
 	_sheet.queue_redraw()
+
+
+## Each tab named for a screen reader with what its page says.
+func _name_tabs() -> void:
+	for i: int in _tabs.size():
+		var said := _said(i)
+		ScreenReader.name(_tabs[i], ScreenReader.line([TITLE, "%s page" % PAGES[i]]), said)
+
+
+## Where Steam has every action of the sheets bound on [member pad] now, GAME.md 10.8, drawn in
+## place of the game's own bindings: asked as the leaflet comes up or turns to the pad, and again
+## whenever Steam says a layout may have changed, see [signal SteamPads.rebound]. Where Steam cannot
+## say, or says of none of them that it is bound, what is drawn stays as it was.
+func _ask_steam() -> void:
+	var pads := SteamPads.running
+	if pad < 0 or pads == null or not pads.tells(pad):
+		return
+	var bound: Dictionary[StringName, Array] = {}
+	var any := false
+	for action: StringName in PadSheets.named_actions(simple, PAGES.size()):
+		var places := pads.places(action, pad)
+		bound[action] = places
+		any = any or not places.is_empty()
+	if not any:
+		return
+	_bound = bound
+	if _sheet != null:
+		_name_tabs()
+		_sheet.queue_redraw()
 
 
 ## What the page [param on_page] says, for a screen reader: each button's words and its name.
@@ -563,10 +604,12 @@ func _said(on_page: int) -> String:
 			var words: Array[String] = by_key[at]
 			parts.append("%s: %s" % [PadSheets.joined(words), KeyboardDiagram.name_of(at)])
 		return ". ".join(parts)
-	var said := PadSheets.labels(on_page, simple, diagram)
+	var said := PadSheets.labels(on_page, simple, diagram, _bound)
 	for spot: StringName in said:
 		var words: Array[String] = said[spot]["words"]
 		parts.append("%s: %s" % [PadSheets.joined(words), diagram.name_of(spot)])
+	for one: Dictionary in PadSheets.behind(on_page, simple, _bound):
+		parts.append("%s: %s" % [PadSheets.joined(one["words"]), one["word"]])
 	return ". ".join(parts)
 
 
@@ -688,12 +731,19 @@ func _draw_sheet() -> void:
 	var art := _art_rect()
 	diagram.draw(_sheet, art.position, ART_SCALE, Color(INK, 0.96))
 	diagram.print_faces(_sheet, art.position, ART_SCALE, INK, Type.STRONG)
-	var said := PadSheets.labels(page, simple, diagram)
+	var said := PadSheets.labels(page, simple, diagram, _bound)
 	var sides: Array[Array] = [[], [], []]
 	for spot: StringName in said:
 		sides[SIDES.get(spot, 0) + 1].append(spot)
-	_draw_column(sides[0], said, -1, art.position.x - COLUMN_OUT)
-	_draw_column(sides[2], said, 1, art.end.x + COLUMN_OUT)
+	# What a pad has not got goes down its own side, under the rest, by Steam's names for them, L4
+	# over L5; one of neither side down the left, which has fewer.
+	var steam: Array[Array] = [[], []]
+	for one: Dictionary in PadSheets.behind(page, simple, _bound):
+		steam[0 if int(one["side"]) <= 0 else 1].append(one)
+	for down: Array in steam:
+		down.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a["word"] < b["word"])
+	_draw_column(sides[0], said, -1, art.position.x - COLUMN_OUT, steam[0])
+	_draw_column(sides[2], said, 1, art.end.x + COLUMN_OUT, steam[1])
 	_draw_over(sides[1], said)
 	_sheet.draw_set_transform(Vector2.ZERO)
 
@@ -743,13 +793,20 @@ func _draw_foot(inside: Rect2) -> void:
 	)
 	_words(Type.micro_font(), sheet, corner, 14, FAINT, -1)
 	var whose := "%s, as you have it bound" % (KEYBOARD_WORDS if keyboard else FAMILY_WORDS[family])
+	if not keyboard and not _bound.is_empty():
+		whose += " in Steam"
 	_words(BayArt.hand_font(), whose, corner - Vector2(0.0, 26.0), 28, BlueprintArt.PENCIL, -1)
 
 
 ## The words down one side of the pad, [param side] of it at [param edge], each beside its button
-## and moved apart only as far as they must be, and a line from each button out to its words.
+## and moved apart only as far as they must be, and a line from each button out to its words; under
+## them [param steam], what a pad has not got, see [method PadSheets.behind].
 func _draw_column(
-	spots: Array, said: Dictionary[StringName, Dictionary], side: int, edge: float
+	spots: Array,
+	said: Dictionary[StringName, Dictionary],
+	side: int,
+	edge: float,
+	steam: Array = [],
 ) -> void:
 	spots.sort_custom(
 		func(a: StringName, b: StringName) -> bool: return _on_card(a, true).y < _on_card(b, true).y
@@ -758,7 +815,11 @@ func _draw_column(
 	var heights: Array[float] = []
 	for spot: StringName in spots:
 		heights.append(_on_card(spot, true).y)
+	for one: Dictionary in steam:
+		heights.append(art.end.y)
 	_spread(heights, art.position.y + 10.0, art.end.y - 10.0)
+	for i: int in steam.size():
+		_draw_steam_row(steam[i], heights[spots.size() + i], side, edge)
 	for i: int in spots.size():
 		var spot: StringName = spots[i]
 		var y := heights[i]
@@ -785,6 +846,27 @@ func _draw_column(
 		if not note.is_empty():
 			var at := Vector2(x + side * 10.0, y - 26.0)
 			_words(BayArt.hand_font(), note, at, 30, BlueprintArt.PENCIL, side)
+
+
+## A button a pad has not got, see [method PadSheets.behind], at [param y] down the side
+## [param side] at [param edge]: Steam's picture of it where a line would come in to its words, or
+## its name in an outline where Steam has no picture, then its words, Steam's name for it under them
+## as a button's name is under its words.
+func _draw_steam_row(one: Dictionary, y: float, side: int, edge: float) -> void:
+	var picture: Texture2D = one["picture"]
+	var word: String = one["word"]
+	var wide := Type.STRONG.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x + 20.0
+	if picture != null:
+		wide = picture.get_width() * STEAM_TALL / maxf(picture.get_height(), 1.0)
+	var box := Rect2(edge - (wide if side > 0 else 0.0), y - STEAM_TALL * 0.5, wide, STEAM_TALL)
+	if picture != null:
+		_sheet.draw_texture_rect(picture, box, false)
+	else:
+		_sheet.draw_rect(box, INK, false, LINE_WIDTH)
+		_words(Type.STRONG, word, box.get_center() + Vector2(0.0, 6.0), 18, INK, 0)
+	var x := edge + side * 12.0
+	_words(Type.STRONG, PadSheets.joined(one["words"]), Vector2(x, y + 6.0), 28, INK, side)
+	_words(Type.TEXT, word, Vector2(x, y + 32.0), 17, FAINT, side)
 
 
 ## Where a line leaves a button: a white dot, ringed in the sheet's blue so it reads over the

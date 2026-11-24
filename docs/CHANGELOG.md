@@ -32,6 +32,9 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Show controls follows your Steam layout.** With a controller Steam reads, the blueprint draws
+  each action where Steam has it, back buttons and trackpads down their own side, and catches up as
+  you come back from Steam's settings.
 - **Gamepads numbered from 1 on Steam.** With Steam Input, a player's switch in the pause menu
   said Gamepad 33 for the first controller; it says Gamepad 1.
 - **Keyboard and gamepad bindings side by side.** On the Controls page in two columns, right from a

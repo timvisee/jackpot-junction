@@ -5142,7 +5142,15 @@ As wide and as tall as that room, whatever shape the screen is, with the pad and
 middle; mottled blue with its grid and a double border, folded in four and once across, a
 registration mark at each corner and the grid's references, letters down the left and numbers along
 the top. What it shows is what the player has bound, so a rebinding moves its words to the button it
-is on now.
+is on now. For a controller Steam Input reads, 10.8, that is what Steam has bound where on it, asked
+of Steam as the blueprint comes up or turns to its tab, and again as the game comes back in front
+from another window or from Steam's overlay, where its controller settings are, or as Steam loads a
+layout; where Steam cannot say, what is drawn stays. What a pad has not got, a back button, a
+trackpad, the gyro, is said under the words down its own side of the pad, by the grip or the stick
+Steam has nearest, upper over lower: Steam's picture of it where a line would come in, its words,
+and Steam's name for it under them. The foot then says "Steam Deck, as you have it bound in Steam".
+Asked for on 2026-11-24, after the user found the blueprint did not follow a layout changed in
+Steam.
 
 - **The pad, whole** (`PadDiagram`): Xelu's free controller drawings, public domain, see
   THIRD_PARTY.md, line art in the sheet's white, in their plain cut with no maker's logo. The pad
@@ -11207,8 +11215,9 @@ pad's own, in the controller's family, 8.3, a stick pushed the way the action go
 front comes before one behind. What a pad has not got, a back button, a trackpad, the gyro, is
 Steam's own picture of it, white on black, or Steam's name for it on a pill where Steam has no
 picture; a trackpad set to be a stick is the trackpad, Steam translating it as the stick it is
-nearest only. Steam is asked again as a layout loads and every second and a half, so a layout
-changed in Steam's settings is drawn as changed on the way back.
+nearest only. Steam is asked again as a layout loads, as the game comes back in front from another
+window or from Steam's overlay, and every second and a half, so a layout changed in Steam's settings
+is drawn as changed on the way back. Show controls' blueprint, 8.3b, is drawn the same way.
 
 #### A supporter pack
 
