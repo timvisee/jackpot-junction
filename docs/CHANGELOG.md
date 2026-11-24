@@ -70,6 +70,8 @@ below, and hands the notes to the release workflow.
   as 80%.
 - **Fixed camera on the Video page.** It's under Camera there too, the same switch as in
   Accessibility.
+- **Matching headings.** The Statistics page and the sections under your license wear the same
+  headings as the grouped settings pages.
 - **Audio settings in groups.** The Audio page sorts its settings under Volume and Music, side by
   side where the screen has room.
 - **Clearer action names.** The Controls page says Previous joker and Next joker rather than

@@ -6,7 +6,8 @@ extends ScrollContainer
 
 const TITLE := "Statistics"
 const WHOSE := "%s, over every map played to the end."
-const GROUP_INK := Palette.CHIP_GOLD
+## How wide each group stands, room for its heading's dotted rule to run on after its title.
+const GROUP_WIDE := 440.0
 const NAME_INK := Color(0.78, 0.78, 0.84)
 const VALUE_INK := Color(0.96, 0.96, 0.98)
 ## The row Games gains after the story's ending, STORY.md 6.6: the maps played since.
@@ -54,14 +55,12 @@ func _ready() -> void:
 		groups.add_child(_group(group[0], lines))
 
 
-## One group: its title, then a line each, what it is and how much, the numbers lined up.
+## One group: its heading, as a page of settings heads its groups, see [SettingsColumns], then a
+## line each, what it is and how much, the numbers lined up.
 func _group(title: String, lines: Array) -> VBoxContainer:
-	var box := VBoxContainer.new()
+	var box := SettingsColumns.group(title)
 	box.add_theme_constant_override("separation", 6)
-	var heading := Label.new()
-	Type.strong(heading, Type.BODY, GROUP_INK)
-	heading.text = title
-	box.add_child(heading)
+	box.custom_minimum_size.x = GROUP_WIDE
 	var grid := GridContainer.new()
 	grid.columns = 2
 	grid.add_theme_constant_override("h_separation", 40)

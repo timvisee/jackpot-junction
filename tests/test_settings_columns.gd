@@ -49,3 +49,20 @@ func test_the_audio_page_has_volume_and_music() -> void:
 	assert_array(rows[SettingsScreen.VOLUME]).is_equal(["Master", "Music", "Effects", "Karts"])
 	var music: Array[String] = ["Intense music", "Music muted", "Muffle music on death"]
 	assert_array(rows[SettingsScreen.MUSIC]).is_equal(music)
+
+
+## The Statistics page's groups and the sections under the license head themselves as the grouped
+## pages do, a title in capitals with a dotted rule after it, see [method SettingsColumns.group].
+func test_the_statistics_and_license_sections_wear_the_headings() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	for page_name: String in ["Statistics", "License"]:
+		screen.tabs.current_tab = screen.tabs.get_node(page_name).get_index()
+		await await_idle_frame()
+		var page := screen.tabs.get_node(page_name)
+		var headed := 0
+		for node: Node in page.find_children("Heading", "HBoxContainer", true, false):
+			var title := node.get_node_or_null("Title") as Label
+			if title != null and title.uppercase:
+				headed += 1
+		assert_int(headed).override_failure_message(page_name).is_greater_equal(4)

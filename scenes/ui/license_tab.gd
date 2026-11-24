@@ -285,17 +285,13 @@ func _sections(column: VBoxContainer) -> GridContainer:
 	return grid
 
 
-## A section of the page named [param named], headed [param title] in gold as the Statistics
-## page's groups are, what is in it under the title down its left.
+## A section of the page named [param named], headed [param title] as a page of settings heads its
+## groups, see [SettingsColumns], what is in it under the heading down its left.
 static func _section(named: String, title: String) -> VBoxContainer:
-	var box := VBoxContainer.new()
+	var box := SettingsColumns.group(title)
 	box.name = named
 	box.custom_minimum_size.x = SECTION_WIDE
 	box.add_theme_constant_override("separation", 10)
-	var heading := Label.new()
-	heading.text = title
-	Type.strong(heading, Type.BODY, StatsTab.GROUP_INK)
-	box.add_child(heading)
 	return box
 
 

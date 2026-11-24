@@ -5458,8 +5458,9 @@ from a section's button low in its box was the one beside it.
   same way, the notes coming up over the settings; from a room's pause menu, once a note has
   been taken in the map under way, grayed with an hourglass on it and a line under it saying the
   new note can be read once the map is over, and neither reached nor opened. Under the cards
-  the rest is laid out in sections, two across, each titled in gold as the Statistics page's
-  groups are, what is in it down its left: Plate, the plate on the back of the kart to change,
+  the rest is laid out in sections, two across, each headed as the Statistics page's groups
+  are, its title in the house's capitals with a dotted rule after it, as the grouped pages of
+  the settings head theirs, what is in it down its left: Plate, the plate on the back of the kart to change,
   see 4.4, up to eight letters, digits, spaces and dashes, cleaned as it is typed; Driving
   school, the day it was passed and Retake the driving test, which goes to the school; Your kart,
   "Its parts, its color, its name and its plate." over Customize kart, which opens the kart
@@ -5748,7 +5749,8 @@ from a section's button low in its box was the one beside it.
   page and the whole of a note looked at closer. The HUD's numbers, which change every
   frame, are left to be read rather than said.
 - **Statistics**: the profile playing, over every map it played to the end, in six
-  groups, two across. Games: maps played and won, Grand Prix runs played and won, and time
+  groups, two across, each 440 wide under a heading in the house's capitals with a dotted rule
+  after it, as the grouped pages of the settings head theirs. Games: maps played and won, Grand Prix runs played and won, and time
   played, the clock running. Driving: distance driven and drifted in kilometers, the longest
   drift in seconds, nitro burned, turbo pads and drift boosts. Fighting: kills, the best kill
   streak, shots fired, accuracy once ten have been fired, near misses, bullets shot down, rams,
