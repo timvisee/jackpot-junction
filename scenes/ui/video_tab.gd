@@ -56,6 +56,13 @@ const FOLLOW_NAMES: Array[String] = ["Everyone", "Nearby rivals", "My kart"]
 const FIXED := "Fixed camera"
 const DISTANCE_NAMES: Array[String] = ["Closest", "Close", "Medium", "Far", "Farthest"]
 
+## The Quality box over the Graphics group, GAME.md 8.5, and what it says to the mouse and a screen
+## reader.
+const QUALITY := "Quality"
+const QUALITY_TIP := (
+	"Sets the six below at once: Low asks least of your graphics card, Ultra is the sharpest."
+	+ " Change one of them yourself and it says Custom."
+)
 ## The page's groups, GAME.md 8.5, by their headings: what is seen and how it is played on the left,
 ## what it costs the card on the right.
 const DISPLAY := "Display"
@@ -73,6 +80,9 @@ var _column: VBoxContainer
 var _distance_box: OptionButton
 var _follows_box: OptionButton
 var _ui_box: OptionButton
+## The Quality box, and how each box it sets shows what it is set to again once it has.
+var _quality_box: OptionButton
+var _shown_again: Array[Callable] = []
 ## Whether this is a phone or a tablet, and whether the renderer is the desktop's, for the tests to
 ## build the page as another platform would.
 var _handheld := false
@@ -237,53 +247,91 @@ func _add_performance() -> void:
 	_add("Show FPS", counter)
 
 
-## What a room pays for on the card, GAME.md 8.5, each the room's own strength the player keeps a
-## share of; relit at once, since the room is standing.
+## What a room pays for on the card, GAME.md 8.5, under a preset that sets all six at once, see
+## [QualityPresets]: each the room's own strength the player keeps a share of, relit at once, since
+## the room is standing.
 func _add_graphics() -> void:
 	_group(GRAPHICS)
-	var shadows := MenuTheme.option(
-		["Off", "Low", "High"], maxi(Settings.SHADOW_LEVELS.find(_settings.shadows), 0)
+	var names: Array = QualityPresets.NAMES.slice(0, QualityPresets.offered(_full_renderer))
+	names.append(QualityPresets.CUSTOM)
+	_quality_box = MenuTheme.option(names, 0)
+	_quality_box.name = "Quality"
+	# Custom is what the box says, not a preset to pick.
+	_quality_box.set_item_disabled(names.size() - 1, true)
+	_quality_box.tooltip_text = QUALITY_TIP
+	ScreenReader.name(_quality_box, QUALITY, QUALITY_TIP)
+	_quality_box.item_selected.connect(_use_preset)
+	_add(QUALITY, _quality_box)
+	var relight := func() -> void: ArenaEnvironment.relight(get_tree())
+	var shadows := ["Off", "Low", "High"]
+	var lit := func() -> void:
+		_apply()
+		relight.call()
+	_add_option("Shadows", shadows, Settings.SHADOW_LEVELS, &"shadows", lit)
+	var detail := texture_box(_settings, _full_renderer)
+	detail.item_selected.connect(func(_index: int) -> void: _say_quality())
+	_shown_again.append(
+		func() -> void: detail.select(maxi(_textures_offered().find(_shown_texture()), 0))
 	)
-	shadows.item_selected.connect(
+	_add(TEXTURES, detail)
+	_add_option("Ambient occlusion", OCCLUSION_NAMES, OCCLUSION_LEVELS, &"occlusion", relight)
+	_add_option("Bloom", BLOOM_NAMES, BLOOM_LEVELS, &"bloom", relight)
+	_add_option("MSAA", ["Off", "2x", "4x", "8x"], Settings.MSAA_SAMPLES, &"msaa", _apply)
+	var smoothings := ["Off", "FXAA", "SMAA"]
+	_add_option("Screen smoothing", smoothings, Settings.SMOOTHINGS, &"screen_smoothing", _apply)
+	_say_quality()
+
+
+## A box of [param names] for the setting [param key], each one of [param values], calling
+## [param changed] once it is set; shown again as it is set when a preset sets it.
+func _add_option(
+	label: String, names: Array, values: Array, key: StringName, changed: Callable
+) -> void:
+	var box := MenuTheme.option(names, maxi(values.find(_settings.get(key)), 0))
+	box.item_selected.connect(
 		func(index: int) -> void:
-			_settings.shadows = Settings.SHADOW_LEVELS[index]
-			_apply()
-			ArenaEnvironment.relight(get_tree())
+			_settings.set(key, values[index])
+			changed.call()
+			_say_quality()
 	)
-	_add("Shadows", shadows)
-	_add(TEXTURES, texture_box(_settings, _full_renderer))
-	var ao := MenuTheme.option(OCCLUSION_NAMES, maxi(OCCLUSION_LEVELS.find(_settings.occlusion), 0))
-	ao.item_selected.connect(
-		func(index: int) -> void:
-			_settings.occlusion = OCCLUSION_LEVELS[index]
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Ambient occlusion", ao)
-	var bloom := MenuTheme.option(BLOOM_NAMES, maxi(BLOOM_LEVELS.find(_settings.bloom), 0))
-	bloom.item_selected.connect(
-		func(index: int) -> void:
-			_settings.bloom = BLOOM_LEVELS[index]
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Bloom", bloom)
-	var samples := MenuTheme.option(
-		["Off", "2x", "4x", "8x"], maxi(Settings.MSAA_SAMPLES.find(_settings.msaa), 0)
-	)
-	samples.item_selected.connect(
-		func(index: int) -> void:
-			_settings.msaa = Settings.MSAA_SAMPLES[index]
-			_apply()
-	)
-	_add("MSAA", samples)
-	var smoothing := MenuTheme.option(
-		["Off", "FXAA", "SMAA"], maxi(Settings.SMOOTHINGS.find(_settings.screen_smoothing), 0)
-	)
-	smoothing.item_selected.connect(
-		func(index: int) -> void:
-			_settings.screen_smoothing = Settings.SMOOTHINGS[index]
-			_apply()
-	)
-	_add("Screen smoothing", smoothing)
+	_shown_again.append(func() -> void: box.select(maxi(values.find(_settings.get(key)), 0)))
+	_add(label, box)
+
+
+## The six under the Quality box set as preset [param index] has them, the boxes showing it and
+## the room drawn again at once, the floor too where its texture detail changed.
+func _use_preset(index: int) -> void:
+	if index >= QualityPresets.offered(_full_renderer):
+		return
+	var detail_was := _settings.texture_detail
+	QualityPresets.use(_settings, index)
+	for shown: Callable in _shown_again:
+		shown.call()
+	_apply()
+	ArenaEnvironment.relight(get_tree())
+	if _settings.texture_detail != detail_was:
+		ScreenPrint.redraw(get_tree())
+	_say_quality()
+
+
+## The Quality box showing the preset the six under it are set as, or Custom.
+func _say_quality() -> void:
+	var auto := LayoutPrint.auto_detail(_full_renderer)
+	var at := QualityPresets.of(_settings, auto, _full_renderer)
+	_quality_box.select(at if at >= 0 else _quality_box.item_count - 1)
+
+
+## The texture details the Texture detail box lists, and the one it shows, see [method texture_box].
+func _textures_offered() -> Array[String]:
+	var offered: Array[String] = Settings.TEXTURE_DETAILS.duplicate()
+	if not _full_renderer:
+		offered.erase(Settings.TEXTURES_ULTRA)
+	return offered
+
+
+func _shown_texture() -> String:
+	var shown := _settings.texture_detail
+	return shown if shown in _textures_offered() else Settings.TEXTURES_HIGH
 
 
 ## Full, Half or Off for the crowd, GAME.md 8.5: one setting, offered here and in Accessibility, so

@@ -5520,8 +5520,8 @@ from a section's button low in its box was the one beside it.
   brightness; Camera, camera distance, whom the camera follows and the fixed camera, the same
   setting as in Accessibility, each page's switch showing what the other set; Table, the look, the looks
   bar, tire marks and the crowd; Performance, vsync, frame rate limit, render scale, upscaler
-  and show FPS; and Graphics, shadows, texture detail, ambient occlusion, bloom, MSAA and
-  screen smoothing. Where the page is wide enough for the widest group twice over, the first
+  and show FPS; and Graphics, the quality preset over shadows, texture detail, ambient
+  occlusion, bloom, MSAA and screen smoothing. Where the page is wide enough for the widest group twice over, the first
   three stand down the left, what is seen and how it is played, and the last two down the
   right, what it costs the card, so a 1080p screen shows the whole page at once; on a narrower
   one, a handheld under a big UI scale, they stand one under the other in the same order. In
@@ -5555,7 +5555,16 @@ from a section's button low in its box was the one beside it.
   editor or a debug export starts in a window, beside whatever it is being worked
   on with. The setting, once changed, is kept either way. Brightness is how
   bright a room is drawn over its own exposure, 8.1: from half as bright to twice,
-  Normal in the middle, for a screen that runs dark or washed out. Render scale and brightness
+  Normal in the middle, for a screen that runs dark or washed out. The quality preset, Low,
+  Medium, High or Ultra, sets the six under it at once, `QualityPresets`: Low has shadows low,
+  texture detail Low, no ambient occlusion, no bloom, no MSAA and FXAA; Medium shadows low,
+  texture detail Auto, no ambient occlusion, bloom at Normal, no MSAA and SMAA; High shadows high,
+  texture detail Auto, ambient occlusion and bloom at the room's own, 2x MSAA and no screen
+  smoothing, where a desktop starts; and Ultra as High with texture detail Ultra and 4x MSAA, on
+  the desktop's renderer alone. Bloom's and ambient occlusion's levels change how strong each is
+  rather than what it costs, so a preset only turns them on or off. Changed by hand, the box says
+  Custom, which is never picked from it. Texture detail is compared as it is drawn, Auto as what
+  it comes out as on this screen, so a phone's own start reads as Low. Render scale and brightness
   each say beside their slider what they are set to, 80% or 150%, as the Intense music slider
   does: a knob alone tells neither what share of the screen's size a room is drawn at nor how
   much brighter it is. Bloom is the

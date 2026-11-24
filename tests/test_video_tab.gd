@@ -120,19 +120,16 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 	assert_array(_rows(tab, VideoTab.PERFORMANCE)).contains_exactly(
 		["V-sync", "Frame rate limit", "Render scale", "Upscaler", "Show FPS"]
 	)
-	(
-		assert_array(_rows(tab, VideoTab.GRAPHICS))
-		. contains_exactly(
-			[
-				"Shadows",
-				VideoTab.TEXTURES,
-				"Ambient occlusion",
-				"Bloom",
-				"MSAA",
-				"Screen smoothing",
-			]
-		)
-	)
+	var graphics: Array[String] = [
+		VideoTab.QUALITY,
+		"Shadows",
+		VideoTab.TEXTURES,
+		"Ambient occlusion",
+		"Bloom",
+		"MSAA",
+		"Screen smoothing",
+	]
+	assert_array(_rows(tab, VideoTab.GRAPHICS)).contains_exactly(graphics)
 
 
 ## GAME.md 8.5: two columns side by side where the page is wide enough, the Display, Camera and
