@@ -223,6 +223,13 @@ func _ready() -> void:
 	# Where the story is, and buttons to move it, for trying it out: debug builds alone.
 	if OS.is_debug_build():
 		tabs.add_child(StoryDebugTab.make(_settings))
+	# The engine looks for the next control only in the part of a scroll that shows, unless the
+	# scroll follows the cursor: in one column, under a big UI scale, down from the foot of Driving
+	# found nothing, Fighting's heading pushing its first row out of sight. The License page keeps
+	# its own way, round the license's mark.
+	for page: Node in tabs.get_children():
+		if page is ScrollContainer and not page is LicenseTab:
+			(page as ScrollContainer).follow_focus = true
 	if not opening_on.is_empty():
 		var page := tabs.get_node_or_null(NodePath(opening_on))
 		if page != null:

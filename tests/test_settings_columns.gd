@@ -66,3 +66,36 @@ func test_the_statistics_and_license_sections_wear_the_headings() -> void:
 			if title != null and title.uppercase:
 				headed += 1
 		assert_int(headed).override_failure_message(page_name).is_greater_equal(4)
+
+
+## In one column, as under a big UI scale on a television, the cursor walks down each grouped page
+## through every group to its foot: the engine looked for the next control only in the part of the
+## page that showed, so down from the foot of Driving found nothing past Fighting's heading.
+func test_the_cursor_walks_down_every_group_in_one_column() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	screen.size = Vector2(900.0, 520.0)
+	for page_name: String in GROUPED:
+		screen.tabs.current_tab = screen.tabs.get_node(page_name).get_index()
+		await await_idle_frame()
+		await await_idle_frame()
+		var groups := screen.tabs.get_node(page_name + "/Groups") as SettingsColumns
+		(
+			assert_bool(groups.two_columns(groups.size.x))
+			. override_failure_message(page_name)
+			. is_false()
+		)
+		var wanted: Array[String] = []
+		for group: Node in groups.get_children():
+			if not SettingsColumns._takers([group as Control]).is_empty():
+				wanted.append(str(group.name))
+		var reached: Array[String] = []
+		var at := screen._first_focusable(screen.tabs.get_current_tab_control())
+		var steps := 0
+		while at != null and steps < 200:
+			steps += 1
+			for group: Node in groups.get_children():
+				if group.is_ancestor_of(at) and not reached.has(str(group.name)):
+					reached.append(str(group.name))
+			at = at.find_valid_focus_neighbor(SIDE_BOTTOM)
+		assert_array(reached).override_failure_message(page_name).is_equal(wanted)

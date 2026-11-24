@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Walking down a settings page in one column.** Under a big UI scale, as on a television, the
+  cursor moves on from Driving to Fighting, and from one group to the next on the Video and
+  Accessibility pages.
+
 ## [0.24.0] - 2026-11-24
 
 A new profile starts at a simpler table that the House adds a feature to after each map,
