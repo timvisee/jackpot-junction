@@ -21,6 +21,7 @@ func after_test() -> void:
 	PadFamily.pretend = -1
 	Game.last_input_keyboard = _keyboard_was
 	DeviceInput.recent.clear()
+	DeviceInput.steam_pads.clear()
 
 
 ## A pad as the engine tells of it: its maker's and its product's USB ids, as it gives them.
@@ -245,3 +246,17 @@ func test_keys_are_named_as_the_players_keyboard_prints_them() -> void:
 	InputActions.label_of = was
 	# Where the system says the same, the engine's name, as before.
 	assert_str(InputActions.event_text(space)).is_equal("Space")
+
+
+## Pads are numbered from 1 as the menus say them, the engine's first and then Steam Input's, so a
+## pad of Steam Input's is Gamepad 1 rather than 33 with no other plugged in; one gone has none.
+func test_pads_are_numbered_from_one() -> void:
+	var engine := Input.get_connected_joypads().size()
+	DeviceInput.steam_pads[SteamPads.FIRST_DEVICE + 1] = PadFamily.Family.STEAM_CONTROLLER
+	DeviceInput.steam_pads[SteamPads.FIRST_DEVICE] = PadFamily.Family.PLAYSTATION_4
+	assert_int(DeviceInput.number_of(SteamPads.FIRST_DEVICE)).is_equal(engine + 1)
+	assert_int(DeviceInput.number_of(SteamPads.FIRST_DEVICE + 1)).is_equal(engine + 2)
+	assert_int(DeviceInput.number_of(SteamPads.FIRST_DEVICE + 5)).is_equal(0)
+	var player := PlayerInput.new(SteamPads.FIRST_DEVICE, 0)
+	assert_str(DriveSwitches.device_words(player)).is_equal("Gamepad %d" % (engine + 1))
+	DeviceInput.steam_pads.clear()

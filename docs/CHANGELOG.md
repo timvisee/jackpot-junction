@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Gamepads numbered from 1 on Steam.** With Steam Input, a player's switch in the pause menu
+  said Gamepad 33 for the first controller; it says Gamepad 1.
 - **Keyboard and gamepad bindings side by side.** On the Controls page in two columns, right from a
   keyboard binding goes to its gamepad binding before crossing to the other column.
 - **The thank-you card when you buy the pack.** Bought from the kart dialog, it comes up over the

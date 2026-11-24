@@ -39,6 +39,25 @@ static func pads() -> Array[int]:
 	return all
 
 
+## The pads plugged in, in the order the menus number them, Gamepad 1 first: the engine's by their
+## ids, then Steam Input's by theirs.
+static func numbered() -> Array[int]:
+	var engine: Array[int] = []
+	engine.assign(Input.get_connected_joypads())
+	engine.sort()
+	var steam: Array[int] = []
+	steam.assign(steam_pads.keys())
+	steam.sort()
+	engine.append_array(steam)
+	return engine
+
+
+## Which gamepad [param device] is, from 1, as the menus say it, see [method numbered]; 0 for one
+## not plugged in.
+static func number_of(device: int) -> int:
+	return numbered().find(device) + 1
+
+
 ## Knocks the pad [param pad], its light motor [param weak] and its heavy one [param strong], 0 to
 ## 1, for [param seconds], GAME.md 4.2: through Steam for a pad of Steam Input's.
 static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void:

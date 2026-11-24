@@ -367,8 +367,13 @@ func _again(seat: int, focus: Callable) -> void:
 static func device_words(player: PlayerInput) -> String:
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		return "Touch screen"
-	if player.device >= 0:
-		return "Gamepad %d" % (player.device + 1)
+	# Numbered as the menus number pads, so one of Steam Input's is Gamepad 1 rather than 33; one of
+	# the engine's not plugged in now by its id, as it was.
+	var number := DeviceInput.number_of(player.device) if player.device >= 0 else 0
+	if number == 0 and player.device >= 0 and player.device < SteamPads.FIRST_DEVICE:
+		number = player.device + 1
+	if number > 0:
+		return "Gamepad %d" % number
 	return "Keyboard" if DeviceInput.uses_keyboard(player.device) else "Gamepad"
 
 
