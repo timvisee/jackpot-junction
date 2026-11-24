@@ -1324,8 +1324,8 @@ everybody, 3.11, and never moves with the story.
 
 GAME.md 3.8. The House writes to the player as it writes to everybody, on its letterhead, by name
 and in its capitals. A letter comes on the title, held up as the welcome letter is, 6.6b, one a
-visit and after the invitation and the welcome; put away, it is filed in Kit's folder under a title
-of Kit's in pencil, 7.2. Under the letterhead each carries its reference, REF. and the player's
+visit and after the invitation, the supporter pack's thanks of GAME.md 10.8 and the welcome; put
+away, it is filed in Kit's folder under a title of Kit's in pencil, 7.2. Under the letterhead each carries its reference, REF. and the player's
 license number, and the day; the House's seal is pressed in gold low on its right; and along its
 foot, THIS LETTER REMAINS THE PROPERTY OF THE HOUSE · NO REPLY IS REQUIRED. The one way on is Put
 it away, Back as well. A profile owed more than one, having come to a stage without being shown the

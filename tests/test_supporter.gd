@@ -6,6 +6,7 @@ extends GdUnitTestSuite
 ## lamp turns, quickens while its kart cashes out and goes dark at a death.
 
 const PATH := "user://test_supporter.cfg"
+const TITLE := preload("res://scenes/ui/title.tscn")
 
 var _settings_were: Settings
 var _holder: Control
@@ -655,6 +656,36 @@ func test_the_thank_you_comes_once() -> void:
 	await await_millis(int((SupporterThanks.DROP + 0.8) * 1000.0))
 	assert_bool(went[0]).is_true()
 	assert_bool(SupporterThanks.due()).is_false()
+
+
+## At the title the thanks come next after the invitation, never with it, and before the program's
+## welcome, one card a visit, GAME.md 3.8: a visit with both owed has the thanks.
+func test_the_thanks_come_after_the_invitation_and_before_the_welcome() -> void:
+	Supporter.start(PackedStringArray(["--supporter"]), false, false)
+	Game.settings.profile.stats[&"maps"] = float(LoyaltyWelcome.WELCOME_AFTER)
+	OpeningInvitation.again = true
+	LoyaltyWelcome.again = true
+	var first: Control = auto_free(TITLE.instantiate())
+	add_child(first)
+	await await_idle_frame()
+	assert_object(first.cards.invitation).is_not_null()
+	assert_object(first.cards.mail).is_null()
+	remove_child(first)
+	OpeningInvitation.again = false
+	var second: Control = auto_free(TITLE.instantiate())
+	add_child(second)
+	await await_idle_frame()
+	assert_bool(second.cards.mail is SupporterThanks).is_true()
+	assert_object(second.cards.welcome).is_null()
+	remove_child(second)
+	Game.settings.supporter_thanked = true
+	var third: Control = auto_free(TITLE.instantiate())
+	add_child(third)
+	await await_idle_frame()
+	assert_object(third.cards.mail).is_null()
+	assert_object(third.cards.welcome).is_not_null()
+	remove_child(third)
+	LoyaltyWelcome.again = false
 
 
 ## Bought while a menu is up, the title or the settings, the thank-you card comes at once over it,

@@ -3,9 +3,9 @@ extends Node
 ## What the title puts up by itself as it comes up, GAME.md 3.8: the shaders compiling first, once a
 ## version, said in a pane over all of it, 10.7, see [WarmupPane]; then one card a visit at the
 ## most, the first of them due: the invitation that brought the player here, the first time a
-## profile comes to the title, STORY.md 6.1a; the House's welcome to its loyalty program, GAME.md
-## 8.9; a letter of the House's as a stage begins, STORY.md 6.11, or the supporter pack's thanks,
-## GAME.md 10.8. A card is put up at once, under the warm-up's pane, so it has drawn everything
+## profile comes to the title, STORY.md 6.1a; the supporter pack's thanks, GAME.md 10.8; the
+## House's welcome to its loyalty program, 8.9; a letter of the House's as a stage begins, STORY.md
+## 6.11. A card is put up at once, under the warm-up's pane, so it has drawn everything
 ## once by the time it starts, and started once the shaders have compiled. Once nothing is up the
 ## title is the player's, see [signal opened].
 
@@ -25,7 +25,8 @@ var to_school := Game.go_to_tutorial
 ## The House's welcome to its loyalty program while it is up, GAME.md 8.9, and the map it opens
 ## until that is put away.
 var welcome: LoyaltyWelcome
-## A letter of the House's while it is up, STORY.md 6.11, or the supporter pack's thanks, 10.8.
+## The supporter pack's thanks while they are up, GAME.md 10.8, or a letter of the House's, STORY.md
+## 6.11.
 var mail: Variant
 
 var _title: Control
@@ -52,16 +53,19 @@ func put_up() -> void:
 		# It comes in silence, the music faded out if it was playing, and held off till the title
 		# opens.
 		Audio.hold_music(true)
+	# Or the supporter pack's thanks, GAME.md 10.8, the same way: next after the invitation, never
+	# with it.
+	elif SupporterThanks.due():
+		mail = SupporterThanks.over(_title)
 	# Or, once a map has been played to its whistle, the House's welcome to its loyalty program,
-	# GAME.md 8.9, the same way: never with the invitation, which comes first.
+	# GAME.md 8.9.
 	elif LoyaltyWelcome.due(profile):
 		welcome = LoyaltyWelcome.over(_title, profile)
 		welcome.welcomed.connect(_on_welcomed)
-	# Or a letter of the House's, as a stage begins, STORY.md 6.11: one a visit, after the two.
-	elif not StoryLetters.due(profile).is_empty() or SupporterThanks.due():
+	# Or a letter of the House's, as a stage begins, STORY.md 6.11: one a visit, after the rest.
+	elif not StoryLetters.due(profile).is_empty():
 		mail = HouseMail.over(_title, profile)
-		if mail == null:
-			mail = SupporterThanks.over(_title)
+	if mail != null:
 		mail.put_away.connect(_on_mail_put_away)
 	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
 	# license too, with Skip; the opening waits for them, since it would only stutter while they

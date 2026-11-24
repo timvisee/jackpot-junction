@@ -11255,8 +11255,10 @@ rounds of a shortlist rendered on the real kart, PLAN.md M19 S8.
   its foil, in a look that is not the House's (kraft paper, addressed by hand, a real stamp) and
   under one warm lamp; Try them on puts it away and opens the kart dialog, and Close or Back puts
   it away. Once they are up the cursor walks between the two, on Try them on first, and a key or a
-  pad's button with the cursor on neither puts it there, so a pad always has one to press. It shares the title's place with the House's letters, STORY.md 6.11, and waits behind
-  them. Before the pack is bought, where it is offered, the pack's flyer hangs there instead, cream
+  pad's button with the cursor on neither puts it there, so a pad always has one to press. Of the
+  cards the title puts up, one a visit, it comes next after the invitation, STORY.md 6.1a, never
+  with it, and before the program's welcome, 8.9, and the House's letters, STORY.md 6.11
+  (`TitleCards`). Before the pack is bought, where it is offered, the pack's flyer hangs there instead, cream
 with its star and its name, a click, a tap or the cursor's press on it opening the pack's store
 page in Steam's overlay; bought and the card shown, the card takes its place. Then it is taped up
 in the Garage's bay, 4.4a, on the back wall under the calendar, where a
