@@ -10846,8 +10846,13 @@ even parse in a GitHub checkout.
 #### When Steam is on
 
 In a Steam export, by its `steam` feature, or from a checkout with `--steam`. Never on a server,
-`Game.serving`, nor in the booth demo of 9.8, and `--no-steam` turns it off in any build. The
-tests never pass `--steam` and never run an export, so not one of them talks to Steam: they hand
+`Game.serving`, nor in the booth demo of 9.8, and `--no-steam` turns it off in any build. A demo
+Steam started with Steam Input on, though, as Profiles' Start demo mode restarts it on a Steam
+Machine, starts Steam for its controllers alone (`Store.for_pads`): Steam keeps them from the
+engine, naming them in `SDL_GAMECONTROLLER_IGNORE_DEVICES`, and hands it virtual pads that its
+action layout leaves silent, so the demo reads them through Steam Input as the game does. Nothing
+else is asked of that Steam, no achievements, presence, lobbies or store, and it is never started
+again by Steam, which would drop `--demo`. The tests never pass `--steam` and never run an export, so not one of them talks to Steam: they hand
 `SteamStore` a fake of their own. `make steam-run` plays from a checkout with Steam on, and `make
 steam-check` asks a running Steam client the few things this section needs and prints what it
 answered; it is run by hand, never by `make check`.

@@ -39,6 +39,11 @@ static var restarting := false
 ## The lobby of a friend's game Steam started this game to join, `+connect_lobby <id>` on its
 ## command line, GAME.md 10.8, until it is joined; 0 for none.
 static var asked_lobby := 0
+## Steam started in the demo for a booth for its controllers alone, GAME.md 9.8, or null: Steam
+## keeps the controllers from the engine for a game it starts with Steam Input on, so the demo
+## reads them through Steam as the game does. Nothing else of Steam's is asked of it, achievements,
+## presence, lobbies or the store, the demo's profile being nobody's.
+static var for_pads: SteamStore
 
 
 ## Whether the game wants Steam, GAME.md 10.8: a Steam export, [param steam_build], or
@@ -57,9 +62,13 @@ static func wanted(args: PackedStringArray, steam_build: bool, serving: bool, de
 ## or none answering, the game plays on without it and [member missing] says why.
 static func start(args: PackedStringArray, serving: bool) -> void:
 	steam = null
+	for_pads = null
 	missing = ""
 	restarting = false
 	if not wanted(args, OS.has_feature("steam"), serving, Demo.on):
+		var build := OS.has_feature("steam")
+		if pads_wanted(args, build, serving, Demo.on, OS.get_environment(IGNORED_ENV)):
+			_start_for_pads()
 		return
 	if not Engine.has_singleton(SINGLETON):
 		missing = "This build has no Steam in it"
@@ -80,21 +89,53 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 		PadFamily.behind_steam = store.pad_family
 
 
+## Whether the demo for a booth, [param demo], wants Steam for its controllers alone, see
+## [member for_pads]: Steam as the game would want it but for the demo, and the controllers kept
+## from the engine, as Steam names them in [param ignored], [constant IGNORED_ENV]; none for a demo
+## of a GitHub build, or one started outside Steam, which reads its controllers itself.
+static func pads_wanted(
+	args: PackedStringArray, steam_build: bool, serving: bool, demo: bool, ignored: String
+) -> bool:
+	if not demo or ignored.is_empty():
+		return false
+	return wanted(args, steam_build, serving, false)
+
+
+## Steam started for the demo's controllers, see [member for_pads]: never started again by Steam,
+## which would start it without `--demo`, and nothing more asked of it once it answers.
+static func _start_for_pads() -> void:
+	if not Engine.has_singleton(SINGLETON):
+		return
+	var store := SteamStore.new(Engine.get_singleton(SINGLETON))
+	if not store.start(app_id()).is_empty():
+		return
+	for_pads = store
+	store.watch_pads()
+	PadFamily.behind_steam = store.pad_family
+
+
+## The Steam its controllers are read through: the game's, or the demo's for them alone.
+static func _input_steam() -> SteamStore:
+	return steam if steam != null else for_pads
+
+
 ## Whether Steam Input reads the controllers for the game, GAME.md 10.8 "Steam Input": with Steam
 ## on, as the player has it in the settings, [param setting], unless this run says otherwise,
-## `--steam-input` or `--no-steam-input` among [param args], the game's own arguments.
+## `--steam-input` or `--no-steam-input` among [param args], the game's own arguments. In the demo
+## on Steam's controllers alone, [member for_pads], always, there being no other way to them.
 static func steam_input_wanted(args: PackedStringArray, setting: bool) -> bool:
-	if steam == null or "--no-steam-input" in args:
+	if _input_steam() == null or "--no-steam-input" in args:
 		return false
-	return setting or "--steam-input" in args
+	return setting or for_pads != null or "--steam-input" in args
 
 
 ## Steam Input started for the game, [param game], or stopped, as [param on] says, GAME.md 10.8:
 ## its controllers come as pads, or go. Nothing without Steam.
 static func use_steam_input(game: Node, on: bool) -> void:
 	var running := game.get_node_or_null(^"SteamPads")
-	if on and running == null and steam != null:
-		game.add_child(load(STEAM_PADS).new(steam.api))
+	var reading := _input_steam()
+	if on and running == null and reading != null:
+		game.add_child(load(STEAM_PADS).new(reading.api))
 		# A checkout's run that neither Steam nor `make steam-run` started, from the editor say.
 		if not OS.has_feature("template") and not OS.has_environment(IGNORED_ENV):
 			push_warning(TWICE)
@@ -184,7 +225,8 @@ static func persona() -> String:
 ## Which of Steam's own machines the game runs on, [constant SteamStore.NOT_STEAM_HARDWARE] for
 ## none or with no Steam.
 static func hardware() -> int:
-	return steam.hardware() if steam != null else SteamStore.NOT_STEAM_HARDWARE
+	var any := _input_steam()
+	return any.hardware() if any != null else SteamStore.NOT_STEAM_HARDWARE
 
 
 ## Where the Steam account playing keeps its settings, its profiles beside them, GAME.md 10.8, the

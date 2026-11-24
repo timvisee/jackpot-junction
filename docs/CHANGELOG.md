@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Controllers in demo mode on Steam.** Started from the Profiles page with Steam Input on, as
+  on a Steam Machine, the demo now reads your controllers, where none of them did anything.
 - **The Garage's camera feeds fade with their panels.** With a kart behind the dyno's or the speed
   trap's panel, its camera picture lets the kart show through too.
 - **Your pad's light follows a new color at once.** Pick another color in the pause menu and a

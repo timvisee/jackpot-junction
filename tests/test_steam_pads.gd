@@ -235,3 +235,38 @@ func test_steam_input_is_on_as_the_player_has_it() -> void:
 	assert_bool(Store.steam_input_wanted(PackedStringArray(["--steam-input"]), false)).is_true()
 	assert_bool(Store.steam_input_wanted(PackedStringArray(["--no-steam-input"]), true)).is_false()
 	Store.steam = was
+
+
+## The demo for a booth started by Steam with Steam Input on, GAME.md 9.8: Steam keeps the
+## controllers from the engine, so the demo reads them through Steam, whatever the setting says,
+## with nothing else of Steam's started. A demo Steam leaves the controllers to, or of a GitHub
+## build, reads them itself, as does the game outside the demo, which has Steam whole.
+func test_the_demo_reads_steams_controllers_through_steam() -> void:
+	var none := PackedStringArray()
+	var kept := "0x054c/0x05c4"
+	assert_bool(Store.pads_wanted(none, true, false, true, kept)).is_true()
+	(
+		assert_bool(Store.pads_wanted(PackedStringArray(["--steam"]), false, false, true, kept))
+		. is_true()
+	)
+	assert_bool(Store.pads_wanted(none, true, false, true, "")).is_false()
+	assert_bool(Store.pads_wanted(none, false, false, true, kept)).is_false()
+	assert_bool(Store.pads_wanted(none, true, false, false, kept)).is_false()
+	assert_bool(Store.pads_wanted(none, true, true, true, kept)).is_false()
+	(
+		assert_bool(Store.pads_wanted(PackedStringArray(["--no-steam"]), true, false, true, kept))
+		. is_false()
+	)
+	var was := Store.steam
+	Store.steam = null
+	Store.for_pads = SteamStore.new(_steam)
+	assert_bool(Store.on()).is_false()
+	assert_bool(Store.steam_input_wanted(none, false)).is_true()
+	assert_bool(Store.steam_input_wanted(PackedStringArray(["--no-steam-input"]), true)).is_false()
+	var game: Node = auto_free(Node.new())
+	add_child(game)
+	Store.use_steam_input(game, true)
+	assert_object(game.get_node_or_null(^"SteamPads")).is_not_null()
+	Store.use_steam_input(game, false)
+	Store.for_pads = null
+	Store.steam = was

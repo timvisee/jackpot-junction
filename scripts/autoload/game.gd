@@ -200,9 +200,10 @@ func _ready() -> void:
 		add_child(load(STEAM_JOINS).new())
 		add_child(load(STEAM_TIMELINE).new())
 		add_child(load(STEAM_KEYBOARD).new())
-		# Steam's controllers as pads, unless the player turned Steam Input off, GAME.md 10.8.
-		var args := OS.get_cmdline_user_args()
-		Store.use_steam_input(self, Store.steam_input_wanted(args, settings.steam_input))
+	# Steam's controllers as pads, unless the player turned Steam Input off, GAME.md 10.8; in the
+	# demo too, where Steam keeps them from the engine, see [member Store.for_pads].
+	var args := OS.get_cmdline_user_args()
+	Store.use_steam_input(self, Store.steam_input_wanted(args, settings.steam_input))
 	if Supporter.offered() and not serving:
 		add_child(load(SUPPORTER_WATCH).new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
