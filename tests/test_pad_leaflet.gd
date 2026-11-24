@@ -50,11 +50,11 @@ func _pressed(action: StringName) -> InputEventAction:
 
 ## The words at each button of a page, joined as the leaflet prints them.
 func _page(on_page: int, family: PadFamily.Family, simple := false) -> Dictionary:
-	var said := PadLeaflet.labels(on_page, simple, PadDiagram.of(family))
+	var said := PadSheets.labels(on_page, simple, PadDiagram.of(family))
 	var words: Dictionary = {}
 	for spot: StringName in said:
 		var each: Array[String] = said[spot]["words"]
-		words[spot] = PadLeaflet.joined(each)
+		words[spot] = PadSheets.joined(each)
 	return words
 
 
@@ -103,7 +103,7 @@ func test_the_driving_page_says_what_each_button_does() -> void:
 	assert_str(words[&"rs"]).is_equal("Aim")
 	# Two things on one button, as one line.
 	assert_str(words[&"menu"]).is_equal("Pause  ·  join")
-	var said := PadLeaflet.labels(0, false, PadDiagram.of(PadFamily.Family.XBOX))
+	var said := PadSheets.labels(0, false, PadDiagram.of(PadFamily.Family.XBOX))
 	assert_str(said[&"rt"]["note"]).is_equal("squeeze, don't stab")
 	# Driving the simple way, the stick says the way to go.
 	assert_str(_page(0, PadFamily.Family.XBOX, true)[&"ls"]).is_equal("Drive")

@@ -41,10 +41,10 @@ static var _keys: Array[Dictionary] = []
 ## What the sheet [param on_page] says at each key and mouse button, as the actions are bound now:
 ## the words of everything bound to it there, once each, by the key's place, see
 ## [constant KEY_NONE], or for a mouse button by its index negated. Only what a keyboard player
-## needs, see [method PadLeaflet.entries].
+## needs, see [method PadSheets.entries].
 static func said(on_page: int, simple: bool) -> Dictionary:
 	var by_key := {}
-	for each: Dictionary in PadLeaflet.entries(on_page, simple):
+	for each: Dictionary in PadSheets.entries(on_page, simple):
 		if not each.get("keys", true):
 			continue
 		var actions: Array[StringName] = each["actions"]
