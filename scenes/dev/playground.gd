@@ -154,6 +154,7 @@ func _ready() -> void:
 		if colors[0] >= 0 and colors.size() < inputs.size() and color != colors[0]:
 			colors.append(color)
 	match_node.start(inputs, 0, colors, names, styles)
+	_started()
 	# Kit's notes, as a map has them, so `++ --story-note=N` can lay one down here, STORY.md 7.1.
 	NoteDealer.add_to(match_node)
 	# The crowd's watchers and the bot in the player's dress, as a map has them, STORY.md 6.9.
@@ -320,6 +321,12 @@ func _process(_delta: float) -> void:
 	var player := match_node.kart_of(0)
 	player.menu_open = player.jokers.count() > 0
 	player.menu_index = clampi(_menu, 0, maxi(player.jokers.count() - 1, 0))
+
+
+## Called as the match has started, its karts built, before anything asked for is staged on it:
+## for a script extending this one.
+func _started() -> void:
+	pass
 
 
 ## Hands the kart a random joker it does not hold yet, when it has room.
