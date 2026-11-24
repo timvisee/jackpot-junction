@@ -30,6 +30,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **Keyboard and gamepad bindings side by side.** On the Controls page in two columns, right from a
+  keyboard binding goes to its gamepad binding before crossing to the other column.
 - **The thank-you card when you buy the pack.** Bought from the kart dialog, it comes up over the
   dialog instead of hidden under it, and on the title it waits for the card already up.
 - **A skipped shader warm-up stays skipped.** It no longer comes back each time you return to the

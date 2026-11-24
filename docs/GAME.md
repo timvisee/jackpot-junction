@@ -5545,7 +5545,8 @@ from a section's button low in its box was the one beside it.
   right, what it costs the card, so a 1080p screen shows the whole page at once; on a narrower
   one, a handheld under a big UI scale, they stand one under the other in the same order. In
   two columns, right and left on a pad go across to the row level with the one it is on, not
-  to whatever the engine finds sticking out further. The screen type is what the game is played on: Desk, TV or Handheld, a phone
+  to whatever the engine finds sticking out further, and only from the last control of a row that
+  way: a binding's keyboard socket goes right to its pad socket first. The screen type is what the game is played on: Desk, TV or Handheld, a phone
   or a tablet starting on Handheld and everything else on Desk, but for Steam's own: at
   its first start a Steam Deck starts on Handheld, by Steam's word or SteamOS's, and a
   Steam Machine on TV, each at its UI scale, so the text is as big as Valve's Deck

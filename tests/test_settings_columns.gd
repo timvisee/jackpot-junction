@@ -99,3 +99,34 @@ func test_the_cursor_walks_down_every_group_in_one_column() -> void:
 					reached.append(str(group.name))
 			at = at.find_valid_focus_neighbor(SIDE_BOTTOM)
 		assert_array(reached).override_failure_message(page_name).is_equal(wanted)
+
+
+## In two columns each binding's two sockets are walked between first: right from the keyboard's
+## goes to the pad's beside it, and only right from the pad's goes across to the other column, to
+## the first control of the row level with it there; and back again the same way.
+func test_the_cursor_walks_both_sockets_before_crossing() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	screen.size = Vector2(1920.0, 1080.0)
+	screen.tabs.current_tab = screen.tabs.get_node("Controls").get_index()
+	await await_idle_frame()
+	await await_idle_frame()
+	var groups := screen.tabs.get_node("Controls/Groups") as SettingsColumns
+	assert_bool(groups.two_columns(groups.size.x)).is_true()
+	var all: Array[Control] = []
+	all.assign(groups.get_children())
+	var on_left := SettingsColumns._takers(all.slice(0, groups.split))
+	var on_right := SettingsColumns._takers(all.slice(groups.split))
+	for pair: Array in [
+		[screen._binding_labels[InputActions.THROTTLE], on_right, SIDE_RIGHT],
+		[screen._binding_labels[InputActions.JOKER_MENU], on_left, SIDE_LEFT],
+	]:
+		var sockets: Array = pair[0]
+		var side: Side = pair[2]
+		var first := sockets[0 if side == SIDE_RIGHT else 1] as Control
+		var second := sockets[1 if side == SIDE_RIGHT else 0] as Control
+		assert_object(first.find_valid_focus_neighbor(side)).is_same(second)
+		var across := second.find_valid_focus_neighbor(side)
+		assert_bool(across in pair[1]).is_true()
+		var back: Side = SIDE_LEFT if side == SIDE_RIGHT else SIDE_RIGHT
+		assert_bool(SettingsColumns._beside(across, pair[1], back)).is_false()

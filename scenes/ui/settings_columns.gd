@@ -77,8 +77,10 @@ func _lay_out() -> void:
 
 ## In two columns, right from a row on the left goes to the row level with it on the right, and
 ## left from one on the right back across: the engine's own search took a slider under a box for
-## what lies to the box's right, the slider standing out further. A way across somebody else has
-## given a row is kept, as Reset beside the aim guide's color has; in one column there is none.
+## what lies to the box's right, the slider standing out further. Only from the last control of a
+## row that way: the keyboard's socket of a binding has the pad's beside it, which right goes to
+## first. A way across somebody else has given a row is kept, as Reset beside the aim guide's color
+## has; in one column there is none.
 func _link() -> void:
 	for each: Control in _linked:
 		if is_instance_valid(each):
@@ -93,22 +95,39 @@ func _link() -> void:
 	_across(right, left, SIDE_LEFT)
 
 
-## Each of [param from] given the way to the one of [param to] most nearly level with it, to its
-## [param side].
+## Each of [param from] with none of its own column beside it to its [param side] given the way to
+## the one of [param to] most nearly level with it there, and of those level the nearest across.
 func _across(from: Array[Control], to: Array[Control], side: Side) -> void:
 	if to.is_empty():
 		return
 	for each: Control in from:
-		if not each.get_focus_neighbor(side).is_empty():
+		if not each.get_focus_neighbor(side).is_empty() or _beside(each, from, side):
 			continue
-		var level := each.get_global_rect().get_center().y
+		var at := each.get_global_rect().get_center()
 		var nearest := to[0]
 		for other: Control in to:
-			var off := absf(other.get_global_rect().get_center().y - level)
-			if off < absf(nearest.get_global_rect().get_center().y - level):
+			if _off(other, at) < _off(nearest, at):
 				nearest = other
 		each.set_focus_neighbor(side, each.get_path_to(nearest))
 		_linked[each] = side
+
+
+## How far [param control] is from [param at]: down first, and across only between those level.
+static func _off(control: Control, at: Vector2) -> float:
+	var there := control.get_global_rect().get_center()
+	return absf(there.y - at.y) + absf(there.x - at.x) * 0.001
+
+
+## Whether one of [param others] stands level with [param control] to its [param side].
+static func _beside(control: Control, others: Array[Control], side: Side) -> bool:
+	var rect := control.get_global_rect()
+	for other: Control in others:
+		var there := other.get_global_rect()
+		var level := there.position.y < rect.end.y and there.end.y > rect.position.y
+		var way := there.get_center().x - rect.get_center().x
+		if other != control and level and (way > 0.0 if side == SIDE_RIGHT else way < 0.0):
+			return true
+	return false
 
 
 ## What takes the cursor in [param groups].
