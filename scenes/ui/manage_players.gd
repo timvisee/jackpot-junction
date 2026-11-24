@@ -4,12 +4,12 @@ extends PanelContainer
 ## itself: the host's own players first, marked Me, then each other player by the name and color
 ## of their seat and the plate on their kart, or the learner's L, and each watcher by the name
 ## the host gave them, with Kick beside every one of those, which asks first, as Make host does,
-## see [signal asking]. The cursor starts on Back, so a press too many shows nobody out. Somebody
-## kicked goes back to the title, told why, and may join again; in the lobby their seat is emptied,
-## and on a map a bot takes their kart on, as for anybody who leaves. The list follows whoever comes
-## and goes while it is up, and scrolls between the title and Back where a room of eight and its
-## watchers do not fit on the screen, GAME.md 9.3, keeping the row with the cursor in sight, see
-## [FitScroll].
+## see [signal asking], and in a Steam game Profile, their profile in Steam's overlay. The cursor
+## starts on Back, so a press too many shows nobody out. Somebody kicked goes back to the title,
+## told why, and may join again; in the lobby their seat is emptied, and on a map a bot takes their
+## kart on, as for anybody who leaves. The list follows whoever comes and goes while it is up, and
+## scrolls between the title and Back where a room of eight and its watchers do not fit on the
+## screen, GAME.md 9.3, keeping the row with the cursor in sight, see [FitScroll].
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -22,6 +22,9 @@ signal asking(words: Array[String], action: Callable, from: Button)
 const ROW_WIDE := 640.0
 const KICK_SIZE := Vector2(110.0, 44.0)
 const HAND_SIZE := Vector2(150.0, 44.0)
+const PROFILE_SIZE := Vector2(130.0, 44.0)
+## The room between a row's buttons.
+const BUTTON_ROOM := 10.0
 
 var session: NetSession
 
@@ -119,8 +122,8 @@ func _mine() -> Array[Dictionary]:
 
 ## Somebody in the game, as a seat card, see [SeatCard]: their chip in their color with their seat
 ## on it, gray for a watcher with no kart; their name over whether they play or watch; the plate
-## their kart wears; and Make host and Kick at the right end. The host's own rows are rimmed in foil
-## and say Me, with nothing to press.
+## their kart wears; and Profile, Make host and Kick at the right end. The host's own rows are
+## rimmed in foil and say Me, with nothing to press.
 func _row(guest: Dictionary) -> SeatCard:
 	var plays := guest.has("color")
 	var seat: int = guest.get("seat", -1)
@@ -132,15 +135,23 @@ func _row(guest: Dictionary) -> SeatCard:
 	var card := SeatCard.make(
 		str(guest["name"]), guest.get("color", SeatCard.NO_COLOR), mark, says, me
 	)
-	card.custom_minimum_size.x = ROW_WIDE
-	# Room for the buttons on every row, so the plates line up over rows with none.
-	var room := KICK_SIZE.x + (HAND_SIZE.x + 10.0 if _handing() else 0.0)
+	# Room for the buttons on every row, so the plates line up over rows with none, and the row
+	# wider by Profile's, so the names keep theirs.
+	var room := KICK_SIZE.x + (HAND_SIZE.x + BUTTON_ROOM if _handing() else 0.0)
+	var profiles := _profiles()
+	if profiles:
+		room += PROFILE_SIZE.x + BUTTON_ROOM
+	card.custom_minimum_size.x = ROW_WIDE + (PROFILE_SIZE.x + BUTTON_ROOM if profiles else 0.0)
 	card.actions.custom_minimum_size.x = room
 	# Somebody watching has no kart, and the room a plate would take.
 	card.show_plate(str(guest.get("plate", "")))
 	if me:
 		return card
 	var peer: int = guest["peer"]
+	# Their profile on Steam, in Steam's overlay over the game, GAME.md 10.8.
+	var account := _account(guest) if profiles else 0
+	if account != 0:
+		card.actions.add_child(profile_button(account))
 	# Somebody else playing can be handed the say at a dedicated server, GAME.md 9.3a. A LAN game's
 	# host is the machine it runs on, and has nobody to hand it to.
 	var named := str(guest["name"])
@@ -193,15 +204,36 @@ static func with_steam_name(says: String, steam_name: String) -> String:
 	return says if steam_name.is_empty() else "%s · %s on Steam" % [says, steam_name]
 
 
+## Profile, opening the Steam profile of the account [param account] in Steam's overlay, GAME.md
+## 10.8.
+static func profile_button(account: int) -> Button:
+	var profile := MenuTheme.button("Profile", Type.BODY)
+	profile.name = "Profile"
+	profile.custom_minimum_size = PROFILE_SIZE
+	profile.pressed.connect(func() -> void: Store.steam.show_profile(account))
+	return profile
+
+
 ## The Steam name of [param guest] in a Steam game, the host's own included, or nothing.
 func _steam_name(guest: Dictionary) -> String:
 	if not Store.steam_game():
 		return ""
 	if guest.get("me", false):
 		return Store.persona()
-	var steam := SteamPeer.of(session.multiplayer.multiplayer_peer) if session != null else null
-	var account := steam.account_of(int(guest["peer"])) if steam != null else 0
+	var account := _account(guest)
 	return Store.steam.persona_of(account) if account != 0 else ""
+
+
+## The Steam account of [param guest], somebody else in a Steam game, or 0.
+func _account(guest: Dictionary) -> int:
+	var steam := SteamPeer.of(session.multiplayer.multiplayer_peer) if session != null else null
+	return steam.account_of(int(guest["peer"])) if steam != null else 0
+
+
+## Whether the rows offer the players' profiles on Steam: in a Steam game, with Steam's overlay to
+## show them in.
+static func _profiles() -> bool:
+	return Store.steam_game() and Store.steam.overlay_on()
 
 
 ## Whether the say here is a client's at a dedicated server, which it can hand to somebody else.

@@ -11009,7 +11009,8 @@ online game it asks first, "Leave this match to join Ann?". Joining goes to Play
 "Joining Ann's game on Steam...", out of whatever room was up, and on to the game's waiting room
 once Steam has let the player in, or back there saying why not. Manage players in a Steam game says
 everybody's name on Steam beside where they stand, "Playing · bo_92 on Steam", the host's own too,
-whatever they call their kart.
+whatever they call their kart, and has Profile beside everybody else, first of their buttons, which
+opens their Steam profile in Steam's overlay; with the overlay off there is none.
 
 The host leaving ends the game for everybody, at once. Quitting the game closes its connections
 before it goes, in any online game, so nobody is left waiting for theirs to give up; and in a Steam

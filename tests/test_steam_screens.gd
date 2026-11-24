@@ -247,6 +247,41 @@ func test_manage_players_says_the_steam_name() -> void:
 	assert_int(SteamPeer.new(ENetMultiplayerPeer.new()).account_of(2)).is_equal(0)
 
 
+## In a Steam game, Profile beside each of the others in Manage players opens their Steam profile in
+## Steam's overlay; the host's own rows have none, and nor does a game with no overlay or no Steam.
+func test_manage_players_opens_a_steam_profile() -> void:
+	_steam()
+	assert_bool(ManagePlayers._profiles()).is_false()
+	Net.session = NetSession.new()
+	Game.pending_config = SteamJoins.host_config(false)
+	assert_bool(ManagePlayers._profiles()).is_true()
+	var pane: SteamRows = auto_free(SteamRows.new())
+	add_child(pane)
+	var bo := pane._row({"name": "Bo", "color": Color.RED, "seat": 1, "peer": 2})
+	var profile := bo.find_child("Profile", true, false) as Button
+	assert_str(profile.text).is_equal("Profile")
+	profile.pressed.emit()
+	assert_array(_fake.calls).contains(["activateGameOverlayToUser steamid %d" % FRIEND])
+	var me := pane._row({"name": "Ann", "color": Color.BLUE, "seat": 0, "me": true})
+	assert_object(me.find_child("Profile", true, false)).is_null()
+	_fake.overlay = false
+	assert_bool(ManagePlayers._profiles()).is_false()
+	var unseen := pane._row({"name": "Bo", "color": Color.RED, "seat": 1, "peer": 2})
+	assert_object(unseen.find_child("Profile", true, false)).is_null()
+	for row: Node in [bo, me, unseen]:
+		row.free()
+	Net.session.free()
+	Net.session = null
+
+
+## Manage players with every other player on Steam as [constant FRIEND].
+class SteamRows:
+	extends ManagePlayers
+
+	func _account(_guest: Dictionary) -> int:
+		return FRIEND
+
+
 ## The search field keeps to the friends whose names have what is typed in them, any case; the list
 ## stays as tall; a friend invited stays invited however the search goes.
 func test_invite_friends_can_be_searched() -> void:

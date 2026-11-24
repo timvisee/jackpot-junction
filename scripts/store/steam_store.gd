@@ -34,6 +34,8 @@ const NOT_STEAM_HARDWARE := 0
 ## How the overlay opens a store page, GodotSteam's OverlayToStoreFlag: just the page, nothing
 ## added to the cart.
 const OVERLAY_TO_STORE := 0
+## What the overlay is asked to open of somebody's, GodotSteam's word for their profile.
+const PROFILE := "steamid"
 
 ## For the tests alone: a Steam game played over ENet on this port of this machine instead of
 ## over Steam's network, so a host and a friend can play one in a test, see [SteamPeer].
@@ -309,6 +311,17 @@ func owns(dlc: int) -> bool:
 ## Opens the store page of [param app], a DLC as well, in Steam's overlay, GAME.md 10.8.
 func show_store(app: int) -> void:
 	api.call(&"activateGameOverlayToStore", app, OVERLAY_TO_STORE)
+
+
+## Whether Steam's overlay can come up over the game, GAME.md 10.8: not in a game started from the
+## editor.
+func overlay_on() -> bool:
+	return bool(api.call(&"isOverlayEnabled"))
+
+
+## Opens the Steam profile of the account [param account] in Steam's overlay, GAME.md 10.8.
+func show_profile(account: int) -> void:
+	api.call(&"activateGameOverlayToUser", PROFILE, account)
 
 
 ## [param told] called whenever the account's DLC may have changed while the game runs, GAME.md

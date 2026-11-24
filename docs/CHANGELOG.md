@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Steam profiles in Manage players.** In a Steam game, Profile beside each player opens their
+  Steam profile in Steam's overlay.
+
 ### Changed
 
 - **Manage players opens on Back.** The cursor no longer starts on the first player's Kick.

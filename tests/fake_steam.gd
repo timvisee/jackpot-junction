@@ -198,6 +198,10 @@ func activateGameOverlayToStore(app: int, flag: int) -> void:
 	calls.append("activateGameOverlayToStore %d %d" % [app, flag])
 
 
+func activateGameOverlayToUser(kind: String, steam_id: int) -> void:
+	calls.append("activateGameOverlayToUser %s %d" % [kind, steam_id])
+
+
 func inviteUserToLobby(_lobby: int, friend: int) -> bool:
 	invited.append(friend)
 	return true
