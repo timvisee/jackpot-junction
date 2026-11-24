@@ -11182,7 +11182,9 @@ lit through Steam, which gives it the player's own color in Steam back as its se
 match ends and as Steam Input is turned off; a pad the engine reads is lit where the engine says it
 has a light, and keeps the last color, the engine having no way back. A player reading every device
 lights every pad no other seat has. The seats are looked at every tenth of a second, paused or not,
-so a color picked in the pause menu lights the pad at once. A pad is lit in its color's hue at full
+so a color picked in the pause menu lights the pad at once. A pad is lit again whenever it takes
+another seat, and as it is plugged in again, even in the color it was last lit in, so a light Steam
+put back meanwhile is never left showing. A pad is lit in its color's hue at full
 strength with no white in it, its weaker channel bent down by a curve of 1.6 (`DeviceInput.led`):
 lit as a screen draws them, the white under every player color made a light bar glow nearly white.
 A gray, as the deuteranopia palette's white, is lit as it is.

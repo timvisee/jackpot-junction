@@ -67,6 +67,25 @@ func test_a_new_color_lights_the_pad_while_paused() -> void:
 	assert_object(_steam.lights[HANDLE]).is_equal(_lit(6))
 
 
+## A pad that sits down is lit at its seat even in the color it was lit in already, the light Steam
+## may have put back meanwhile never left showing; and so as it comes back.
+func test_a_pad_sitting_down_is_lit_again() -> void:
+	_seat(DeviceInput.ANY, 1)
+	_lights.light()
+	assert_object(_steam.lights[HANDLE]).is_equal(_lit(1))
+	# Steam put the player's own color back behind the game's back.
+	_steam.lights[HANDLE] = null
+	_lights.light()
+	assert_object(_steam.lights[HANDLE]).is_null()
+	_seat(PAD, 1)
+	_lights.light()
+	assert_object(_steam.lights[HANDLE]).is_equal(_lit(1))
+	_steam.lights[HANDLE] = null
+	_lights._on_pad_plugged(PAD, true)
+	_lights.light()
+	assert_object(_steam.lights[HANDLE]).is_equal(_lit(1))
+
+
 func test_a_seat_left_gives_the_pad_its_own_light_back() -> void:
 	_seat(PAD, 2)
 	_seat(PAD + 1, 5)

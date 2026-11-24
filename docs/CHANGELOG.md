@@ -42,6 +42,8 @@ below, and hands the notes to the release workflow.
   trap's panel, its camera picture lets the kart show through too.
 - **Your pad's light follows a new color at once.** Pick another color in the pause menu and a
   DualSense's or DualShock's light shows it straight away, not once the game goes on.
+- **Your pad's light as you sit down.** A controller that takes a seat is lit in its kart's color
+  every time, so an old color left on its light is never kept.
 - **Walking down a settings page in one column.** Under a big UI scale, as on a television, the
   cursor moves on from Driving to Fighting, and from one group to the next on the Video and
   Accessibility pages.
