@@ -139,7 +139,7 @@ func test_the_title_waits_for_it() -> void:
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	await await_idle_frame()
-	var invitation := title.get("invitation") as OpeningInvitation
+	var invitation := title.get("cards").invitation as OpeningInvitation
 	assert_object(invitation).is_not_null()
 	assert_bool(invitation._started).is_true()
 	assert_bool(title.get("play_button").has_focus()).is_false()
@@ -166,7 +166,7 @@ func test_the_title_waits_for_it() -> void:
 		+ OpeningInvitation.DARK
 	)
 	await await_millis(int((left + 0.3) * 1000.0))
-	assert_object(title.get("invitation")).is_null()
+	assert_object(title.get("cards").invitation).is_null()
 	assert_bool(title.get("play_button").has_focus()).is_true()
 	assert_bool(Audio.is_music_held()).is_false()
 
@@ -183,12 +183,12 @@ func test_accepted_it_goes_to_the_free_lesson() -> void:
 	add_child(title)
 	await await_idle_frame()
 	OpeningInvitation.again = false
-	var invitation := title.get("invitation") as OpeningInvitation
+	var invitation := title.get("cards").invitation as OpeningInvitation
 	invitation.come_on_now()
 	await await_idle_frame()
 	invitation.accepted.emit()
 	assert_int(schooled[0]).is_equal(1)
 	assert_bool(DrivingSchool.free_lesson).is_true()
-	assert_object(title.get("invitation")).is_null()
+	assert_object(title.get("cards").invitation).is_null()
 	assert_bool(title.get("play_button").has_focus()).is_false()
 	assert_bool(Audio.is_music_held()).is_false()

@@ -176,22 +176,22 @@ func test_the_title_gains_the_program() -> void:
 	var first: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(first)
 	await await_idle_frame()
-	assert_object(first.invitation).is_not_null()
-	assert_object(first.welcome).is_null()
+	assert_object(first.cards.invitation).is_not_null()
+	assert_object(first.cards.welcome).is_null()
 	remove_child(first)
 	OpeningInvitation.again = false
 	var title: Control = auto_free(TITLE_SCENE.instantiate())
 	add_child(title)
 	await await_idle_frame()
-	assert_object(title.welcome).is_not_null()
+	assert_object(title.cards.welcome).is_not_null()
 	assert_object(title.find_child("Loyalty", true, false)).is_null()
 	Engine.time_scale = 40.0
-	title.welcome.come_on_now()
-	title.welcome.activate.pressed.emit()
+	title.cards.welcome.come_on_now()
+	title.cards.welcome.activate.pressed.emit()
 	var dialog: LoyaltyDialog = null
 	for i: int in 240:
 		dialog = title.get_node_or_null("Loyalty") as LoyaltyDialog
-		if dialog != null and not is_instance_valid(title.welcome):
+		if dialog != null and not is_instance_valid(title.cards.welcome):
 			break
 		await get_tree().process_frame
 	assert_object(dialog).is_not_null()

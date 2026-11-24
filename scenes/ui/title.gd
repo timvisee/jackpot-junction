@@ -54,18 +54,11 @@ const OPEN_RISE := 0.3
 const OPEN_EDGES := Vector2(2.0, 2.5)
 
 var play_button: Button
-## The shaders compiling, said over the title while they do, or null, see [WarmupPane].
-var warming: WarmupPane
-## The invitation that brought the player here while it is up, STORY.md 6.1a, and where accepting
-## it goes for a player with no license yet: the free lesson its stub promises, GAME.md 9.4a,
-## unless a test says otherwise.
-var invitation: OpeningInvitation
+## What the title puts up by itself as it comes up, the shaders' warm-up and a card, see
+## [TitleCards]; and where accepting the invitation goes for a player with no license yet, the free
+## lesson, unless a test says otherwise.
+var cards: TitleCards
 var to_school := Game.go_to_tutorial
-## The House's welcome to its loyalty program while it is up, GAME.md 8.9, and the map it opens
-## until that is put away.
-var welcome: LoyaltyWelcome
-## A letter of the House's while it is up, STORY.md 6.11, or the supporter pack's thanks, 10.8.
-var mail: Variant
 
 var _column: VBoxContainer
 ## The mark over the name, which goes on a screen too short for it and the buttons both: a big UI
@@ -263,61 +256,11 @@ func _ready() -> void:
 		_for_the_demo()
 	elif TitleIntro.wanted():
 		_open(mark, [named, printed, line], version)
-	# The invitation that brought the player here, the first time a profile comes to the title,
-	# STORY.md 6.1a: put up now, under the warm-up's pane, so it has drawn everything once by the
-	# time it starts, and started once the shaders have compiled.
-	if OpeningInvitation.due(Game.settings.profile):
-		invitation = OpeningInvitation.over(self, Game.settings.profile)
-		invitation.accepted.connect(_on_invited)
-		# It comes in silence, the music faded out if it was playing, and held off till the title
-		# opens.
-		Audio.hold_music(true)
-	# Or, once a map has been played to its whistle, the House's welcome to its loyalty program,
-	# GAME.md 8.9, the same way: never with the invitation, which comes first.
-	elif LoyaltyWelcome.due(Game.settings.profile):
-		welcome = LoyaltyWelcome.over(self, Game.settings.profile)
-		welcome.welcomed.connect(_on_welcomed)
-	# Or a letter of the House's, as a stage begins, STORY.md 6.11: one a visit, after the two.
-	elif not StoryLetters.due(Game.settings.profile).is_empty() or SupporterThanks.due():
-		mail = HouseMail.over(self, Game.settings.profile)
-		if mail == null:
-			mail = SupporterThanks.over(self)
-		mail.put_away.connect(
-			func() -> void:
-				mail = null
-				_open_up()
-		)
-	# The shaders compile first, once a version, GAME.md 10.7, said in a pane over all of it, the
-	# license too, with Skip; the opening waits for them, since it would only stutter while they
-	# compile, and the menu is the player's once both are done.
-	var warmup := ShaderWarmup.add_to(self)
-	if warmup != null:
-		warming = WarmupPane.over(self, warmup)
-		warming.put_away.connect(_on_warmed)
-	else:
-		_on_warmed()
-
-
-## The shaders compiled, skipped, or none to compile: the invitation that brought the player here
-## the first time a profile comes to the title, STORY.md 6.1a, and then the opening plays, or the
-## cursor goes on Play.
-func _on_warmed() -> void:
-	warming = null
-	if Demo.playing():
-		return
-	# A friend's game on Steam, which Steam started the game to join, GAME.md 10.8.
-	if Store.join_asked_at_launch():
-		return
-	if invitation != null:
-		invitation.start()
-		return
-	if welcome != null:
-		welcome.start()
-		return
-	if mail != null:
-		mail.start()
-		return
-	_open_up()
+	# The warm-up and the card due, see [TitleCards]: the title is the player's once they are done.
+	cards = TitleCards.add_to(self, to_school)
+	cards.opened.connect(_open_up)
+	cards.welcomed.connect(_on_welcomed)
+	cards.put_up()
 
 
 ## The title between the runs of the demo for a booth, GAME.md 9.8: its menu hidden, and nothing
@@ -330,21 +273,8 @@ func _for_the_demo() -> void:
 			each.visible = false
 
 
-## The invitation accepted: the free lesson its stub promises, GAME.md 9.4a, the title and its
-## opening waiting until the test is passed or skipped. A profile that holds a license already, one
-## from before the invitation was, comes to the title as it always did.
-func _on_invited() -> void:
-	if not Game.settings.license_number.is_empty():
-		_open_up()
-		return
-	invitation = null
-	Audio.hold_music(false)
-	DrivingSchool.free_lesson = true
-	to_school.call()
-
-
+## Nothing put up by itself is up any more, see [TitleCards]: the title is the player's.
 func _open_up() -> void:
-	invitation = null
 	# What the profile's records hold that it has not been credited with, GAME.md 8.10.
 	Achievements.arrive(Game.settings.profile)
 	_tag_fresh()
@@ -609,13 +539,11 @@ func _peek_hint(named: String, action: StringName, left: bool) -> Control:
 ## What was touched says which hints to draw at the license and the folder, and whether to draw any.
 func _input(event: InputEvent) -> void:
 	if (
-		warming != null
-		or invitation != null
+		cards.holding()
 		or _notes != null
 		or _license_view != null
 		or _catalog != null
 		or _loyalty != null
-		or welcome != null
 		or TouchInput.kept_from(self)
 	):
 		return
@@ -745,15 +673,13 @@ func show_loyalty() -> void:
 
 
 ## Welcomed, the program's map open over the title, [param dialog]: once it is put away the
-## title is the player's, with the program's button the first of the Clubhouse's now, GAME.md 8.9.
+## program's button is the first of the Clubhouse's now, GAME.md 8.9, and the title the player's.
 func _on_welcomed(dialog: LoyaltyDialog) -> void:
 	_loyalty = dialog
 	dialog.put_away.connect(
 		func() -> void:
 			_loyalty = null
-			welcome = null
 			_add_loyalty_button()
-			_open_up()
 	)
 
 
@@ -839,8 +765,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		not event.is_action_pressed(&"ui_cancel")
 		or _catalog != null
 		or _loyalty != null
-		or invitation != null
-		or welcome != null
+		or cards.holding(false)
 	):
 		return
 	# Back puts the license away, puts the question of earning one away unanswered, and takes the

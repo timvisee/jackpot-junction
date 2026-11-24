@@ -213,19 +213,19 @@ func test_the_opening_waits_for_the_shaders() -> void:
 	var runner: GdUnitSceneRunner = scene_runner(title)
 	await runner.simulate_frames(10, 17)
 	var intro := title.get_node("Intro") as TitleIntro
-	assert_object(title.warming).is_not_null()
+	assert_object(title.cards.warming).is_not_null()
 	assert_float(intro._time).is_equal(0.0)
 	assert_float(title.play_button.modulate.a).is_equal(0.0)
-	assert_bool(title.warming.get_index() > intro.get_index()).is_true()
+	assert_bool(title.cards.warming.get_index() > intro.get_index()).is_true()
 	# A press while it compiles is the pane's, not the opening's.
 	var key := InputEventKey.new()
 	key.keycode = KEY_A
 	key.pressed = true
 	intro._input(key)
 	assert_bool(intro._over).is_false()
-	title.warming.skip()
+	title.cards.warming.skip()
 	await runner.simulate_frames(10, 17)
-	assert_object(title.warming).is_null()
+	assert_object(title.cards.warming).is_null()
 	assert_float(intro._time).is_greater(0.0)
 	assert_bool(intro._over).is_false()
 	intro.finish()

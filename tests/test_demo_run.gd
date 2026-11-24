@@ -152,8 +152,8 @@ func test_the_title_has_nothing_to_press_in_the_demo() -> void:
 	var play: Button = title.get("play_button")
 	assert_bool(play.visible).is_false()
 	assert_object(title.get("_intro")).is_null()
-	assert_object(title.get("invitation")).is_null()
-	assert_object(title.get("welcome")).is_null()
+	assert_object(title.get("cards").invitation).is_null()
+	assert_object(title.get("cards").welcome).is_null()
 	for button: Button in title.find_children("*", "Button", true, false):
 		assert_bool(button.is_visible_in_tree()).override_failure_message(button.text).is_false()
 
