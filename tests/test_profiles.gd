@@ -315,6 +315,23 @@ func test_the_demo_button_asks_first() -> void:
 	assert_bool(in_room.demo_button.disabled).is_true()
 
 
+## GAME.md 8.5: demo mode stands in a section of its own under the profiles, headed as the grouped
+## pages head theirs and saying what it is, not beside New profile as if it were another profile.
+func test_demo_mode_has_a_section_of_its_own() -> void:
+	var page: ProfilesTab = auto_free(
+		ProfilesTab.make(_settings(), true, func(_id: String) -> void: pass)
+	)
+	add_child(page)
+	await await_idle_frame()
+	var section := page.demo_button.get_parent()
+	assert_object(section).is_not_same(page.new_button.get_parent())
+	assert_str((section.get_node("Heading/Title") as Label).text).is_equal(ProfilesTab.DEMO_SECTION)
+	assert_str((section.get_node("About") as Label).text).is_equal(ProfilesTab.DEMO_ABOUT)
+	assert_float(section.get_global_rect().position.y).is_greater(
+		page.new_button.get_global_rect().end.y
+	)
+
+
 ## A test, a check or a bench plays on the settings they all share, never on the player's own on
 ## the same machine, GAME.md 10.2: a script run, as gdUnit's and every tool's are, unless the run
 ## names a file of its own, on the command line or in the environment. The player's game, started

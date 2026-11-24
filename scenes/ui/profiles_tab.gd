@@ -28,6 +28,14 @@ const SURE_LINE := "%s's names, karts, license and statistics are thrown away fo
 const KEEP := "Keep"
 ## The Demo button, the question it asks first, and its answers: it restarts the game in demo mode
 ## on a separate throwaway profile, see [Demo] and [constant DEMO_FLAG].
+## Demo mode's section under the profiles, GAME.md 9.8: its heading, what it is, and the room over
+## it.
+const DEMO_SECTION := "Demo mode"
+const DEMO_ABOUT := (
+	"Plays by itself for a booth or a shop window, on a profile of its own."
+	+ " Your profiles are left as they are."
+)
+const DEMO_ROOM := 24.0
 const DEMO := "Start demo mode"
 const DEMO_SURE := "Start demo mode?"
 const DEMO_LINE := (
@@ -84,25 +92,48 @@ func _ready() -> void:
 	var kept := _settings.profiles()
 	for profile: Profile in kept:
 		column.add_child(_row(profile))
-	# New profile and Demo side by side, down the middle.
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 12)
+	# New profile under them, down the middle.
 	new_button = MenuTheme.button(NEW, Type.BODY)
 	new_button.name = "New"
 	new_button.disabled = kept.size() >= Profile.MOST or not can_switch
+	new_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	new_button.pressed.connect(_new)
-	buttons.add_child(new_button)
-	demo_button = MenuTheme.button(DEMO, Type.BODY)
-	demo_button.name = "Demo"
-	demo_button.disabled = not can_switch
-	demo_button.pressed.connect(_demo)
-	buttons.add_child(demo_button)
-	column.add_child(buttons)
+	column.add_child(new_button)
 	if not can_switch:
 		column.add_child(SettingsScreen.centered_line(ONLY_FROM_TITLE))
 	elif new_button.disabled:
 		column.add_child(SettingsScreen.centered_line(FULL))
+	column.add_child(_demo_section())
+
+
+## Demo mode under the profiles in a section of its own, GAME.md 9.8, as the grouped pages of the
+## settings head theirs, see [SettingsColumns], and as wide as the profiles over it: a thing of
+## its own rather than another profile, which it stood beside New profile as if it were.
+func _demo_section() -> VBoxContainer:
+	var section := SettingsColumns.group(DEMO_SECTION)
+	section.custom_minimum_size.x = SeatCard.WIDE
+	section.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	var room := Control.new()
+	room.custom_minimum_size.y = DEMO_ROOM
+	var said := Label.new()
+	said.name = "About"
+	said.text = DEMO_ABOUT
+	said.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	said.custom_minimum_size.x = SeatCard.WIDE
+	Type.text(said, Type.LABEL, StatsTab.NAME_INK)
+	section.add_child(said)
+	demo_button = MenuTheme.button(DEMO, Type.BODY)
+	demo_button.name = "Demo"
+	demo_button.disabled = not can_switch
+	demo_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	demo_button.pressed.connect(_demo)
+	section.add_child(demo_button)
+	var spaced := VBoxContainer.new()
+	spaced.name = "DemoMode"
+	spaced.add_theme_constant_override("separation", 0)
+	spaced.add_child(room)
+	spaced.add_child(section)
+	return spaced
 
 
 ## One profile, as a seat card, see [SeatCard]: its chip in its first player's color with the

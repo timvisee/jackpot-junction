@@ -5823,7 +5823,9 @@ from a section's button low in its box was the one beside it.
   since it changes no profile. `NameDialog`. A
   settings file from before profiles is not carried over: the first profile starts
   blank. The other seats are guests of the profile playing, kept in it as before,
-  until another profile sits in at one, 3.8.
+  until another profile sits in at one, 3.8. Under New profile, Demo mode stands in a section
+  of its own, see 9.8, as wide as the profiles over it, rather than beside New profile as if it
+  were another one.
 - **About**: the game's mark, its name and its version, and that it is an
   experiment in what an AI model can make: everything in it not credited there
   was made by Anthropic's Claude, whose models are named in the order they worked
@@ -9283,7 +9285,11 @@ HUD, the picks and the payout slip a player sees, and anybody walking past opens
 pad's Menu or Escape, joins the map from it and is playing at once.
 
 **Starting it.** `--demo` among the game's own arguments, 10.2, in a debug and a release build
-alike, and `make demo` from a checkout. The title comes up as it always does, so the shader
+alike, and `make demo` from a checkout, or Start demo mode from the title's settings, in a
+section of its own under the profiles of 8.5, Demo mode, headed as the grouped pages of the
+settings head theirs, with a line saying it plays by itself for a booth or a shop window on a
+profile of its own and leaves the player's profiles as they are; it asks first, and the game
+restarts in it. The title comes up as it always does, so the shader
 warm-up of 10.7 runs behind its pane, but with nothing of a player's first start on it: no
 invitation, no opening, no welcome, no question of how to drive and no menu. Once the shaders are
 compiled the first run is dealt. It plays until the game is closed. The mouse pointer is hidden
