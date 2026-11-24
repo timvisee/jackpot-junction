@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The Garage's camera feeds fade with their panels.** With a kart behind the dyno's or the speed
+  trap's panel, its camera picture lets the kart show through too.
 - **Your pad's light follows a new color at once.** Pick another color in the pause menu and a
   DualSense's or DualShock's light shows it straight away, not once the game goes on.
 - **Walking down a settings page in one column.** Under a big UI scale, as on a television, the

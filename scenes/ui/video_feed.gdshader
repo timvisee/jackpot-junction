@@ -4,7 +4,7 @@
 // and then a tear, a band of it knocked sideways and jittering for a moment, the colors pulled
 // further apart while it lasts. Coming on and at a cut it is snow and a flash for a moment, and its
 // focus hunts as it comes on. A feed may be tinted, as a security camera's green. Its corners are
-// rounded, for the bezel round it to show at them.
+// rounded, for the bezel round it to show at them, and it fades with the frame it is in.
 shader_type canvas_item;
 
 // How dark a scanline is at its darkest, and how many there are down the picture.
@@ -61,6 +61,9 @@ vec3 seen_at(sampler2D picture, vec2 uv, vec2 apart, float spread) {
 }
 
 void fragment() {
+	// How much of it shows, its frame faded with it while a kart is under it: what the node and
+	// those it sits in are drawn at, which would be lost with the picture's own color written over.
+	float shown = COLOR.a;
 	vec2 uv = UV;
 	// The tear's band knocked sideways, each line of it its own way, changing thirty times a second.
 	float band = 1.0 - smoothstep(0.0, tear_tall, abs(uv.y - tear_at));
@@ -83,5 +86,5 @@ void fragment() {
 	vec2 into = from_middle - (pixels * 0.5 - vec2(corner));
 	float outside = length(max(into, vec2(0.0))) - corner;
 	float alpha = 1.0 - smoothstep(-1.0, 0.5, outside);
-	COLOR = vec4(col, alpha);
+	COLOR = vec4(col, alpha * shown);
 }
