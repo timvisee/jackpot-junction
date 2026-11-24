@@ -434,3 +434,29 @@ func test_a_deck_and_a_fast_monitor_have_limits_of_their_own() -> void:
 	read_odd.load_from_disk()
 	assert_int(read_odd.frame_limit).is_equal(0)
 	Settings.remove_files(odd.path)
+
+
+## GAME.md 8.5: the screen the game plays on is kept by its number, -1 for wherever the system puts
+## it, and a number the file should never have reads as -1. No screen can be picked headless, and a
+## screen not plugged in leaves the window where it is.
+func test_the_monitor_is_kept() -> void:
+	var settings := Settings.new()
+	assert_int(settings.monitor).is_equal(-1)
+	settings.path = "user://test_video_settings.cfg"
+	settings.monitor = 1
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	var read := Settings.new()
+	read.path = settings.path
+	read.load_from_disk()
+	assert_int(read.monitor).is_equal(1)
+	settings.monitor = -7
+	assert_int(settings.save_to_disk()).is_equal(OK)
+	read.load_from_disk()
+	assert_int(read.monitor).is_equal(-1)
+	Settings.remove_files(settings.path)
+	assert_array(Settings.pickable_screens()).is_empty()
+	var on := DisplayServer.window_get_current_screen()
+	settings.monitor = 3
+	settings._place_on_monitor()
+	assert_int(settings._monitor_placed).is_equal(3)
+	assert_int(DisplayServer.window_get_current_screen()).is_equal(on)

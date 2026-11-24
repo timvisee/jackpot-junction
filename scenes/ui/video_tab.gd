@@ -56,6 +56,10 @@ const FOLLOW_NAMES: Array[String] = ["Everyone", "Nearby rivals", "My kart"]
 const FIXED := "Fixed camera"
 const DISTANCE_NAMES: Array[String] = ["Closest", "Close", "Medium", "Far", "Farthest"]
 
+## The Monitor box, there only with more than one screen to pick from, and what it says to the
+## mouse and a screen reader.
+const MONITOR := "Monitor"
+const MONITOR_TIP := "Which screen the game plays on, with more than one plugged in."
 ## The Quality box over the Graphics group, GAME.md 8.5, and what it says to the mouse and a screen
 ## reader.
 const QUALITY := "Quality"
@@ -87,18 +91,22 @@ var _shown_again: Array[Callable] = []
 ## build the page as another platform would.
 var _handheld := false
 var _full_renderer := true
+## How big each screen is that the game can be put on, see [method Settings.pickable_screens].
+var _screens: Array[Vector2i] = []
 
 
 static func make(
 	settings: Settings,
 	handheld := OS.has_feature("mobile"),
-	full_renderer := Settings.full_renderer()
+	full_renderer := Settings.full_renderer(),
+	screens := Settings.pickable_screens()
 ) -> VideoTab:
 	var tab := VideoTab.new()
 	tab.name = "Video"
 	tab._settings = settings
 	tab._handheld = handheld
 	tab._full_renderer = full_renderer
+	tab._screens = screens
 	return tab
 
 
@@ -429,7 +437,8 @@ static func texture_box(
 	return detail
 
 
-## The window, which a desktop has and a phone does not: full screen, or a window of a size.
+## The window, which a desktop has and a phone does not: full screen, or a window of a size, and
+## with more than one screen to put it on, which.
 func _add_window() -> void:
 	var fullscreen := MenuTheme.toggle(_settings.fullscreen)
 	fullscreen.toggled.connect(
@@ -448,6 +457,29 @@ func _add_window() -> void:
 			_apply()
 	)
 	_add("Window size", window)
+	if _screens.size() > 1:
+		_add(MONITOR, _monitor_box())
+
+
+## Which screen the game plays on, GAME.md 8.5: each by its number and size, the one it is on now
+## shown until one is picked, or while the one picked is not plugged in.
+func _monitor_box() -> OptionButton:
+	var names: Array = []
+	for i: int in _screens.size():
+		names.append("Screen %d (%d × %d)" % [i + 1, _screens[i].x, _screens[i].y])
+	var at := _settings.monitor
+	if at < 0 or at >= _screens.size():
+		at = clampi(DisplayServer.window_get_current_screen(), 0, _screens.size() - 1)
+	var box := MenuTheme.option(names, at)
+	box.name = "Monitor"
+	box.tooltip_text = MONITOR_TIP
+	ScreenReader.name(box, MONITOR, MONITOR_TIP)
+	box.item_selected.connect(
+		func(index: int) -> void:
+			_settings.monitor = index
+			_apply()
+	)
+	return box
 
 
 ## What the game is played on, GAME.md 8.5. Picking one puts the UI at the size it suits, which the

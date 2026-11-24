@@ -5516,8 +5516,8 @@ from a section's button low in its box was the one beside it.
   off the music going under water when a player here dies, see 8.4, on by
   default.
 - **Video**, in five groups, each under a heading in the house's capitals with a dotted rule
-  running on after it: Display, the screen type, window mode and window size, UI scale and
-  brightness; Camera, camera distance, whom the camera follows and the fixed camera, the same
+  running on after it: Display, the screen type, window mode and window size, the monitor,
+  UI scale and brightness; Camera, camera distance, whom the camera follows and the fixed camera, the same
   setting as in Accessibility, each page's switch showing what the other set; Table, the look, the looks
   bar, tire marks and the crowd; Performance, vsync, frame rate limit, render scale, upscaler
   and show FPS; and Graphics, the quality preset over shadows, texture detail, ambient
@@ -5553,7 +5553,13 @@ from a section's button low in its box was the one beside it.
   who would rather. A phone or a tablet starts full screen, with the system's own
   bars out of the way, and so does a released game on a desktop; a build from the
   editor or a debug export starts in a window, beside whatever it is being worked
-  on with. The setting, once changed, is kept either way. Brightness is how
+  on with. The setting, once changed, is kept either way. The monitor is which screen the game
+  plays on, `Settings.monitor`, offered only with more than one plugged in and only where the
+  system lets a game pick its screen, Windows, X11 and macOS, not Wayland nor a phone: each by its
+  number and size, Screen 2 (1920 × 1080), kept by its number, the screen the game is on shown
+  until one is picked. The window goes to it as the game starts and as it is picked, and only
+  then, so a window dragged to another screen by hand stays there as other settings change; a
+  screen not plugged in leaves the window where it is and is kept for when it is. Brightness is how
   bright a room is drawn over its own exposure, 8.1: from half as bright to twice,
   Normal in the middle, for a screen that runs dark or washed out. The quality preset, Low,
   Medium, High or Ultra, sets the six under it at once, `QualityPresets`: Low has shadows low,

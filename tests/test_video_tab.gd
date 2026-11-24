@@ -229,3 +229,30 @@ static func _control(tab: VideoTab, named: String) -> Control:
 			if row.name != "Heading" and label != null and label.text == named:
 				return row.get_child(1) as Control
 	return null
+
+
+## GAME.md 8.5: with more than one screen to put the game on, Display has a Monitor box under the
+## window size, each screen by its number and size, which keeps the one picked; with one, or on a
+## phone, there is none.
+func test_a_monitor_box_with_more_than_one_screen() -> void:
+	var two: Array[Vector2i] = [Vector2i(2560, 1440), Vector2i(1920, 1080)]
+	var settings := Settings.new()
+	settings.path = "user://test_video_tab.cfg"
+	var tab: VideoTab = auto_free(VideoTab.make(settings, false, true, two))
+	add_child(tab)
+	var rows := _rows(tab, VideoTab.DISPLAY)
+	assert_int(rows.find(VideoTab.MONITOR)).is_equal(rows.find("Window size") + 1)
+	var box := _control(tab, VideoTab.MONITOR) as OptionButton
+	assert_str(box.get_item_text(0)).is_equal("Screen 1 (2560 × 1440)")
+	assert_str(box.get_item_text(1)).is_equal("Screen 2 (1920 × 1080)")
+	assert_str(box.accessibility_name).is_equal(VideoTab.MONITOR)
+	box.select(1)
+	box.item_selected.emit(1)
+	assert_int(settings.monitor).is_equal(1)
+	var one: Array[Vector2i] = [Vector2i(1920, 1080)]
+	var single: VideoTab = auto_free(VideoTab.make(settings, false, true, one))
+	add_child(single)
+	assert_array(_rows(single, VideoTab.DISPLAY)).not_contains([VideoTab.MONITOR])
+	var phone: VideoTab = auto_free(VideoTab.make(settings, true, false, two))
+	add_child(phone)
+	assert_array(_rows(phone, VideoTab.DISPLAY)).not_contains([VideoTab.MONITOR])

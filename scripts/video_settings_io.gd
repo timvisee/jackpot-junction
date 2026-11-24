@@ -10,6 +10,7 @@ static func load_into(settings: Settings, file: ConfigFile) -> void:
 	settings.fullscreen = file.get_value("video", "fullscreen", settings.fullscreen)
 	settings.vsync = file.get_value("video", "vsync", settings.vsync)
 	settings.window_size = file.get_value("video", "window_size", settings.window_size)
+	settings.monitor = maxi(int(file.get_value("video", "monitor", settings.monitor)), -1)
 	var limit := int(file.get_value("video", "frame_limit", settings.frame_limit))
 	settings.frame_limit = limit if limit in Settings.FRAME_LIMITS else settings.frame_limit
 	settings.show_fps = file.get_value("video", "show_fps", settings.show_fps)
@@ -78,6 +79,7 @@ static func save_from(settings: Settings, file: ConfigFile) -> void:
 	file.set_value("video", "fullscreen", settings.fullscreen)
 	file.set_value("video", "vsync", settings.vsync)
 	file.set_value("video", "window_size", settings.window_size)
+	file.set_value("video", "monitor", settings.monitor)
 	file.set_value("video", "frame_limit", settings.frame_limit)
 	file.set_value("video", "show_fps", settings.show_fps)
 	file.set_value("video", "render_scale", settings.render_scale)

@@ -64,6 +64,8 @@ const TEXTURE_NAMES: Array[String] = ["Auto", "Low", "High", "Ultra"]
 ## to last longer on its battery, 40 and 90 as a Steam Deck runs its screen, and the refresh rates
 ## screens come in.
 const FRAME_LIMITS: Array[int] = [0, 30, 40, 60, 90, 120, 144, 165, 240]
+## The display servers that let a game pick which screen it plays on, see [member monitor].
+const PICKS_SCREENS: Array[String] = ["Windows", "X11", "macOS"]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]
@@ -105,6 +107,8 @@ var muffle_on_death := true
 var fullscreen := OS.has_feature("mobile") or OS.has_feature("template_release")
 var vsync := true
 var window_size := Vector2i(1920, 1080)
+## The screen the game plays on, GAME.md 8.5, by its number, or -1 for wherever the system puts it.
+var monitor := -1
 ## One of [constant FRAME_LIMITS].
 var frame_limit := 0
 ## The frame rate in the corner of every screen, see [FrameCounter].
@@ -349,6 +353,9 @@ var path := DEFAULT_PATH
 ## The profile the file names as the one playing, which it goes on naming while a profile that is
 ## never written plays, the demo's, GAME.md 9.8.
 var named := "1"
+## The screen the window was last put on, see [method _place_on_monitor]; -2 before it was put
+## anywhere.
+var _monitor_placed := -2
 ## The profiles linked to seats, read once.
 var _linked_profiles: Dictionary[String, Profile] = {}
 
@@ -831,6 +838,7 @@ func apply_audio() -> void:
 
 
 func apply_video(tree: SceneTree) -> void:
+	_place_on_monitor()
 	var mode := (
 		DisplayServer.WINDOW_MODE_FULLSCREEN if fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 	)
@@ -882,6 +890,30 @@ func scaling_mode() -> Viewport.Scaling3DMode:
 				return Viewport.SCALING_3D_MODE_FSR2
 			return Viewport.SCALING_3D_MODE_FSR
 	return Viewport.SCALING_3D_MODE_BILINEAR
+
+
+## The window put on the screen [member monitor] names, GAME.md 8.5, as the game starts and as the
+## setting changes, and only then: a window dragged to another screen stays there as other video
+## settings change. Nothing where the screen is not there, or the system will not let a game pick.
+func _place_on_monitor() -> void:
+	if monitor == _monitor_placed:
+		return
+	_monitor_placed = monitor
+	if monitor < 0 or monitor >= pickable_screens().size():
+		return
+	if DisplayServer.window_get_current_screen() != monitor:
+		DisplayServer.window_set_current_screen(monitor)
+
+
+## How big each screen is that the game can be put on, GAME.md 8.5, by number: none where the
+## system will not let a game pick its screen, a phone's, Wayland's, or no screen at all.
+static func pickable_screens() -> Array[Vector2i]:
+	var sizes: Array[Vector2i] = []
+	if DisplayServer.get_name() not in PICKS_SCREENS:
+		return sizes
+	for screen_at: int in DisplayServer.get_screen_count():
+		sizes.append(DisplayServer.screen_get_size(screen_at))
+	return sizes
 
 
 ## Whether the room is drawn by the desktop's renderer, Forward+, rather than the lighter one a

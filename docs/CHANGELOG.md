@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Pick your monitor.** With more than one screen plugged in, the Video page's Monitor box sets
+  which one the game plays on.
 - **Graphics presets.** A Quality box on the Video page sets shadows, texture detail, ambient
   occlusion, bloom, MSAA and screen smoothing at once: Low, Medium, High or Ultra.
 - **More frame rate limits.** 40 and 90 for a Steam Deck, and 165 and 240 for fast monitors.
