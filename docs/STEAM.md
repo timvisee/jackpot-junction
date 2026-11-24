@@ -383,7 +383,40 @@ it, and takes some minutes.
   there, with its words as its alt text.
 - **Not made**: a bundle's header (707 × 232), only for a bundle; the Points Shop's
   animated avatars, frames, backgrounds and stickers; trading cards, once Steam
-  turns them on for the game; the Steam Deck's startup movie; and a trailer.
+  turns them on for the game; and the Steam Deck's startup movie.
+
+## The trailer
+
+The store's trailer, 51 seconds at 60 frames a second, made by `tools/trailer`
+from the game itself: each shot played and recorded on its own by Godot's movie
+writer at a fixed frame rate, so it comes out the same every run, then cut to
+the music's bars with ffmpeg.
+
+- **The shots**: `scenes/dev/trailer.tscn` stages a match for one shot of play,
+  `scenes/dev/trailer_posed.tscn` poses the invitation, the bay, the end card
+  and the license; `trailer_caption.gd` prints the captions and racks up the run
+  of features, and `trailer_drift.gd` scrolls the title's chips and cards over
+  the shots. Every shot, its length, scene, arguments and the transition into
+  it, is listed in `tools/trailer`. The scenes are left out of every export.
+- **The music**: Ovani Sound's Deceased Rodent, which Ovani's terms allow in a
+  game's trailer. Its three layers are crossfaded as the game does: the calm one
+  muffled under the opening, the tense one from 14 s, its peak from 26 s, and
+  the calm one muffled again under the license. The game's own sound plays
+  quieter under it.
+- **Making it**: `make trailer-draft` draws at 1920 × 1080 and writes
+  `build/trailer/jackpot-junction-trailer-draft.mp4`. `make trailer` draws at
+  7680 × 4320 and scales it down twice: `jackpot-junction-trailer-4k.mp4`,
+  3840 × 2160 for YouTube, and `jackpot-junction-trailer.mp4`, 1920 × 1080 for
+  the store. That takes about two hours and 21 GB of recordings, a shot at a
+  time, as each needs 3 GB of video memory. Shots named after the command are
+  the only ones recorded again, `tools/trailer --8k slot license`, and `--cut`
+  cuts again from the recordings alone, in about a quarter of an hour.
+  `GODOT_HIDDEN=1` in front records without a window.
+- **Uploading**: Valve takes up to 1920 × 1080 at 30 or 60 frames a second,
+  H.264 and AAC in an .mp4. The first trailer should be mostly play with the HUD
+  shown, and must work muted: the captions carry it. Its thumbnail is a
+  1920 × 1080 frame of it with no text. Steam cuts its 6-second microtrailer
+  from it.
 
 ## Words for the store page
 

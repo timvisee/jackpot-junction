@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-input steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-input steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -157,6 +157,15 @@ steam-supporter-art: | $(CACHE)
 # for smooth edges, GAME.md 10.7. Needs a display, or GODOT_HIDDEN=1 and gamescope.
 screenshots: | $(CACHE)
 	tools/screenshots
+
+# The store trailer, docs/STEAM.md "The trailer": its shots recorded by the game's movie writer, one
+# by one, and cut to the music, into build/trailer, drawn at 8K and scaled down to 4K for YouTube
+# and 1080p for the store; a quicker draft at 1080p with trailer-draft. GODOT_HIDDEN=1 for no window.
+trailer:
+	tools/trailer --8k
+
+trailer-draft:
+	tools/trailer
 
 # What the achievements dialog and the catalog cost a frame, GAME.md 10.7, and whether each is
 # within its budget of draw calls: their chips and cards drawn once into pictures rather than as

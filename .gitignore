@@ -19,3 +19,7 @@
 # them by `make steam-export`, GAME.md 10.8. Neither is in the repository.
 /addons/godotsteam/
 /data/steam/app.cfg
+# Written by tools/trailer while it records, so its movie writer draws at the size asked for.
+/override.cfg
+# Python's bytecode, left by the tools' Python scripts when one is imported.
+__pycache__/

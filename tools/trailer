@@ -1,0 +1,721 @@
+#!/usr/bin/env python3
+"""The store trailer, docs/STEAM.md "The trailer": fifty-one seconds at 60 frames a second, cut to
+the music's bars. Each shot is played and recorded on its own by Godot's movie writer, through
+scenes/dev/trailer.tscn for play and scenes/dev/trailer_posed.tscn for the posed screens, at a
+fixed frame rate so it plays the same every time. ffmpeg cuts them together in order, frame for
+frame, a few with a transition laid across the cut, and lays the music under them: Ovani Sound's
+Deceased Rodent, its beats on the trailer's half seconds, its calm layer muffled under the opening
+and full from its drop, going up to its tense layer and then its peak at the trailer's turns, and
+back to the calm one muffled under the license at the end; the game's own sound quieter beneath it.
+
+A draft is drawn at 1920x1080; the final, `--final`, at 3840x2160 and scaled down to 1920x1080 for
+smooth edges, as the store's screenshots are; and `--8k` at 7680x4320, scaled down to two at once:
+3840x2160 for YouTube and 1920x1080 for the store.
+
+Usage: tools/trailer [--final|--8k] [shot ...]   renders the shots named, or all, then cuts the
+                                                 trailer
+       tools/trailer [--final|--8k] --cut        only cuts the trailer, from the shots recorded
+       GODOT_HIDDEN=1 tools/trailer              renders without a window, in gamescope
+       JOBS=3 tools/trailer                      renders this many shots at once (default 3, at 8K
+                                                 1; more crash the hidden display now and then)
+Writes build/trailer/jackpot-junction-trailer.mp4, -draft.mp4 or -4k.mp4, and each shot's recording
+to build/trailer/shots, shots-draft or shots-8k, which a later run cutting only some shots again
+reuses.
+"""
+
+import concurrent.futures
+import os
+import pathlib
+import signal
+import subprocess
+import sys
+import tempfile
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+OUT = ROOT / "build" / "trailer"
+FPS = 60
+# What each kind of run draws at and gives: the window, its shots' folder, how many are recorded at
+# once and how long one may take, how well its frames are kept, and each trailer it cuts, its size,
+# its file's name's end and its quality; the shots are cut together at the first's size and scaled
+# down from it to the rest.
+DRAFT = {
+    "drawn": (1920, 1080),
+    "shots": "shots-draft",
+    "jobs": 3,
+    "timeout": 300,
+    "mjpeg": 0.75,
+    "outs": [((1920, 1080), "-draft", 16)],
+}
+# Drawn at 4K, recorded near losslessly and scaled down: a slower run, each shot given longer.
+FINAL = {
+    "drawn": (3840, 2160),
+    "shots": "shots",
+    "jobs": 3,
+    "timeout": 1800,
+    "mjpeg": 0.95,
+    "outs": [((1920, 1080), "", 12)],
+}
+# Drawn at 8K and scaled down to 4K for YouTube, and to 1080p for the store, smoother still than
+# the final: a far slower run, one shot at a time, as each takes 3 GB of video memory.
+ULTRA = {
+    "drawn": (7680, 4320),
+    "shots": "shots-8k",
+    "jobs": 1,
+    "timeout": 3600,
+    "mjpeg": 0.95,
+    "outs": [((3840, 2160), "-4k", 12), ((1920, 1080), "", 12)],
+}
+PLAY = "res://scenes/dev/trailer.tscn"
+POSED = "res://scenes/dev/trailer_posed.tscn"
+TABLE = "--clean=1 --fixed-camera=1 --camera-distance=0.8"
+# The music: the track's layers, calm, tense and its peak, made to be played together and crossfaded
+# at one place in them, as the game does, see scripts/autoload/audio.gd; and where in it the trailer
+# starts, three bars before its drop, so its beats fall on the trailer's half seconds. The calm
+# layer muffled, as if through a wall, and faded in slowly until the drop; then full, going up a
+# layer at each of [constant LAYER_UP], its loud phrase ending as the run of features does and its
+# quieter bars after under the end card, sliding back into the calm layer muffled over the end
+# card's last bars and going on so, unchanged, under the license after it, faded out a little after
+# its picture. How loud the game's own sound is under it, and how long the picture takes to come up
+# out of black.
+MUSIC = ROOT / "assets/audio/music/deceased_rodent"
+LAYERS = ["intensity_1.ogg", "intensity_2.ogg", "main.ogg"]
+MUSIC_FROM = 41.98
+DROP = 6.0
+# How low the muffled music is cut, and how much it is brought up again: the calm layer has little
+# bass to keep under the cut, so it is cut higher than the full track was and brought up more.
+MUFFLED = 600
+MUFFLED_GAIN = 2.0
+FADE_IN = 3.0
+FADE_OUT = 2.0
+STING = 6.0
+STING_MUSIC = 0.85
+MUFFLE_INTO = 1.5
+STING_OUT = 0.6
+MUSIC_OUT = 1.2
+MUSIC_PAST = 0.6
+GAME_SOUND = 0.5
+# Where the music goes up a layer, on a bar each, and how long before and after it the crossfade
+# takes: tense as the swiped montage of the match starts, its peak as the bay opens into the run of
+# features. The layers keep to one beat, so the swap is quick, the bar heard in the new one.
+LAYER_UP = [14.0, 26.0]
+LAYER_SWAP = (0.2, 0.05)
+PICTURE_IN = 0.9
+# The black held at the very end, a whole second of it, so the trailer ends on black.
+END_BLACK = 1.0
+# Godot's movie writer records full-range JPEG frames in BT.601; the trailer is the video every
+# player and Steam's own expect, limited range in BT.709, so black is black wherever it plays.
+RANGE = "in_range=pc:out_range=tv:in_color_matrix=bt601:out_color_matrix=bt709"
+# The match's clock as the opening's take starts, in seconds, run on unbroken from there through
+# every shot of play after it, so they read as one match going on; and the shots the title's chips
+# and cards scroll over, from the opening's take to the end card, how strongly by the trailer's own
+# clock, see scenes/dev/trailer_drift.gd, which brings them in once the opening has risen.
+CLOCK_FROM = 280.0
+DRIFT_FROM = "vault"
+DRIFT_TO = "endcard"
+# Every shot in order: its name, how long it is, its scene and the scene's own arguments, and how
+# it comes in, a cut or one of ffmpeg's xfade transitions over that many seconds, laid across the
+# cut so the cut's moment, a bar or a beat, stays where it is. Each caption has a turn of its own.
+CUT = ("cut", 0.0)
+BEAT = 0.5
+# The run of features, a table or a screen a beat, each racking up a feature of the game, see
+# scenes/dev/trailer_caption.gd: its shots in order, the rack's place added to each.
+RING = "--stage=carousel --bots=7 --clean=1 --fixed-camera=1 --camera-distance=0.6"
+# The run's shots of play all held still on the middle of the table, the game's fixed camera, every
+# beat staged round the Junction: cut a beat at a time, the eye keeps up with one steady view.
+STILL = "--clean=1 --fixed-camera=1"
+RUN = [
+    ("tables", PLAY, f"--map=toy_box --bots=5 --autopilot=1 {TABLE}"),
+    (
+        "hand",
+        PLAY,
+        (
+            f"--map=loose_threads --bots=4 --jokers=5 --menu=2 --opaque=1 {STILL}"
+            f" --camera-distance=0.6"
+        ),
+    ),
+    (
+        "shield",
+        PLAY,
+        f"--stage=shield --map=lucky_crossing --bots=3 {STILL} --camera-distance=0.6",
+    ),
+    (
+        "teams",
+        PLAY,
+        f"--map=pin_alley --teams=2 --bots=5 {STILL} --camera-distance=0.55",
+    ),
+    (
+        "slot",
+        PLAY,
+        f"--map=lucky_crossing --bots=4 {STILL} --camera-distance=0.6 --pay-at=0.15",
+    ),
+    (
+        "chase",
+        PLAY,
+        f"--stage=chase --map=toy_box --bots=3 {STILL} --camera-distance=0.6",
+    ),
+    ("showdown", PLAY, f"--map=showdown --bots=3 --autopilot=1 --emotes=1 {TABLE}"),
+    (
+        "ram",
+        PLAY,
+        f"--stage=ram --map=vault --bots=3 --bounty=1 {STILL} --camera-distance=0.6",
+    ),
+    (
+        "school",
+        PLAY,
+        f"--map=tutorial --bots=3 --autopilot=1 {STILL} --camera-distance=0.6",
+    ),
+    ("loyalty", POSED, "--lead=1.0 --open-at=-0.35"),
+    (
+        "shock",
+        PLAY,
+        f"--stage=shock --map=crossfire --bots=3 {STILL} --camera-distance=0.5",
+    ),
+    (
+        "bomb",
+        PLAY,
+        f"--stage=bomb --map=lucky_crossing --bots=4 {STILL} --camera-distance=0.55",
+    ),
+    # Past the list's end: a big word a beat over more of the game, the list kept.
+    (
+        "more-and",
+        PLAY,
+        f"--stage=railgun --map=pin_alley --bots=4 {STILL} --camera-distance=0.6",
+    ),
+    (
+        "more-much",
+        PLAY,
+        f"--stage=volley --map=crossfire --bots=5 {STILL} --camera-distance=0.7",
+    ),
+    # The last room, glimpsed: dim, for a beat, nothing of what happens there.
+    ("more-more", PLAY, f"--map=house_rules --bots=3 --autopilot=1 {TABLE}"),
+    (
+        "more-fun",
+        PLAY,
+        f"--stage=trade --map=vault --bots=3 {STILL} --camera-distance=0.6",
+    ),
+]
+# The room's lights and crowd over the run, as a match builds to its end, GAME.md 8.1: up a level
+# every few beats, to the top with the crowd on its feet for the last of the list and the words.
+RUN_LIGHTS = [4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6]
+# The last word a beat, as every one, the end card cut to on the bar after it.
+RUN_LAST = BEAT
+SHOTS_IN_ORDER = [
+    ("invitation", 6.0, POSED, "--lead=0.8", CUT),
+    # A match as it starts: the lights its own, low.
+    (
+        "vault",
+        8.0,
+        PLAY,
+        (
+            "--map=vault --bots=5 --difficulty=hard --clean=1"
+            " --captions=4|Drift._Shoot.|-0.035;6|Knock_them_out.|0.03"
+        ),
+        ("fadewhite", 0.4),
+    ),
+    # Swiped from one to the next, alternately, to the match's end.
+    (
+        "crossing",
+        4.0,
+        PLAY,
+        (
+            "--map=lucky_crossing --bots=4 --difficulty=hard --clean=1 --disco=2"
+            " --captions=0|Scoop_the_chips.|-0.02;2|Cash_out_before_they_cash_you_in.|0.015"
+        ),
+        ("smoothleft", 0.4),
+    ),
+    (
+        "jokers",
+        1.5,
+        PLAY,
+        (
+            "--map=loose_threads --bots=4 --jokers=2 --offer=1 --clean=1 --disco=3"
+            " --captions=0|Bend_the_rules.|-0.045"
+        ),
+        ("smoothright", 0.4),
+    ),
+    (
+        "carousel",
+        2.0,
+        PLAY,
+        (
+            "--map=vault --bots=7 --clean=1 --disco=4 --fixed-camera=1 --camera-distance=0.6"
+            " --captions=0|4_on_one_screen_·_8_online|0.025"
+        ),
+        ("smoothleft", 0.4),
+    ),
+    # The match's end, a switch on each bar: the whistle's fireworks, the slip coming in over them,
+    # falling away into the Grand Prix's podium, and that into the bay.
+    (
+        "slip",
+        2.5,
+        PLAY,
+        # The slip comes in 2.58 s after the whistle: a beat of fireworks, then in on the bar.
+        "--map=vault --bots=3 --clean=1 --results=1 --fireworks=1 --now=1 --lead=2.08",
+        ("smoothright", 0.4),
+    ),
+    (
+        "podium",
+        2.0,
+        PLAY,
+        "--map=vault --bots=3 --clean=1 --finale=1 --now=1 --lead=8",
+        # On the bar: the slip falling away, dissolving into the podium, which pushes in, quick and
+        # then slow.
+        ("pushfade", 0.3, 0.12),
+    ),
+    ("bay", 4.0, POSED, "--lead=1.0", ("fade", 0.2)),
+    *[
+        (
+            name,
+            RUN_LAST if i == len(RUN) - 1 else BEAT,
+            scene,
+            f"{args} --disco={RUN_LIGHTS[i]} --rack={i}",
+            CUT,
+        )
+        for i, (name, scene, args) in enumerate(RUN)
+    ],
+    # The last word dissolved into the end card's dark ground, the card's stamps after it.
+    ("endcard", 5.5, POSED, "--lead=0.4", ("fade", 0.4)),
+    # Then out to black, held a moment, and the license slid in under a light in the dark, turned
+    # over to the line scratched into it and slid away again, under the calm music muffled, and out
+    # to black.
+    (
+        "license",
+        STING,
+        POSED,
+        "--lead=1.0 --turn-at=2.0 --sweep=1.0 --slide=1",
+        ("black", 0.7, 0.5, 0.3),
+    ),
+]
+
+
+def placed(shots: list[tuple]) -> list[tuple]:
+    """[shots] each told where in the trailer it starts, `--at=`; a shot of play the match's clock
+    there, run on from [constant CLOCK_FROM], or none left for the screens after the whistle; and
+    those from the payout slip to the end card the title's chips and cards scrolling over them."""
+    out = []
+    start = next(t for t, shot in zip(_starts(shots), shots) if shot[0] == "vault")
+    names = [shot[0] for shot in shots]
+    drifting = (names.index(DRIFT_FROM), names.index(DRIFT_TO))
+    for index, (shot, begins) in enumerate(zip(shots, _starts(shots))):
+        name, seconds, scene, args, into = shot
+        extra = f" --at={begins:g}"
+        if scene == PLAY:
+            ended = name in ("slip", "podium")
+            extra += f" --clock={0.0 if ended else CLOCK_FROM - (begins - start):g}"
+        if drifting[0] <= index <= drifting[1]:
+            extra += " --drift=1"
+        out.append((name, seconds, scene, args + extra, into))
+    return out
+
+
+def _starts(shots: list[tuple]) -> list[float]:
+    starts = []
+    at = 0.0
+    for shot in shots:
+        starts.append(at)
+        at += shot[1]
+    return starts
+
+
+SHOTS_IN_ORDER = placed(SHOTS_IN_ORDER)
+# How long each shot goes on past its end, room for a transition out of it.
+TAIL = 0.5
+SETTINGS = """[video]
+
+window_size=Vector2i(%d, %d)
+vsync=false
+
+[audio]
+
+music_muted=true
+
+[accessibility]
+
+control_hints=false
+"""
+
+
+def render(scratch: pathlib.Path, shot: tuple, mode: dict) -> str | None:
+    """Plays and records [shot] in a user directory of its own, so the player's settings and
+    profiles are never touched: no music, which the trailer lays under itself, no control hints,
+    and frames not held to a display. Returns why it failed, or None."""
+    name, length, scene, args, _ = shot
+    user = scratch / name / "godot/app_userdata/Jackpot Junction"
+    user.mkdir(parents=True, exist_ok=True)
+    wide, tall = mode["drawn"]
+    (user / "settings.cfg").write_text(SETTINGS % (wide, tall))
+    shots = OUT / mode["shots"]
+    movie = shots / f"{name}.avi"
+    movie.unlink(missing_ok=True)
+    command = [
+        str(ROOT / "tools/godot"), "--path", str(ROOT), "--resolution", f"{wide}x{tall}",
+        "--fixed-fps", str(FPS), "--write-movie", str(movie), scene, "--",
+        f"--trailer={name}", f"--length={length}", f"--tail={TAIL}",
+    ] + args.split()  # fmt: skip
+    env = dict(os.environ, XDG_DATA_HOME=str(scratch / name))
+    log = shots / f"{name}.log"
+    with open(log, "w") as written:
+        # A session of its own, so a run past its time goes with everything it started: the hidden
+        # display and the game under it, which otherwise hold on to a display backend each.
+        run = subprocess.Popen(
+            command, env=env, stdout=written, stderr=subprocess.STDOUT, start_new_session=True
+        )
+        try:
+            # Bounded: a shot whose script fails to load, or that falls out of its match, never
+            # quits.
+            run.wait(timeout=mode["timeout"])
+        except subprocess.TimeoutExpired:
+            os.killpg(run.pid, signal.SIGKILL)
+            run.wait()
+            return "timed out"
+    if "TRAILER_ACTION" not in log.read_text() or not movie.exists():
+        return f"see {log}"
+    return None
+
+
+def frames_in(movie: pathlib.Path) -> int:
+    # Counted by their packets, a frame each in the movie writer's recordings, as decoding them all
+    # takes minutes at 8K.
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-count_packets", "-select_streams", "v",
+         "-show_entries", "stream=nb_read_packets", "-of", "csv=p=0", str(movie)],
+        capture_output=True, text=True, check=True,
+    )  # fmt: skip
+    return int(probe.stdout.strip())
+
+
+def overlap(transition: tuple) -> float:
+    """How much of a cut [transition] lays its two shots over each other: none for a cut or for
+    going through black, which fades each on its own and holds black between them."""
+    kind, seconds = transition[0], transition[1]
+    return 0.0 if kind in ("cut", "black") else seconds
+
+
+def zoomed(frames: int, kind: str, seconds: float, amount: float) -> str:
+    """A shot's frames drawn closer over the [seconds] of a zoomed dissolve: the shot going out
+    drawn in to [amount] more over its last, [kind] "out", the one coming in drawn from that close
+    back to where it is over its first, "in"; or pushed in on over all of its frames, quick and
+    then slow, to [amount] more by its end, "push"; as a filter after its frames are trimmed."""
+    span = round(seconds * FPS)
+    if kind == "out":
+        grow = f"1+{amount}*clip((on-{frames - span})/{span},0,1)"
+    elif kind == "push":
+        grow = f"1+{amount}*(1-pow(1-clip(on/{frames},0,1),2))"
+    else:
+        grow = f"1+{amount}*clip(1-on/{span},0,1)"
+    return (
+        f",zoompan=z='{grow}':d=1:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={{size}}:fps={FPS}"
+        ",settb=AVTB"
+    )
+
+
+# How each piece of the trailer is kept between the steps of its cut: losslessly, every frame whole,
+# and all alike, as they are read one after another as if one.
+PIECE = ["-pix_fmt", "yuv420p", "-c:v", "ffv1", "-level", "3", "-slices", "16", "-g", "1"]
+PIECE += ["-threads", "8"]
+# What a piece's frames are, which it keeps no record of, told again as it is read back, so nothing
+# takes them for any other colors and converts them.
+READ_BACK = "setparams=range=tv:colorspace=bt709:color_primaries=bt709:color_trc=bt709"
+
+
+def cut(mode: dict) -> None:
+    """The trailer cut in steps, none holding more than a shot or two at once however large they
+    were drawn, as ffmpeg keeps every input it is given open, decoding, to its end: each shot's
+    picture made ready on its own and kept in pieces, the frames it shares with the shot either side
+    apart from the rest; each transition laid across the two pieces it joins; the sound mixed apart;
+    and the pieces read one after another, black held between them where the trailer goes through
+    black and at its very end, and encoded with the sound once for each trailer."""
+    shots = SHOTS_IN_ORDER
+    held = sum(shot[4][2] for shot in shots if shot[4][0] == "black")
+    total = sum(shot[1] for shot in shots) + held + END_BLACK
+    spans = _spans(mode)
+    # Beside the trailers rather than in a temporary folder, which may be kept in memory.
+    with tempfile.TemporaryDirectory(dir=OUT, prefix="cut-") as scratch:
+        pieces = pathlib.Path(scratch)
+        order = _pictures(mode, spans, pieces)
+        sound = pieces / "sound.wav"
+        _sound(spans, total, sound)
+        trailers = _encoded(mode, order, sound, total, pieces)
+    for trailer in trailers:
+        print(f"trailer: {trailer.relative_to(ROOT)} ({total:g} s)")
+
+
+def _spans(mode: dict) -> list[tuple]:
+    """Each shot's recording and its frames in the trailer, from its action, as long as it is, with
+    half of each transition it shares on either side; how it comes in and goes out; and whether it
+    is the last."""
+    shots = SHOTS_IN_ORDER
+    spans = []
+    for k, (name, seconds, _, _, into) in enumerate(shots):
+        after = shots[k + 1][4] if k + 1 < len(shots) else CUT
+        movie = OUT / mode["shots"] / f"{name}.avi"
+        # The run quits as many frames after the action as the shot and its tail are long.
+        action = frames_in(movie) - round((seconds + TAIL) * FPS)
+        start = action - round(overlap(into) / 2 * FPS)
+        end = action + round((seconds + overlap(after) / 2) * FPS)
+        spans.append((movie, start, end, into, after, k == len(shots) - 1))
+    return spans
+
+
+def _fades(span: tuple, size: str) -> tuple[str, str]:
+    """A shot's picture's and sound's fades, as filters after its frames are trimmed: going through
+    black, faded out at its end or in from it; drawn closer over a zoomed dissolve; and the last out
+    to black over its end, before the black held after it."""
+    _, start, end, into, after, last = span
+    clip = (end - start) / FPS
+    fades = ""
+    sound_fades = ""
+    if after[0] == "zoomfade":
+        fades += zoomed(end - start, "out", after[1], after[2]).replace("{size}", size)
+    if into[0] == "zoomfade":
+        fades += zoomed(end - start, "in", into[1], into[2]).replace("{size}", size)
+    if into[0] == "pushfade":
+        fades += zoomed(end - start, "push", into[1], into[2]).replace("{size}", size)
+    if after[0] == "black" and after[1] > 0.0:
+        fades += f",fade=t=out:st={clip - after[1]:.4f}:d={after[1]}"
+        sound_fades += f",afade=t=out:st={clip - after[1]:.4f}:d={after[1]}"
+    if into[0] == "black" and into[3] > 0.0:
+        fades += f",fade=t=in:st=0:d={into[3]}"
+        sound_fades += f",afade=t=in:st=0:d={into[3]}"
+    if last:
+        fades += f",fade=t=out:st={clip - STING_OUT:.4f}:d={STING_OUT}"
+        sound_fades += f",afade=t=out:st={clip - STING_OUT:.4f}:d={STING_OUT}"
+    return fades, sound_fades
+
+
+def _pictures(mode: dict, spans: list[tuple], pieces: pathlib.Path) -> list[pathlib.Path]:
+    """Each shot's picture at the first trailer's size and in its colors, kept as its head, the
+    frames it shares with the shot before, its body and its tail, those it shares with the one
+    after; each transition laid across a tail and the head after it. Returns the pieces in the
+    trailer's order, black held where it goes through black and at its very end."""
+    wide, tall = mode["outs"][0][0]
+    size = f"{wide}x{tall}"
+    order = []
+    for k, span in enumerate(spans):
+        movie, start, end, into, after, _ = span
+        frames = end - start
+        coming = round(overlap(into) * FPS)
+        going = round(overlap(after) * FPS)
+        fades, _ = _fades(span, size)
+        parts = {
+            "head": (0, coming),
+            "body": (coming, frames - going),
+            "tail": (frames - going, frames),
+        }
+        kept = {part: (first, past) for part, (first, past) in parts.items() if past > first}
+        graph = [
+            f"[0:v]trim=start_frame={start}:end_frame={end},setpts=PTS-STARTPTS,fps={FPS},"
+            f"scale={wide}:{tall}:flags=lanczos:{RANGE},format=yuv420p,settb=AVTB{fades},"
+            f"split={len(kept)}" + "".join(f"[{part}]" for part in kept)
+        ]
+        written = []
+        for part, (first, past) in kept.items():
+            graph.append(
+                f"[{part}]trim=start_frame={first}:end_frame={past},"
+                f"setpts=PTS-STARTPTS[{part}_kept]"
+            )
+            written += ["-map", f"[{part}_kept]", *PIECE, str(pieces / f"{k}-{part}.nut")]
+        _ffmpeg(["-i", str(movie), "-filter_complex", ";".join(graph), *written])
+        if into[0] == "black" and into[2] > 0.0:
+            order.append(_black(pieces / f"{k}-held.nut", into[2], size))
+        if coming:
+            kind = "fade" if into[0] in ("zoomfade", "pushfade") else into[0]
+            joined = pieces / f"{k}-joined.nut"
+            _ffmpeg([
+                "-i", str(pieces / f"{k - 1}-tail.nut"), "-i", str(pieces / f"{k}-head.nut"),
+                "-filter_complex",
+                (
+                    f"[0:v]{READ_BACK},settb=1/{FPS},setpts=N[going];"
+                    f"[1:v]{READ_BACK},settb=1/{FPS},setpts=N[coming];"
+                    f"[going][coming]xfade=transition={kind}:duration={into[1]}:offset=0,"
+                    "format=yuv420p[joined]"
+                ),
+                "-map", "[joined]", *PIECE, str(joined),
+            ])  # fmt: skip
+            order.append(joined)
+        if "body" in kept:
+            order.append(pieces / f"{k}-body.nut")
+    order.append(_black(pieces / "end.nut", END_BLACK, size))
+    return order
+
+
+def _black(piece: pathlib.Path, seconds: float, size: str) -> pathlib.Path:
+    _ffmpeg([
+        "-f", "lavfi", "-i", f"color=c=black:s={size}:r={FPS}:d={seconds}",
+        "-vf", "format=yuv420p", *PIECE, str(piece),
+    ])  # fmt: skip
+    return piece
+
+
+def _sound(spans: list[tuple], total: float, sound: pathlib.Path) -> None:
+    """Each shot's own sound, joined as their pictures are, quieter under the music: the music's
+    layers each looped, as the track is made to be, so it runs on under the license past its own
+    end. Each shot's recording read for its sound alone, its frames passed over undecoded."""
+    inputs: list[str] = []
+    graph: list[str] = []
+    for k, span in enumerate(spans):
+        movie, start, end, into, _, _ = span
+        _, sound_fades = _fades(span, "")
+        inputs += ["-vn", "-i", str(movie)]
+        graph.append(
+            f"[{k}:a]atrim=start={start / FPS:.4f}:end={end / FPS:.4f},asetpts=PTS-STARTPTS,"
+            f"aresample=48000{sound_fades}[a{k}]"
+        )
+        if k == 0:
+            graph.append("[a0]anull[aj0]")
+            continue
+        joined = f"[aj{k - 1}]"
+        if into[0] == "black" and into[2] > 0.0:
+            graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{into[2]}[gap{k}]")
+            graph.append(f"{joined}[gap{k}]concat=n=2:v=0:a=1[held{k}]")
+            joined = f"[held{k}]"
+        if overlap(into) == 0.0:
+            graph.append(f"{joined}[a{k}]concat=n=2:v=0:a=1[aj{k}]")
+        else:
+            graph.append(f"{joined}[a{k}]acrossfade=d={into[1]}[aj{k}]")
+    last = len(spans) - 1
+    graph.append(f"anullsrc=r=48000:cl=stereo,atrim=0:{END_BLACK}[enda]")
+    graph.append(f"[aj{last}][enda]concat=n=2:v=0:a=1,volume={GAME_SOUND}[game]")
+    music = len(spans)
+    for layer in LAYERS:
+        inputs += ["-stream_loop", "-1", "-ss", f"{MUSIC_FROM}", "-i", str(MUSIC / layer)]
+    graph.append(f"[{music}:a]atrim=0:{total},asetpts=PTS-STARTPTS,asplit[through][calm]")
+    graph.append(f"[{music + 1}:a]atrim=0:{total},asetpts=PTS-STARTPTS[tense]")
+    graph.append(f"[{music + 2}:a]atrim=0:{total},asetpts=PTS-STARTPTS[peak]")
+    # Each part's loudness over the trailer: the muffled one up slowly to the drop and gone at it,
+    # then back, sliding in as the full one slides out over the end card's last bars, and on
+    # unchanged under the license, out with its picture; the full one from the drop to there.
+    shots = SHOTS_IN_ORDER
+    starts = _starts(shots)
+    card = next(t for t, shot in zip(starts, shots) if shot[0] == "endcard")
+    card_end = card + next(shot[1] for shot in shots if shot[0] == "endcard")
+    muffle_from = card_end - MUFFLE_INTO
+    sound_end = total - END_BLACK
+    seam = 0.06
+    muffled = (
+        f"if(lt(t,{DROP + seam}),min(t/{FADE_IN},1)*clip(({DROP + seam}-t)/{2 * seam},0,1),"
+        f"{STING_MUSIC}*clip((t-{muffle_from})/{MUFFLE_INTO},0,1)"
+        f"*clip(({sound_end + MUSIC_PAST}-t)/{MUSIC_OUT},0,1))"
+    )
+    full = f"clip((t-{DROP - seam})/{2 * seam},0,1)*clip(({card_end}-t)/{MUFFLE_INTO},0,1)"
+    # How far the full music has gone up into each layer above the calm one by then.
+    before, after = LAYER_SWAP
+    up = [f"clip((t-{at - before:g})/{before + after:g},0,1)" for at in LAYER_UP]
+    shares = {"calm": f"(1-{up[0]})", "tense": f"({up[0]}-{up[1]})", "peak": up[1]}
+    graph.append(
+        f"[through]lowpass=f={MUFFLED},lowpass=f={MUFFLED},volume={MUFFLED_GAIN},"
+        f"volume='{muffled}':eval=frame[muffled]"
+    )
+    for layer, share in shares.items():
+        graph.append(f"[{layer}]volume='{full}*{share}':eval=frame[{layer}_full]")
+    graph.append(
+        "[muffled][calm_full][tense_full][peak_full]amix=inputs=4:normalize=0[music]"
+    )
+    graph.append(f"[game][music]amix=inputs=2:normalize=0:duration=longest,atrim=0:{total}[sound]")
+    _ffmpeg([
+        *inputs, "-filter_complex", ";".join(graph), "-map", "[sound]", "-c:a", "pcm_f32le",
+        str(sound),
+    ])  # fmt: skip
+
+
+# How many threads each trailer's encoder works on: on all of them, one at 4K alone holds 5 GB.
+ENCODER_THREADS = 8
+
+
+def _encoded(
+    mode: dict, order: list[pathlib.Path], sound: pathlib.Path, total: float, pieces: pathlib.Path
+) -> list[pathlib.Path]:
+    """The pieces read one after another, each frame timed by its place, faded up out of black, and
+    encoded with the sound once for each trailer, scaled down to its size. Returns the trailers."""
+    listing = pieces / "pieces.txt"
+    listing.write_text("".join(f"file '{piece}'\n" for piece in order))
+    outs = mode["outs"]
+    pictures = "".join(f"[picture{i}]" for i in range(len(outs)))
+    graph = [
+        (
+            f"[0:v]{READ_BACK},settb=1/{FPS},setpts=N,fade=t=in:st=0:d={PICTURE_IN},"
+            "format=yuv420p,"
+            f"split={len(outs)}{pictures}"
+        )
+    ]
+    written: list[str] = []
+    trailers = []
+    for i, ((wide, tall), ending, crf) in enumerate(outs):
+        if (wide, tall) == outs[0][0]:
+            graph.append(f"[picture{i}]null[shown{i}]")
+        else:
+            graph.append(
+                f"[picture{i}]scale={wide}:{tall}:flags=lanczos:in_range=tv:out_range=tv,"
+                f"format=yuv420p[shown{i}]"
+            )
+        trailer = OUT / f"jackpot-junction-trailer{ending}.mp4"
+        trailers.append(trailer)
+        written += [
+            "-map", f"[shown{i}]", "-map", "1:a",
+            "-t", f"{total}", "-c:v", "libx264", "-preset", "slow", "-crf", str(crf),
+            "-threads", str(ENCODER_THREADS),
+            "-pix_fmt", "yuv420p", "-color_range", "tv", "-colorspace", "bt709",
+            "-color_primaries", "bt709", "-color_trc", "bt709", "-r", str(FPS),
+            "-c:a", "aac", "-b:a", "320k", "-ar", "48000", "-movflags", "+faststart", str(trailer),
+        ]  # fmt: skip
+    _ffmpeg([
+        "-f", "concat", "-safe", "0", "-i", str(listing), "-i", str(sound),
+        "-filter_complex", ";".join(graph), *written,
+    ])  # fmt: skip
+    return trailers
+
+
+def _ffmpeg(args: list[str]) -> None:
+    subprocess.run(["ffmpeg", "-hide_banner", "-v", "error", "-nostdin", "-y", *args], check=True)
+
+
+def drawn_at(size: tuple[int, int], quality: float) -> pathlib.Path:
+    """The size every run draws at, and how well its movie writer keeps each frame, written where
+    Godot reads its project settings' overrides: its movie writer records at the project's window
+    size whatever the command line asks, so the window is overridden for as long as the shots are
+    recorded. Returns the file, to be removed."""
+    override = ROOT / "override.cfg"
+    override.write_text(
+        "[display]\n\n"
+        f"window/size/window_width_override={size[0]}\n"
+        f"window/size/window_height_override={size[1]}\n\n"
+        "[editor]\n\n"
+        f"movie_writer/mjpeg_quality={quality}\n"
+    )
+    return override
+
+
+def main() -> None:
+    mode = DRAFT
+    if "--final" in sys.argv[1:]:
+        mode = FINAL
+    elif "--8k" in sys.argv[1:]:
+        mode = ULTRA
+    (OUT / mode["shots"]).mkdir(parents=True, exist_ok=True)
+    if "--cut" in sys.argv[1:]:
+        cut(mode)
+        return
+    wanted = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
+    todo = [shot for shot in SHOTS_IN_ORDER if not wanted or shot[0] in wanted]
+    jobs = int(os.environ.get("JOBS", mode["jobs"]))
+    override = drawn_at(mode["drawn"], mode["mjpeg"])
+    try:
+        with tempfile.TemporaryDirectory() as scratch:
+            for shot in todo:
+                print(f"trailer: {shot[0]} ({shot[1]:g} s)", flush=True)
+            with concurrent.futures.ThreadPoolExecutor(jobs) as pool:
+                reasons = list(
+                    pool.map(lambda shot: render(pathlib.Path(scratch), shot, mode), todo)
+                )
+    finally:
+        override.unlink(missing_ok=True)
+    failed = {shot[0]: why for shot, why in zip(todo, reasons) if why}
+    for name, why in failed.items():
+        print(f"trailer: {name} failed, {why}", file=sys.stderr)
+    if failed:
+        sys.exit(1)
+    cut(mode)
+
+
+if __name__ == "__main__":
+    main()
