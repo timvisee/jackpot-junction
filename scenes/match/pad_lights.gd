@@ -4,10 +4,11 @@ extends Node
 ## or a DualShock's light bar, so four players at one screen tell their pads apart at a glance as
 ## they tell their karts. A pad the engine reads is lit where it has a light; one Steam Input reads,
 ## through Steam, which puts the player's own color back once the match is over. A player reading
-## every device lights every pad no seat has.
+## every device lights every pad no seat has. It looks while the game is paused too, so a color
+## picked in the pause menu lights the pad at once rather than once the game goes on.
 
 ## How often the seats are looked at, in seconds: a seat taken, left or painted another color.
-const EVERY := 0.5
+const EVERY := 0.1
 
 var match_node: Match
 
@@ -19,6 +20,7 @@ var _wait := 0.0
 static func add_to(in_match: Match) -> PadLights:
 	var lights := PadLights.new()
 	lights.name = "PadLights"
+	lights.process_mode = Node.PROCESS_MODE_ALWAYS
 	lights.match_node = in_match
 	in_match.add_child(lights)
 	return lights

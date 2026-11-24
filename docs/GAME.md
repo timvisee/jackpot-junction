@@ -11169,7 +11169,8 @@ they tell their karts: a DualSense's or a DualShock's light bar. A controller St
 lit through Steam, which gives it the player's own color in Steam back as its seat empties, as the
 match ends and as Steam Input is turned off; a pad the engine reads is lit where the engine says it
 has a light, and keeps the last color, the engine having no way back. A player reading every device
-lights every pad no other seat has.
+lights every pad no other seat has. The seats are looked at every tenth of a second, paused or not,
+so a color picked in the pause menu lights the pad at once.
 
 **Hints.** A hint for a controller Steam Input reads, pinned to it or following it as the pad
 touched last, draws each action where Steam has it bound on that controller (`SteamPads.place`):

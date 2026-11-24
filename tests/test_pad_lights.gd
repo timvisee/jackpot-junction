@@ -51,6 +51,16 @@ func test_each_pad_is_lit_in_its_seats_color() -> void:
 	assert_object(_steam.lights[OTHER]).is_equal(Palette.player_color(5))
 
 
+## A color picked in the pause menu lights the pad at once, the game paused or not.
+func test_a_new_color_lights_the_pad_while_paused() -> void:
+	var slot := _seat(PAD, 2)
+	_lights.light()
+	assert_int(_lights.process_mode).is_equal(Node.PROCESS_MODE_ALWAYS)
+	slot.color_index = 6
+	_lights._process(PadLights.EVERY)
+	assert_object(_steam.lights[HANDLE]).is_equal(Palette.player_color(6))
+
+
 func test_a_seat_left_gives_the_pad_its_own_light_back() -> void:
 	_seat(PAD, 2)
 	_seat(PAD + 1, 5)
