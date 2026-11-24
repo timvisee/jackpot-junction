@@ -4,11 +4,12 @@ extends PanelContainer
 ## itself: the host's own players first, marked Me, then each other player by the name and color
 ## of their seat and the plate on their kart, or the learner's L, and each watcher by the name
 ## the host gave them, with Kick beside every one of those, which asks first, as Make host does,
-## see [signal asking]. Somebody kicked goes back to the
-## title, told why, and may join again; in the lobby their seat is emptied, and on a map a bot
-## takes their kart on, as for anybody who leaves. The list follows whoever comes and goes while
-## it is up, and scrolls between the title and Back where a room of eight and its watchers do not
-## fit on the screen, GAME.md 9.3, keeping the row with the cursor in sight, see [FitScroll].
+## see [signal asking]. The cursor starts on Back, so a press too many shows nobody out. Somebody
+## kicked goes back to the title, told why, and may join again; in the lobby their seat is emptied,
+## and on a map a bot takes their kart on, as for anybody who leaves. The list follows whoever comes
+## and goes while it is up, and scrolls between the title and Back where a room of eight and its
+## watchers do not fit on the screen, GAME.md 9.3, keeping the row with the cursor in sight, see
+## [FitScroll].
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -50,7 +51,8 @@ func _ready() -> void:
 	column.add_child(_back)
 
 
-## Up, drawn afresh, with the cursor on the first Kick, or on Back with nobody to kick.
+## Up, drawn afresh, with the cursor on Back: on the first Kick, a press too many showed somebody
+## the door.
 func open() -> void:
 	visible = true
 	MenuTheme.deal(self)
@@ -62,8 +64,7 @@ func open() -> void:
 		)
 	_drawn = ""
 	_redraw()
-	var first := _rows.find_children("*", "Button", true, false)
-	(first[0] as Button if not first.is_empty() else _back).grab_focus()
+	_back.grab_focus()
 
 
 func _process(_delta: float) -> void:

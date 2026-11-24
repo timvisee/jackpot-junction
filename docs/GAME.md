@@ -7816,7 +7816,8 @@ and the room a plate would take. A client with
 two players at it is two rows: Kick on one of them takes that player's seat and leaves the
 client playing with the other, and Kick on the last shows the client out. A room of eight and
 its watchers is a dozen rows, so where they do not fit on the screen they scroll between the
-title and Back, the row with the cursor kept in sight. Kick asks first, in place of the list,
+title and Back, the row with the cursor kept in sight. The list opens with the cursor on Back, so
+a press too many shows nobody out. Kick asks first, in place of the list,
 "Kick Bob?", saying they go back to the title, or the server's games, and can join again; Back
 is no, and the list again with the cursor on that Kick.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,

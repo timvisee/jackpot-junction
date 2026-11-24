@@ -11,6 +11,10 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Changed
+
+- **Manage players opens on Back.** The cursor no longer starts on the first player's Kick.
+
 ### Fixed
 
 - **Walking down a settings page in one column.** Under a big UI scale, as on a television, the

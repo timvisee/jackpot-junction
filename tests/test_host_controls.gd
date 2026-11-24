@@ -386,7 +386,7 @@ func test_the_maker_of_a_game_chooses_it_in_the_waiting_room() -> void:
 
 ## Make host in the Manage players of the player with the say hands it to that player, who is told
 ## who handed it over, and takes it from them. Somebody watching has no Make host beside them, and
-## no plate: a player has the one on their kart, here the learner's L.
+## no plate: a player has the one on their kart, here the learner's L. The list opens on Back.
 func test_make_host_hands_the_say_to_another_player() -> void:
 	_open_host()
 	var clients := await _seat_in_turn(["Ann", "Bo"] as Array[String])
@@ -410,6 +410,8 @@ func test_make_host_hands_the_say_to_another_player() -> void:
 	pane.session = ann
 	add_child(pane)
 	pane.open()
+	# The cursor on Back, not on somebody's Kick, so a press too many shows nobody out.
+	assert_object(pane.get_viewport().gui_get_focus_owner()).is_same(pane._back)
 	assert_int(pane.find_children("Learner", "", true, false).size()).is_greater_equal(1)
 	for guest: Dictionary in ann.host_controls.guests():
 		if not guest.has("color"):
