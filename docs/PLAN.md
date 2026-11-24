@@ -3720,7 +3720,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S2 | Achievements | Done |
 | S3 | Presence | Done |
 | S4 | The Steam network | Done |
-| S5 | Playing with Steam friends, on screen | Done but the user's two-account play |
+| S5 | Playing with Steam friends, on screen | Done |
 | S6 | Releasing on Steam | Done |
 | S7 | The Steamworks list and wrapping up | Done |
 | S8 | The supporter pack | Done, in 0.23.0 |
@@ -3728,7 +3728,7 @@ and the kart turned by a finger). A task names the GAME.md section it builds, in
 | S10 | Linux ARM64 in the Linux depot | Done but the user's Steamworks steps |
 | S11 | macOS on Steam | Once there is an Apple Developer account |
 | S12 | The store's pictures | Done |
-| S13 | The game-recording timeline | Done, but for the user's look on a release |
+| S13 | The game-recording timeline | Done |
 | S14 | Steam Input | Done |
 
 ### Questions, and the answers
@@ -3948,7 +3948,7 @@ The user played a Steam build and asked three questions and for four things.
 - [x] The overlay pausing a room of this machine's own; "· Steam" after the title's version.
 - [x] Tests, and hidden screenshots of Play Online and of a Steam host's room and menu with
       `FakeSteam`: the red stamp read as mud on the dark tags, so it is the House's gold.
-- [ ] Played by the user with two accounts.
+- [x] Played by the user with two accounts, from 0.24.0 on `staging` (2026-11-24).
 
 ### S6: releasing on Steam [10.8, 10.5]
 
@@ -4178,7 +4178,8 @@ big one. "Beat the House" became the Final Hand marked whole, its result not mat
 - [x] `make steam-timeline-icons` for the three icons of the game's own.
 - [x] The user: upload the three icons on Steamworks, docs/STEAM.md. Done on 2026-11-23, the
       256-pixel PNGs taken as they are.
-- [ ] The user: a look at the markers with game recording on, once a release with them is on Steam.
+- [x] The user: a look at the markers with game recording on, from 0.24.0 on `staging`
+      (2026-11-24).
 
 ### S14: Steam Input [10.8]
 
