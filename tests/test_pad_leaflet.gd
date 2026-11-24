@@ -300,7 +300,7 @@ func _press_on(device: int, index := JOY_BUTTON_A) -> InputEventJoypadButton:
 
 ## With two pads plugged in, the switch has a tab for the keyboard and one for each pad, named for
 ## its family and numbered as the menus number it; it opens on the pad touched last, a tab turns it
-## to another pad, and the switch's key goes on from pad to pad and round to the keyboard.
+## to another pad, and the switch's key goes on from pad to pad, to the keyboard and round again.
 func test_a_tab_for_each_pad_plugged_in() -> void:
 	var ids := _plug([PadFamily.Family.PLAYSTATION_4, PadFamily.Family.STEAM_CONTROLLER])
 	DeviceInput.touched(ids[1])
@@ -330,25 +330,43 @@ func test_a_tab_for_each_pad_plugged_in() -> void:
 	assert_bool(leaflet.keyboard).is_true()
 	leaflet._input(_pressed(PadLeaflet.SWITCH))
 	assert_bool(leaflet.keyboard).is_false()
-	assert_int(leaflet.pad).is_equal(ids[1])
+	assert_int(leaflet.pad).is_equal(ids[0])
 	leaflet.close()
 
 
-## A button pressed on another pad while it is up turns it to that pad, the press going on to do
-## what it does; the pad drawn pressing turns nothing, even over the keyboard's sheets.
-func test_another_pad_pressing_turns_it_to_that_pad() -> void:
-	var ids := _plug([PadFamily.Family.PLAYSTATION_4, PadFamily.Family.NINTENDO])
+## The switch's key, Y, pressed on any pad, steps through every pad in turn and the keyboard, never
+## back to the pad it was pressed on first; Mine, a pad's View, turns it to the pad it was pressed
+## on, or to the keyboard for N, and nothing else a pad presses turns it.
+func test_the_switch_steps_through_all_and_mine_comes_home() -> void:
+	var ids := _plug(
+		[
+			PadFamily.Family.PLAYSTATION_4,
+			PadFamily.Family.NINTENDO,
+			PadFamily.Family.STEAM_CONTROLLER,
+		]
+	)
 	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.GENERIC, false, null, false, ids[0])
 	assert_int(leaflet.family).is_equal(PadFamily.Family.PLAYSTATION_4)
-	leaflet._input(_press_on(ids[1]))
-	assert_int(leaflet.pad).is_equal(ids[1])
-	assert_int(leaflet.family).is_equal(PadFamily.Family.NINTENDO)
-	leaflet.show_keyboard(true)
-	leaflet._input(_press_on(ids[1], JOY_BUTTON_RIGHT_SHOULDER))
-	assert_bool(leaflet.keyboard).is_true()
-	leaflet._input(_press_on(ids[0]))
-	assert_bool(leaflet.keyboard).is_false()
+	var seen: Array[int] = [leaflet.pad]
+	for i: int in 4:
+		leaflet._input(_press_on(ids[0], JOY_BUTTON_Y))
+		seen.append(-1 if leaflet.keyboard else leaflet.pad)
+	assert_array(seen).is_equal([ids[0], ids[1], ids[2], -1, ids[0]])
+	leaflet._input(_press_on(ids[2], JOY_BUTTON_RIGHT_SHOULDER))
 	assert_int(leaflet.pad).is_equal(ids[0])
+	leaflet._input(_press_on(ids[2], JOY_BUTTON_BACK))
+	assert_int(leaflet.pad).is_equal(ids[2])
+	assert_int(leaflet.family).is_equal(PadFamily.Family.STEAM_CONTROLLER)
+	var key := InputEventKey.new()
+	key.keycode = KEY_N
+	key.physical_keycode = KEY_N
+	key.pressed = true
+	leaflet._input(key)
+	assert_bool(leaflet.keyboard).is_true()
+	leaflet._input(_press_on(ids[1], JOY_BUTTON_BACK))
+	assert_bool(leaflet.keyboard).is_false()
+	assert_int(leaflet.pad).is_equal(ids[1])
+	assert_object(leaflet.get_node("Around/Pane/Sheet/Mine")).is_not_null()
 	leaflet.close()
 
 

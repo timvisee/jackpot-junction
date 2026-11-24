@@ -5171,15 +5171,17 @@ is on now.
 - **The keyboard** (`KeyboardDiagram`), drawn where keys or the mouse were touched last, the pad
   otherwise, and switched between on a switch of small tabs after the page keys, the shown one
   nearer the sheet's blue, and on its key, the menus' Change the view, Tab or a pad's Y, which goes
-  on from the keyboard to each pad in turn and round again; no switch on a touch screen. Keyboard
+  on to each pad in turn, to the keyboard and round again, whichever pad it is pressed on; no
+  switch on a touch screen. Keyboard
   first, then a tab for each pad plugged in, two of a kind two tabs, named for its family,
   PlayStation 4 or Steam Controller, and numbered in a ring before its words as the menus number
   pads, Gamepad 1 the engine's first and then Steam Input's (`DeviceInput.numbered`); with no pad
   plugged in, Gamepad. Where the tabs would not fit before Back, the pads share one tab, named for
   the pad drawn, with a dot for each pad after its words, the drawn one filled, and pressed it steps
-  to the next. Opened, it shows the pad touched last, or the first plugged in before any was; a
-  button pressed on another pad while it is up turns it to that pad, the press going on to do what
-  it does, so a second player picks up theirs and sees it. A keyboard without its number pad in the US layout's
+  to the next. Opened, it shows the pad touched last, or the first plugged in before any was. After
+  the tabs, Mine, the dialogs' Next new, a pad's View (Select or Share as others print it) or N,
+  turns it to the pad it is pressed on, or to the keyboard, so a second player picks up theirs and
+  sees it; nothing else a pad presses turns it. A keyboard without its number pad in the US layout's
   shape, which serves every layout since keys are bound by where they are, each key in outline with
   its name as the player's keyboard prints it, 8.3, the ones bound on the sheet lit, the left one of
   Shift, Ctrl and Alt alone; and a mouse beside it, its buttons lit where bound and on the driving

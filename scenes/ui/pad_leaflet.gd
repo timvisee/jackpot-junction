@@ -10,8 +10,8 @@ extends Control
 ## Up over the settings' Controls page, 8.5, and the room's menu, 3.8; the pad drawn is the one the
 ## player touched last, a generic one if they have touched none. Beside the page keys, a tab for the
 ## keyboard and one for each pad plugged in, numbered as the menus number them, or one stepping
-## through the pads where there is no room for a tab each; a button pressed on another pad while it
-## is up turns it to that pad.
+## through the pads where there is no room for a tab each; the switch's key steps through them all,
+## and Mine, a pad's View or N, turns it to the keyboard or the pad it was pressed on.
 
 signal put_away
 
@@ -43,6 +43,11 @@ const DOTS_STEP := 13.0
 const KEYBOARD_TAB := -2
 const ANY_PAD_TAB := -3
 const STEP_TAB := -4
+## The key that turns it to the keyboard or the pad it was pressed on, the dialogs' Next new: a
+## pad's View, the left of its middle buttons, Select or Share as others print it, and N; and its
+## words after the switch. Nothing in the blueprint is new.
+const MINE := InputActions.MENU_NEXT_NEW
+const MINE_WORDS := "MINE"
 ## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
 const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
@@ -126,6 +131,8 @@ var _back: Button
 var _switch: Array[Button] = []
 var _switch_for: Array[int] = []
 var _switch_key: Control
+## Mine's glyph and its words after the switch, see [constant MINE].
+var _mine: Array[Control] = []
 var _pads: Array[int] = []
 var _stepping := false
 var _band := 0.0
@@ -370,6 +377,9 @@ func _make_switch(band: float) -> void:
 	_switch_for.clear()
 	if _switch_key != null:
 		_switch_key.free()
+	for each: Control in _mine:
+		each.free()
+	_mine.clear()
 	var x := TAB_FIRST + PAGES.size() * TAB_STEP + 10.0 + _keys.get_combined_minimum_size().x + 24.0
 	_switch_key = InputGlyph.of_action(SWITCH, Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
 	if _switch_key != null:
@@ -378,7 +388,8 @@ func _make_switch(band: float) -> void:
 		x += _switch_key.custom_minimum_size.x + 10.0
 	var kinds: Array[int] = [KEYBOARD_TAB]
 	kinds.append_array(_pads if not _pads.is_empty() else [ANY_PAD_TAB] as Array[int])
-	var room := SIZE.x - BACK_IN - BACK_SIZE.x - 16.0 - x
+	_make_mine()
+	var room := SIZE.x - BACK_IN - BACK_SIZE.x - 16.0 - x - _mine_wide()
 	_stepping = _pads.size() > 1 and _wide(kinds) > room
 	if _stepping:
 		kinds = [KEYBOARD_TAB, STEP_TAB]
@@ -389,6 +400,35 @@ func _make_switch(band: float) -> void:
 		_switch.append(side)
 		_switch_for.append(kind)
 	_word_switch()
+	# Mine after the tabs, level with the words on them, see [constant MINE].
+	x += 8.0
+	for each: Control in _mine:
+		var tall := each.get_combined_minimum_size().y
+		each.position = Vector2(x, band - tall * 0.5)
+		x += each.get_combined_minimum_size().x + 6.0
+
+
+## Mine's glyph and its words, see [constant MINE], placed by [method _make_switch].
+func _make_mine() -> void:
+	var key := InputGlyph.of_action(MINE, Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
+	if key != null:
+		_sheet.add_child(key)
+		_mine.append(key)
+	var words := Label.new()
+	words.name = "Mine"
+	words.text = MINE_WORDS
+	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	Type.strong(words, 18, FAINT)
+	_sheet.add_child(words)
+	_mine.append(words)
+
+
+## How wide Mine's glyph and its words stand after the tabs.
+func _mine_wide() -> float:
+	var wide := 8.0
+	for each: Control in _mine:
+		wide += each.get_combined_minimum_size().x + 6.0
+	return wide
 
 
 ## How wide the tabs for [param kinds] stand side by side, each as [method _switch_tab] makes it.
@@ -502,12 +542,12 @@ func show_pad(device: int) -> void:
 	_turn_to(page, false)
 
 
-## The switch's key: on to the next of the keyboard and the pads, and round again.
+## The switch's key: on to the next of the keyboard and the pads in their order, and round again.
 func _step_switch() -> void:
 	if _pads.is_empty():
 		show_keyboard(not keyboard)
 	elif keyboard:
-		show_pad(pad if pad >= 0 else _pads[0])
+		show_pad(_pads[0])
 	elif _pads.find(pad) + 1 < _pads.size():
 		show_pad(_pads[_pads.find(pad) + 1])
 	else:
@@ -632,32 +672,31 @@ func _said(on_page: int) -> String:
 	return ". ".join(parts)
 
 
-## Whether [param event] is a button pressed on a pad other than the one drawn, which turns the
-## sheets to that pad, its press going on to do what it does there; a pad plugged in since it came
-## up gets its tab.
-func _picked_up(event: InputEvent) -> bool:
-	var press := event as InputEventJoypadButton
-	if press == null or not press.pressed or press.device == pad:
-		return false
-	if not DeviceInput.pads().has(press.device):
-		return false
-	if not _pads.has(press.device):
+## Mine pressed, [param event]: the keyboard's sheets for a key, or the sheets of the pad it was
+## pressed on, one plugged in since it came up given its tab.
+func _show_mine(event: InputEvent) -> void:
+	if event is InputEventKey or event is InputEventMouseButton:
+		show_keyboard(true)
+		return
+	var device := event.device
+	if not (event is InputEventJoypadButton or event is InputEventAction):
+		return
+	if not DeviceInput.pads().has(device):
+		return
+	if not _pads.has(device):
 		_pads = DeviceInput.numbered()
 		if not _switch.is_empty():
 			_make_switch(_band)
 			_link_cursor()
 			if get_viewport().gui_get_focus_owner() == null:
 				_tabs[page].grab_focus()
-	show_pad(press.device)
-	return true
+	show_pad(device)
 
 
 ## The page keys turn it, and Back, the pause button or a right click put it away, before anything
 ## under it hears them.
 func _input(event: InputEvent) -> void:
 	if _closing:
-		return
-	if _picked_up(event) and event.is_action_pressed(SWITCH):
 		return
 	var click := event as InputEventMouseButton
 	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
@@ -666,6 +705,8 @@ func _input(event: InputEvent) -> void:
 		_turn(1)
 	elif event.is_action_pressed(SWITCH) and not _switch.is_empty():
 		_step_switch()
+	elif event.is_action_pressed(MINE):
+		_show_mine(event)
 	elif event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(InputActions.PAUSE):
 		MenuTheme.back_sound()
 		close()
