@@ -359,6 +359,12 @@ func _lobby_io() -> GDScript:
 	return load("res://scripts/lobby_settings_io.gd")
 
 
+## The video settings are read and written through video_settings_io.gd, GAME.md 8.5, as the
+## lobby's are, for the same reasons.
+func _video_io() -> GDScript:
+	return load("res://scripts/video_settings_io.gd")
+
+
 func load_from_disk() -> void:
 	var file := ConfigFile.new()
 	var read := not path.is_empty() and SafeFile.read(file, path) == OK
@@ -383,55 +389,8 @@ func load_machine(file: ConfigFile) -> void:
 	music_swell = MusicSwell.read(float(file.get_value("audio", "music_swell", music_swell)))
 	music_muted = file.get_value("audio", "music_muted", music_muted)
 	muffle_on_death = file.get_value("audio", "muffle_on_death", muffle_on_death)
-	fullscreen = file.get_value("video", "fullscreen", fullscreen)
-	vsync = file.get_value("video", "vsync", vsync)
-	window_size = file.get_value("video", "window_size", window_size)
-	var limit := int(file.get_value("video", "frame_limit", frame_limit))
-	frame_limit = limit if limit in FRAME_LIMITS else frame_limit
-	show_fps = file.get_value("video", "show_fps", show_fps)
+	_video_io().load_into(self, file)
 	show_clearance = file.get_value("debug", "show_clearance", show_clearance)
-	render_scale = file.get_value("video", "render_scale", render_scale)
-	camera_distance = clampf(file.get_value("video", "camera_distance", camera_distance), 0.0, 1.4)
-	screen = str(file.get_value("video", "screen", screen))
-	if screen not in ViewChoices.SCREENS:
-		screen = ViewChoices.default_screen()
-	camera_follows = str(file.get_value("video", "camera_follows", camera_follows))
-	if camera_follows not in ViewChoices.FOLLOWS:
-		camera_follows = ViewChoices.FOLLOW_AUTO
-	var upscaled := str(file.get_value("video", "upscaler", upscaler))
-	upscaler = upscaled if upscaled in UPSCALERS else upscaler
-	var looked := str(file.get_value("video", "look", look))
-	look = looked if looked in RenderLook.ids() else look
-	show_looks = bool(file.get_value("video", "show_looks", false))
-	var shadowed := str(file.get_value("video", "shadows", shadows))
-	shadows = shadowed if shadowed in SHADOW_LEVELS else shadows
-	var detail := str(file.get_value("video", "texture_detail", texture_detail))
-	texture_detail = detail if detail in TEXTURE_DETAILS else texture_detail
-	ui_scale = clampf(file.get_value("video", "ui_scale", ui_scale), UI_SCALES[0], UI_SCALES[-1])
-	bloom = clampf(float(file.get_value("video", "bloom", bloom)), 0.0, 1.5)
-	occlusion = clampf(float(file.get_value("video", "occlusion", occlusion)), 0.0, 1.0)
-	brightness = clampf(float(file.get_value("video", "brightness", brightness)), 0.5, 2.0)
-	# Kept as one switch, Edge smoothing, until the multisampling and the pass over the picture
-	# could each be picked: on was the multisampling, off the pass.
-	if file.has_section_key("video", "antialiasing"):
-		var smoothed: bool = file.get_value("video", "antialiasing")
-		msaa = 2 if smoothed else 0
-		screen_smoothing = SMOOTH_OFF if smoothed else SMOOTH_FXAA
-	var samples := int(file.get_value("video", "msaa", msaa))
-	msaa = samples if samples in MSAA_SAMPLES else msaa
-	var smoothing := str(file.get_value("video", "screen_smoothing", screen_smoothing))
-	screen_smoothing = smoothing if smoothing in SMOOTHINGS else screen_smoothing
-	# On or off, before there was a choice of how many.
-	var marked: Variant = file.get_value("video", "tire_marks", tire_marks)
-	if marked is bool:
-		tire_marks = MARKS_FULL if marked else MARKS_OFF
-	elif marked is int and int(marked) >= 0 and int(marked) < MARKS_NAMES.size():
-		tire_marks = marked
-	var housed := float(file.get_value("video", "crowd_size", crowd_size))
-	crowd_size = housed if housed in CROWD_SIZES else crowd_size
-	# The crowd was a switch of its own before it was a size, and a crowd switched off stays off.
-	if not bool(file.get_value("accessibility", "crowd", true)):
-		crowd_size = 0.0
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	cursor_glide = file.get_value("accessibility", "cursor_glide", cursor_glide)
@@ -533,29 +492,8 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("audio", "music_swell", music_swell)
 	file.set_value("audio", "music_muted", music_muted)
 	file.set_value("audio", "muffle_on_death", muffle_on_death)
-	file.set_value("video", "fullscreen", fullscreen)
-	file.set_value("video", "vsync", vsync)
-	file.set_value("video", "window_size", window_size)
-	file.set_value("video", "frame_limit", frame_limit)
-	file.set_value("video", "show_fps", show_fps)
+	_video_io().save_from(self, file)
 	file.set_value("debug", "show_clearance", show_clearance)
-	file.set_value("video", "render_scale", render_scale)
-	file.set_value("video", "camera_distance", camera_distance)
-	file.set_value("video", "screen", screen)
-	file.set_value("video", "camera_follows", camera_follows)
-	file.set_value("video", "upscaler", upscaler)
-	file.set_value("video", "shadows", shadows)
-	file.set_value("video", "texture_detail", texture_detail)
-	file.set_value("video", "look", look)
-	file.set_value("video", "show_looks", show_looks)
-	file.set_value("video", "ui_scale", ui_scale)
-	file.set_value("video", "bloom", bloom)
-	file.set_value("video", "occlusion", occlusion)
-	file.set_value("video", "brightness", brightness)
-	file.set_value("video", "msaa", msaa)
-	file.set_value("video", "screen_smoothing", screen_smoothing)
-	file.set_value("video", "tire_marks", tire_marks)
-	file.set_value("video", "crowd_size", crowd_size)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "cursor_glide", cursor_glide)
