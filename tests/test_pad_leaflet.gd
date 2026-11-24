@@ -22,6 +22,7 @@ func after_test() -> void:
 		InputMap.action_add_event(InputActions.FIRE, event)
 	PadFamily.pretend = -1
 	PadFamily.reset()
+	DeviceInput.steam_pads.clear()
 	if is_instance_valid(_holder):
 		remove_child(_holder)
 		_holder.free()
@@ -277,4 +278,99 @@ func test_it_opens_on_the_keyboard_after_keys_and_switches() -> void:
 	(leaflet.get_node("Around/Pane/Sheet/Keyboard") as Button).pressed.emit()
 	assert_bool(leaflet.keyboard).is_true()
 	assert_str(button.text).is_equal("Show controls")
+	leaflet.close()
+
+
+## [param count] pads of Steam Input's plugged in, as the families given in turn, by their ids.
+func _plug(families: Array[PadFamily.Family]) -> Array[int]:
+	var ids: Array[int] = []
+	for i: int in families.size():
+		DeviceInput.steam_pads[SteamPads.FIRST_DEVICE + i] = families[i]
+		ids.append(SteamPads.FIRST_DEVICE + i)
+	return ids
+
+
+## A button pressed on the pad [param device].
+func _press_on(device: int, index := JOY_BUTTON_A) -> InputEventJoypadButton:
+	var press := _button(index)
+	press.device = device
+	press.pressed = true
+	return press
+
+
+## With two pads plugged in, the switch has a tab for the keyboard and one for each pad, named for
+## its family and numbered as the menus number it; it opens on the pad touched last, a tab turns it
+## to another pad, and the switch's key goes on from pad to pad and round to the keyboard.
+func test_a_tab_for_each_pad_plugged_in() -> void:
+	var ids := _plug([PadFamily.Family.PLAYSTATION_4, PadFamily.Family.STEAM_CONTROLLER])
+	DeviceInput.touched(ids[1])
+	var was := Game.last_input_keyboard
+	Game.last_input_keyboard = false
+	var button := PadLeaflet.entry(_holder)
+	_holder.add_child(button)
+	button.pressed.emit()
+	Game.last_input_keyboard = was
+	var leaflet := _holder.get_node("PadLeaflet") as PadLeaflet
+	assert_int(leaflet.pad).is_equal(ids[1])
+	assert_int(leaflet.family).is_equal(PadFamily.Family.STEAM_CONTROLLER)
+	assert_bool(leaflet._stepping).is_false()
+	var sheet := leaflet.get_node("Around/Pane/Sheet")
+	var first := sheet.get_node("Gamepad%d" % DeviceInput.number_of(ids[0])) as Button
+	var second := sheet.get_node("Gamepad%d" % DeviceInput.number_of(ids[1])) as Button
+	assert_str(first.text).is_equal("PLAYSTATION 4")
+	assert_str(second.text).is_equal("STEAM CONTROLLER")
+	assert_str(first.accessibility_name).contains("Gamepad %d" % DeviceInput.number_of(ids[0]))
+	assert_float(second.position.x).is_greater(first.get_rect().end.x)
+	first.pressed.emit()
+	assert_int(leaflet.pad).is_equal(ids[0])
+	assert_object(leaflet.diagram.art).is_same(PadDiagram.PS4_ART)
+	leaflet._input(_pressed(PadLeaflet.SWITCH))
+	assert_int(leaflet.pad).is_equal(ids[1])
+	leaflet._input(_pressed(PadLeaflet.SWITCH))
+	assert_bool(leaflet.keyboard).is_true()
+	leaflet._input(_pressed(PadLeaflet.SWITCH))
+	assert_bool(leaflet.keyboard).is_false()
+	assert_int(leaflet.pad).is_equal(ids[1])
+	leaflet.close()
+
+
+## A button pressed on another pad while it is up turns it to that pad, the press going on to do
+## what it does; the pad drawn pressing turns nothing, even over the keyboard's sheets.
+func test_another_pad_pressing_turns_it_to_that_pad() -> void:
+	var ids := _plug([PadFamily.Family.PLAYSTATION_4, PadFamily.Family.NINTENDO])
+	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.GENERIC, false, null, false, ids[0])
+	assert_int(leaflet.family).is_equal(PadFamily.Family.PLAYSTATION_4)
+	leaflet._input(_press_on(ids[1]))
+	assert_int(leaflet.pad).is_equal(ids[1])
+	assert_int(leaflet.family).is_equal(PadFamily.Family.NINTENDO)
+	leaflet.show_keyboard(true)
+	leaflet._input(_press_on(ids[1], JOY_BUTTON_RIGHT_SHOULDER))
+	assert_bool(leaflet.keyboard).is_true()
+	leaflet._input(_press_on(ids[0]))
+	assert_bool(leaflet.keyboard).is_false()
+	assert_int(leaflet.pad).is_equal(ids[0])
+	leaflet.close()
+
+
+## With more pads than there is room for a tab each before Back, they share one tab stepping
+## through them, its words the pad's drawn.
+func test_pads_beyond_the_room_share_a_stepping_tab() -> void:
+	var ids := _plug(
+		[
+			PadFamily.Family.STEAM_CONTROLLER,
+			PadFamily.Family.PLAYSTATION_4,
+			PadFamily.Family.STEAM_CONTROLLER,
+			PadFamily.Family.PLAYSTATION,
+		]
+	)
+	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.GENERIC, false, null, false, ids[0])
+	assert_bool(leaflet._stepping).is_true()
+	assert_int(leaflet._switch.size()).is_equal(2)
+	var stepping := leaflet._switch[1]
+	assert_str(stepping.text).is_equal("STEAM CONTROLLER")
+	var back := PadLeaflet.SIZE.x - PadLeaflet.BACK_IN - PadLeaflet.BACK_SIZE.x
+	assert_float(stepping.get_rect().end.x).is_less(back)
+	stepping.pressed.emit()
+	assert_int(leaflet.pad).is_equal(ids[1])
+	assert_str(stepping.text).is_equal("PLAYSTATION 4")
 	leaflet.close()

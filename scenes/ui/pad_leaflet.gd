@@ -8,7 +8,10 @@ extends Control
 ## name under it as their pad prints it. Three sheets, driving, the jokers and the menus, their tabs
 ## cut from its top edge and turned with the page keys or a click, and Back a tab across from them.
 ## Up over the settings' Controls page, 8.5, and the room's menu, 3.8; the pad drawn is the one the
-## player touched last, a generic one if they have touched none.
+## player touched last, a generic one if they have touched none. Beside the page keys, a tab for the
+## keyboard and one for each pad plugged in, numbered as the menus number them, or one stepping
+## through the pads where there is no room for a tab each; a button pressed on another pad while it
+## is up turns it to that pad.
 
 signal put_away
 
@@ -16,10 +19,30 @@ const TITLE := "How to hold the wheel"
 const ENTRY := "Show controls"
 ## The settings' Controls page's row it is on, 8.5.
 const ROW := "Overview"
-## The switch between the keyboard's sheets and the pad's, and the words on its two sides.
+## The switch between the keyboard's sheets and each pad's, and the words on its tabs: the
+## keyboard's, and a pad's by its family, a generic pad's where none is plugged in.
 const SWITCH := InputActions.MENU_VIEW
 const SWITCH_WORDS: Array[String] = ["KEYBOARD", "GAMEPAD"]
+const PAD_WORDS: Dictionary[PadFamily.Family, String] = {
+	PadFamily.Family.GENERIC: "GAMEPAD",
+	PadFamily.Family.XBOX: "XBOX",
+	PadFamily.Family.PLAYSTATION: "PLAYSTATION",
+	PadFamily.Family.PLAYSTATION_4: "PLAYSTATION 4",
+	PadFamily.Family.NINTENDO: "NINTENDO",
+	PadFamily.Family.STEAM_DECK: "STEAM DECK",
+	PadFamily.Family.STEAM_CONTROLLER: "STEAM CONTROLLER",
+}
+## How small a switch tab is at the least, and the room beside its words: round them, for a pad's
+## number in its ring before them, and for the dots of a tab stepping through the pads after them.
 const SWITCH_SIZE := Vector2(186.0, SHEET_TOP)
+const SWITCH_ROOM := 48.0
+const NUMBER_ROOM := 30.0
+const DOTS_STEP := 13.0
+## What a switch tab is for, besides a pad by its id: the keyboard, a generic pad with none plugged
+## in, and every pad in turn, see [member _stepping].
+const KEYBOARD_TAB := -2
+const ANY_PAD_TAB := -3
+const STEP_TAB := -4
 ## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
 const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
@@ -78,6 +101,8 @@ const SIDES: Dictionary[StringName, int] = {
 const AROUND: Dictionary[StringName, Vector2] = {&"west": Vector2(0.0, 150.0)}
 
 var family := PadFamily.Family.GENERIC
+## The pad drawn, by its id, or -1 for a pad of [member family] without one plugged in.
+var pad := -1
 ## Whether the keyboard and the mouse are drawn, see [KeyboardDiagram], rather than the pad.
 var keyboard := false
 ## Whether the first player drives the simple way, GAME.md 4.2, where the stick says the way to go.
@@ -94,9 +119,16 @@ var _full := false
 var _keys: Control
 var _tabs: Array[Button] = []
 var _back: Button
-## The keyboard's side of the switch and the pad's, and the switch's key; none on a touch screen.
+## The switch's tabs, what each is for, see [constant KEYBOARD_TAB], and the switch's key; none on a
+## touch screen. The pads plugged in, numbered, see [method DeviceInput.numbered]; whether they
+## share one tab stepping through them, there being no room for one each; and where the switch's
+## band is down the room over the sheet.
 var _switch: Array[Button] = []
+var _switch_for: Array[int] = []
 var _switch_key: Control
+var _pads: Array[int] = []
+var _stepping := false
+var _band := 0.0
 var _from: Control
 var _closing := false
 
@@ -114,7 +146,11 @@ static func entry(parent: Node, size := Type.LARGE) -> Button:
 		func() -> void:
 			var simple_driving := Game.settings.drive_mode(0) == Settings.DRIVE_SIMPLE
 			var keys := Game.last_input_keyboard and not TouchInput.enabled
-			open(parent, PadFamily.shown(), simple_driving, button, keys)
+			# The pad touched last, or the first plugged in before any was touched.
+			var held := PadFamily.last_pad()
+			if held < 0 and not DeviceInput.numbered().is_empty():
+				held = DeviceInput.numbered()[0]
+			open(parent, PadFamily.shown(), simple_driving, button, keys, held)
 	)
 	return button
 
@@ -129,18 +165,21 @@ static func row(parent: Node) -> HBoxContainer:
 	return line
 
 
-## The leaflet up over [param parent] for a pad of [param for_family], or with [param keys] for
-## the keyboard; the cursor back on [param from] once it is put away.
+## The leaflet up over [param parent] for a pad of [param for_family], the pad [param device] where
+## one is given, or with [param keys] for the keyboard; the cursor back on [param from] once it is
+## put away.
 static func open(
 	parent: Node,
 	for_family: PadFamily.Family,
 	simple_driving := false,
 	from: Control = null,
-	keys := false
+	keys := false,
+	device := -1
 ) -> PadLeaflet:
 	var leaflet := PadLeaflet.new()
 	leaflet.name = "PadLeaflet"
 	leaflet.family = for_family
+	leaflet.pad = device
 	leaflet.keyboard = keys
 	leaflet.simple = simple_driving
 	leaflet._from = from
@@ -253,6 +292,11 @@ static func joined(words: Array[String]) -> String:
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_pads = DeviceInput.numbered()
+	if _pads.has(pad):
+		family = PadFamily.of_device(pad)
+	else:
+		pad = -1
 	diagram = PadDiagram.of(family)
 	_shade = ColorRect.new()
 	_shade.name = "Shade"
@@ -314,24 +358,121 @@ func _ready() -> void:
 	MenuTheme.deal(_pane)
 
 
-## The switch between the keyboard and the pad, two small tabs after the page keys with its key
-## before them, at [param band] down the room over the sheet.
+## The switch between the keyboard and the pads, small tabs after the page keys with its key
+## before them, at [param band] down the room over the sheet: the keyboard's, then a tab for each
+## pad plugged in, numbered, or one stepping through them all where they do not fit before Back;
+## a generic pad's where none is plugged in.
 func _make_switch(band: float) -> void:
+	_band = band
+	for each: Node in _switch:
+		each.free()
+	_switch.clear()
+	_switch_for.clear()
+	if _switch_key != null:
+		_switch_key.free()
 	var x := TAB_FIRST + PAGES.size() * TAB_STEP + 10.0 + _keys.get_combined_minimum_size().x + 24.0
 	_switch_key = InputGlyph.of_action(SWITCH, Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
 	if _switch_key != null:
 		_switch_key.position = Vector2(x, band - _switch_key.custom_minimum_size.y * 0.5)
 		_sheet.add_child(_switch_key)
 		x += _switch_key.custom_minimum_size.x + 10.0
-	for i: int in SWITCH_WORDS.size():
-		var side := _tab_button(SWITCH_WORDS[i])
-		side.name = "Keyboard" if i == 0 else "Gamepad"
-		Type.set_font(side, Type.STRONG, 18)
-		side.size = SWITCH_SIZE
-		side.position = Vector2(x + i * (SWITCH_SIZE.x + 8.0), 0.0)
-		side.pressed.connect(show_keyboard.bind(i == 0))
-		ScreenReader.name(side, SWITCH_WORDS[i].capitalize())
+	var kinds: Array[int] = [KEYBOARD_TAB]
+	kinds.append_array(_pads if not _pads.is_empty() else [ANY_PAD_TAB] as Array[int])
+	var room := SIZE.x - BACK_IN - BACK_SIZE.x - 16.0 - x
+	_stepping = _pads.size() > 1 and _wide(kinds) > room
+	if _stepping:
+		kinds = [KEYBOARD_TAB, STEP_TAB]
+	for kind: int in kinds:
+		var side := _switch_tab(kind)
+		side.position = Vector2(x, 0.0)
+		x += side.size.x + 8.0
 		_switch.append(side)
+		_switch_for.append(kind)
+	_word_switch()
+
+
+## How wide the tabs for [param kinds] stand side by side, each as [method _switch_tab] makes it.
+func _wide(kinds: Array[int]) -> float:
+	var wide := 0.0
+	for kind: int in kinds:
+		var side := _switch_tab(kind)
+		wide += side.size.x + 8.0
+		side.free()
+	return wide
+
+
+## A switch tab for [param kind], see [constant KEYBOARD_TAB], as wide as its words and the room
+## round them, its number's or its dots' room kept beside them.
+func _switch_tab(kind: int) -> Button:
+	var side := _tab_button(_switch_words(kind))
+	side.name = "Gamepad"
+	if kind == KEYBOARD_TAB:
+		side.name = "Keyboard"
+	elif kind >= 0:
+		side.name = "Gamepad%d" % DeviceInput.number_of(kind)
+	Type.set_font(side, Type.STRONG, 18)
+	var plain := (side.get_theme_stylebox(&"normal") as StyleBoxEmpty).duplicate() as StyleBoxEmpty
+	if kind >= 0 or kind == STEP_TAB:
+		plain.content_margin_left = NUMBER_ROOM
+	if kind == STEP_TAB:
+		plain.content_margin_right = DOTS_STEP * _pads.size()
+	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
+		side.add_theme_stylebox_override(state, plain)
+	var words := side.get_combined_minimum_size().x
+	if kind == STEP_TAB:
+		for each: int in _pads:
+			side.text = _switch_words(each)
+			words = maxf(words, side.get_combined_minimum_size().x)
+	side.size = Vector2(maxf(SWITCH_SIZE.x, words + SWITCH_ROOM), SWITCH_SIZE.y)
+	side.pressed.connect(_on_switch.bind(kind))
+	return side
+
+
+## The words on a switch tab for [param kind]: a pad's by its family.
+func _switch_words(kind: int) -> String:
+	if kind == KEYBOARD_TAB:
+		return SWITCH_WORDS[0]
+	if kind == ANY_PAD_TAB:
+		return SWITCH_WORDS[1]
+	if kind == STEP_TAB:
+		return _switch_words(pad if pad >= 0 else _pads[0])
+	return PAD_WORDS[PadFamily.of_device(kind)]
+
+
+## The stepping tab's words the pad's it shows, and every tab named for a screen reader.
+func _word_switch() -> void:
+	for i: int in _switch.size():
+		var kind := _switch_for[i]
+		_switch[i].text = _switch_words(kind)
+		var shows := pad if kind == STEP_TAB else kind
+		var named := _switch[i].text.capitalize()
+		if shows >= 0:
+			named = "Gamepad %d, %s" % [DeviceInput.number_of(shows), named]
+		ScreenReader.name(_switch[i], named)
+
+
+## A switch tab pressed: the keyboard's sheets, a pad's, or the next pad's.
+func _on_switch(kind: int) -> void:
+	if kind == KEYBOARD_TAB:
+		show_keyboard(true)
+	elif kind == ANY_PAD_TAB:
+		show_keyboard(false)
+	elif kind >= 0:
+		show_pad(kind)
+	elif keyboard and pad >= 0:
+		show_pad(pad)
+	else:
+		show_pad(_pads[(_pads.find(pad) + 1) % _pads.size()])
+
+
+## Whether switch tab [param i] is for what is drawn.
+func _switch_shown(i: int) -> bool:
+	var kind := _switch_for[i]
+	if kind == KEYBOARD_TAB:
+		return keyboard
+	if kind >= 0:
+		return not keyboard and kind == pad
+	return not keyboard
 
 
 ## The keyboard's sheets for [param keys], or the pad's.
@@ -340,7 +481,37 @@ func show_keyboard(keys: bool) -> void:
 		return
 	Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
 	keyboard = keys
+	if not keys and pad < 0 and not _pads.is_empty():
+		show_pad(_pads[0])
+		return
 	_turn_to(page, false)
+
+
+## The sheets of the pad [param device], plugged in, drawn as its family is.
+func show_pad(device: int) -> void:
+	if device == pad and not keyboard:
+		return
+	if not keyboard:
+		Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
+	keyboard = false
+	pad = device
+	family = PadFamily.of_device(device)
+	diagram = PadDiagram.of(family)
+	if not _switch.is_empty():
+		_word_switch()
+	_turn_to(page, false)
+
+
+## The switch's key: on to the next of the keyboard and the pads, and round again.
+func _step_switch() -> void:
+	if _pads.is_empty():
+		show_keyboard(not keyboard)
+	elif keyboard:
+		show_pad(pad if pad >= 0 else _pads[0])
+	elif _pads.find(pad) + 1 < _pads.size():
+		show_pad(_pads[_pads.find(pad) + 1])
+	else:
+		show_keyboard(true)
 
 
 ## A tab's button: its words alone, the tab itself drawn on the sheet, see [method _draw_sheet].
@@ -382,7 +553,7 @@ func _ink_tabs() -> void:
 	_back.add_theme_color_override(&"font_hover_color", INK)
 	_back.add_theme_color_override(&"font_focus_color", INK)
 	for i: int in _switch.size():
-		var ink := INK if keyboard == (i == 0) else FAINT
+		var ink := INK if _switch_shown(i) else FAINT
 		for state: StringName in [&"font_color", &"font_hover_color", &"font_pressed_color"]:
 			_switch[i].add_theme_color_override(state, ink)
 		_switch[i].add_theme_color_override(&"font_focus_color", INK)
@@ -461,10 +632,32 @@ func _said(on_page: int) -> String:
 	return ". ".join(parts)
 
 
+## Whether [param event] is a button pressed on a pad other than the one drawn, which turns the
+## sheets to that pad, its press going on to do what it does there; a pad plugged in since it came
+## up gets its tab.
+func _picked_up(event: InputEvent) -> bool:
+	var press := event as InputEventJoypadButton
+	if press == null or not press.pressed or press.device == pad:
+		return false
+	if not DeviceInput.pads().has(press.device):
+		return false
+	if not _pads.has(press.device):
+		_pads = DeviceInput.numbered()
+		if not _switch.is_empty():
+			_make_switch(_band)
+			_link_cursor()
+			if get_viewport().gui_get_focus_owner() == null:
+				_tabs[page].grab_focus()
+	show_pad(press.device)
+	return true
+
+
 ## The page keys turn it, and Back, the pause button or a right click put it away, before anything
 ## under it hears them.
 func _input(event: InputEvent) -> void:
 	if _closing:
+		return
+	if _picked_up(event) and event.is_action_pressed(SWITCH):
 		return
 	var click := event as InputEventMouseButton
 	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
@@ -472,7 +665,7 @@ func _input(event: InputEvent) -> void:
 	elif event.is_action_pressed(InputActions.MENU_PAGE_NEXT):
 		_turn(1)
 	elif event.is_action_pressed(SWITCH) and not _switch.is_empty():
-		show_keyboard(not keyboard)
+		_step_switch()
 	elif event.is_action_pressed(&"ui_cancel") or event.is_action_pressed(InputActions.PAUSE):
 		MenuTheme.back_sound()
 		close()
@@ -541,8 +734,8 @@ func _draw_sheet() -> void:
 			BlueprintArt.tab(_sheet, _tabs[i].get_rect(), _lit(_tabs[i]))
 	BlueprintArt.tab(_sheet, _back.get_rect(), _lit(_back))
 	for i: int in _switch.size():
-		var shown := keyboard == (i == 0)
-		BlueprintArt.tab(_sheet, _switch[i].get_rect(), _lit(_switch[i]), shown)
+		BlueprintArt.tab(_sheet, _switch[i].get_rect(), _lit(_switch[i]), _switch_shown(i))
+		_mark_switch(i)
 	BlueprintArt.sheet(_sheet, paper, _tabs[page].get_rect(), _lit(_tabs[page]))
 	BlueprintArt.folds(_sheet, paper)
 	var inside := paper.grow(-BlueprintArt.BORDER)
@@ -564,6 +757,34 @@ func _draw_sheet() -> void:
 	_draw_column(sides[2], said, 1, art.end.x + COLUMN_OUT)
 	_draw_over(sides[1], said)
 	_sheet.draw_set_transform(Vector2.ZERO)
+
+
+## Switch tab [param i]'s marks: a pad's number in a ring before its words, as the menus number it,
+## and on the tab stepping through the pads a dot for each, the one drawn filled.
+func _mark_switch(i: int) -> void:
+	var kind := _switch_for[i]
+	var shows := pad if kind == STEP_TAB else kind
+	if shows < 0:
+		return
+	var rect := _switch[i].get_rect()
+	var ink := INK if _switch_shown(i) or _lit(_switch[i]) else FAINT
+	var level := rect.position.y + (rect.size.y + BlueprintArt.TAB_BEHIND * 0.5) * 0.5
+	var ring := Vector2(rect.position.x + BlueprintArt.TAB_LEAN + 16.0, level)
+	_sheet.draw_arc(ring, 10.0, 0.0, TAU, 24, ink, 1.6, true)
+	var number := str(DeviceInput.number_of(shows))
+	var font := Type.STRONG
+	var wide := font.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
+	_sheet.draw_string(font, ring + Vector2(-wide * 0.5, 5.0), number, 0, -1, 14, ink)
+	if kind != STEP_TAB:
+		return
+	for each: int in _pads.size():
+		var dot := Vector2(
+			rect.end.x - BlueprintArt.TAB_LEAN - 12.0 - DOTS_STEP * (_pads.size() - 1 - each), level
+		)
+		if _pads[each] == pad and not keyboard:
+			_sheet.draw_circle(dot, 4.0, ink)
+		else:
+			_sheet.draw_arc(dot, 3.6, 0.0, TAU, 16, ink, 1.4, true)
 
 
 ## The sheet's foot: its scale bar on the left, and on the right what drawing and which sheet it
