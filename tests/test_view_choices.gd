@@ -109,8 +109,8 @@ func test_picking_a_screen_sets_the_ui_scale_it_suits() -> void:
 	var tab: VideoTab = auto_free(VideoTab.make(settings, false, true))
 	add_child(tab)
 	var box: OptionButton = null
-	for row: Node in tab._column.get_children():
-		if (row.get_child(0) as Label).text == VideoTab.SCREEN:
+	for row: Node in tab._groups.get_node(VideoTab.DISPLAY).get_children():
+		if row.name != "Heading" and (row.get_child(0) as Label).text == VideoTab.SCREEN:
 			box = row.get_child(1) as OptionButton
 	assert_object(box).is_not_null()
 	box.select(1)

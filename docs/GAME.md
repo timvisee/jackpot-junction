@@ -5515,11 +5515,17 @@ from a section's button low in its box was the one beside it.
   and Strong at the top. A switch turns
   off the music going under water when a player here dies, see 8.4, on by
   default.
-- **Video**: window mode, vsync, frame rate limit, show FPS, render scale, camera
-  distance, upscaler, UI scale, brightness, bloom, ambient occlusion, shadows,
-  texture detail, MSAA, screen
-  smoothing, the look, tire marks and the crowd, with the screen type and whom the camera
-  follows. The screen type is what the game is played on: Desk, TV or Handheld, a phone
+- **Video**, in five groups, each under a heading in the house's capitals with a dotted rule
+  running on after it: Display, the screen type, window mode and window size, UI scale and
+  brightness; Camera, camera distance and whom the camera follows; Table, the look, the looks
+  bar, tire marks and the crowd; Performance, vsync, frame rate limit, render scale, upscaler
+  and show FPS; and Graphics, shadows, texture detail, ambient occlusion, bloom, MSAA and
+  screen smoothing. Where the page is wide enough for the widest group twice over, the first
+  three stand down the left, what is seen and how it is played, and the last two down the
+  right, what it costs the card, so a 1080p screen shows the whole page at once; on a narrower
+  one, a handheld under a big UI scale, they stand one under the other in the same order. In
+  two columns, right and left on a pad go across to the row level with the one it is on, not
+  to whatever the engine finds sticking out further. The screen type is what the game is played on: Desk, TV or Handheld, a phone
   or a tablet starting on Handheld and everything else on Desk, but for Steam's own: at
   its first start a Steam Deck starts on Handheld, by Steam's word or SteamOS's, and a
   Steam Machine on TV, each at its UI scale, so the text is as big as Valve's Deck

@@ -12,20 +12,25 @@ func _page(handheld: bool, full_renderer: bool) -> VideoTab:
 	return tab
 
 
-## The names of the page's rows, top to bottom.
-static func _rows(tab: VideoTab) -> Array[String]:
+## The names of the rows under the heading [param group], or of every row on the page, group by
+## group, for none.
+static func _rows(tab: VideoTab, group := "") -> Array[String]:
 	var names: Array[String] = []
-	for row: Node in tab._column.get_children():
-		var label := row.get_child(0) as Label
-		if label != null:
-			names.append(label.text)
+	for each: Node in tab._groups.get_children():
+		if not group.is_empty() and each.name != group:
+			continue
+		for row: Node in each.get_children():
+			var label := row.get_child(0) as Label
+			if row.name != "Heading" and label != null:
+				names.append(label.text)
 	return names
 
 
 static func _upscaler_box(tab: VideoTab) -> OptionButton:
-	for row: Node in tab._column.get_children():
-		if (row.get_child(0) as Label).text == "Upscaler":
-			return row.get_child(1) as OptionButton
+	for each: Node in tab._groups.get_children():
+		for row: Node in each.get_children():
+			if (row.get_child(0) as Label).text == "Upscaler":
+				return row.get_child(1) as OptionButton
 	return null
 
 
@@ -88,3 +93,79 @@ func test_ultra_from_elsewhere_shows_as_high() -> void:
 	add_child(tab)
 	var box := tab.find_child("TextureDetail", true, false) as OptionButton
 	assert_str(box.get_item_text(box.selected)).is_equal("High")
+
+
+## GAME.md 8.5: the page's rows in groups under headings, what is seen and played down the left and
+## what it costs the card down the right, each row in the group it belongs with.
+func test_the_rows_stand_in_groups_under_headings() -> void:
+	var tab := _page(false, true)
+	var headings: Array[String] = []
+	for each: Node in tab._groups.get_children():
+		headings.append((each.get_node("Heading/Title") as Label).text)
+	assert_array(headings).is_equal(
+		[VideoTab.DISPLAY, VideoTab.CAMERA, VideoTab.TABLE, VideoTab.PERFORMANCE, VideoTab.GRAPHICS]
+	)
+	assert_int(tab._groups.split).is_equal(3)
+	assert_array(_rows(tab, VideoTab.DISPLAY)).contains_exactly(
+		[VideoTab.SCREEN, "Fullscreen", "Window size", "UI scale", "Brightness"]
+	)
+	assert_array(_rows(tab, VideoTab.CAMERA)).contains_exactly(
+		["Camera distance", VideoTab.FOLLOWS]
+	)
+	assert_array(_rows(tab, VideoTab.TABLE)).contains_exactly(
+		["Look", "Looks bar", "Tire marks", "Crowd"]
+	)
+	assert_array(_rows(tab, VideoTab.PERFORMANCE)).contains_exactly(
+		["V-sync", "Frame rate limit", "Render scale", "Upscaler", "Show FPS"]
+	)
+	(
+		assert_array(_rows(tab, VideoTab.GRAPHICS))
+		. contains_exactly(
+			[
+				"Shadows",
+				VideoTab.TEXTURES,
+				"Ambient occlusion",
+				"Bloom",
+				"MSAA",
+				"Screen smoothing",
+			]
+		)
+	)
+
+
+## GAME.md 8.5: two columns side by side where the page is wide enough, the Display, Camera and
+## Table groups on the left and the rest on the right; one under the other where it is not.
+func test_the_groups_stand_in_two_columns_where_there_is_room() -> void:
+	var tab := _page(false, true)
+	tab.size = Vector2(1800.0, 900.0)
+	await await_idle_frame()
+	var display := tab._groups.get_node(VideoTab.DISPLAY) as Control
+	var table := tab._groups.get_node(VideoTab.TABLE) as Control
+	var performance := tab._groups.get_node(VideoTab.PERFORMANCE) as Control
+	assert_bool(tab._groups.two_columns(tab._groups.size.x)).is_true()
+	assert_float(performance.position.y).is_equal(0.0)
+	assert_float(performance.position.x).is_greater(display.size.x)
+	assert_float(table.position.x).is_equal(0.0)
+	tab.size = Vector2(900.0, 900.0)
+	await await_idle_frame()
+	assert_bool(tab._groups.two_columns(tab._groups.size.x)).is_false()
+	assert_float(performance.position.x).is_equal(0.0)
+	assert_float(performance.position.y).is_greater(table.position.y)
+
+
+## A pad walks the page as it stands: down a column from one group into the next, and right from a
+## row on the left to the one across from it on the right.
+func test_a_pad_walks_down_a_column_and_across_to_the_other() -> void:
+	var tab := _page(false, true)
+	tab.size = Vector2(1800.0, 1400.0)
+	await await_idle_frame()
+	var display := tab._groups.get_node(VideoTab.DISPLAY) as Control
+	var camera := tab._groups.get_node(VideoTab.CAMERA) as Control
+	var performance := tab._groups.get_node(VideoTab.PERFORMANCE) as Control
+	var last_row := display.get_child(display.get_child_count() - 1)
+	var under := (last_row.get_child(1) as Control).find_valid_focus_neighbor(SIDE_BOTTOM)
+	assert_bool(camera.is_ancestor_of(under)).is_true()
+	var first := display.get_child(1).get_child(1) as Control
+	var across := first.find_valid_focus_neighbor(SIDE_RIGHT)
+	assert_bool(performance.is_ancestor_of(across)).is_true()
+	assert_bool(display.is_ancestor_of(across.find_valid_focus_neighbor(SIDE_LEFT))).is_true()

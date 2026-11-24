@@ -59,6 +59,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Video settings in groups.** The Video page sorts its settings under five headings, Display,
+  Camera, Table, Performance and Graphics, in two columns where the screen has room.
 - **A quieter cash-out.** The chime when you bank, and the fanfare over a big pot, a bounty or a
   Royal Flush, no longer ring out over the room.
 - **Room for eight on the lobby's pad.** The pad grows as more players join, karts on it drive

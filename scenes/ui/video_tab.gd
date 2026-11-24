@@ -1,9 +1,11 @@
 class_name VideoTab
 extends ScrollContainer
-## The Video page of the settings, GAME.md 8.5: the window, how sharp and how big the room and the
-## UI are drawn, and what a room pays for on the card. Every change takes effect at once; the
-## settings screen saves them on Back. It scrolls, as the Accessibility page does, for a phone's
-## short screen under a big UI scale.
+## The Video page of the settings, GAME.md 8.5, in groups under headings: what it is played on and
+## the window, the camera and the table down the left; how often and how sharp a frame is drawn and
+## what a room pays for on the card down the right; one under the other on a screen too narrow for
+## both, see [SettingsColumns]. Every change takes effect at once; the settings screen saves them on
+## Back. It scrolls, as the Accessibility page does, for a phone's short screen under a big UI
+## scale.
 ##
 ## What a platform has no use for is not there, GAME.md 8.5: a phone or a tablet plays full screen
 ## and in step with its own screen whatever it is told, so it has no Fullscreen and no V-sync, and
@@ -52,7 +54,17 @@ const FOLLOWS_TIP := (
 const FOLLOW_NAMES: Array[String] = ["Everyone", "Nearby rivals", "My kart"]
 const DISTANCE_NAMES: Array[String] = ["Closest", "Close", "Medium", "Far", "Farthest"]
 
+## The page's groups, GAME.md 8.5, by their headings: what is seen and how it is played on the left,
+## what it costs the card on the right.
+const DISPLAY := "Display"
+const CAMERA := "Camera"
+const TABLE := "Table"
+const PERFORMANCE := "Performance"
+const GRAPHICS := "Graphics"
+
 var _settings: Settings
+## The page's groups, and the one rows go into as the page is built.
+var _groups: SettingsColumns
 var _column: VBoxContainer
 ## The boxes whose Auto says what it comes to on this screen, and the UI scale box, which picking a
 ## screen moves.
@@ -88,40 +100,56 @@ func upscalers() -> Array[String]:
 
 func _ready() -> void:
 	horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	_column = VBoxContainer.new()
-	_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_column.add_theme_constant_override("separation", 12)
-	add_child(_column)
+	_groups = SettingsColumns.new()
+	_groups.name = "Groups"
+	_groups.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	add_child(_groups)
+	_add_display()
+	_add_camera()
+	_add_table()
+	_groups.split = _groups.get_child_count()
+	_add_performance()
+	_add_graphics()
+	_say_autos()
+
+
+## What it is played on, the window, and how big the menus and how bright the room are drawn.
+func _add_display() -> void:
+	_group(DISPLAY)
+	_add_screen()
 	if not _handheld:
 		_add_window()
-	var limits: Array = []
-	for limit: int in Settings.FRAME_LIMITS:
-		limits.append("Unlimited" if limit == 0 else str(limit))
-	var limit := MenuTheme.option(
-		limits, maxi(Settings.FRAME_LIMITS.find(_settings.frame_limit), 0)
-	)
-	limit.item_selected.connect(
+	# Picked from a list rather than slid: a slider would grow and shrink the screen it is on under
+	# the pointer dragging it, GAME.md 8.5.
+	var sizes: Array = []
+	for size: float in Settings.UI_SCALES:
+		sizes.append("%d%%" % roundi(size * 100.0))
+	_ui_box = MenuTheme.option(sizes, ui_scale_index(_settings.ui_scale))
+	_ui_box.item_selected.connect(
 		func(index: int) -> void:
-			_settings.frame_limit = Settings.FRAME_LIMITS[index]
+			_settings.ui_scale = Settings.UI_SCALES[index]
 			_apply()
+			_say_autos()
 	)
-	_add("Frame rate limit", limit)
-	var counter := MenuTheme.toggle(_settings.show_fps)
-	counter.toggled.connect(func(on: bool) -> void: _settings.show_fps = on)
-	_add("Show FPS", counter)
-	var scale := HSlider.new()
-	scale.min_value = 0.5
-	scale.max_value = 1.0
-	scale.step = 0.05
-	scale.value = _settings.render_scale
-	scale.custom_minimum_size = Vector2(320.0, 0.0)
-	scale.value_changed.connect(
+	_add("UI scale", _ui_box)
+	# Over the room's own exposure, relit at once, since the room is standing.
+	var bright := HSlider.new()
+	bright.min_value = 0.5
+	bright.max_value = 2.0
+	bright.step = 0.05
+	bright.value = _settings.brightness
+	bright.custom_minimum_size = Vector2(320.0, 0.0)
+	bright.value_changed.connect(
 		func(v: float) -> void:
-			_settings.render_scale = v
-			_apply()
+			_settings.brightness = v
+			ArenaEnvironment.relight(get_tree())
 	)
-	_add("Render scale", scale)
-	_add_screen()
+	_add("Brightness", bright)
+
+
+## How far the camera sits from the karts and whom it keeps in the picture, GAME.md 8.2.
+func _add_camera() -> void:
+	_group(CAMERA)
 	# Picked from a list, not slid, so the frame does not pump in and out under the pointer dragging
 	# it; Auto comes in closer on a small or a high-DPI screen, where the karts are hardest to see.
 	var at := 0
@@ -141,92 +169,11 @@ func _ready() -> void:
 		func(index: int) -> void: _settings.camera_follows = ViewChoices.FOLLOWS[index]
 	)
 	_add(FOLLOWS, _follows_box)
-	_say_autos()
-	var offered := upscalers()
-	var names: Array = []
-	for each: String in offered:
-		names.append(UPSCALER_NAMES[Settings.UPSCALERS.find(each)])
-	# FSR 2 kept from another renderer is drawn as FSR 1 here, see [method Settings.scaling_mode].
-	var shown := _settings.upscaler
-	if not shown in offered:
-		shown = Settings.UPSCALE_FSR
-	var upscaling := MenuTheme.option(names, maxi(offered.find(shown), 0))
-	upscaling.item_selected.connect(
-		func(index: int) -> void:
-			_settings.upscaler = offered[index]
-			_apply()
-	)
-	_add("Upscaler", upscaling)
-	# Picked from a list rather than slid: a slider would grow and shrink the screen it is on under
-	# the pointer dragging it, GAME.md 8.5.
-	var sizes: Array = []
-	for size: float in Settings.UI_SCALES:
-		sizes.append("%d%%" % roundi(size * 100.0))
-	_ui_box = MenuTheme.option(sizes, ui_scale_index(_settings.ui_scale))
-	_ui_box.item_selected.connect(
-		func(index: int) -> void:
-			_settings.ui_scale = Settings.UI_SCALES[index]
-			_apply()
-			_say_autos()
-	)
-	_add("UI scale", _ui_box)
-	# What a room pays for on the card, GAME.md 8.5, each the room's own strength the player keeps a
-	# share of; relit at once, since the room is standing. Brightness is over the room's own exposure.
-	var bloom := MenuTheme.option(BLOOM_NAMES, maxi(BLOOM_LEVELS.find(_settings.bloom), 0))
-	bloom.item_selected.connect(
-		func(index: int) -> void:
-			_settings.bloom = BLOOM_LEVELS[index]
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Bloom", bloom)
-	var ao := MenuTheme.option(OCCLUSION_NAMES, maxi(OCCLUSION_LEVELS.find(_settings.occlusion), 0))
-	ao.item_selected.connect(
-		func(index: int) -> void:
-			_settings.occlusion = OCCLUSION_LEVELS[index]
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Ambient occlusion", ao)
-	var bright := HSlider.new()
-	bright.min_value = 0.5
-	bright.max_value = 2.0
-	bright.step = 0.05
-	bright.value = _settings.brightness
-	bright.custom_minimum_size = Vector2(320.0, 0.0)
-	bright.value_changed.connect(
-		func(v: float) -> void:
-			_settings.brightness = v
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Brightness", bright)
-	var shadows := MenuTheme.option(
-		["Off", "Low", "High"], maxi(Settings.SHADOW_LEVELS.find(_settings.shadows), 0)
-	)
-	shadows.item_selected.connect(
-		func(index: int) -> void:
-			_settings.shadows = Settings.SHADOW_LEVELS[index]
-			_apply()
-			ArenaEnvironment.relight(get_tree())
-	)
-	_add("Shadows", shadows)
-	_add(TEXTURES, texture_box(_settings, _full_renderer))
-	var samples := MenuTheme.option(
-		["Off", "2x", "4x", "8x"], maxi(Settings.MSAA_SAMPLES.find(_settings.msaa), 0)
-	)
-	samples.item_selected.connect(
-		func(index: int) -> void:
-			_settings.msaa = Settings.MSAA_SAMPLES[index]
-			_apply()
-	)
-	_add("MSAA", samples)
-	var smoothing := MenuTheme.option(
-		["Off", "FXAA", "SMAA"], maxi(Settings.SMOOTHINGS.find(_settings.screen_smoothing), 0)
-	)
-	smoothing.item_selected.connect(
-		func(index: int) -> void:
-			_settings.screen_smoothing = Settings.SMOOTHINGS[index]
-			_apply()
-	)
-	_add("Screen smoothing", smoothing)
+
+
+## How the room is drawn and what lies about the table besides the match, GAME.md 8.1b and 4.3.
+func _add_table() -> void:
+	_group(TABLE)
 	# How the room is drawn, GAME.md 8.1b: a pass over the frame, the toon light, or both.
 	var looks := MenuTheme.option(
 		RenderLook.names(), maxi(RenderLook.ids().find(_settings.look), 0)
@@ -245,6 +192,110 @@ func _ready() -> void:
 	marks.item_selected.connect(func(index: int) -> void: _settings.tire_marks = index)
 	_add("Tire marks", marks)
 	_add("Crowd", crowd_box(_settings))
+
+
+## How often and how sharp a frame is drawn, and the count of them.
+func _add_performance() -> void:
+	_group(PERFORMANCE)
+	if not _handheld:
+		var vsync := MenuTheme.toggle(_settings.vsync)
+		vsync.toggled.connect(
+			func(on: bool) -> void:
+				_settings.vsync = on
+				_apply()
+		)
+		_add("V-sync", vsync)
+	var limits: Array = []
+	for limit: int in Settings.FRAME_LIMITS:
+		limits.append("Unlimited" if limit == 0 else str(limit))
+	var limit := MenuTheme.option(
+		limits, maxi(Settings.FRAME_LIMITS.find(_settings.frame_limit), 0)
+	)
+	limit.item_selected.connect(
+		func(index: int) -> void:
+			_settings.frame_limit = Settings.FRAME_LIMITS[index]
+			_apply()
+	)
+	_add("Frame rate limit", limit)
+	var scale := HSlider.new()
+	scale.min_value = 0.5
+	scale.max_value = 1.0
+	scale.step = 0.05
+	scale.value = _settings.render_scale
+	scale.custom_minimum_size = Vector2(320.0, 0.0)
+	scale.value_changed.connect(
+		func(v: float) -> void:
+			_settings.render_scale = v
+			_apply()
+	)
+	_add("Render scale", scale)
+	var offered := upscalers()
+	var names: Array = []
+	for each: String in offered:
+		names.append(UPSCALER_NAMES[Settings.UPSCALERS.find(each)])
+	# FSR 2 kept from another renderer is drawn as FSR 1 here, see [method Settings.scaling_mode].
+	var shown := _settings.upscaler
+	if not shown in offered:
+		shown = Settings.UPSCALE_FSR
+	var upscaling := MenuTheme.option(names, maxi(offered.find(shown), 0))
+	upscaling.item_selected.connect(
+		func(index: int) -> void:
+			_settings.upscaler = offered[index]
+			_apply()
+	)
+	_add("Upscaler", upscaling)
+	var counter := MenuTheme.toggle(_settings.show_fps)
+	counter.toggled.connect(func(on: bool) -> void: _settings.show_fps = on)
+	_add("Show FPS", counter)
+
+
+## What a room pays for on the card, GAME.md 8.5, each the room's own strength the player keeps a
+## share of; relit at once, since the room is standing.
+func _add_graphics() -> void:
+	_group(GRAPHICS)
+	var shadows := MenuTheme.option(
+		["Off", "Low", "High"], maxi(Settings.SHADOW_LEVELS.find(_settings.shadows), 0)
+	)
+	shadows.item_selected.connect(
+		func(index: int) -> void:
+			_settings.shadows = Settings.SHADOW_LEVELS[index]
+			_apply()
+			ArenaEnvironment.relight(get_tree())
+	)
+	_add("Shadows", shadows)
+	_add(TEXTURES, texture_box(_settings, _full_renderer))
+	var ao := MenuTheme.option(OCCLUSION_NAMES, maxi(OCCLUSION_LEVELS.find(_settings.occlusion), 0))
+	ao.item_selected.connect(
+		func(index: int) -> void:
+			_settings.occlusion = OCCLUSION_LEVELS[index]
+			ArenaEnvironment.relight(get_tree())
+	)
+	_add("Ambient occlusion", ao)
+	var bloom := MenuTheme.option(BLOOM_NAMES, maxi(BLOOM_LEVELS.find(_settings.bloom), 0))
+	bloom.item_selected.connect(
+		func(index: int) -> void:
+			_settings.bloom = BLOOM_LEVELS[index]
+			ArenaEnvironment.relight(get_tree())
+	)
+	_add("Bloom", bloom)
+	var samples := MenuTheme.option(
+		["Off", "2x", "4x", "8x"], maxi(Settings.MSAA_SAMPLES.find(_settings.msaa), 0)
+	)
+	samples.item_selected.connect(
+		func(index: int) -> void:
+			_settings.msaa = Settings.MSAA_SAMPLES[index]
+			_apply()
+	)
+	_add("MSAA", samples)
+	var smoothing := MenuTheme.option(
+		["Off", "FXAA", "SMAA"], maxi(Settings.SMOOTHINGS.find(_settings.screen_smoothing), 0)
+	)
+	smoothing.item_selected.connect(
+		func(index: int) -> void:
+			_settings.screen_smoothing = Settings.SMOOTHINGS[index]
+			_apply()
+	)
+	_add("Screen smoothing", smoothing)
 
 
 ## Full, Half or Off for the crowd, GAME.md 8.5: one setting, offered here and in Accessibility, so
@@ -299,7 +350,7 @@ static func texture_box(
 	return detail
 
 
-## The window mode and V-sync, which a desktop has and a phone does not.
+## The window, which a desktop has and a phone does not: full screen, or a window of a size.
 func _add_window() -> void:
 	var fullscreen := MenuTheme.toggle(_settings.fullscreen)
 	fullscreen.toggled.connect(
@@ -318,13 +369,6 @@ func _add_window() -> void:
 			_apply()
 	)
 	_add("Window size", window)
-	var vsync := MenuTheme.toggle(_settings.vsync)
-	vsync.toggled.connect(
-		func(on: bool) -> void:
-			_settings.vsync = on
-			_apply()
-	)
-	_add("V-sync", vsync)
 
 
 ## What the game is played on, GAME.md 8.5. Picking one puts the UI at the size it suits, which the
@@ -370,6 +414,12 @@ static func ui_scale_index(size: float) -> int:
 		if absf(Settings.UI_SCALES[i] - size) < absf(Settings.UI_SCALES[best] - size):
 			best = i
 	return best
+
+
+## A group under the heading [param title], which the rows after it go into.
+func _group(title: String) -> void:
+	_column = SettingsColumns.group(title)
+	_groups.add_child(_column)
 
 
 func _add(label: String, control: Control) -> void:
