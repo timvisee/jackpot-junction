@@ -6,6 +6,11 @@ extends RefCounted
 
 const ANY := -2
 const KEYBOARD := -1
+## How far a pad's light bends its weaker channels down, see [method led]: between none and a
+## screen's own 2.2, an LED's light growing with its value where a screen's barely does at first.
+const LED_CURVE := 1.6
+## Below this saturation a color is a gray, and a pad is lit in it as it is.
+const LED_GRAY := 0.1
 
 ## The devices input came from, the most recent first, each once, in the menus as much as in a
 ## match, see [method touched]: what a player reading every device was holding before somebody
@@ -45,14 +50,26 @@ static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void
 
 
 ## Lights the pad [param pad] in [param color], its seat's, see [PadLights]: through Steam for a pad
-## of Steam Input's, and on a pad the engine reads where it has a light.
+## of Steam Input's, and on a pad the engine reads where it has a light. Lit as [method led] has it.
 static func light(pad: int, color: Color) -> void:
+	var lit := led(color)
 	if steam_pads.has(pad):
 		if steam_light.is_valid():
-			steam_light.call(pad, color)
+			steam_light.call(pad, lit)
 		return
 	if Input.get_connected_joypads().has(pad) and Input.has_joy_light(pad):
-		Input.set_joy_light(pad, color)
+		Input.set_joy_light(pad, lit)
+
+
+## [param color] as a pad's light is to show it, GAME.md 10.8: its hue at full strength and with no
+## white in it, its weaker channel bent down by [constant LED_CURVE]. Lit as a screen draws it, the
+## white under every player color made a light bar glow nearly white whatever the color. A gray
+## stays as it is.
+static func led(color: Color) -> Color:
+	if color.s < LED_GRAY:
+		return color
+	var full := Color.from_hsv(color.h, 1.0, 1.0)
+	return Color(pow(full.r, LED_CURVE), pow(full.g, LED_CURVE), pow(full.b, LED_CURVE))
 
 
 ## Gives the pad [param pad] its own light back after [method light]: the player's color in Steam

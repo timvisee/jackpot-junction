@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Vivid colors on your pad's light.** A DualSense's or DualShock's light shows your kart's color
+  at full strength, where it used to glow nearly white.
 - **Manage players opens on Back.** The cursor no longer starts on the first player's Kick.
 
 ### Fixed
