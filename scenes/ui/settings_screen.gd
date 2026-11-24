@@ -78,6 +78,9 @@ const ACTION_WORDS: Dictionary[StringName, String] = {
 	InputActions.EMOTE_4: "Emote 4",
 	InputActions.EMOTE_WHEEL: "Emote wheel",
 }
+## The Audio page's groups, GAME.md 8.5, by their headings.
+const VOLUME := "Volume"
+const MUSIC := "Music"
 const REBINDABLE: Array[StringName] = [
 	InputActions.THROTTLE,
 	InputActions.BRAKE,
@@ -866,53 +869,40 @@ func _show_seat_driving() -> void:
 		shown.call()
 
 
+## The Audio page, GAME.md 8.5, in two groups under headings as the Video page has, see
+## [SettingsColumns]: how loud each part of the sound is, and how the music behaves.
 func _audio_tab() -> Control:
-	var column := VBoxContainer.new()
-	column.name = "Audio"
-	column.add_theme_constant_override("separation", 12)
-	column.add_child(
-		MenuTheme.row(
-			"Master",
-			_volume_slider(
-				_settings.master_volume, func(v: float) -> void: _settings.master_volume = v
-			)
-		)
-	)
-	column.add_child(
-		MenuTheme.row(
-			"Music",
-			_volume_slider(
-				_settings.music_volume, func(v: float) -> void: _settings.music_volume = v
-			)
-		)
-	)
+	var scroll := ScrollContainer.new()
+	scroll.name = "Audio"
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var groups := SettingsColumns.new()
+	groups.name = "Groups"
+	groups.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(groups)
+	var column := SettingsColumns.group(VOLUME)
+	groups.add_child(column)
+	var master := func(v: float) -> void: _settings.master_volume = v
+	column.add_child(MenuTheme.row("Master", _volume_slider(_settings.master_volume, master)))
+	var music := func(v: float) -> void: _settings.music_volume = v
+	column.add_child(MenuTheme.row("Music", _volume_slider(_settings.music_volume, music)))
+	var effects := func(v: float) -> void: _settings.sfx_volume = v
+	column.add_child(MenuTheme.row("Effects", _volume_slider(_settings.sfx_volume, effects)))
+	var karts := func(v: float) -> void: _settings.kart_volume = v
+	column.add_child(MenuTheme.row("Karts", _volume_slider(_settings.kart_volume, karts)))
+	groups.split = groups.get_child_count()
+	column = SettingsColumns.group(MUSIC)
+	groups.add_child(column)
 	# How much louder the music gets as the room heats up, on top of the level above, GAME.md 8.5.
 	var swell := SwellSlider.make(_settings.music_swell)
 	swell.name = "IntenseMusic"
 	swell.changed.connect(func(v: float) -> void: _settings.music_swell = v)
 	column.add_child(MenuTheme.row("Intense music", swell))
-	column.add_child(
-		MenuTheme.row(
-			"Effects",
-			_volume_slider(_settings.sfx_volume, func(v: float) -> void: _settings.sfx_volume = v)
-		)
-	)
-	column.add_child(
-		MenuTheme.row(
-			"Karts",
-			_volume_slider(_settings.kart_volume, func(v: float) -> void: _settings.kart_volume = v)
-		)
-	)
 	column.add_child(MenuTheme.row("Music muted", _check(_settings.music_muted, _set_music_muted)))
+	var muffle := func(on: bool) -> void: _settings.muffle_on_death = on
 	column.add_child(
-		MenuTheme.row(
-			"Muffle music on death",
-			_check(
-				_settings.muffle_on_death, func(on: bool) -> void: _settings.muffle_on_death = on
-			)
-		)
+		MenuTheme.row("Muffle music on death", _check(_settings.muffle_on_death, muffle))
 	)
-	return column
+	return scroll
 
 
 func _set_music_muted(on: bool) -> void:

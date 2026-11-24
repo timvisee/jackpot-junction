@@ -5511,7 +5511,9 @@ from a section's button low in its box was the one beside it.
   a mouse button as well as a key, fire on the left button say, stick dead zone, rumble on
   or off, and on a touch screen, first after the driving, how it drives: by the
   slider or by a button each, see 4.2.
-- **Audio**: master, music, effects and kart volume, the master at 50% to start
+- **Audio**, in two groups under headings as on the Video page, side by side on a 1080p
+  screen: Volume, the master, music, effects and kart volume; and Music, intense music, music
+  muted and the muffle on death. In full: master, music, effects and kart volume, the master at 50% to start
   with, since at full the game came on loud enough to reach for. The karts have their own
   because their engine and tires run the whole time rather than in bursts, so
   how loud that bed should sit is a matter of taste in a way the rest is not.

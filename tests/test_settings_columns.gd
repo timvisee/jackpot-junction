@@ -3,7 +3,7 @@ extends GdUnitTestSuite
 ## screen at the UI's own size each stands in two columns, its widest row fitting half the page.
 
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
-const GROUPED: Array[String] = ["Controls", "Video", "Accessibility"]
+const GROUPED: Array[String] = ["Controls", "Audio", "Video", "Accessibility"]
 
 var _settings_were: Settings
 
@@ -29,3 +29,23 @@ func test_the_grouped_pages_take_two_columns_on_a_1080p_screen() -> void:
 		await await_idle_frame()
 		var groups := screen.tabs.get_node(page_name + "/Groups") as SettingsColumns
 		assert_bool(groups.two_columns(groups.size.x)).override_failure_message(page_name).is_true()
+
+
+## The Audio page: how loud each part of the sound is down the left, how the music behaves down
+## the right.
+func test_the_audio_page_has_volume_and_music() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var groups := screen.tabs.get_node("Audio/Groups") as SettingsColumns
+	var rows: Dictionary[String, Array] = {}
+	for each: Node in groups.get_children():
+		var names: Array[String] = []
+		for row: Node in each.get_children():
+			if row.name != "Heading":
+				names.append((row.get_child(0) as Label).text)
+		rows[(each.get_node("Heading/Title") as Label).text] = names
+	assert_array(rows.keys()).is_equal([SettingsScreen.VOLUME, SettingsScreen.MUSIC])
+	assert_int(groups.split).is_equal(1)
+	assert_array(rows[SettingsScreen.VOLUME]).is_equal(["Master", "Music", "Effects", "Karts"])
+	var music: Array[String] = ["Intense music", "Music muted", "Muffle music on death"]
+	assert_array(rows[SettingsScreen.MUSIC]).is_equal(music)
