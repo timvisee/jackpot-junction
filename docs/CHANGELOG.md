@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-11-24
+
+A new profile starts at a simpler table that the House adds a feature to after each map,
+every action goes on any button through Steam Input, and the settings pages are sorted under
+headings. It doesn't play with 0.23.x.
+
 ### Added
 
 - **See your rings and marker.** Accessibility shows three karts in your seats' colors wearing the
@@ -2936,7 +2942,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.23.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.0
 [0.23.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.1
 [0.23.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.0
 [0.22.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.22.1
