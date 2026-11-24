@@ -1,8 +1,6 @@
 extends GdUnitTestSuite
 ## The Accessibility page of the settings, GAME.md 8.5: its rows in groups under headings, in two
-## columns on a 1080p screen as the Video page's are.
-
-const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
+## columns on a 1080p screen as the Video page's are, see test_settings_columns.gd.
 
 var _settings_were: Settings
 
@@ -66,18 +64,3 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 	assert_array(_rows(page, AccessibilityTab.HUD)).contains_exactly(
 		["See-through HUD", "Speed in", "Control hints", "Always show drive hints"]
 	)
-
-
-## On a 1080p screen at the UI's own size both grouped pages stand in two columns: the widest of
-## their rows, the color blindness choice with its swatches and the aim guide's preview, fit half
-## the page.
-func test_both_grouped_pages_take_two_columns_on_a_1080p_screen() -> void:
-	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
-	add_child(screen)
-	screen.size = Vector2(1920.0, 1080.0)
-	for page_name: String in ["Video", "Accessibility"]:
-		screen.tabs.current_tab = screen.tabs.get_node(page_name).get_index()
-		await await_idle_frame()
-		await await_idle_frame()
-		var groups := screen.tabs.get_node(page_name + "/Groups") as SettingsColumns
-		assert_bool(groups.two_columns(groups.size.x)).override_failure_message(page_name).is_true()

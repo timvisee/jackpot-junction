@@ -10,6 +10,46 @@ extends Control
 ## Back, from a screen laid over a room: it has gone, and the room is the pause menu's again.
 signal closed
 
+## The Controls page's groups, GAME.md 8.5, by their headings, and the actions bound in each: how
+## the first player drives and the bindings for driving, fighting and the game down the left, the
+## controllers and the bindings for jokers and emotes down the right.
+const DRIVING := "Driving"
+const FIGHTING := "Fighting"
+const GAME := "Game"
+const CONTROLLERS := "Controllers"
+const JOKERS := "Jokers"
+const EMOTES := "Emotes"
+const BINDINGS: Dictionary[String, Array] = {
+	DRIVING:
+	[
+		InputActions.THROTTLE,
+		InputActions.BRAKE,
+		InputActions.STEER_LEFT,
+		InputActions.STEER_RIGHT,
+		InputActions.DRIVE_UP,
+		InputActions.DRIVE_DOWN,
+		InputActions.HANDBRAKE,
+		InputActions.NITRO,
+	],
+	FIGHTING: [InputActions.FIRE, InputActions.USE_ITEM],
+	GAME: [InputActions.PAUSE, InputActions.JOIN, InputActions.MUTE_MUSIC],
+	JOKERS:
+	[
+		InputActions.JOKER_MENU,
+		InputActions.JOKER_PREV,
+		InputActions.JOKER_NEXT,
+		InputActions.JOKER_DESTROY,
+		InputActions.DETAILS,
+	],
+	EMOTES:
+	[
+		InputActions.EMOTE_1,
+		InputActions.EMOTE_2,
+		InputActions.EMOTE_3,
+		InputActions.EMOTE_4,
+		InputActions.EMOTE_WHEEL,
+	],
+}
 const REBINDABLE: Array[StringName] = [
 	InputActions.THROTTLE,
 	InputActions.BRAKE,
@@ -40,7 +80,14 @@ const REBINDABLE: Array[StringName] = [
 ## with the socket's own room above and below it.
 const BINDING_SIZE := 18
 const BINDING_INK := Color(0.90, 0.90, 0.94)
-const BINDING_CELL := Vector2(290.0, 46.0)
+const BINDING_CELL := Vector2(270.0, 46.0)
+## How wide the action's name is down the left of its sockets, and the room between the three: the
+## settings' own row, so the sockets stand under the other rows' controls, and two of them a column
+## of half a 1080p page, see [SettingsColumns].
+const BINDING_NAME := 260.0
+const BINDING_ROOM := 24
+## The room between the two ways to drive and Help me choose.
+const DRIVING_ROOM := 8
 ## What a socket says while it listens for a new key or button.
 ## The heads of the bindings' columns, and what a socket with nothing bound in it says.
 const BINDING_HEADS: Array[String] = ["Action", "Keyboard and mouse", "Gamepad"]
@@ -366,13 +413,19 @@ func _is_bindable_press(event: InputEvent) -> bool:
 	return false
 
 
+## The Controls page, GAME.md 8.5, in groups under headings as the Video page has, see
+## [SettingsColumns]: how the first player drives and the bindings for driving, fighting and the
+## game down the left; the controllers, and the bindings for jokers and emotes, down the right.
 func _controls_tab() -> Control:
 	var scroll := ScrollContainer.new()
 	scroll.name = "Controls"
-	var column := VBoxContainer.new()
-	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	column.add_theme_constant_override("separation", 8)
-	scroll.add_child(column)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	var groups := SettingsColumns.new()
+	groups.name = "Groups"
+	groups.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(groups)
+	var column := SettingsColumns.group(DRIVING)
+	groups.add_child(column)
 	# How the first player drives, GAME.md 4.2. Everybody else says in the lobby, or in the pause
 	# menu over their own corner.
 	var driving := DrivePicker.make(_settings.drive_mode(0))
@@ -391,6 +444,8 @@ func _controls_tab() -> Control:
 		again.grab_focus()
 	again.pressed.connect(func() -> void: DriveChoice.ask(self, answered, 0))
 	driving.add_child(again)
+	# A little closer together than a picker's own, so the three fit half a 1080p page.
+	driving.add_theme_constant_override("separation", DRIVING_ROOM)
 	column.add_child(MenuTheme.row("Driving", driving))
 	# Its Auto throttle, as on its card on the Seats tab, while it drives the simple way.
 	var auto := _auto_switch(0)
@@ -406,25 +461,18 @@ func _controls_tab() -> Control:
 		var touch := DrivePicker.make(_settings.touch_layout, Settings.TOUCH_LAYOUTS)
 		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
 		column.add_child(MenuTheme.row("Touch driving", touch))
+	_add_bindings(column, BINDINGS[DRIVING])
+	for named: String in [FIGHTING, GAME]:
+		column = SettingsColumns.group(named)
+		groups.add_child(column)
+		_add_bindings(column, BINDINGS[named])
+	groups.split = groups.get_child_count()
+	column = SettingsColumns.group(CONTROLLERS)
+	groups.add_child(column)
 	# The pad drawn whole with what each button does, GAME.md 8.3b.
 	column.add_child(PadLeaflet.row(self))
 	# Steam Input, GAME.md 10.8, in a game with Steam on.
 	SteamInputRow.add_to(column, _settings)
-	var header := HBoxContainer.new()
-	for text: String in BINDING_HEADS:
-		var label := Label.new()
-		label.text = SteamInputRow.head(text)
-		label.uppercase = true
-		label.custom_minimum_size = Vector2(300.0, 0.0)
-		Type.strong(label, Type.LABEL, HouseTheme.FOIL)
-		# Over the middle of its sockets, as the keys in them are.
-		if text != BINDING_HEADS[0]:
-			label.custom_minimum_size.x = BINDING_CELL.x
-			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		header.add_child(label)
-	column.add_child(header)
-	for action: StringName in REBINDABLE:
-		column.add_child(_binding_row(action))
 	var deadzone := HSlider.new()
 	deadzone.min_value = 0.05
 	deadzone.max_value = 0.5
@@ -438,22 +486,50 @@ func _controls_tab() -> Control:
 	)
 	column.add_child(MenuTheme.row("Stick dead zone", deadzone))
 	var reset := MenuTheme.button("Reset bindings to defaults", 22)
+	reset.name = "ResetBindings"
 	reset.pressed.connect(
 		func() -> void:
 			_settings.reset_bindings()
 			_refresh_bindings()
 			status.text = "Bindings reset"
 	)
-	column.add_child(reset)
+	column.add_child(MenuTheme.row("", reset))
+	for named: String in [JOKERS, EMOTES]:
+		column = SettingsColumns.group(named)
+		groups.add_child(column)
+		_add_bindings(column, BINDINGS[named])
 	return scroll
+
+
+## The keyboard's and the pad's columns named over their sockets, then a row for each of
+## [param actions] into [param column]: in every group of them, so each reads on its own.
+func _add_bindings(column: VBoxContainer, actions: Array) -> void:
+	var header := HBoxContainer.new()
+	header.add_theme_constant_override("separation", BINDING_ROOM)
+	var under_names := Control.new()
+	under_names.custom_minimum_size = Vector2(BINDING_NAME, 0.0)
+	header.add_child(under_names)
+	for text: String in BINDING_HEADS.slice(1):
+		var label := Label.new()
+		label.text = SteamInputRow.head(text)
+		label.uppercase = true
+		label.custom_minimum_size = Vector2(BINDING_CELL.x, 0.0)
+		# Over the middle of its sockets, as the keys in them are.
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		Type.strong(label, Type.SMALL, HouseTheme.QUIET)
+		header.add_child(label)
+	column.add_child(header)
+	for action: StringName in actions:
+		column.add_child(_binding_row(action))
 
 
 func _binding_row(action: StringName) -> HBoxContainer:
 	var line := HBoxContainer.new()
+	line.add_theme_constant_override("separation", BINDING_ROOM)
 	var name := Label.new()
 	name.text = _action_words(action)
-	name.custom_minimum_size = Vector2(300.0, 0.0)
-	name.add_theme_font_size_override("font_size", 22)
+	name.custom_minimum_size = Vector2(BINDING_NAME, 0.0)
+	Type.text(name, Type.BODY, Color(0.86, 0.86, 0.9))
 	name.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	line.add_child(name)
 	var buttons: Array = []
