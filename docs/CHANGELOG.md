@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **No card after Settings.** Back at the title from the settings or Play Online, the next card
+  waits for a start or a return from play, so a quick look at a setting brings nothing up.
 - **The supporter pack's thank-you comes sooner.** On the title it comes right after the
   invitation, before the loyalty program's welcome and the House's letters, still one card a visit.
 - **Vivid colors on your pad's light.** A DualSense's or DualShock's light shows your kart's color

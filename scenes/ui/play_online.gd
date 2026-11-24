@@ -514,6 +514,9 @@ func _back() -> void:
 	elif lan.is_form_up():
 		lan.put_dialog_away()
 	else:
+		# Back at the title from here, nothing is put up there but the invitation, see
+		# [TitleCards].
+		TitleCards.from_the_menus = true
 		Game.go_to_title()
 
 

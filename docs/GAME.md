@@ -817,7 +817,9 @@ else's results screen, see 10.3.
   online and the Clubhouse Staff Room, doing what they always did,
   a line in the Count Room's green takes the place of the line under the name, and the seal's fine
   print reads otherwise: STORY.md 7.2, 8.1 and 8.6. While the story is on, the house's letters
-  come up over the title one a visit, as the program's welcome does, 8.9: STORY.md 6.11. A question
+  come up over the title one a visit, as the program's welcome does, 8.9: STORY.md 6.11. A visit
+  back from the settings or Play Online, where the player went to change something rather than to
+  play, brings no card but the invitation (`TitleCards`). A question
   asked over the title, this one or any
   other, keeps the cursor on its own two answers. Play goes straight into the lobby, the waiting
   room of 9.6, the way hosting a LAN game does, with the match settings up over it, whose first

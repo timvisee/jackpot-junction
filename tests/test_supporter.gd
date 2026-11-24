@@ -24,6 +24,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	TitleCards.from_the_menus = false
 	Supporter.dry = false
 	Supporter.start(PackedStringArray(), false, false)
 	if is_instance_valid(_holder):
@@ -686,6 +687,32 @@ func test_the_thanks_come_after_the_invitation_and_before_the_welcome() -> void:
 	assert_object(third.cards.welcome).is_not_null()
 	remove_child(third)
 	LoyaltyWelcome.again = false
+
+
+## A visit to the title back from the settings or Play Online puts up no card but the invitation:
+## the thanks owed wait for the visit after it.
+func test_a_visit_back_from_the_menus_brings_no_card() -> void:
+	Supporter.start(PackedStringArray(["--supporter"]), false, false)
+	TitleCards.from_the_menus = true
+	var quiet: Control = auto_free(TITLE.instantiate())
+	add_child(quiet)
+	await await_idle_frame()
+	assert_object(quiet.cards.mail).is_null()
+	assert_bool(TitleCards.from_the_menus).is_false()
+	remove_child(quiet)
+	TitleCards.from_the_menus = true
+	OpeningInvitation.again = true
+	var invited: Control = auto_free(TITLE.instantiate())
+	add_child(invited)
+	await await_idle_frame()
+	OpeningInvitation.again = false
+	assert_object(invited.cards.invitation).is_not_null()
+	remove_child(invited)
+	var next: Control = auto_free(TITLE.instantiate())
+	add_child(next)
+	await await_idle_frame()
+	assert_bool(next.cards.mail is SupporterThanks).is_true()
+	remove_child(next)
 
 
 ## Bought while a menu is up, the title or the settings, the thank-you card comes at once over it,

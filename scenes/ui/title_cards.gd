@@ -5,15 +5,19 @@ extends Node
 ## most, the first of them due: the invitation that brought the player here, the first time a
 ## profile comes to the title, STORY.md 6.1a; the supporter pack's thanks, GAME.md 10.8; the
 ## House's welcome to its loyalty program, 8.9; a letter of the House's as a stage begins, STORY.md
-## 6.11. A card is put up at once, under the warm-up's pane, so it has drawn everything
-## once by the time it starts, and started once the shaders have compiled. Once nothing is up the
-## title is the player's, see [signal opened].
+## 6.11. A visit back from the settings or Play Online, where the player went to change something
+## rather than to play, brings none but the invitation. A card is put up at once, under the
+## warm-up's pane, so it has drawn everything once by the time it starts, and started once the
+## shaders have compiled. Once nothing is up the title is the player's, see [signal opened].
 
 ## Nothing is up any more: the title is the player's, its opening to play or the cursor to go on
 ## Play.
 signal opened
 ## The program's welcome has opened its map over the title, [param dialog].
 signal welcomed(dialog: LoyaltyDialog)
+
+## Whether the next visit to the title is back from the settings or Play Online, see the class.
+static var from_the_menus := false
 
 ## The shaders compiling, said over the title while they do, or null, see [WarmupPane].
 var warming: WarmupPane
@@ -47,12 +51,17 @@ static func add_to(title: Control, school: Callable) -> TitleCards:
 ## nothing to compile.
 func put_up() -> void:
 	var profile := Game.settings.profile
+	var quiet := from_the_menus
+	from_the_menus = false
 	if OpeningInvitation.due(profile):
 		invitation = OpeningInvitation.over(_title, profile)
 		invitation.accepted.connect(_on_invited)
 		# It comes in silence, the music faded out if it was playing, and held off till the title
 		# opens.
 		Audio.hold_music(true)
+	# Nothing more on a visit back from the settings or Play Online.
+	elif quiet:
+		pass
 	# Or the supporter pack's thanks, GAME.md 10.8, the same way: next after the invitation, never
 	# with it.
 	elif SupporterThanks.due():

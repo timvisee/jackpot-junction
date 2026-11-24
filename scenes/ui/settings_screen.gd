@@ -944,6 +944,8 @@ func _back() -> void:
 		closed.emit()
 		queue_free()
 		return
+	# Back at the title from here, nothing is put up there but the invitation, see [TitleCards].
+	TitleCards.from_the_menus = Game.settings_return == Game.TITLE_SCENE
 	get_tree().change_scene_to_file(Game.settings_return)
 
 
