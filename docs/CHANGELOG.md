@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **See your rings and marker.** Accessibility shows three karts in your seats' colors wearing the
+  kart rings and the marker as you set them.
 - **Pick your monitor.** With more than one screen plugged in, the Video page's Monitor box sets
   which one the game plays on.
 - **Graphics presets.** A Quality box on the Video page sets shadows, texture detail, ambient
@@ -69,7 +71,7 @@ below, and hands the notes to the release workflow.
 - **Fixed camera on the Video page.** It's under Camera there too, the same switch as in
   Accessibility.
 - **Accessibility settings in groups.** The Accessibility page sorts its settings under Seeing,
-  Motion and light, Aiming and Hints, in two columns where the screen has room.
+  Motion and light, Aiming, and HUD and hints, in two columns where the screen has room.
 - **Video settings in groups.** The Video page sorts its settings under five headings, Display,
   Camera, Table, Performance and Graphics, in two columns where the screen has room.
 - **A quieter cash-out.** The chime when you bank, and the fanfare over a big pot, a bounty or a

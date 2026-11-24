@@ -72,6 +72,13 @@ func _chips() -> Array[Vector4]:
 	return []
 
 
+## Where [param at] on the felt is drawn in the window, in the window's own units.
+func on_window(at: Vector3) -> Vector2:
+	var seen := camera.unproject_position(at)
+	var drawn := Vector2(felt.size)
+	return seen * size / drawn if drawn.x > 0.0 and drawn.y > 0.0 else seen
+
+
 ## The felt, the rail along the far side of it and the chips on it.
 func _dress(surfaces: Surfaces) -> void:
 	var cloth := MeshInstance3D.new()

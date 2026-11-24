@@ -2,8 +2,8 @@ class_name AccessibilityTab
 extends ScrollContainer
 ## The Accessibility page of the settings, GAME.md 8.5, in groups under headings as the Video page
 ## has, see [SettingsColumns]: how the karts are seen and what moves and flashes down the left,
-## aiming and the hints down the right. Every change takes effect at once; the settings screen
-## saves them on Back. It scrolls, for a phone's short screen under a big UI scale.
+## aiming and the HUD and its hints down the right. Every change takes effect at once; the settings
+## screen saves them on Back. It scrolls, for a phone's short screen under a big UI scale.
 
 ## A palette for color blindness was chosen, which the Seats page draws its colors in again.
 signal palette_chosen
@@ -11,11 +11,11 @@ signal palette_chosen
 signal aim_guide_reset
 
 ## The page's groups, GAME.md 8.5, by their headings: how the karts are seen and what moves and
-## flashes on the left, aiming and the hints on the right.
+## flashes on the left, aiming and the HUD and its hints on the right.
 const SEEING := "Seeing"
 const MOTION := "Motion and light"
 const AIMING := "Aiming"
-const HINTS := "Hints"
+const HUD := "HUD and hints"
 
 var _settings: Settings
 ## The page's groups, and the one rows go into as the page is built.
@@ -40,15 +40,17 @@ func _ready() -> void:
 	_add_motion()
 	_groups.split = _groups.get_child_count()
 	_add_aiming()
-	_add_hints()
+	_add_hud()
 
 
-## The karts' colors, what marks a player's own, the HUD over them, and the speedometer.
+## The karts' colors and what marks a player's own, shown on three karts as they are set.
 func _add_seeing() -> void:
 	_group(SEEING)
 	_column.add_child(_vision_row())
-	# The rings under the karts and the marker over a player's own, both asked for, and the HUD
-	# see-through over a kart rather than the camera dodging it, GAME.md 8.2 and 8.5.
+	var preview := KartMarksPreview.new()
+	preview.name = "KartMarksPreview"
+	_column.add_child(MenuTheme.row("", preview))
+	# The rings under the karts and the marker over a player's own, both asked for, GAME.md 8.5.
 	var rings := MenuTheme.option(
 		["Off", "My kart", "All karts"], maxi(ViewChoices.RINGS.find(_settings.kart_rings), 0)
 	)
@@ -58,17 +60,6 @@ func _add_seeing() -> void:
 	_add("Kart rings", rings)
 	var mark := func(on: bool) -> void: _settings.kart_marker = on
 	_add("Marker over my kart", _check(_settings.kart_marker, mark))
-	var see := func(on: bool) -> void: _settings.see_through_hud = on
-	_add("See-through HUD", _check(_settings.see_through_hud, see))
-	# How the speedometer counts, GAME.md 8.5: as the system's locale says until one is chosen.
-	var units := MenuTheme.option(
-		["km/h", "mph"], 1 if _settings.speed_unit() == SpeedUnits.MPH else 0
-	)
-	units.item_selected.connect(
-		func(index: int) -> void:
-			_settings.speed_unit_chosen = SpeedUnits.MPH if index == 1 else SpeedUnits.KMH
-	)
-	_add("Speed in", units)
 
 
 ## What shakes, moves and flashes, for anybody it bothers.
@@ -117,9 +108,22 @@ func _add_aiming() -> void:
 	_column.add_child(aim_guide)
 
 
-## What the screen says about driving and the buttons that do it.
-func _add_hints() -> void:
-	_group(HINTS)
+## The HUD over the karts, how its speedometer counts, and what the screen says about driving and
+## the buttons that do it.
+func _add_hud() -> void:
+	_group(HUD)
+	# The HUD see-through over a kart rather than the camera dodging it, GAME.md 8.2.
+	var see := func(on: bool) -> void: _settings.see_through_hud = on
+	_add("See-through HUD", _check(_settings.see_through_hud, see))
+	# How the speedometer counts, GAME.md 8.5: as the system's locale says until one is chosen.
+	var units := MenuTheme.option(
+		["km/h", "mph"], 1 if _settings.speed_unit() == SpeedUnits.MPH else 0
+	)
+	units.item_selected.connect(
+		func(index: int) -> void:
+			_settings.speed_unit_chosen = SpeedUnits.MPH if index == 1 else SpeedUnits.KMH
+	)
+	_add("Speed in", units)
 	var hints := func(on: bool) -> void: _settings.control_hints = on
 	_add("Control hints", _check(_settings.control_hints, hints))
 	# The drive and fire hint at the start of every map, not only a seat's first room, GAME.md 3.8.

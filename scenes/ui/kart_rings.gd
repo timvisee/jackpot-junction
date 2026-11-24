@@ -94,17 +94,34 @@ func _process(delta: float) -> void:
 ## [param kart]'s ring, made if it has none, under it in [param color] and [param radius] across.
 func _place(id: int, kart: Kart, color: Color, radius: float) -> void:
 	if not _rings.has(id):
-		var inked := _ring(1.0 - BAND - INK_BAND, 1.0 + INK_BAND, INK, INK_ALPHA)
-		_rings[id] = [inked, _ring(1.0 - BAND, 1.0, color, COLOR_ALPHA)]
+		_rings[id] = made(color)
 		_shown[id] = 0.0
 		for ring: MeshInstance3D in _rings[id]:
 			hud.match_node.add_child(ring)
-	var color_ring: MeshInstance3D = _rings[id][1]
+	lay(_rings[id], kart.global_position, color, radius)
+
+
+## A kart's ring in [param color] and the ink round it, the ink first, to put in a world and
+## [method lay] under a kart; the Accessibility page's preview has them too, see
+## [KartMarksPreview].
+static func made(color: Color) -> Array[MeshInstance3D]:
+	var inked := _ring(1.0 - BAND - INK_BAND, 1.0 + INK_BAND, INK, INK_ALPHA)
+	var colored := _ring(1.0 - BAND, 1.0, color, COLOR_ALPHA)
+	# The color over its ink whatever the camera: sorted by distance alone, a camera looking
+	# straight across the two, as the preview's does, drew the ink over it.
+	colored.material_override.render_priority = 1
+	return [inked, colored]
+
+
+## [param rings], see [method made], under a kart standing [param on] the floor, in
+## [param color] and [param radius] across.
+static func lay(rings: Array, on: Vector3, color: Color, radius: float) -> void:
+	var color_ring: MeshInstance3D = rings[1]
 	(color_ring.material_override as StandardMaterial3D).emission = color
 	(color_ring.material_override as StandardMaterial3D).albedo_color = color
-	var at := Vector3(kart.global_position.x, LIFT, kart.global_position.z)
+	var at := Vector3(on.x, LIFT, on.z)
 	for i: int in 2:
-		var ring: MeshInstance3D = _rings[id][i]
+		var ring: MeshInstance3D = rings[i]
 		ring.global_position = at + Vector3.UP * 0.01 * i
 		ring.scale = Vector3(radius, FLAT, radius)
 

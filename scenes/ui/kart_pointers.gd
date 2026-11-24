@@ -106,13 +106,19 @@ func _on_edge(from: Vector2, way: Vector2) -> Vector2:
 
 func _draw() -> void:
 	for each: Dictionary in _signs:
-		var way: Vector2 = each.way
-		var length: float = each.length
-		var tip: Vector2 = each.at
-		# The marker hangs over the kart, its point down at it; an arrow points out past the edge.
-		var base := tip - way * length
-		var side := way.orthogonal() * length * 0.55
-		var shape := PackedVector2Array([tip, base + side, base - side])
-		draw_colored_polygon(shape, each.color)
-		shape.append(tip)
-		draw_polyline(shape, INK, EDGE, true)
+		draw_sign(self, each.at, each.way, each.length, each.color)
+
+
+## An arrow or a marker on [param canvas], its tip at [param tip] pointing [param way],
+## [param length] long, in [param color] edged in ink. The marker hangs over the kart, its point
+## down at it, as the Accessibility page's preview has it too, see [KartMarksPreview]; an arrow
+## points out past the edge.
+static func draw_sign(
+	canvas: CanvasItem, tip: Vector2, way: Vector2, length: float, color: Color
+) -> void:
+	var base := tip - way * length
+	var side := way.orthogonal() * length * 0.55
+	var shape := PackedVector2Array([tip, base + side, base - side])
+	canvas.draw_colored_polygon(shape, color)
+	shape.append(tip)
+	canvas.draw_polyline(shape, INK, EDGE, true)

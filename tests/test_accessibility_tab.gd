@@ -38,13 +38,17 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 		AccessibilityTab.SEEING,
 		AccessibilityTab.MOTION,
 		AccessibilityTab.AIMING,
-		AccessibilityTab.HINTS
+		AccessibilityTab.HUD
 	]
 	assert_array(headings).is_equal(groups)
 	assert_int(page._groups.split).is_equal(2)
 	assert_array(_rows(page, AccessibilityTab.SEEING)).contains_exactly(
-		["Color blindness", "Kart rings", "Marker over my kart", "See-through HUD", "Speed in"]
+		["Color blindness", "", "Kart rings", "Marker over my kart"]
 	)
+	var preview := page.get_node("Groups/%s" % AccessibilityTab.SEEING).find_child(
+		"KartMarksPreview", true, false
+	)
+	assert_object(preview).is_instanceof(KartMarksPreview)
 	var motion: Array[String] = [
 		"Screen shake",
 		"Rumble",
@@ -59,8 +63,8 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 		["Aim assist strength", "Aim guide"]
 	)
 	assert_object(page.get_node("Groups/%s/AimGuideRows" % AccessibilityTab.AIMING)).is_not_null()
-	assert_array(_rows(page, AccessibilityTab.HINTS)).contains_exactly(
-		["Control hints", "Always show drive hints"]
+	assert_array(_rows(page, AccessibilityTab.HUD)).contains_exactly(
+		["See-through HUD", "Speed in", "Control hints", "Always show drive hints"]
 	)
 
 

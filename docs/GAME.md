@@ -5650,12 +5650,20 @@ from a section's button low in its box was the one beside it.
   match. Nothing about the crowd changes anything a kart can touch.
 - **Accessibility**, in four groups under headings as on the Video page, two columns side by
   side on a 1080p screen and one under the other on a narrower one: Seeing, the palette for
-  color blindness, kart rings, the marker over my kart, the see-through HUD and speed in; Motion
+  color blindness, a window onto three karts, kart rings and the marker over my kart; Motion
   and light, screen shake, rumble, the fixed camera, the cursor's glide, flash reduction, the
-  disco lights and the crowd; Aiming, aim assist strength and the aim guide; and Hints, the
-  control hints and always show drive hints. The palette's choice is as wide as its longest
-  name, with the eight colors beside it 20 px square, and the aim guide's preview is 560 by 159,
-  so each fits half a 1080p page. In full: screen shake on or off, flash reduction, the cursor's glide
+  disco lights and the crowd; Aiming, aim assist strength and the aim guide; and HUD and hints,
+  the see-through HUD, speed in, the control hints and always show drive hints. The palette's
+  choice is as wide as its longest name, with the eight colors beside it 20 px square, the
+  aim guide's preview and the karts' window are 560 by 159, so each fits half a 1080p page. The karts' window, `KartMarksPreview`, is on the felt the aim guide's preview is on,
+  `FeltWindow`, at the same scale: the first seat's kart in the middle facing the camera, in its
+  color and dress, between two rivals facing south-east and south-west toward it, in the second
+  and third seats' colors, each its favorite or the one its place gives it and never one
+  another's, all of them nosing slowly to and fro. Under them lie the rings as Kart rings says,
+  none, the middle one's or all three, as big as a ring is under the match camera at the
+  distance it usually keeps, and over the middle one hangs the marker while it is asked for,
+  each drawn as a match draws it, in the palette for color blindness the moment one is chosen.
+  In full: screen shake on or off, flash reduction, the cursor's glide
   between buttons on or off (on by default, 8.1a), aim assist
   strength from 0% to 100% of the default and never above it, per player, the
   aim guide on or off and how it is drawn, its length from 2 to 8 dots (4), the dots' size from
