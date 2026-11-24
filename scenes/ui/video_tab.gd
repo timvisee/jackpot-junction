@@ -52,6 +52,8 @@ const FOLLOWS_TIP := (
 	+ " your kart, rivals off the screen pointed at from its edge. Auto suits your screen."
 )
 const FOLLOW_NAMES: Array[String] = ["Everyone", "Nearby rivals", "My kart"]
+## The fixed camera's switch, the same on this page and in Accessibility.
+const FIXED := "Fixed camera"
 const DISTANCE_NAMES: Array[String] = ["Closest", "Close", "Medium", "Far", "Farthest"]
 
 ## The page's groups, GAME.md 8.5, by their headings: what is seen and how it is played on the left,
@@ -147,7 +149,8 @@ func _add_display() -> void:
 	_add("Brightness", bright)
 
 
-## How far the camera sits from the karts and whom it keeps in the picture, GAME.md 8.2.
+## How far the camera sits from the karts, whom it keeps in the picture, and whether it moves at
+## all, GAME.md 8.2.
 func _add_camera() -> void:
 	_group(CAMERA)
 	# Picked from a list, not slid, so the frame does not pump in and out under the pointer dragging
@@ -169,6 +172,7 @@ func _add_camera() -> void:
 		func(index: int) -> void: _settings.camera_follows = ViewChoices.FOLLOWS[index]
 	)
 	_add(FOLLOWS, _follows_box)
+	_add(FIXED, fixed_camera_switch(_settings))
 
 
 ## How the room is drawn and what lies about the table besides the match, GAME.md 8.1b and 4.3.
@@ -314,6 +318,20 @@ static func crowd_box(settings: Settings) -> OptionButton:
 				house.select(maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0))
 	)
 	return house
+
+
+## The fixed camera on or off, GAME.md 8.2: one setting, offered under Camera here and in
+## Accessibility, so the switch reads the setting again whenever its page comes up, as the crowd's
+## box does.
+static func fixed_camera_switch(settings: Settings) -> CheckButton:
+	var still := MenuTheme.toggle(settings.fixed_camera)
+	still.toggled.connect(func(on: bool) -> void: settings.fixed_camera = on)
+	still.visibility_changed.connect(
+		func() -> void:
+			if still.is_visible_in_tree():
+				still.set_pressed_no_signal(settings.fixed_camera)
+	)
+	return still
 
 
 ## Auto, Low, High or Ultra for how finely the prints a table wears are drawn, GAME.md 8.1b: the

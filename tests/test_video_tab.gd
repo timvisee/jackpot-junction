@@ -3,6 +3,8 @@ extends GdUnitTestSuite
 ## or a tablet plays full screen and in step with its own screen whatever it is told, and a
 ## renderer without FSR 2 is not offered it.
 
+const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
+
 
 func _page(handheld: bool, full_renderer: bool) -> VideoTab:
 	var settings := Settings.new()
@@ -110,7 +112,7 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 		[VideoTab.SCREEN, "Fullscreen", "Window size", "UI scale", "Brightness"]
 	)
 	assert_array(_rows(tab, VideoTab.CAMERA)).contains_exactly(
-		["Camera distance", VideoTab.FOLLOWS]
+		["Camera distance", VideoTab.FOLLOWS, VideoTab.FIXED]
 	)
 	assert_array(_rows(tab, VideoTab.TABLE)).contains_exactly(
 		["Look", "Looks bar", "Tire marks", "Crowd"]
@@ -169,3 +171,37 @@ func test_a_pad_walks_down_a_column_and_across_to_the_other() -> void:
 	var across := first.find_valid_focus_neighbor(SIDE_RIGHT)
 	assert_bool(performance.is_ancestor_of(across)).is_true()
 	assert_bool(display.is_ancestor_of(across.find_valid_focus_neighbor(SIDE_LEFT))).is_true()
+
+
+## GAME.md 8.5: the fixed camera is one setting under Camera here and in Accessibility, and each
+## page's switch shows what the other set as its page comes up.
+func test_the_fixed_camera_is_one_setting_on_both_pages() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = "user://test_video_tab.cfg"
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var on_video := _switch(screen, "Video")
+	var on_access := _switch(screen, "Accessibility")
+	screen.tabs.current_tab = screen.tabs.get_node("Video").get_index()
+	await await_idle_frame()
+	on_video.button_pressed = true
+	assert_bool(Game.settings.fixed_camera).is_true()
+	screen.tabs.current_tab = screen.tabs.get_node("Accessibility").get_index()
+	await await_idle_frame()
+	assert_bool(on_access.button_pressed).is_true()
+	on_access.button_pressed = false
+	screen.tabs.current_tab = screen.tabs.get_node("Video").get_index()
+	await await_idle_frame()
+	assert_bool(on_video.button_pressed).is_false()
+	Settings.remove_files(Game.settings.path)
+	Game.settings = settings_were
+
+
+## The fixed camera's switch on the settings page [param page].
+static func _switch(screen: SettingsScreen, page: String) -> CheckButton:
+	for row: Node in screen.tabs.get_node(page).find_children("*", "HBoxContainer", true, false):
+		var label := row.get_child(0) as Label
+		if label != null and label.text == VideoTab.FIXED:
+			return row.get_child(1) as CheckButton
+	return null

@@ -77,8 +77,8 @@ func _add_motion() -> void:
 	var shake := func(on: bool) -> void: _settings.screen_shake = on
 	_add("Screen shake", _check(_settings.screen_shake, shake))
 	_add("Rumble", _check(_settings.rumble, func(on: bool) -> void: _settings.rumble = on))
-	var still := func(on: bool) -> void: _settings.fixed_camera = on
-	_add("Fixed camera", _check(_settings.fixed_camera, still))
+	# The same setting as under Camera on the Video page, see [method VideoTab.fixed_camera_switch].
+	_add(VideoTab.FIXED, VideoTab.fixed_camera_switch(_settings))
 	var glide := func(on: bool) -> void: _settings.cursor_glide = on
 	_add("Cursor glide", _check(_settings.cursor_glide, glide))
 	var flashes := func(on: bool) -> void: _settings.flash_reduction = on

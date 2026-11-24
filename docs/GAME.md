@@ -5517,7 +5517,8 @@ from a section's button low in its box was the one beside it.
   default.
 - **Video**, in five groups, each under a heading in the house's capitals with a dotted rule
   running on after it: Display, the screen type, window mode and window size, UI scale and
-  brightness; Camera, camera distance and whom the camera follows; Table, the look, the looks
+  brightness; Camera, camera distance, whom the camera follows and the fixed camera, the same
+  setting as in Accessibility, each page's switch showing what the other set; Table, the look, the looks
   bar, tire marks and the crowd; Performance, vsync, frame rate limit, render scale, upscaler
   and show FPS; and Graphics, shadows, texture detail, ambient occlusion, bloom, MSAA and
   screen smoothing. Where the page is wide enough for the widest group twice over, the first
@@ -5659,7 +5660,8 @@ from a section's button low in its box was the one beside it.
   every lit head is a light over the whole table. The crowd is the same setting
   as on the Video page; Off empties the stands and leaves the booth, since it is
   the thousand moving things around the table rather than the party that is worth
-  being able to stop. The fixed camera is off by default and is described in 8.2:
+  being able to stop. The fixed camera is off by default, is the same setting as under Camera
+  on the Video page, and is described in 8.2:
   a camera that never goes anywhere is a smaller picture of the karts, which is a
   real cost, and a still one, which for some players is worth more. The HUD
   see-through over a kart is 8.2's; off, the camera keeps the karts out from under

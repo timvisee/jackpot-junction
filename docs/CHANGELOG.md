@@ -59,6 +59,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Fixed camera on the Video page.** It's under Camera there too, the same switch as in
+  Accessibility.
 - **Accessibility settings in groups.** The Accessibility page sorts its settings under Seeing,
   Motion and light, Aiming and Hints, in two columns where the screen has room.
 - **Video settings in groups.** The Video page sorts its settings under five headings, Display,
