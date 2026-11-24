@@ -502,7 +502,8 @@ wait...", a gold bar with how far along it is in percent beside it, and Skip,
 which has the cursor and keeps it. The menu is out of reach until the bar is full,
 when the pane fades away by itself and the cursor goes to Play, or until Skip, or
 Back, stops it, whatever was not compiled then compiled the old way, on first use,
-and the pane up again at the next start, since nothing was kept. It was a thin
+and the pane up again at the next start, since nothing was kept, but not before it,
+however often the title comes back. It was a thin
 bar in a corner with the menu answering throughout, which was missed, and the
 first match stuttered. Once through, it leaves a stamp, and the next start has
 nothing to compile and shows no pane, until a new version, another graphics card

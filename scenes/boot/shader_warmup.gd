@@ -11,7 +11,8 @@ extends Node
 ##
 ## A step is taken each frame, and the title says how far along it is in a pane over it with a
 ## Skip on it, see [WarmupPane]. Skipped, or the title left before it is done, it stops; whatever
-## was not compiled is compiled the old way, on first use.
+## was not compiled is compiled the old way, on first use. Skipped, it is not asked again until the
+## next start, however often the title comes back.
 ##
 ## Once it has run through, it leaves a stamp beside the shader cache saying for which build of
 ## the game, which renderer and which card, and how many entries the cache held: while the stamp
@@ -94,6 +95,9 @@ const STAMP_PATH := "user://shader_warmup.cfg"
 ## Whether this run has warmed up already: once a start, kept across the screens the title comes
 ## back from.
 static var done := false
+## Whether the player skipped it this run, see [WarmupPane]: kept from coming up again on every
+## visit to the title until the next start, which asks again, nothing having been stamped.
+static var skipped := false
 ## Runs headless too, for the tests: nothing is drawn, but every step is taken.
 static var force := false
 ## Where the stamp is read and written; the tests point it at a file of their own.
@@ -118,6 +122,8 @@ var _muted := false
 ## Starts the warm-up under [param parent], once a run, and returns it, or null when there is
 ## nothing to compile here: headless, or done already this run.
 static func add_to(parent: Node) -> ShaderWarmup:
+	if skipped:
+		return null
 	if done or (Game.is_headless() and not force) or stamped():
 		done = true
 		return null

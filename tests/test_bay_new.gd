@@ -32,6 +32,7 @@ func after_test() -> void:
 	TitleIntro.played = false
 	ShaderWarmup.force = false
 	ShaderWarmup.done = false
+	ShaderWarmup.skipped = false
 	get_tree().paused = false
 	if is_instance_valid(_holder):
 		remove_child(_holder)

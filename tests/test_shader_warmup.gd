@@ -7,6 +7,7 @@ const STAMP := "user://test_shader_warmup.cfg"
 
 func before_test() -> void:
 	ShaderWarmup.done = false
+	ShaderWarmup.skipped = false
 	ShaderWarmup.force = true
 	# A stamp of its own, so the player's is neither read nor written by a test.
 	ShaderWarmup.stamp_path = STAMP
@@ -16,6 +17,7 @@ func before_test() -> void:
 func after_test() -> void:
 	ShaderWarmup.force = false
 	ShaderWarmup.done = false
+	ShaderWarmup.skipped = false
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(STAMP))
 	ShaderWarmup.stamp_path = ShaderWarmup.STAMP_PATH
 
@@ -65,6 +67,7 @@ func test_it_takes_every_step_once_and_says_so() -> void:
 	# as long as the cache is still as full as it left it.
 	assert_bool(FileAccess.file_exists(STAMP)).is_true()
 	ShaderWarmup.done = false
+	ShaderWarmup.skipped = false
 	assert_bool(ShaderWarmup.stamped()).is_true()
 	assert_object(ShaderWarmup.add_to(holder)).is_null()
 	assert_bool(ShaderWarmup.done).is_true()
@@ -96,7 +99,8 @@ func test_leaving_the_title_stops_it_and_unmutes() -> void:
 
 
 ## The pane over the title says how far along it is and holds the cursor on Skip; Skip, or Back,
-## stops the compiling and the pane goes, keeping nothing, so the next start asks again.
+## stops the compiling and the pane goes, keeping nothing, so the next start asks again, but no
+## visit to the title before it.
 func test_skip_stops_it_and_puts_the_pane_away() -> void:
 	var holder: Control = auto_free(Control.new())
 	add_child(holder)
@@ -118,6 +122,9 @@ func test_skip_stops_it_and_puts_the_pane_away() -> void:
 	assert_bool(is_instance_valid(pane)).is_false()
 	assert_bool(ShaderWarmup.done).is_false()
 	assert_bool(FileAccess.file_exists(STAMP)).is_false()
+	# Not again this run, however often the title comes back.
+	assert_bool(ShaderWarmup.skipped).is_true()
+	assert_object(ShaderWarmup.add_to(holder)).is_null()
 
 
 ## Headless and not forced, there is nothing to compile, and nothing is started.

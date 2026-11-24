@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **A skipped shader warm-up stays skipped.** It no longer comes back each time you return to the
+  title, only at the next start.
 - **Controllers in demo mode on Steam.** Started from the Profiles page with Steam Input on, as
   on a Steam Machine, the demo now reads your controllers, where none of them did anything.
 - **The Garage's camera feeds fade with their panels.** With a kart behind the dyno's or the speed

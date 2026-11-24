@@ -106,6 +106,7 @@ func _show(done: float) -> void:
 func skip() -> void:
 	if _going:
 		return
+	ShaderWarmup.skipped = true
 	if is_instance_valid(warmup):
 		warmup.queue_free()
 	_go()

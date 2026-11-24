@@ -22,6 +22,7 @@ func after_test() -> void:
 	TitleIntro.played = false
 	ShaderWarmup.force = false
 	ShaderWarmup.done = false
+	ShaderWarmup.skipped = false
 	ShaderWarmup.stamp_path = ShaderWarmup.STAMP_PATH
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(WARMUP_STAMP))
 	Game.settings = _real
@@ -206,6 +207,7 @@ func test_the_title_opens_and_a_press_skips_to_the_menu() -> void:
 func test_the_opening_waits_for_the_shaders() -> void:
 	TitleIntro.force = true
 	ShaderWarmup.done = false
+	ShaderWarmup.skipped = false
 	ShaderWarmup.force = true
 	ShaderWarmup.stamp_path = WARMUP_STAMP
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(WARMUP_STAMP))
