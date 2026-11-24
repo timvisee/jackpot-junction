@@ -61,8 +61,9 @@ const TEXTURES_ULTRA := "ultra"
 const TEXTURE_DETAILS: Array[String] = [TEXTURES_AUTO, TEXTURES_LOW, TEXTURES_HIGH, TEXTURES_ULTRA]
 const TEXTURE_NAMES: Array[String] = ["Auto", "Low", "High", "Ultra"]
 ## The most frames a second the game draws, GAME.md 8.5, 0 for as many as it can: 30 for a phone
-## to last longer on its battery, and the refresh rates screens come in.
-const FRAME_LIMITS: Array[int] = [0, 30, 60, 120, 144]
+## to last longer on its battery, 40 and 90 as a Steam Deck runs its screen, and the refresh rates
+## screens come in.
+const FRAME_LIMITS: Array[int] = [0, 30, 40, 60, 90, 120, 144, 165, 240]
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]

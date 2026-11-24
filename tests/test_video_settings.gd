@@ -409,3 +409,28 @@ func test_the_frame_rate_keeps_to_the_limit() -> void:
 	assert_int(read.frame_limit).is_equal(30)
 	Settings.remove_files(settings.path)
 	Engine.max_fps = 0
+
+
+## GAME.md 8.5: the Steam Deck's own 40 and 90 and a fast monitor's 165 and 240 are limits too, kept
+## as they are, and a limit the list never had reads as unlimited.
+func test_a_deck_and_a_fast_monitor_have_limits_of_their_own() -> void:
+	for limit: int in [40, 90, 165, 240]:
+		assert_bool(limit in Settings.FRAME_LIMITS).is_true()
+		var settings := Settings.new()
+		settings.path = "user://test_video_settings.cfg"
+		settings.frame_limit = limit
+		assert_int(settings.save_to_disk()).is_equal(OK)
+		var read := Settings.new()
+		read.path = settings.path
+		read.load_from_disk()
+		assert_int(read.frame_limit).is_equal(limit)
+		Settings.remove_files(settings.path)
+	var odd := Settings.new()
+	odd.path = "user://test_video_settings.cfg"
+	odd.frame_limit = 75
+	assert_int(odd.save_to_disk()).is_equal(OK)
+	var read_odd := Settings.new()
+	read_odd.path = odd.path
+	read_odd.load_from_disk()
+	assert_int(read_odd.frame_limit).is_equal(0)
+	Settings.remove_files(odd.path)

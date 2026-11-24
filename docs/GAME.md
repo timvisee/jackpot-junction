@@ -5594,7 +5594,9 @@ from a section's button low in its box was the one beside it.
   phone's settings read as High. A change draws the floor again at once, a hitch
   of a tenth of a second or so, and a settings file from before it reads as Auto.
   The frame rate limit is the most frames a second the game draws: unlimited to
-  start with, or 30, for a phone to last longer on its battery, 60, 120 or 144. A
+  start with, or 30, for a phone to last longer on its battery, 40, 60, 90, 120, 144, 165 or
+  240: 40 and 90 for a Steam Deck run at those rates, the LCD's battery saver and the OLED's
+  own, and 165 and 240 for a fast monitor. A
   window run in the background, 9.3, keeps under it too, and `++ --bench` ignores
   it, since a frame rate held at the player's limit measures nothing. Show FPS,
   off to start with, puts the frame rate in the top left corner of every screen,
