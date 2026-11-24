@@ -5499,7 +5499,9 @@ from a section's button low in its box was the one beside it.
   the right. Every group of bindings names the keyboard's and the pad's columns over its own
   sockets, which stand under the other rows' controls, 270 wide, and the two ways to drive and
   Help me choose stand a little closer together than elsewhere, so each column takes half a
-  1080p page. Every action that can be bound is in one group. In full: how the first player
+  1080p page. Every action that can be bound is in one group, named in sentence case as every
+  other row of the settings is, and the jokers' by what they do: Previous joker, Next joker,
+  Destroy joker and Joker details; so is it while its new key is awaited. In full: how the first player
   drives, simple or advanced, each a button
   with its picture on it, a kart with an arrow each way round it and a steering
   wheel, and Help me choose beside them for the question the first Play asks, see

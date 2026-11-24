@@ -59,3 +59,22 @@ func test_the_groups_stand_under_headings() -> void:
 		)
 		. is_not_null()
 	)
+
+
+## Every action is named in sentence case, as every other row of the settings is, the jokers' by
+## what they do; and so while its new key is awaited.
+func test_the_actions_are_named_in_sentence_case() -> void:
+	for action: StringName in SettingsScreen.REBINDABLE:
+		var words := SettingsScreen._action_words(action)
+		assert_str(words.substr(1)).is_equal(words.substr(1).to_lower())
+		assert_str(words.substr(0, 1)).is_equal(words.substr(0, 1).to_upper())
+	assert_str(SettingsScreen._action_words(InputActions.JOKER_PREV)).is_equal("Previous joker")
+	assert_str(SettingsScreen._action_words(InputActions.STEER_LEFT)).is_equal("Steer left")
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var sockets: Array = screen._binding_labels[InputActions.JOKER_NEXT]
+	(sockets[0] as Button).pressed.emit()
+	assert_str(screen.status.text).contains("Next joker")
+	screen._stop_listening("")
+	# The keys taken out of the sockets go at the end of the frame.
+	await await_idle_frame()

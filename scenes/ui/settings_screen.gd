@@ -50,6 +50,34 @@ const BINDINGS: Dictionary[String, Array] = {
 		InputActions.EMOTE_WHEEL,
 	],
 }
+## What each action is called down the left of its sockets, to a screen reader and while its new
+## key is awaited: in sentence case as every other row of the settings is, and for the jokers'
+## by what they do.
+const ACTION_WORDS: Dictionary[StringName, String] = {
+	InputActions.THROTTLE: "Throttle",
+	InputActions.BRAKE: "Brake",
+	InputActions.STEER_LEFT: "Steer left",
+	InputActions.STEER_RIGHT: "Steer right",
+	InputActions.DRIVE_UP: "Drive up",
+	InputActions.DRIVE_DOWN: "Drive down",
+	InputActions.HANDBRAKE: "Handbrake",
+	InputActions.NITRO: "Nitro",
+	InputActions.FIRE: "Fire",
+	InputActions.USE_ITEM: "Use item",
+	InputActions.PAUSE: "Pause",
+	InputActions.JOIN: "Join",
+	InputActions.MUTE_MUSIC: "Mute music",
+	InputActions.JOKER_MENU: "Joker menu",
+	InputActions.JOKER_PREV: "Previous joker",
+	InputActions.JOKER_NEXT: "Next joker",
+	InputActions.JOKER_DESTROY: "Destroy joker",
+	InputActions.DETAILS: "Joker details",
+	InputActions.EMOTE_1: "Emote 1",
+	InputActions.EMOTE_2: "Emote 2",
+	InputActions.EMOTE_3: "Emote 3",
+	InputActions.EMOTE_4: "Emote 4",
+	InputActions.EMOTE_WHEEL: "Emote wheel",
+}
 const REBINDABLE: Array[StringName] = [
 	InputActions.THROTTLE,
 	InputActions.BRAKE,
@@ -555,7 +583,7 @@ func _start_listening(action: StringName, keyboard: bool, button: Button) -> voi
 	button.text = LISTENING_KEY if keyboard else LISTENING_PAD
 	status.text = (
 		"Press a %s input for %s, Escape cancels"
-		% ["keyboard or mouse" if keyboard else "gamepad", String(action)]
+		% ["keyboard or mouse" if keyboard else "gamepad", _action_words(action)]
 	)
 
 
@@ -590,7 +618,7 @@ func _refresh_binding(action: StringName) -> void:
 
 ## What the row of [param action] is called, down the left of its sockets.
 static func _action_words(action: StringName) -> String:
-	return String(action).replace("_", " ").capitalize()
+	return ACTION_WORDS.get(action, String(action).replace("_", " ").capitalize())
 
 
 static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:

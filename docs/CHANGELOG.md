@@ -70,6 +70,8 @@ below, and hands the notes to the release workflow.
   as 80%.
 - **Fixed camera on the Video page.** It's under Camera there too, the same switch as in
   Accessibility.
+- **Clearer action names.** The Controls page says Previous joker and Next joker rather than
+  Joker Prev and Joker Next, and names every action in plain sentence case.
 - **Controls in groups.** The Controls page sorts its bindings under Driving, Fighting, Game,
   Jokers and Emotes, beside a Controllers group, in two columns where the screen has room.
 - **Accessibility settings in groups.** The Accessibility page sorts its settings under Seeing,
