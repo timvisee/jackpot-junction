@@ -59,6 +59,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Accessibility settings in groups.** The Accessibility page sorts its settings under Seeing,
+  Motion and light, Aiming and Hints, in two columns where the screen has room.
 - **Video settings in groups.** The Video page sorts its settings under five headings, Display,
   Camera, Table, Performance and Graphics, in two columns where the screen has room.
 - **A quieter cash-out.** The chime when you bank, and the fanfare over a big pot, a bounty or a

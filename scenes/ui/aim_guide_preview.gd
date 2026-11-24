@@ -9,8 +9,9 @@ extends SubViewportContainer
 ## of foil.
 
 ## How big it stands on the page, and how much of the felt it shows top to bottom, in meters: the
-## longest guide with the kart behind it, about as big as the match's camera shows them.
-const SIZE := Vector2(600.0, 170.0)
+## longest guide with the kart behind it, about as big as the match's camera shows them, in a
+## window narrow enough for a column of its own beside another, see [SettingsColumns].
+const SIZE := Vector2(560.0, 159.0)
 const SHOWS := 4.2
 ## The match camera's pitch, see [CameraRig], and the middle of what is shown.
 const PITCH_DEG := 55.0
