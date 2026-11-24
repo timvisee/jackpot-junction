@@ -46,6 +46,10 @@ const WALKS := OpeningInvitation.WALKS
 const STEPS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
 const TRY_ON := "Try them on"
 const CLOSE := "Close"
+## The layer the thanks for a pack just bought come up on, see [method over_all]: over the kart
+## dialog, the catalog and the program's map, at 25, under the ending's last lines and the
+## achievements' toasts.
+const LAYER := 30
 
 var card: ThankYouCard
 var try_on: Button
@@ -53,8 +57,13 @@ var closing: Button
 ## Whether it is held up again, from where it is taped up in the Garage's bay, see [BayThanks]: the
 ## card alone, no envelope, Close its one button, and nothing kept.
 var again := false
+## What the thanks are up over, which Try them on opens the kart dialog over: the menu under their
+## layer, see [method over_all], or else their parent.
+var under: Control
 ## Where the card lies: beside the envelope, or in the middle when it is held up again.
 var _at := CARD_AT
+## The layer of their own they are up on, see [method over_all], which goes with them.
+var _layer: CanvasLayer
 
 var _stage: Control
 var _beams: Node2D
@@ -93,6 +102,31 @@ static func over(parent: Control) -> SupporterThanks:
 	var thanks := SupporterThanks.new()
 	thanks.name = "SupporterThanks"
 	parent.add_child(thanks)
+	return thanks
+
+
+## The thanks for a pack just bought while [param menu] is up, GAME.md 10.8, started at once over
+## whatever is open over it, the kart dialog the pack was bought from, say, on a layer of their own;
+## once they are put away the cursor goes back where it was. Null when they are not due.
+static func over_all(menu: Control) -> SupporterThanks:
+	if not due():
+		return null
+	var layer := CanvasLayer.new()
+	layer.name = "SupporterThanksLayer"
+	layer.layer = LAYER
+	menu.add_child(layer)
+	var thanks := SupporterThanks.new()
+	thanks.name = "SupporterThanks"
+	thanks.under = menu
+	thanks._layer = layer
+	layer.add_child(thanks)
+	var had := menu.get_viewport().gui_get_focus_owner()
+	thanks.put_away.connect(
+		func() -> void:
+			if is_instance_valid(had) and had.is_visible_in_tree():
+				had.grab_focus()
+	)
+	thanks.start()
 	return thanks
 
 
@@ -338,11 +372,15 @@ func _close(trying: bool) -> void:
 	drop.tween_property(self, "modulate:a", 0.0, 0.2)
 	drop.tween_callback(
 		func() -> void:
-			var under := get_parent() as Control
+			var over := under if under != null else get_parent() as Control
 			put_away.emit()
-			if trying and under != null:
+			if trying and over != null:
 				# Not a second dialog over one already open, the pack bought from it.
-				if under.find_children("*", "KartDialog", false, false).is_empty():
-					KartDialog.open(under)
-			queue_free()
+				if over.find_children("*", "KartDialog", false, false).is_empty():
+					KartDialog.open(over)
+			# Their layer goes with them, where they have one.
+			if _layer != null:
+				_layer.queue_free()
+			else:
+				queue_free()
 	)

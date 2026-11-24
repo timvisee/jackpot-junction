@@ -11286,8 +11286,10 @@ tries it on the kart all the same, since seeing it there is what it is offered f
 one opens the DLC's store page in Steam's overlay. Steam is asked again whenever a DLC is
 installed, as one just bought is, and whenever the overlay closes; the rack out then fills again in
 place, its pieces unlocked, and in the menus, the title or the settings with the kart dialog over
-them or not, the thank-you card comes up at once over whatever is open, where in a match it waits
-for the title. Where it is offered and not owned, the About page of the settings, 8.5, has a faint
+them or not, the thank-you card comes up at once over whatever is open, on a layer of its own over
+the kart dialog, the catalog and the program's map, the cursor back where it was once it is put
+away; on the title with the shaders' warm-up or a card up it comes right after them instead, never
+over them; and in a match it waits for the title. Where it is offered and not owned, the About page of the settings, 8.5, has a faint
 line on it under the game's own links and a gold link in the middle, as theirs are, with the
 pack's star pinned beside it, to its store page, gone once it is bought. An owner's title has the
 pack's star and "Supporter Pack" in its bottom left corner, opposite the version and in its gray,

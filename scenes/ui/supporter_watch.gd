@@ -36,7 +36,9 @@ static func thank(scene: Node) -> SupporterThanks:
 		return null
 	if menu.find_child("SupporterThanks", true, false) != null:
 		return null
-	var thanks := SupporterThanks.over(menu)
-	if thanks != null:
-		thanks.start()
-	return thanks
+	# On the title with its warm-up or a card up, right after them, see [TitleCards]: asked by name,
+	# as this hangs under [Game], which is never to name the title's classes.
+	var cards := menu.get_node_or_null(^"Cards")
+	if cards != null and cards.has_method(&"thank_after") and bool(cards.call(&"thank_after")):
+		return null
+	return SupporterThanks.over_all(menu)

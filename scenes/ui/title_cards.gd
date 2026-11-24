@@ -8,7 +8,9 @@ extends Node
 ## 6.11. A visit back from the settings or Play Online, where the player went to change something
 ## rather than to play, brings none but the invitation. A card is put up at once, under the
 ## warm-up's pane, so it has drawn everything once by the time it starts, and started once the
-## shaders have compiled. Once nothing is up the title is the player's, see [signal opened].
+## shaders have compiled. Once nothing is up the title is the player's, see [signal opened]. The
+## supporter pack bought while one is up has its thanks come right after it, see [method
+## thank_after].
 
 ## Nothing is up any more: the title is the player's, its opening to play or the cursor to go on
 ## Play.
@@ -34,6 +36,8 @@ var welcome: LoyaltyWelcome
 var mail: Variant
 
 var _title: Control
+## Whether the thanks for a pack bought while a card was up come once it is put away.
+var _thanks_after := false
 
 
 ## The cards for [param title], under it, going to [param school] for the free lesson: put up by
@@ -93,6 +97,15 @@ func holding(warm_up := true) -> bool:
 	return (warm_up and warming != null) or invitation != null or welcome != null
 
 
+## Whether the thanks for the supporter pack just bought wait, GAME.md 10.8: with the warm-up or a
+## card up they come right after it, never over it.
+func thank_after() -> bool:
+	if warming == null and invitation == null and welcome == null and mail == null:
+		return false
+	_thanks_after = true
+	return true
+
+
 ## The shaders compiled, skipped, or none to compile: the card put up starts, or the title opens.
 func _on_warmed() -> void:
 	warming = null
@@ -144,4 +157,10 @@ func _on_mail_put_away() -> void:
 
 func _open() -> void:
 	invitation = null
+	if _thanks_after and SupporterThanks.due():
+		_thanks_after = false
+		mail = SupporterThanks.over(_title)
+		mail.put_away.connect(_on_mail_put_away)
+		mail.start()
+		return
 	opened.emit()

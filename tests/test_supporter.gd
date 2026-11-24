@@ -722,17 +722,52 @@ func test_bought_in_the_menus_the_card_comes_at_once() -> void:
 	var menu: Control = auto_free(Control.new())
 	menu.scene_file_path = Game.TITLE_SCENE
 	add_child(menu)
+	var bought_from := Button.new()
+	menu.add_child(bought_from)
+	bought_from.grab_focus()
 	assert_object(SupporterWatch.thank(menu)).is_null()
 	Supporter.set_owned(true)
 	var thanks := SupporterWatch.thank(menu)
 	assert_object(thanks).is_not_null()
 	assert_bool(thanks.again).is_false()
+	# Over whatever is open over the menu, the kart dialog the pack was bought from, say.
+	assert_int((thanks.get_parent() as CanvasLayer).layer).is_greater(KartDialog.LAYER)
+	assert_object(thanks.under).is_same(menu)
 	assert_object(SupporterWatch.thank(menu)).is_null()
+	# Closed, its layer goes with it and the cursor is back where it was.
+	var layer := thanks.get_parent()
+	thanks.closing.pressed.emit()
+	await await_millis(int((SupporterThanks.DROP + 0.8) * 1000.0))
+	assert_bool(is_instance_valid(layer)).is_false()
+	assert_bool(bought_from.has_focus()).is_true()
 	var room: Control = auto_free(Control.new())
 	add_child(room)
 	assert_object(SupporterWatch.thank(room)).is_null()
 	remove_child(menu)
 	remove_child(room)
+
+
+## Bought while the title has a card up, the invitation say, the thanks wait and come right after
+## it, never over it, GAME.md 10.8.
+func test_bought_under_a_title_card_the_thanks_come_after_it() -> void:
+	Supporter.start(PackedStringArray(), false, true)
+	Game.settings.license_number = "JJ-0001"
+	OpeningInvitation.again = true
+	var title: Control = auto_free(TITLE.instantiate())
+	title.scene_file_path = Game.TITLE_SCENE
+	add_child(title)
+	await await_idle_frame()
+	OpeningInvitation.again = false
+	assert_object(title.cards.invitation).is_not_null()
+	Supporter.set_owned(true)
+	assert_object(SupporterWatch.thank(title)).is_null()
+	assert_object(title.find_child("SupporterThanks", true, false)).is_null()
+	title.cards.invitation.come_on_now()
+	await await_idle_frame()
+	title.cards.invitation.accepted.emit()
+	assert_bool(title.cards.mail is SupporterThanks).is_true()
+	assert_object(title.find_child("SupporterThanks", true, false)).is_not_null()
+	remove_child(title)
 
 
 ## The settings' Me page has a Supporter Pack section where the pack is owned, with the day it was

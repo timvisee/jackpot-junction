@@ -28,6 +28,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The thank-you card when you buy the pack.** Bought from the kart dialog, it comes up over the
+  dialog instead of hidden under it, and on the title it waits for the card already up.
 - **A skipped shader warm-up stays skipped.** It no longer comes back each time you return to the
   title, only at the next start.
 - **Controllers in demo mode on Steam.** Started from the Profiles page with Steam Input on, as
