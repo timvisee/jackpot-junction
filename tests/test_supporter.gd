@@ -671,6 +671,8 @@ func test_the_thanks_come_after_the_invitation_and_before_the_welcome() -> void:
 	await await_idle_frame()
 	assert_object(first.cards.invitation).is_not_null()
 	assert_object(first.cards.mail).is_null()
+	# Up, it keeps an achievement's toast waiting, see [AchievementToasts].
+	assert_bool(first.cards.is_in_group(TitleCards.UP)).is_true()
 	remove_child(first)
 	OpeningInvitation.again = false
 	var second: Control = auto_free(TITLE.instantiate())
@@ -767,6 +769,11 @@ func test_bought_under_a_title_card_the_thanks_come_after_it() -> void:
 	title.cards.invitation.accepted.emit()
 	assert_bool(title.cards.mail is SupporterThanks).is_true()
 	assert_object(title.find_child("SupporterThanks", true, false)).is_not_null()
+	await await_idle_frame()
+	assert_bool(title.cards.is_in_group(TitleCards.UP)).is_true()
+	title.cards.mail.closing.pressed.emit()
+	await await_millis(int((SupporterThanks.DROP + 0.8) * 1000.0))
+	assert_bool(title.cards.is_in_group(TitleCards.UP)).is_false()
 	remove_child(title)
 
 

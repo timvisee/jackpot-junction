@@ -33,6 +33,25 @@ func test_one_at_a_time() -> void:
 	assert_str(String(up[0].achievement.id)).is_equal("parry")
 
 
+## Over the title's warm-up or a card it has up, an invitation say, none comes up: it waits until
+## the card is put away, GAME.md 8.10.
+func test_it_waits_for_a_title_card() -> void:
+	assert_str(String(AchievementToasts.TITLE_CARD_UP)).is_equal(String(TitleCards.UP))
+	var holder: Node = auto_free(Node.new())
+	_runner = scene_runner(holder)
+	var layer := AchievementToasts.new()
+	holder.add_child(layer)
+	var card := Node.new()
+	holder.add_child(card)
+	card.add_to_group(TitleCards.UP)
+	Events.achievement_earned.emit(Game.settings.profile.id, &"bank_shot", -1)
+	await _runner.simulate_frames(3, 17)
+	assert_int(_toasts_in(layer).size()).is_equal(0)
+	card.remove_from_group(TitleCards.UP)
+	await _runner.simulate_frames(3, 17)
+	assert_int(_toasts_in(layer).size()).is_equal(1)
+
+
 ## Beside a seat's block it stands toward the middle of the screen, level with the block's top, and
 ## under a BET WON already beside it rather than over it.
 func test_beside_the_block_and_under_a_bet_won() -> void:

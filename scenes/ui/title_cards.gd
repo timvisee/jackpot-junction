@@ -10,13 +10,17 @@ extends Node
 ## warm-up's pane, so it has drawn everything once by the time it starts, and started once the
 ## shaders have compiled. Once nothing is up the title is the player's, see [signal opened]. The
 ## supporter pack bought while one is up has its thanks come right after it, see [method
-## thank_after].
+## thank_after], and an achievement's toast waits for it, see [constant UP].
 
 ## Nothing is up any more: the title is the player's, its opening to play or the cursor to go on
 ## Play.
 signal opened
 ## The program's welcome has opened its map over the title, [param dialog].
 signal welcomed(dialog: LoyaltyDialog)
+
+## The group the cards are in while the warm-up or a card is up: an achievement's toast waits for
+## them rather than coming up over them, GAME.md 8.10, see [AchievementToasts].
+const UP := &"title_card_up"
 
 ## Whether the next visit to the title is back from the settings or Play Online, see the class.
 static var from_the_menus := false
@@ -89,12 +93,28 @@ func put_up() -> void:
 		warming.put_away.connect(_on_warmed)
 	else:
 		_on_warmed()
+	_mark_up()
 
 
 ## Whether the warm-up's pane, with [param warm_up], the invitation or the program's welcome is up,
 ## which the title's own keys keep out of the way of.
 func holding(warm_up := true) -> bool:
 	return (warm_up and warming != null) or invitation != null or welcome != null
+
+
+func _process(_delta: float) -> void:
+	_mark_up()
+
+
+## In [constant UP] while the warm-up or a card is up, and out of it once none is.
+func _mark_up() -> void:
+	var up := false
+	for each: Variant in [warming, invitation, welcome, mail]:
+		up = up or is_instance_valid(each)
+	if up and not is_in_group(UP):
+		add_to_group(UP)
+	elif not up and is_in_group(UP):
+		remove_from_group(UP)
 
 
 ## Whether the thanks for the supporter pack just bought wait, GAME.md 10.8: with the warm-up or a

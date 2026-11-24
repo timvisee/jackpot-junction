@@ -7061,7 +7061,9 @@ the rubber stamp of a row of the dialog, a little askew. Five seconds, then it s
 out the way it came. Its sound is that stamp coming down and then one small bright bell, which nothing
 at the table makes: a chime borrowed from the table, a cash-out's or a chip's, said something else had
 happened, and a bright run of bells after it sounded like a slot machine paying out. Another earned meanwhile waits its turn, and none comes up while a
-loading screen is up or over the ending's last lines. In a room it comes down from the top of the
+loading screen is up, over the ending's last lines, or over the shaders' warm-up or a card the title
+has up, the invitation, the thanks, the program's welcome or a House letter (`TitleCards.UP`), which
+it waits for. In a room it comes down from the top of the
 screen, or up from its foot, to beside the corner of the seat that earned it, 8.3, after any BET WON
 there and never over it, as small as it has to be to fit between that corner and whatever stands in
 the middle of the screen's edge, the clock and what hangs beside it or the lobby's count, and under

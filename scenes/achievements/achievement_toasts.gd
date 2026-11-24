@@ -12,6 +12,9 @@ const GROUP := Achievements.TOAST_LAYERS
 ## The group a room's pause menu is in, [code]PauseMenu.GROUP[/code]: named, not its class, as what
 ## is put up with the game names nothing of the rooms', see [Game].
 const ROOM_MENUS := &"pause_menu"
+## The group the title's cards are in while the warm-up or a card is up, [code]TitleCards.UP[/code],
+## named for the same reason.
+const TITLE_CARD_UP := &"title_card_up"
 
 ## What is waiting to come up: the profile's id, the achievement's and the seat's, or a count.
 var _waiting: Array[Dictionary] = []
@@ -60,6 +63,9 @@ func _process(_delta: float) -> void:
 			_up.to_the_corner()
 		return
 	if not visible or get_tree().get_first_node_in_group(LoadingScreen.GROUP) != null:
+		return
+	# Nor over the shaders' warm-up or a card the title has up: once it is put away.
+	if get_tree().get_first_node_in_group(TITLE_CARD_UP) != null:
 		return
 	_up = null
 	while not _waiting.is_empty() and _up == null:

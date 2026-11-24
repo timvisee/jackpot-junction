@@ -18,6 +18,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Achievement toasts wait for the title's cards.** One carried back from a match waits until the
+  invitation, the thank-you, the loyalty welcome or a House letter is put away.
 - **No card after Settings.** Back at the title from the settings or Play Online, the next card
   waits for a start or a return from play, so a quick look at a setting brings nothing up.
 - **The supporter pack's thank-you comes sooner.** On the title it comes right after the
