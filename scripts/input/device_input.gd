@@ -11,6 +11,9 @@ const KEYBOARD := -1
 const LED_CURVE := 1.6
 ## Below this saturation a color is a gray, and a pad is lit in it as it is.
 const LED_GRAY := 0.1
+## A knock that says "this pad", see [method nudge]: its light motor and its heavy one, 0 to 1, and
+## for how long, in seconds.
+const NUDGE := Vector3(0.55, 0.9, 0.25)
 
 ## The devices input came from, the most recent first, each once, in the menus as much as in a
 ## match, see [method touched]: what a player reading every device was holding before somebody
@@ -66,6 +69,13 @@ static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void
 			steam_rumble.call(pad, weak, strong, seconds)
 		return
 	Input.start_joy_vibration(pad, weak, strong, seconds)
+
+
+## Knocks the pad [param pad] once, see [constant NUDGE], for its player to feel which pad it is or
+## that rumble is on: Show controls turned to it, GAME.md 8.3b, and Rumble switched on, 8.5. The
+## caller asks whether rumble is on.
+static func nudge(pad: int) -> void:
+	rumble(pad, NUDGE.x, NUDGE.y, NUDGE.z)
 
 
 ## Lights the pad [param pad] in [param color], its seat's, see [PadLights]: through Steam for a pad

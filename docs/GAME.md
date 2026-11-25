@@ -5193,8 +5193,8 @@ Steam.
   player picks up theirs and sees it; nothing else a pad presses turns it. Its key stands on the top
   edge of the tab it turns to, at its right, as that pad prints it: N on Keyboard's, Share on a
   DualShock's, View on an Xbox pad's, and the drawn pad's on the tab the pads share. A pad's sheets
-  coming up knock the pad, a short rumble where rumble is on, so its player feels which it is, and
-  Mine knocks it again with them up already. A keyboard without its number pad in the US layout's
+  coming up knock the pad, a quarter of a second's rumble where rumble is on (`DeviceInput.nudge`),
+  so its player feels which it is, and Mine knocks it again with them up already. A keyboard without its number pad in the US layout's
   shape, which serves every layout since keys are bound by where they are, each key in outline with
   its name as the player's keyboard prints it, 8.3, the ones bound on the sheet lit, the left one of
   Shift, Ctrl and Alt alone; and a mouse beside it, its buttons lit where bound and on the driving
