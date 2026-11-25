@@ -29,6 +29,12 @@ const RINGS_OFF := "off"
 const RINGS_HERE := "here"
 const RINGS_ALL := "all"
 const RINGS: Array[String] = [RINGS_OFF, RINGS_HERE, RINGS_ALL]
+## The arrows at the edge of the screen pointing at a rival out of the picture, GAME.md 8.2: none,
+## faint, or as bold as those at the karts driven here.
+const RIVAL_ARROWS_OFF := "off"
+const RIVAL_ARROWS_FAINT := "faint"
+const RIVAL_ARROWS_FULL := "full"
+const RIVAL_ARROWS: Array[String] = [RIVAL_ARROWS_OFF, RIVAL_ARROWS_FAINT, RIVAL_ARROWS_FULL]
 
 
 ## What a machine is played on until its player says, GAME.md 8.5: a phone or a tablet in the hand,

@@ -1,9 +1,10 @@
 class_name KartPointers
 extends Control
 ## Where the karts are when they cannot be seen, GAME.md 8.2 and 8.5: an arrow in its color at the
-## edge of the screen for every kart out of the picture, pointing at it, bigger for a kart driven
-## here, but for the Garage's dummies, parked targets rather than players; and, asked for in
-## Accessibility, a marker over each kart driven here. A camera that keeps
+## edge of the screen for every kart out of the picture, pointing at it, bold for a kart driven here
+## and for a rival as Rival arrows says, faint unless asked otherwise, or none; never for the
+## Garage's dummies, parked targets rather than players; and, asked for in Accessibility, a marker
+## over each kart driven here. A camera that keeps
 ## only some karts in the picture, see [FramedKarts], leaves the rest to these, and one that keeps
 ## them all still has a kart come back out past the edge for a moment, see [FramedSpots].
 ##
@@ -14,6 +15,10 @@ extends Control
 const INSET := 30.0
 const ARROW := 18.0
 const ARROW_HERE := 26.0
+## A rival's arrow drawn faint, see [constant ViewChoices.RIVAL_ARROWS_FAINT]: how long, and how
+## much of it shows, its edge with it.
+const ARROW_FAINT := 14.0
+const FAINT := 0.6
 ## The marker over a kart driven here: how wide it is, and how high over the kart's middle it
 ## floats, in meters, so it clears a hat and a flag; and how far over a hint hung over the kart it
 ## goes while one is up, such as the drive hint at the start, in the HUD's units, see [ScreenHint].
@@ -55,6 +60,7 @@ func _process(_delta: float) -> void:
 func _place(match_node: Match, rig: CameraRig) -> void:
 	var here := CameraRig._valid(rig.listener_targets)
 	var marking := Game.settings.kart_marker
+	var rivals := Game.settings.rival_arrows
 	var screen := Rect2(Vector2.ZERO, size)
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
@@ -68,17 +74,35 @@ func _place(match_node: Match, rig: CameraRig) -> void:
 			if mine and marking:
 				var over := _over(kart, middle + Vector3.UP * MARKER_LIFT, rig.camera)
 				_signs.append(
-					{at = over, way = Vector2.DOWN, length = MARKER, color = slot.color()}
+					{
+						at = over,
+						way = Vector2.DOWN,
+						length = MARKER,
+						color = slot.color(),
+						shows = 1.0
+					}
 				)
+			continue
+		if not mine and rivals == ViewChoices.RIVAL_ARROWS_OFF:
 			continue
 		var middle_of := size * 0.5
 		var way := (at - middle_of) * (-1.0 if behind else 1.0)
 		if way.is_zero_approx():
 			continue
 		way = way.normalized()
-		var length := ARROW_HERE if mine else ARROW
-		_signs.append(
-			{at = _on_edge(middle_of, way), way = way, length = length, color = slot.color()}
+		var faint := not mine and rivals == ViewChoices.RIVAL_ARROWS_FAINT
+		var length := ARROW_HERE if mine else (ARROW_FAINT if faint else ARROW)
+		(
+			_signs
+			. append(
+				{
+					at = _on_edge(middle_of, way),
+					way = way,
+					length = length,
+					color = slot.color(),
+					shows = FAINT if faint else 1.0,
+				}
+			)
 		)
 
 
@@ -107,19 +131,19 @@ func _on_edge(from: Vector2, way: Vector2) -> Vector2:
 
 func _draw() -> void:
 	for each: Dictionary in _signs:
-		draw_sign(self, each.at, each.way, each.length, each.color)
+		draw_sign(self, each.at, each.way, each.length, each.color, each.shows)
 
 
 ## An arrow or a marker on [param canvas], its tip at [param tip] pointing [param way],
-## [param length] long, in [param color] edged in ink. The marker hangs over the kart, its point
-## down at it, as the Accessibility page's preview has it too, see [KartMarksPreview]; an arrow
-## points out past the edge.
+## [param length] long, in [param color] edged in ink, [param shows] of it showing. The marker hangs
+## over the kart, its point down at it, as the Accessibility page's preview has it too, see
+## [KartMarksPreview]; an arrow points out past the edge.
 static func draw_sign(
-	canvas: CanvasItem, tip: Vector2, way: Vector2, length: float, color: Color
+	canvas: CanvasItem, tip: Vector2, way: Vector2, length: float, color: Color, shows := 1.0
 ) -> void:
 	var base := tip - way * length
 	var side := way.orthogonal() * length * 0.55
 	var shape := PackedVector2Array([tip, base + side, base - side])
-	canvas.draw_colored_polygon(shape, color)
+	canvas.draw_colored_polygon(shape, Color(color, color.a * shows))
 	shape.append(tip)
-	canvas.draw_polyline(shape, INK, EDGE, true)
+	canvas.draw_polyline(shape, Color(INK, INK.a * shows), EDGE, true)

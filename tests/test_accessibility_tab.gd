@@ -41,7 +41,7 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 	assert_array(headings).is_equal(groups)
 	assert_int(page._groups.split).is_equal(2)
 	assert_array(_rows(page, AccessibilityTab.SEEING)).contains_exactly(
-		["Color blindness", "", "Kart rings", "Marker over my kart"]
+		["Color blindness", "", "Kart rings", "Marker over my kart", "Rival arrows"]
 	)
 	var preview := page.get_node("Groups/%s" % AccessibilityTab.SEEING).find_child(
 		"KartMarksPreview", true, false

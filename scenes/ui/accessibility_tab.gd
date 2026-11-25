@@ -60,6 +60,15 @@ func _add_seeing() -> void:
 	_add("Kart rings", rings)
 	var mark := func(on: bool) -> void: _settings.kart_marker = on
 	_add("Marker over my kart", _check(_settings.kart_marker, mark))
+	# The arrows at a rival out of the picture, GAME.md 8.2; a kart driven here is always pointed at.
+	var arrows := MenuTheme.option(
+		["Off", "Faint", "Full"], maxi(ViewChoices.RIVAL_ARROWS.find(_settings.rival_arrows), 0)
+	)
+	arrows.name = "RivalArrows"
+	arrows.item_selected.connect(
+		func(index: int) -> void: _settings.rival_arrows = ViewChoices.RIVAL_ARROWS[index]
+	)
+	_add("Rival arrows", arrows)
 
 
 ## What shakes, moves and flashes, for anybody it bothers.

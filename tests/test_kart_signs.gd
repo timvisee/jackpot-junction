@@ -13,7 +13,9 @@ var _was: Dictionary = {}
 
 func before_test() -> void:
 	var settings := Game.settings
-	_was = {rings = settings.kart_rings, marker = settings.kart_marker}
+	_was = {
+		rings = settings.kart_rings, marker = settings.kart_marker, arrows = settings.rival_arrows
+	}
 	settings.kart_rings = ViewChoices.RINGS_OFF
 	settings.kart_marker = false
 
@@ -21,6 +23,7 @@ func before_test() -> void:
 func after_test() -> void:
 	Game.settings.kart_rings = _was.rings
 	Game.settings.kart_marker = _was.marker
+	Game.settings.rival_arrows = _was.arrows
 
 
 ## A match with a player at this screen and a bot, its HUD up.
@@ -52,6 +55,40 @@ func test_a_kart_out_of_the_picture_is_pointed_at_from_the_edge() -> void:
 	var at: Vector2 = arrows[0].at
 	assert_float(at.x).is_equal_approx(pointers.size.x - KartPointers.INSET, 1.0)
 	assert_float((arrows[0].way as Vector2).x).is_greater(0.5)
+
+
+## A rival out of the picture is pointed at as Rival arrows says: faint, smaller and see-through,
+## out of the box; as bold as a kart driven here's; or not at all. A kart driven here is always
+## pointed at in full.
+func test_a_rivals_arrow_is_as_asked() -> void:
+	var match_node := await _playing()
+	var pointers := match_node.hud.get_node("KartPointers") as KartPointers
+	var camera := match_node.camera_rig.camera
+	for seat: int in 2:
+		var kart := match_node.kart_of(seat)
+		kart.global_position = camera.global_position + Vector3(400.0 * (seat * 2 - 1), 0.0, 0.0)
+		kart.global_position.y = 0.0
+	var of_seat := func(seat: int) -> Array:
+		pointers._process(0.0)
+		return pointers._signs.filter(
+			func(each: Dictionary) -> bool: return each.color == match_node.slots[seat].color()
+		)
+	var wanted := [
+		[ViewChoices.RIVAL_ARROWS_FAINT, KartPointers.ARROW_FAINT, KartPointers.FAINT],
+		[ViewChoices.RIVAL_ARROWS_FULL, KartPointers.ARROW, 1.0],
+	]
+	for each: Array in wanted:
+		Game.settings.rival_arrows = each[0]
+		var rival: Array = of_seat.call(1)
+		assert_int(rival.size()).is_equal(1)
+		assert_float(rival[0].length).is_equal(each[1])
+		assert_float(rival[0].shows).is_equal(each[2])
+		var mine: Array = of_seat.call(0)
+		assert_float(mine[0].length).is_equal(KartPointers.ARROW_HERE)
+		assert_float(mine[0].shows).is_equal(1.0)
+	Game.settings.rival_arrows = ViewChoices.RIVAL_ARROWS_OFF
+	assert_array(of_seat.call(1)).is_empty()
+	assert_int((of_seat.call(0) as Array).size()).is_equal(1)
 
 
 ## The Garage's dummies are parked targets, not players: nothing points at one out of the picture.

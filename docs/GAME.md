@@ -4458,7 +4458,8 @@ respawn's cut dips to dark.
 
 Every kart out of the picture is pointed at from the edge of the screen, an arrow
 in its color edged in ink, 30 px in from the edge on the line from the middle of
-the screen to it, bigger for a kart driven here: a rival left out of the shot is
+the screen to it, bigger for a kart driven here and a rival's faint unless Rival arrows in
+Accessibility, 8.5, says Full or Off: a rival left out of the shot is
 still somewhere the player knows, and a kart that comes back past the edge of the
 shot, as a kart driven here may for a moment as it glides in, is found at once.
 The Garage's two dummies, 9.4, parked targets rather than players, are not pointed
@@ -4538,7 +4539,7 @@ arena, since it holds the pad and who stands on it rather than the room.
 | Who is framed    | Auto (everybody at a desk; the karts driven here and the rivals near them on a TV, a handheld, a window under 760 lines or a UI over 100%, never My kart, which followed one kart so close on a TV the table was lost round it), Everyone, Nearby rivals (within 0.45 of the arena's longer side, let go at 1.25 times that; aimed at the karts driven here, no closer than half the whole arena's distance) or My kart; everybody with nobody driving here |
 | Over the arena   | At most 10% of the screen at each edge shows past the arena, the near edge counted at 1.2 m over the floor; at a desk more as the UI is turned down, 14% at 90% and 20% at 75%; centered where the view is wider; slid over 0.3 s after the framing; not while anything is kept clear |
 | Own kart         | Always on the screen: 3.5 m of floor round each kart driven here, 1.5 m tall, kept by the aim, the slide up and down and the least distance; past the eases, the picture slid at once to keep 2 m, after every other slide |
-| Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here and 18 for a rival |
+| Off the screen   | An arrow in the kart's color, edged in ink, 30 px in from the edge toward every kart out of the picture, 26 px long for a kart driven here; a rival's 14 px at 60% by default, 18 px in full or none, as Rival arrows says |
 | Opening shot     | The whole arena plus 3 m of the room round it, centered, placed as the map finishes building and moved in from at once |
 | Pan              | Target is the middle of the box all alive karts are in, clamped to half the arena so the look-at point stays over the table |
 | Fixed camera     | Off by default, in the accessibility settings of 8.5. Holds the arena exactly, without the 1 m margin the waiting framing keeps, for the whole match: no pan, no coming in, no look-ahead, and no opening out at the whistle. The opening shot and the move in from it still happen |
@@ -5709,7 +5710,8 @@ from a section's button low in its box was the one beside it.
   match. Nothing about the crowd changes anything a kart can touch.
 - **Accessibility**, in four groups under headings as on the Video page, two columns side by
   side on a 1080p screen and one under the other on a narrower one: Seeing, the palette for
-  color blindness, a window onto three karts, kart rings and the marker over my kart; Motion
+  color blindness, a window onto three karts, kart rings, the marker over my kart and rival
+  arrows; Motion
   and light, screen shake, rumble, the fixed camera, the cursor's glide, flash reduction, the
   disco lights and the crowd; Aiming, aim assist strength and the aim guide; and HUD and hints,
   the see-through HUD, speed in, the control hints and always show drive hints. Rumble switched
@@ -5738,7 +5740,8 @@ from a section's button low in its box was the one beside it.
   karts and their guides over a room are, the disco lights Full, Few or Off, the control hints on or off,
   speed in km/h or mph, always show drive hints, off by default, crowd Full, Half or Off, the
   fixed camera on or off, the HUD see-through over a kart, on by default, kart rings Off, My kart
-  or All karts, Off by default, and a marker over my kart, off by default. Speed in is the
+  or All karts, Off by default, a marker over my kart, off by default, and rival arrows Off,
+  Faint or Full, Faint by default. Speed in is the
   speedometer's unit, 8.3: until it is chosen, the country of
   the system's locale says, `SpeedUnits`, the measures' own where the system keeps them apart, Linux's
   LC_ALL, LC_MEASUREMENT and LANG in that order, and otherwise its locale; mph only where the
@@ -5766,7 +5769,11 @@ from a section's button low in its box was the one beside it.
   at a size on the screen that does not change, and over the top of a hint hung
   over the kart while one is up, such as the drive hint at the start, 3.8. Both are off until asked for: a
   table of rings is busier, and a marker over each of four karts on a shared screen
-  is four more things in the picture.
+  is four more things in the picture. Rival arrows are 8.2's arrows at a rival out of the
+  picture: Faint draws them 14 px long and at 60%, edge and all, so a player's own 26 px arrow
+  stands out and the rivals' are there to be looked for; Full as bold as before, 18 px; Off none.
+  A kart driven here is always pointed at in full. The user's ask of 2026-11-25: the rivals'
+  arrows were as big and bright as theirs.
   Color-blind roof markers are always on. First on the tab, the player colors
   can be drawn for color blindness: off, protanopia, deuteranopia or
   tritanopia, with the eight colors it gives beside the choice. Each is a palette

@@ -196,6 +196,8 @@ var see_through_hud := true
 ## driven here, GAME.md 8.5: both off unless asked for.
 var kart_rings := ViewChoices.RINGS_OFF
 var kart_marker := false
+## How a rival out of the picture is pointed at, one of [constant ViewChoices.RIVAL_ARROWS].
+var rival_arrows := ViewChoices.RIVAL_ARROWS_FAINT
 var stick_deadzone := 0.15
 ## Whether Steam Input reads the controllers in a Steam build, GAME.md 10.8; the machine's.
 var steam_input := true
@@ -442,6 +444,9 @@ func load_machine(file: ConfigFile) -> void:
 	if kart_rings not in ViewChoices.RINGS:
 		kart_rings = ViewChoices.RINGS_OFF
 	kart_marker = bool(file.get_value("accessibility", "kart_marker", kart_marker))
+	rival_arrows = str(file.get_value("accessibility", "rival_arrows", rival_arrows))
+	if rival_arrows not in ViewChoices.RIVAL_ARROWS:
+		rival_arrows = ViewChoices.RIVAL_ARROWS_FAINT
 	stick_deadzone = file.get_value("controls", "stick_deadzone", stick_deadzone)
 	steam_input = bool(file.get_value("controls", "steam_input", steam_input))
 	touch_layout = file.get_value("controls", "touch_layout", touch_layout)
@@ -524,6 +529,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("accessibility", "see_through_hud", see_through_hud)
 	file.set_value("accessibility", "kart_rings", kart_rings)
 	file.set_value("accessibility", "kart_marker", kart_marker)
+	file.set_value("accessibility", "rival_arrows", rival_arrows)
 	file.set_value("controls", "stick_deadzone", stick_deadzone)
 	file.set_value("controls", "steam_input", steam_input)
 	file.set_value("controls", "touch_layout", touch_layout)
