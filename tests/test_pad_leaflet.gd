@@ -406,8 +406,10 @@ func test_a_pad_is_knocked_as_its_sheets_come_up() -> void:
 	var knocked: Array[int] = []
 	var was := DeviceInput.steam_rumble
 	var rumble_was := Game.settings.rumble
-	DeviceInput.steam_rumble = func(device: int, _weak: float, _strong: float, _for: float) -> void:
+	var strongest := [0.0]
+	DeviceInput.steam_rumble = func(device: int, _weak: float, strong: float, _for: float) -> void:
 		knocked.append(device)
+		strongest[0] = maxf(strongest[0], strong)
 	Game.settings.rumble = true
 	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.GENERIC, false, null, false, ids[0])
 	assert_array(knocked).is_empty()
@@ -421,6 +423,9 @@ func test_a_pad_is_knocked_as_its_sheets_come_up() -> void:
 	leaflet._input(_press_on(ids[1], JOY_BUTTON_BACK))
 	assert_int(leaflet.pad).is_equal(ids[1])
 	assert_int(knocked.size()).is_equal(3)
+	# Lighter than Rumble's own knock as it is switched on, coming with every turn to a pad.
+	assert_float(strongest[0]).is_equal_approx(DeviceInput.NUDGE.y * PadLeaflet.NUDGE, 0.001)
+	assert_float(strongest[0]).is_less(DeviceInput.NUDGE.y)
 	Game.settings.rumble = rumble_was
 	DeviceInput.steam_rumble = was
 	leaflet.close()

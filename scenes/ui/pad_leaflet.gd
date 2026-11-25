@@ -55,6 +55,9 @@ const MINE_SIZE := 14
 ## A tab tugged as Mine asks for what is drawn already: how far up, in the sheet's units, which
 ## keeps its foot under the sheet's edge, how long it takes to come up and to drop back, in seconds.
 const TUG := Vector3(6.0, 0.08, 0.3)
+## How strong the knock is as a pad's sheets come up, of Rumble's when switched on, see
+## [method DeviceInput.nudge]: lighter, as it comes with every turn to a pad.
+const NUDGE := 0.8
 ## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
 const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
@@ -452,7 +455,7 @@ func show_keyboard(keys: bool) -> void:
 ## say.
 func show_pad(device: int) -> void:
 	if Game.settings.rumble:
-		DeviceInput.nudge(device)
+		DeviceInput.nudge(device, NUDGE)
 	if device == pad and not keyboard:
 		return
 	if not keyboard:

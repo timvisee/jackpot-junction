@@ -5203,21 +5203,22 @@ Steam.
   and sees it; nothing else a pad presses turns it. Its key stands on the top edge of the tab it
   turns to, at its right, as that pad prints it: N on Keyboard's, Share on a DualShock's, View on an
   Xbox pad's, and the drawn pad's on the tab the pads share. A pad's sheets coming up knock the pad,
-  a quarter of a second's rumble where rumble is on (`DeviceInput.nudge`), so its player feels which
-  it is, and Mine knocks it again with them up already. Mine tugs the tab it lands on, turned to or
-  up already, rumble on or off: pulled up a few pixels and dropped back with a little bounce, so the
-  press is seen to have been heard. A keyboard without its number pad in the US layout's shape,
-  which serves every layout since keys are bound by where they are, each key in outline with its
-  name as the player's keyboard prints it, 8.3, the ones bound on the sheet lit, the left one of
-  Shift, Ctrl and Alt alone; and a mouse beside it, its buttons lit where bound and on the driving
-  sheet Aim, the Swivel Cannon's. The words for a lit key stand over the keyboard for a key in its
-  top three rows and under it for the rest, in the order of their keys, each line running straight
-  out to a rail along the keyboard's edge and on to its words, so none cross: a key whose line would
-  run through another lit key goes the other way, and neighbours that do the same share their words
-  but where another lit key stands between them. A key that does two things says them one over the
-  other, Next page over Match settings. The menus' sheet leaves Filter, Sort, How it works and Next
-  new to the buttons that say them. The foot says "Your keyboard, as you have it bound", its scale
-  one keyboard. Asked for on 2026-11-23.
+  a quarter of a second's rumble where rumble is on, a fifth lighter than Rumble's own as it is
+  switched on (`DeviceInput.nudge`), so its player feels which it is, and Mine knocks it again with
+  them up already. Mine tugs the tab it lands on, turned to or up already, rumble on or off: pulled
+  up a few pixels and dropped back with a little bounce, so the press is seen to have been heard. A
+  keyboard without its number pad in the US layout's shape, which serves every layout since keys are
+  bound by where they are, each key in outline with its name as the player's keyboard prints it,
+  8.3, the ones bound on the sheet lit, the left one of Shift, Ctrl and Alt alone; and a mouse
+  beside it, its buttons lit where bound and on the driving sheet Aim, the Swivel Cannon's. The
+  words for a lit key stand over the keyboard for a key in its top three rows and under it for the
+  rest, in the order of their keys, each line running straight out to a rail along the keyboard's
+  edge and on to its words, so none cross: a key whose line would run through another lit key goes
+  the other way, and neighbours that do the same share their words but where another lit key stands
+  between them. A key that does two things says them one over the other, Next page over Match
+  settings. The menus' sheet leaves Filter, Sort, How it works and Next new to the buttons that say
+  them. The foot says "Your keyboard, as you have it bound", its scale one keyboard. Asked for on
+  2026-11-23.
 - **Three sheets**: Driving, the jokers and the menus, numbered tabs on the sheet's top edge, the
   page's cut from the sheet itself, one piece of paper with it, its feet flared into the edge and
   the edge's darkening running round it, the others behind, none of them outlined but the one the

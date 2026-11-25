@@ -80,11 +80,11 @@ static func rumble(pad: int, weak: float, strong: float, seconds: float) -> void
 	Input.start_joy_vibration(pad, weak, strong, seconds)
 
 
-## Knocks the pad [param pad] once, see [constant NUDGE], for its player to feel which pad it is or
-## that rumble is on: Show controls turned to it, GAME.md 8.3b, and Rumble switched on, 8.5. The
-## caller asks whether rumble is on.
-static func nudge(pad: int) -> void:
-	rumble(pad, NUDGE.x, NUDGE.y, NUDGE.z)
+## Knocks the pad [param pad] once, see [constant NUDGE], at [param strength] of it, for its player
+## to feel which pad it is or that rumble is on: Show controls turned to it, GAME.md 8.3b, and
+## Rumble switched on, 8.5. The caller asks whether rumble is on.
+static func nudge(pad: int, strength := 1.0) -> void:
+	rumble(pad, NUDGE.x * strength, NUDGE.y * strength, NUDGE.z)
 
 
 ## Lights the pad [param pad] in [param color], its seat's, see [PadLights]: through Steam for a pad
