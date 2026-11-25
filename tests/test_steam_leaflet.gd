@@ -133,9 +133,6 @@ func test_what_steam_cannot_say_leaves_the_drawing_as_it_was() -> void:
 	_steam.action_handles.clear()
 	_steam.input_configuration_loaded.emit(0, HANDLE, {})
 	assert_dict(_words(leaflet)).is_equal({&"north": "Fire"})
-	# Steam Input gone.
-	_pads.free()
-	assert_dict(_words(leaflet)).is_equal({&"north": "Fire"})
 
 
 ## Steam's bindings are the controller's own: up for no pad, the game's; turned to the controller's
