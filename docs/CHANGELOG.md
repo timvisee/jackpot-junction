@@ -42,6 +42,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The PlayStation touchpad's name.** A binding on a DualSense's or DualShock's touchpad reads
+  Touchpad, where it said 5 Touchpad.
 - **The right stick on the Statistics page.** Turned to with the shoulder buttons, the page puts
   the cursor on its tabs, so the stick scrolls it; with nothing to take the cursor, it did nothing.
 - **No Gamepad tab for a keyboard.** A keyboard whose extra keys reach the game as a gamepad no

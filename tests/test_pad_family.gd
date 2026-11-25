@@ -89,6 +89,8 @@ func test_each_family_names_the_buttons_it_prints() -> void:
 	assert_str(named.call(_button(JOY_BUTTON_START), family.PLAYSTATION)).is_equal("Options")
 	assert_str(named.call(_button(JOY_BUTTON_START), family.NINTENDO)).is_equal("+")
 	assert_str(named.call(_button(JOY_BUTTON_LEFT_STICK), family.PLAYSTATION)).is_equal("L3")
+	# "PS4/5 Touchpad" to the engine, a name with a slash in it that is not a stick and its click.
+	assert_str(named.call(_button(JOY_BUTTON_TOUCHPAD), family.PLAYSTATION)).is_equal("Touchpad")
 	# A binding said in words, as a screen reader is told it.
 	(
 		assert_str(InputActions.short_binding_text(InputActions.FIRE, false, family.PLAYSTATION))

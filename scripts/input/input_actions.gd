@@ -127,7 +127,8 @@ const CHORD_TO := 128
 ## the button left of the middle is Back to the engine, after the Xbox 360's, which beside a
 ## dialog's own Back button reads as that one; today's Xbox calls it View, as the engine already
 ## calls Start by today's Menu.
-const PAD_NAMES: Dictionary[String, String] = {"Back": "View"}
+## A PlayStation pad's touchpad is "PS4/5 Touchpad" to the engine, which is the pads it is on.
+const PAD_NAMES: Dictionary[String, String] = {"Back": "View", "PS4/5 Touchpad": "Touchpad"}
 
 ## Default events per action. A descriptor is one of
 ## {"key": Key}, {"button": JoyButton} or {"axis": JoyAxis, "value": float}.
@@ -441,8 +442,10 @@ static func event_text(event: InputEvent, family: int = -1) -> String:
 		for name: String in names:
 			if name.begins_with("Xbox "):
 				chosen = name.trim_prefix("Xbox ")
-		# A stick's click is "R/RS" to Godot, the stick and its click: the click is the button.
-		chosen = chosen.get_slice("/", chosen.get_slice_count("/") - 1)
+		# A stick's click is "R/RS" to Godot, the stick and its click: the click is the button. A name
+		# of words with a slash in it is one name, "PS4/5 Touchpad", which cut there was "5 Touchpad".
+		if not chosen.contains(" "):
+			chosen = chosen.get_slice("/", chosen.get_slice_count("/") - 1)
 		if motion != null and not chosen.contains("Trigger") and chosen.length() > 2:
 			chosen += " +" if motion.axis_value > 0.0 else " -"
 		return PadFamily.word(PAD_NAMES.get(chosen, chosen) if motion == null else chosen, family)
