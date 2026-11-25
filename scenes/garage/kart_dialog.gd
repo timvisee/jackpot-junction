@@ -146,6 +146,8 @@ static func choices_of(part: int) -> Array[String]:
 func _ready() -> void:
 	layer = LAYER
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	# The right stick turns the kart, see [method _process]; it scrolls nothing under it.
+	StickScroll.leave_to(self)
 	# A finger on it is its own, on the kart turning it wherever the dialog was opened from: the
 	# lists and the touch controls under it leave the touches to it.
 	TouchInput.keep_touches(self)

@@ -65,6 +65,8 @@ static func of(held: LicenseCard, at: float) -> TiltedCard:
 
 
 func _ready() -> void:
+	# The right stick tilts it; it scrolls nothing under it.
+	StickScroll.leave_to(self)
 	var picture := LicenseCard.SIZE + Vector2.ONE * PAD * 2.0
 	custom_minimum_size = picture * shown
 	size = picture * shown

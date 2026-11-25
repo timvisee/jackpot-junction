@@ -423,6 +423,8 @@ func _make_case() -> Control:
 	scroll.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	fade.watch(scroll)
 	TouchScroll.attach(scroll)
+	# The right stick scrolls it whatever has the cursor, see [method _process].
+	scroll.add_to_group(StickScroll.OWN)
 	var margin := MarginContainer.new()
 	margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	for side: String in ["left", "right", "top", "bottom"]:

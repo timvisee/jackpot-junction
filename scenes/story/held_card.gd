@@ -74,6 +74,8 @@ static func of(card: Control, card_size: Vector2, shines: Control = null) -> Hel
 
 
 func _ready() -> void:
+	# The right stick tilts it, see [method TiltedCard.wanted]; it scrolls nothing under it.
+	StickScroll.leave_to(self)
 	var room := Vector2.ONE * maxf(drawn_size.x, drawn_size.y) * ROOM
 	var picture := (drawn_size + room * 2.0).ceil()
 	_sheet = _sheet_of(drawn, picture, room, sharpen)

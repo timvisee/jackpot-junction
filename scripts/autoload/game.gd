@@ -183,6 +183,8 @@ func _ready() -> void:
 			add_child(FocusGlide.new())
 			# A pad held over a way walks the cursor on, as a key held down does, GAME.md 4.2.
 			add_child(PadRepeat.new())
+			# A pad's right stick scrolls the pane the cursor is in, GAME.md 4.2.
+			add_child(StickScroll.new())
 			# An achievement earned comes up in a corner of whatever screen this is, GAME.md 8.10.
 			add_child(load(TOASTS).new())
 	add_child(FrameCounter.new())

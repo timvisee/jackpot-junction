@@ -505,6 +505,8 @@ func _build(style: StyleBox, width: float) -> void:
 	# It hears nothing itself: the slip turns the wheel into scrolling, and a finger is heard
 	# wherever it is on the bill, see [method _input], rather than only on what lets it through.
 	_scroll.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# The right stick scrolls the slip by its own reckoning, see [method _stick_on].
+	_scroll.add_to_group(StickScroll.OWN)
 	_mask.add_child(_scroll)
 	# As tall as what is shown when the bill is shorter, with the bill in its middle.
 	_column = VBoxContainer.new()

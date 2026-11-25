@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The right stick scrolls.** On a pad, the right stick scrolls whatever pane you're in: the
+  settings, the pause menu, the match settings, the catalog, the loyalty program's list and more.
 - **Feel Rumble come on.** Switching Rumble on in the Accessibility settings gives every connected
   controller a short rumble.
 - **A tab for each controller in Show controls.** Every controller plugged in has its own numbered

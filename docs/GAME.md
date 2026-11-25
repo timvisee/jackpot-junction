@@ -1521,7 +1521,16 @@ anything a thumb does. On a keyboard they really are two keys and both are named
 A menu is driven with the pad as well as the keyboard: the stick and the D-pad walk
 the cursor, A presses whatever is under it and B is the Back button. Held over a way, the stick or
 the D-pad walks once, and after a moment walks on, quickly, for as long as it is held, as a key held
-down does; the way pushed last goes on, and nothing goes while no control has the cursor. Back only backs
+down does; the way pushed last goes on, and nothing goes while no control has the cursor. The right
+stick scrolls the pane the cursor is in up and down, as the mouse wheel does, faster the further it
+is pushed (`StickScroll`): a settings page, the pause menu, the match settings, the catalog, the
+loyalty program's list, the server list; with the cursor on what does not scroll, a tab over a page
+or Back, the biggest pane that scrolls on the same screen, so a page with nothing on it to take the
+cursor, About or the catalog's hands, scrolls too. Not where the right stick is something else's:
+the kart dialog turns the kart with it, the loyalty map moves with it, a license or a card held up
+tilts with it; the payout slip and the achievements scroll with it their own way; and under the
+pause menu online, while the match goes on, it aims and opens the emote wheel, so the menu scrolls
+with it only once the match is paused. Asked for on 2026-11-25. Back only backs
 out of somewhere there is a way out of, which is the pause menu, the lobby, Play
 Online, LAN games, a form on either and the settings, and not the title screen, where there is
 nowhere to

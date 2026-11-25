@@ -108,6 +108,8 @@ func _init() -> void:
 
 
 func _ready() -> void:
+	# The right stick moves the map, see [LoyaltyMapKeys]; it scrolls nothing while the map shows.
+	StickScroll.leave_to(self)
 	_map = Loyalty.map()
 	if layout == null:
 		layout = LoyaltyMapLayout.of(_map, profile, sheet)
