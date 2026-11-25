@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Your buttons in your color.** The buttons drawn beside your kart and on your nitro line are in
+  your player color, and your joker hand's button has a ring of it.
 - **The right stick scrolls.** On a pad, the right stick scrolls whatever pane you're in: the
   settings, the pause menu, the match settings, the catalog, the loyalty program's list and more.
 - **Feel Rumble come on.** Switching Rumble on in the Accessibility settings gives every connected

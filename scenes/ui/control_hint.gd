@@ -60,6 +60,8 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 	hint.name = "ControlHint"
 	hint.kart = target
 	hint.device = for_device
+	# Its player's own line, in their color.
+	InputGlyph.seat_under(hint, Palette.player_color(target.color_index))
 	target.add_child(hint)
 	# A method connection, not a lambda: it is dropped automatically when the hint is freed.
 	target.fired.connect(hint._on_fired)

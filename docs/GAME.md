@@ -4817,11 +4817,14 @@ lane beside it is as wide as it was.
     font's own weight, for the quiet gray lines, where a solid gray key reads as one
     switched off: the joker pick and detail lines, a dialog's page and footer hints,
     and the Show controls leaflet, line-drawn as its blueprint is.
-  "Shift drift   Ctrl nitro" is a sentence to be read; the same line with the keys
-  drawn as keys is a picture to be recognized, which is what a hint glanced at
-  mid-corner has to be. The shapes are drawn rather than loaded from a set of
-  pictures, because the bindings belong to the player: any key on the board can end
-  up in one of them.
+  A player's own lines, the hint beside their kart, their nitro and item line and
+  their joker hand's button, are in their color (`InputGlyph.seat_under`): a light
+  glyph is drawn in it, the dark hand's button wears it as its rim. Face buttons keep
+  their pad's colors. "Shift drift   Ctrl nitro" is a sentence to be read; the same
+  line with the keys drawn as keys is a picture to be recognized, which is what a
+  hint glanced at mid-corner has to be. The shapes are drawn rather than loaded from
+  a set of pictures, because the bindings belong to the player: any key on the board
+  can end up in one of them.
 - **A pad's buttons as its family prints them** (`PadFamily`): the engine reads every
   pad by where its buttons sit, so the bottom of the four is one button to the game on
   all of them, and only what is printed on it differs. A PlayStation pad's four are

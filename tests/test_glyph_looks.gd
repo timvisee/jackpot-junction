@@ -1,8 +1,9 @@
 extends GdUnitTestSuite
 ## How a bind glyph is painted by where it stands, GAME.md 8.3: the look a place gives the glyphs
-## under it, and an outline that stays a line however small.
+## under it, a player's own lines in their color, and an outline that stays a line however small.
 
 const INK := Color(0.9, 0.9, 0.94)
+const ORANGE := Color("#F28C3D")
 
 
 func _key(code: Key) -> InputGlyph:
@@ -35,6 +36,32 @@ func test_a_place_paints_every_glyph_under_it_in_its_look() -> void:
 	var loose: InputGlyph = auto_free(_key(KEY_W))
 	add_child(loose)
 	assert_int(loose.look).is_equal(GlyphArt.Look.LIGHT)
+
+
+func test_a_players_lines_wear_their_color() -> void:
+	var block: Control = auto_free(Control.new())
+	add_child(block)
+	InputGlyph.seat_under(block, ORANGE)
+	var glyph := _key(KEY_CTRL)
+	block.add_child(glyph)
+	assert_that(glyph.seat).is_equal(ORANGE)
+	# A color changed in the lobby reaches the glyphs already drawn.
+	InputGlyph.seat_under(block, Palette.PLAYER_COLORS[1])
+	assert_that(glyph.seat).is_equal(Palette.PLAYER_COLORS[1])
+	# A light glyph is drawn in it; a dark one wears it as its rim.
+	var art := GlyphArt.key("Ctrl")
+	var hex := "#" + ORANGE.to_html(false)
+	assert_str(GlyphArt.svg(art, INK, Vector2i(40, 32), GlyphArt.Look.LIGHT, ORANGE)).contains(
+		'fill="%s"' % hex
+	)
+	var dark := GlyphArt.svg(art, INK, Vector2i(40, 32), GlyphArt.Look.DARK, ORANGE)
+	assert_str(dark).contains('stroke="%s"' % hex)
+	assert_str(GlyphArt.svg(art, INK, Vector2i(40, 32), GlyphArt.Look.DARK)).not_contains(hex)
+	# A face button keeps its pad's colors: a PlayStation shape on a disc of the player's was lost.
+	var cross := GlyphArt.face("", JOY_BUTTON_A, "face", InputGlyph.SHAPE_DEEP[JOY_BUTTON_A])
+	for drawn: GlyphArt.Art in [cross, GlyphArt.face("B", JOY_BUTTON_INVALID)]:
+		var light := GlyphArt.svg(drawn, INK, Vector2i(32, 32), GlyphArt.Look.LIGHT, ORANGE)
+		assert_str(light).not_contains(hex)
 
 
 func test_an_outline_stays_a_line_however_small() -> void:

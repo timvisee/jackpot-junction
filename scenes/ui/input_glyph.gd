@@ -56,8 +56,10 @@ const MOUSE_WIDE := 0.72
 ## tap round the fingertip, from Google's Material Symbols, see THIRD_PARTY.md and [GlyphArt].
 const FINGER_WIDE := 0.8
 const DOUBLE_MARK := "\u00d72"
-## The meta a node wears to say how every glyph under it is painted, see [method look_under].
+## The meta a node wears to say how every glyph under it is painted, see [method look_under], and
+## whose they are, see [method seat_under].
 const LOOK_META := &"glyph_look"
+const SEAT_META := &"glyph_seat"
 ## The three buttons a mouse is drawn for; any other is written on a key cap.
 const MOUSE_BUTTONS: Array[MouseButton] = [
 	MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE
@@ -117,6 +119,12 @@ var look := GlyphArt.Look.LIGHT:
 	set(value):
 		look = value
 		queue_redraw()
+## The color of the player whose line it is, or clear for a line nobody's in particular: taken as
+## it goes in, as [member look] is, see [method seat_under].
+var seat := Color(0, 0, 0, 0):
+	set(value):
+		seat = value
+		queue_redraw()
 
 ## The item an item button glyph was last drawn wearing, see [method of_item_button].
 var _shown_item := &""
@@ -146,6 +154,7 @@ func _notification(what: int) -> void:
 		queue_redraw()
 	elif what == NOTIFICATION_ENTER_TREE:
 		look = look_of(self)
+		seat = _meta_above(self, SEAT_META, Color(0, 0, 0, 0))
 
 
 ## The first binding of [param action] for one device kind, as a glyph. Null when nothing is
@@ -291,9 +300,18 @@ static func look_under(root: Node, look: GlyphArt.Look) -> void:
 	_look_again(root)
 
 
+## Every glyph under [param root], now and later, one player's, in their [param color]: the lines
+## that ride with a kart or stand in its corner of the screen.
+static func seat_under(root: Node, color: Color) -> void:
+	root.set_meta(SEAT_META, color)
+	_look_again(root)
+
+
 static func _look_again(root: Node) -> void:
 	if root is InputGlyph:
-		(root as InputGlyph).look = look_of(root)
+		var glyph := root as InputGlyph
+		glyph.look = look_of(glyph)
+		glyph.seat = _meta_above(glyph, SEAT_META, Color(0, 0, 0, 0))
 	for child: Node in root.get_children():
 		_look_again(child)
 
@@ -551,7 +569,7 @@ func _face_art() -> GlyphArt.Art:
 		return GlyphArt.face(caption, shape, FACE_COLORS[caption], "face_mark")
 	if shape != JOY_BUTTON_INVALID:
 		var tones := SHAPE_COLORS if look == GlyphArt.Look.DARK else SHAPE_DEEP
-		return GlyphArt.face(caption, shape, "body", tones.get(face, Color.WHITE))
+		return GlyphArt.face(caption, shape, "face", tones.get(face, Color.WHITE))
 	return GlyphArt.face(caption, shape)
 
 
@@ -605,7 +623,7 @@ func _draw() -> void:
 	var pixels := Vector2i(
 		maxi(roundi(shown.size.x * scale), 1), maxi(roundi(shown.size.y * scale), 1)
 	)
-	var picture := GlyphArt.texture(GlyphArt.svg(art, ink, pixels, look))
+	var picture := GlyphArt.texture(GlyphArt.svg(art, ink, pixels, look, seat))
 	if picture == null:
 		return
 	var at := shown.position

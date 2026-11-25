@@ -39,6 +39,8 @@ const LINE_LEAST := 1.0
 ## rather than a frame round it.
 const RIM_ALPHA := 0.5
 const RIM_SPREAD := 1.1
+## How strongly a dark glyph's rim shows in its player's color, which is there to be seen.
+const SEAT_RIM_ALPHA := 0.85
 ## How tall a capital is set: alone on a button, two or three together, and a whole word.
 const CAP_ONE := 13.5
 const CAP_FEW := 12.0
@@ -92,8 +94,9 @@ class Art:
 	var steam := ""
 
 	## A shape [param d] painted in [param fill], a role ("body", "mark", "dim", "lit", "gap",
-	## "lip") or a color, and outlined in [param stroke] that wide. A solid one is part of the
-	## outline the glyph's edge is drawn round.
+	## "lip", and "face" and "face_ink" for a face button, which no player's color changes) or a
+	## color, and outlined in [param stroke] that wide. A solid one is part of the outline the
+	## glyph's edge is drawn round.
 	func add(
 		d: String,
 		fill: Variant,
@@ -114,9 +117,17 @@ class Art:
 
 
 ## The picture of [param art] painted for a line in [param ink] in [param look], [param px] pixels
-## big, as an SVG.
-static func svg(art: Art, ink: Color, px: Vector2i, look := Look.LIGHT) -> String:
+## big, as an SVG; for one player's line, in their [param seat] color, see [method _seated].
+static func svg(
+	art: Art, ink: Color, px: Vector2i, look := Look.LIGHT, seat := Color(0, 0, 0, 0)
+) -> String:
 	var paint := _paint(ink, look)
+	# A face button keeps its pad's colors whoever's line it is in: a PlayStation shape in its color
+	# on a disc of the player's was all but lost.
+	paint["face"] = paint["body"]
+	paint["face_ink"] = paint["mark"]
+	if seat.a > 0.0:
+		_seated(paint, look, Color(seat, 1.0))
 	paint["line"] = maxf(LINE, art.tall / maxf(px.y, 1.0) * LINE_LEAST)
 	var weight := EMBOLDEN_OUTLINED if paint["outline"] else EMBOLDEN
 	var parts: Array[Dictionary] = []
@@ -211,11 +222,28 @@ static func _paint(ink: Color, look: Look) -> Dictionary:
 	}
 
 
+## [param paint] made one player's, in their [param seat] color: a light glyph is drawn in it, its
+## marks dark or pale on it as they read best, and a dark one, the joker hand's button standing on
+## its own, wears it as its rim.
+static func _seated(paint: Dictionary, look: Look, seat: Color) -> void:
+	if look == Look.DARK:
+		paint["edge"] = Color(seat, SEAT_RIM_ALPHA)
+		return
+	paint["body"] = seat
+	paint["lit"] = seat
+	if look == Look.LIGHT:
+		var mark := PALE if seat.get_luminance() < 0.4 else MARK
+		paint["mark"] = mark
+		paint["gap"] = mark
+		paint["dim"] = seat.lerp(mark, 0.5)
+		paint["lip"] = seat.darkened(0.3)
+
+
 static func _path(part: Dictionary, paint: Dictionary) -> String:
 	var fill: Variant = part["fill"]
 	var stroke: Variant = part["stroke"]
 	var width: float = part["width"]
-	if paint["outline"] and fill is String and fill in ["body", "dim", "lip"]:
+	if paint["outline"] and fill is String and fill in ["body", "face", "dim", "lip"]:
 		if fill == "lip":
 			return ""
 		stroke = fill
@@ -262,7 +290,9 @@ static func _hex(color: Color) -> String:
 ## A face button: the round one under the thumb with [param letter] on it, or a PlayStation pad's
 ## shape for the engine's button [param shape], the disc in [param disc] and the mark in
 ## [param ink], each a role or a color.
-static func face(letter: String, shape: int, disc: Variant = "body", ink: Variant = "mark") -> Art:
+static func face(
+	letter: String, shape: int, disc: Variant = "face", ink: Variant = "face_ink"
+) -> Art:
 	var art := Art.new()
 	art.add(_circle(Vector2(16.0, 16.0), 14.5), disc)
 	if shape != JOY_BUTTON_INVALID:

@@ -208,6 +208,8 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	hints.add_theme_stylebox_override("panel", tab(bottom))
 	hints.top_level = true
 	hints.visible = false
+	# The player's own buttons, in their color, see [method InputGlyph.seat_under].
+	InputGlyph.seat_under(hints, slot.color())
 	card.add_child(hints)
 	var hang := func() -> void: _hang(hints, card, right, bottom)
 	card.item_rect_changed.connect(hang)
@@ -306,6 +308,7 @@ static func follow(block: Dictionary, slot: PlayerSlot) -> void:
 	name_label.text = slot.display_name()
 	name_label.add_theme_color_override("font_color", slot.color())
 	(block["nitro"] as NitroCells).ink = slot.color()
+	InputGlyph.seat_under(block["hints"], slot.color())
 	var card: Control = block["box"]
 	var style := card.get_theme_stylebox(&"panel") as StripStyle
 	if style != null:
