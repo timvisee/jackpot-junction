@@ -4461,6 +4461,8 @@ in its color edged in ink, 30 px in from the edge on the line from the middle of
 the screen to it, bigger for a kart driven here: a rival left out of the shot is
 still somewhere the player knows, and a kart that comes back past the edge of the
 shot, as a kart driven here may for a moment as it glides in, is found at once.
+The Garage's two dummies, 9.4, parked targets rather than players, are not pointed
+at (2026-11-25).
 
 While it follows, the picture goes only a little past the arena: no more than a
 tenth of the screen at any edge shows what is beyond it, so the walls and the room's

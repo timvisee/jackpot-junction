@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No arrows for the Garage's dummies.** The two parked karts are no longer pointed at from the
+  edge of the screen when they leave the picture, as if they were players.
 - **The right stick on the Statistics page.** Turned to with the shoulder buttons, the page puts
   the cursor on its tabs, so the stick scrolls it; with nothing to take the cursor, it did nothing.
 - **No Gamepad tab for a keyboard.** A keyboard whose extra keys reach the game as a gamepad no
