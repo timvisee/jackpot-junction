@@ -339,6 +339,7 @@ func _show_open_glyph() -> void:
 			glyph = InputGlyph.of_finger(OPEN_INK, OPEN_GLYPH_SIZE)
 	if glyph == null:
 		return
+	InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 	_open_mark.add_child(glyph)
 	glyph.size = glyph.get_combined_minimum_size()
 	glyph.position = -glyph.size * 0.5

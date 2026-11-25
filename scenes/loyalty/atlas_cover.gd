@@ -415,6 +415,8 @@ func hold_bind(glyph: Control) -> void:
 		return
 	glyph.name = "CardBind"
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# On the card, a picture of its own, see [enum GlyphArt.Look].
+	InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 	add_child(glyph)
 	_place_bind()
 

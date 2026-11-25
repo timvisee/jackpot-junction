@@ -113,6 +113,7 @@ func _show_glyph() -> void:
 	if glyph == null:
 		return
 	glyph.name = "FolderGlyph"
+	InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	peek.add_child(glyph)
 	glyph.position = Vector2(FolderPeek.SIZE.x - GLYPH_AT.x - GLYPH_SIZE, GLYPH_AT.y)

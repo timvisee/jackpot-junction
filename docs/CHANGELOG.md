@@ -25,6 +25,9 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Buttons drawn the way Steam draws them.** Keys, pad buttons, sticks, the D-pad and the mouse in
+  every hint are redrawn in Steam Input's style, sharp at any screen size with their letters centered.
+  Buttons standing alone are dark with a gold edge, and the quiet gray hints are outlined.
 - **Quieter rival arrows.** The arrows pointing at rivals off the screen are smaller and
   see-through, so yours stand out. Rival arrows under Accessibility turns them off or back to full,
   and the window of three karts there shows one at a fourth kart out of sight.

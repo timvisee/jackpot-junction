@@ -518,7 +518,7 @@ func _switch_row() -> HBoxContainer:
 	_switches.name = "Switches"
 	_switches.add_theme_constant_override("separation", 14)
 	_switches.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_hint_row = HBoxContainer.new()
+	_hint_row = DialogBinds.quiet_row()
 	_hint_row.name = "Binds"
 	_hint_row.add_theme_constant_override("separation", 14)
 	_hint_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER

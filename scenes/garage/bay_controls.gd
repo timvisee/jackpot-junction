@@ -140,6 +140,8 @@ static func turn_hint(touch: bool, stick: bool) -> Control:
 		var click := InputEventMouseButton.new()
 		click.button_index = MOUSE_BUTTON_LEFT
 		glyph = InputGlyph.of_event(click, TURN_INK, TURN_SIZE)
+	# Over the garage itself, with no plate under it.
+	InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 	var mark := Control.new()
 	mark.name = "Turntable"
 	mark.custom_minimum_size = Vector2(34.0, 24.0)
@@ -175,6 +177,7 @@ static func press_bind(edge: Vector2, keyboard: bool) -> InputGlyph:
 		press = push
 	var glyph := InputGlyph.of_event(press, ButtonBinds.INK, ButtonBinds.FONT_SIZE)
 	glyph.name = "PressBind"
+	InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 	_hang(glyph, edge)
 	return glyph
 

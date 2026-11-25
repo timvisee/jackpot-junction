@@ -454,6 +454,7 @@ func _dress_skip(word: String) -> void:
 	InputGlyph.pin_all(row, pad)
 	row.name = "Keys"
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	InputGlyph.look_under(row, GlyphArt.Look.OUTLINE)
 	_skip_button.add_child(row)
 	var inside := row.get_combined_minimum_size()
 	_skip_button.custom_minimum_size = least.max(inside + Vector2(SKIP_PAD * 2.0, SKIP_PAD))
@@ -493,6 +494,7 @@ func _dress_chip(word: String) -> void:
 	InputGlyph.pin_all(row, pad)
 	row.name = "Keys"
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	InputGlyph.look_under(row, GlyphArt.Look.OUTLINE)
 	_skip_button.add_child(row)
 	var inside := row.get_combined_minimum_size()
 	_skip_button.custom_minimum_size = inside + CHIP_PAD * 2.0

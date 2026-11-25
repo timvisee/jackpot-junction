@@ -37,6 +37,14 @@ static func moved_focus(event: InputEvent, viewport: Viewport) -> bool:
 	return true
 
 
+## A row for a dialog's hints, which are quiet gray lines: every glyph put in it outlined, see
+## [enum GlyphArt.Look].
+static func quiet_row() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	InputGlyph.look_under(row, GlyphArt.Look.OUTLINE)
+	return row
+
+
 ## The page before and after, drawn for [param keys] or a pad, without words: beside the tabs they
 ## say what they do.
 static func pages(keys: bool, ink: Color, size: int) -> Control:
@@ -44,7 +52,9 @@ static func pages(keys: bool, ink: Color, size: int) -> Control:
 		InputGlyph.of_action(InputActions.MENU_PAGE_PREV, keys, ink, size),
 		InputGlyph.of_action(InputActions.MENU_PAGE_NEXT, keys, ink, size),
 	]
-	return InputHint.row("%s %s", parts, ink, size)
+	var row := InputHint.row("%s %s", parts, ink, size)
+	InputGlyph.look_under(row, GlyphArt.Look.OUTLINE)
+	return row
 
 
 ## Keeps the control named [param hint] in [param row] right after the last of [param bar]'s tabs,

@@ -363,6 +363,8 @@ func set_hints(line: Control) -> void:
 		_hints.queue_free()
 	_hints = line
 	if _hints != null:
+		# A quiet line under the card's words, see [enum GlyphArt.Look].
+		InputGlyph.look_under(_hints, GlyphArt.Look.OUTLINE)
 		_box.add_child(_hints)
 
 

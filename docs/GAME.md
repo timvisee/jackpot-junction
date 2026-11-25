@@ -4770,48 +4770,68 @@ lane beside it is as wide as it was.
 - **Bindings are drawn, not written.** Everywhere the game names a control -- the
   hints above, the joker hand and pick, the tutorial's line over the kart in 9.4a, the
   hint beside the kart, the join line in the lobby and the rebinding rows in 8.5
-  -- the binding is a picture of the thing being pressed. A key is a key cap with
-  the key on it. A gamepad face button is the round one in the color everybody's
-  pad has it in: A green, B red, X blue, Y yellow, with the letter on it in the
-  dark the pad prints it in. A shoulder, a trigger, Start and the stick clicks
-  are pills with their name on. A stick is the gate seen from above with an L or
-  an R written inside it, and a solid head each way along the axis it reads, or
-  one head when only half the axis is bound. The D-pad is a cross with the
-  pressed arm lit. A mouse button is a mouse seen from above, its left or right
-  half filled in the ink, or its wheel for the middle button, and a double click
-  is the same mouse with ×2 beside it; any other mouse button, the wheel turned
-  say, is written on a key cap. A tap on a touch screen is a hand with its finger
-  on the glass and the ring of the tap round the fingertip, Material Symbols'
-  touch_app, filled, in the ink with a dark rim; the hand first drawn for it, put
-  together from rounded boxes, read as a box with a stick on it. The shut theory
-  book's corner, the rubber stamp and the license
-  draw it for a phone, where a pill reading "Tap" was one more button to look
-  for, and the mouse a phone makes out of every touch does not turn either back
-  into a mouse. A face button, a stick, the D-pad, a mouse and a finger are
-  drawn as buttons rather than on one, since each is already a shape and a box around a button is
-  a box around a button; everything else is a word, and a word needs something to
-  be written on.
-  Everything but a face button sits on a solid chip of the house's stock with a
-  soft black edge and a rim, foil on a line in a plain hint's ink and the line's own
-  color on one with a color of its own, a key cap with a lip of it along its foot,
-  8.1a, so it is dark against the felt,
-  the crowd and a light wall and rimmed against a dark menu. A picture you have to
-  pick out of the background first is a picture that has already cost the corner
-  you were reading it in. "Shift drift   Ctrl nitro" is a sentence to be read; the same line with
-  the keys drawn as keys is a picture to be recognized, which is what a hint
-  glanced at mid-corner has to be. The shapes are drawn rather than loaded from a
-  set of pictures, because the bindings belong to the player: any key on the board
-  can end up in one of them.
+  -- the binding is a picture of the thing being pressed, drawn the way Steam Input
+  draws its own (`GlyphArt`): the control as one flat solid shape, and whatever is
+  written on it in the shape's other color, so a line of hints reads as one set
+  whichever pad, keyboard or mouse the player holds. A key is a key cap with a lip
+  along its foot and the key on it; the arrow keys carry an arrow rather than "Up".
+  A gamepad face button is the round one in the color everybody's pad has it in: A
+  green, B red, X blue, Y yellow, with the letter on it in the dark the pad prints it
+  in. A bumper and a trigger are their own shapes, leaning out to their side of the
+  pad; a stick's click is the stick seen from the side, pressed in. Menu, View, + and
+  −, Home and Capture are small round buttons with their picture on; any other
+  button, Options or Create say, is a pill with its name on. A stick is seen from
+  above, a disc with a ring and an L or R in it, and a solid head each way along the
+  axis it reads, or one head when only half the axis is bound. The D-pad is a cross
+  with a head in the pressed arm. A mouse button is a mouse seen from above with the
+  pressed button lit and the rest dimmed, or its wheel for the middle button, and a
+  double click is the same mouse with ×2 beside it; any other mouse button, the
+  wheel turned say, is written on a key cap. A tap on a touch screen is a hand with
+  its finger on the glass and the ring of the tap round the fingertip, Material
+  Symbols' touch_app; the shut theory book's corner, the rubber stamp and the license
+  draw it for a phone, where a pill reading "Tap" was one more button to look for,
+  and the mouse a phone makes out of every touch does not turn either back into a
+  mouse. What a pad has and the game does not draw, its back buttons, trackpads and
+  gyro, is Steam's own picture where Steam gives one, 10.8, in the same colors.
+  Steam's pictures cannot be packed with the game instead: they are files of the
+  Steam client, handed to the game at run time, with no word in Steamworks that a
+  game may copy them, and the face buttons on them carry Sony's, Microsoft's and
+  Nintendo's marks.
+  Each glyph is made as an SVG and drawn into a picture the very size it is on the
+  screen, set on whole pixels, so it is as sharp at 4K as at a Steam Deck's 15 pixels
+  tall; its letters are the font's own outlines, set in the middle of their own ink
+  rather than of the line they would sit on, so an L sits in the middle of its key.
+  A glyph is painted in one of three **looks**, by what it stands on, said once by
+  its place (`InputGlyph.look_under`) so rows built over later follow:
+  - **Light**, the default: the shape in the line's ink with its marks dark on it and
+    a soft dark edge, for lines of hints on the game's dark plates: the hint beside
+    the kart, the nitro and item line, the rebinding rows of 8.5, the kart dialog's
+    tray.
+  - **Dark**: the shape in the house's stock with its marks in the ink and a hint of
+    foil round it, for a glyph standing on its own over a picture or across an edge,
+    where it brings its own ground: the joker hand's button, the binds hung under
+    buttons, the theory book, the rubber stamp, the slip folder and its tear tab, the
+    Clubhouse door, the license on the title, the garage's turn hints, the loyalty
+    card.
+  - **Outline**: only drawn round, a line of a pixel at least, its letters in the
+    font's own weight, for the quiet gray lines, where a solid gray key reads as one
+    switched off: the joker pick and detail lines, a dialog's page and footer hints,
+    and the Show controls leaflet, line-drawn as its blueprint is.
+  "Shift drift   Ctrl nitro" is a sentence to be read; the same line with the keys
+  drawn as keys is a picture to be recognized, which is what a hint glanced at
+  mid-corner has to be. The shapes are drawn rather than loaded from a set of
+  pictures, because the bindings belong to the player: any key on the board can end
+  up in one of them.
 - **A pad's buttons as its family prints them** (`PadFamily`): the engine reads every
   pad by where its buttons sit, so the bottom of the four is one button to the game on
   all of them, and only what is printed on it differs. A PlayStation pad's four are
-  dark round buttons with their shape on each in its old color, a blue cross, a red
+  round buttons with their shape on each in its old color, a blue cross, a red
   circle, a pink square and a green triangle, and its shoulders, triggers and stick
   clicks are L1 to R2, L3 and R3, its middle two Create and Options, Share on a
-  DualShock 4. A Nintendo pad's four are dark with their white letter, B at the bottom
+  DualShock 4. A Nintendo pad's four are plain with their letter, B at the bottom
   and A to the right as Nintendo has them, with L, R, ZL, ZR, − and +. A Steam Deck's,
-  and the Steam Controller of 2026's, are dark with their letters, L1 to R2 and L3 and
-  R3 round them. An Xbox pad, the first Steam Controller of 2015, and any other pad, a
+  and the Steam Controller of 2026's, are drawn as the glyph's look draws any button,
+  with their letters, L1 to R2 and L3 and R3 round them. An Xbox pad, the first Steam Controller of 2015, and any other pad, a
   generic one, keep the letters in their colors. The family is told by the maker's USB
   id, Sony's, Nintendo's, Microsoft's or Valve's, and by the pad's name where it does
   not say, as on a phone. In a Steam build, a controller Steam Input reads for the

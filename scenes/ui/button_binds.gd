@@ -57,6 +57,8 @@ static func show(buttons: Array[Button], keyboard: bool, shown: bool) -> void:
 		if glyph == null:
 			continue
 		glyph.name = "Bind"
+		# Hung across the button's edge, half on it and half on whatever is under it.
+		InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 		glyph.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 		var wanted := glyph.custom_minimum_size
 		glyph.offset_left = -wanted.x * 0.5

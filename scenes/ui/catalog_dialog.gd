@@ -265,6 +265,8 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	# A finger on it is its own: nothing under it, a room's menu say, hears it first.
 	TouchInput.keep_touches(self)
+	# Its hints are quiet gray lines, see [enum GlyphArt.Look].
+	InputGlyph.look_under(self, GlyphArt.Look.OUTLINE)
 	_settings = Game.settings
 	_keyboard = Game.last_input_keyboard
 	_pointer = Game.last_input_pointer

@@ -409,6 +409,7 @@ func show_hint(shown: bool, keyboard: bool) -> void:
 		return
 	_hint = glyph
 	_hint.name = "Hint"
+	InputGlyph.look_under(_hint, GlyphArt.Look.DARK)
 	_hint.scale = Vector2.ONE / SCALE
 	add_child(_hint)
 	var wide := _hint.get_combined_minimum_size() / SCALE

@@ -215,6 +215,8 @@ static func open(
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Line-drawn, as the blueprint is, see [enum GlyphArt.Look].
+	InputGlyph.look_under(self, GlyphArt.Look.OUTLINE)
 	_pads = DeviceInput.numbered()
 	if _pads.has(pad):
 		family = PadFamily.of_device(pad)

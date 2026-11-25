@@ -518,6 +518,7 @@ func _peek_hint(named: String, action: StringName, left: bool) -> Control:
 	var glyph := InputGlyph.of_action(action, _keyboard, Palette.CHIP_WHITE, LICENSE_GLYPH_SIZE)
 	if glyph == null:
 		return null
+	InputGlyph.look_under(glyph, GlyphArt.Look.DARK)
 	var row := HBoxContainer.new()
 	row.name = named
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE

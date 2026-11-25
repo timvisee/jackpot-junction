@@ -784,6 +784,8 @@ func _place_cap(left: float, middle: float) -> void:
 			)
 			if _cap != null:
 				InputGlyph.pin_all(_cap, InputGlyph.device_of(kart))
+				# Loose beside the cards, over whatever floor the table has.
+				InputGlyph.look_under(_cap, GlyphArt.Look.DARK)
 				_fan.add_child(_cap)
 	if _cap == null:
 		return

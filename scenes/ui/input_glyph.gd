@@ -15,14 +15,12 @@ extends Control
 ## keyboard can end up in one of these, and no set of pictures can cover that in advance.
 
 enum Kind { KEY, FACE, SHOULDER, STICK, DPAD, MOUSE, FINGER, WHEEL, ITEM, MENU, PICTURE }
+## The shapes a [constant Kind.SHOULDER] takes: a pill with a word on it, a bumper, a trigger, a
+## stick pressed in, and a small round button with its picture on it, Menu's three bars, say.
+enum Part { PILL, BUMPER, TRIGGER, CLICK, ICON }
 
 ## How tall a glyph is by default and how much air sits either side of the caption inside one.
 const HEIGHT := 22.0
-const SIDE_PAD := 6.0
-## The caption is a size down from the line it sits in, since it is inside a box with edges, and
-## never smaller than this or the cap says nothing.
-const CAPTION_DROP := 3
-const MIN_CAPTION := 11
 ## The face buttons in the colors everybody's pad has on them, so A reads as A before it is read.
 const FACE_COLORS: Dictionary[String, Color] = {
 	"A": Color("#5FBF5F"),
@@ -30,53 +28,36 @@ const FACE_COLORS: Dictionary[String, Color] = {
 	"X": Color("#4A7FD4"),
 	"Y": Color("#E8C33D"),
 }
-## The chip every glyph is drawn on. Solid and dark, with a soft black edge around it and a
-## rim in the color of the line it sits in: dark against the felt, the crowd and a light wall,
-## rimmed against the night sky of a menu. It started out as a 16% wash of the text color, which
-## is a chip you have to find before you can read it, and a hint you have to find has already
-## cost the corner you were reading it in.
+## The dark of a chip, kept for what draws a button of its own beside a glyph, see [DressArt].
 const CHIP := Color(HouseTheme.STOCK, 0.94)
-const CHIP_EDGE := Color(0.0, 0.0, 0.0, 0.55)
-const CHIP_SHADOW := 3
-const EDGE_ALPHA := 0.92
 const EDGE_WIDTH := 1.6
-## How dark the letter on a gamepad's own colored button is, which is how it is on the pad.
-const FACE_INK := Color(0.06, 0.06, 0.08)
-## A PlayStation pad's four shapes in the colors they have always had, lifted a little to read on
-## the dark button they are drawn on, by the button: cross, circle, square and triangle.
+## A PlayStation pad's four shapes in the colors they have always had, by the button: cross,
+## circle, square and triangle. Lifted a little to read on a dark button, and deepened to read on a
+## light one.
 const SHAPE_COLORS: Dictionary[JoyButton, Color] = {
 	JOY_BUTTON_A: Color("#7fa6ec"),
 	JOY_BUTTON_B: Color("#ec6b6b"),
 	JOY_BUTTON_X: Color("#e58fd0"),
 	JOY_BUTTON_Y: Color("#4fd0a6"),
 }
-## How much wider than tall a stick is drawn. The letter goes inside the ring, so the ring has to
-## hold a letter, and the arrows still have to fit outside it: in a square chip the two fight and
-## the arrows lose, coming out as nicks in the border.
+const SHAPE_DEEP: Dictionary[JoyButton, Color] = {
+	JOY_BUTTON_A: Color("#2f63c8"),
+	JOY_BUTTON_B: Color("#d23b3b"),
+	JOY_BUTTON_X: Color("#c23f99"),
+	JOY_BUTTON_Y: Color("#13926a"),
+}
+## How wider than tall a stick is drawn: its head goes beside it, the way it is pushed.
 const STICK_WIDE := 1.55
 ## How wide Steam's picture of a button may be drawn for how tall, at most and at least.
 const PICTURE_WIDE := Vector2(0.8, 2.5)
-## How wide a mouse is for how tall it is, and how much room the mark of a double click takes
-## beside it.
-const MOUSE_WIDE := 0.66
-## How wide a tap is for how tall it is, and the picture of one: a hand with its finger on the
-## glass and the ring of the tap round the fingertip, from Google's Material Symbols, see
-## THIRD_PARTY.md, drawn in white and tinted to the ink. It was a hand put together from rounded
-## boxes, which read as a box with a stick on it. Drawn again a little off to every side in the
-## dark under it, for a rim.
+## How wide a mouse is for how tall it is.
+const MOUSE_WIDE := 0.72
+## How wide a tap is for how tall it is: a hand with its finger on the glass and the ring of the
+## tap round the fingertip, from Google's Material Symbols, see THIRD_PARTY.md and [GlyphArt].
 const FINGER_WIDE := 0.8
-const TAP: Texture2D = preload("res://assets/icons/touch_app.svg")
-const RIM_WAYS: Array[Vector2] = [
-	Vector2(1.0, 0.0),
-	Vector2(-1.0, 0.0),
-	Vector2(0.0, 1.0),
-	Vector2(0.0, -1.0),
-	Vector2(0.71, 0.71),
-	Vector2(-0.71, 0.71),
-	Vector2(0.71, -0.71),
-	Vector2(-0.71, -0.71),
-]
 const DOUBLE_MARK := "\u00d72"
+## The meta a node wears to say how every glyph under it is painted, see [method look_under].
+const LOOK_META := &"glyph_look"
 ## The three buttons a mouse is drawn for; any other is written on a key cap.
 const MOUSE_BUTTONS: Array[MouseButton] = [
 	MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE
@@ -125,6 +106,17 @@ var pad := DeviceInput.ANY
 var family := PadFamily.Family.GENERIC
 ## Which of the four buttons under the thumb a face button is, by where it sits on the pad.
 var face := JOY_BUTTON_INVALID
+## What a button that is not one under the thumb is drawn as, see [enum Part], and which side of
+## the pad it is on, -1 the left: a bumper and a trigger lean out to their side.
+var part := Part.PILL
+var side := 0
+## How it is painted, by what it stands on, see [enum GlyphArt.Look].
+## How it is painted, by what it stands on: taken as it goes in from the nearest node above it that
+## says, see [method look_under], and [constant GlyphArt.Look.LIGHT] where none does.
+var look := GlyphArt.Look.LIGHT:
+	set(value):
+		look = value
+		queue_redraw()
 
 ## The item an item button glyph was last drawn wearing, see [method of_item_button].
 var _shown_item := &""
@@ -138,12 +130,22 @@ var _written := false
 var _action := &""
 var _steam: Dictionary = {}
 var _picture: Texture2D
+var _picture_svg := ""
 
 
 func _ready() -> void:
 	# Only the item button changes by itself, as the item in hand does, and a pad's button, as the
 	# player picks up a pad of another family.
 	set_process(kind == Kind.ITEM or _event != null)
+	# Drawn on the screen's own pixels, so drawn again where it moves to, see [method _draw].
+	set_notify_transform(true)
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_TRANSFORM_CHANGED:
+		queue_redraw()
+	elif what == NOTIFICATION_ENTER_TREE:
+		look = look_of(self)
 
 
 ## The first binding of [param action] for one device kind, as a glyph. Null when nothing is
@@ -264,6 +266,7 @@ static func of_event(event: InputEvent, ink: Color, font_size: int) -> InputGlyp
 	if glyph.kind == Kind.FACE:
 		glyph.face = (event as InputEventJoypadButton).button_index
 	glyph.caption = _caption_of(event, glyph.kind, glyph.family)
+	glyph._shape_as(event)
 	glyph.along = _along(event)
 	glyph.custom_minimum_size = glyph._wanted()
 	return glyph
@@ -278,6 +281,36 @@ static func pin_all(root: Node, device: int) -> void:
 		(root as InputGlyph).pin(device)
 	for child: Node in root.get_children():
 		pin_all(child, device)
+
+
+## Every glyph under [param root], those there now and those put there later, painted in
+## [param look], [enum GlyphArt.Look]: said once by the place, whose rows of hints are built over
+## as the device or the line changes.
+static func look_under(root: Node, look: GlyphArt.Look) -> void:
+	root.set_meta(LOOK_META, look)
+	_look_again(root)
+
+
+static func _look_again(root: Node) -> void:
+	if root is InputGlyph:
+		(root as InputGlyph).look = look_of(root)
+	for child: Node in root.get_children():
+		_look_again(child)
+
+
+## How a glyph at [param node] is painted: as the nearest node from it up says, see
+## [method look_under].
+static func look_of(node: Node) -> GlyphArt.Look:
+	return _meta_above(node, LOOK_META, GlyphArt.Look.LIGHT)
+
+
+static func _meta_above(node: Node, meta: StringName, otherwise: Variant) -> Variant:
+	var at := node
+	while at != null:
+		if at.has_meta(meta):
+			return at.get_meta(meta)
+		at = at.get_parent()
+	return otherwise
 
 
 ## [param root] with its pad's buttons drawn for the pad [param device] is, see [method pin_all].
@@ -320,15 +353,17 @@ func _refit() -> void:
 	family = now
 	_steam = steam
 	_picture = steam.get("picture") as Texture2D
-	if _picture != null:
+	_picture_svg = str(steam.get("svg", ""))
+	if _picture != null or not _picture_svg.is_empty():
 		kind = Kind.PICTURE
 		caption = str(steam.get("word", ""))
-		# Made bigger than drawn, so it shrinks smoothly.
+		# Made bigger than drawn, so it shrinks smoothly, where Steam's own drawing is not had.
 		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	elif steam.has("word"):
 		# Steam's name for a button it has no picture of, on a pill.
 		kind = Kind.SHOULDER
 		caption = str(steam["word"])
+		part = Part.PILL
 	else:
 		var drawn: InputEvent = steam.get("event", _event)
 		kind = _kind_of(drawn)
@@ -336,6 +371,7 @@ func _refit() -> void:
 			face = (drawn as InputEventJoypadButton).button_index
 		if not _written:
 			caption = _caption_of(drawn, kind, family)
+		_shape_as(drawn)
 		along = _along(drawn).abs() if both_ways else _along(drawn)
 	custom_minimum_size = _wanted()
 	queue_redraw()
@@ -387,6 +423,31 @@ static func _kind_of(event: InputEvent) -> Kind:
 	return Kind.KEY
 
 
+## What a [constant Kind.SHOULDER] for [param event] is drawn as, see [enum Part]: a shoulder
+## button as a bumper and a trigger as a trigger, leaning out to their side of the pad, a stick's
+## click as the stick pressed in, Menu and View and the like as their pictures, and the rest as a
+## word on a pill.
+func _shape_as(event: InputEvent) -> void:
+	part = Part.PILL
+	side = 0
+	var button := event as InputEventJoypadButton
+	var motion := event as InputEventJoypadMotion
+	if (
+		button != null
+		and button.button_index in [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER]
+	):
+		part = Part.BUMPER
+		side = -1 if button.button_index == JOY_BUTTON_LEFT_SHOULDER else 1
+	elif button != null and button.button_index in [JOY_BUTTON_LEFT_STICK, JOY_BUTTON_RIGHT_STICK]:
+		part = Part.CLICK
+		side = -1 if button.button_index == JOY_BUTTON_LEFT_STICK else 1
+	elif motion != null and motion.axis in [JOY_AXIS_TRIGGER_LEFT, JOY_AXIS_TRIGGER_RIGHT]:
+		part = Part.TRIGGER
+		side = -1 if motion.axis == JOY_AXIS_TRIGGER_LEFT else 1
+	elif button != null and caption in GlyphArt.ICONS:
+		part = Part.ICON
+
+
 ## What is written on the glyph. A stick carries which of the two it is and nothing else: the
 ## ring and the arrows say the rest, and "Left Stick X-Axis +" is a description of an input map
 ## rather than of anything a player does. The D-pad carries nothing, being one of a kind.
@@ -425,38 +486,86 @@ static func _along(event: InputEvent) -> Vector2:
 	return Vector2.RIGHT
 
 
-## How big this glyph wants to be: square unless there is a word on it, which a key cap and a
-## shoulder button widen to hold.
+## How big this glyph wants to be: as tall as its line asks, and as wide as its picture is for
+## that, see [GlyphArt]: square for a button, wider for a word on it.
 func _wanted() -> Vector2:
 	var tall := HEIGHT * maxf(float(font_size) / 15.0, 1.0)
-	if kind == Kind.STICK:
-		return Vector2(tall * STICK_WIDE, tall * (STICK_WIDE if every_way else 1.0))
-	if kind in [Kind.FACE, Kind.DPAD, Kind.WHEEL, Kind.ITEM, Kind.MENU]:
-		return Vector2(tall, tall)
-	if kind == Kind.PICTURE:
+	var art := _art()
+	if art != null:
+		return Vector2(art.wide, art.tall) * (tall / GlyphArt.TALL)
+	if kind == Kind.PICTURE and _picture != null:
 		var wide := float(_picture.get_width()) / maxf(float(_picture.get_height()), 1.0)
 		return Vector2(tall * clampf(wide, PICTURE_WIDE.x, PICTURE_WIDE.y), tall)
-	if kind == Kind.FINGER:
-		return Vector2(tall * FINGER_WIDE, tall)
-	if kind == Kind.MOUSE:
-		var mark := 0.0
-		if not caption.is_empty():
-			mark = (
-				_font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, _caption_size()).x
-			)
-			mark += SIDE_PAD * 0.5
-		return Vector2(tall * MOUSE_WIDE + mark, tall)
-	var run := _font().get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1.0, _caption_size()).x
-	return Vector2(maxf(tall, run + SIDE_PAD * 2.0), tall)
+	return Vector2(tall, tall)
 
 
-func _caption_size() -> int:
-	return maxi(font_size - CAPTION_DROP, MIN_CAPTION)
+## This glyph's picture, see [GlyphArt]; null for the item button, which is the touch screen's
+## own drawn small, and for Steam's picture where only the picture was had and not its drawing.
+func _art() -> GlyphArt.Art:
+	var art: GlyphArt.Art = null
+	match kind:
+		Kind.FACE:
+			art = _face_art()
+		Kind.STICK:
+			art = GlyphArt.stick(caption, _ways(), STICK_WIDE, every_way)
+		Kind.DPAD:
+			art = GlyphArt.dpad(_ways())
+		Kind.MOUSE:
+			art = GlyphArt.mouse(mouse_button, caption, MOUSE_WIDE)
+		Kind.FINGER:
+			art = GlyphArt.finger(FINGER_WIDE)
+		Kind.WHEEL:
+			art = GlyphArt.wheel()
+		Kind.MENU:
+			art = GlyphArt.icon("Menu")
+		Kind.PICTURE:
+			art = null if _picture_svg.is_empty() else GlyphArt.steam(_picture_svg)
+		Kind.KEY:
+			art = GlyphArt.key(caption)
+		Kind.SHOULDER:
+			art = _shoulder_art()
+	return art
 
 
-func _font() -> Font:
-	var theme_font := get_theme_default_font()
-	return ThemeDB.fallback_font if theme_font == null else theme_font
+## A pad's button that is not one under the thumb, as what it is, see [enum Part].
+func _shoulder_art() -> GlyphArt.Art:
+	var art: GlyphArt.Art = null
+	match part:
+		Part.BUMPER:
+			art = GlyphArt.bumper(caption, side)
+		Part.TRIGGER:
+			art = GlyphArt.trigger(caption, side)
+		Part.CLICK:
+			art = GlyphArt.click(caption)
+		Part.ICON:
+			art = GlyphArt.icon(caption)
+	return art if art != null else GlyphArt.pill(caption)
+
+
+## A face button as its pad has it: in its color with its letter dark on it where the pad's are
+## colored, a PlayStation pad's shape in that shape's color, and a Nintendo pad's or a Steam
+## Deck's letter as the rest of the glyphs are written.
+func _face_art() -> GlyphArt.Art:
+	var shape: int = face if PadFamily.shapes(family) else JOY_BUTTON_INVALID
+	if PadFamily.lettered(family) and FACE_COLORS.has(caption):
+		return GlyphArt.face(caption, shape, FACE_COLORS[caption], "face_mark")
+	if shape != JOY_BUTTON_INVALID:
+		var tones := SHAPE_COLORS if look == GlyphArt.Look.DARK else SHAPE_DEEP
+		return GlyphArt.face(caption, shape, "body", tones.get(face, Color.WHITE))
+	return GlyphArt.face(caption, shape)
+
+
+## The ways a stick is drawn pushed, or a D-pad pressed: the one its binding reads, both ends of
+## the axis for a pair of them, or all four for a stick pushed every way.
+func _ways() -> Array[Vector2]:
+	# Built rather than written as a conditional literal: an untyped array assigned to a typed one
+	# throws, and a throw halfway through a draw is a glyph with nothing in it.
+	var ways: Array[Vector2] = [along]
+	if both_ways:
+		ways.append(-along)
+	if every_way:
+		ways.assign([Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP])
+	return ways
 
 
 ## Where it is drawn: its own height, in the middle of whatever height its row gives it. A row
@@ -469,36 +578,40 @@ func drawn_box() -> Rect2:
 	return Rect2(0.0, roundf((size.y - tall) * 0.5), size.x, tall)
 
 
+## Drawn as its picture, see [GlyphArt], made the very size it is on the screen and set on the
+## screen's own pixels, so nothing about it is smudged by being stretched or set between two.
 func _draw() -> void:
 	var box := drawn_box()
-	draw_set_transform(box.position)
-	box.position = Vector2.ZERO
-	# The ones that are already a shape of their own go without the chip: a face button is a
-	# round button, a stick is a round gate and the D-pad is a cross, and a box drawn round any of
-	# them is a box drawn round a button. Everything else is a word, and a word needs something to
-	# be written on.
-	match kind:
-		Kind.FACE:
-			_draw_face(box)
-		Kind.STICK:
-			_draw_stick(box)
-		Kind.DPAD:
-			_draw_dpad(box)
-		Kind.MOUSE:
-			_draw_mouse(box)
-		Kind.FINGER:
-			_draw_finger(box)
-		Kind.ITEM:
-			_draw_item_button(box)
-		Kind.WHEEL:
-			_draw_wheel(box)
-		Kind.MENU:
-			_draw_menu(box)
-		Kind.PICTURE:
+	if kind == Kind.ITEM:
+		draw_set_transform(box.position)
+		_draw_item_button(Rect2(Vector2.ZERO, box.size))
+		return
+	var art := _art()
+	if art == null:
+		if _picture != null:
 			draw_texture_rect(_picture, fitted(box), false)
-		_:
-			_draw_chip(box)
-			_draw_caption(box, ink)
+		return
+	# Its own shape in the middle of the box, never stretched: a row can give a glyph more room
+	# than it asked for.
+	var unit := box.size.y / art.tall
+	var shown := Rect2(
+		box.position + Vector2((box.size.x - art.wide * unit) * 0.5, 0.0),
+		Vector2(art.wide * unit, box.size.y)
+	)
+	var to_screen := get_viewport().get_final_transform() * get_global_transform_with_canvas()
+	var scale := absf(to_screen.get_scale().y)
+	if scale <= 0.0:
+		return
+	var pixels := Vector2i(
+		maxi(roundi(shown.size.x * scale), 1), maxi(roundi(shown.size.y * scale), 1)
+	)
+	var picture := GlyphArt.texture(GlyphArt.svg(art, ink, pixels, look))
+	if picture == null:
+		return
+	var at := shown.position
+	if is_zero_approx(to_screen.x.y) and is_zero_approx(to_screen.y.x):
+		at = to_screen.affine_inverse() * (to_screen * at).round()
+	draw_texture_rect(picture, Rect2(at, Vector2(pixels) / scale), false, Color(1, 1, 1, ink.a))
 
 
 ## The most of [param box] Steam's picture takes in its own proportions, in the middle of it: a
@@ -509,90 +622,6 @@ func fitted(box: Rect2) -> Rect2:
 		return box
 	var drawn := picture * minf(box.size.x / picture.x, box.size.y / picture.y)
 	return Rect2(box.position + (box.size - drawn) * 0.5, drawn)
-
-
-## A touch screen's menu button: the three bars it wears in the corner, on the usual chip, see
-## [TouchControls] and [method of_touch].
-func _draw_menu(box: Rect2) -> void:
-	_draw_chip(box)
-	var middle := box.position + box.size * 0.5
-	var half := box.size.x * 0.26
-	var step := box.size.y * 0.2
-	var thick := maxf(box.size.y * 0.09, 2.0)
-	for row: int in 3:
-		var y := middle.y + (float(row) - 1.0) * step
-		draw_line(Vector2(middle.x - half, y), Vector2(middle.x + half, y), ink, thick)
-
-
-## A touch screen's steering wheel, on a round chip.
-func _draw_wheel(box: Rect2) -> void:
-	var middle := box.size * 0.5
-	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
-	draw_circle(middle, radius + 1.5, CHIP_EDGE)
-	draw_circle(middle, radius, CHIP)
-	TouchStick.draw_wheel(
-		self, middle, radius * 0.66, 0.0, Color(ink, 0.95), Color(ink, EDGE_ALPHA * 0.5)
-	)
-
-
-## The solid backing every glyph but a face button sits on: a key cap, or the same shape rounded
-## off into a pill for a shoulder button and a trigger.
-##
-## The rim is the house's foil, GAME.md 8.1a, on a line in the plain ink of a hint, and the line's
-## own color on one with a color of its own, a player's or a gold one; a key cap has a lip of it
-## along its foot, the way a key stands on the board.
-func _draw_chip(box: Rect2) -> void:
-	var plain := ink.s < 0.25
-	var rim := Color(HouseTheme.FOIL if plain else ink, EDGE_ALPHA * (0.8 if plain else 1.0))
-	var style := StyleBoxFlat.new()
-	style.bg_color = CHIP
-	style.border_color = rim
-	style.set_border_width_all(2)
-	var radius := roundi(box.size.y * 0.5) if kind == Kind.SHOULDER else 5
-	style.set_corner_radius_all(radius)
-	style.shadow_color = CHIP_EDGE
-	style.shadow_size = CHIP_SHADOW
-	draw_style_box(style, box)
-	if kind != Kind.SHOULDER:
-		var lip := box.position.y + box.size.y - 4.0
-		draw_line(
-			Vector2(box.position.x + 4.0, lip),
-			Vector2(box.end.x - 4.0, lip),
-			Color(rim, rim.a * 0.35),
-			1.5,
-			true
-		)
-
-
-## A face button: the round one under the thumb, solid, in the color it is on the pad and with
-## the letter on it in the dark the pad prints it in. Its own dark rim rather than the chip, so
-## the color is the whole of the picture.
-##
-## A PlayStation pad's and a Nintendo pad's are dark, as theirs are on the pad: a PlayStation
-## pad's with its shape on it in that shape's color, a Nintendo pad's with its letter in the ink.
-func _draw_face(box: Rect2) -> void:
-	if not PadFamily.lettered(family):
-		_draw_dark_face(box)
-		return
-	var tone: Color = FACE_COLORS.get(caption, ink)
-	var center := box.size * 0.5
-	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
-	draw_circle(center, radius + 1.5, CHIP_EDGE)
-	draw_circle(center, radius, Color(tone.r, tone.g, tone.b, 0.95))
-	draw_arc(center, radius, 0.0, TAU, 28, CHIP, EDGE_WIDTH)
-	_draw_caption(box, FACE_INK)
-
-
-func _draw_dark_face(box: Rect2) -> void:
-	var center := box.size * 0.5
-	var radius := minf(box.size.x, box.size.y) * 0.5 - 1.0
-	draw_circle(center, radius + 1.5, CHIP_EDGE)
-	draw_circle(center, radius, CHIP)
-	draw_arc(center, radius, 0.0, TAU, 28, Color(ink, EDGE_ALPHA), EDGE_WIDTH, true)
-	if not PadFamily.shapes(family):
-		_draw_caption(box, ink)
-		return
-	draw_shape(self, face, center, radius * 0.5, SHAPE_COLORS.get(face, ink))
 
 
 ## A PlayStation pad's shape for the button [param face] is, drawn on [param on] at [param middle],
@@ -626,174 +655,6 @@ static func draw_shape(
 				]
 			)
 			on.draw_polyline(corners, tone, thick, true)
-
-
-## A stick seen from above: the gate it moves inside, which side it is written in the middle of
-## it, and a solid head each way along the axis this binding reads. Solid heads rather than
-## outlined ones, because the whole picture is twenty pixels across and a two-pixel chevron in it
-## is a smudge.
-##
-## Drawn as a button rather than on one: the gate has the dark face and the dark rim a face
-## button has, and the heads carry their own rim, so it reads over a felt floor without a box
-## around it. The letter is inside the gate rather than beside it; it sat in a corner of the chip
-## once, at a size that fits a corner, which is a size nothing is legible at.
-func _draw_stick(box: Rect2) -> void:
-	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var center := box.size * 0.5
-	# The same circle a face button is, so the two sit together in a line without one of them
-	# looking like the small one.
-	var radius := box.size.x / STICK_WIDE * 0.5 - EDGE_WIDTH
-	draw_circle(center, radius + EDGE_WIDTH, CHIP_EDGE)
-	draw_circle(center, radius, CHIP)
-	draw_arc(center, radius, 0.0, TAU, 28, edge, EDGE_WIDTH)
-	# Built rather than written as a conditional literal: an untyped array assigned to a typed
-	# one throws, and a throw halfway through a draw is a glyph with its gate and nothing in it.
-	var ways: Array[Vector2] = [along]
-	if both_ways:
-		ways.append(-along)
-	if every_way:
-		ways.assign([Vector2.RIGHT, Vector2.LEFT, Vector2.DOWN, Vector2.UP])
-	var span := radius * 0.5
-	for way: Vector2 in ways:
-		var at := center + way * (radius * 1.35)
-		_draw_head(at, way, span + EDGE_WIDTH * 1.6, CHIP_EDGE)
-		_draw_head(at, way, span, edge)
-	# Cut to the gate rather than to the line the glyph sits in: a letter that overflows the ring
-	# it is written in reads as a letter with a circle drawn through it.
-	_draw_caption(box, edge, mini(_caption_size(), roundi(box.size.y * 0.55)))
-
-
-## The cross, with the arm this binding presses filled in. Its own dark rim rather than a chip
-## behind it, the way a face button carries one, since the cross is already a shape.
-func _draw_dpad(box: Rect2) -> void:
-	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var faint := Color(ink.r, ink.g, ink.b, 0.30)
-	var center := box.size * 0.5
-	var reach := minf(box.size.x, box.size.y) * 0.44
-	var thick := reach * 0.62
-	# A dark rim first, as one cross slightly larger than the other, so it reads over felt with
-	# nothing behind it.
-	var rim := EDGE_WIDTH
-	draw_rect(
-		Rect2(
-			center - Vector2(thick * 0.5 + rim, reach + rim),
-			Vector2(thick + rim * 2.0, reach * 2.0 + rim * 2.0)
-		),
-		CHIP_EDGE
-	)
-	draw_rect(
-		Rect2(
-			center - Vector2(reach + rim, thick * 0.5 + rim),
-			Vector2(reach * 2.0 + rim * 2.0, thick + rim * 2.0)
-		),
-		CHIP_EDGE
-	)
-	draw_rect(Rect2(center - Vector2(thick * 0.5, reach), Vector2(thick, reach * 2.0)), faint)
-	draw_rect(Rect2(center - Vector2(reach, thick * 0.5), Vector2(reach * 2.0, thick)), faint)
-	var arm := Rect2(center - Vector2(thick, thick) * 0.5, Vector2(thick, thick))
-	draw_rect(
-		arm.merge(Rect2(center + along * reach - Vector2(thick, thick) * 0.5, arm.size)), edge
-	)
-
-
-## A mouse seen from above, GAME.md 8.3: a rounded body split into its two buttons with the wheel
-## between them, and the one this binding is for filled in the ink, the left or the right half or
-## the wheel. A shape of its own, like a face button, so no chip round it: the body is dark with a
-## rim in the ink. A double click says so beside it, "×2", since a second picture of the same mouse
-## would read as two bindings.
-func _draw_mouse(box: Rect2) -> void:
-	var body := Rect2(
-		box.position + Vector2(1.0, 1.0), Vector2(box.size.y * MOUSE_WIDE - 2.0, box.size.y - 2.0)
-	)
-	var corner := roundi(body.size.x * 0.5)
-	var shell := StyleBoxFlat.new()
-	shell.bg_color = CHIP
-	shell.set_corner_radius_all(corner)
-	shell.shadow_color = CHIP_EDGE
-	shell.shadow_size = CHIP_SHADOW
-	draw_style_box(shell, body)
-	var split := body.size.y * 0.44
-	var half := body.size.x * 0.5
-	var lit := StyleBoxFlat.new()
-	lit.bg_color = Color(ink.r, ink.g, ink.b, 0.95)
-	if mouse_button == MOUSE_BUTTON_LEFT:
-		lit.corner_radius_top_left = corner
-		draw_style_box(lit, Rect2(body.position, Vector2(half, split)))
-	elif mouse_button == MOUSE_BUTTON_RIGHT:
-		lit.corner_radius_top_right = corner
-		draw_style_box(lit, Rect2(body.position + Vector2(half, 0.0), Vector2(half, split)))
-	var edge := Color(ink.r, ink.g, ink.b, EDGE_ALPHA)
-	var top := body.position
-	draw_line(top + Vector2(half, 0.0), top + Vector2(half, split), edge, EDGE_WIDTH)
-	draw_line(top + Vector2(0.0, split), top + Vector2(body.size.x, split), edge, EDGE_WIDTH)
-	var wheel := Rect2(
-		top + Vector2(half - body.size.x * 0.1, split * 0.22),
-		Vector2(body.size.x * 0.2, split * 0.56)
-	)
-	var roller := StyleBoxFlat.new()
-	roller.bg_color = lit.bg_color if mouse_button == MOUSE_BUTTON_MIDDLE else CHIP
-	roller.border_color = edge
-	roller.set_border_width_all(1)
-	roller.set_corner_radius_all(roundi(wheel.size.x * 0.5))
-	draw_style_box(roller, wheel)
-	var rim := StyleBoxFlat.new()
-	rim.draw_center = false
-	rim.border_color = edge
-	rim.set_border_width_all(2)
-	rim.set_corner_radius_all(corner)
-	draw_style_box(rim, body)
-	if not caption.is_empty():
-		var beside := body.end.x + SIDE_PAD * 0.5
-		_draw_caption(Rect2(beside, box.position.y, box.end.x - beside, box.size.y), ink)
-
-
-## A hand seen from the side, pointing up into the screen with its first finger, the way one
-## taps: the finger, the fist it comes out of with the folds of the others across it, and the
-## thumb out to the side, all in the ink with a dark rim round them, and two arcs of the tap
-## rippling out over the fingertip. A shape of its own, like the mouse, so no chip round it.
-func _draw_finger(box: Rect2) -> void:
-	var side := box.size.y
-	var square := Rect2(Vector2((box.size.x - side) * 0.5, 0.0), Vector2(side, side))
-	# A dark rim round it, so it reads on a pale floor as well as on the dark.
-	var rim := maxf(EDGE_WIDTH, side * 0.035)
-	for way: Vector2 in RIM_WAYS:
-		draw_texture_rect(TAP, Rect2(square.position + way * rim, square.size), false, CHIP_EDGE)
-	draw_texture_rect(TAP, square, false, Color(ink, 0.95))
-
-
-## A small solid arrowhead at [param at], pointing [param way]. Drawn twice by its caller, once
-## oversized in the dark, so it has a rim of its own where there is no chip to sit on.
-func _draw_head(at: Vector2, way: Vector2, span: float, color: Color) -> void:
-	var side := Vector2(-way.y, way.x)
-	draw_colored_polygon(
-		PackedVector2Array(
-			[
-				at - way * span * 0.5 + side * span * 0.7,
-				at + way * span * 0.5,
-				at - way * span * 0.5 - side * span * 0.7,
-			]
-		),
-		color
-	)
-
-
-func _draw_caption(box: Rect2, color: Color, size_override: int = 0) -> void:
-	if caption.is_empty():
-		return
-	var text_size := _caption_size() if size_override <= 0 else size_override
-	var font := _font()
-	var ascent := font.get_ascent(text_size)
-	var descent := font.get_descent(text_size)
-	var baseline := box.position.y + (box.size.y + ascent - descent) * 0.5
-	draw_string(
-		font,
-		Vector2(box.position.x, baseline),
-		caption,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		box.size.x,
-		text_size,
-		color
-	)
 
 
 ## The item button, see [method of_item_button], with the item in hand's picture on it.

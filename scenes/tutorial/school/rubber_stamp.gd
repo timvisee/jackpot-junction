@@ -194,6 +194,7 @@ func _show_glyph() -> void:
 		return
 	else:
 		_glyph = InputGlyph.of_event(event, GLYPH_INK, GLYPH_SIZE)
+	InputGlyph.look_under(_glyph, GlyphArt.Look.DARK)
 	_glyph.position = Vector2((SIZE.x - _glyph.custom_minimum_size.x) * 0.5, SIZE.y - 14.0)
 	add_child(_glyph)
 

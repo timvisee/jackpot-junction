@@ -120,6 +120,7 @@ var _pushed: Dictionary[String, String] = {}
 ## they are drawn; Steam's pictures, by origin; and when the bindings were last asked again.
 var _places: Dictionary[int, Dictionary] = {}
 var _pictures: Dictionary[int, Texture2D] = {}
+var _sources: Dictionary[int, String] = {}
 var _looked := 0
 ## The pads whose light the game set, to be given their own back.
 var _lit: Dictionary[int, bool] = {}
@@ -326,7 +327,7 @@ func _drawn(origin: int) -> Dictionary:
 		side = -1
 	elif xbox in XBOX_RIGHT or xbox in XBOX_RIGHT_GRIPS:
 		side = 1
-	return {"picture": picture, "word": word, "side": side}
+	return {"picture": picture, "svg": _sources.get(origin, ""), "word": word, "side": side}
 
 
 ## Steam's [param origin], of a controller of Steam's [param type], as the pad's own button, stick
@@ -367,6 +368,9 @@ func _picture(origin: int) -> Texture2D:
 		image.load_svg_from_buffer(bytes, PICTURE_TALL / image.get_height())
 		image.generate_mipmaps()
 		picture = ImageTexture.create_from_image(image)
+		# Its drawing too, which a hint draws again in its own colors and at its own size, see
+		# [GlyphArt].
+		_sources[origin] = bytes.get_string_from_utf8()
 	_pictures[origin] = picture
 	return picture
 
