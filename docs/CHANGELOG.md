@@ -39,6 +39,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **The right stick on the Statistics page.** Turned to with the shoulder buttons, the page puts
+  the cursor on its tabs, so the stick scrolls it; with nothing to take the cursor, it did nothing.
 - **No Gamepad tab for a keyboard.** A keyboard whose extra keys reach the game as a gamepad no
   longer gets a tab in Show controls or a gamepad number.
 - **Show controls follows your Steam layout.** With a controller Steam reads, the blueprint draws

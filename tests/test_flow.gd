@@ -240,6 +240,13 @@ func test_the_page_keys_step_through_the_settings_tabs() -> void:
 	var focus := screen.get_viewport().gui_get_focus_owner()
 	assert_object(focus).is_not_null()
 	assert_bool(focus.is_visible_in_tree()).is_true()
+	# Onto a page with nothing to take it, Statistics, the cursor goes to the tabs, so it is
+	# somewhere and the right stick scrolls the page under them.
+	screen.tabs.current_tab = screen.tabs.get_node(StatsTab.TITLE).get_index() - 1
+	await await_idle_frame()
+	SettingsScreen._first_focusable(screen.tabs.get_current_tab_control()).grab_focus()
+	screen.switch_tab(1)
+	assert_object(screen.get_viewport().gui_get_focus_owner()).is_same(screen.tab_bar)
 	# Listening for a binding, a shoulder is what is being bound, and the page stays put.
 	screen.tabs.current_tab = 0
 	screen._listening_action = InputActions.NITRO

@@ -405,15 +405,16 @@ func _input(event: InputEvent) -> void:
 
 
 ## Steps [param step] tabs on, wrapping round at the ends. Focus left behind in the tab being
-## left goes to the first thing in the new one, or it would be on a control nobody can see.
+## left goes to the first thing in the new one, or it would be on a control nobody can see; to the
+## tabs for a page with nothing to take it, Statistics say, so the cursor is somewhere and the right
+## stick scrolls the page under them, see [StickScroll].
 func switch_tab(step: int) -> void:
 	tabs.current_tab = posmod(tabs.current_tab + step, tabs.get_tab_count())
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus != null and focus.is_visible_in_tree():
 		return
 	var first := _first_focusable(tabs.get_current_tab_control())
-	if first != null:
-		first.grab_focus()
+	(first if first != null else tab_bar as Control).grab_focus()
 
 
 ## Down from the head, Back or the tabs, goes to the first thing on the page rather than to
