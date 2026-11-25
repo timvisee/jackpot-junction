@@ -52,6 +52,9 @@ const STEP_TAB := -4
 ## new.
 const MINE := InputActions.MENU_NEXT_NEW
 const MINE_SIZE := 14
+## A tab tugged as Mine asks for what is drawn already: how far up, in the sheet's units, which
+## keeps its foot under the sheet's edge, how long it takes to come up and to drop back, in seconds.
+const TUG := Vector3(6.0, 0.08, 0.3)
 ## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
 const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
@@ -633,11 +636,35 @@ func _said(on_page: int) -> String:
 ## pressed on, one plugged in since it came up given its tab.
 func _show_mine(event: InputEvent) -> void:
 	if event is InputEventKey or event is InputEventMouseButton:
+		_ping_if(keyboard)
 		show_keyboard(true)
 		return
 	var device := event.device
 	if (event is InputEventJoypadButton or event is InputEventAction) and _pads.has(device):
+		_ping_if(device == pad and not keyboard)
 		show_pad(device)
+
+
+## With [param again], Mine pressed for what is drawn already, its tab tugged: pulled up a little
+## and let drop back, so the press is seen to have been heard, rumble on or off.
+func _ping_if(again: bool) -> void:
+	for i: int in _switch.size() if again else 0:
+		if _switch_shown(i):
+			var side := _switch[i]
+			var was := side.get_meta(&"tug", null) as Tween
+			if was != null and was.is_valid():
+				was.kill()
+			var tug := side.create_tween()
+			tug.tween_method(_lift.bind(side), 0.0, TUG.x, TUG.y).set_ease(Tween.EASE_OUT)
+			var drop := tug.tween_method(_lift.bind(side), TUG.x, 0.0, TUG.z)
+			drop.set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+			side.set_meta(&"tug", tug)
+
+
+## [param side] lifted [param up] off its place, its tab drawn with it on the sheet.
+func _lift(up: float, side: Button) -> void:
+	side.position.y = -up
+	_sheet.queue_redraw()
 
 
 ## A pad plugged in or out while it is up: a tab for each pad as they are now, GAME.md 8.3b, the
