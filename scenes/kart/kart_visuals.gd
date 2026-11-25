@@ -399,7 +399,9 @@ static func color_tint(tint: StandardMaterial3D, color: Color) -> void:
 	if tint == null:
 		return
 	tint.albedo_color = color
-	var cap := tint.get_meta(&"cap", null) as StandardMaterial3D
+	# A model with no driver's cap has none to paint: asked after only where there is one, as a
+	# null default to get_meta is no default.
+	var cap := tint.get_meta(&"cap") as StandardMaterial3D if tint.has_meta(&"cap") else null
 	if cap != null:
 		cap.albedo_color = color
 
