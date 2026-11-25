@@ -43,16 +43,25 @@ static func pads() -> Array[int]:
 
 
 ## The pads plugged in, in the order the menus number them, Gamepad 1 first: the engine's by their
-## ids, then Steam Input's by theirs.
+## ids, then Steam Input's by theirs; only gamepads, see [method is_gamepad].
 static func numbered() -> Array[int]:
 	var engine: Array[int] = []
-	engine.assign(Input.get_connected_joypads())
+	for device: int in Input.get_connected_joypads():
+		if is_gamepad(device):
+			engine.append(device)
 	engine.sort()
 	var steam: Array[int] = []
 	steam.assign(steam_pads.keys())
 	steam.sort()
 	engine.append_array(steam)
 	return engine
+
+
+## Whether [param device] is a gamepad: one of Steam Input's, or one the engine knows a gamepad's
+## layout for. A keyboard's or a mouse's extra keys may come to the engine as a pad with none, as a
+## keyboard's System Control does, which has no tab in Show controls and no number.
+static func is_gamepad(device: int) -> bool:
+	return steam_pads.has(device) or Input.is_joy_known(device)
 
 
 ## Which gamepad [param device] is, from 1, as the menus say it, see [method numbered]; 0 for one

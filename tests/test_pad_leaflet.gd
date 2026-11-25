@@ -415,7 +415,7 @@ func test_the_tabs_follow_the_pads_plugged_in_and_out() -> void:
 		for side: Button in leaflet._switch:
 			count += 1 if side.name.begins_with("Gamepad") else 0
 		return count
-	var engine := Input.get_connected_joypads().size()
+	var engine := DeviceInput.numbered().size() - ids.size()
 	assert_int(gamepads.call()).is_equal(engine + 2)
 	var third := SteamPads.FIRST_DEVICE + 2
 	DeviceInput.steam_pads[third] = PadFamily.Family.STEAM_CONTROLLER

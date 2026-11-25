@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
 
 ### Fixed
 
+- **No Gamepad tab for a keyboard.** A keyboard whose extra keys reach the game as a gamepad no
+  longer gets a tab in Show controls or a gamepad number.
 - **Show controls follows your Steam layout.** With a controller Steam reads, the blueprint draws
   each action where Steam has it, back buttons and trackpads down their own side, and catches up as
   you come back from Steam's settings.
