@@ -91,8 +91,8 @@ func test_a_rivals_arrow_is_as_asked() -> void:
 	assert_int((of_seat.call(0) as Array).size()).is_equal(1)
 
 
-## The Garage's dummies are parked targets, not players: nothing points at one out of the picture.
-func test_a_dummy_out_of_the_picture_is_not_pointed_at() -> void:
+## The Garage's dummies are pointed at as rivals are, faint out of the box.
+func test_a_dummy_out_of_the_picture_is_pointed_at_as_a_rival() -> void:
 	var rules: MatchRules = RULES.duplicate()
 	rules.countdown = 0.1
 	var match_node: Match = auto_free(MATCH_SCENE.instantiate())
@@ -108,11 +108,13 @@ func test_a_dummy_out_of_the_picture_is_not_pointed_at() -> void:
 	var dummy := match_node.kart_of(1)
 	dummy.global_position = match_node.camera_rig.camera.global_position + Vector3(400.0, 0.0, 0.0)
 	dummy.global_position.y = 0.0
+	Game.settings.rival_arrows = ViewChoices.RIVAL_ARROWS_FAINT
 	pointers._process(0.0)
 	var arrows := pointers._signs.filter(
 		func(each: Dictionary) -> bool: return each.color == match_node.slots[1].color()
 	)
-	assert_array(arrows).is_empty()
+	assert_int(arrows.size()).is_equal(1)
+	assert_float(arrows[0].length).is_equal(KartPointers.ARROW_FAINT)
 
 
 func test_the_marker_is_over_my_kart_only_when_asked_for() -> void:

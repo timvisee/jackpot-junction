@@ -4462,8 +4462,8 @@ the screen to it, bigger for a kart driven here and a rival's faint unless Rival
 Accessibility, 8.5, says Full or Off: a rival left out of the shot is
 still somewhere the player knows, and a kart that comes back past the edge of the
 shot, as a kart driven here may for a moment as it glides in, is found at once.
-The Garage's two dummies, 9.4, parked targets rather than players, are not pointed
-at (2026-11-25).
+The Garage's two dummies, 9.4, are pointed at as rivals are, as Rival arrows says:
+left out for a day, the user wanted them back once a rival's arrow was faint (2026-11-25).
 
 While it follows, the picture goes only a little past the arena: no more than a
 tenth of the screen at any edge shows what is beyond it, so the walls and the room's

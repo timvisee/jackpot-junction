@@ -2,11 +2,11 @@ class_name KartPointers
 extends Control
 ## Where the karts are when they cannot be seen, GAME.md 8.2 and 8.5: an arrow in its color at the
 ## edge of the screen for every kart out of the picture, pointing at it, bold for a kart driven here
-## and for a rival as Rival arrows says, faint unless asked otherwise, or none; never for the
-## Garage's dummies, parked targets rather than players; and, asked for in Accessibility, a marker
-## over each kart driven here. A camera that keeps
-## only some karts in the picture, see [FramedKarts], leaves the rest to these, and one that keeps
-## them all still has a kart come back out past the edge for a moment, see [FramedSpots].
+## and for a rival as Rival arrows says, faint unless asked otherwise, or none, the Garage's
+## dummies among the rivals; and, asked for in Accessibility, a marker over each kart driven here.
+## A camera that keeps only some karts in the picture, see [FramedKarts], leaves the rest to these,
+## and one that keeps them all still has a kart come back out past the edge for a moment, see
+## [FramedSpots].
 ##
 ## Drawn in a handful of triangles, again only on a frame with any to draw, GAME.md 10.7.
 
@@ -64,7 +64,7 @@ func _place(match_node: Match, rig: CameraRig) -> void:
 	var screen := Rect2(Vector2.ZERO, size)
 	for slot: PlayerSlot in match_node.slots:
 		var kart := slot.kart
-		if kart == null or not kart.alive or not kart.is_inside_tree() or slot.is_dummy():
+		if kart == null or not kart.alive or not kart.is_inside_tree():
 			continue
 		var mine := kart in here
 		var middle := kart.global_position + Vector3.UP * CameraRig.KART_MIDDLE
