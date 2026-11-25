@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Feel Rumble come on.** Switching Rumble on in the Accessibility settings gives every connected
+  controller a short rumble.
 - **A tab for each controller in Show controls.** Every controller plugged in has its own numbered
   tab, Y steps through them all, and View on a controller turns the blueprint to that one, which
   rumbles as its page comes up. Tabs come and go as controllers are plugged in and out.

@@ -64,3 +64,30 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 	assert_array(_rows(page, AccessibilityTab.HUD)).contains_exactly(
 		["See-through HUD", "Speed in", "Control hints", "Always show drive hints"]
 	)
+
+
+## Rumble switched on knocks every pad plugged in, so it is felt that it is; switched off, none.
+func test_rumble_switched_on_knocks_every_pad() -> void:
+	var knocked: Array[int] = []
+	var was := DeviceInput.steam_rumble
+	DeviceInput.steam_rumble = func(device: int, _weak: float, _strong: float, _for: float) -> void:
+		knocked.append(device)
+	DeviceInput.steam_pads[SteamPads.FIRST_DEVICE] = PadFamily.Family.PLAYSTATION_4
+	DeviceInput.steam_pads[SteamPads.FIRST_DEVICE + 1] = PadFamily.Family.XBOX
+	Game.settings.rumble = false
+	var page: AccessibilityTab = auto_free(AccessibilityTab.make(Game.settings))
+	add_child(page)
+	var row: Node = null
+	for each: Node in page.get_node("Groups/" + AccessibilityTab.MOTION).get_children():
+		var label := each.get_child(0) as Label
+		if label != null and label.text == "Rumble":
+			row = each
+	var switch := row.find_children("*", "CheckButton", true, false)[0] as CheckButton
+	switch.button_pressed = true
+	assert_bool(Game.settings.rumble).is_true()
+	assert_array(knocked).contains([SteamPads.FIRST_DEVICE, SteamPads.FIRST_DEVICE + 1])
+	var count := knocked.size()
+	switch.button_pressed = false
+	assert_int(knocked.size()).is_equal(count)
+	DeviceInput.steam_pads.clear()
+	DeviceInput.steam_rumble = was

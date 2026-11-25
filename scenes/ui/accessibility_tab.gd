@@ -67,7 +67,14 @@ func _add_motion() -> void:
 	_group(MOTION)
 	var shake := func(on: bool) -> void: _settings.screen_shake = on
 	_add("Screen shake", _check(_settings.screen_shake, shake))
-	_add("Rumble", _check(_settings.rumble, func(on: bool) -> void: _settings.rumble = on))
+	# Switched on, every pad plugged in gives a knock, so it is felt that it is, see
+	# [method DeviceInput.nudge].
+	var rumble := func(on: bool) -> void:
+		_settings.rumble = on
+		if on:
+			for pad: int in DeviceInput.pads():
+				DeviceInput.nudge(pad)
+	_add("Rumble", _check(_settings.rumble, rumble))
 	# The same setting as under Camera on the Video page, see [method VideoTab.fixed_camera_switch].
 	_add(VideoTab.FIXED, VideoTab.fixed_camera_switch(_settings))
 	var glide := func(on: bool) -> void: _settings.cursor_glide = on

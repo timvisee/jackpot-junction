@@ -5696,7 +5696,9 @@ from a section's button low in its box was the one beside it.
   color blindness, a window onto three karts, kart rings and the marker over my kart; Motion
   and light, screen shake, rumble, the fixed camera, the cursor's glide, flash reduction, the
   disco lights and the crowd; Aiming, aim assist strength and the aim guide; and HUD and hints,
-  the see-through HUD, speed in, the control hints and always show drive hints. The palette's
+  the see-through HUD, speed in, the control hints and always show drive hints. Rumble switched
+  on gives every pad plugged in the knock Show controls gives one, 8.3b, so it is felt that it is
+  on. The palette's
   choice is as wide as its longest name, with the eight colors beside it 20 px square, the
   aim guide's preview and the karts' window are 560 by 159, so each fits half a 1080p page. The karts' window, `KartMarksPreview`, is on the felt the aim guide's preview is on,
   `FeltWindow`, at the same scale: the first seat's kart in the middle facing the camera, in its
