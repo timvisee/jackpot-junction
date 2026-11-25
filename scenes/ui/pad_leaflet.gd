@@ -50,6 +50,9 @@ const STEP_TAB := -4
 ## pad's View, the left of its middle buttons, Select or Share as others print it, and N; and its
 ## words after the switch. Nothing in the blueprint is new.
 const MINE := InputActions.MENU_NEXT_NEW
+## How a pad is knocked as its sheets come up, so the player sees which pad they are: its light
+## motor and its heavy one, 0 to 1, and for how long, in seconds, where rumble is on.
+const NUDGE := Vector3(0.4, 0.7, 0.18)
 const MINE_WORDS := "MINE"
 ## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
 const KEYBOARD_WORDS := "Your keyboard"
@@ -437,8 +440,11 @@ func show_keyboard(keys: bool) -> void:
 	_turn_to(page, false)
 
 
-## The sheets of the pad [param device], plugged in, drawn as its family is.
+## The sheets of the pad [param device], plugged in, drawn as its family is: the pad knocked as they
+## come up, see [constant NUDGE], and so again where they are up already, its View pressed say.
 func show_pad(device: int) -> void:
+	if Game.settings.rumble:
+		DeviceInput.rumble(device, NUDGE.x, NUDGE.y, NUDGE.z)
 	if device == pad and not keyboard:
 		return
 	if not keyboard:

@@ -370,6 +370,33 @@ func test_the_switch_steps_through_all_and_mine_comes_home() -> void:
 	leaflet.close()
 
 
+## A pad is knocked as its sheets come up, from its tab, the switch's key or its own View, and on
+## View again with them up already, so the player sees which pad it is; with rumble on alone.
+func test_a_pad_is_knocked_as_its_sheets_come_up() -> void:
+	var ids := _plug([PadFamily.Family.PLAYSTATION_4, PadFamily.Family.NINTENDO])
+	var knocked: Array[int] = []
+	var was := DeviceInput.steam_rumble
+	var rumble_was := Game.settings.rumble
+	DeviceInput.steam_rumble = func(device: int, _weak: float, _strong: float, _for: float) -> void:
+		knocked.append(device)
+	Game.settings.rumble = true
+	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.GENERIC, false, null, false, ids[0])
+	assert_array(knocked).is_empty()
+	leaflet._input(_press_on(ids[0], JOY_BUTTON_Y))
+	assert_array(knocked).is_equal([ids[1]])
+	leaflet._input(_press_on(ids[1], JOY_BUTTON_BACK))
+	assert_array(knocked).is_equal([ids[1], ids[1]])
+	leaflet._input(_press_on(ids[0], JOY_BUTTON_BACK))
+	assert_array(knocked).is_equal([ids[1], ids[1], ids[0]])
+	Game.settings.rumble = false
+	leaflet._input(_press_on(ids[1], JOY_BUTTON_BACK))
+	assert_int(leaflet.pad).is_equal(ids[1])
+	assert_int(knocked.size()).is_equal(3)
+	Game.settings.rumble = rumble_was
+	DeviceInput.steam_rumble = was
+	leaflet.close()
+
+
 ## With more pads than there is room for a tab each before Back, they share one tab stepping
 ## through them, its words the pad's drawn.
 func test_pads_beyond_the_room_share_a_stepping_tab() -> void:
