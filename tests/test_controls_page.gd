@@ -28,8 +28,9 @@ func test_every_rebindable_action_is_in_one_group() -> void:
 	assert_array(grouped).contains_exactly_in_any_order(SettingsScreen.REBINDABLE)
 
 
-## The groups stand in order under their headings, driving, fighting and the game down the left and
-## the controllers, jokers and emotes down the right, each binding group with its columns named.
+## The groups stand in order under their headings, the controllers, driving and fighting down the
+## left and the game, jokers and emotes down the right, each binding group with its columns named;
+## the page opening on the controllers' first, Show controls, however it stands.
 func test_the_groups_stand_under_headings() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
@@ -38,10 +39,10 @@ func test_the_groups_stand_under_headings() -> void:
 	for each: Node in groups.get_children():
 		headings.append((each.get_node("Heading/Title") as Label).text)
 	var wanted: Array[String] = [
+		SettingsScreen.CONTROLLERS,
 		SettingsScreen.DRIVING,
 		SettingsScreen.FIGHTING,
 		SettingsScreen.GAME,
-		SettingsScreen.CONTROLLERS,
 		SettingsScreen.JOKERS,
 		SettingsScreen.EMOTES,
 	]
@@ -59,6 +60,8 @@ func test_the_groups_stand_under_headings() -> void:
 		)
 		. is_not_null()
 	)
+	var first := SettingsScreen._first_focusable(groups)
+	assert_str(first.name).is_equal("PadLeafletButton")
 
 
 ## Every action is named in sentence case, as every other row of the settings is, the jokers' by

@@ -452,8 +452,8 @@ func _is_bindable_press(event: InputEvent) -> bool:
 
 
 ## The Controls page, GAME.md 8.5, in groups under headings as the Video page has, see
-## [SettingsColumns]: how the first player drives and the bindings for driving, fighting and the
-## game down the left; the controllers, and the bindings for jokers and emotes, down the right.
+## [SettingsColumns]: the controllers, how the first player drives and the bindings for driving and
+## fighting down the left; the bindings for the game, jokers and emotes down the right.
 func _controls_tab() -> Control:
 	var scroll := ScrollContainer.new()
 	scroll.name = "Controls"
@@ -462,7 +462,35 @@ func _controls_tab() -> Control:
 	groups.name = "Groups"
 	groups.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(groups)
-	var column := SettingsColumns.group(DRIVING)
+	# The controllers first, Show controls and Reset at the top of the page however it stands.
+	var column := SettingsColumns.group(CONTROLLERS)
+	groups.add_child(column)
+	# The pad drawn whole with what each button does, GAME.md 8.3b.
+	column.add_child(PadLeaflet.row(self))
+	# Steam Input, GAME.md 10.8, in a game with Steam on.
+	SteamInputRow.add_to(column, _settings)
+	var deadzone := HSlider.new()
+	deadzone.min_value = 0.05
+	deadzone.max_value = 0.5
+	deadzone.step = 0.01
+	deadzone.value = _settings.stick_deadzone
+	deadzone.custom_minimum_size = Vector2(300.0, 0.0)
+	deadzone.value_changed.connect(
+		func(value: float) -> void:
+			_settings.stick_deadzone = value
+			_settings.apply_input()
+	)
+	column.add_child(MenuTheme.row("Stick dead zone", deadzone))
+	var reset := MenuTheme.button("Reset bindings to defaults", 22)
+	reset.name = "ResetBindings"
+	reset.pressed.connect(
+		func() -> void:
+			_settings.reset_bindings()
+			_refresh_bindings()
+			status.text = "Bindings reset"
+	)
+	column.add_child(MenuTheme.row("", reset))
+	column = SettingsColumns.group(DRIVING)
 	groups.add_child(column)
 	# How the first player drives, GAME.md 4.2. Everybody else says in the lobby, or in the pause
 	# menu over their own corner.
@@ -500,39 +528,11 @@ func _controls_tab() -> Control:
 		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
 		column.add_child(MenuTheme.row("Touch driving", touch))
 	_add_bindings(column, BINDINGS[DRIVING])
-	for named: String in [FIGHTING, GAME]:
-		column = SettingsColumns.group(named)
-		groups.add_child(column)
-		_add_bindings(column, BINDINGS[named])
-	groups.split = groups.get_child_count()
-	column = SettingsColumns.group(CONTROLLERS)
+	column = SettingsColumns.group(FIGHTING)
 	groups.add_child(column)
-	# The pad drawn whole with what each button does, GAME.md 8.3b.
-	column.add_child(PadLeaflet.row(self))
-	# Steam Input, GAME.md 10.8, in a game with Steam on.
-	SteamInputRow.add_to(column, _settings)
-	var deadzone := HSlider.new()
-	deadzone.min_value = 0.05
-	deadzone.max_value = 0.5
-	deadzone.step = 0.01
-	deadzone.value = _settings.stick_deadzone
-	deadzone.custom_minimum_size = Vector2(300.0, 0.0)
-	deadzone.value_changed.connect(
-		func(value: float) -> void:
-			_settings.stick_deadzone = value
-			_settings.apply_input()
-	)
-	column.add_child(MenuTheme.row("Stick dead zone", deadzone))
-	var reset := MenuTheme.button("Reset bindings to defaults", 22)
-	reset.name = "ResetBindings"
-	reset.pressed.connect(
-		func() -> void:
-			_settings.reset_bindings()
-			_refresh_bindings()
-			status.text = "Bindings reset"
-	)
-	column.add_child(MenuTheme.row("", reset))
-	for named: String in [JOKERS, EMOTES]:
+	_add_bindings(column, BINDINGS[FIGHTING])
+	groups.split = groups.get_child_count()
+	for named: String in [GAME, JOKERS, EMOTES]:
 		column = SettingsColumns.group(named)
 		groups.add_child(column)
 		_add_bindings(column, BINDINGS[named])

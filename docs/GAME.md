@@ -5528,13 +5528,14 @@ from a section's button low in its box was the one beside it.
   advanced, that changes it to the other, see 4.2. The first seat's is the Driving row of
   Controls, and each shows what the other was changed to.
 - **Controls**, in six groups under headings as on the Video page, two columns side by side
-  on a 1080p screen and one under the other on a narrower one: Driving, how the first player
-  drives and the bindings for throttle, brake, steering, driving up and down, the handbrake and
-  nitro; Fighting, fire and the item; Game, pause, join and mute music; Controllers, Show
-  controls, Steam Input where Steam is on, the stick dead zone and Reset bindings to defaults;
-  Jokers, the joker menu, the previous and next joker, destroying one and its details; and
-  Emotes, the four and the wheel. The first three stand down the left and the last three down
-  the right. Every group of bindings names the keyboard's and the pad's columns over its own
+  on a 1080p screen and one under the other on a narrower one: Controllers, Show controls, Steam
+  Input where Steam is on, the stick dead zone and Reset bindings to defaults; Driving, how the
+  first player drives and the bindings for throttle, brake, steering, driving up and down, the
+  handbrake and nitro; Fighting, fire and the item; Game, pause, join and mute music; Jokers, the
+  joker menu, the previous and next joker, destroying one and its details; and Emotes, the four
+  and the wheel. The first three stand down the left and the last three down the right, so
+  Controllers heads the page however it stands and the cursor opens on Show controls; on a
+  handheld's one column it came fourth, the user's ask of 2026-11-25. Every group of bindings names the keyboard's and the pad's columns over its own
   sockets, which stand under the other rows' controls, 270 wide, and the two ways to drive and
   Help me choose stand a little closer together than elsewhere, so each column takes half a
   1080p page. Every action that can be bound is in one group, named in sentence case as every

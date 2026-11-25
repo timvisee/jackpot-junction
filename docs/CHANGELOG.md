@@ -25,6 +25,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Controllers first on the Controls page.** Show controls, the stick dead zone and Reset
+  bindings head the page, where on a handheld they came after three groups of bindings.
 - **Achievement toasts wait for the title's cards.** One carried back from a match waits until the
   invitation, the thank-you, the loyalty welcome or a House letter is put away.
 - **No card after Settings.** Back at the title from the settings or Play Online, the next card
