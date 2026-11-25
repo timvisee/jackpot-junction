@@ -15,7 +15,7 @@ below, and hands the notes to the release workflow.
 
 - **A tab for each controller in Show controls.** Every controller plugged in has its own numbered
   tab, Y steps through them all, and View on a controller turns the blueprint to that one, which
-  rumbles as its page comes up.
+  rumbles as its page comes up. Tabs come and go as controllers are plugged in and out.
 - **Steam profiles in Manage players.** In a Steam game, Profile beside each player opens their
   Steam profile in Steam's overlay.
 

@@ -214,6 +214,8 @@ func _ready() -> void:
 		family = PadFamily.of_device(pad)
 	else:
 		pad = -1
+	# A method rather than a lambda, which the engine's Input would still hold as the game quits.
+	Input.joy_connection_changed.connect(_on_pad_plugged)
 	diagram = PadDiagram.of(family)
 	_shade = ColorRect.new()
 	_shade.name = "Shade"
@@ -449,6 +451,11 @@ func show_pad(device: int) -> void:
 		return
 	if not keyboard:
 		Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
+	_draw_pad(device)
+
+
+## The pad [param device]'s sheets drawn, as its family is and Steam has it bound.
+func _draw_pad(device: int) -> void:
 	keyboard = false
 	pad = device
 	family = PadFamily.of_device(device)
@@ -626,18 +633,31 @@ func _show_mine(event: InputEvent) -> void:
 		show_keyboard(true)
 		return
 	var device := event.device
-	if not (event is InputEventJoypadButton or event is InputEventAction):
+	if (event is InputEventJoypadButton or event is InputEventAction) and _pads.has(device):
+		show_pad(device)
+
+
+## A pad plugged in or out while it is up: a tab for each pad as they are now, GAME.md 8.3b, the
+## cursor kept on the switch where it was there. The pad drawn gone, the first left is drawn
+## instead, or with none left a pad's as it was under Gamepad.
+func _on_pad_plugged(_device: int, _connected: bool) -> void:
+	_pads = DeviceInput.numbered()
+	if pad >= 0 and not _pads.has(pad):
+		if keyboard or _pads.is_empty():
+			pad = -1
+		else:
+			_draw_pad(_pads[0])
+	if _switch.is_empty():
 		return
-	if not DeviceInput.pads().has(device):
-		return
-	if not _pads.has(device):
-		_pads = DeviceInput.numbered()
-		if not _switch.is_empty():
-			_make_switch(_band)
-			_link_cursor()
-			if get_viewport().gui_get_focus_owner() == null:
-				_tabs[page].grab_focus()
-	show_pad(device)
+	var had := get_viewport().gui_get_focus_owner()
+	var on_switch := had == null or had in _switch
+	_make_switch(_band)
+	_link_cursor()
+	_turn_to(page, false)
+	if on_switch:
+		for i: int in _switch.size():
+			if _switch_shown(i):
+				_switch[i].grab_focus()
 
 
 ## The page keys turn it, and Back, the pause button or a right click put it away, before anything

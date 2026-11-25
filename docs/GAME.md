@@ -5184,9 +5184,10 @@ Steam.
   first, then a tab for each pad plugged in, two of a kind two tabs, named for its family,
   PlayStation 4 or Steam Controller, and numbered in a ring before its words as the menus number
   pads, Gamepad 1 the engine's first and then Steam Input's (`DeviceInput.numbered`); with no pad
-  plugged in, Gamepad. Where the tabs would not fit before Back, the pads share one tab, named for
-  the pad drawn, with a dot for each pad after its words, the drawn one filled, and pressed it steps
-  to the next. Opened, it shows the pad touched last, or the first plugged in before any was. After
+  plugged in, Gamepad. The tabs follow the pads as they are plugged in and pulled out while it is
+  up, the pad drawn pulled out leaving the first one left drawn. Where the tabs would not fit before
+  Back, the pads share one tab, named for the pad drawn, with a dot for each pad after its words,
+  the drawn one filled, and pressed it steps to the next. Opened, it shows the pad touched last, or the first plugged in before any was. After
   the tabs, Mine, the dialogs' Next new, a pad's View (Select or Share as others print it) or N,
   turns it to the pad it is pressed on, or to the keyboard, so a second player picks up theirs and
   sees it; nothing else a pad presses turns it. A pad's sheets coming up knock the pad, a short

@@ -397,6 +397,40 @@ func test_a_pad_is_knocked_as_its_sheets_come_up() -> void:
 	leaflet.close()
 
 
+## Up, it follows the pads as they come and go: one plugged in gets its tab, one pulled out loses
+## its own, and the pad drawn pulled out leaves the first one left drawn, the cursor on its tab.
+func test_the_tabs_follow_the_pads_plugged_in_and_out() -> void:
+	var ids := _plug([PadFamily.Family.PLAYSTATION_4, PadFamily.Family.NINTENDO])
+	var leaflet := PadLeaflet.open(_holder, PadFamily.Family.GENERIC, false, null, false, ids[1])
+	var sheet := leaflet.get_node("Around/Pane/Sheet")
+	var gamepads := func() -> int:
+		var count := 0
+		for side: Button in leaflet._switch:
+			count += 1 if side.name.begins_with("Gamepad") else 0
+		return count
+	var engine := Input.get_connected_joypads().size()
+	assert_int(gamepads.call()).is_equal(engine + 2)
+	var third := SteamPads.FIRST_DEVICE + 2
+	DeviceInput.steam_pads[third] = PadFamily.Family.STEAM_CONTROLLER
+	Input.joy_connection_changed.emit(third, true)
+	assert_bool(leaflet._pads.has(third)).is_true()
+	if not leaflet._stepping:
+		(
+			assert_object(sheet.get_node_or_null("Gamepad%d" % DeviceInput.number_of(third)))
+			. is_not_null()
+		)
+	leaflet._switch[1].grab_focus()
+	DeviceInput.steam_pads.erase(ids[1])
+	Input.joy_connection_changed.emit(ids[1], false)
+	assert_bool(leaflet._pads.has(ids[1])).is_false()
+	assert_int(leaflet.pad).is_equal(ids[0])
+	assert_int(leaflet.family).is_equal(PadFamily.Family.PLAYSTATION_4)
+	assert_int(gamepads.call()).is_equal(1 if leaflet._stepping else engine + 2)
+	var focused := get_viewport().gui_get_focus_owner()
+	assert_bool(focused in leaflet._switch).is_true()
+	leaflet.close()
+
+
 ## With more pads than there is room for a tab each before Back, they share one tab stepping
 ## through them, its words the pad's drawn.
 func test_pads_beyond_the_room_share_a_stepping_tab() -> void:
