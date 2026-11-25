@@ -83,27 +83,35 @@ func _place(match_node: Match, rig: CameraRig) -> void:
 					}
 				)
 			continue
-		if not mine and rivals == ViewChoices.RIVAL_ARROWS_OFF:
+		var look := Vector2(ARROW_HERE, 1.0) if mine else rival_look(rivals)
+		if look.x <= 0.0:
 			continue
-		var middle_of := size * 0.5
-		var way := (at - middle_of) * (-1.0 if behind else 1.0)
+		var way := (at - size * 0.5) * (-1.0 if behind else 1.0)
 		if way.is_zero_approx():
 			continue
 		way = way.normalized()
-		var faint := not mine and rivals == ViewChoices.RIVAL_ARROWS_FAINT
-		var length := ARROW_HERE if mine else (ARROW_FAINT if faint else ARROW)
 		(
 			_signs
 			. append(
 				{
-					at = _on_edge(middle_of, way),
+					at = on_edge(size, way),
 					way = way,
-					length = length,
+					length = look.x,
 					color = slot.color(),
-					shows = FAINT if faint else 1.0,
+					shows = look.y,
 				}
 			)
 		)
+
+
+## How a rival's arrow is drawn as Rival arrows, [param setting], says, see
+## [constant ViewChoices.RIVAL_ARROWS]: how long it is and how much of it shows; none long for Off.
+static func rival_look(setting: String) -> Vector2:
+	if setting == ViewChoices.RIVAL_ARROWS_OFF:
+		return Vector2.ZERO
+	if setting == ViewChoices.RIVAL_ARROWS_FULL:
+		return Vector2(ARROW, 1.0)
+	return Vector2(ARROW_FAINT, FAINT)
 
 
 ## Where the marker over [param kart] points as [param camera] draws it: at [param tip] unless a
@@ -118,15 +126,16 @@ func _over(kart: Kart, tip: Vector3, camera: Camera3D) -> Vector2:
 	return at
 
 
-## Where a line out of [param from] [param way] meets the edge of the screen, [constant INSET] in.
-func _on_edge(from: Vector2, way: Vector2) -> Vector2:
-	var reach := (size * 0.5 - Vector2.ONE * INSET).max(Vector2.ONE)
+## Where a line out of the middle of [param area] [param way] meets its edge, [constant INSET] in:
+## the screen's, or the Accessibility page's window onto three karts, see [KartMarksPreview].
+static func on_edge(area: Vector2, way: Vector2) -> Vector2:
+	var reach := (area * 0.5 - Vector2.ONE * INSET).max(Vector2.ONE)
 	var scale_to := INF
 	if absf(way.x) > 0.0001:
 		scale_to = minf(scale_to, reach.x / absf(way.x))
 	if absf(way.y) > 0.0001:
 		scale_to = minf(scale_to, reach.y / absf(way.y))
-	return from + way * scale_to
+	return area * 0.5 + way * scale_to
 
 
 func _draw() -> void:

@@ -82,7 +82,7 @@ func test_a_rivals_arrow_is_as_asked() -> void:
 		var rival: Array = of_seat.call(1)
 		assert_int(rival.size()).is_equal(1)
 		assert_float(rival[0].length).is_equal(each[1])
-		assert_float(rival[0].shows).is_equal(each[2])
+		assert_float(rival[0].shows).is_equal_approx(each[2], 0.0001)
 		var mine: Array = of_seat.call(0)
 		assert_float(mine[0].length).is_equal(KartPointers.ARROW_HERE)
 		assert_float(mine[0].shows).is_equal(1.0)

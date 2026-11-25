@@ -5,9 +5,10 @@ extends FeltWindow
 ## turned toward it, on the felt, see [FeltWindow], each nosing slowly to and fro; a ring under
 ## the first seat's kart, under all three or under none, as Kart rings says, and the marker over
 ## the first seat's kart while it is asked for, see [KartRings] and [KartPointers], drawn as a
-## match draws them. The first seat's kart in its own color and
-## dress, the rivals in the second and third seats' colors, and all of them in the palette for a
-## kind of color blindness the moment one is chosen.
+## match draws them; and at its left edge the arrow at a fourth kart out of the picture, as Rival
+## arrows says. The first seat's kart in its own color and dress, the rivals in the second and third
+## seats' colors and the one out of the picture in the fourth's, and all of them in the palette for
+## a kind of color blindness the moment one is chosen.
 
 ## Where the three karts stand, the first seat's in the middle, and which way each faces: a model's
 ## nose is its -Z, so PI faces the camera, south, and the rivals face south-east and south-west.
@@ -15,6 +16,9 @@ const SPOTS: Array[Vector3] = [
 	Vector3(1.9, 0.0, -0.02), Vector3(6.4, 0.0, -0.02), Vector3(10.9, 0.0, -0.02)
 ]
 const FACINGS: Array[float] = [-PI * 0.75, PI, PI * 0.75]
+## Where the fourth kart is, out of the picture to the left, level with the rest, for the arrow at
+## it to point at.
+const AWAY := Vector3(-2.6, 0.0, -0.02)
 ## How big a ring is across its middle, in meters: as big as one under the match camera at the
 ## distance it usually keeps, see [constant KartRings.PER_METER].
 const RING := 1.6
@@ -115,12 +119,13 @@ func _wanted() -> Array:
 	return [colors, settings.seat_style(0) if settings != null else [], inks]
 
 
-## The three karts' colors, left to right: the second seat's, the first seat's in the middle and
-## the third seat's, each its favorite where one is picked and otherwise the one its place gives
-## it, as at a table, and never one another's: a color taken already gives way to the first free.
+## The karts' colors, left to right: the second seat's, the first seat's in the middle and the
+## third seat's, then the fourth seat's, the kart out of the picture; each its favorite where one
+## is picked and otherwise the one its place gives it, as at a table, and never one another's: a
+## color taken already gives way to the first free.
 static func colors_of(settings: Settings) -> Array[int]:
 	var taken: Array[int] = []
-	for seat: int in [0, 1, 2]:
+	for seat: int in [0, 1, 2, 3]:
 		var color := settings.seat_color(seat) if settings != null else -1
 		if color < 0:
 			color = seat
@@ -129,13 +134,32 @@ static func colors_of(settings: Settings) -> Array[int]:
 			while color in taken:
 				color += 1
 		taken.append(color)
-	return [taken[1], taken[0], taken[2]]
+	return [taken[1], taken[0], taken[2], taken[3]]
 
 
-## The marker over the first seat's kart while it is asked for, as [KartPointers] hangs it.
+## The marker over the first seat's kart while it is asked for, as [KartPointers] hangs it; and
+## the arrow at the kart out of the picture, see [method rival_arrow].
 func _draw_marks() -> void:
-	if _built.is_empty() or Game.settings == null or not Game.settings.kart_marker:
+	if _built.is_empty() or Game.settings == null:
+		return
+	var arrow := rival_arrow()
+	if not arrow.is_empty():
+		var color := Palette.player_color(_built[0][3])
+		KartPointers.draw_sign(_marks, arrow.at, arrow.way, arrow.length, color, arrow.shows)
+	if not Game.settings.kart_marker:
 		return
 	var color := Palette.player_color(_built[0][1])
 	var over := SPOTS[1] + Vector3.UP * (CameraRig.KART_MIDDLE + KartPointers.MARKER_LIFT)
 	KartPointers.draw_sign(_marks, on_window(over), Vector2.DOWN, KartPointers.MARKER, color)
+
+
+## The arrow at the kart out of the picture to the left, see [constant AWAY], as a match points at
+## a rival there, see [KartPointers]: where its tip is on the window, which way it points, how long
+## it is and how much of it shows; empty for Rival arrows Off.
+func rival_arrow() -> Dictionary:
+	var look := KartPointers.rival_look(Game.settings.rival_arrows)
+	if look.x <= 0.0:
+		return {}
+	var away := on_window(AWAY + Vector3.UP * CameraRig.KART_MIDDLE)
+	var way := (away - size * 0.5).normalized()
+	return {at = KartPointers.on_edge(size, way), way = way, length = look.x, shows = look.y}

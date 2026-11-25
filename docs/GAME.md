@@ -5726,6 +5726,9 @@ from a section's button low in its box was the one beside it.
   none, the middle one's or all three, as big as a ring is under the match camera at the
   distance it usually keeps, and over the middle one hangs the marker while it is asked for,
   each drawn as a match draws it, in the palette for color blindness the moment one is chosen.
+  At its left edge an arrow points at a fourth kart out of the picture, level with the three, in
+  the fourth seat's color, Faint, Full or gone as Rival arrows says, placed and drawn as a match
+  points at a rival out of the picture (the user's ask of 2026-11-25).
   In full: screen shake on or off, flash reduction, the cursor's glide
   between buttons on or off (on by default, 8.1a), aim assist
   strength from 0% to 100% of the default and never above it, per player, the
