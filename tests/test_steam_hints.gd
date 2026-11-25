@@ -95,6 +95,35 @@ func test_a_back_button_is_steams_own_picture() -> void:
 	assert_str(named.caption).is_equal("L4")
 
 
+## The Loyalty map's head has Steam's Y in a row with the stick pushed every way, which is taller:
+## the row stretches the Y to that height, and the Y is drawn its own height in the middle of it,
+## in the picture's own proportions.
+func test_a_picture_in_a_taller_row_keeps_its_shape() -> void:
+	_start(DECK)
+	_steam.xbox_of = {DECK_R4: 146}
+	_steam.origins["use_item"] = [DECK_R4]
+	_steam.pictures[DECK_R4] = ProjectSettings.globalize_path(PICTURE)
+	var glyph := InputGlyph.of_action(InputActions.USE_ITEM, false, Color.WHITE, 15)
+	glyph.pin(PAD)
+	assert_int(glyph.kind).is_equal(InputGlyph.Kind.PICTURE)
+	var own := glyph.custom_minimum_size.y
+	var taller := Control.new()
+	taller.custom_minimum_size = Vector2(10.0, own * 1.6)
+	var row: HBoxContainer = auto_free(InputHint.row("%s %s", [taller, glyph], Color.WHITE, 15))
+	add_child(row)
+	await get_tree().process_frame
+	assert_float(glyph.size.y).is_greater(own * 1.5)
+	var box := glyph.drawn_box()
+	assert_float(box.size.y).is_equal_approx(own, 0.01)
+	assert_float(box.get_center().y).is_equal_approx(glyph.size.y * 0.5, 1.0)
+	# In a box of another shape, the picture drawn smaller rather than squashed.
+	var picture := Vector2(load(PICTURE).get_size())
+	for other: Vector2 in [Vector2(own * 3.0, own), Vector2(own, own * 3.0)]:
+		var drawn := glyph.fitted(Rect2(Vector2.ZERO, other))
+		assert_float(drawn.size.x / drawn.size.y).is_equal_approx(picture.x / picture.y, 0.01)
+		assert_bool(Rect2(Vector2.ZERO, other).encloses(drawn)).is_true()
+
+
 func test_a_trackpad_set_to_be_a_stick_is_not_drawn_as_the_stick() -> void:
 	_start(DECK)
 	_steam.xbox_of = {DECK_RIGHT_STICK: XBOX_RIGHT_STICK, DECK_RIGHT_PAD: XBOX_RIGHT_STICK}

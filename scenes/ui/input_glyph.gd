@@ -459,8 +459,20 @@ func _font() -> Font:
 	return ThemeDB.fallback_font if theme_font == null else theme_font
 
 
+## Where it is drawn: its own height, in the middle of whatever height its row gives it. A row
+## stretches each of its glyphs to its tallest, a stick pushed every way, and Steam's round Y
+## drawn to that height came out an egg.
+func drawn_box() -> Rect2:
+	var tall := size.y
+	if custom_minimum_size.y > 0.0:
+		tall = minf(tall, custom_minimum_size.y)
+	return Rect2(0.0, roundf((size.y - tall) * 0.5), size.x, tall)
+
+
 func _draw() -> void:
-	var box := Rect2(Vector2.ZERO, size)
+	var box := drawn_box()
+	draw_set_transform(box.position)
+	box.position = Vector2.ZERO
 	# The ones that are already a shape of their own go without the chip: a face button is a
 	# round button, a stick is a round gate and the D-pad is a cross, and a box drawn round any of
 	# them is a box drawn round a button. Everything else is a word, and a word needs something to
@@ -483,10 +495,20 @@ func _draw() -> void:
 		Kind.MENU:
 			_draw_menu(box)
 		Kind.PICTURE:
-			draw_texture_rect(_picture, box, false)
+			draw_texture_rect(_picture, fitted(box), false)
 		_:
 			_draw_chip(box)
 			_draw_caption(box, ink)
+
+
+## The most of [param box] Steam's picture takes in its own proportions, in the middle of it: a
+## box wider or narrower than the picture draws it smaller, never squashed.
+func fitted(box: Rect2) -> Rect2:
+	var picture := Vector2(_picture.get_size())
+	if picture.x <= 0.0 or picture.y <= 0.0:
+		return box
+	var drawn := picture * minf(box.size.x / picture.x, box.size.y / picture.y)
+	return Rect2(box.position + (box.size - drawn) * 0.5, drawn)
 
 
 ## A touch screen's menu button: the three bars it wears in the corner, on the usual chip, see
