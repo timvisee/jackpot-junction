@@ -633,22 +633,22 @@ func _said(on_page: int) -> String:
 
 
 ## Mine pressed, [param event]: the keyboard's sheets for a key, or the sheets of the pad it was
-## pressed on, one plugged in since it came up given its tab.
+## pressed on; either way, up already or just turned to, its tab tugged, see [method _tug_shown].
 func _show_mine(event: InputEvent) -> void:
 	if event is InputEventKey or event is InputEventMouseButton:
-		_ping_if(keyboard)
 		show_keyboard(true)
+		_tug_shown()
 		return
 	var device := event.device
 	if (event is InputEventJoypadButton or event is InputEventAction) and _pads.has(device):
-		_ping_if(device == pad and not keyboard)
 		show_pad(device)
+		_tug_shown()
 
 
-## With [param again], Mine pressed for what is drawn already, its tab tugged: pulled up a little
-## and let drop back, so the press is seen to have been heard, rumble on or off.
-func _ping_if(again: bool) -> void:
-	for i: int in _switch.size() if again else 0:
+## The tab of what is drawn tugged: pulled up a little and let drop back, so a press of Mine is seen
+## to have been heard, rumble on or off.
+func _tug_shown() -> void:
+	for i: int in _switch.size():
 		if _switch_shown(i):
 			var side := _switch[i]
 			var was := side.get_meta(&"tug", null) as Tween

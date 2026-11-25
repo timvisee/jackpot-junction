@@ -357,16 +357,18 @@ func test_the_switch_steps_through_all_and_mine_comes_home() -> void:
 	leaflet._input(_press_on(ids[2], JOY_BUTTON_BACK))
 	assert_int(leaflet.pad).is_equal(ids[2])
 	assert_int(leaflet.family).is_equal(PadFamily.Family.STEAM_CONTROLLER)
-	# Pressed again with its sheets up already, its tab is tugged up and drops back, rumble on or
-	# off.
+	# Turned to with Mine, and pressed again with its sheets up already, its tab is tugged up and
+	# drops back, rumble on or off.
 	var shown_tab := func() -> Button:
 		for i: int in leaflet._switch.size():
 			if leaflet._switch_shown(i):
 				return leaflet._switch[i]
 		return null
 	var tab := shown_tab.call() as Button
-	assert_bool(tab.has_meta(&"tug")).is_false()
+	var tugged := tab.get_meta(&"tug") as Tween
+	assert_bool(tugged.is_valid()).is_true()
 	leaflet._input(_press_on(ids[2], JOY_BUTTON_BACK))
+	assert_bool(tugged.is_valid()).is_false()
 	assert_bool((tab.get_meta(&"tug") as Tween).is_valid()).is_true()
 	var highest := 0.0
 	var until := Time.get_ticks_msec() + int((PadLeaflet.TUG.y + PadLeaflet.TUG.z + 0.15) * 1000.0)
@@ -382,6 +384,7 @@ func test_the_switch_steps_through_all_and_mine_comes_home() -> void:
 	key.pressed = true
 	leaflet._input(key)
 	assert_bool(leaflet.keyboard).is_true()
+	assert_bool(((shown_tab.call() as Button).get_meta(&"tug") as Tween).is_valid()).is_true()
 	leaflet._input(_press_on(ids[1], JOY_BUTTON_BACK))
 	assert_bool(leaflet.keyboard).is_false()
 	assert_int(leaflet.pad).is_equal(ids[1])
