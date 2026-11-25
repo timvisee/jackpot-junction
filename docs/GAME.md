@@ -5187,12 +5187,14 @@ Steam.
   plugged in, Gamepad. The tabs follow the pads as they are plugged in and pulled out while it is
   up, the pad drawn pulled out leaving the first one left drawn. Where the tabs would not fit before
   Back, the pads share one tab, named for the pad drawn, with a dot for each pad after its words,
-  the drawn one filled, and pressed it steps to the next. Opened, it shows the pad touched last, or the first plugged in before any was. After
-  the tabs, Mine, the dialogs' Next new, a pad's View (Select or Share as others print it) or N,
-  turns it to the pad it is pressed on, or to the keyboard, so a second player picks up theirs and
-  sees it; nothing else a pad presses turns it. A pad's sheets coming up knock the pad, a short
-  rumble where rumble is on, so its player feels which it is, and Mine knocks it again with them up
-  already. A keyboard without its number pad in the US layout's
+  the drawn one filled, and pressed it steps to the next. Opened, it shows the pad touched last, or
+  the first plugged in before any was. Mine, the dialogs' Next new, a pad's View (Select or Share as
+  others print it) or N, turns it to the pad it is pressed on, or to the keyboard, so a second
+  player picks up theirs and sees it; nothing else a pad presses turns it. Its key stands on the top
+  edge of the tab it turns to, at its right, as that pad prints it: N on Keyboard's, Share on a
+  DualShock's, View on an Xbox pad's, and the drawn pad's on the tab the pads share. A pad's sheets
+  coming up knock the pad, a short rumble where rumble is on, so its player feels which it is, and
+  Mine knocks it again with them up already. A keyboard without its number pad in the US layout's
   shape, which serves every layout since keys are bound by where they are, each key in outline with
   its name as the player's keyboard prints it, 8.3, the ones bound on the sheet lit, the left one of
   Shift, Ctrl and Alt alone; and a mouse beside it, its buttons lit where bound and on the driving

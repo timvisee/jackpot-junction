@@ -366,7 +366,14 @@ func test_the_switch_steps_through_all_and_mine_comes_home() -> void:
 	leaflet._input(_press_on(ids[1], JOY_BUTTON_BACK))
 	assert_bool(leaflet.keyboard).is_false()
 	assert_int(leaflet.pad).is_equal(ids[1])
-	assert_object(leaflet.get_node("Around/Pane/Sheet/Mine")).is_not_null()
+	# Mine on each tab's top edge: N on the keyboard's, each pad's own View on its own.
+	for i: int in leaflet._switch.size():
+		var mine := leaflet._switch[i].get_node("Mine") as InputGlyph
+		var kind := leaflet._switch_for[i]
+		if kind >= 0:
+			assert_int(mine.pad).is_equal(kind)
+		assert_float(mine.position.y).is_equal(0.0)
+		assert_float(mine.get_rect().end.x).is_less_equal(leaflet._switch[i].size.x)
 	leaflet.close()
 
 

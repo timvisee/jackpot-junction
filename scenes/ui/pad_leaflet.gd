@@ -47,13 +47,14 @@ const KEYBOARD_TAB := -2
 const ANY_PAD_TAB := -3
 const STEP_TAB := -4
 ## The key that turns it to the keyboard or the pad it was pressed on, the dialogs' Next new: a
-## pad's View, the left of its middle buttons, Select or Share as others print it, and N; and its
-## words after the switch. Nothing in the blueprint is new.
+## pad's View, the left of its middle buttons, Select or Share as others print it, and N; drawn on
+## the top edge of the tab it turns to, at its right, as big as this. Nothing in the blueprint is
+## new.
 const MINE := InputActions.MENU_NEXT_NEW
+const MINE_SIZE := 14
 ## How a pad is knocked as its sheets come up, so the player sees which pad they are: its light
 ## motor and its heavy one, 0 to 1, and for how long, in seconds, where rumble is on.
 const NUDGE := Vector3(0.4, 0.7, 0.18)
-const MINE_WORDS := "MINE"
 ## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
 const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
@@ -140,8 +141,10 @@ var _back: Button
 var _switch: Array[Button] = []
 var _switch_for: Array[int] = []
 var _switch_key: Control
-## Mine's glyph and its words after the switch, see [constant MINE].
-var _mine: Array[Control] = []
+## Mine's glyph on each switch tab's top edge, by tab, see [constant MINE]: the key's on the
+## keyboard's, each pad's View on its own, the drawn pad's on a tab stepping through them; null on
+## Gamepad, with no pad plugged in to press it.
+var _mine: Array[InputGlyph] = []
 var _pads: Array[int] = []
 var _stepping := false
 var _band := 0.0
@@ -292,8 +295,6 @@ func _make_switch(band: float) -> void:
 	_switch_for.clear()
 	if _switch_key != null:
 		_switch_key.free()
-	for each: Control in _mine:
-		each.free()
 	_mine.clear()
 	var x := TAB_FIRST + PAGES.size() * TAB_STEP + 10.0 + _keys.get_combined_minimum_size().x + 24.0
 	_switch_key = InputGlyph.of_action(SWITCH, Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
@@ -303,8 +304,7 @@ func _make_switch(band: float) -> void:
 		x += _switch_key.custom_minimum_size.x + 10.0
 	var kinds: Array[int] = [KEYBOARD_TAB]
 	kinds.append_array(_pads if not _pads.is_empty() else [ANY_PAD_TAB] as Array[int])
-	_make_mine()
-	var room := SIZE.x - BACK_IN - BACK_SIZE.x - 16.0 - x - _mine_wide()
+	var room := SIZE.x - BACK_IN - BACK_SIZE.x - 16.0 - x
 	_stepping = _pads.size() > 1 and _wide(kinds) > room
 	if _stepping:
 		kinds = [KEYBOARD_TAB, STEP_TAB]
@@ -314,36 +314,31 @@ func _make_switch(band: float) -> void:
 		x += side.size.x + 8.0
 		_switch.append(side)
 		_switch_for.append(kind)
+		_mine.append(side.get_node_or_null(^"Mine") as InputGlyph)
 	_word_switch()
-	# Mine after the tabs, level with the words on them, see [constant MINE].
-	x += 8.0
-	for each: Control in _mine:
-		var tall := each.get_combined_minimum_size().y
-		each.position = Vector2(x, band - tall * 0.5)
-		x += each.get_combined_minimum_size().x + 6.0
 
 
-## Mine's glyph and its words, see [constant MINE], placed by [method _make_switch].
-func _make_mine() -> void:
-	var key := InputGlyph.of_action(MINE, Game.last_input_keyboard, Palette.CHIP_WHITE, 18)
-	if key != null:
-		_sheet.add_child(key)
-		_mine.append(key)
-	var words := Label.new()
-	words.name = "Mine"
-	words.text = MINE_WORDS
-	words.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.strong(words, 18, FAINT)
-	_sheet.add_child(words)
-	_mine.append(words)
+## Mine's glyph for a switch tab for [param kind], see [constant MINE], or null for none.
+func _mine_glyph(kind: int) -> InputGlyph:
+	if kind == ANY_PAD_TAB:
+		return null
+	var glyph := InputGlyph.of_action(MINE, kind == KEYBOARD_TAB, Palette.CHIP_WHITE, MINE_SIZE)
+	if glyph == null:
+		return null
+	glyph.name = "Mine"
+	glyph.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shows := pad if kind == STEP_TAB else kind
+	if shows >= 0:
+		glyph.pin(shows)
+	return glyph
 
 
-## How wide Mine's glyph and its words stand after the tabs.
-func _mine_wide() -> float:
-	var wide := 8.0
-	for each: Control in _mine:
-		wide += each.get_combined_minimum_size().x + 6.0
-	return wide
+## Mine's glyph on [param side]'s top edge, at its right inside its slanted side.
+static func _place_mine(side: Button) -> void:
+	var glyph := side.get_node_or_null(^"Mine") as InputGlyph
+	if glyph != null:
+		var wide := glyph.custom_minimum_size.x
+		glyph.position = Vector2(side.size.x - BlueprintArt.TAB_LEAN - wide - 4.0, 0.0)
 
 
 ## How wide the tabs for [param kinds] stand side by side, each as [method _switch_tab] makes it.
@@ -371,6 +366,11 @@ func _switch_tab(kind: int) -> Button:
 		plain.content_margin_left = NUMBER_ROOM
 	if kind == STEP_TAB:
 		plain.content_margin_right = DOTS_STEP * _pads.size()
+	# Room at the right for Mine on the top edge, over the dots on a tab stepping through the pads.
+	var mine := _mine_glyph(kind)
+	if mine != null:
+		side.add_child(mine)
+		plain.content_margin_right = maxf(plain.content_margin_right, mine.custom_minimum_size.x)
 	for state: StringName in [&"normal", &"hover", &"pressed", &"disabled", &"hover_pressed"]:
 		side.add_theme_stylebox_override(state, plain)
 	var words := side.get_combined_minimum_size().x
@@ -379,6 +379,7 @@ func _switch_tab(kind: int) -> Button:
 			side.text = _switch_words(each)
 			words = maxf(words, side.get_combined_minimum_size().x)
 	side.size = Vector2(maxf(SWITCH_SIZE.x, words + SWITCH_ROOM), SWITCH_SIZE.y)
+	_place_mine(side)
 	side.pressed.connect(_on_switch.bind(kind))
 	return side
 
@@ -400,6 +401,10 @@ func _word_switch() -> void:
 		var kind := _switch_for[i]
 		_switch[i].text = _switch_words(kind)
 		var shows := pad if kind == STEP_TAB else kind
+		# The tab stepping through the pads has the drawn one's Mine.
+		if kind == STEP_TAB and _mine[i] != null and shows >= 0:
+			_mine[i].pin(shows)
+			_place_mine(_switch[i])
 		var named := _switch[i].text.capitalize()
 		if shows >= 0:
 			named = "Gamepad %d, %s" % [DeviceInput.number_of(shows), named]
