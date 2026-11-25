@@ -654,7 +654,9 @@ func _tug_shown() -> void:
 	for i: int in _switch.size():
 		if _switch_shown(i):
 			var side := _switch[i]
-			var was := side.get_meta(&"tug", null) as Tween
+			# The tug under way, if any, ended: its meta asked after only once it is there, as a null
+			# default to get_meta is no default.
+			var was := side.get_meta(&"tug") as Tween if side.has_meta(&"tug") else null
 			if was != null and was.is_valid():
 				was.kill()
 			var tug := side.create_tween()
