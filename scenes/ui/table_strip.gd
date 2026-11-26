@@ -362,10 +362,11 @@ class TableCardButton:
 
 	## The tag on a card opened and not yet played.
 	const NEW_INK := Color("#ff4fa3")
-	## A card turned over heard put down on the felt, as it starts to turn, and how loud: a little
-	## over a button's click, the recordings' slap coming as the card comes down flat.
+	## A card turned over heard put down on the felt, as it starts to turn, and how loud: well over
+	## a button's click and a little under the die's throw, the recordings' slap coming as the card
+	## comes down flat.
 	const FLIP := &"card_flip"
-	const FLIP_DB := -24.0
+	const FLIP_DB := -14.0
 	## Who is told a face is drawn, see [KeptPictures].
 	const GROUP := &"table_cards"
 
