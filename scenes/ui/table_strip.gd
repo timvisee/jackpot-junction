@@ -211,7 +211,6 @@ func roll() -> void:
 		if TableCards.has(dealt, TableCards.Card.SUITS):
 			dealt = TableCards.with(dealt, TableCards.Card.JOKERS, true)
 	set_table(dealt, roulette, opened, fresh, true)
-	Audio.play_sfx(&"ui_click", -6.0, 0.05)
 	changed.emit()
 
 

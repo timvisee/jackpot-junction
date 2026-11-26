@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Builds the die's throw, GAME.md 4.4a and 9.6, into assets/audio/sfx/die_throw_1.ogg to _3.ogg.
+
+One die thrown onto a table, timed to the die drawn on the screen (NameDie): it is picked up off
+what it lay on with a faint scuff, flies, and lands three times, each landing lower and sooner
+than the one before, as the die is drawn hopping, then settles onto its face with a short rattle.
+Each landing is the die's plastic struck against wood: a sharp click where its corner meets the
+table and its face a moment after, the die itself ringing high and short, and the table knocking
+low under it. A little of a room round it, so it sounds struck in one rather than in nothing.
+Three takes, each its own die and its own table, for the game to pick from.
+
+Not part of `make check`: run it again only to change the sounds. Needs ffmpeg, python3 and numpy.
+
+    tools/make_die_sound
+"""
+import os
+import subprocess
+
+import numpy as np
+
+SR = 44100
+PEAK = 0.8
+SFX = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "assets", "audio", "sfx")
+
+# When the die drawn on the screen comes down, in seconds from the throw: NameDie.TUMBLE, and the
+# end of each of its NameDie.HOPS as a share of it. Change them together.
+TUMBLE = 0.85
+LANDINGS = [0.52, 0.74, 0.88]
+# How hard each landing is, and the rattle after the last as it tips onto its face: how long after
+# the last landing each tap comes, and how hard.
+STRENGTHS = [1.0, 0.55, 0.3]
+SETTLE = [(0.032, 0.13), (0.054, 0.08), (0.069, 0.045), (0.079, 0.025)]
+LENGTH = 1.15
+
+
+def decay(length, tau):
+    t = np.arange(length) / SR
+    return t, np.exp(-t / tau)
+
+
+def put(out, at, sound):
+    start = int(at * SR)
+    end = min(start + len(sound), len(out))
+    out[start:end] += sound[:end - start]
+
+
+def click(rng, strength):
+    """The corner or the face meeting the table: a few milliseconds of hard, bright noise."""
+    t, env = decay(int(0.006 * SR), 0.0007)
+    noise = rng.standard_normal(len(t))
+    # Its lows taken out, a hard thing striking rather than a thump, and its very top, which a
+    # struck die and table have little of.
+    bright = np.append(noise[0], np.diff(noise))
+    bright = np.convolve(bright, np.ones(3) / 3.0, mode="same")
+    return strength * 0.9 * bright * env
+
+
+def ring(freqs, strength, rng):
+    """The die ringing: a small plastic cube's few high modes, each gone in a few milliseconds."""
+    t, _ = decay(int(0.06 * SR), 1.0)
+    tone = np.zeros(len(t))
+    for freq, amp, tau in freqs:
+        wobble = freq * rng.uniform(0.985, 1.015)
+        tone += amp * np.sin(2 * np.pi * wobble * t + rng.uniform(0, 2 * np.pi)) * np.exp(-t / tau)
+    return strength * tone * np.minimum(t / 0.0003, 1.0)
+
+
+def knock(table, strength):
+    """The table under it: a short, low, wooden knock, harder for a harder landing."""
+    t, _ = decay(int(0.15 * SR), 1.0)
+    tone = np.zeros(len(t))
+    for freq, amp, tau in table:
+        tone += amp * np.sin(2 * np.pi * freq * t) * np.exp(-t / tau)
+    return strength ** 1.4 * tone * np.minimum(t / 0.0006, 1.0)
+
+
+def landing(out, at, strength, die, table, rng):
+    """The die coming down: its corner, the table knocking, its face a few milliseconds later."""
+    put(out, at, click(rng, strength))
+    put(out, at, ring(die, strength * 0.5, rng))
+    put(out, at, knock(table, strength * 0.7))
+    face = at + rng.uniform(0.004, 0.009)
+    second = strength * rng.uniform(0.4, 0.65)
+    put(out, face, click(rng, second))
+    put(out, face, ring(die, second * 0.4, rng))
+
+
+def scuff(out, rng):
+    """Picked up off what it lay on: a faint brush of noise, so the throw is heard at once."""
+    t, _ = decay(int(0.05 * SR), 1.0)
+    noise = rng.standard_normal(len(t))
+    soft = np.convolve(noise, np.ones(6) / 6.0, mode="same")
+    shape = np.sin(np.pi * t / t[-1]) ** 2
+    put(out, 0.0, 0.035 * (soft - np.convolve(soft, np.ones(40) / 40.0, mode="same")) * shape)
+
+
+def room(out, rng):
+    """A little of a room: two early reflections and a short tail of noise dying away, some
+    fourteen decibels under what is struck."""
+    t, env = decay(int(0.09 * SR), 0.018)
+    tail = rng.standard_normal(len(t)) * env * 0.01
+    for delay, gain in [(0.007, 0.12), (0.013, 0.07)]:
+        tail[int(delay * SR)] += gain
+    tail[0] = 1.0
+    return np.convolve(out, tail)[:len(out)]
+
+
+def take(seed):
+    rng = np.random.default_rng(seed)
+    out = np.zeros(int(LENGTH * SR))
+    # Its own die and its own table: the cube's modes and the wood's.
+    die = [
+        (rng.uniform(3400.0, 4600.0), 0.5, rng.uniform(0.006, 0.010)),
+        (rng.uniform(5600.0, 7200.0), 0.32, rng.uniform(0.004, 0.007)),
+        (rng.uniform(8200.0, 10500.0), 0.18, rng.uniform(0.003, 0.005)),
+    ]
+    table = [
+        (rng.uniform(170.0, 230.0), 0.5, rng.uniform(0.020, 0.030)),
+        (rng.uniform(420.0, 560.0), 0.35, rng.uniform(0.010, 0.016)),
+        (rng.uniform(950.0, 1300.0), 0.2, rng.uniform(0.005, 0.008)),
+    ]
+    scuff(out, rng)
+    for share, strength in zip(LANDINGS, STRENGTHS):
+        landing(out, share * TUMBLE + rng.uniform(-0.004, 0.004), strength, die, table, rng)
+    last = LANDINGS[-1] * TUMBLE
+    for after, strength in SETTLE:
+        at = last + after * rng.uniform(0.85, 1.15)
+        put(out, at, click(rng, strength))
+        put(out, at, ring(die, strength * 0.5, rng))
+    return room(out, rng)
+
+
+def write(out, name):
+    fade = int(0.04 * SR)
+    out[-fade:] *= np.linspace(1.0, 0.0, fade)
+    out *= PEAK / np.max(np.abs(out))
+    raw = (np.clip(out, -1.0, 1.0) * 32767).astype("<i2").tobytes()
+    path = os.path.join(SFX, name)
+    subprocess.run(
+        ["ffmpeg", "-v", "error", "-y", "-f", "s16le", "-ar", str(SR), "-ac", "1", "-i", "-",
+         "-c:a", "libvorbis", "-q:a", "6", path],
+        input=raw, check=True,
+    )
+    print("wrote %s" % path)
+
+
+def main():
+    for i, seed in enumerate([11, 23, 37]):
+        write(take(seed), "die_throw_%d.ogg" % (i + 1))
+
+
+if __name__ == "__main__":
+    main()

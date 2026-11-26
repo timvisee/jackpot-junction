@@ -103,4 +103,7 @@ const EFFECTS: Dictionary[StringName, Array] = {
 	&"slot_bell": ["slot_bell.ogg"],
 	&"slot_jackpot": ["slot_jackpot.ogg"],
 	&"slot_void": ["slot_void.ogg"],
+	# The name die thrown, GAME.md 4.4a and 9.6: one die landing on a table three times, timed to
+	# the die drawn hopping, see tools/make_die_sound and [NameDie].
+	&"die_throw": ["die_throw_1.ogg", "die_throw_2.ogg", "die_throw_3.ogg"],
 }

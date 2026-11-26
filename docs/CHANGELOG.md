@@ -26,6 +26,8 @@ below, and hands the notes to the release workflow.
   Steam profile in Steam's overlay.
 - **A random table.** Once every card On the table is open, a die at the end of the row deals the
   cards face up or down at random, turning them over in a wave.
+- **The die sounds like a die.** Throwing the name die in the kart dialog or the name dialog, or the
+  random table's die, is heard as a die clattering onto a table, landing as it does on the screen.
 - **The button that turns a table card over.** With the cursor on a card On the table in the match
   settings, its hint shows the button that turns it over, or opens a sealed card early.
 

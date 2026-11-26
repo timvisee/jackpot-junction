@@ -2089,7 +2089,11 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   off the tape by the mouse or the cursor, tilted and rocking with a warm glow round it, and
   thrown when pressed: a cube tumbling over and over up off the tape, its faces coming
   round as a die's do, lit from above and its edges darker, hopping as it comes down and
-  rolling to rest on another face, at random. And the plate screwed
+  rolling to rest on another face, at random; heard as one die thrown onto a wooden table,
+  a faint scuff as it leaves the hand and a clack each time it comes down, each quieter and
+  sooner than the one before, and a short rattle as it settles, one of three takes made by
+  tools/make_die_sound to the die's own hops. The name dialog's die and the match settings'
+  random table, 9.6, are the same die and sound the same. And the plate screwed
   to the bench's front, typed onto as the License tab's is, once there is a license for
   it. A guest wears the profile playing's plate, the bench saying whose after the word PLATE,
   and a learner the L: the driving school's white square with its red L, as the kart wears

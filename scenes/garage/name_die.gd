@@ -7,7 +7,7 @@ extends Button
 ## thrown, a warm glow round it and, for the cursor, a gold ring; pressed, it is thrown: a cube
 ## tumbling over and over up off the tape, its faces coming round one after another as a die's do,
 ## bouncing as it comes down, slowing, and coming to rest on a face at random, see
-## [method _draw_cube].
+## [method _draw_cube]; heard landing each time it comes down, see [constant SOUND].
 
 ## How far it rises picked up, how far it is tilted and rocks either way of that and how fast, and
 ## how far its glow reaches round it, for its size.
@@ -26,6 +26,11 @@ const THROW := 18.0
 const HOPS: Array[Vector3] = [
 	Vector3(0.0, 0.52, 1.0), Vector3(0.52, 0.74, 0.28), Vector3(0.74, 0.88, 0.08)
 ]
+## The throw heard, and how loud: a die landing on a table where the one drawn comes down, at the
+## end of each hop, timed to [constant TUMBLE] and [constant HOPS], which tools/make_die_sound
+## builds it to; change them together. Played at its own pitch, so its landings stay on time.
+const SOUND := &"die_throw"
+const SOUND_DB := -6.0
 ## How round its corners are; where the light falls on it from, up and to the left of the viewer,
 ## for how bright each face is; and how much darker its rounded edges are than its faces.
 const CORNER := 7.0
@@ -86,6 +91,7 @@ func throw() -> void:
 	var way := _rng.randf_range(0.0, TAU)
 	_over = Vector3(cos(way), sin(way), 0.3).normalized()
 	_thrown = 0.0
+	Audio.play_sfx(SOUND, SOUND_DB, 0.0)
 	_wake()
 
 

@@ -680,7 +680,6 @@ func roll_name() -> void:
 		taken.append(each.display_name())
 	name_box.text = PlayerNames.pick(_rng, taken)
 	_keep_name()
-	Audio.play_sfx(&"ui_click", -6.0, 0.05)
 
 
 ## The name in the box kept, if it is not the one it showed.
