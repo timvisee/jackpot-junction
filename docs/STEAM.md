@@ -436,7 +436,7 @@ out: the links go in Basic Info's fields.
 | Supported languages | English: interface only, since nothing is voiced or subtitled |
 | Platforms | Windows, and SteamOS + Linux; macOS once it is on Steam, see [Builds](#builds) |
 | Controllers | Full controller support: Xbox and PlayStation controllers, and every other controller through Steam Input, with the game's actions named in Steam's controller settings; if the controller questions ask whether the game uses the Steam Input API, it does |
-| Genres | Action, Casual, Indie, Racing, Free to Play |
+| Genres | Action, Casual, Indie, Free to Play |
 | Website | `https://github.com/timvisee/jackpot-junction` |
 | Support | The repository's issues: `https://github.com/timvisee/jackpot-junction/issues` |
 | Release | A full release, not Early Access |
@@ -464,15 +464,15 @@ this order, shows the first twenty, and filters some lists by the first fifteen.
 9. 4 Player Local
 10. Team-Based
 11. Driving
-12. Racing
-13. Top-Down
-14. Cartoony
-15. Colorful
-16. Funny
-17. Fast-Paced
-18. Controller
-19. Casual
-20. Indie
+12. Top-Down
+13. Cartoony
+14. Colorful
+15. Funny
+16. Fast-Paced
+17. Controller
+18. Casual
+19. Indie
+20. Multiplayer
 
 ### Short description
 
@@ -502,7 +502,7 @@ has for it:
 | `picture_karts.png` | Five karts in a line, each in a body, paint and hat of its own |
 
 ```text
-[b]Did someone say chaos?[/b] Drift, dodge bullets and scoop poker chips like your rent depends on it while trying not to turn into roadkill. Grab your license, hop in your tuned kart, and challenge up to eight friends to see who can make the biggest payday. Die before cashing in and you'll lose bank. Easy, right? Yeah, good luck with that.
+[b]Did someone say chaos?[/b] Drift, dodge bullets and scoop poker chips like your rent depends on it while trying not to turn into roadkill. Grab your license, hop in your tuned kart, and challenge up to seven friends to see who can make the biggest payday. Die before cashing in and you'll lose bank. Easy, right? Yeah, good luck with that.
 
 [img]{STEAM_APP_IMAGE}/extras/heading_how_the_cards_roll.png[/img]
 [list]
@@ -519,7 +519,7 @@ has for it:
 [*]Casino tables are your arena. Drift around obstacles, fall into potholes and collect poker chips to win.
 [*]48 jokers. Think curveballs, drifting chips, bouncing bullets, and pick-pocketing. You'll get 27 jokers on The House and win the rest on the road.
 [*]21 power-ups. Shields, bombs, turrets, decoys, oil stains and more to mess with your friend's kart like your life depends on it (it does).
-[*]One minute or the full shabang: there's quick matches and grand prixes of several maps. Every kart for itself or in teams that bank one score together.
+[*]One minute or the full shebang: there are quick matches and Grand Prix runs of several maps. Every kart for itself or in teams that bank one score together.
 [*]Your own, personalized kart. From shark fin hats to confetti trails and a license plate with your name on it.
 [*]Loyalty pays off. Just like your road map of bets getting you kart cosmetics or cards for your joker deck.
 [*]New here? We'll show you around. Get your license at the driving school and practice your drifting skills at the garage.

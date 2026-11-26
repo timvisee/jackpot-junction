@@ -155,7 +155,7 @@ words in brackets here its alt text. Steam's page wears the same.
 
 **Did someone say chaos?** Drift, dodge bullets and scoop poker chips like your
 rent depends on it while trying not to turn into roadkill. Grab your license, hop
-in your tuned kart, and challenge up to eight friends to see who can make the
+in your tuned kart, and challenge up to seven friends to see who can make the
 biggest payday. Die before cashing in and you'll lose bank. Easy, right? Yeah,
 good luck with that.
 
@@ -182,8 +182,8 @@ good luck with that.
   pick-pocketing. You'll get 27 jokers on The House and win the rest on the road.
 - 21 power-ups. Shields, bombs, turrets, decoys, oil stains and more to mess with
   your friend's kart like your life depends on it (it does).
-- One minute or the full shabang: there's quick matches and grand prixes of
-  several maps. Every kart for itself or in teams that bank one score together.
+- One minute or the full shebang: there are quick matches and Grand Prix runs
+  of several maps. Every kart for itself or in teams that bank one score together.
 - Your own, personalized kart. From shark fin hats to confetti trails and a
   license plate with your name on it.
 - Loyalty pays off. Just like your road map of bets getting you kart cosmetics or
