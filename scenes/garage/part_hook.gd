@@ -35,10 +35,6 @@ const PICKED := &"part_hooks_picked"
 ## The hook's words: the name of the piece as big as fits the tape, and the finish under it.
 const WORDS_SIZE := 26
 const WORDS_LEAST := 14
-## What its tape says while its part waits for a license, and what is written under it, see
-## [method wait_for_license].
-const LEARNER := "Learner's L"
-const NO_LICENSE := "No license yet"
 
 ## Which part, in the order of [constant KartStyle.CHOICES], the card back after them, or the
 ## shuffle.
@@ -119,7 +115,8 @@ func say(index: int, named: String, color: Color, finished: int) -> void:
 
 ## Has its part wait for a license, GAME.md 4.4a, [param on]: the plate's while the kart wears the
 ## learner's L, the L hanging in its outline in place of a plate, as the bench has it where the
-## plate goes, see [method BayControls.learner_plate], and its tape saying so. Pressed, its rack
+## plate goes, see [method BayControls.learner_plate], and its tape saying so, see
+## [constant KartStyle.LEARNER]. Pressed, its rack
 ## stays put away, and the dialog says where a license is had, see [BaySchool].
 func wait_for_license(on: bool) -> void:
 	learner = on
@@ -141,7 +138,7 @@ func _tell() -> void:
 	var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
 	var said := ScreenReader.line([tagged, worn, finish_word])
 	if learner:
-		said = ScreenReader.line([LEARNER, NO_LICENSE])
+		said = ScreenReader.line([KartStyle.LEARNER, KartStyle.NO_LICENSE])
 	if part == BoardArt.SHUFFLE:
 		said = ScreenReader.spoken(BoardArt.SHUFFLE_SAYS)
 	ScreenReader.name(self, ScreenReader.spoken(BayArt.part_word(part)), said)
@@ -249,8 +246,8 @@ func _draw() -> void:
 		var tape := BoardArt.tape_of(part)
 		tape.position -= position
 		var face := BayArt.marker_font()
-		var words := LEARNER if learner else worn
-		var under := NO_LICENSE if learner else finish_word
+		var words := KartStyle.LEARNER if learner else worn
+		var under := KartStyle.NO_LICENSE if learner else finish_word
 		var words_size := WORDS_SIZE
 		while (
 			BayArt.wide_of(words, words_size, face) > tape.size.x - 16.0

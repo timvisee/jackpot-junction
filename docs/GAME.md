@@ -1851,7 +1851,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   it, in place of the drive and fire hint of 3.8 and drawn as it is, see 8.3:
   what the kart wears there, large in its player's color, No hat for none, and
   under it, smaller, the button and what it puts on next, Space next: Cap, or The
-  only one so far where there is nothing else yet. A press changes the card in
+  only one so far where there is nothing else yet. The plate's stall waits for a
+  license: a kart wearing the learner's L has no plate to frame, so its card says
+  Learner's L over No license yet and the fire button puts nothing on there, a frame
+  won before then or not, as the kart dialog's plate hook does. A press changes the card in
   place, swelling it for a moment, so going through them quickly reads as one
   name after another; the names that used to rise over the kart at each press
   ran into each other. A kart driven from another machine has the name alone.

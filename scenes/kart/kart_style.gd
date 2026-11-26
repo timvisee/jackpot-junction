@@ -74,6 +74,10 @@ const BODIES: Array[String] = ["Racer", "Woodie", "Streamliner", "Microcar"]
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS, BODIES]
 ## The plate's frame's part, which a kart wearing the learner's L has no plate for, GAME.md 4.4.
 const FRAME := 4
+## What that part says it is while the kart wears the learner's L, on the kart dialog's hook and
+## at the lobby's stall, 4.4a and 4.4, and what is said under it.
+const LEARNER := "Learner's L"
+const NO_LICENSE := "No license yet"
 ## The body's part, the last of [constant CHOICES].
 const BODY := 6
 ## Each part as the loyalty program's landmarks name it, see [member LoyaltyLandmark.dress_part].

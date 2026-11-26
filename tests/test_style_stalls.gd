@@ -154,6 +154,32 @@ func test_the_fire_button_on_a_stall_puts_the_next_one_on_instead_of_a_shot() ->
 	Events.bullet_fired.disconnect(count)
 
 
+## The plate's stall waits for a license, GAME.md 4.4: a kart wearing the learner's L has no plate
+## to frame, so its card says so and the fire button puts no frame on, even one won; with a plate
+## on, it steps through the frames won.
+func test_the_plate_stall_waits_for_a_license() -> void:
+	Game.settings.profile.loyalty.win(&"clean_record")
+	var player := Pressing.new(DeviceInput.KEYBOARD, 0)
+	var match_node := _room([player])
+	await _runner.simulate_frames(10, 17)
+	var stalls := StyleStalls.add_to(match_node, Vector2i(4, 1))
+	var slot := match_node.slots[0]
+	var kart := slot.kart
+	assert_str(KartVisuals.plate_worn(kart)).is_equal("L")
+	_park(kart, stalls._areas[StyleStalls.PARTS.find(KartStyle.FRAME)])
+	await _runner.simulate_frames(3, 17)
+	assert_array(_says(kart)).contains_exactly([KartStyle.LEARNER, KartStyle.NO_LICENSE])
+	player.press = true
+	await _runner.simulate_frames(3, 17)
+	assert_int(slot.style.frame).is_equal(0)
+	KartVisuals.license_plate(kart, "SES-773")
+	await _runner.simulate_frames(3, 17)
+	assert_str(" ".join(_says(kart))).contains("next: %s" % KartStyle.FRAMES[1])
+	player.press = true
+	await _runner.simulate_frames(3, 17)
+	assert_int(slot.style.frame).is_equal(1)
+
+
 func test_a_dressed_kart_changes_on_a_clients_screen_too() -> void:
 	var host := _room([KartInput.new()])
 	var client: Match = auto_free(MATCH_SCENE.instantiate())
@@ -215,11 +241,13 @@ func test_a_touch_screens_fire_button_shows_what_a_stall_changes() -> void:
 			func(node: Node) -> bool: return node is DressArt.Badge
 		)
 		# The button where there is something else to put on; where there is not yet, no button,
-		# and the card says so.
+		# and the card says so: on the plate's, before a license, that there is none yet.
 		var player := match_node.slots[0].input as PlayerInput
 		if StyleStalls.worn_and_next(match_node.slots[0], part, player)[1].is_empty():
 			assert_int(badges.size()).is_equal(0)
-			assert_array(_says(kart)).contains([StyleStalls.ONLY_ONE])
+			var waits := part == KartStyle.FRAME
+			var only := KartStyle.NO_LICENSE if waits else StyleStalls.ONLY_ONE
+			assert_array(_says(kart)).contains([only])
 			continue
 		assert_int(badges.size()).is_equal(1)
 		assert_int((badges[0] as DressArt.Badge).part).is_equal(part)

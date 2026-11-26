@@ -15,8 +15,10 @@ extends Node3D
 
 ## The parts a pad each, in [constant KartStyle.CHOICES] order and the card back last, and what
 ## each is called. The plate, the tire marks and the card back are the loyalty program's, GAME.md
-## 8.9: until one of a kind is won, its pad has only the plain one. The body has no pad: built over
-## at every press, a kart is picked in the kart dialog instead, 4.4a.
+## 8.9: until one of a kind is won, its pad has only the plain one. The plate's waits for a license:
+## a kart wearing the learner's L has no plate to frame, so the fire button puts nothing on there
+## and the card says so, as the kart dialog's hook does, 4.4a. The body has no pad: built over at
+## every press, a kart is picked in the kart dialog instead.
 const PARTS: Array[int] = [0, 1, 2, 3, 4, 5, CARD_BACK]
 const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "TIRE MARKS", "CARD BACK"]
 ## The card back's part, past the kart's own as [constant KartDialog.CARD_BACK] is: this machine's
@@ -143,8 +145,11 @@ func _physics_process(_delta: float) -> void:
 
 
 ## The next of [param part] on [param slot]'s kart that its owner may wear, everybody's or won in
-## the loyalty program, GAME.md 8.9, said to every machine.
+## the loyalty program, GAME.md 8.9, said to every machine; no plate's frame on a kart wearing the
+## learner's L, which has no plate to frame, see [method is_learner].
 func _step(slot: PlayerSlot, part: int) -> void:
+	if part == KartStyle.FRAME and is_learner(slot):
+		return
 	var stepped := slot.style.duplicate_style()
 	var values := stepped.to_array()
 	values[part] = KartStyle.next(part, values[part], Loyalty.dress_of(slot))
@@ -288,8 +293,11 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 ## What [param slot]'s kart wears at [param pad], by name, and what the fire button puts on next
 ## there for [param player], the player at this machine who drives it, or nothing for a kart driven
 ## from elsewhere, nor where there is nothing else to put on. The card back is this machine's own,
-## so only its own player's kart says anything on its pad.
+## so only its own player's kart says anything on its pad. A kart wearing the learner's L wears it
+## on the plate's, with nothing to put on there.
 static func worn_and_next(slot: PlayerSlot, pad: int, player: PlayerInput) -> PackedStringArray:
+	if pad == KartStyle.FRAME and is_learner(slot):
+		return PackedStringArray([KartStyle.LEARNER, ""])
 	if pad == CARD_BACK:
 		if player == null:
 			return PackedStringArray()
@@ -311,6 +319,12 @@ static func worn_and_next(slot: PlayerSlot, pad: int, player: PlayerInput) -> Pa
 	return PackedStringArray([wearing, choice_name(pad, after) if after != values[pad] else ""])
 
 
+## Whether [param slot]'s kart wears the learner's L, GAME.md 4.4: a player with no license yet,
+## or a learner among the bots, whichever machine it is driven from.
+static func is_learner(slot: PlayerSlot) -> bool:
+	return KartVisuals.plate_worn(slot.kart) == "L"
+
+
 ## Choice [param index] of [param part] as the card says it: by its name, or for none, no hat.
 static func choice_name(part: int, index: int) -> String:
 	var named: String = KartStyle.CHOICES[part][index]
@@ -319,7 +333,8 @@ static func choice_name(part: int, index: int) -> String:
 
 ## The card's words: [param says] from [method worn_and_next], the name large in [param slot]'s
 ## color, and under it the button, the stall's own on a touch screen, and what it puts on next, or
-## that there is nothing else yet; for a kart driven from elsewhere, the name alone.
+## that there is nothing else yet, or on the plate's for a learner no license yet; for a kart
+## driven from elsewhere, the name alone.
 func _card(slot: PlayerSlot, pad: int, says: PackedStringArray, player: PlayerInput) -> Control:
 	var size := _hint_size()
 	var ink := ControlHint.INK
@@ -336,7 +351,8 @@ func _card(slot: PlayerSlot, pad: int, says: PackedStringArray, player: PlayerIn
 	if says[1].is_empty():
 		# Nothing else to put on here yet: no button to press, and said so.
 		var only := Label.new()
-		only.text = ONLY_ONE
+		var waits := pad == KartStyle.FRAME and is_learner(slot)
+		only.text = KartStyle.NO_LICENSE if waits else ONLY_ONE
 		only.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		Type.text(only, size, Color(ink, 0.7))
 		column.add_child(only)

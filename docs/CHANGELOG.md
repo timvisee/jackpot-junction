@@ -54,6 +54,8 @@ below, and hands the notes to the release workflow.
 - **Manage players opens on Back.** The cursor no longer starts on the first player's Kick.
 - **No plate frames before a license.** While your kart wears the learner's L, the plate's hook in
   the kart dialog shows the L, and pressing it offers the driving school instead of frames.
+- **The lobby's plate stall waits for a license too.** On a kart wearing the learner's L, its card
+  says there is no license yet, and fire changes nothing there.
 
 ### Fixed
 
