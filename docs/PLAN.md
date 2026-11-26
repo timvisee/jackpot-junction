@@ -5327,8 +5327,8 @@ How it fits together:
 | P3 | `tools/private_assets`, `make private-assets`, the link made by `make import` when the checkout is there, DEVELOPMENT.md; `tools/music_check` for the exports' warning and the builds | Done |
 | P4 | The music out: `git rm`, `.gitignore`, THIRD_PARTY.md, README, GAME.md 10.6, tools/trailer | Done |
 | P5 | The workflows: Licensed music in all three, Without the music in ci.yml, Music in the builds in release.yml and steam.yml, GAME.md 10.5 | Done |
-| P6 | Checks: the suite and smoke runs with the music linked and without it, a windowed run without it, lint and format; the branch pushed, both CI jobs and a release dry run from it | Open |
-| P7 | Landed: rebased on master and fast-forwarded; the main checkout and every open worktree run `make private-assets` | Open |
+| P6 | Checks: the suite and smoke runs with the music linked and without it, a windowed run without it, lint and format; the branch pushed, both CI jobs and a release dry run from it | Done: every commit's suite, the tip with and without the music, smoke, windowed, multiplayer, lag and server checks; CI run 45876611788 (Without the music hung once in Godot's import, as on 2026-11-18, and passed rerun), release dry run 45876622026 with all 9 music files in every game build and none in the servers, its Linux build run |
+| P7 | Landed: rebased on master and fast-forwarded; the main checkout and every open worktree run `make private-assets` | Done on local master; the other worktrees link it on their next `make import` after a rebase |
 
 P2 to P5 are one commit each, in that order, so each commit passes on its own: after P4 and before
 P5 CI simply runs without the music, which P2 makes pass. No release is cut between them.
