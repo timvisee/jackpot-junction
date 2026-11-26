@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+# Whether the music is where it should be, GAME.md 8.4 and 10.6: every track of Audio.TRACKS, all
+# three layers of it, in this checkout or packed into each build named. The licensed tracks live in
+# a private repository, see tools/private_assets, so a checkout may well have none.
+#
+#   tools/music_check                   in assets/audio/music; a warning and a failure without them,
+#                                       which the local exports print and go on past
+#   tools/music_check --packed FILE...  in each build: a binary with its PCK embedded, a .pck or an
+#                                       APK, which hold every path inside them as it is written
+#   tools/music_check --none FILE...    in none of them: the server builds, which carry no sound
+set -euo pipefail
+cd "$(dirname "$0")/.."
+audio=scripts/autoload/audio.gd
+music=assets/audio/music
+
+# The tracks and their layers, as Audio.TRACKS and Audio.LAYER_FILES name them.
+mapfile -t ids < <(sed -n '/^const TRACKS/,/^]/p' "$audio" | grep -oP '"id": "\K[a-z0-9_]+')
+mapfile -t layers < <(sed -n '/^const LAYER_FILES/,/^}/p' "$audio" | grep -oP '"\K[a-z0-9_]+\.ogg')
+if [[ ${#ids[@]} -eq 0 || ${#layers[@]} -eq 0 ]]; then
+	echo "Could not read the tracks and their layers from $audio" >&2
+	exit 1
+fi
+
+mode="${1:-tree}"
+case $mode in
+tree)
+	missing=()
+	for id in "${ids[@]}"; do
+		for layer in "${layers[@]}"; do
+			[[ -f $music/$id/$layer ]] || missing+=("$id/$layer")
+		done
+	done
+	if [[ ${#missing[@]} -gt 0 ]]; then
+		echo "WARNING: no music for this build, ${#missing[@]} of $((${#ids[@]} * ${#layers[@]}))" \
+			"files missing from $music (${missing[0]} first). Without access to the private" \
+			"repository that is how it is; with it, make private-assets." >&2
+		exit 1
+	fi
+	echo "Music: ${#ids[@]} tracks of ${#layers[@]} layers each"
+	;;
+--packed | --none)
+	shift
+	if [[ $# -eq 0 ]]; then
+		echo "Name the builds to look in" >&2
+		exit 2
+	fi
+	failed=false
+	for build in "$@"; do
+		found=0
+		for id in "${ids[@]}"; do
+			for layer in "${layers[@]}"; do
+				if grep -qaF "$music/$id/$layer.import" "$build"; then
+					found=$((found + 1))
+				fi
+			done
+		done
+		want=$((${#ids[@]} * ${#layers[@]}))
+		if [[ $mode == --packed && $found -ne $want ]]; then
+			echo "$build holds $found of the $want music files" >&2
+			failed=true
+		elif [[ $mode == --none && $found -ne 0 ]]; then
+			echo "$build holds $found music files, and should hold none" >&2
+			failed=true
+		else
+			echo "$build: $found of $want music files, as it should"
+		fi
+	done
+	if $failed; then
+		exit 1
+	fi
+	;;
+*)
+	echo "Unknown argument $mode; see the top of tools/music_check" >&2
+	exit 2
+	;;
+esac

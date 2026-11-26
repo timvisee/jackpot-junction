@@ -1,0 +1,186 @@
+#!/usr/bin/env bash
+# The files the game ships but may not publish, GAME.md 10.6: the licensed music, kept in the
+# private repository timvisee/jackpot-junction-private, whose tree mirrors this one's. Each track
+# folder there is linked into this checkout's assets/audio/music/ with an absolute symlink, which
+# .gitignore leaves out, so the files never come into this repository. Without them the game
+# builds and plays, with no music. `make private-assets` runs this; `make import` runs it with
+# --if-present.
+#
+#   tools/private_assets               link the tracks in, cloning the private checkout if missing
+#   tools/private_assets --copy        copy them in instead
+#   tools/private_assets --unlink      take the links out again, to try the game without them
+#   tools/private_assets --if-present  link them only if the private checkout is there; quiet,
+#                                      never fails and never goes online
+#   tools/private_assets --ci          on GitHub: clone it with the read-only deploy key in
+#                                      PRIVATE_DEPLOY_KEY and link it in; fails without the key
+#   tools/private_assets --ci --optional   the same, but without the key only says so, for a
+#                                      pull request from a fork, which gets no secrets
+#
+# The private checkout is JJ_PRIVATE, or else jackpot-junction-private beside the main checkout,
+# found through git's common directory so that every worktree finds the same one. On GitHub it is
+# cloned into the runner's temp folder, outside the project, so Godot never scans it.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+repository=git@github.com:timvisee/jackpot-junction-private.git
+# The folders whose every subfolder the private checkout may hold: one track a folder.
+roots=(assets/audio/music)
+# GitHub's own host key, from `gh api meta`, so the clone on GitHub trusts nothing else.
+github_key="github.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMqqnkVzrm0SdG6UOoqKLsabgH5C9okWi0dh2l9GKJl"
+
+mode="link"
+ci=false
+optional=false
+for arg in "$@"; do
+	case $arg in
+	--copy) mode="copy" ;;
+	--unlink) mode="unlink" ;;
+	--if-present) mode="if-present" ;;
+	--ci) ci=true ;;
+	--optional) optional=true ;;
+	*)
+		echo "Unknown argument $arg; see the top of tools/private_assets" >&2
+		exit 2
+		;;
+	esac
+done
+
+if [[ -n ${JJ_PRIVATE:-} ]]; then
+	private=$JJ_PRIVATE
+elif $ci; then
+	private="${RUNNER_TEMP:-/tmp}/jackpot-junction-private"
+else
+	common=$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo "$PWD/.git")
+	private="$(dirname "$(dirname "$common")")/jackpot-junction-private"
+fi
+
+no_access() {
+	echo "No access to $repository: it holds the licensed music, which only the game's" \
+		"developer may have. The game builds and plays without it, with no music." >&2
+}
+
+# On GitHub: a shallow clone with the deploy key, written to a file only for as long as it takes.
+clone_on_github() {
+	if [[ -z ${PRIVATE_DEPLOY_KEY:-} ]]; then
+		if $optional; then
+			echo "::notice::No PRIVATE_DEPLOY_KEY, as in a pull request from a fork: this run has" \
+				"no music, and test_music checks none"
+			exit 0
+		fi
+		echo "::error::The PRIVATE_DEPLOY_KEY secret is not set, so there is no music to build" \
+			"with, see GAME.md 10.5"
+		exit 1
+	fi
+	keys=$(mktemp -d)
+	trap 'rm -rf -- "$keys"' EXIT
+	(umask 077 && printf '%s\n' "$PRIVATE_DEPLOY_KEY" >"$keys/key")
+	echo "$github_key" >"$keys/known_hosts"
+	local ssh="ssh -i $keys/key -o IdentitiesOnly=yes -o UserKnownHostsFile=$keys/known_hosts"
+	GIT_SSH_COMMAND="$ssh -o StrictHostKeyChecking=yes" \
+		git clone --quiet --depth 1 "$repository" "$private"
+	rm -rf -- "$keys"
+	echo "Licensed music from jackpot-junction-private at $(git -C "$private" log -1 --format='%h %s')"
+	# The rest of the job knows where it is, and that test_music is to find every track.
+	if [[ -n ${GITHUB_ENV:-} ]]; then
+		{
+			echo "JJ_PRIVATE=$private"
+			echo "JJ_MUSIC=required"
+		} >>"$GITHUB_ENV"
+	fi
+}
+
+# Links whose private folder has gone, a track taken out or the checkout moved, are taken out too:
+# Godot would stumble over them.
+drop_stale_links() {
+	local root=$1 each
+	for each in "$root"/*; do
+		if [[ -L $each && ! -e $each ]]; then
+			rm -f -- "$each"
+			echo "Took out $each: its folder in the private checkout is gone"
+		fi
+	done
+}
+
+link_root() {
+	local root=$1 from="$private/$1" source name target
+	[[ -d $from ]] || return 0
+	mkdir -p "$root"
+	drop_stale_links "$root"
+	for source in "$from"/*/; do
+		[[ -d $source ]] || continue
+		source=$(realpath "$source")
+		name=$(basename "$source")
+		target="$root/$name"
+		if [[ -L $target ]]; then
+			if [[ $mode == copy ]]; then
+				rm -f -- "$target"
+				cp -a "$source" "$target"
+				echo "Copied $target"
+			else
+				ln -sfn "$source" "$target"
+			fi
+		elif [[ -e $target ]]; then
+			if git ls-files --error-unmatch "$target" >/dev/null 2>&1; then
+				echo "$target is in this repository already; the private one's is left out" >&2
+				failed=true
+			else
+				echo "$target is a folder of its own, left as it is; take it out to link or copy" \
+					"the private one afresh"
+			fi
+		elif [[ $mode == copy ]]; then
+			cp -a "$source" "$target"
+			echo "Copied $target"
+		else
+			ln -s "$source" "$target"
+			echo "Linked $target"
+		fi
+	done
+}
+
+unlink_root() {
+	local root=$1 each
+	[[ -d $root ]] || return 0
+	for each in "$root"/*; do
+		if [[ -L $each ]]; then
+			rm -f -- "$each"
+			echo "Took out $each"
+		fi
+	done
+}
+
+if [[ $mode == unlink ]]; then
+	for root in "${roots[@]}"; do
+		unlink_root "$root"
+	done
+	exit 0
+fi
+
+if $ci; then
+	clone_on_github
+elif [[ ! -d $private/.git ]]; then
+	if [[ $mode == if-present ]]; then
+		for root in "${roots[@]}"; do
+			[[ -d $root ]] && drop_stale_links "$root"
+		done
+		echo "No licensed music: no private checkout at $private (make private-assets)"
+		exit 0
+	fi
+	echo "Cloning the private assets into $private"
+	if ! git clone --quiet "$repository" "$private"; then
+		no_access
+		exit 1
+	fi
+elif [[ $mode != if-present ]]; then
+	# The latest, unless the checkout has work of its own in it: then it is left as it is.
+	if ! git -C "$private" pull --quiet --ff-only 2>/dev/null; then
+		echo "Could not bring $private up to date; linking it as it is" >&2
+	fi
+fi
+
+failed=false
+for root in "${roots[@]}"; do
+	link_root "$root"
+done
+if $failed && [[ $mode != if-present ]]; then
+	exit 1
+fi

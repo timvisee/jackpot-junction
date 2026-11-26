@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server steam-addon steam-input steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -20,10 +20,13 @@ ARGS ?=
 CACHE := .godot/global_script_class_cache.cfg
 
 $(CACHE): $(shell find scenes scripts tests tools -name '*.gd' 2>/dev/null)
+	tools/private_assets --if-present
 	$(GODOT) --headless --path . --import
 	touch $@
 
+# The licensed music is linked in first when its private checkout is there, see private-assets.
 import:
+	tools/private_assets --if-present
 	$(GODOT) --headless --path . --import
 
 # A suite per process, several at once: about a minute rather than several. JOBS=n sets how
@@ -224,6 +227,7 @@ check: import lint format-check changelog test smoke multiplayer multiplayer-lag
 # The three desktop builds, and the dedicated server's for Linux, GAME.md 9.3a: the game exported as
 # a server, headless and serving by itself, its visual data stripped and its sound left out.
 export: | $(CACHE)
+	@tools/music_check || true
 	# Emptied first: each folder is what goes in that platform's zip, and nothing else.
 	rm -rf build/linux build/linux-server build/linux-arm64 build/linux-server-arm64 build/windows build/macos
 	mkdir -p build/linux build/linux-server build/linux-arm64 build/linux-server-arm64 build/windows build/macos
@@ -250,6 +254,7 @@ docker: | $(CACHE)
 # GAME.md 10.5. Those live on this machine and not in the project. The second puts it on whatever
 # phone adb can see.
 android: | $(CACHE)
+	@tools/music_check || true
 	mkdir -p build/android
 	$(GODOT) --headless --path . --export-debug "Android" build/android/jackpot-junction.apk
 
@@ -262,7 +267,16 @@ android-install: android
 # it, with the rest of the key, from the repository's secrets. The SDK and the JDK are the
 # editor's, or ANDROID_HOME's and JAVA_HOME's where it has none.
 android-release: | $(CACHE)
+	@tools/music_check || true
 	GODOT="$(GODOT)" tools/android-release
+
+# The licensed music, GAME.md 10.6, which may not be in this public repository: each track of the
+# private checkout beside this one linked into assets/audio/music, which git leaves out, the
+# checkout cloned first if it is missing and brought up to date if it is there. Only the game's
+# developer has access; without it the game builds and plays with no music. The exports above and
+# below warn without it and go on. See tools/private_assets for copying and unlinking.
+private-assets:
+	tools/private_assets
 
 # GodotSteam, the GDExtension the Steam builds reach Steam through, GAME.md 10.8: the pinned release
 # into addons/godotsteam, which git ignores, and the project imported again to know it.
@@ -301,6 +315,7 @@ steam-check: | $(CACHE)
 STEAM_APP_ID ?= 480
 STEAM_SUPPORTER_DLC ?= 0
 steam-export: | $(CACHE)
+	@tools/music_check || true
 	test -f addons/godotsteam/godotsteam.gdextension || $(MAKE) steam-addon
 	mkdir -p data/steam
 	printf '[steam]\n\napp_id=%s\nsupporter_dlc=%s\n' "$(STEAM_APP_ID)" "$(STEAM_SUPPORTER_DLC)" \

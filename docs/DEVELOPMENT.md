@@ -41,6 +41,7 @@ make android-install  # that build, installed on the phone adb can see
 make android-release  # the release APK, signed with the release key, see GAME.md 10.5
 make itch-art  # the itch.io page's cover and background in build/itch, see ITCH.md
 make screenshots  # the README's shots in docs/screenshots, oversampled; GODOT_HIDDEN=1 for no window
+make private-assets  # the licensed music, linked in from its private repository, see below
 make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for the Steam builds
 make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
 make steam-check  # what the Steam client here answers: the account, presence, a lobby
@@ -92,6 +93,21 @@ or the editor can -- so a fresh clone or a cleared `.godot` looks thoroughly
 broken if it is started directly, with every script failing to parse because no
 class is known. The targets above import first when it is missing, so `make run`
 on a fresh clone works; `make import` does it on its own.
+
+The music is not in this repository: Ovani Sound licenses it to the game's developer on terms
+that rule out a public repository, so it lives in a private one,
+`timvisee/jackpot-junction-private`, GAME.md 10.6. Without access to it the game builds, tests and
+plays the same, with no music, and the About page leaves its credit out. With access,
+`make private-assets` clones it beside this checkout, as `jackpot-junction-private`, brings it up
+to date and links each track into `assets/audio/music/`, which `.gitignore` leaves out; `make
+import` makes the links too, quietly, whenever that checkout is there, so a new worktree has the
+music after its first import. After checking out a commit from before the music moved, which
+still holds it, run it again. `tools/private_assets --unlink` takes the links out, to see the game
+as anybody else builds it, and `JJ_PRIVATE=none` in the environment keeps `make import` from
+making them again; `--copy` copies rather than links. `make export` and the other
+exports warn without the music and go on; the release and Steam workflows fail without it.
+A track whose license allows a public repository can still go here: `.gitignore` names it with a
+`!` line to let it in.
 
 Anything a player would notice gets a line in the `## [Unreleased]` section of
 [CHANGELOG.md](CHANGELOG.md) in the same commit, see GAME.md 10.4.
