@@ -5245,6 +5245,94 @@ Steamworks, the user's:
 - [ ] Close the Playtest before February 22; Valve advises against both live during Next Fest.
 - [ ] Set the demo live before 10:00 PST on February 22.
 
+## M25: the licensed music out of the public repository
+
+Asked for by the user on 2026-11-26, finding 1 of the asset license audit
+(https://claude.ai/artifact/8p9icUan2C8fmyp5YZ9noW): Ovani Sound's terms (2.3) and FAQ rule out
+their music as loose files in a public repository, and ours has been in this one since 5f7b60e3.
+The music leaves the tip; the history keeps it, at the user's word, and nothing is sent to Ovani.
+It moves to a private repository, `timvisee/jackpot-junction-private`, which every build and test
+run on GitHub fetches, and a checkout without it builds and plays with no music. Later music can
+still live here when its license allows. Planned in worktree `.claude/worktrees/private-music`,
+branch `private-music`, from master at b9284509.
+
+What was decided, the user's twelve answers the same day, all the proposed defaults but one:
+`tools/private_assets` and `make private-assets`; the music folder ignored but for folders let in
+by name; a read-only deploy key; whatever the private repository's master holds at build time,
+its commit written to the run's log; `make import` makes the links itself when the private checkout
+is there; a CI job without the music running the whole suite and the smoke runs; local exports
+warn and go on; no changelog line; the branch pushed and dry-run before landing, the Steam workflow
+first run at the next tag (it uploads whenever it runs); the repository, key and secret made with
+`gh`; the private checkout at `~/git/jackpot-junction-private`. Not the default: the About page
+credits Ovani only in a build that has their music. And CI runs its tests with the music too.
+
+Checked before planning, on Godot 4.7.2:
+- A track folder that is a symlink imports (its `.import` files are written in the private
+  checkout), loads, and is packed into an exported PCK like any other folder.
+- Git never writes through the link: checking out a commit that still has the music swaps the
+  ignored link for the tracked folder and leaves the private checkout alone, and coming back removes
+  the folder, so the link has to be made again.
+- The game with the music folder empty: `Audio._music_stream` already gives null for a missing
+  file. The import, every smoke run, a windowed title and match of 600 frames each (no error, no
+  warning) and 282 of the 283 suites pass. test_music fails twice: its file check, as it should,
+  and the crossfade test, because `set_layer` returns before handing the level over when it has
+  no stream.
+
+How it fits together:
+- **The private repository** mirrors this one's tree: `assets/audio/music/<track>/` with the OGGs,
+  their `.import` files (so the uids stay the same) and `LICENSE.txt`, and a README saying what it
+  is. Every later Ovani track (M24 L7) goes straight in there.
+- **`tools/private_assets`** (`make private-assets`) finds the private checkout, `$JJ_PRIVATE` or
+  else `jackpot-junction-private` beside the main checkout (found through git's common dir, so every
+  worktree finds the same one), clones it if it is missing, and links each of its track folders into
+  `assets/audio/music/` with an absolute symlink. It removes links whose target has gone, never
+  touches a real folder, and says so when one is in the way. `--copy` copies instead, `--unlink`
+  takes the links out again, to try the game without them. For anybody without access the clone
+  fails with a line saying the game builds and plays without the music.
+- **`.gitignore`** leaves out everything in `assets/audio/music/` but the folders it names with a
+  `!`, so a track is let into the public repository only on purpose. The pattern has no trailing
+  slash: git takes a symlink for a file, and `music/*/` would not match the links.
+- **The game without the music**: `pick_track` rolls among the tracks that are there (among all of
+  them when none is, so the beat clock still keeps a tempo), `set_layer` hands the level over even
+  with no stream, and a windowed game with no track prints one line saying so.
+- **The About page** credits Ovani only when one of their tracks is in the build: each track in
+  `Audio.TRACKS` names its maker, and the Ovani row in `Credits.THINGS` carries a `music` flag
+  beside the Steam rows' `steam`, which `Credits.in_this_build` reads. test_about's check against
+  THIRD_PARTY.md keeps reading all of `THINGS`; a new case finds no Ovani line with the music
+  pointed somewhere empty.
+- **The tests**: test_music's file checks skip when no track is there, and with `JJ_MUSIC=required`
+  fail on any track of `Audio.TRACKS` that is missing. A new test runs a match with the music folder
+  pointed somewhere empty: layers switch, the beat runs, nothing errors.
+- **GitHub**: a read-only deploy key on the private repository, its private half the secret
+  `PRIVATE_DEPLOY_KEY` here. A "Licensed music" step clones it (shallow) into `$RUNNER_TEMP`,
+  outside the project so Godot never scans it twice, and links it in, before the import in ci.yml,
+  release.yml and steam.yml. Required in release.yml and steam.yml, which fail without it and then
+  run `JJ_MUSIC=required` test_music. In ci.yml the check job every push runs imports, lints,
+  tests and smoke-runs with the music linked and `JJ_MUSIC=required`, so test_music checks every
+  track's loop on every push; only a pull request from a fork, which gets no secrets, runs it
+  without, with a notice saying so. A second ci.yml job, "Without the music", imports, tests and
+  smoke-runs the bare checkout, which is what anybody cloning gets. After the exports a "Music in the builds" step
+  checks every game build for each track's three layers (the Linux and Windows binaries with the
+  PCK embedded, the macOS zip's PCK, the APK, the Steam PCKs) and the server builds for none.
+- **Local exports** (`make export`, `steam-export`, `android`, `android-release`) warn loudly
+  without the music rather than fail: anybody may build the game.
+- **Words**: README's License, DEVELOPMENT.md (`make private-assets`), GAME.md 8.4 and 10.5 (the
+  secret), THIRD_PARTY.md's three Ovani rows (in the private repository, not this one),
+  tools/trailer stopping with a pointer to `make private-assets`.
+
+| Step | What | State |
+|------|------|-------|
+| P1 | The private repository, its first commit the music as master has it (OGGs, `.import`, `LICENSE.txt`) and a README; the deploy key and the secret | Done: b99ccd0 there, key "jackpot-junction CI (read-only)", `PRIVATE_DEPLOY_KEY` here |
+| P2 | The game without the music, the About page's Ovani line only with their music, and the tests | Open |
+| P3 | `tools/private_assets`, `make private-assets`, the link made by `make import` when the checkout is there, DEVELOPMENT.md | Open |
+| P4 | The music out: `git rm`, `.gitignore`, THIRD_PARTY.md, README, GAME.md 8.4, tools/trailer | Open |
+| P5 | The workflows: Licensed music in all three, Without the music in ci.yml, Music in the builds in release.yml and steam.yml, GAME.md 10.5 | Open |
+| P6 | Checks: the suite and smoke runs with the music linked and without it, a windowed run without it, lint and format; the branch pushed, both CI jobs and a release dry run from it | Open |
+| P7 | Landed: rebased on master and fast-forwarded; the main checkout and every open worktree run `make private-assets` | Open |
+
+P2 to P5 are one commit each, in that order, so each commit passes on its own: after P4 and before
+P5 CI simply runs without the music, which P2 makes pass. No release is cut between them.
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
