@@ -114,7 +114,7 @@ a release adds jokers, power-ups or dress, the counts here change with it.
 | Pricing | Your choice: No payments, or $0 or donate |
 | Genre | Action |
 | Tags | `kart`, `arcade`, `local-multiplayer`, `multiplayer`, `top-down`, `shooter`, `casino`, `cards`, `party-game`, `godot` |
-| AI generation disclosure | Yes, as on Steam: "This game is fully built by generative AI, with some assistance of a human." |
+| AI generation disclosure | Yes, as on Steam: "This game is built by generative AI, with some assistance from a human. AI wrote the code and the in-game text, and the art is drawn by that code, so no image, voice or music generators were used. The music, sound effects and fonts are made by people." |
 | Custom noun | Leave it: "game" |
 | Community | Comments |
 | Visibility | Public, once the first push is checked, see [After the first push](#after-the-first-push) |

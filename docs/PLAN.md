@@ -5221,7 +5221,7 @@ inside the game, so nothing here ever does; Steam asks players itself after a fe
 
 | Step | What | State |
 |------|------|-------|
-| L1 | The AI disclosure rewritten to say exactly what AI made, on Steam and itch.io: the code and text by AI, the art drawn by that code, no image, voice or music generators | Open: wording not settled |
+| L1 | The AI disclosure rewritten to say exactly what AI made, on Steam and itch.io: the code and text by AI, the art drawn by that code, no image, voice or music generators | Wording settled (STEAM.md); the user puts it in Steamworks and itch.io |
 | L2 | Windows: CI starts the exported Windows build, and the user plays it on a Windows PC once (it ran under Proton on Linux) | Open |
 | L3 | Public Steam lobbies, listed in Play Online beside friends' games; defaults, UI and managing players planned with the user first | Open: plan first |
 | L4 | Quick Play: a public game with a free seat, or a new one with bots in the empty seats | Open: plan first, with L3 |
