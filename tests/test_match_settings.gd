@@ -596,7 +596,7 @@ func test_the_binds_hang_clear_of_the_row_under_them() -> void:
 ## The cursor walks the cards across their row however they turn, GAME.md 9.6: a card turning over
 ## is narrowed as it is drawn and keeps its place and size, so across from it, or from beside it
 ## onto it, is the card beside rather than a column's head under the strip; and past either end of
-## the row the cursor stays on the card.
+## the row, the first card or the die after the last, the cursor stays where it is.
 func test_the_cursor_walks_the_cards_as_they_turn() -> void:
 	var pane := _pane()
 	pane._panel.size = Vector2(1920.0, 1080.0)
@@ -616,11 +616,77 @@ func test_the_cursor_walks_the_cards_as_they_turn() -> void:
 		assert_object(get_viewport().gui_get_focus_owner()).is_same(jokers)
 		turning._turning = 0.0
 	var first := strip.button(0)
-	var last := strip.button(TableCards.Card.size() - 1)
-	for end: Array in [[first, &"ui_left"], [last, &"ui_right"]]:
+	for end: Array in [[first, &"ui_left"], [strip.die, &"ui_right"]]:
 		(end[0] as Control).grab_focus()
 		_press(end[1])
 		assert_object(get_viewport().gui_get_focus_owner()).is_same(end[0])
+	pane._panel.visible = false
+
+
+## Once the House has opened every card a die lies at the row's end, GAME.md 9.6, the kart dialog's
+## name die: thrown, it deals the table at random, never every card down, never the table it was,
+## and Suits & hands never without Jokers, turning the cards it changes over in a wave along the
+## row as a preset does, and lighting whichever preset the table now matches. The cursor reaches it
+## going right from the last card and stops there; its hint says what it does and, with keys in
+## hand, its bind. Not before every card is opened, nor on a table the House has set.
+func test_the_die_deals_the_table_at_random() -> void:
+	var pane := _pane()
+	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._fit()
+	await await_idle_frame()
+	var options := pane.options
+	var strip := options.table_strip
+	assert_bool(strip.die.visible).is_true()
+	strip._rng.seed = 7
+	var heard := [0]
+	strip.changed.connect(func() -> void: heard[0] += 1)
+	for throw: int in 40:
+		var was := strip.table
+		for card: int in TableCards.Card.size():
+			strip.button(card)._turning = 0.0
+		strip.die.pressed.emit()
+		var dealt := strip.table
+		assert_int(dealt).is_not_equal(was)
+		assert_int(dealt).is_not_equal(0)
+		if TableCards.has(dealt, TableCards.Card.SUITS):
+			assert_bool(TableCards.has(dealt, TableCards.Card.JOKERS)).is_true()
+		var waits: Array[float] = []
+		for card: int in TableCards.Card.size():
+			var each := strip.button(card)
+			assert_bool(each.up).is_equal(TableCards.has(dealt, card))
+			var turned := TableCards.has(dealt, card) != TableCards.has(was, card)
+			assert_bool(each._turning > 0.0).is_equal(turned)
+			if turned:
+				waits.append(each._wait)
+		for i: int in range(1, waits.size()):
+			assert_float(waits[i]).is_greater(waits[i - 1])
+	assert_int(heard[0]).is_equal(40)
+	assert_int(options.presets.lit()).is_equal(MatchPresets.matching(options))
+	# The cursor on to it from the last card, and no further; its hint, with its bind for keys.
+	strip.show_bind(true, true)
+	strip.button(TableCards.Card.size() - 1).grab_focus()
+	_press(&"ui_right")
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(strip.die)
+	_press(&"ui_right")
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(strip.die)
+	await await_idle_frame()
+	assert_bool(strip._tip.visible).is_true()
+	assert_str(strip._tip._name.text).is_equal(TableStrip.DIE_NAME.to_upper())
+	assert_str(ScreenReader.words_in(strip._tip._bind)).is_equal(TableStrip.DIE_WORD)
+	_press(&"ui_left")
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(
+		strip.button(TableCards.Card.size() - 1)
+	)
+	# Not with a card still sealed, and not on a table the House has set.
+	strip.set_table(strip.table, false, TableCards.opened_by(3))
+	assert_bool(strip.die.visible).is_false()
+	var sealed_table := strip.table
+	strip.roll()
+	assert_int(strip.table).is_equal(sealed_table)
+	strip.set_table(strip.table, false, TableCards.ALL)
+	assert_bool(strip.die.visible).is_true()
+	strip.lock()
+	assert_bool(strip.die.visible).is_false()
 	pane._panel.visible = false
 
 

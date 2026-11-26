@@ -84,6 +84,16 @@ func show_card(card_in: int, chip: int) -> void:
 	reset_size()
 
 
+## Says [param title] and [param line] in a card's place, with no chip: the die that deals the
+## table at random, see [method TableStrip.roll].
+func show_words(title: String, line: String) -> void:
+	card = -1
+	_name.text = title.to_upper()
+	_line.text = line
+	_chip.visible = false
+	reset_size()
+
+
 ## The accept button drawn before [param words], what it does to the card, for a keyboard or a pad
 ## as [param keyboard] says, GAME.md 9.6; nothing for no words, or with nothing bound to it.
 func show_bind(keyboard: bool, words: String) -> void:

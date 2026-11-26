@@ -9027,7 +9027,13 @@ or a pad in hand, the hint ends with the accept button and what it does there, "
 over turns them as a press does, one after another along the row, the next starting 0.06 s after
 the one before, a wave rather than all at once; the cards it leaves as they were stay still. With Roulette lit the strip is headed IN THE DECK, and says that power-ups and
 three of the rest are dealt each map; turning a card takes it out of the deck and Roulette stays
-lit. The rows of a card that is off go: Joker slots and Jokers between maps without Jokers, Items
+lit. Once the House has opened every card, the kart dialog's name die, 4.4a, lies at the row's
+end (`NameDie`): thrown, it deals the table at random, each card face up or down as a coin falls,
+Suits & hands bringing Jokers with them, never every card down and never the table it was, the
+cards it changes turning over in a wave along the row as a preset's do, and the preset the table
+now matches lit, Custom as a rule. The cursor goes on to it from the last card and no further, and
+its hint stands under the row, RANDOM TABLE, with Roll and its button under the cursor. It is not
+there on a table the House has set. The rows of a card that is off go: Joker slots and Jokers between maps without Jokers, Items
 without Power-ups, and the fine print of House rules says no jokers. The cursor walks the cards
 left and right and goes up to the presets and down to the columns. Each face is a picture drawn
 once a run, 10.7, so the strip costs a draw a card. It is a row taller, so on a screen of 1080 lines

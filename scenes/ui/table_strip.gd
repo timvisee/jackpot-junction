@@ -8,7 +8,8 @@ extends VBoxContainer
 ## down turns them down. A card opened and not yet played wears NEW. With Roulette the cards face
 ## up are the deck each map's are dealt from, and the strip says so over them. With keys or a pad in
 ## hand, the hint under the card the cursor is on says which button turns it over, see
-## [method show_bind].
+## [method show_bind]. Once the House has opened every card, a die at the row's end deals the table
+## at random, see [method roll].
 
 ## A card was turned over: [member table] says what is on the table now.
 signal changed
@@ -31,6 +32,12 @@ const TIP_GAP := 10.0
 const FELT := Color("#1f4434")
 const FELT_EDGE := Color("#14301f")
 const ROOM := 12.0
+## The die at the row's end, the one the kart dialog rolls a name with, [NameDie]: how big it
+## stands, a share of a card's width, and what its hint and a screen reader say of it.
+const DIE_SIZE := 0.55
+const DIE_NAME := "Random table"
+const DIE_LINE := "Every card face up or down, as the die falls."
+const DIE_WORD := "Roll"
 
 ## The cards on the table, or with [member roulette] the deck.
 var table := TableCards.ALL
@@ -39,13 +46,20 @@ var roulette := false
 var opened := TableCards.ALL
 var fresh := 0
 
+## The die that deals the table at random, see [method roll].
+var die: NameDie
+
 var _heading: Label
 var _note: Label
 var _cards: Array[TableCardButton] = []
+## What the die deals with.
+var _rng := RandomNumberGenerator.new()
 var _locked := false
 ## The hint over the card under the mouse or the cursor, see [TableTag], and the cards it may be
-## over: the one the mouse is on, which goes first, and the one the cursor is on.
+## over: the one the mouse is on, which goes first, and the one the cursor is on, the die counted
+## as the card after the last; and what it is under now.
 var _tip: TableTag
+var _tip_under: Control
 var _hovered := -1
 var _focused := -1
 ## Whether keys or a pad are in hand rather than the mouse, and which, see [method show_bind].
@@ -103,10 +117,24 @@ func _build() -> void:
 		button.focus_exited.connect(func() -> void: _point(card, false, false))
 		row.add_child(button)
 		_cards.append(button)
-	# Across the row and no further: past either end the cursor stays on the card, where it would
-	# drop to whatever lies that way under the strip, a column's head.
+	_rng.randomize()
+	die = NameDie.new()
+	die.name = "Die"
+	die.custom_minimum_size = Vector2.ONE * CARD.x * DIE_SIZE
+	die.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	die.tooltip_text = DIE_LINE
+	die.pressed.connect(roll)
+	var after := _cards.size()
+	die.mouse_entered.connect(func() -> void: _point(after, true, true))
+	die.mouse_exited.connect(func() -> void: _point(after, true, false))
+	die.focus_entered.connect(func() -> void: _point(after, false, true))
+	die.focus_exited.connect(func() -> void: _point(after, false, false))
+	row.add_child(die)
+	# Across the row and no further: past either end the cursor stays on the card or the die,
+	# where it would drop to whatever lies that way under the strip, a column's head.
 	_cards[0].focus_neighbor_left = NodePath(".")
-	_cards[-1].focus_neighbor_right = NodePath(".")
+	die.focus_neighbor_left = die.get_path_to(_cards[-1])
+	die.focus_neighbor_right = NodePath(".")
 	# Its own place over everything, so the rows' scroll does not cut it off at the pane's top.
 	_tip = TableTag.make()
 	_tip.name = "Hint"
@@ -145,6 +173,7 @@ func set_table(
 func set_compact(on: bool) -> void:
 	for each: TableCardButton in _cards:
 		each.custom_minimum_size = CARD_SMALL if on else CARD
+	die.custom_minimum_size = Vector2.ONE * (CARD_SMALL if on else CARD).x * DIE_SIZE
 	_note.visible = not on
 
 
@@ -166,6 +195,24 @@ func lock() -> void:
 	_tip.visible = false
 	for each: TableCardButton in _cards:
 		each.disabled = true
+	_show()
+
+
+## Deals the table at random, GAME.md 9.6, as the die is thrown: each card face up or down as a coin
+## falls, Suits & hands bringing Jokers up with them as a press does, never every card face down and
+## never the table it was; the cards it turns over turn one after another along the row, as a
+## preset turns them. Only with every card opened, and the table not the House's.
+func roll() -> void:
+	if _locked or opened != TableCards.ALL:
+		return
+	var dealt := table
+	while dealt == table or dealt == 0:
+		dealt = _rng.randi() & TableCards.ALL
+		if TableCards.has(dealt, TableCards.Card.SUITS):
+			dealt = TableCards.with(dealt, TableCards.Card.JOKERS, true)
+	set_table(dealt, roulette, opened, fresh, true)
+	Audio.play_sfx(&"ui_click", -6.0, 0.05)
+	changed.emit()
 
 
 ## The bind that turns the card under the cursor over, drawn in its hint for a keyboard or a pad as
@@ -197,27 +244,39 @@ func _show_tip() -> void:
 	if over < 0 or _locked:
 		_tip.visible = false
 		return
+	var bound := _binds and over == _focused and _hovered < 0 and not TouchInput.enabled
+	if over >= _cards.size():
+		_tip_under = die
+		_tip.show_words(DIE_NAME, DIE_LINE)
+		_tip.show_bind(_keyboard, DIE_WORD if bound else "")
+		_tip.visible = true
+		_place_tip.call_deferred()
+		return
 	var each := _cards[over]
+	_tip_under = each
 	var chip := TableTag.Chip.NONE
 	if each.sealed:
 		chip = TableTag.Chip.SEALED
 	elif each.fresh:
 		chip = TableTag.Chip.NEW
 	_tip.show_card(over, chip)
-	var bound := _binds and over == _focused and _hovered < 0 and not TouchInput.enabled
 	_tip.show_bind(_keyboard, ("Open early" if each.sealed else "Turn over") if bound else "")
 	_tip.visible = true
 	_place_tip.call_deferred()
 
 
-## The hint under its card, in the middle of it and clear of its foot, where it leaves the presets
-## over the strip to be reached, or over it where the screen has no room below; kept on the screen,
-## and as big as the card is shown, the pane being shrunk to fit a small screen, see [HostSettings].
+## The hint under its card or the die, in the middle of it and clear of its foot, where it leaves
+## the presets over the strip to be reached, or over it where the screen has no room below; kept on
+## the screen, and as big as the card is shown, the pane being shrunk to fit a small screen, see
+## [HostSettings].
 func _place_tip() -> void:
-	if not _tip.visible or _tip.card < 0:
+	if not _tip.visible or _tip_under == null:
 		return
-	var each := _cards[_tip.card]
+	var each := _tip_under
+	# Under the row as a card's is, the die being shorter than a card.
+	var row := _cards[0].get_global_rect()
 	var shown := each.get_global_rect()
+	shown = Rect2(shown.position.x, row.position.y, shown.size.x, row.size.y)
 	var grown := each.get_global_transform().get_scale().y
 	_tip.scale = Vector2.ONE * grown
 	_tip.reset_size()
@@ -269,6 +328,12 @@ func _show() -> void:
 		each.fresh = TableCards.has(fresh, card) and not each.sealed
 		each.queue_redraw()
 		ScreenReader.name(each, TableCards.NAMES[card], _said(each))
+	# The die once the House has opened every card, and never on a table the House has set; the
+	# cursor goes on to it from the last card while it is there.
+	die.visible = opened == TableCards.ALL and not _locked
+	var last := _cards[-1]
+	last.focus_neighbor_right = last.get_path_to(die) if die.visible else NodePath(".")
+	ScreenReader.name(die, DIE_NAME, DIE_LINE)
 
 
 func _said(each: TableCardButton) -> String:

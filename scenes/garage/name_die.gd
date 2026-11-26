@@ -1,11 +1,13 @@
 class_name NameDie
 extends Button
 ## The die at the right end of the kart dialog's name tape, GAME.md 4.4a: pressed, it rolls a name
-## the house makes up, see [method KartDialog.roll_name]. The mouse over it or the cursor on it
-## picks it up off the tape, tilted and rocking in the hand as if about to be thrown, a warm glow
-## round it and, for the cursor, a gold ring; pressed, it is thrown: a cube tumbling over and over
-## up off the tape, its faces coming round one after another as a die's do, bouncing as it comes
-## down, slowing, and coming to rest on a face at random, see [method _draw_cube].
+## the house makes up, see [method KartDialog.roll_name]; and at the end of the match settings'
+## cards on the table, a table dealt at random, 9.6, see [method TableStrip.roll]. The mouse over it
+## or the cursor on it picks it up off the tape, tilted and rocking in the hand as if about to be
+## thrown, a warm glow round it and, for the cursor, a gold ring; pressed, it is thrown: a cube
+## tumbling over and over up off the tape, its faces coming round one after another as a die's do,
+## bouncing as it comes down, slowing, and coming to rest on a face at random, see
+## [method _draw_cube].
 
 ## How far it rises picked up, how far it is tilted and rocks either way of that and how fast, and
 ## how far its glow reaches round it, for its size.
