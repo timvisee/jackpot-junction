@@ -77,6 +77,7 @@ TABLE = "--clean=1 --fixed-camera=1 --camera-distance=0.8"
 # card's last bars and going on so, unchanged, under the license after it, faded out a little after
 # its picture. How loud the game's own sound is under it, and how long the picture takes to come up
 # out of black.
+# Linked in from the private repository by `make private-assets`, GAME.md 10.6.
 MUSIC = ROOT / "assets/audio/music/deceased_rodent"
 LAYERS = ["intensity_1.ogg", "intensity_2.ogg", "main.ogg"]
 MUSIC_FROM = 41.98
@@ -686,6 +687,12 @@ def drawn_at(size: tuple[int, int], quality: float) -> pathlib.Path:
 
 
 def main() -> None:
+    # Before a single shot is drawn: the music is licensed and lives in a private repository,
+    # GAME.md 10.6, so a checkout may not have it.
+    if not all((MUSIC / layer).is_file() for layer in LAYERS):
+        missing = MUSIC.relative_to(ROOT)
+        print(f"trailer: no music in {missing}, see make private-assets", file=sys.stderr)
+        sys.exit(1)
     mode = DRAFT
     if "--final" in sys.argv[1:]:
         mode = FINAL

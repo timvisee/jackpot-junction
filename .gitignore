@@ -23,3 +23,10 @@
 /override.cfg
 # Python's bytecode, left by the tools' Python scripts when one is imported.
 __pycache__/
+
+# The licensed music, GAME.md 10.6: Ovani Sound's terms rule out a public repository, so it lives in
+# the private timvisee/jackpot-junction-private, and `make private-assets` links each track in, or
+# copies it with tools/private_assets --copy. Everything in the folder is left out but what is
+# named below with a `!`, so a track comes into this repository only on purpose, once its license
+# allows it. No trailing slash: git takes a symlink for a file, and `music/*/` would miss the links.
+/assets/audio/music/*

@@ -135,7 +135,8 @@ The source code is licensed under the GPL-3.0, see `LICENSE`. Assets made for
 the game are licensed under CC-BY-4.0. Third-party assets and libraries keep
 their own licenses and are listed in `THIRD_PARTY.md`. The music is licensed
 from Ovani Sound to this game's developer and is not covered by either
-license.
+license. It is in every build but not in this repository, whose source builds
+and plays the same without it, with no music; see `docs/DEVELOPMENT.md`.
 
 Additional permission under GNU GPL version 3 section 7: if you modify this
 program, or any covered work, by linking or combining it with the Steamworks

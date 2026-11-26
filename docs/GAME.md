@@ -10475,6 +10475,16 @@ preset's `version/name` is left empty, so the APK takes the game's own version.
 - The game's source code is open source under the GPL-3.0. Third-party assets
   keep their own licenses. Assets made for the game are licensed separately
   under CC-BY-4.0.
+- What the game may ship but not publish stays out of the public repository: the
+  music, whose Ovani Sound terms forbid it as loose files there (it was in the
+  repository's history from 5f7b60e3 until M25, and stays in it). It lives in the
+  private repository `timvisee/jackpot-junction-private`, whose tree mirrors this
+  one's, and `make private-assets` links each of its track folders into
+  `assets/audio/music/`, which `.gitignore` leaves out but for folders let in by
+  name. Every build and test run on GitHub clones it with a read-only deploy key,
+  10.5. A checkout without it builds, tests and plays the same, with no music,
+  8.4, and no credit for it on the About page, 8.5. Music whose license allows a
+  public repository can still live in this one.
 - The repository lives on GitHub. GitHub Actions runs the headless gdUnit4
   tests on every push and produces export builds for Linux, Windows and macOS
   on tags. Builds are published as GitHub Releases, on itch.io, 10.5, and on

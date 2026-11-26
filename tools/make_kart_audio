@@ -3,8 +3,8 @@
 
 The pack ships stereo OGG files of about a second each. The game needs them mono, because the
 kart voices are positional, and the two engine and tire loops need a loop point: the pack's
-loops do not join to themselves, so the tail is folded under the head the same way the music
-in assets/audio/music is. One file is reversed to make the swell that leads into a nitro burn.
+loops do not join to themselves, so the tail is folded under the head the same way the music's
+loops are. One file is reversed to make the swell that leads into a nitro burn.
 
 Not part of `make check`: run it once when the pack changes. Needs ffmpeg, python3 and numpy.
 
