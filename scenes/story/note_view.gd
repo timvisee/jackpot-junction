@@ -200,8 +200,8 @@ func _ready() -> void:
 	gui_input.connect(_on_input)
 	_lift_off()
 	# Nothing here takes the cursor: the buttons are for the mouse, and keys and pads have their
-	# binds drawn on them.
-	get_viewport().gui_release_focus()
+	# binds drawn on them; the view holds it, and nothing under it is walked to.
+	CursorHold.take(self)
 	_pointer = Game.last_input_pointer
 	say_how()
 	_show_binds()

@@ -200,8 +200,8 @@ func _ready() -> void:
 	gui_input.connect(_on_beside)
 	_round = [_shade, row, away_line]
 	_rise()
-	# Nothing here takes the cursor, so whatever had it under the view lets it go.
-	get_viewport().gui_release_focus()
+	# Nothing here takes the cursor, so the view holds it, and nothing under it is walked to.
+	CursorHold.take(self)
 	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
 
 

@@ -167,9 +167,9 @@ func _ready() -> void:
 	else:
 		modulate.a = 0.0
 		create_tween().tween_property(self, "modulate:a", 1.0, 0.2)
-	# Nothing here takes the cursor, so whatever had it under the view lets it go, and a screen
-	# reader is told the license as it comes up.
-	get_viewport().gui_release_focus()
+	# Nothing here takes the cursor, so the view holds it, and nothing under it is walked to; and a
+	# screen reader is told the license as it comes up.
+	CursorHold.take(self)
 	ScreenReader.say(
 		self, ScreenReader.line([ScreenReader.spoken(LicenseCard.TITLE), card.words()])
 	)

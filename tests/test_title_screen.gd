@@ -9,6 +9,8 @@ const TITLE_SCENE := preload("res://scenes/ui/title.tscn")
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 var _real: Settings
+## What device was in hand before a test drew the hints for keys, see [method _licensed_title].
+var _keys_were: Array = []
 
 
 func before_test() -> void:
@@ -18,6 +20,10 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	if not _keys_were.is_empty():
+		Game.last_input_keyboard = _keys_were[0]
+		Game.last_input_pointer = _keys_were[1]
+		_keys_were = []
 	TitleIntro.force = false
 	TitleIntro.played = false
 	ShaderWarmup.force = false
@@ -562,6 +568,160 @@ func test_sideways_off_the_folder_lands_on_the_buttons() -> void:
 	license.grab_focus()
 	_press(&"ui_left")
 	assert_bool(title.play_button.has_focus()).is_true()
+
+
+## The license held up in full over the title holds the menu's cursor while it is up, GAME.md 9.4a:
+## no arrow walks the title's buttons, the license or Kit's folder behind it, and the hints at the
+## edges are away. Put away, the cursor is back on the license and the hints with it.
+func test_the_license_held_up_holds_the_cursor() -> void:
+	var title := await _licensed_title()
+	var license := title.find_child("LicensePeek", true, false) as Control
+	title.play_button.grab_focus()
+	_press(&"ui_right")
+	await await_idle_frame()
+	assert_bool(license.has_focus()).is_true()
+	assert_object(title.find_child("LicenseGlyph", true, false)).is_not_null()
+	assert_object(title.find_child("FolderGlyph", true, false)).is_not_null()
+	_press(&"ui_accept")
+	await await_idle_frame()
+	var view := title.find_child("LicenseView", true, false) as LicenseView
+	assert_object(view).is_not_null()
+	_assert_held_by(view)
+	assert_object(title.find_child("LicenseGlyph", true, false)).is_null()
+	assert_object(title.find_child("FolderGlyph", true, false)).is_null()
+	view.close()
+	await await_millis(int(LicenseView.FLY_BACK * 1000.0) + 150)
+	assert_bool(license.has_focus()).is_true()
+	assert_object(title.find_child("LicenseGlyph", true, false)).is_not_null()
+	assert_object(title.find_child("FolderGlyph", true, false)).is_not_null()
+
+
+## Kit's folder open over the title holds the cursor the same way, a note taken out for a closer
+## look and put back too, STORY.md 7.2; put away, it is back on the folder peeking in.
+func test_kits_folder_open_holds_the_cursor() -> void:
+	var title := await _licensed_title()
+	var peek := title.find_child("FolderPeek", true, false) as FolderPeek
+	peek.grab_focus()
+	title.call("show_notes")
+	await await_idle_frame()
+	var notes := title.find_child("NotesFolder", true, false) as NotesFolder
+	_assert_held_by(notes)
+	assert_object(title.find_child("LicenseGlyph", true, false)).is_null()
+	assert_object(title.find_child("FolderGlyph", true, false)).is_null()
+	await _settle(notes)
+	if notes.view == null:
+		notes.look_closer()
+	_assert_held_by(notes.view)
+	notes.view.close()
+	await await_idle_frame()
+	_assert_held_by(notes)
+	notes.close()
+	await await_idle_frame()
+	assert_bool(peek.has_focus()).is_true()
+	assert_object(title.find_child("FolderGlyph", true, false)).is_not_null()
+
+
+## From the settings' License tab the license, the loyalty card and Kit's folder each hold the
+## cursor while up over the page, GAME.md 8.5, and give it back where it was once put away.
+func test_the_license_tabs_views_hold_the_cursor() -> void:
+	Game.settings.license_number = "JJ-212212"
+	_story_with_notes()
+	Game.settings.profile.loyalty.welcomed = true
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	await await_idle_frame()
+	var tab := screen.find_child("License", true, false) as LicenseTab
+	assert_object(tab.loyalty_card).is_not_null()
+	var on := screen.back
+	on.grab_focus()
+	tab.look_closer()
+	await await_idle_frame()
+	_assert_held_by(tab.view)
+	tab.view.close()
+	await await_idle_frame()
+	assert_bool(on.has_focus()).is_true()
+	tab.show_loyalty_card()
+	await await_idle_frame()
+	_assert_held_by(tab.loyalty_view)
+	tab.loyalty_view.close()
+	await await_idle_frame()
+	assert_bool(tab.loyalty_card.has_focus()).is_true()
+	on.grab_focus()
+	tab.show_notes()
+	await await_idle_frame()
+	var notes := tab.notes
+	_assert_held_by(notes)
+	await _settle(notes)
+	notes.close()
+	await await_idle_frame()
+	assert_bool(on.has_focus()).is_true()
+
+
+## The loyalty card held up over the program's map holds the cursor, GAME.md 8.9: no arrow walks
+## the map's tabs and buttons behind it; put away, the cursor is back on the map.
+func test_the_loyalty_card_held_up_holds_the_cursor() -> void:
+	Game.settings.profile.loyalty.welcomed = true
+	var holder: Control = auto_free(Control.new())
+	holder.size = Vector2(1600.0, 900.0)
+	add_child(holder)
+	var dialog := LoyaltyDialog.open(holder)
+	await await_idle_frame()
+	await await_idle_frame()
+	dialog.show_card()
+	await await_idle_frame()
+	_assert_held_by(dialog.card_view)
+	dialog.card_view.close()
+	await await_idle_frame()
+	assert_bool(dialog.map_view.has_focus()).is_true()
+	dialog.close()
+
+
+## A licensed title with Kit's folder peeking in beside the license, keys in hand, so both hints
+## are drawn.
+func _licensed_title() -> Control:
+	Game.settings.license_number = "JJ-212212"
+	_story_with_notes()
+	Story.override = Story.Stage.PLAYER
+	var title: Control = auto_free(TITLE_SCENE.instantiate())
+	add_child(title)
+	await await_idle_frame()
+	Story.override = -1
+	_keys_were = [Game.last_input_keyboard, Game.last_input_pointer]
+	Game.last_input_keyboard = true
+	Game.last_input_pointer = false
+	title.set("_keyboard", true)
+	title.set("_pointer", false)
+	title.call("_show_peek_hints")
+	return title
+
+
+func _story_with_notes() -> void:
+	Game.settings.profile.story.on = true
+	Game.settings.profile.story.invited = true
+	Game.settings.profile.story.notes = PackedInt32Array([1, 2])
+
+
+## Kit's folder done coming out and turning on to its first new note.
+func _settle(notes: NotesFolder) -> void:
+	for i: int in 300:
+		if not notes.is_busy():
+			return
+		await get_tree().process_frame
+
+
+## The cursor on [param view], and every way off it, the arrows and Tab both ways, leading back
+## onto it rather than to anything under it.
+func _assert_held_by(view: Control) -> void:
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(view)
+	for way: StringName in [
+		&"ui_left", &"ui_right", &"ui_up", &"ui_down", &"ui_focus_next", &"ui_focus_prev"
+	]:
+		_press(way)
+		(
+			assert_object(get_viewport().gui_get_focus_owner())
+			. override_failure_message("%s took the cursor off %s" % [way, view.name])
+			. is_same(view)
+		)
 
 
 func _press(action: StringName) -> void:

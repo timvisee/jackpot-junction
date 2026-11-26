@@ -840,15 +840,15 @@ func test_a_narrow_screen_has_the_folder_under_the_slip() -> void:
 
 
 ## Held over on a pad, the D-pad or the stick, the pages turn once and then on and on, quickly, as
-## an arrow key held down turns them, though nothing in the folder has the cursor, see [PadRepeat];
-## pushed and let go, once.
+## an arrow key held down turns them, the folder holding the cursor itself, see [PadRepeat] and
+## [CursorHold]; pushed and let go, once.
 func test_a_pad_held_over_turns_page_after_page() -> void:
 	var every := PackedInt32Array(range(1, 21))
 	_profile.story.notes = every
 	_profile.story.notes_read = every
 	var folder := NotesFolder.open(_holder(), _profile, true)
 	await _settled(folder)
-	assert_object(get_viewport().gui_get_focus_owner()).is_null()
+	assert_object(get_viewport().gui_get_focus_owner()).is_same(folder)
 	var repeat: PadRepeat = auto_free(PadRepeat.new())
 	add_child(repeat)
 	# Held by hand here, rather than read off a pad that is not there.

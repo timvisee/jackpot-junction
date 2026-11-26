@@ -391,6 +391,8 @@ func _peek_license() -> void:
 	_place_license()
 	_license.focus_entered.connect(_show_peek_hints, CONNECT_DEFERRED)
 	_license.focus_exited.connect(_show_peek_hints, CONNECT_DEFERRED)
+	# Hidden while it is held up in full and on its way back down, see [LicenseView].
+	_license.visibility_changed.connect(_show_peek_hints, CONNECT_DEFERRED)
 	_show_peek_hints()
 
 
@@ -469,6 +471,7 @@ func show_notes() -> void:
 	_notes_from = get_viewport().gui_get_focus_owner()
 	_notes = NotesFolder.open(self, Game.settings.profile, Game.last_input_keyboard, _folder)
 	_notes.put_away.connect(_on_notes_put_away)
+	_show_peek_hints()
 
 
 func _on_notes_put_away() -> void:
@@ -480,13 +483,14 @@ func _on_notes_put_away() -> void:
 		_notes_from.grab_focus()
 	elif play_button != null:
 		play_button.grab_focus()
+	_uncovered()
 
 
 ## The hints at the license and Kit's folder, peeking in at the screen's edges, STORY.md 7.2, for
 ## keys or a pad: off one, the way that reaches it from the buttons, right for the license and left
 ## for the folder; on one, accept, which opens it. Each in its own bottom corner, under it. None
 ## while the mouse or a finger is in hand, which reach them by pointing, nor while the opening
-## plays, see [TitleIntro].
+## plays, see [TitleIntro], nor while anything is up over the title, see [method _covered].
 func _show_peek_hints() -> void:
 	if not is_inside_tree() or is_queued_for_deletion():
 		return
@@ -499,17 +503,39 @@ func _show_peek_hints() -> void:
 			old.queue_free()
 	_license_glyph = null
 	_folder_glyph = null
-	var hinted := not (TouchInput.enabled or _pointer or _intro != null)
+	var hinted := not (TouchInput.enabled or _pointer or _intro != null or _covered())
 	if _bay != null:
 		_bay.show_hint(hinted, _keyboard)
 	if not hinted:
 		return
-	if _license != null and not (_bay != null and _bay.has_focus()):
+	if _license != null and _license.visible and not (_bay != null and _bay.has_focus()):
 		var on := _license.has_focus()
 		_license_glyph = _peek_hint("LicenseGlyph", &"ui_accept" if on else &"ui_right", false)
-	if _folder != null:
+	if _folder != null and _folder.visible:
 		var on := _folder.has_focus()
 		_folder_glyph = _peek_hint("FolderGlyph", &"ui_accept" if on else &"ui_left", true)
+
+
+## Whether something is up over the title: the license or Kit's notes held up, a dialog, or a
+## question. The peeks at its edges are out of reach meanwhile, and their hints away.
+func _covered() -> bool:
+	return (
+		_license_view != null
+		or _notes != null
+		or _catalog != null
+		or _loyalty != null
+		or _achievements != null
+		or _kart != null
+		or _question != null
+	)
+
+
+## Whatever was up over the title put away: the hints back, drawn for the device in hand now, which
+## may have changed while it was up.
+func _uncovered() -> void:
+	_keyboard = Game.last_input_keyboard
+	_pointer = Game.last_input_pointer
+	_show_peek_hints()
 
 
 ## A hint named [param named] for [param action], in the bottom left corner if [param left] or the
@@ -624,7 +650,9 @@ func show_catalog() -> void:
 		func() -> void:
 			_catalog = null
 			_tag_fresh()
+			_uncovered()
 	)
+	_show_peek_hints()
 
 
 ## The kart dialog over the title, GAME.md 4.4: the profile playing's kart, and every other
@@ -642,7 +670,9 @@ func show_kart() -> void:
 				_license.dress_from_settings()
 			if _bay != null:
 				_bay.dress()
+			_uncovered()
 	)
+	_show_peek_hints()
 
 
 ## The achievements over the title, GAME.md 8.10, and the cursor back where it was once they are
@@ -657,7 +687,9 @@ func show_achievements(at := &"", whose: Profile = null) -> void:
 		func() -> void:
 			_achievements = null
 			_tag_fresh()
+			_uncovered()
 	)
+	_show_peek_hints()
 
 
 ## The loyalty program over the title, GAME.md 8.9, and the cursor back where it was once it is
@@ -670,7 +702,9 @@ func show_loyalty() -> void:
 		func() -> void:
 			_loyalty = null
 			_tag_fresh()
+			_uncovered()
 	)
+	_show_peek_hints()
 
 
 ## Welcomed, the program's map open over the title, [param dialog]: once it is put away the
@@ -681,7 +715,9 @@ func _on_welcomed(dialog: LoyaltyDialog) -> void:
 		func() -> void:
 			_loyalty = null
 			_add_loyalty_button()
+			_uncovered()
 	)
+	_show_peek_hints()
 
 
 ## The program's button, the first of the Clubhouse's, GAME.md 8.9.
@@ -738,6 +774,7 @@ func show_license() -> void:
 	_license_from = get_viewport().gui_get_focus_owner()
 	_license_view = LicenseView.open(self, _keyboard, _license, true)
 	_license_view.put_away.connect(_on_license_put_away)
+	_show_peek_hints()
 
 
 func hide_license() -> void:
@@ -759,6 +796,7 @@ func _on_license_put_away() -> void:
 		if play_button != null:
 			play_button.grab_focus()
 	_license_from = null
+	_uncovered()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -800,6 +838,7 @@ func _put_the_question_away() -> void:
 		_question_from.grab_focus()
 	elif play_button != null:
 		play_button.grab_focus()
+	_uncovered()
 
 
 ## Where the license's middle is, out under the cursor or peeking in.
@@ -895,6 +934,7 @@ func _ask(named: String, answered: Callable) -> ConfirmPane:
 	holder.mouse_filter = Control.MOUSE_FILTER_STOP
 	add_child(holder)
 	_question = holder
+	_show_peek_hints()
 	var shade := ColorRect.new()
 	shade.color = Color(0.0, 0.0, 0.0, 0.6)
 	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)

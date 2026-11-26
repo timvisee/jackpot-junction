@@ -211,8 +211,8 @@ func _ready() -> void:
 	_buttons_row.modulate.a = 0.0
 	away_line.modulate.a = 0.0
 	# Nothing here takes the cursor: the buttons are for the mouse, and keys and pads have their
-	# binds, so whatever had it under the folder lets it go.
-	get_viewport().gui_release_focus()
+	# binds, so the folder holds it, and nothing under it is walked to.
+	CursorHold.take(self)
 	# Hidden until the layout has put it where it opens, so it can start from where it peeked in.
 	folder.modulate.a = 0.0
 	_come_out.call_deferred()
@@ -778,6 +778,8 @@ func _fade_buttons(alpha: float) -> void:
 ## Put back: the folder open at the spread of the note last looked at.
 func _on_put_back(index: int) -> void:
 	view = null
+	# The cursor back from the note, going down onto its page.
+	CursorHold.take(self)
 	_fade_buttons(1.0)
 	if spread_of(index) != at:
 		_show(spread_of(index))
