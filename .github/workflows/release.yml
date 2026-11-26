@@ -46,8 +46,22 @@ jobs:
           fi
           echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
 
+      # The licensed music, GAME.md 10.6: not in this repository but in a private one, cloned with
+      # its read-only deploy key. No release without it.
+      - name: Licensed music
+        env:
+          PRIVATE_DEPLOY_KEY: ${{ secrets.PRIVATE_DEPLOY_KEY }}
+        run: tools/private_assets --ci
+
       - name: Import
         run: make import
+
+      # Every track there and looping as it should, before a minute of exporting.
+      - name: Music
+        run: |
+          set -e
+          tools/music_check
+          tools/test_parallel tests/test_music.gd
 
       - name: Export
         run: make export
@@ -76,6 +90,18 @@ jobs:
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$ANDROID_KEYSTORE"
           make android-release
           rm -f "$ANDROID_KEYSTORE"
+
+      # The music in every game build, the PCK inside the macOS zip looked at on its own; none in
+      # the servers, which carry no sound, GAME.md 10.5.
+      - name: Music in the builds
+        run: |
+          set -e
+          unzip -p build/macos/jackpot-junction.zip '*.pck' > "$RUNNER_TEMP/macos.pck"
+          tools/music_check --packed build/linux/jackpot-junction build/linux-arm64/jackpot-junction \
+            build/windows/jackpot-junction.exe "$RUNNER_TEMP/macos.pck" \
+            build/android/jackpot-junction.apk
+          tools/music_check --none build/linux-server/jackpot-junction-server \
+            build/linux-server-arm64/jackpot-junction-server
 
       # Each zip holds the game itself at its top, ./jackpot-junction, ./jackpot-junction-server and
       # ./jackpot-junction.exe, rather than in a folder named after the platform, GAME.md 10.5.

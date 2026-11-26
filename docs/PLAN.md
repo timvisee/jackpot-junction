@@ -5326,7 +5326,7 @@ How it fits together:
 | P2 | The game without the music, the About page's Ovani line only with their music, and the tests | Done |
 | P3 | `tools/private_assets`, `make private-assets`, the link made by `make import` when the checkout is there, DEVELOPMENT.md; `tools/music_check` for the exports' warning and the builds | Done |
 | P4 | The music out: `git rm`, `.gitignore`, THIRD_PARTY.md, README, GAME.md 10.6, tools/trailer | Done |
-| P5 | The workflows: Licensed music in all three, Without the music in ci.yml, Music in the builds in release.yml and steam.yml, GAME.md 10.5 | Open |
+| P5 | The workflows: Licensed music in all three, Without the music in ci.yml, Music in the builds in release.yml and steam.yml, GAME.md 10.5 | Done |
 | P6 | Checks: the suite and smoke runs with the music linked and without it, a windowed run without it, lint and format; the branch pushed, both CI jobs and a release dry run from it | Open |
 | P7 | Landed: rebased on master and fast-forwarded; the main checkout and every open worktree run `make private-assets` | Open |
 

@@ -56,9 +56,23 @@ jobs:
           fi
           echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
 
+      # The licensed music, GAME.md 10.6: not in this repository but in a private one, cloned with
+      # its read-only deploy key. No Steam build without it.
+      - name: Licensed music
+        env:
+          PRIVATE_DEPLOY_KEY: ${{ secrets.PRIVATE_DEPLOY_KEY }}
+        run: tools/private_assets --ci
+
       # GodotSteam, pinned and checked against its checksum, then the project imported to know it.
       - name: GodotSteam
         run: make steam-addon
+
+      # Every track there and looping as it should, before exporting.
+      - name: Music
+        run: |
+          set -e
+          tools/music_check
+          tools/test_parallel tests/test_music.gd
 
       - name: Export
         env:
@@ -83,6 +97,9 @@ jobs:
           # The game's data beside each binary, Linux's once for both CPUs' binaries.
           test -f build/steam/windows/jackpot-junction.pck
           test -f build/steam/linux/jackpot-junction.pck
+          # And the music in it.
+          tools/music_check --packed build/steam/windows/jackpot-junction.pck \
+            build/steam/linux/jackpot-junction.pck
 
       - name: Keep the builds
         uses: actions/upload-artifact@v4

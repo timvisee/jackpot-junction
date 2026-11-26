@@ -40,6 +40,14 @@ jobs:
       - name: Install gdtoolkit
         run: pip install "gdtoolkit==${GDTOOLKIT_VERSION}"
 
+      # The licensed music, GAME.md 10.6, from its private repository with the read-only deploy
+      # key, so the tests check every track (JJ_MUSIC=required). A pull request from a fork gets no
+      # secrets and runs without it; the job below checks that case for everybody.
+      - name: Licensed music
+        env:
+          PRIVATE_DEPLOY_KEY: ${{ secrets.PRIVATE_DEPLOY_KEY }}
+        run: tools/private_assets --ci --optional
+
       - name: Import
         run: make import
 
@@ -60,5 +68,56 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gdunit-reports
+          path: reports/
+          if-no-files-found: ignore
+
+  # The checkout as anybody who clones it has it, GAME.md 10.6: no licensed music. The game builds,
+  # tests and runs all the same, with no music.
+  without-music:
+    name: Without the music
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux
+
+      - name: Install Godot
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          chmod +x godot
+
+      - name: Expose Godot
+        run: echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
+
+      - name: Import
+        run: make import
+
+      - name: No music here
+        run: |
+          if tools/music_check; then
+            echo "::error::This job is to run without the music, and found it"
+            exit 1
+          fi
+
+      - name: Test
+        run: make test
+
+      - name: Smoke run
+        run: make smoke
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gdunit-reports-without-music
           path: reports/
           if-no-files-found: ignore

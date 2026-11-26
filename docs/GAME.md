@@ -10365,7 +10365,17 @@ first, and a desktop card in an ARM machine only the second. That adds under
 two megabytes to the build. A tag whose version has no
 section fails the workflow rather than publishing a release with nothing written
 on it, and so does an APK that is not signed with the release key: nothing is
-published until everything is built. The server build is Godot's own dedicated
+published until everything is built. So does a build without the music, which is
+not in this repository, 10.6: the workflow clones `timvisee/jackpot-junction-private`
+with a read-only deploy key on it, whose private half is the repository secret
+`PRIVATE_DEPLOY_KEY`, links it in with `tools/private_assets --ci`, fails without
+the secret, runs test_music with `JJ_MUSIC=required`, and after the exports checks
+every game build for all of each track's layers and the server builds for none,
+`tools/music_check`. The Steam workflow does the same, and CI's checks run with the
+music too, all but a pull request from a fork, which GitHub gives no secrets; a
+second CI job checks the bare checkout anybody clones, without it. The private
+repository's master as it is at the time is what a build gets, its commit in the
+run's log. The server build is Godot's own dedicated
 server export, preset "Linux Server": every resource stripped of what only
 drawing needs, textures and meshes left as placeholders of the same size, since
 scripts and scenes still name them, and `assets/audio` left out altogether,
