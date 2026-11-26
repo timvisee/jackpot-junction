@@ -5230,7 +5230,7 @@ inside the game, so nothing here ever does; Steam asks players itself after a fe
 | L7 | More Ovani music: the seven unused tracks of Electronic Vol. 8 auditioned by the user first; one new map layout before the launch; more layouts in the first month | Open |
 | L8 | A host leaving mid-match tried online; Report a bug in the pause menu | Open |
 | L9 | M23 T10, the play-test round | Open |
-| L10 | Store page public by mid-December, an open Playtest till early February, the Next Fest demo (February 22 to March 1, register by January 10), the launch in March. The Playtest and the demo are apps of their own, built without the supporter pack (no purchases in a Playtest); the demo is the whole game | Open |
+| L10 | Store page public by mid-December, an open Playtest till early February, the Next Fest demo (February 22 to March 1, register by January 10), the launch in March. The user confirmed Next Fest. The main game stays Coming Soon, so only the Playtest (later the demo) can be played. The Playtest and the demo are apps of their own, built without the supporter pack (no purchases in a Playtest), so no hint of it shows anywhere in them: `Store.offers_supporter_pack` is false without a DLC id, every mention checked against it; the demo is the whole game | Open |
 | L11 | The supporter pack live at the launch | Open |
 
 Steamworks, the user's:
