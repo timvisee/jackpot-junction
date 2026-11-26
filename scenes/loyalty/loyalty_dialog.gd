@@ -72,10 +72,10 @@ const PANE_AROUND := CatalogDialog.PANE_AROUND
 ## the room; and how wide that column is at most, the pane's own width and that room.
 const SIDE_AROUND := 6
 ## The room over the details in their column, for the coil binding the slip to go over its top
-## edge in; and under what is at the column's foot, only as much as Back's shadow takes, so that
-## Back stands about level with the map's foot.
+## edge in; and under what is at the column's foot, only as much as Back's bind hanging on its foot
+## takes, see [ButtonBinds], since the column clips: Back stands that much over the map's foot.
 const COIL_ROOM := 24
-const FOOT_ROOM := 6
+const FOOT_ROOM := ButtonBinds.ROOM
 const SIDE_MOST := LoyaltyPane.WIDTH + 12.0 + SIDE_AROUND * 2.0
 ## The program's card in the map's corner, over the pane, a share of its own size; and the map
 ## unfolding as the welcome opens it, from folded in three to open, GAME.md 8.9.
@@ -423,7 +423,7 @@ func _body() -> HBoxContainer:
 	for edge: String in ["left", "right"]:
 		around.add_theme_constant_override("margin_%s" % edge, SIDE_AROUND)
 	around.add_theme_constant_override("margin_top", maxi(PANE_AROUND, COIL_ROOM))
-	around.add_theme_constant_override("margin_bottom", FOOT_ROOM)
+	around.add_theme_constant_override("margin_bottom", ceili(FOOT_ROOM))
 	side.add_child(around)
 	var column := VBoxContainer.new()
 	_column = column

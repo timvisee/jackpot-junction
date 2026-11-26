@@ -109,7 +109,9 @@ func _ready() -> void:
 	column.add_child(_scroll)
 	_rows = VBoxContainer.new()
 	_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_rows.add_theme_constant_override("separation", 12)
+	# Far enough apart for the binds hung under the tabs and the lit preset, see [ButtonBinds],
+	# rather than under the row after them.
+	_rows.add_theme_constant_override("separation", ceili(ButtonBinds.ROOM))
 	_scroll.add_child(_rows)
 	options = MatchOptions.add_to(_rows, Game.settings)
 	options.fold_turned.connect(_on_fold)

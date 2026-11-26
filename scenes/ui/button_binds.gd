@@ -8,8 +8,12 @@ extends RefCounted
 
 const INK := Color(0.78, 0.78, 0.84)
 const FONT_SIZE := 12
-## How much room to leave under a row of buttons for the binds hung on them.
-const ROOM := 12.0
+## How much of a bind hangs under its button's edge, and so how much room to leave under a row of
+## buttons for the binds hung on them: [constant HANG] of a glyph [constant InputGlyph.HEIGHT] tall,
+## 14.3, rounded up. Less, and whatever comes next is drawn over a bind's foot, or a pane that clips
+## cuts it off.
+const HANG := 0.65
+const ROOM := 15.0
 
 
 ## Marks [param button] as doing what [param action] does: drawn as the action's own key or pad
@@ -64,8 +68,8 @@ static func show(buttons: Array[Button], keyboard: bool, shown: bool) -> void:
 		glyph.offset_left = -wanted.x * 0.5
 		glyph.offset_right = wanted.x * 0.5
 		var lift: float = button.get_meta(&"bind_lift", 0.0)
-		glyph.offset_top = -wanted.y * 0.35 - lift
-		glyph.offset_bottom = wanted.y * 0.65 - lift
+		glyph.offset_top = -wanted.y * (1.0 - HANG) - lift
+		glyph.offset_bottom = wanted.y * HANG - lift
 		button.add_child(glyph)
 
 

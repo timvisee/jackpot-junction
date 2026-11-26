@@ -158,7 +158,8 @@ func test_the_pencil_and_the_dividers_lie_in_the_room() -> void:
 	assert_float(middle).is_equal_approx(row.get_center().y - AtlasCover.PENCIL_UP, 0.5)
 	assert_object(dialog.back.get_parent()).is_same(dialog._column)
 	assert_float(back.position.y).is_greater(card.end.y)
-	assert_float(absf(back.end.y - map.end.y)).is_less(12.0)
+	# At the map's foot, but for the room its bind hangs in, which the column it is in would clip.
+	assert_float(map.end.y - back.end.y).is_equal_approx(LoyaltyDialog.FOOT_ROOM, 1.0)
 	assert_float(placed.reach).is_equal(AtlasCover.DIVIDERS_REACH)
 	assert_float(placed.hinge.x + pane_at.x).is_greater(map.end.x)
 	var tips := placed.hinge + Vector2.from_angle(placed.toward) * placed.reach + pane_at

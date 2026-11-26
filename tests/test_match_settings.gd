@@ -573,6 +573,26 @@ func test_a_card_under_the_cursor_says_what_turns_it_over() -> void:
 	pane._panel.visible = false
 
 
+## The binds hung under the two kinds of game and the lit preset, GAME.md 9.6, clear of the row
+## under each, which is drawn after them and would cover their feet: the presets, and the cards.
+func test_the_binds_hang_clear_of_the_row_under_them() -> void:
+	var pane := _pane()
+	pane._keyboard = true
+	pane._pointer = false
+	pane._show_bind()
+	await await_idle_frame()
+	var options := pane.options
+	var presets_top := options.presets.get_global_rect().position.y
+	for grand_prix: bool in [true, false]:
+		var tab_bind := options.mode_picker.button(grand_prix).get_node("Bind") as Control
+		assert_float(tab_bind.get_global_rect().end.y).is_less_equal(presets_top)
+	var lit := options.presets.button(options.presets.lit())
+	var preset_bind := lit.get_node("Bind") as Control
+	var cards_top := options.table_strip.get_global_rect().position.y
+	assert_float(preset_bind.get_global_rect().end.y).is_less_equal(cards_top)
+	pane._panel.visible = false
+
+
 ## A preset turns the cards it changes over as a press would, one after another along the row, and
 ## leaves the rest still, GAME.md 9.6.
 func test_a_preset_turns_its_cards_in_a_wave() -> void:

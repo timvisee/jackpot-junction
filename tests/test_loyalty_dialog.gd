@@ -47,6 +47,19 @@ func _open() -> LoyaltyDialog:
 	return dialog
 
 
+## Back's bind hangs whole under it with keys in hand, GAME.md 8.3, inside the column at whose
+## foot it stands, which clips what goes past its edge.
+func test_backs_bind_hangs_whole_in_its_column() -> void:
+	var dialog := await _open()
+	dialog._keyboard = true
+	dialog._pointer = false
+	dialog._show_binds()
+	await get_tree().process_frame
+	var bind := dialog.back.get_node_or_null("Bind") as Control
+	assert_object(bind).is_not_null()
+	assert_bool(dialog._side.get_global_rect().encloses(bind.get_global_rect())).is_true()
+
+
 ## Drives the cursor of [param dialog] [param way] and has it there at once.
 func _push(dialog: LoyaltyDialog, way: Vector2i) -> bool:
 	var went := dialog.map_view.drive_toward(way)
