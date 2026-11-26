@@ -5212,6 +5212,27 @@ master at afe62e53. The rules go over the wire, so it ships as 0.24.0.
 | T9 | The booth demo plays Roulette (9.8) | Done |
 | T10 | A play-test round with the user; then decide on cuts (poker hands first) | Open |
 
+## M24: the Steam launch
+
+Asked for by the user on 2026-11-26: the Steam release should earn the best rating it can.
+Investigation and the eleven answers: https://claude.ai/artifact/8qGxwHz5kLM2hf5E2apjkJ (its db,
+`picks/main`). The game stays free, a gift to the community. Valve forbids asking for reviews from
+inside the game, so nothing here ever does; Steam asks players itself after a few hours of play.
+
+| Step | What | State |
+|------|------|-------|
+| L1 | The AI disclosure rewritten to say exactly what AI made, on Steam and itch.io | Open |
+| L2 | Windows: CI starts the exported Windows build, and a person plays it once | Open |
+| L3 | Public Steam lobbies, listed in Play Online beside friends' games | Open |
+| L4 | Quick Play: a public game with a free seat, or a new one with bots in the empty seats | Open |
+| L5 | A first start to try: the invitation, then a three-minute match with prompts, the school offered after, the license asked once; kept or dropped after the user plays it | Open |
+| L6 | The game's text made translatable, a font for Chinese; Simplified Chinese by a human translator for the launch | Open |
+| L7 | More Ovani music, and one new map layout before the launch; more layouts in the first month | Open |
+| L8 | A host leaving mid-match tried online; Report a bug in the pause menu | Open |
+| L9 | M23 T10, the play-test round | Open |
+| L10 | Store page public by mid-December, an open Playtest till early February, the Next Fest demo (February 22 to March 1, register by January 10), the launch in March | Open |
+| L11 | The supporter pack live at the launch | Open |
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
