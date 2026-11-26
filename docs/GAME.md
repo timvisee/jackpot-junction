@@ -9016,7 +9016,9 @@ somebody new who never touches the settings plays each card from the map after i
 felt headed ON THE TABLE in foil, a card each in their order, `TableStrip`: face up, the House's
 cream with the card's picture and its name, for on, and face down, in the card back the player
 wears, 8.9, for off. A press turns one over, narrowing to its edge and widening on its other side,
-and lights Custom. Suits & hands turned up with Jokers down turn Jokers up with them, both cards
+and lights Custom; it is heard put down on the felt as it starts to turn, Kenney's card laid on a
+table, so a wave of them is heard card after card, and the cursor ticks on the cards and the die
+as on any button. Suits & hands turned up with Jokers down turn Jokers up with them, both cards
 turning over; turning Jokers down turns Suits & hands down too. A card the House has not opened yet, 8.9a, is sealed: its face grayed
 under a padlock and a gold band along its foot, AFTER MAP 5. Pressed, it asks first, the round blue
 sign's question, "Open Slot machines early?", what the card does and that it stays opened, with

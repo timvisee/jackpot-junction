@@ -114,6 +114,7 @@ func _build() -> void:
 		button.mouse_entered.connect(func() -> void: _point(card, true, true))
 		button.mouse_exited.connect(func() -> void: _point(card, true, false))
 		button.focus_entered.connect(func() -> void: _point(card, false, true))
+		button.focus_entered.connect(_cursor_sound)
 		button.focus_exited.connect(func() -> void: _point(card, false, false))
 		row.add_child(button)
 		_cards.append(button)
@@ -128,6 +129,7 @@ func _build() -> void:
 	die.mouse_entered.connect(func() -> void: _point(after, true, true))
 	die.mouse_exited.connect(func() -> void: _point(after, true, false))
 	die.focus_entered.connect(func() -> void: _point(after, false, true))
+	die.focus_entered.connect(_cursor_sound)
 	die.focus_exited.connect(func() -> void: _point(after, false, false))
 	row.add_child(die)
 	# Across the row and no further: past either end the cursor stays on the card or the die,
@@ -288,10 +290,18 @@ func _place_tip() -> void:
 	_tip.global_position = at
 
 
+## The cursor come onto a card or the die heard as it is on any button, see [method
+## MenuTheme.button].
+static func _cursor_sound() -> void:
+	Audio.play_sfx(&"ui_move", MenuTheme.MOVE_DB, 0.0)
+
+
 func _on_pressed(card: int) -> void:
 	if _locked:
 		return
 	if not TableCards.has(opened, card):
+		# A question rather than a turn: clicked as a button is.
+		Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
 		open_asked.emit(card)
 		return
 	var on := not TableCards.has(table, card)
@@ -352,6 +362,10 @@ class TableCardButton:
 
 	## The tag on a card opened and not yet played.
 	const NEW_INK := Color("#ff4fa3")
+	## A card turned over heard put down on the felt, as it starts to turn, and how loud: a little
+	## over a button's click, the recordings' slap coming as the card comes down flat.
+	const FLIP := &"card_flip"
+	const FLIP_DB := -24.0
 	## Who is told a face is drawn, see [KeptPictures].
 	const GROUP := &"table_cards"
 
@@ -362,6 +376,8 @@ class TableCardButton:
 	var _back: Texture2D
 	var _turning := 0.0
 	var _wait := 0.0
+	## Whether the turn under way has been heard yet, see [constant FLIP].
+	var _heard := true
 
 	func _init() -> void:
 		flat = true
@@ -391,6 +407,7 @@ class TableCardButton:
 	func turn(wait := 0.0) -> void:
 		_turning = 1.0
 		_wait = wait
+		_heard = false
 		set_process(true)
 		queue_redraw()
 
@@ -398,6 +415,9 @@ class TableCardButton:
 		if _wait > 0.0:
 			_wait -= delta
 			return
+		if not _heard:
+			_heard = true
+			Audio.play_sfx(FLIP, FLIP_DB, 0.08)
 		_turning = maxf(_turning - delta / TableStrip.TURN, 0.0)
 		if _turning <= 0.0:
 			set_process(false)

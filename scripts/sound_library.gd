@@ -84,6 +84,8 @@ const EFFECTS: Dictionary[StringName, Array] = {
 	["impactMetal_light_000.ogg", "impactMetal_light_001.ogg", "impactMetal_light_002.ogg"],
 	# The driving school, GAME.md 9.4a: a page of the theory book, the book shutting, the stamp struck.
 	&"page": ["card-shove-1.ogg", "card-place-2.ogg"],
+	# A card of the table turned over on its felt, GAME.md 9.6: put down face up or face down.
+	&"card_flip": ["card-place-1.ogg", "card-place-2.ogg"],
 	&"book": ["impactPlate_light_000.ogg"],
 	&"stamp": ["impactPunch_heavy_000.ogg"],
 	# A note of Kit's off the table, STORY.md 7.1: paper rustling, a pencil's NOTE COLLECTED scratch.

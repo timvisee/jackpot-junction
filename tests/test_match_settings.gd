@@ -690,6 +690,47 @@ func test_the_die_deals_the_table_at_random() -> void:
 	pane._panel.visible = false
 
 
+## A card turned over is heard put down on the felt as it starts to turn, GAME.md 9.6: at once
+## for a press, and card after card along a preset's wave; the cursor coming onto one ticks as it
+## does onto any button.
+func test_a_card_turned_over_is_heard() -> void:
+	var pane := _pane()
+	await await_idle_frame()
+	var strip := pane.options.table_strip
+	_hush()
+	strip.button(TableCards.Card.SLOTS).pressed.emit()
+	assert_int(_playing("card-place")).is_equal(0)
+	strip.button(TableCards.Card.SLOTS)._process(0.0)
+	assert_int(_playing("card-place")).is_equal(1)
+	_hush()
+	strip.button(TableCards.Card.JACKPOT).grab_focus()
+	assert_int(_playing("tick")).is_equal(1)
+	_hush()
+	pane.options.presets.button(0).pressed.emit()
+	var heard := 0
+	for frame: int in 40:
+		await get_tree().process_frame
+		heard = maxi(heard, _playing("card-place"))
+	assert_int(heard).is_greater(1)
+	pane._panel.visible = false
+
+
+## Every sound the game is playing stopped.
+func _hush() -> void:
+	for player: AudioStreamPlayer in Audio._pool:
+		player.stop()
+
+
+## How many of the game's sounds playing now are from a file named with [param named].
+func _playing(named: String) -> int:
+	var count := 0
+	for player: AudioStreamPlayer in Audio._pool:
+		var stream := player.stream
+		if player.playing and stream != null and stream.resource_path.get_file().begins_with(named):
+			count += 1
+	return count
+
+
 ## A preset turns the cards it changes over as a press would, one after another along the row, and
 ## leaves the rest still, GAME.md 9.6.
 func test_a_preset_turns_its_cards_in_a_wave() -> void:
