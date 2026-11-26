@@ -4,11 +4,9 @@ extends RefCounted
 ## card's own picture in its middle and its name under it in ink. The same face in the match
 ## settings, on the payout slip's coupon and on the loading screen, 8.6.
 
-## How a card stands, a playing card's own proportions, how round its corners are, and how wide
-## the line round its edge.
+## How a card stands, a playing card's own proportions, and how round its corners are.
 const ASPECT := 1.4
 const CORNER := 0.09
-const EDGE := 1.0
 ## How much of a card's width its picture takes, and how far down the card it starts.
 const PICTURE := 0.64
 const PICTURE_TOP := 0.11
@@ -28,7 +26,7 @@ static func face(on: CanvasItem, box: Rect2, card: int, dim := false) -> void:
 		_paper = StyleBoxFlat.new()
 		_paper.bg_color = HouseTheme.PAPER
 		_paper.border_color = HouseTheme.PAPER_LOW
-		_paper.set_border_width_all(roundi(EDGE))
+		_paper.set_border_width_all(1)
 		_paper.anti_aliasing = true
 	_paper.set_corner_radius_all(roundi(box.size.x * CORNER))
 	on.draw_style_box(_paper, box)
@@ -63,8 +61,8 @@ static func face(on: CanvasItem, box: Rect2, card: int, dim := false) -> void:
 		on.draw_style_box(wash, box)
 
 
-## [param card] not opened yet, 8.9a: its face grayed, a padlock over its picture and a gold band
-## along its foot saying after which map the House opens it.
+## [param card] not opened yet, 8.9a: its face grayed, a padlock over its picture and its foot a
+## gold band saying after which map the House opens it.
 static func sealed(on: CanvasItem, box: Rect2, card: int) -> void:
 	face(on, box, card, true)
 	var side := box.size.x * 0.4
@@ -90,20 +88,17 @@ static func sealed(on: CanvasItem, box: Rect2, card: int) -> void:
 	)
 
 
-## Where a sealed card's gold band lies across [param box], see [method sealed].
+## Where a sealed card's gold band lies across [param box], see [method sealed]: its foot.
 static func band_of(box: Rect2) -> Rect2:
 	var tall := box.size.y * 0.14
-	return Rect2(
-		Vector2(box.position.x, box.end.y - tall - box.size.y * 0.04), Vector2(box.size.x, tall)
-	)
+	return Rect2(Vector2(box.position.x, box.end.y - tall), Vector2(box.size.x, tall))
 
 
-## A sealed card's gold band in [param box] as drawn: cut to the card's own shape inside its edge,
-## so its ends follow the rounded corners and the edge goes on round them, rather than the band
-## standing out past the card.
+## A sealed card's gold band in [param box] as drawn: the card's foot, its own rounded corners and
+## all, so the band is of the card's shape rather than a strip standing out past its corners.
 static func band_shape(box: Rect2) -> Array[PackedVector2Array]:
 	var band := band_of(box)
-	var inside := FeltArt.rounded(box.grow(-EDGE), roundi(box.size.x * CORNER) - EDGE)
+	var inside := FeltArt.rounded(box, roundi(box.size.x * CORNER))
 	var across := PackedVector2Array(
 		[
 			band.position,

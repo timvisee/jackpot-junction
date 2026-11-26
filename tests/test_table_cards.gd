@@ -281,14 +281,14 @@ func test_the_new_card_is_pointed_at() -> void:
 	Game.settings = settings_were
 
 
-## A sealed card's gold band, GAME.md 8.9a, lies inside the card's own shape, the line round its
-## edge going on past it: its ends follow the card's rounded corners rather than standing out
-## past them, and it runs the card's width but for that line, at either size of card.
+## A sealed card's gold band, GAME.md 8.9a, is the card's foot, from edge to edge and down to its
+## bottom, its corners the card's own rounded ones rather than square ones standing out past
+## them, at either size of card.
 func test_a_sealed_cards_band_keeps_inside_the_card() -> void:
 	for size: Vector2 in [TableStrip.CARD, TableStrip.CARD_SMALL]:
 		var box := Rect2(Vector2(3.0, 5.0), size)
-		var inside := box.grow(-TableCardArt.EDGE)
-		var radius := roundi(size.x * TableCardArt.CORNER) - TableCardArt.EDGE
+		var inside := box
+		var radius := float(roundi(size.x * TableCardArt.CORNER))
 		var corners: Array[Vector2] = [
 			Vector2(inside.position.x + radius, inside.end.y - radius),
 			Vector2(inside.end.x - radius, inside.end.y - radius),
@@ -307,4 +307,5 @@ func test_a_sealed_cards_band_keeps_inside_the_card() -> void:
 				if past_corner:
 					assert_float(point.distance_to(corner)).is_less_equal(radius + 0.01)
 		assert_float(reach.size.x).is_equal_approx(inside.size.x, 0.01)
+		assert_float(reach.end.y).is_equal_approx(box.end.y, 0.01)
 		assert_float(reach.size.y).is_equal_approx(TableCardArt.band_of(box).size.y, 0.01)
