@@ -33,6 +33,10 @@ signal hand_made(slot: int, hand: int)
 ## Back on the floor, and where: a client hears this before the snapshot that puts the kart
 ## there, so anything drawn where it came back has to be told the place rather than look at it.
 signal kart_respawned(slot: int, at: Vector3)
+## [param kart] painted over in another player color, GAME.md 4.4, see [method KartVisuals.recolor]:
+## what wears its color besides the kart itself follows at once, the game paused for the menu the
+## color was picked in or not. The kart rather than its slot: a host's and a client's share a slot.
+signal kart_painted(kart: Node3D)
 ## The floor has gone from under a kart. The kill follows when it reaches the bottom.
 signal kart_fell(slot: int)
 ## A pot split the way a death splits it, GAME.md 3.6, at a death or at the whistle, see 3.13:

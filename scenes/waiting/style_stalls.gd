@@ -249,7 +249,11 @@ func _hint(slot: PlayerSlot, pad: int) -> void:
 	if not says.is_empty():
 		var keyboard := player != null and DeviceInput.uses_keyboard(player.device)
 		var touch := player != null and _on_touch(player)
-		wanted = "%d|%s|%s|%s|%s|%d" % [pad, says[0], says[1], keyboard, touch, _hint_size()]
+		# Its name in the player's color, drawn again in another they pick, GAME.md 4.4.
+		var ink := slot.color().to_html()
+		wanted = (
+			"%d|%s|%s|%s|%s|%d|%s" % [pad, says[0], says[1], keyboard, touch, _hint_size(), ink]
+		)
 	if wanted == _drawn.get(slot.index, ""):
 		return
 	_drawn[slot.index] = wanted

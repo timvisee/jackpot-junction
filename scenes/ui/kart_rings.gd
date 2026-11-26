@@ -14,7 +14,8 @@ extends Node
 ## [constant COME_IN] seconds, gone in [constant MAKE_WAY].
 ##
 ## Drawn in the flare's own glowing look, [SpawnRing], so they compile nothing of their own; two
-## coarse rings a kart, GAME.md 10.7.
+## coarse rings a kart, GAME.md 10.7. Laid while the game is paused too, so a color picked in the
+## pause menu, GAME.md 4.4, is on the ring at once rather than once the game goes on.
 
 ## How big a ring is, in meters across its middle, at the least and as a share of how far back the
 ## camera is; how thick its color is and how much ink is round it, as shares of that.
@@ -45,6 +46,7 @@ static func add_to(to: MatchHud) -> KartRings:
 	var rings := KartRings.new()
 	rings.name = "KartRings"
 	rings.hud = to
+	rings.process_mode = Node.PROCESS_MODE_ALWAYS
 	to.add_child(rings)
 	Events.match_state_changed.connect(rings._on_state_changed)
 	return rings

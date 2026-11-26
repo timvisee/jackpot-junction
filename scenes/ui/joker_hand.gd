@@ -770,9 +770,10 @@ func _measure_across() -> void:
 func _place_cap(left: float, middle: float) -> void:
 	# A touch screen opens the hand by holding a card, GAME.md 4.2, so there is no button to name.
 	var shown := not _cards.is_empty() and Game.settings.control_hints and not TouchInput.enabled
-	var wanted := (
-		InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard) if shown else ""
-	)
+	var ink := Palette.player_color(kart.color_index) if kart != null else Palette.CHIP_WHITE
+	# Drawn again for another button, or another color of its player's, GAME.md 4.4.
+	var bound := InputActions.short_binding_text(InputActions.JOKER_MENU, keyboard)
+	var wanted := "%s|%s" % [bound, ink.to_html()] if shown else ""
 	if wanted != _cap_shown:
 		_cap_shown = wanted
 		if _cap != null:
@@ -786,7 +787,7 @@ func _place_cap(left: float, middle: float) -> void:
 				InputGlyph.pin_all(_cap, InputGlyph.device_of(kart))
 				# Loose beside the cards, over whatever floor the table has, in its player's color.
 				InputGlyph.look_under(_cap, GlyphArt.Look.DARK)
-				InputGlyph.seat_under(_cap, Palette.player_color(kart.color_index))
+				InputGlyph.seat_under(_cap, ink)
 				_fan.add_child(_cap)
 	if _cap == null:
 		return

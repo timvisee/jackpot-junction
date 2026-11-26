@@ -58,6 +58,39 @@ func test_a_player_moves_on_to_the_next_color_nobody_else_is_in() -> void:
 	assert_int(slot.color_index).is_equal(2)
 
 
+## A new color is on everything that wears the player's at once, GAME.md 4.4, though the pause menu
+## it is picked in holds the game still: the ring held round their kart, the hint over it, their
+## corner of the HUD, and the rings under the karts.
+func test_a_new_color_is_on_everything_of_the_players_at_once() -> void:
+	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.KEYBOARD, 0), PlayerInput.new(0, 1)]
+	var match_node := _room(inputs)
+	await _runner.simulate_frames(3, 17)
+	var slot := match_node.slots[0]
+	var kart := slot.kart
+	var ring := SpawnRing.spawn(match_node, kart.global_position, slot.color()).hold_on(kart)
+	var hint := kart.get_node_or_null("ControlHint") as ControlHint
+	if hint == null:
+		hint = ControlHint.attach(kart, DeviceInput.KEYBOARD)
+	await _runner.simulate_frames(2, 17)
+	get_tree().paused = true
+	SeatIdentity.recolor(match_node, slot)
+	var color := Palette.player_color(2)
+	assert_object(ring.color).is_equal(color)
+	assert_object(ring._ring_material.emission).is_equal(color)
+	var glyphs := hint._row.find_children("*", "InputGlyph", true, false)
+	assert_bool(glyphs.is_empty()).is_false()
+	for glyph: InputGlyph in glyphs:
+		assert_object(glyph.seat).is_equal(color)
+	var corner := match_node.hud.block_parts(0)
+	var name_label: Label = corner["name"]
+	assert_object(name_label.get_theme_color("font_color")).is_equal(color)
+	var lit: Array = corner["lives"].filter(func(pip: Heart) -> bool: return pip.visible)
+	assert_object((lit[0] as Heart).color).is_equal(color)
+	var rings := match_node.hud.find_child("KartRings", true, false)
+	assert_int(rings.process_mode).is_equal(Node.PROCESS_MODE_ALWAYS)
+	get_tree().paused = false
+
+
 func test_a_typed_name_is_the_players_and_kept_in_their_seat() -> void:
 	var match_node := _room([PlayerInput.new(DeviceInput.KEYBOARD, 0)] as Array[KartInput])
 	await _runner.simulate_frames(3, 17)

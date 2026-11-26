@@ -77,6 +77,9 @@ below, and hands the notes to the release workflow.
 - **Walking down a settings page in one column.** Under a big UI scale, as on a television, the
   cursor moves on from Driving to Fighting, and from one group to the next on the Video and
   Accessibility pages.
+- **A new color on everything that's yours.** Pick another color in the pause menu and the ring
+  round your kart, the drive hint over it, the kart rings, your HUD corner and your joker hand's
+  button take it at once. The ring, the hint and the button used to keep the old one.
 - **The cursor stays with your license.** With your license, loyalty card or Kit's folder held up,
   the arrows no longer move the cursor on the screen behind it, and the title's button hints at
   its edges are hidden until it's put away.

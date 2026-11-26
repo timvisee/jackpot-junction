@@ -94,6 +94,8 @@ const RELAYED: Array[StringName] = [
 ## the machine alone, and a client hears its own from the host's count of shots refused, see
 ## [method KartPrediction.hear]. [code]achievement_earned[/code] and [code]watched_emote[/code]
 ## are this machine's own profiles', each machine counting its own, GAME.md 8.10.
+## [code]kart_painted[/code] is about a kart on this screen: each machine paints its own karts,
+## a client's from the snapshot, GAME.md 4.4, and hears it there.
 const LOCAL: Array[StringName] = [
 	&"announced",
 	&"wild_joker_dropped",
@@ -108,4 +110,5 @@ const LOCAL: Array[StringName] = [
 	&"cannon_jammed",
 	&"achievement_earned",
 	&"watched_emote",
+	&"kart_painted",
 ]

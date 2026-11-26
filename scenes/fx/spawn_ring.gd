@@ -33,6 +33,8 @@ const GROUP := &"held_spawn_rings"
 var color := Color.WHITE
 
 var _age := 0.0
+## The kart whose color it wears, see [method hold_on].
+var _worn_by: Kart
 ## The kart it is held on, whether that has been there yet, and how far gone the ring is, 0 to 1.
 var _held: Node3D
 var _arrived := false
@@ -56,15 +58,35 @@ static func spawn(parent: Node, at: Vector3, player_color: Color) -> SpawnRing:
 ## Keeps the ring round where [param kart] came back once the flare has opened, breathing, until it
 ## drives off, GAME.md 3.6: a player who has not found their kart yet finds it still marked, however
 ## long they take. Only a kart driven at this machine: a rival's, or a bot's, is nobody's here to
-## find, and its flare goes as it would, its ring thinner, see [constant THIN].
+## find, and its flare goes as it would, its ring thinner, see [constant THIN]. Either is in the
+## kart's color from the moment it is painted another, GAME.md 4.4, see [signal
+## Events.kart_painted].
 func hold_on(kart: Node3D) -> SpawnRing:
 	var driven := kart as Kart
+	if driven != null:
+		_worn_by = driven
+		Events.kart_painted.connect(_on_kart_painted)
 	if driven != null and not driven.input is PlayerInput:
 		(_ring.mesh as TorusMesh).inner_radius = 1.0 - THIN
 		return self
 	_held = kart
 	add_to_group(GROUP)
 	return self
+
+
+## The flare and the ring in [param kart]'s color now, if it is the kart it is round, see
+## [method hold_on].
+func _on_kart_painted(kart: Node3D) -> void:
+	if kart == _worn_by:
+		paint(Palette.player_color(_worn_by.color_index))
+
+
+## The flare and the ring in [param to], each as see-through as it was.
+func paint(to: Color) -> void:
+	color = to
+	for material: StandardMaterial3D in [_ring_material, _column_material]:
+		material.albedo_color = Color(to, material.albedo_color.a)
+		material.emission = to
 
 
 ## Whether a ring is held on [param kart] just now, from its flare until it has gone: the one ring

@@ -184,6 +184,7 @@ func _ready() -> void:
 	ItemTag.add_to(self)
 	CannonJamCue.add_to(self, match_node)
 	HudCovers.add_to(self)
+	CornerPaint.add_to(self)
 	Events.kart_corrected.connect(_on_corrected)
 	Events.grazed.connect(_on_grazed)
 	Events.mult_gained.connect(_on_mult_gained)
@@ -550,10 +551,7 @@ func _update_blocks() -> void:
 		pot.set_burning(match_node.is_running() and match_node.would_win(slot))
 		stats.text = "K %d · D %d" % [slot.kills, slot.deaths]
 		HudBlock.show_catch(block, kart, waiting)
-		var pips := HudBlock.fit_lives(block, slot, KartLives.most(kart))
-		for i: int in pips.size():
-			var lit := kart.alive and i < kart.lives
-			(pips[i] as Heart).color = slot.color() if lit else LIFE_LOST
+		HudBlock.show_lives(block, slot)
 		var nitro: NitroCells = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)

@@ -1780,7 +1780,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
   that moves them on to the next one nobody else in the room is in, since no two
   karts are ever the same color, teammates aside, 3.14, whose button is their team's. The name is the color's own in the palette
   worn, 8.5, not the one it stands in for: a white is White. The kart is painted over at once, body, marker, hat, flag, trail
-  and aim guide, and so are their corner of the HUD and the switch. A name is
+  and aim guide, and so are their corner of the HUD and the switch, and whatever else wears their
+  color: the ring held round their kart since it came back, 3.6, the drive hint over it, 3.8, the
+  rings under the karts, 8.5, their joker hand's button and a style stall's hint, 9.6, all while
+  the pause menu the color was picked in holds the game still (`Events.kart_painted`). A name is
   kept once they are done typing, in their seat's settings, where the Seats
   tab of 8.5 keeps it; emptied, the seat is handed a funny name again from the
   next match. A color goes on with them from room to room the way the one they

@@ -60,11 +60,12 @@ static func attach(target: Kart, for_device: int) -> ControlHint:
 	hint.name = "ControlHint"
 	hint.kart = target
 	hint.device = for_device
-	# Its player's own line, in their color.
-	InputGlyph.seat_under(hint, Palette.player_color(target.color_index))
 	target.add_child(hint)
-	# A method connection, not a lambda: it is dropped automatically when the hint is freed.
+	# Method connections, not lambdas: they are dropped automatically when the hint is freed. Its
+	# player's own line is in their color, and drawn again in another the moment it is painted one,
+	# the game paused for the menu it was picked in or not, GAME.md 4.4.
 	target.fired.connect(hint._on_fired)
+	Events.kart_painted.connect(hint._on_kart_painted)
 	hint._rebuild()
 	return hint
 
@@ -133,10 +134,17 @@ func _pedals() -> bool:
 func _exit_tree() -> void:
 	if kart != null and is_instance_valid(kart) and kart.fired.is_connected(_on_fired):
 		kart.fired.disconnect(_on_fired)
+	if Events.kart_painted.is_connected(_on_kart_painted):
+		Events.kart_painted.disconnect(_on_kart_painted)
 
 
 func _on_fired(_bullets: Array[Bullet]) -> void:
 	_fired = true
+
+
+func _on_kart_painted(painted: Node3D) -> void:
+	if painted == kart:
+		_rebuild()
 
 
 ## How big the hint is drawn, see [method ScreenHint.drawn_size].
@@ -144,17 +152,26 @@ func drawn_size() -> int:
 	return ScreenHint.drawn_size(get_tree() if is_inside_tree() else null)
 
 
+## The line drawn again where what it says, how big it is or its player's color has changed.
 func _rebuild() -> void:
 	var size := drawn_size()
 	var simple := _simple()
 	var pedals := _pedals()
-	var wanted := "%s|%d" % [stamp(device, simple, pedals), size]
+	var ink := _ink()
+	var wanted := "%s|%d|%s" % [stamp(device, simple, pedals), size, ink.to_html()]
 	if wanted == _shown:
 		return
 	_shown = wanted
 	if _row != null:
 		_row.queue_free()
+	InputGlyph.seat_under(self, ink)
 	_row = ScreenHint.hang(self, hint_row(device, size, simple, pedals), "Row")
+
+
+## The color of the player whose line it is: their kart's.
+func _ink() -> Color:
+	var color := kart.color_index if kart != null and is_instance_valid(kart) else 0
+	return Palette.player_color(color)
 
 
 func _process(delta: float) -> void:

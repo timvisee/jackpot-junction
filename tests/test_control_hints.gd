@@ -491,7 +491,7 @@ func test_the_kart_hint_grows_with_the_ui_scale() -> void:
 	hint._process(0.0)
 	var bigger := roundi(ScreenHint.FONT_SIZE * 1.5)
 	assert_int(hint.drawn_size()).is_equal(bigger)
-	assert_str(hint._shown).ends_with("|%d" % bigger)
+	assert_str(hint._shown).contains("|%d|" % bigger)
 	get_tree().root.content_scale_factor = 1.0
 
 

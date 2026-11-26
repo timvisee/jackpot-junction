@@ -399,6 +399,16 @@ static func fit_lives(block: Dictionary, slot: PlayerSlot, most: int) -> Array:
 	return pips.slice(0, mini(most, pips.size()))
 
 
+## [param slot]'s lives in [param block]: a heart in its color for each it has, see
+## [method fit_lives].
+static func show_lives(block: Dictionary, slot: PlayerSlot) -> void:
+	var kart := slot.kart
+	var pips := fit_lives(block, slot, KartLives.most(kart))
+	for i: int in pips.size():
+		var lit := kart.alive and i < kart.lives
+		(pips[i] as Heart).color = slot.color() if lit else MatchHud.LIFE_LOST
+
+
 static func _pip(row: Node, slot: PlayerSlot) -> Heart:
 	var pip := Heart.new()
 	pip.custom_minimum_size = Vector2(MatchHud.LIFE_SIZE, MatchHud.LIFE_SIZE)

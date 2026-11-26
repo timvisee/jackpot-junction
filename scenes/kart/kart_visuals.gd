@@ -304,8 +304,8 @@ static func _rebody(kart: Kart, body: Node3D) -> void:
 
 ## Paints [param kart] over in the player color [param color_index], for a player who has picked
 ## another in the lobby or the Garage, GAME.md 4.4: the body, darker while it is wounded, the roof
-## marker, the hat, the flag, the trail and the aim guide. Its shots are in whatever it is in when
-## they are fired.
+## marker, the hat, the flag, the trail and the aim guide; and says so for whatever else wears it,
+## see [signal Events.kart_painted]. Its shots are in whatever it is in when they are fired.
 static func recolor(kart: Kart, color_index: int) -> void:
 	kart.color_index = color_index
 	var color := Palette.player_color(color_index)
@@ -319,6 +319,7 @@ static func recolor(kart: Kart, color_index: int) -> void:
 		guide.paint(color)
 	TeamPennant.dress(kart.get_node_or_null("Body") as Node3D, kart.team)
 	redress(kart, kart.style)
+	Events.kart_painted.emit(kart)
 
 
 ## Every kart in [param match_node] painted over in the palette worn now, GAME.md 8.5, for a
