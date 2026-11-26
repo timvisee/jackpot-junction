@@ -48,8 +48,16 @@ jobs:
           PRIVATE_DEPLOY_KEY: ${{ secrets.PRIVATE_DEPLOY_KEY }}
         run: tools/private_assets --ci --optional
 
+      # Godot's import now and then hangs on one file for good, as in CI on 2026-11-18 (six hours,
+      # till GitHub stopped it) and 2026-11-26: cut off after five minutes and run once more, which
+      # carries on where it stopped. A second hang fails the step rather than the day. Godot is
+      # run itself rather than through make, so the kill reaches it: timeout sends its SIGKILL to
+      # its own child only. The music is linked already, which is all make adds.
       - name: Import
-        run: make import
+        timeout-minutes: 12
+        run: |
+          import_once() { timeout -k 30 300 "$GODOT" --headless --path . --import; }
+          import_once || import_once
 
       - name: Lint and format
         run: make lint format-check
@@ -98,8 +106,16 @@ jobs:
       - name: Expose Godot
         run: echo "GODOT=$HOME/godot/godot" >> "$GITHUB_ENV"
 
+      # Godot's import now and then hangs on one file for good, as in CI on 2026-11-18 (six hours,
+      # till GitHub stopped it) and 2026-11-26: cut off after five minutes and run once more, which
+      # carries on where it stopped. A second hang fails the step rather than the day. Godot is
+      # run itself rather than through make, so the kill reaches it: timeout sends its SIGKILL to
+      # its own child only. The music is linked already, which is all make adds.
       - name: Import
-        run: make import
+        timeout-minutes: 12
+        run: |
+          import_once() { timeout -k 30 300 "$GODOT" --headless --path . --import; }
+          import_once || import_once
 
       - name: No music here
         run: |

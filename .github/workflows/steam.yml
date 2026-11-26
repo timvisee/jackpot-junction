@@ -64,8 +64,15 @@ jobs:
         run: tools/private_assets --ci
 
       # GodotSteam, pinned and checked against its checksum, then the project imported to know it.
+      # Godot's import now and then hangs on one file for good, as in CI on 2026-11-18 and
+      # 2026-11-26: cut off after five minutes and run once more, see release.yml. What
+      # `make steam-addon` does, with Godot run itself so the kill reaches it.
       - name: GodotSteam
-        run: make steam-addon
+        timeout-minutes: 12
+        run: |
+          tools/steam_addon
+          import_once() { timeout -k 30 300 "$GODOT" --headless --path . --import; }
+          import_once || import_once
 
       # Every track there and looping as it should, before exporting.
       - name: Music
