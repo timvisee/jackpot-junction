@@ -304,10 +304,11 @@ static func _first_row(node: Node) -> Control:
 
 
 ## Done's bind, Back's key or button, drawn on it while keys or a pad are in hand; the tabs' on the
-## two kinds of game, see [method _tab_of], and the presets' on the one lit, see [method
-## _next_preset].
+## two kinds of game, see [method _tab_of], the presets' on the one lit, see [method
+## _next_preset], and the table's in the hint under the card the cursor is on.
 func _show_bind() -> void:
 	var shown := not _pointer
+	options.table_strip.show_bind(_keyboard, shown)
 	var picker := options.mode_picker
 	var tabs: Array[Button] = [picker.button(true), picker.button(false)]
 	ButtonBinds.show([_done], _keyboard, shown)

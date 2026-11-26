@@ -4,7 +4,8 @@ extends PanelContainer
 ## in capitals and its one line of what it does. The loading screen's tag naming a card new to the
 ## player, 8.6, NEW on a chip in the neon's magenta, and the hint over a card of the match
 ## settings' strip while it is under the mouse or the cursor, 9.6, which says when a sealed card
-## opens on a chip of gold and has no chip for the rest.
+## opens on a chip of gold and has no chip for the rest, and under the cursor with keys or a pad in
+## hand, the bind that turns the card over, see [method show_bind].
 
 enum Chip { NONE, NEW, SEALED }
 
@@ -17,6 +18,11 @@ var _chip: Label
 var _chip_look: StyleBoxFlat
 var _name: Label
 var _line: Label
+## The line saying what turns the card over, and what it was drawn for, so it is drawn again only
+## once that changes.
+var _bind: Control
+var _bind_row: Control
+var _bind_for := ""
 
 
 static func make() -> TableTag:
@@ -52,6 +58,12 @@ static func make() -> TableTag:
 	tag._line = Label.new()
 	Type.text(tag._line, Type.LABEL, HouseTheme.INK)
 	words.add_child(tag._line)
+	tag._bind = MarginContainer.new()
+	tag._bind.name = "Bind"
+	tag._bind.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tag._bind.add_theme_constant_override("margin_top", 4)
+	tag._bind.visible = false
+	words.add_child(tag._bind)
 	return tag
 
 
@@ -69,4 +81,26 @@ func show_card(card_in: int, chip: int) -> void:
 		_chip.text = " AFTER MAP %d " % TableCards.opens_after(card)
 		_chip_look.bg_color = SEALED_INK
 		Type.display(_chip, Type.LABEL, HouseTheme.ON_FOIL)
+	reset_size()
+
+
+## The accept button drawn before [param words], what it does to the card, for a keyboard or a pad
+## as [param keyboard] says, GAME.md 9.6; nothing for no words, or with nothing bound to it.
+func show_bind(keyboard: bool, words: String) -> void:
+	var stamp := "" if words.is_empty() else InputHint.stamp([&"ui_accept"], keyboard) + words
+	if stamp != _bind_for:
+		_bind_for = stamp
+		# The old line out of sight at once and gone at the frame's end, kept in the tree meanwhile.
+		if _bind_row != null:
+			_bind_row.visible = false
+			_bind_row.queue_free()
+			_bind_row = null
+		var glyph: InputGlyph = null
+		if not words.is_empty():
+			glyph = InputGlyph.of_action(&"ui_accept", keyboard, HouseTheme.INK, Type.LABEL)
+		if glyph != null:
+			_bind_row = InputHint.row("%s " + words, [glyph], HouseTheme.INK, Type.LABEL)
+			InputGlyph.look_under(_bind_row, GlyphArt.Look.DARK)
+			_bind.add_child(_bind_row)
+	_bind.visible = _bind_row != null
 	reset_size()

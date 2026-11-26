@@ -6,7 +6,9 @@ extends VBoxContainer
 ## grayed under a padlock with the map it opens after, and a press asks to open it early. Suits &
 ## hands are nothing without Jokers: turning them up turns Jokers up with them, and turning Jokers
 ## down turns them down. A card opened and not yet played wears NEW. With Roulette the cards face
-## up are the deck each map's are dealt from, and the strip says so over them.
+## up are the deck each map's are dealt from, and the strip says so over them. With keys or a pad in
+## hand, the hint under the card the cursor is on says which button turns it over, see
+## [method show_bind].
 
 ## A card was turned over: [member table] says what is on the table now.
 signal changed
@@ -46,6 +48,9 @@ var _locked := false
 var _tip: TableTag
 var _hovered := -1
 var _focused := -1
+## Whether keys or a pad are in hand rather than the mouse, and which, see [method show_bind].
+var _binds := not Game.last_input_pointer
+var _keyboard := Game.last_input_keyboard
 
 
 static func make() -> TableStrip:
@@ -159,6 +164,17 @@ func lock() -> void:
 		each.disabled = true
 
 
+## The bind that turns the card under the cursor over, drawn in its hint for a keyboard or a pad as
+## [param keyboard] says, or none while [param shown] is false, with the mouse in hand, whose
+## press is said over the cards.
+func show_bind(keyboard: bool, shown: bool) -> void:
+	if keyboard == _keyboard and shown == _binds:
+		return
+	_keyboard = keyboard
+	_binds = shown
+	_show_tip()
+
+
 ## The mouse, with [param mouse], or the cursor come onto [param card], [param on], or gone off it:
 ## the hint over whichever card it is now, the mouse's before the cursor's, GAME.md 9.6.
 func _point(card: int, mouse: bool, on: bool) -> void:
@@ -166,6 +182,13 @@ func _point(card: int, mouse: bool, on: bool) -> void:
 		_hovered = card if on else (-1 if _hovered == card else _hovered)
 	else:
 		_focused = card if on else (-1 if _focused == card else _focused)
+	_show_tip()
+
+
+## The hint over the card the mouse is on, or else the one the cursor is on, or none; under the
+## cursor, what turns the card over, see [method show_bind], or for a sealed card, what asks to
+## open it early.
+func _show_tip() -> void:
 	var over := _hovered if _hovered >= 0 else _focused
 	if over < 0 or _locked:
 		_tip.visible = false
@@ -177,6 +200,8 @@ func _point(card: int, mouse: bool, on: bool) -> void:
 	elif each.fresh:
 		chip = TableTag.Chip.NEW
 	_tip.show_card(over, chip)
+	var bound := _binds and over == _focused and _hovered < 0 and not TouchInput.enabled
+	_tip.show_bind(_keyboard, ("Open early" if each.sealed else "Turn over") if bound else "")
 	_tip.visible = true
 	_place_tip.call_deferred()
 

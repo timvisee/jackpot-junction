@@ -9018,7 +9018,9 @@ wears a NEW tag. The card under the mouse, or else the cursor, says what it is i
 under it, so the presets over the strip stay in easy reach, kept on the screen and over the card
 where there is no room below, the loading screen's tag of
 8.6 (`TableTag`): its name and its line, with NEW on its chip for a new card and AFTER MAP 5 for a
-sealed one, since the loading screen is often up too briefly to be read. A preset that turns cards
+sealed one, since the loading screen is often up too briefly to be read. Under the cursor, with keys
+or a pad in hand, the hint ends with the accept button and what it does there, "Turn over", or
+"Open early" on a sealed card; under the mouse the line over the cards says it. A preset that turns cards
 over turns them as a press does, one after another along the row, the next starting 0.06 s after
 the one before, a wave rather than all at once; the cards it leaves as they were stay still. With Roulette lit the strip is headed IN THE DECK, and says that power-ups and
 three of the rest are dealt each map; turning a card takes it out of the deck and Roulette stays

@@ -24,6 +24,8 @@ below, and hands the notes to the release workflow.
   its tab, and rumbles it. Tabs come and go as controllers are plugged in and out.
 - **Steam profiles in Manage players.** In a Steam game, Profile beside each player opens their
   Steam profile in Steam's overlay.
+- **The button that turns a table card over.** With the cursor on a card On the table in the match
+  settings, its hint shows the button that turns it over, or opens a sealed card early.
 
 ### Changed
 

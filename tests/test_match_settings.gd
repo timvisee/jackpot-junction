@@ -537,6 +537,42 @@ func test_a_card_says_what_it_is_under_the_cursor() -> void:
 	pane._panel.visible = false
 
 
+## Under the cursor with keys or a pad in hand, a card's hint says which button turns it over, or
+## for a sealed card asks to open it early, drawn for the device in hand, GAME.md 9.6; none for
+## the mouse, whose press the line over the cards says, nor for a card only under the mouse.
+func test_a_card_under_the_cursor_says_what_turns_it_over() -> void:
+	Game.settings.profile.stats[&"maps"] = 2.0
+	var pane := _pane()
+	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._fit()
+	await await_idle_frame()
+	var strip := pane.options.table_strip
+	var tip := strip._tip
+	strip.show_bind(true, true)
+	strip.button(TableCards.Card.JACKPOT).grab_focus()
+	await await_idle_frame()
+	assert_bool(tip._bind.visible).is_true()
+	assert_str(ScreenReader.words_in(tip._bind)).is_equal("Turn over")
+	var keys := tip._bind_row
+	assert_object(keys.find_children("*", "InputGlyph", true, false).front()).is_not_null()
+	strip.show_bind(false, true)
+	assert_bool(tip._bind.visible).is_true()
+	assert_object(tip._bind_row).is_not_same(keys)
+	strip.button(TableCards.Card.BOUNTY).grab_focus()
+	await await_idle_frame()
+	assert_str(ScreenReader.words_in(tip._bind)).is_equal("Open early")
+	# A card under the mouse says nothing of a button, nor any with the mouse in hand.
+	strip._point(TableCards.Card.ITEMS, true, true)
+	assert_int(tip.card).is_equal(TableCards.Card.ITEMS)
+	assert_bool(tip._bind.visible).is_false()
+	strip._point(TableCards.Card.ITEMS, true, false)
+	assert_bool(tip._bind.visible).is_true()
+	strip.show_bind(false, false)
+	assert_int(tip.card).is_equal(TableCards.Card.BOUNTY)
+	assert_bool(tip._bind.visible).is_false()
+	pane._panel.visible = false
+
+
 ## A preset turns the cards it changes over as a press would, one after another along the row, and
 ## leaves the rest still, GAME.md 9.6.
 func test_a_preset_turns_its_cards_in_a_wave() -> void:
