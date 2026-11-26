@@ -70,3 +70,24 @@ func test_the_pause_menu_dresses_the_kart_too() -> void:
 	assert_object(menu.get_node_or_null("KartDialog")).is_null()
 	assert_bool(menu.is_open()).is_true()
 	menu.set_paused(false)
+
+
+## Before a license, the plate's hook in a room's kart dialog asks too, GAME.md 4.4a, but going to
+## the driving school leaves the room: it says so, under the warning sign, the cursor on Not now.
+func test_the_school_from_a_room_says_it_leaves() -> void:
+	var room := await _open()
+	var menu: PauseMenu = room.get_node("PauseMenu")
+	menu.set_paused(true)
+	(menu.find_child("YourKart", true, false) as Button).pressed.emit()
+	await _runner.simulate_frames(2, 17)
+	var dialog := menu.get_node("KartDialog") as KartDialog
+	var schooled: Array[bool] = []
+	dialog.school.to_school = func() -> void: schooled.append(true)
+	dialog.hooks[KartStyle.FRAME].pressed.emit()
+	await _runner.simulate_frames(1, 17)
+	var question := dialog.school.question
+	assert_str(question.said()).contains(BaySchool.LINE_ROOM)
+	assert_bool(question.no_button().has_focus()).is_true()
+	question.yes_button().pressed.emit()
+	assert_array(schooled).is_equal([true])
+	menu.set_paused(false)

@@ -13,7 +13,8 @@ extends Button
 ## piece and the words on the tape are drawn here, and the hook picked out as the rack's places are,
 ## see [method PartTray.draw_place]: its tape gold and glowing and its outline lit while the cursor
 ## is on it or its rack is out, and in white while the mouse is over it. While its rack holds a
-## piece the dialog has not shown yet it wears the NEW tag, see [method set_fresh].
+## piece the dialog has not shown yet it wears the NEW tag, see [method set_fresh]. The plate's
+## waits for a license while the kart wears the learner's L, see [method wait_for_license].
 
 ## How long the shuffle's push button spins once pressed, its die's faces running down through it as
 ## a slot machine's reel does, see [method BoardArt.draw_push]: how many faces go by, how far into
@@ -34,6 +35,10 @@ const PICKED := &"part_hooks_picked"
 ## The hook's words: the name of the piece as big as fits the tape, and the finish under it.
 const WORDS_SIZE := 26
 const WORDS_LEAST := 14
+## What its tape says while its part waits for a license, and what is written under it, see
+## [method wait_for_license].
+const LEARNER := "Learner's L"
+const NO_LICENSE := "No license yet"
 
 ## Which part, in the order of [constant KartStyle.CHOICES], the card back after them, or the
 ## shuffle.
@@ -45,6 +50,8 @@ var finish_word := ""
 var lit := false
 ## Whether it wears the NEW tag, see [method set_fresh].
 var fresh := false
+## Whether its part waits for a license, see [method wait_for_license].
+var learner := false
 var picture: DressPicture
 ## The die's face on the shuffle's push button, and how far into a roll of it it is, or -1.
 var face := 5
@@ -57,6 +64,8 @@ var _pushed := 0.0
 var _reel := PackedInt32Array()
 var _rng := RandomNumberGenerator.new()
 var _tag: Control
+## The learner's L hanging in its outline while its part waits for a license.
+var _learner: Control
 
 
 static func make(part_of: int) -> PartHook:
@@ -108,11 +117,31 @@ func say(index: int, named: String, color: Color, finished: int) -> void:
 	_tell()
 
 
+## Has its part wait for a license, GAME.md 4.4a, [param on]: the plate's while the kart wears the
+## learner's L, the L hanging in its outline in place of a plate, as the bench has it where the
+## plate goes, see [method BayControls.learner_plate], and its tape saying so. Pressed, its rack
+## stays put away, and the dialog says where a license is had, see [BaySchool].
+func wait_for_license(on: bool) -> void:
+	learner = on
+	if on and _learner == null:
+		_learner = BayControls.learner_plate()
+		_learner.position = BoardArt.outline_of(part).get_center() - position - _learner.size * 0.5
+		add_child(_learner)
+	if _learner != null:
+		_learner.visible = on
+	if picture != null:
+		picture.visible = not on
+	queue_redraw()
+	_tell()
+
+
 ## Named for a screen reader: its part, and the piece worn in its finish as its tape says, after
 ## its NEW tag, or for the shuffle what its plate says it does.
 func _tell() -> void:
 	var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
 	var said := ScreenReader.line([tagged, worn, finish_word])
+	if learner:
+		said = ScreenReader.line([LEARNER, NO_LICENSE])
 	if part == BoardArt.SHUFFLE:
 		said = ScreenReader.spoken(BoardArt.SHUFFLE_SAYS)
 	ScreenReader.name(self, ScreenReader.spoken(BayArt.part_word(part)), said)
@@ -220,17 +249,20 @@ func _draw() -> void:
 		var tape := BoardArt.tape_of(part)
 		tape.position -= position
 		var face := BayArt.marker_font()
+		var words := LEARNER if learner else worn
+		var under := NO_LICENSE if learner else finish_word
 		var words_size := WORDS_SIZE
 		while (
-			BayArt.wide_of(worn, words_size, face) > tape.size.x - 16.0 and words_size > WORDS_LEAST
+			BayArt.wide_of(words, words_size, face) > tape.size.x - 16.0
+			and words_size > WORDS_LEAST
 		):
 			words_size -= 1
-		BayArt.words(self, tape.get_center(), worn, words_size, BayArt.MARKER, face)
-		if not finish_word.is_empty():
+		BayArt.words(self, tape.get_center(), words, words_size, BayArt.MARKER, face)
+		if not under.is_empty():
 			BayArt.left(
 				self,
 				Vector2(tape.position.x + 4.0, tape.end.y + 14.0),
-				finish_word.to_upper(),
+				under.to_upper(),
 				13,
 				Color(BoardArt.PAINT, 0.9),
 				Type.display_font()

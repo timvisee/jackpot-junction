@@ -137,9 +137,9 @@ func _process(_delta: float) -> void:
 
 
 ## Next new's bind, N or a pad's View, presses it from anywhere in the dialog, but while a box is
-## typed into, where it is a letter.
+## typed into, where it is a letter, or a question is up over the bay.
 func _unhandled_input(event: InputEvent) -> void:
-	if dialog.is_closing() or PlayerInput.typing or event.is_echo():
+	if dialog.is_closing() or dialog.school.is_asking() or PlayerInput.typing or event.is_echo():
 		return
 	if next_new.heard(event):
 		get_viewport().set_input_as_handled()

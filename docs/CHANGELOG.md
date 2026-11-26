@@ -52,6 +52,8 @@ below, and hands the notes to the release workflow.
 - **Vivid colors on your pad's light.** A DualSense's or DualShock's light shows your kart's color
   at full strength, where it used to glow nearly white.
 - **Manage players opens on Back.** The cursor no longer starts on the first player's Kick.
+- **No plate frames before a license.** While your kart wears the learner's L, the plate's hook in
+  the kart dialog shows the L, and pressing it offers the driving school instead of frames.
 
 ### Fixed
 

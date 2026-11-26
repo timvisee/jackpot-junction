@@ -156,22 +156,22 @@ func trying(style_now: KartStyle, part: int, index: int) -> KartStyle:
 
 
 ## Puts [param index] of [param part] on its kart and keeps it, see [method _put_on]. Nothing for
-## a piece it has not won.
+## a piece it has not won, nor of a part it may not change yet, see [method may_change].
 func wear(part: int, index: int) -> bool:
-	if not owns(part, index):
+	if not owns(part, index) or not may_change(part):
 		return false
 	_put_on(trying(style(), part, index).to_array(), part)
 	return true
 
 
 ## Puts [param values], a choice of each part, on its kart all at once and keeps them, as
-## [method wear] does a piece at a time, each in its finish; a part with a choice it has not won is
-## left as it was.
+## [method wear] does a piece at a time, each in its finish; a part with a choice it has not won, or
+## one it may not change yet, see [method may_change], is left as it was.
 func dress(values: PackedInt32Array) -> void:
 	var now := style().to_array()
 	now.resize(KartStyle.CHOICES.size())
 	for part: int in mini(values.size(), KartStyle.CHOICES.size()):
-		if owns(part, values[part]):
+		if owns(part, values[part]) and may_change(part):
 			now[part] = values[part]
 	var dressed := KartStyle.from_array(now)
 	for part: int in KartStyle.CHOICES.size():
@@ -234,7 +234,8 @@ static func piece_of(piece: String) -> Vector2i:
 
 ## The pieces it may wear that its program has won, or moved up a finish, since the kart dialog
 ## last showed them there, GAME.md 4.4a, each as its part and index: never one of everybody's, nor
-## a card back for a guest, who has none of its own.
+## a card back for a guest, who has none of its own, nor a plate frame while its kart wears the
+## learner's L, which are new once there is a license, see [method may_change].
 func new_pieces() -> Array[Vector2i]:
 	var found: Array[Vector2i] = []
 	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
@@ -242,6 +243,8 @@ func new_pieces() -> Array[Vector2i]:
 		var at := piece_of(piece)
 		var back := at.x == KartStyle.CHOICES.size()
 		if at.y <= 0 or piece not in dress or (back and not has_card_back()):
+			continue
+		if not may_change(at.x):
 			continue
 		if back or at.y not in KartStyle.EVERYBODY[at.x]:
 			found.append(at)
@@ -381,6 +384,19 @@ func has_plate() -> bool:
 ## What its kart wears on its back: "L" before a license, or the plate.
 func plate() -> String:
 	return "L" if profile.license_number.is_empty() else profile.license_plate
+
+
+## Whether its kart wears the learner's L, GAME.md 4.4: there is no license yet, its profile's or,
+## for a guest, the profile playing's.
+func is_learner() -> bool:
+	return plate() == "L"
+
+
+## Whether [param part] is its to change, GAME.md 4.4a: every part but the plate's frame while its
+## kart wears the learner's L, a sign rather than a plate, with no plate to frame until there is a
+## license.
+func may_change(part: int) -> bool:
+	return part != KartStyle.FRAME or not is_learner()
 
 
 ## Keeps [param typed] as its plate, cleaned, and puts it on every kart at this machine wearing it

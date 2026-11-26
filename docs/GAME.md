@@ -2041,6 +2041,19 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   on the kart, the hat's to the hat worn, upper middle, or the top of the driver's head
   with none, the body's to its nose by the front wheel nearer the camera, following the kart
   as it turns and drives; no other hook has one, so the bay is not a web of them.
+- **No plate before a license.** While the kart wears the learner's L, its owner's or for a
+  guest the profile playing's having no license, 4.4, the plate's hook waits for one: the L
+  hangs in its outline in place of a plate, as the bench has it where the plate goes, its tape
+  says Learner's L and under it NO LICENSE YET, and it wears no NEW. Pressed, it hangs out no
+  rack of frames, which would frame no plate: a question comes up over the bay, shaded behind,
+  Missing license, saying the kart wears the learner's L until the driving test is passed and
+  the license brings a plate of its own, with Earn it now, which goes to the driving school,
+  9.4a, as the License tab's does, and Not now, the cursor on Earn it now as the title's
+  question has it. In a room, which going leaves, it says so, under the warning sign, the
+  cursor on Not now. On the tab of a profile nobody here is playing as, whose license the
+  school would not earn, it only says that profile has none yet and to play as it to earn one,
+  with OK. Back, Escape or B puts the question away, the cursor back on the hook, and the
+  dialog's other keys wait for it. Once there is a license the hook is the plate's frame again.
 - **The shuffle.** Where the last hook on the right would be, a machine's plate rather than
   a hook, so it is never pressed for one: hazard stripes round dark steel, a big red push
   button in a yellow collar with a die's face on it, and SHUFFLE stenciled by it over PARTS
@@ -2048,8 +2061,9 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   goes down into its collar, its die's faces spinning down through it as a slot machine's
   reel does, round over the top and away under the bottom, drawn out by the speed, until it
   brakes, runs a little past one at random and settles back onto it; and it puts a piece of every part on the kart at random, of those
-  won and everybody's, a card back on a profile's, and a color nobody else in the room is
-  in, another than the one it was in, and keeps them. The option key, F or X,
+  won and everybody's, but the plate's frame while the kart wears the learner's L, a card back
+  on a profile's, and a color nobody else in the room is in, another than the one it was in,
+  and keeps them. The option key, F or X,
   presses it from anywhere in the dialog, and its button goes down and its die spins as for
   a click.
 - **The rack.** A hook pressed hangs the rack of its part over the bench, rising into its
@@ -2143,7 +2157,8 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   the cursor, the mouse or a finger has been on it, and a screen reader hears it said; the hook of
   its part wears one over its outline's outer top corner, away from its tape, while its rack holds
   one, and the key of whose kart it is over its top right corner, swung with it and faded with the
-  rail, while that kart has one, a guest's all but a card back, having none of its own. Next new,
+  rail, while that kart has one, a guest's all but a card back, having none of its own, and a
+  plate frame only once there is a plate for it, the frames won before it new as it comes. Next new,
   8.8, is a small plate of the Department's left of Back, in Back's make with its face pressed into
   it, saying how many are new on every tab, each profile's once: pressed, the cursor goes to the
   next new piece after where it is, the tab up's first, a hook at a time down the left board and

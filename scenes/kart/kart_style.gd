@@ -72,6 +72,8 @@ const BODIES: Array[String] = ["Racer", "Woodie", "Streamliner", "Microcar"]
 ## stalls leave it to the dialog, a finish never shows on it, and Dressed to the Nines does not
 ## count it, 8.10.
 const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS, BODIES]
+## The plate's frame's part, which a kart wearing the learner's L has no plate for, GAME.md 4.4.
+const FRAME := 4
 ## The body's part, the last of [constant CHOICES].
 const BODY := 6
 ## Each part as the loyalty program's landmarks name it, see [member LoyaltyLandmark.dress_part].

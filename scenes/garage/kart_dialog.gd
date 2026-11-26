@@ -21,7 +21,8 @@ extends CanvasLayer
 ## a color at random. The color is a spray can on the bench, tried on while the mouse or the cursor
 ## is on it and kept when pressed, a paint chip card by the cans saying which; the name is written
 ## on masking tape, or rolled on the die at its end, and the plate is typed straight onto the plate,
-## once there is a license for it.
+## once there is a license for it; until then the plate's hook waits for one too, and pressed says
+## where it is had, see [BaySchool].
 ##
 ## The kart turns by dragging it or by the right stick, which the binds over the bench's end show
 ## for the device in hand, sways where it stands when let go, and now and then does something
@@ -74,6 +75,8 @@ var plate_field: PlateField
 var plate_note: Label
 var back: Button
 var tray: PartTray
+## The way to the driving school from the plate's hook while the kart wears the learner's L.
+var school: BaySchool
 
 var _room: Match
 var _root: Control
@@ -240,6 +243,7 @@ func _ready() -> void:
 	_fit_screen()
 	show_owner(current)
 	BayNew.add_to(self, _stage_node)
+	school = BaySchool.add_to(self)
 	MenuTheme.deal(_pane)
 	_focus_first.call_deferred()
 	Input.joy_connection_changed.connect(_on_pad_plugged)
@@ -424,6 +428,7 @@ func _show_dress() -> void:
 	for part: int in KartStyle.CHOICES.size():
 		var index := worn[part]
 		hooks[part].say(index, choices_of(part)[index], color, _style.finish(part))
+	hooks[KartStyle.FRAME].wait_for_license(not owner_now.may_change(KartStyle.FRAME))
 	var back_now := owner_now.card_back()
 	hooks[CARD_BACK].say(back_now, CardBack.STYLES[back_now], color, 0)
 	stage.show_kart(_style, kart_color(), owner_now.plate())
@@ -461,10 +466,13 @@ func _show_plate() -> void:
 
 
 ## A hook pressed: its part's tray set down on the bench, or put back if it is out already; the
-## shuffle's puts a piece of every part on at random.
+## shuffle's puts a piece of every part on at random; and the plate's, waiting for a license, says
+## where it is had.
 func _on_hook(part: int) -> void:
 	if part == SHUFFLE:
 		shuffle()
+	elif not kart_owner().may_change(part):
+		school.ask(hooks[part])
 	else:
 		open_tray(part)
 
@@ -782,7 +790,7 @@ func _input(event: InputEvent) -> void:
 	if DialogBinds.moved_focus(event, get_viewport()):
 		get_viewport().set_input_as_handled()
 		return
-	if event.is_echo():
+	if event.is_echo() or school.is_asking():
 		return
 	if event.is_action_pressed(InputActions.MENU_PAGE_PREV):
 		switch_owner(-1)
@@ -797,13 +805,15 @@ func _input(event: InputEvent) -> void:
 	get_viewport().set_input_as_handled()
 
 
-## B on a pad, or Escape: the tray put back if it is out, and the dialog put away if not. Nothing
-## gets past it to the screen under it.
+## B on a pad, or Escape: the question put away if it is up, the tray put back if it is out, and
+## the dialog put away if not. Nothing gets past it to the screen under it.
 func _unhandled_input(event: InputEvent) -> void:
 	if _closing:
 		return
 	var viewport := get_viewport()
-	if event.is_action_pressed(&"ui_cancel"):
+	if event.is_action_pressed(&"ui_cancel") and school.is_asking():
+		school.put_away()
+	elif event.is_action_pressed(&"ui_cancel"):
 		MenuTheme.back_sound()
 		if open_part >= 0:
 			close_tray()
