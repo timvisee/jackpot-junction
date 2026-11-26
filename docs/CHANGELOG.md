@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.24.1] - 2026-11-26
+
+Button hints are drawn the way Steam draws them, the right stick scrolls every pane, and a die at
+the end of the table's cards deals a table at random. It plays with 0.24.0.
+
 ### Added
 
 - **Your buttons in your color.** The buttons drawn beside your kart and on your nitro line are in
@@ -99,7 +104,6 @@ below, and hands the notes to the release workflow.
 - **The cursor stays with your license.** With your license, loyalty card or Kit's folder held up,
   the arrows no longer move the cursor on the screen behind it, and the title's button hints at
   its edges are hidden until it's put away.
-
 ## [0.24.0] - 2026-11-24
 
 A new profile starts at a simpler table that the House adds a feature to after each map,
@@ -3031,7 +3035,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.24.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.24.1...HEAD
+[0.24.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.1
 [0.24.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.0
 [0.23.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.1
 [0.23.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.0
