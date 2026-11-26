@@ -103,6 +103,10 @@ func _build() -> void:
 		button.focus_exited.connect(func() -> void: _point(card, false, false))
 		row.add_child(button)
 		_cards.append(button)
+	# Across the row and no further: past either end the cursor stays on the card, where it would
+	# drop to whatever lies that way under the strip, a column's head.
+	_cards[0].focus_neighbor_left = NodePath(".")
+	_cards[-1].focus_neighbor_right = NodePath(".")
 	# Its own place over everything, so the rows' scroll does not cut it off at the pane's top.
 	_tip = TableTag.make()
 	_tip.name = "Hint"
@@ -311,14 +315,15 @@ class TableCardButton:
 				_back = drawn
 				queue_redraw()
 		)
-		resized.connect(func() -> void: pivot_offset = size * 0.5)
 		focus_entered.connect(queue_redraw)
 		focus_exited.connect(queue_redraw)
 		mouse_entered.connect(queue_redraw)
 		mouse_exited.connect(queue_redraw)
 
 	## Turns it over: narrowed to its edge, and the other side shown as it widens again, after
-	## [param wait] seconds, the side it showed shown till then.
+	## [param wait] seconds, the side it showed shown till then. Only what is drawn narrows: the
+	## card keeps its place and its size, so the cursor going on from it, or onto it, as it turns
+	## finds the card beside it rather than the row under the strip, and a click finds it whole.
 	func turn(wait := 0.0) -> void:
 		_turning = 1.0
 		_wait = wait
@@ -330,7 +335,6 @@ class TableCardButton:
 			_wait -= delta
 			return
 		_turning = maxf(_turning - delta / TableStrip.TURN, 0.0)
-		scale.x = absf(_turning * 2.0 - 1.0) if _turning > 0.0 else 1.0
 		if _turning <= 0.0:
 			set_process(false)
 		queue_redraw()
@@ -361,6 +365,12 @@ class TableCardButton:
 			TableCardArt.face(self, box, card)
 
 	func _draw() -> void:
+		# Narrowed about its middle as it turns over, see [method turn].
+		var across := absf(_turning * 2.0 - 1.0) if _turning > 0.0 else 1.0
+		if across < 1.0:
+			draw_set_transform(
+				Vector2(size.x * 0.5 * (1.0 - across), 0.0), 0.0, Vector2(across, 1.0)
+			)
 		var box := Rect2(Vector2.ZERO, size)
 		# Lifted a little under the cursor, the way a card is picked up.
 		if (has_focus() or is_hovered()) and not disabled:

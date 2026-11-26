@@ -593,6 +593,37 @@ func test_the_binds_hang_clear_of_the_row_under_them() -> void:
 	pane._panel.visible = false
 
 
+## The cursor walks the cards across their row however they turn, GAME.md 9.6: a card turning over
+## is narrowed as it is drawn and keeps its place and size, so across from it, or from beside it
+## onto it, is the card beside rather than a column's head under the strip; and past either end of
+## the row the cursor stays on the card.
+func test_the_cursor_walks_the_cards_as_they_turn() -> void:
+	var pane := _pane()
+	pane._panel.size = Vector2(1920.0, 1080.0)
+	pane._fit()
+	await await_idle_frame()
+	var strip := pane.options.table_strip
+	var jackpot := strip.button(TableCards.Card.JACKPOT)
+	var jokers := strip.button(TableCards.Card.JOKERS)
+	for turning: TableStrip.TableCardButton in [jackpot, jokers]:
+		jackpot.grab_focus()
+		# Halfway through its turn, where it is drawn at its narrowest.
+		turning.turn()
+		turning._turning = 0.5
+		turning._process(0.0)
+		assert_float(turning.scale.x).is_equal(1.0)
+		_press(&"ui_right")
+		assert_object(get_viewport().gui_get_focus_owner()).is_same(jokers)
+		turning._turning = 0.0
+	var first := strip.button(0)
+	var last := strip.button(TableCards.Card.size() - 1)
+	for end: Array in [[first, &"ui_left"], [last, &"ui_right"]]:
+		(end[0] as Control).grab_focus()
+		_press(end[1])
+		assert_object(get_viewport().gui_get_focus_owner()).is_same(end[0])
+	pane._panel.visible = false
+
+
 ## A preset turns the cards it changes over as a press would, one after another along the row, and
 ## leaves the rest still, GAME.md 9.6.
 func test_a_preset_turns_its_cards_in_a_wave() -> void:
