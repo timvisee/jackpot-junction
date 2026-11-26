@@ -4,9 +4,11 @@ extends RefCounted
 ## card's own picture in its middle and its name under it in ink. The same face in the match
 ## settings, on the payout slip's coupon and on the loading screen, 8.6.
 
-## How a card stands, a playing card's own proportions, and how round its corners are.
+## How a card stands, a playing card's own proportions, how round its corners are, and how wide
+## the line round its edge.
 const ASPECT := 1.4
 const CORNER := 0.09
+const EDGE := 1.0
 ## How much of a card's width its picture takes, and how far down the card it starts.
 const PICTURE := 0.64
 const PICTURE_TOP := 0.11
@@ -26,7 +28,7 @@ static func face(on: CanvasItem, box: Rect2, card: int, dim := false) -> void:
 		_paper = StyleBoxFlat.new()
 		_paper.bg_color = HouseTheme.PAPER
 		_paper.border_color = HouseTheme.PAPER_LOW
-		_paper.set_border_width_all(1)
+		_paper.set_border_width_all(roundi(EDGE))
 		_paper.anti_aliasing = true
 	_paper.set_corner_radius_all(roundi(box.size.x * CORNER))
 	on.draw_style_box(_paper, box)
@@ -73,12 +75,10 @@ static func sealed(on: CanvasItem, box: Rect2, card: int) -> void:
 	IconShapes.arc(on, lock, 0.5, 0.42, 0.26, 180.0, 360.0, HouseTheme.INK)
 	IconShapes.bar(on, lock, 0.14, 0.4, 0.72, 0.56, HouseTheme.INK)
 	IconShapes.disc(on, lock, 0.5, 0.64, 0.08, Palette.CHIP_GOLD)
-	var tall := box.size.y * 0.14
-	var band := Rect2(
-		Vector2(box.position.x, box.end.y - tall - box.size.y * 0.04), Vector2(box.size.x, tall)
-	)
-	on.draw_rect(band, Palette.CHIP_GOLD)
-	var size := roundi(tall * 0.7)
+	var band := band_of(box)
+	for piece: PackedVector2Array in band_shape(box):
+		on.draw_colored_polygon(piece, Palette.CHIP_GOLD)
+	var size := roundi(band.size.y * 0.7)
 	on.draw_string(
 		Type.display_font(),
 		Vector2(band.position.x, band.get_center().y + size * Type.CAP_HEIGHT * 0.5),
@@ -88,6 +88,31 @@ static func sealed(on: CanvasItem, box: Rect2, card: int) -> void:
 		size,
 		HouseTheme.ON_FOIL
 	)
+
+
+## Where a sealed card's gold band lies across [param box], see [method sealed].
+static func band_of(box: Rect2) -> Rect2:
+	var tall := box.size.y * 0.14
+	return Rect2(
+		Vector2(box.position.x, box.end.y - tall - box.size.y * 0.04), Vector2(box.size.x, tall)
+	)
+
+
+## A sealed card's gold band in [param box] as drawn: cut to the card's own shape inside its edge,
+## so its ends follow the rounded corners and the edge goes on round them, rather than the band
+## standing out past the card.
+static func band_shape(box: Rect2) -> Array[PackedVector2Array]:
+	var band := band_of(box)
+	var inside := FeltArt.rounded(box.grow(-EDGE), roundi(box.size.x * CORNER) - EDGE)
+	var across := PackedVector2Array(
+		[
+			band.position,
+			Vector2(band.end.x, band.position.y),
+			band.end,
+			Vector2(band.position.x, band.end.y)
+		]
+	)
+	return Geometry2D.intersect_polygons(inside, across)
 
 
 ## [param named] broken into two lines at the space nearest its middle.

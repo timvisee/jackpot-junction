@@ -79,6 +79,8 @@ below, and hands the notes to the release workflow.
 - **Walking down a settings page in one column.** Under a big UI scale, as on a television, the
   cursor moves on from Driving to Fighting, and from one group to the next on the Video and
   Accessibility pages.
+- **The AFTER MAP band inside its card.** A sealed card's gold band keeps inside the card's edge
+  and follows its rounded corners, where its ends stood out past them.
 - **The cursor stays on the cards On the table.** Across from a card turning over, or past either
   end of the row, the cursor no longer drops to the columns under it.
 - **Buttons hung under buttons show whole.** The button drawn under Back in the loyalty program,
