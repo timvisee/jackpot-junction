@@ -5221,17 +5221,29 @@ inside the game, so nothing here ever does; Steam asks players itself after a fe
 
 | Step | What | State |
 |------|------|-------|
-| L1 | The AI disclosure rewritten to say exactly what AI made, on Steam and itch.io | Open |
-| L2 | Windows: CI starts the exported Windows build, and a person plays it once | Open |
-| L3 | Public Steam lobbies, listed in Play Online beside friends' games | Open |
-| L4 | Quick Play: a public game with a free seat, or a new one with bots in the empty seats | Open |
-| L5 | A first start to try: the invitation, then a three-minute match with prompts, the school offered after, the license asked once; kept or dropped after the user plays it | Open |
-| L6 | The game's text made translatable, a font for Chinese; Simplified Chinese by a human translator for the launch | Open |
-| L7 | More Ovani music, and one new map layout before the launch; more layouts in the first month | Open |
+| L1 | The AI disclosure rewritten to say exactly what AI made, on Steam and itch.io: the code and text by AI, the art drawn by that code, no image, voice or music generators | Open: wording not settled |
+| L2 | Windows: CI starts the exported Windows build, and the user plays it on a Windows PC once (it ran under Proton on Linux) | Open |
+| L3 | Public Steam lobbies, listed in Play Online beside friends' games; defaults, UI and managing players planned with the user first | Open: plan first |
+| L4 | Quick Play: a public game with a free seat, or a new one with bots in the empty seats | Open: plan first, with L3 |
+| L5 | A first start to try: the invitation, then a three-minute match with prompts, the school offered after, the license asked once; kept or dropped after the user plays it; on its own branch, tried from a fresh profile | Open |
+| L6 | The game's text made translatable (gettext PO), a font for Chinese; Simplified Chinese by a human translator for the launch; done in the user's localize session | Open |
+| L7 | More Ovani music: the seven unused tracks of Electronic Vol. 8 auditioned by the user first; one new map layout before the launch; more layouts in the first month | Open |
 | L8 | A host leaving mid-match tried online; Report a bug in the pause menu | Open |
 | L9 | M23 T10, the play-test round | Open |
-| L10 | Store page public by mid-December, an open Playtest till early February, the Next Fest demo (February 22 to March 1, register by January 10), the launch in March | Open |
+| L10 | Store page public by mid-December, an open Playtest till early February, the Next Fest demo (February 22 to March 1, register by January 10), the launch in March. The Playtest and the demo are apps of their own, built without the supporter pack (no purchases in a Playtest); the demo is the whole game | Open |
 | L11 | The supporter pack live at the launch | Open |
+
+Steamworks, the user's:
+- [ ] Remove Racing from the genres and the tags (the docs dropped it in f3758a0e).
+- [ ] Create the Playtest app and the demo app; their ids go to the L10 builds.
+- [ ] Submit the store page for review in the first week of December, with the trailer and the
+      AI note; the Playtest's open signup and Next Fest both need it public.
+- [ ] Playtest keys can go out before the page is public, for a closed round first.
+- [ ] Register for Next Fest from the base game by January 10.
+- [ ] Submit the demo build and its store assets by January 18 (live for the press preview), or by
+      February 1 at the latest.
+- [ ] Close the Playtest before February 22; Valve advises against both live during Next Fest.
+- [ ] Set the demo live before 10:00 PST on February 22.
 
 ## Pending
 
