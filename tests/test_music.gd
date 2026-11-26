@@ -14,6 +14,7 @@ func before_test() -> void:
 
 
 func after_test() -> void:
+	Audio.music_dir = Audio.MUSIC_DIR
 	Audio.set_track(0)
 	Audio.set_excitement(1, 0.0)
 	Audio.set_layer(Audio.LAYER_CALM)
@@ -24,18 +25,39 @@ func after_test() -> void:
 	Audio._hush = 0.0
 
 
+## Whether there is music to check: none in a checkout without the licensed tracks, which live in
+## a private repository, see tools/private_assets, unless JJ_MUSIC=required says it must be there,
+## as on GitHub.
+static func _music_to_check() -> bool:
+	return _music_required() or not Audio.tracks_here().is_empty()
+
+
+static func _music_required() -> bool:
+	return OS.get_environment("JJ_MUSIC") == "required"
+
+
 ## Every track has all three intensities, they loop, and each is a whole number of bars long at
 ## the tempo it was measured at, which is what makes the loop seamless and the beat readable.
-func test_every_track_loops_as_three_layers_of_a_whole_number_of_bars() -> void:
+func test_every_track_loops_as_three_layers_of_a_whole_number_of_bars(
+	_do_skip := not _music_to_check(), _skip_reason := "no music in this checkout"
+) -> void:
 	assert_int(Audio.TRACKS.size()).is_equal(3)
 	for i: int in Audio.TRACKS.size():
+		if not _music_required() and not Audio.has_track(i):
+			continue
 		Audio.set_track(i)
 		var folder: String = Audio.MUSIC_DIR + String(Audio.TRACKS[i]["id"]) + "/"
 		assert_bool(FileAccess.file_exists(folder + "LICENSE.txt")).is_true()
 		var length := 0.0
 		for layer: StringName in Audio.LAYER_FILES:
 			var stream: AudioStream = Audio._music_stream(layer)
-			assert_object(stream).override_failure_message("missing layer %s" % layer).is_not_null()
+			(
+				assert_object(stream)
+				. override_failure_message("%s has no layer %s" % [folder, layer])
+				. is_not_null()
+			)
+			if stream == null:
+				continue
 			assert_str(stream.resource_path).contains(folder)
 			assert_bool((stream as AudioStreamOggVorbis).loop).is_true()
 			if length == 0.0:
@@ -49,6 +71,36 @@ func test_every_track_loops_as_three_layers_of_a_whole_number_of_bars() -> void:
 			. is_equal_approx(roundf(beats), 0.02)
 		)
 		assert_int(roundi(beats) % Audio.BEATS_PER_BAR).is_equal(0)
+
+
+## A checkout without the licensed music, tools/private_assets: nothing plays and nothing fails. The
+## layers still follow the match and hand the level over, a record is still rolled for its tempo,
+## and the beat keeps time on its own clock, so the room dances all the same.
+func test_without_the_music_nothing_plays_and_the_beat_goes_on() -> void:
+	Audio.music_dir = "res://tests/no_music_here/"
+	assert_array(Audio.tracks_here()).is_empty()
+	assert_bool(Audio.has_music_by("Ovani Sound")).is_false()
+	assert_object(Audio._music_stream(Audio.LAYER_CALM)).is_null()
+	Audio.pick_track()
+	assert_int(Audio.track).is_between(0, Audio.TRACKS.size() - 1)
+	Audio.play_music()
+	Audio.set_excitement(4, 0.6)
+	assert_str(Audio.current_layer).is_equal("tense")
+	Audio.set_excitement(6, 1.0)
+	assert_str(Audio.current_layer).is_equal("peak")
+	assert_str(Audio.music_debug()).contains("music peak L6")
+	# Past the crossfade; the levels wind down meanwhile with nothing refreshing them, which is one
+	# more handover.
+	await await_millis(int(Audio.CROSSFADE_SECONDS * 1000.0) + 200)
+	var players: Array[AudioStreamPlayer] = Audio._music_players
+	assert_float(players[Audio._active_player].volume_linear).is_equal_approx(1.0, 0.001)
+	assert_float(players[1 - Audio._active_player].volume_linear).is_equal_approx(0.0, 0.001)
+	for player: AudioStreamPlayer in players:
+		assert_bool(player.playing).is_false()
+		assert_object(player.stream).is_null()
+	var beats := Audio._beats()
+	await await_millis(300)
+	assert_float(Audio._beats()).is_greater(beats + 0.3)
 
 
 ## The tempo is the track's own: they were written at three different ones, so a single number

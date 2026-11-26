@@ -11,8 +11,9 @@ const STEAM := "https://store.steampowered.com/app/5652730"
 const ITCH := "https://timvisee.itch.io/jackpot-junction"
 ## The models that made it, in the order they worked on it, all of them Anthropic's.
 const MODELS: Array[String] = ["Claude Fable 5.1", "Claude Opus 5", "Claude Opus 5.5"]
-## What the game is built with and from: what it is, who made it, on what terms, and where; and for
-## what only a Steam build has in it, GAME.md 10.8, `steam`.
+## What the game is built with and from: what it is, who made it, on what terms, and where; for
+## what only a Steam build has in it, GAME.md 10.8, `steam`; and for music, which a build from the
+## public repository alone does not have, see [constant Audio.TRACKS], `music`.
 const THINGS: Array[Dictionary] = [
 	{
 		"what": "Godot Engine",
@@ -31,6 +32,7 @@ const THINGS: Array[Dictionary] = [
 		"who": "Ovani Sound",
 		"terms": "Ovani Sound license",
 		"where": "ovanisound.com",
+		"music": true,
 	},
 	{
 		"what": "Racing Sound Pack",
@@ -141,13 +143,16 @@ const THINGS: Array[Dictionary] = [
 
 
 ## What this build is made with: all of [constant THINGS] but what only a Steam build has, unless
-## this is one, carrying GodotSteam.
+## this is one, carrying GodotSteam, and but music whose files this build does not have.
 static func in_this_build() -> Array[Dictionary]:
 	var steam := Engine.has_singleton(Store.SINGLETON)
 	var things: Array[Dictionary] = []
 	for thing: Dictionary in THINGS:
-		if steam or not thing.get("steam", false):
-			things.append(thing)
+		if thing.get("steam", false) and not steam:
+			continue
+		if thing.get("music", false) and not Audio.has_music_by(thing["who"]):
+			continue
+		things.append(thing)
 	return things
 
 

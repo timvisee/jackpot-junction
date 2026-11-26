@@ -5,6 +5,10 @@ extends GdUnitTestSuite
 const SETTINGS_SCENE := preload("res://scenes/ui/settings_screen.tscn")
 
 
+func after_test() -> void:
+	Audio.music_dir = Audio.MUSIC_DIR
+
+
 func test_the_about_page_says_what_it_is_and_who_made_it() -> void:
 	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
 	add_child(screen)
@@ -59,6 +63,24 @@ func test_steam_is_credited_where_it_is_in_the_build() -> void:
 		func(thing: Dictionary) -> bool: return thing["what"].begins_with("GodotSteam")
 	)
 	assert_bool(godotsteam).is_equal(steam)
+
+
+## Music is credited only where it is in the build: the licensed tracks live in a private
+## repository, see tools/private_assets, and a build from the public one alone has none.
+func test_music_is_credited_only_where_it_is_in_the_build() -> void:
+	var ovani := func() -> bool:
+		return Credits.in_this_build().any(
+			func(thing: Dictionary) -> bool: return thing["who"] == "Ovani Sound"
+		)
+	assert_bool(ovani.call()).is_equal(not Audio.tracks_here().is_empty())
+	Audio.music_dir = "res://tests/no_music_here/"
+	assert_bool(ovani.call()).is_false()
+	Audio.music_dir = Audio.MUSIC_DIR
+	# Everything else stays.
+	var cascadia := Credits.in_this_build().any(
+		func(thing: Dictionary) -> bool: return thing["who"] == "Cascadia Games"
+	)
+	assert_bool(cascadia).is_true()
 
 
 func test_the_models_read_as_a_sentence() -> void:

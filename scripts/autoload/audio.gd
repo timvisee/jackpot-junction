@@ -12,14 +12,16 @@ const SHOCK_HOLD := 0.55
 const AUDIO_DIR := "res://assets/audio/"
 const SFX_DIR := AUDIO_DIR + "sfx/"
 const MUSIC_DIR := "res://assets/audio/music/"
-## The music the game has, GAME.md 8.4. One folder of three intensities each, and the tempo each
-## was written at, which everything that moves on the beat is driven from. Measured off the loop
-## rather than guessed: each is an exact number of bars long, so the tempo is the beat count over
-## the length.
+## The music the game has, GAME.md 8.4. One folder of three intensities each, the tempo each was
+## written at, which everything that moves on the beat is driven from, and who made it, which the
+## About page credits only while their music is in the build. Measured off the loop rather than
+## guessed: each is an exact number of bars long, so the tempo is the beat count over the length.
+## Licensed music is not in the public repository, but in a private one that tools/private_assets
+## links in: a checkout without it plays no music, and nothing else changes.
 const TRACKS: Array[Dictionary] = [
-	{"id": "deceased_rodent", "bpm": 120.0},
-	{"id": "ginger_bread", "bpm": 128.0},
-	{"id": "let_it_breathe", "bpm": 136.0},
+	{"id": "deceased_rodent", "bpm": 120.0, "by": "Ovani Sound"},
+	{"id": "ginger_bread", "bpm": 128.0, "by": "Ovani Sound"},
+	{"id": "let_it_breathe", "bpm": 136.0, "by": "Ovani Sound"},
 ]
 const LAYER_CALM := &"calm"
 const LAYER_TENSE := &"tense"
@@ -94,6 +96,9 @@ const AHEAD_HOLD_MSEC := 1500
 const LIBRARY: Dictionary[StringName, Array] = SoundLibrary.EFFECTS
 
 var music_enabled := true
+## Where the track folders are, [constant MUSIC_DIR]; a test points it at an empty folder to play a
+## checkout without the music.
+var music_dir := MUSIC_DIR
 ## The intensity playing or fading in right now.
 var current_layer := LAYER_CALM
 ## Which of [constant TRACKS] is playing. Picked afresh at the start of every match, GAME.md 8.4.
@@ -171,6 +176,8 @@ func _ready() -> void:
 	# opens.
 	_held = OpeningInvitation.due(Game.settings.profile)
 	if not Game.is_headless():
+		if tracks_here().is_empty():
+			print("No music: the licensed tracks are not in the public repository, see README.md")
 		play_music()
 
 
@@ -491,11 +498,11 @@ func set_layer(layer: StringName) -> void:
 	var from := _music_players[_active_player]
 	var to := _music_players[1 - _active_player]
 	_active_player = 1 - _active_player
+	# With no file for it, in a checkout without the music, the level is still handed over below, so
+	# the two players sum to one just as they would with it.
 	to.stream = _music_stream(layer)
-	if to.stream == null:
-		return
 	var position := 0.0
-	if from.playing:
+	if from.playing and to.stream != null:
 		# Where the old player will be when the new one first mixes, so both stay in phase.
 		position = (
 			from.get_playback_position()
@@ -508,7 +515,8 @@ func set_layer(layer: StringName) -> void:
 		# so the two players always sum to one whatever happened before.
 		from.volume_linear = 0.0
 	to.volume_linear = 0.0 if from.playing else 1.0
-	if music_enabled and not _held and (from.playing or not Game.is_headless()):
+	var can_play := to.stream != null and music_enabled and not _held
+	if can_play and (from.playing or not Game.is_headless()):
 		to.play(position)
 	if _music_tween != null and _music_tween.is_valid():
 		_music_tween.kill()
@@ -548,9 +556,37 @@ func bpm() -> float:
 ## Picks one of the tracks at random and starts it from the top, GAME.md 8.4. Called as a match
 ## is built, so a run of them is not the same loop over and over. Its own roll rather than the
 ## match's: which record is on is a thing about this machine, not about the simulation, and
-## online every machine chooses for itself.
+## online every machine chooses for itself. Only among the tracks this build has; with none of
+## them, among all, so the room still dances to one of their tempos.
 func pick_track() -> void:
-	set_track(_rng.randi_range(0, TRACKS.size() - 1))
+	var here := tracks_here()
+	if here.is_empty():
+		set_track(_rng.randi_range(0, TRACKS.size() - 1))
+	else:
+		set_track(here[_rng.randi_range(0, here.size() - 1)])
+
+
+## Which of [constant TRACKS] this build has, every layer of them, by index.
+func tracks_here() -> Array[int]:
+	var here: Array[int] = []
+	for i: int in TRACKS.size():
+		if has_track(i):
+			here.append(i)
+	return here
+
+
+## Whether this build has every layer of [constant TRACKS] at [param index]: a checkout without the
+## licensed music has none of them, see tools/private_assets.
+func has_track(index: int) -> bool:
+	for layer: StringName in LAYER_FILES:
+		if not ResourceLoader.exists(_music_path(index, layer)):
+			return false
+	return true
+
+
+## Whether any track [param maker] made is in this build, for the About page's credits.
+func has_music_by(maker: String) -> bool:
+	return tracks_here().any(func(i: int) -> bool: return TRACKS[i]["by"] == maker)
 
 
 ## Puts a different record on, from the top. Nothing is crossfaded: the three layers of one track
@@ -572,8 +608,12 @@ func set_track(index: int) -> void:
 		play_music()
 
 
+func _music_path(index: int, layer: StringName) -> String:
+	return music_dir + String(TRACKS[index]["id"]) + "/" + LAYER_FILES[layer]
+
+
 func _music_stream(layer: StringName) -> AudioStream:
-	var path := MUSIC_DIR + String(TRACKS[track]["id"]) + "/" + LAYER_FILES[layer]
+	var path := _music_path(track, layer)
 	if Game.serving or not ResourceLoader.exists(path):
 		return null
 	var stream := load(path) as AudioStream

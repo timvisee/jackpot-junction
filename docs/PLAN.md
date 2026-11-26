@@ -5323,7 +5323,7 @@ How it fits together:
 | Step | What | State |
 |------|------|-------|
 | P1 | The private repository, its first commit the music as master has it (OGGs, `.import`, `LICENSE.txt`) and a README; the deploy key and the secret | Done: b99ccd0 there, key "jackpot-junction CI (read-only)", `PRIVATE_DEPLOY_KEY` here |
-| P2 | The game without the music, the About page's Ovani line only with their music, and the tests | Open |
+| P2 | The game without the music, the About page's Ovani line only with their music, and the tests | Done |
 | P3 | `tools/private_assets`, `make private-assets`, the link made by `make import` when the checkout is there, DEVELOPMENT.md | Open |
 | P4 | The music out: `git rm`, `.gitignore`, THIRD_PARTY.md, README, GAME.md 8.4, tools/trailer | Open |
 | P5 | The workflows: Licensed music in all three, Without the music in ci.yml, Music in the builds in release.yml and steam.yml, GAME.md 10.5 | Open |

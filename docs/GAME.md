@@ -5307,7 +5307,10 @@ Steam.
   crossfade, and the roll is each machine's own: online everybody hears their own
   record. Everything that moves on the beat -- the booth's speakers, the crowd,
   the disco lights, the camera's tremble -- reads the tempo of whatever is
-  playing, since the three were written at three different ones.
+  playing, since the three were written at three different ones. The roll is
+  among the tracks the build has. Licensed music is not in the public repository,
+  10.6, so a build from it alone has none: nothing plays, nothing else changes,
+  and the room dances on to one of the tempos on a clock of its own.
 - **Excitement meter**: underneath everything is one meter from 0 to 1. Heat
   comes from things that just happened and fades over a few seconds: a kill
   0.30, a wound 0.14, a bomb 0.14, a cash-out 0.10, a Royal Flush 0.22, a graze
@@ -5936,7 +5939,8 @@ from a section's button low in its box was the one beside it.
   would have made, and put their name on it.", which says in the story's terms what
   it always said, for everybody and whether the story of 8.7 is on or off, being true
   either way, STORY.md 3.11. Then everybody else whose
-  work is in it, what, by whom, on what terms and where, which a test holds to
+  work is in it, what, by whom, on what terms and where; music only in a build that
+  has it, 8.4, as GodotSteam only in a Steam build. A test holds them to
   THIRD_PARTY.md, links to the game's pages on Steam and itch.io to get it from and one to
   its source on GitHub, and Godot's own license, which a game made with it has to carry.
 - **Story**, in a debug build only, last: where the profile playing is in the story of 8.7,
