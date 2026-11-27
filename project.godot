@@ -61,6 +61,7 @@ sensors/enable_gravity=true
 
 [internationalization]
 
+locale/include_text_server_data=true
 locale/translations=PackedStringArray("res://data/locale/nl.po")
 
 [layer_names]

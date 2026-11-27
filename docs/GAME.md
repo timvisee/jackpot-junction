@@ -11813,6 +11813,12 @@ How a word is marked, so the template finds it and the language spoken shows it 
 - **Pictures drawn once.** A picture with words in it kept from one scene to the next is kept by
   `Lang.current` as well, so another language draws it again.
 
+Chinese is written without spaces, so a line of it may break between any two characters, though
+never before a closing mark nor after an opening one. The engine finds those places with its text
+server's data, which the editor carries built in and an exported game takes along only with the
+project's `internationalization/locale/include_text_server_data` on, 4.8 MB of it: without it a
+line breaks at its spaces alone.
+
 Words drawn into a picture by the art tools, the House rail's microprint and Kit's chalkboard, are
 marked with `_()` in the tool as gettext's tools mark them, and `make strings` reads them with the
 rest. The tool draws its picture again as `<name>.<locale>.png` for every language that translates

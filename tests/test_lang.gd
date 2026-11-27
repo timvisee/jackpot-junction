@@ -177,3 +177,14 @@ func test_a_picture_with_words_is_the_one_for_the_language_spoken() -> void:
 	assert_str(Lang.picture(HouseRail.PRINT).resource_path).ends_with("rail_print.png")
 	Lang.apply("zh_CN")
 	assert_str(Lang.picture(WorkbenchStyle.SLATE).resource_path).ends_with("kit_chalkboard.png")
+
+
+## An exported game breaks a line of Chinese only with the text server's data for it, which the
+## editor carries built in and an export takes along only with this setting: without it a line
+## breaks at its spaces alone, and Chinese has none.
+func test_an_exported_game_carries_what_breaks_a_line_of_chinese() -> void:
+	var setting := "internationalization/locale/include_text_server_data"  # NO_TRANSLATE
+	assert_bool(ProjectSettings.get_setting(setting, false)).is_true()
+	var server := TextServerManager.get_primary_interface()
+	assert_bool(server.has_feature(TextServer.FEATURE_BREAK_ITERATORS)).is_true()
+	assert_str(server.get_support_data_filename()).is_equal("icudt_godot.dat")
