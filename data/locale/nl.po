@@ -5396,7 +5396,7 @@ msgstr "Alleen op uitnodiging"
 msgid "Who can join changes for the next to come. Nobody already here is shown out."
 msgstr "Wie mag meedoen, verandert voor wie hierna komt. Niemand die er al is, wordt de deur gewezen."
 
-#. Engraved round the game's seal in capitals, as a banknote's fine print is.
+#. Engraved round the game's seal in capitals, as a banknote's fine print is. The game's name comes first, up to the first "  ·  ", and is set over the top: keep the dots.
 #: scenes/ui/logo_art.gd
 msgid "JACKPOT JUNCTION  ·  DEPT. OF KARTS  ·  LICENSED ON EVERY TABLE  ·  "
 msgstr "JACKPOT JUNCTION  ·  AFD. KARTS  ·  TOEGELATEN AAN ELKE TAFEL  ·  "

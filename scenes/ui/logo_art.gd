@@ -23,8 +23,11 @@ const BAND := 0.83
 const BAND_WIDE := 0.14
 const SEAL_CHIP := 0.65
 ## What runs round the ring of ink, shown through tr(), and how big, against the seal's radius.
-# TRANSLATORS: Engraved round the game's seal in capitals, as a banknote's fine print is.
+# TRANSLATORS: Engraved round the game's seal in capitals, as a banknote's fine print is. The
+# game's name comes first, up to the first "  ·  ", and is set over the top: keep the dots.
 const FINE_PRINT := "JACKPOT JUNCTION  ·  DEPT. OF KARTS  ·  LICENSED ON EVERY TABLE  ·  "
+## What parts the fine print's pieces, the game's name the piece before the first.
+const FINE_APART := "  ·  "
 const FINE_SIZE := 0.095
 ## The foil chip, as shares of its radius: the roads, the notches round its rim, three to each
 ## quarter, the lane lines, and the pot on the crossing.
@@ -184,9 +187,10 @@ func _draw_fine_print(middle: Vector2, r: float) -> void:
 		wide += advance
 	var round_by := TAU * r * BAND
 	var extra := (round_by - wide) / float(fine_print.length())
-	# The game's name centered over the top.
+	# The game's name, in the language spoken, centered over the top.
 	var along := 0.0
-	for i: int in "JACKPOT JUNCTION".length():
+	var named := fine_print.find(FINE_APART)
+	for i: int in named if named > 0 else fine_print.length():
 		along -= (advances[i] + extra) * 0.5
 	var baseline := r * BAND - float(font_size) * Type.CAP_HEIGHT * 0.5
 	var ink := Color(HouseTheme.FOIL, 0.9)

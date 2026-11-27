@@ -5385,7 +5385,7 @@ msgstr ""
 msgid "Who can join changes for the next to come. Nobody already here is shown out."
 msgstr ""
 
-#. Engraved round the game's seal in capitals, as a banknote's fine print is.
+#. Engraved round the game's seal in capitals, as a banknote's fine print is. The game's name comes first, up to the first "  ·  ", and is set over the top: keep the dots.
 #: scenes/ui/logo_art.gd
 msgid "JACKPOT JUNCTION  ·  DEPT. OF KARTS  ·  LICENSED ON EVERY TABLE  ·  "
 msgstr ""
