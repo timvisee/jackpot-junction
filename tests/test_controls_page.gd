@@ -81,3 +81,35 @@ func test_the_actions_are_named_in_sentence_case() -> void:
 	screen._stop_listening("")
 	# The keys taken out of the sockets go at the end of the frame.
 	await await_idle_frame()
+
+
+## Reset bindings to defaults asks first, over the screen, the cursor on Cancel: Cancel and Back
+## keep every binding, and only Reset puts them back as the game came; the cursor goes back on the
+## button.
+func test_resetting_the_bindings_asks_first() -> void:
+	Game.settings.remember_binding(InputActions.STEER_LEFT)
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var reset := screen.find_child("ResetBindings", true, false) as Button
+	var back := InputEventAction.new()
+	back.action = &"ui_cancel"
+	back.pressed = true
+	for answer: String in ["cancel", "back", "reset"]:
+		reset.pressed.emit()
+		var question := screen.find_child("ResetQuestion", true, false) as ConfirmPane.Question
+		assert_str(question.pane.said()).contains(SettingsScreen.RESET_SURE)
+		assert_object(get_viewport().gui_get_focus_owner()).is_same(question.pane.no_button())
+		assert_bool(Game.settings.bindings.is_empty()).is_false()
+		match answer:
+			"cancel":
+				question.pane.no_button().pressed.emit()
+			"back":
+				question._unhandled_input(back)
+			"reset":
+				question.pane.yes_button().pressed.emit()
+		assert_bool(Game.settings.bindings.is_empty()).is_equal(answer == "reset")
+		assert_object(get_viewport().gui_get_focus_owner()).is_same(reset)
+		await get_tree().process_frame
+		assert_object(screen.find_child("ResetQuestion", true, false)).is_null()
+	assert_str(screen.status.text).is_equal("Bindings reset")
+	remove_child(screen)

@@ -125,6 +125,12 @@ const BINDING_HEADS: Array[String] = ["Action", "Keyboard and mouse", "Gamepad"]
 const NOT_BOUND := "Not bound"
 const LISTENING_KEY := "Press a key"
 const LISTENING_PAD := "Press a button"
+## The question Reset bindings to defaults asks first, as what was bound cannot come back: its words
+## and its two answers.
+const RESET_SURE := "Reset all bindings?"
+const RESET_LINE := "Every key and button goes back to the game's own. The ones you set are lost."
+const RESET_YES := "Reset"
+const RESET_NO := "Cancel"
 ## How the page keys that step through the tabs are drawn beside them, GAME.md 8.5, see
 ## [PageBinds]: on a pad the tab bar is otherwise a long way round by focus.
 const TAB_HINT_INK := Color(0.60, 0.60, 0.63)
@@ -484,11 +490,15 @@ func _controls_tab() -> Control:
 	column.add_child(MenuTheme.row("Stick dead zone", deadzone))
 	var reset := MenuTheme.button("Reset bindings to defaults", 22)
 	reset.name = "ResetBindings"
-	reset.pressed.connect(
-		func() -> void:
+	var answer := func(yes: bool) -> void:
+		if yes:
 			_settings.reset_bindings()
 			_refresh_bindings()
 			status.text = "Bindings reset"
+	reset.pressed.connect(
+		func() -> void:
+			var question := ConfirmPane.over_screen(reset, "ResetQuestion", answer)
+			question.ask(RESET_SURE, RESET_LINE, RESET_YES, RESET_NO)
 	)
 	column.add_child(MenuTheme.row("", reset))
 	column = SettingsColumns.group(DRIVING)

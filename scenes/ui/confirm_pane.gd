@@ -19,6 +19,53 @@ var _yes: Button
 var _no: Button
 
 
+## What holds a question put over a whole screen, see [method over_screen]: Back answers no.
+class Question:
+	extends Control
+
+	var pane: ConfirmPane
+
+	func _unhandled_input(event: InputEvent) -> void:
+		if event.is_action_pressed(&"ui_cancel") and pane != null:
+			get_viewport().set_input_as_handled()
+			pane.answered.emit(false)
+
+
+## A question put over the whole screen [param from] is on, shaded under it, in a [Question] named
+## [param named], whose Back answers no: answered, it goes, [param answer] is told whether it was
+## yes, once however often it was answered, and the cursor is back on [param from]. Returns the
+## pane, for [method ask].
+static func over_screen(from: Control, named: String, answer: Callable) -> ConfirmPane:
+	var top: Control = from
+	while top.get_parent() is Control:
+		top = top.get_parent() as Control
+	var holder := Question.new()
+	holder.name = named
+	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.mouse_filter = Control.MOUSE_FILTER_STOP
+	top.add_child(holder)
+	var shade := ColorRect.new()
+	shade.color = Color(0.0, 0.0, 0.0, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(shade)
+	var middle := CenterContainer.new()
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	holder.add_child(middle)
+	var pane := ConfirmPane.new()
+	holder.pane = pane
+	middle.add_child(pane)
+	pane.answered.connect(
+		func(yes: bool) -> void:
+			if holder.is_queued_for_deletion():
+				return
+			holder.queue_free()
+			answer.call(yes)
+			if is_instance_valid(from) and from.is_inside_tree():
+				from.grab_focus()
+	)
+	return pane
+
+
 func _ready() -> void:
 	add_theme_stylebox_override("panel", MenuTheme.pane_style())
 	var column := VBoxContainer.new()

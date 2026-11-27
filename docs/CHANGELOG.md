@@ -19,6 +19,11 @@ below, and hands the notes to the release workflow.
   lists everything inside the game and the engine that was made by others, and their licenses. A
   dedicated server's page links the same for the server in its footer.
 
+### Changed
+
+- **Resetting your bindings asks first.** Reset bindings to defaults on the Controls page asks
+  before it throws away the keys and buttons you set.
+
 ### Fixed
 
 - **The cursor stays on the About page when you buy the Supporter Pack.** Bought from its link on a

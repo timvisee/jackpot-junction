@@ -37,18 +37,6 @@ const ON_YES := "Turn on"
 const CANCEL := "Cancel"
 
 
-## The question over the screen: Back answers it as Cancel does, rather than leaving the page.
-class Question:
-	extends Control
-
-	var pane: ConfirmPane
-
-	func _unhandled_input(event: InputEvent) -> void:
-		if event.is_action_pressed(&"ui_cancel") and pane != null:
-			get_viewport().set_input_as_handled()
-			pane.answered.emit(false)
-
-
 ## The rows put in [param column] as [param settings] has Steam Input, with Steam on; none without.
 static func add_to(column: VBoxContainer, settings: Settings) -> void:
 	if not Store.on():
@@ -79,35 +67,11 @@ static func add_to(column: VBoxContainer, settings: Settings) -> void:
 ## it either way.
 static func ask(switch: Button, on: bool, go: Callable) -> ConfirmPane:
 	switch.set_pressed_no_signal(not on)
-	var top: Control = switch
-	while top.get_parent() is Control:
-		top = top.get_parent() as Control
-	var holder := Question.new()
-	holder.name = "SteamInputQuestion"
-	holder.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	holder.mouse_filter = Control.MOUSE_FILTER_STOP
-	top.add_child(holder)
-	var shade := ColorRect.new()
-	shade.color = Color(0.0, 0.0, 0.0, 0.6)
-	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	holder.add_child(shade)
-	var middle := CenterContainer.new()
-	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	holder.add_child(middle)
-	var pane := ConfirmPane.new()
-	holder.pane = pane
-	middle.add_child(pane)
-	pane.answered.connect(
-		func(yes: bool) -> void:
-			if holder.is_queued_for_deletion():
-				return
-			holder.queue_free()
-			if yes:
-				switch.set_pressed_no_signal(on)
-				go.call()
-			if switch.is_inside_tree():
-				switch.grab_focus()
-	)
+	var answer := func(yes: bool) -> void:
+		if yes:
+			switch.set_pressed_no_signal(on)
+			go.call()
+	var pane := ConfirmPane.over_screen(switch, "SteamInputQuestion", answer)
 	if on:
 		pane.ask(ON, ON_LINE, ON_YES, CANCEL, RoadSign.Kind.QUESTION)
 	else:

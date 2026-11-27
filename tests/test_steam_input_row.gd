@@ -60,7 +60,7 @@ func test_back_cancels_rather_than_leaving_the_page() -> void:
 	var back := InputEventAction.new()
 	back.action = &"ui_cancel"
 	back.pressed = true
-	var question := _root.get_node("SteamInputQuestion") as SteamInputRow.Question
+	var question := _root.get_node("SteamInputQuestion") as ConfirmPane.Question
 	question._unhandled_input(back)
 	assert_bool(_switch.button_pressed).is_true()
 	assert_array(_went).is_empty()

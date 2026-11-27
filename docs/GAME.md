@@ -5586,7 +5586,8 @@ from a section's button low in its box was the one beside it.
   Controls, and each shows what the other was changed to.
 - **Controls**, in six groups under headings as on the Video page, two columns side by side
   on a 1080p screen and one under the other on a narrower one: Controllers, Show controls, Steam
-  Input where Steam is on, the stick dead zone and Reset bindings to defaults; Driving, how the
+  Input where Steam is on, the stick dead zone and Reset bindings to defaults, which asks first
+  with the cursor on Cancel, Back answering Cancel too; Driving, how the
   first player drives and the bindings for throttle, brake, steering, driving up and down, the
   handbrake and nitro; Fighting, fire and the item; Game, pause, join and mute music; Jokers, the
   joker menu, the previous and next joker, destroying one and its details; and Emotes, the four
