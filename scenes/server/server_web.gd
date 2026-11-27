@@ -514,6 +514,8 @@ func _style() -> String:
 					"b{color:#fff}",
 					".note{border-left:3px solid #f2c14e}",
 					".note-line{color:#f2c14e;margin:10px 0 0}",
+					# Every link in the house's gold, the footer's quieter, below.
+					"a{color:#f2c14e}",
 					".links a{display:inline-block;margin:0 14px 0 0;color:#f2c14e}",
 					".fields{margin:4px 0 4px;display:flex;flex-wrap:wrap;gap:10px}",
 					".field{background:#15131a;border:1px solid #332e40;border-radius:8px;",
