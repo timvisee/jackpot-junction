@@ -166,6 +166,15 @@ func _on_lobby_joined(lobby: int, _permissions: int, _locked: bool, response: in
 	entered.emit(lobby, host_account)
 
 
+## Whether anybody in [param lobby], one this machine is in, is somebody the player has blocked on
+## Steam, GAME.md 10.8.
+func anybody_blocked(lobby: int) -> bool:
+	for index: int in int(api.call(&"getNumLobbyMembers", lobby)):
+		if blocked(int(api.call(&"getLobbyMemberByIndex", lobby, index))):
+			return true
+	return false
+
+
 ## Whether the player has blocked [param account] on Steam, GAME.md 10.8.
 func blocked(account: int) -> bool:
 	return account != 0 and int(api.call(&"getFriendRelationship", account)) == BLOCKED

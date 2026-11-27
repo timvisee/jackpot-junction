@@ -115,6 +115,7 @@ func _ready() -> void:
 		tab_keys.append(STEAM_TAB)
 		steam_page = SteamPage.new()
 		column.add_child(steam_page)
+		steam_page.quick = QuickPlay.add_to(self)
 	tab_keys.append_array([SERVERS_TAB, LAN_TAB])
 	tabs_row = _tabs_row()
 	servers_page = VBoxContainer.new()
@@ -425,7 +426,9 @@ func _something_up() -> bool:
 ## Back: hanging up on a server being connected to, out of the question about removing a server,
 ## out of the dialog, and back to the title from the list.
 func _back() -> void:
-	if password_dialog.is_open():
+	if steam_page != null and steam_page.quick.is_busy():
+		steam_page.quick.stop()
+	elif password_dialog.is_open():
 		_put_password_away()
 	elif busy.is_open():
 		_busy_pressed()

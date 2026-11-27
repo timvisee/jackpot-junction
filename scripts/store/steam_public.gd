@@ -30,8 +30,9 @@ const COUNT_EVERY := 30.0
 const COUNT_FROM := 50
 ## A ping nobody could tell.
 const NO_PING := -1
-## Steam's word for a count it answered.
+## Steam's word for a count it answered, and for an account that is the player's friend.
 const COUNTED := 1
+const FRIEND := 3
 
 var api: Object
 ## The account playing, whose own games are never on its list.
@@ -98,6 +99,7 @@ func _on_lobby_match_list(lobbies: Array) -> void:
 			host_name = data.call(SteamLobby.HOST_KEY)
 		var game := read(api, lobby, owner, host_name)
 		game["ping"] = ping_of(str(game["where"]))
+		game["friend"] = int(api.call(&"getFriendRelationship", owner)) == FRIEND
 		games.append(game)
 	var told := _told
 	_told = Callable()

@@ -36,6 +36,7 @@ const WIRE_FIELDS: Array[StringName] = [
 	&"catch_up",
 	&"table",
 	&"dealt",
+	&"quick_start",
 ]
 
 ## A run's `++ --no-countdown`: every map goes straight from the grid into play, with no lamps to
@@ -269,6 +270,9 @@ var team_size := 1
 ## Whether this is the story's Final Hand, STORY.md 8, told a client with the rest, so that every
 ## screen at it plays it, each for its own player, 8.1.
 var final_hand := false
+## Whether the lobby goes by itself once half of it is ready, counted down, as a Quick Play game's
+## does, GAME.md 10.8; told a client, whose ring counts down with the host's.
+var quick_start := false
 
 
 ## Whether [param card], one of [enum TableCards.Card], is on the table, GAME.md 3.17.

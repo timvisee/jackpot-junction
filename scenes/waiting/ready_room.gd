@@ -48,6 +48,9 @@ const GRACE := 2.0
 const GREEN_GLOW := 1.2
 const GREEN_BODY := 0.6
 const GO_DELAY := 1.0
+## How long after half of a Quick Play game's lobby is ready it goes by itself, in seconds, GAME.md
+## 10.8.
+const HALF_WAIT := 30.0
 ## How loud the charging ticks and the ready chime are, both well under the room's other sounds:
 ## they are for the player on the pad, not a fanfare for the room.
 const CHARGE_VOLUME := -17.0
@@ -117,6 +120,9 @@ var ready_slots: Dictionary[int, bool] = {}
 ## How many seats the arena has, and how many bots the host last asked for, -1 until it says: the
 ## bots that come in are as many of those as there are seats left over, see [method bots_joining].
 var seats := SeatLimit.SEATS
+## In a Quick Play game's lobby, GAME.md 10.8: how long is left before the room goes by itself, half
+## of it being ready, or -1 while that is not counting.
+var starting_in := -1.0
 var bots_asked := -1
 ## How many players may be in the room, 0 while that is not this machine's to know: once it is
 ## full, the line saying how to take a seat says there are none left, GAME.md 9.6.
@@ -290,6 +296,7 @@ func _process(delta: float) -> void:
 			Events.player_ready.emit(index, ready)
 		_show_tick(slot)
 	_count_down(delta)
+	_half_ready(delta)
 	_place_ring()
 	_paint_ring()
 	_say_the_count()
@@ -338,6 +345,21 @@ func _count_down(delta: float) -> void:
 		everybody_ready.emit()
 
 
+## In a Quick Play game's lobby, GAME.md 10.8: [constant HALF_WAIT] seconds after half of the room
+## is ready, the room goes by itself, counted down over the pad; on every machine off what it sees,
+## and acted on at the host alone, as the room filling is.
+func _half_ready(delta: float) -> void:
+	var players := player_count()
+	var halfway := players >= 2 and ready_count() * 2 >= players and not all_ready()
+	if held or not match_node.rules.quick_start or not halfway:
+		starting_in = -1.0
+		return
+	var was := starting_in if starting_in >= 0.0 else HALF_WAIT
+	starting_in = maxf(was - delta, 0.0)
+	if was > 0.0 and starting_in <= 0.0:
+		go_now()
+
+
 ## The room goes now, whoever is ready, GAME.md 9.6: Start now on the pause menu of the machine that
 ## decides where it goes. Gone the way a full room goes, so it goes once whichever comes first.
 func go_now() -> void:
@@ -357,6 +379,8 @@ func all_green() -> bool:
 ## every frame of a room where nothing is happening.
 func _say_the_count() -> void:
 	var counted := "PLAYERS READY" + bot_words()
+	if starting_in >= 0.0:
+		counted += " · STARTS IN %d" % ceili(starting_in)
 	var words := "%d / %d %s" % [ready_count(), player_count(), counted]
 	if words == _said:
 		return

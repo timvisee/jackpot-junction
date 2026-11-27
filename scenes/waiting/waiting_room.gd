@@ -66,6 +66,8 @@ func _ready() -> void:
 	# the rest of the host's.
 	match_node.rules = RULES.duplicate()
 	match_node.rules.teams = config.teams
+	# A Quick Play game's lobby goes by itself once half of it is ready, GAME.md 10.8.
+	match_node.rules.quick_start = config.quick_play
 	match_node.arena_layout = LAYOUT
 	# What the table deals, GAME.md 8.9, as a map's does.
 	Loyalty.deal_table(match_node, load("res://data/powerups/all.tres"), config.dedicated)
@@ -143,7 +145,9 @@ func _host() -> void:
 	else:
 		session = Net.open(match_node)
 		session.dedicated = config.dedicated
-		session.door.max_players = Game.settings.lobby_players
+		# A Quick Play game has room for eight, GAME.md 10.8, whatever the lobby was last set to.
+		var most := NetDoor.MOST_PLAYERS if config.quick_play else Game.settings.lobby_players
+		session.door.max_players = most
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
 		session.door.title = Game.settings.lobby_title
@@ -356,8 +360,12 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	_offer_to_start(menu.add_entry("Match settings", choose))
 	_point_to_the_settings()
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
-	# the match: the lobby's are on the pause menu for a host who wants them.
-	_choose_or_ask(not _came_back)
+	# the match: the lobby's are on the pause menu for a host who wants them. Quick Play chose it
+	# all already, GAME.md 10.8, and goes straight on, the first time into the map.
+	if not config.quick_play:
+		_choose_or_ask(not _came_back)
+	elif not _came_back:
+		ready_room.go_now.call_deferred()
 
 
 ## Start now on the pause menu, under [param under], GAME.md 9.6: the room goes without waiting for

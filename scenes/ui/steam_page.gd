@@ -1,22 +1,29 @@
 class_name SteamPage
 extends VBoxContainer
-## Play Online's Steam tab, GAME.md 10.8: one box of every Steam game this player may join, friends'
-## games first, marked Friend, whether public or not, then public games, the lowest ping first, a
-## full game last of all; and under it Host a game beside who may join it, anyone, friends or those
-## invited, which is kept for next time. Over the box, how many are playing the game right now, once
-## that is enough to say. With Steam not there, the box says why.
+## Play Online's Steam tab, GAME.md 10.8: Quick Play first, with the cursor, see [QuickPlay]; one
+## box of every Steam game this player may join, friends' games first, marked Friend, whether public
+## or not, then public games, the lowest ping first, a full game last of all; and under it Host a
+## game beside who may join it, anyone, friends or those invited, which is kept for next time. Over
+## the box, how many are playing the game right now, once that is enough to say. With Steam not
+## there, the box says why.
 ##
 ## Friends' games are read again every two seconds, since Steam keeps what each friend plays up to
 ## date by itself; the public list is asked of Steam every five, and the count every thirty.
 
 ## How often friends' games are read again, in seconds.
 const FRIENDS_EVERY := 2.0
+## What the box's link says, at the end of the rows and alone in an empty box: Quick Play's way,
+## GAME.md 10.8.
+const START_ONE := "Start a game with bots: anybody can join it"
 ## What the line over the box says, and what it starts with once enough are playing.
 const LINE := "Join anybody's game on Steam, or host one."
 const PLAYING := "%s playing now. "
 ## What each way of being open to players is called on the button that picks one.
 const WHO_WORDS: Array[String] = ["Anyone can join", "Friends can join", "Invite only"]
 
+## Quick Play, its button over the box, and what it does, see [QuickPlay], given by Play Online.
+var quick_button: Button
+var quick: QuickPlay
 ## The box, its list, the line over it, and the buttons under it.
 var box: ListBox
 var games: GameList
@@ -40,10 +47,19 @@ func _init() -> void:
 	line = ListBox.fit(MenuTheme.subtitle(LINE))
 	line.name = "Line"
 	add_child(line)
+	# The way on from here, in foil, GAME.md 8.1a.
+	quick_button = MenuTheme.primary(MenuTheme.button("Quick Play", Type.BODY))
+	quick_button.name = "QuickPlay"
+	quick_button.custom_minimum_size = Vector2(ListBox.WIDTH, MenuTheme.button_size().y)
+	quick_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	quick_button.pressed.connect(quick_play)
+	add_child(quick_button)
 	games = GameList.new()
 	games.chosen.connect(_join)
-	box = ListBox.of("Steam games", games, "Host a game")
-	box.link.pressed.connect(host)
+	# A row fewer than the other pages' boxes, for Quick Play's room over it: the pages are one
+	# height, so turning between them moves nothing.
+	box = ListBox.of("Steam games", games, START_ONE, ListBox.ROOMY - 1)
+	box.link.pressed.connect(quick_play)
 	add_child(box)
 	var ways := ListBox.button_row()
 	add_child(ways)
@@ -64,13 +80,15 @@ func _init() -> void:
 	ways.add_child(who_button)
 	if not Store.on():
 		box.link.visible = false
+		quick_button.disabled = true
 		host_button.disabled = true
 		who_button.disabled = true
 		games.add_child(ListBox.fit(MenuTheme.subtitle(Store.missing, Type.BODY)))
 
 
 func _process(delta: float) -> void:
-	if not Store.on() or not is_visible_in_tree():
+	# Quick Play has Steam's list to itself while it looks.
+	if not Store.on() or not is_visible_in_tree() or (quick != null and quick.is_busy()):
 		return
 	_friends_since += delta
 	_public_since += delta
@@ -137,12 +155,15 @@ static func before(a: Dictionary, b: Dictionary) -> bool:
 	return GameList.title_of(a).naturalnocasecmp_to(GameList.title_of(b)) < 0
 
 
-## Where the cursor goes as the page comes up: its first game, or what makes one.
+## Where the cursor goes as the page comes up: Quick Play, GAME.md 10.8.
 func first_way() -> Control:
-	var first := games.find_child("Join*", true, false) as Button
-	if first != null and not first.disabled:
-		return first
-	return box.link if box.link.visible else host_button
+	return quick_button
+
+
+## Quick Play pressed, or the box's link: a game found, or one started, see [QuickPlay].
+func quick_play() -> void:
+	if quick != null:
+		quick.start()
 
 
 ## A Steam game hosted here, GAME.md 10.8, open to whoever the player picked: into its waiting

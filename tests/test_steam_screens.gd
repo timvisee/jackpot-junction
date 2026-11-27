@@ -116,7 +116,7 @@ func test_play_online_has_a_tab_for_steam_games() -> void:
 	assert_bool(screen.lan.visible).is_false()
 	var page: SteamPage = screen.steam_page
 	assert_object(screen.tabs_row.get_parent()).is_same(page.box)
-	assert_str(page.box.link.text).is_equal("Host a game")
+	assert_str(page.box.link.text).is_equal(SteamPage.START_ONE)
 	# The friend's game first, the stranger's public one after it; how many play said over them.
 	assert_int(page.games.get_child_count()).is_equal(2)
 	assert_str(page.games.row_text(lobby & 0x7FFFFFFF)).contains("Bo's game")

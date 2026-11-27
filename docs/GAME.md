@@ -11208,9 +11208,8 @@ rather than as the "somewhere" every peer without an address would share.
 #### Public games and Quick Play
 
 For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: who may come in, the list, a
-row, a full game, and Players; until Quick Play is in, an empty list's link is Host a game. Still
-planned: Joining a match in play, Quick Play and A host who goes, which once built replaces the host
-leaving described above. Decided with the user on 2026-11-26
+row, empty and full, Players and Quick Play. Still planned: Joining a match in play and A host who
+goes, which once built replaces the host leaving described above. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
@@ -11254,13 +11253,16 @@ jokers as 9.2 has it. A ticket over the arena says for three seconds whose kart 
 with it: "You took over Kit's kart · 420 banked · 60 in the pot · 2 jokers". Not in Last Call or on
 the podium: then the newcomer watches, told they take a seat on the next map, and is seated there.
 
-**Quick Play.** First on Play Online, in a Steam build. It asks Steam for public games near this
+**Quick Play.** First on Play Online, in a Steam build, in foil over the box, which is a row
+shorter for it, so the pages stay one height; the cursor starts on it, and the box's link, "Start a
+game with bots: anybody can join it", does the same. It asks Steam for public games near this
 player: Steam's default distance first, their region and those next to it, then far, never
 worldwide. A game it may join is public and on this version. It has a seat for every player at this
 machine, nobody in it whom the player has blocked on Steam, and a ping of 100 ms at most; under
-50 ms is preferred, both numbers one constant each, to tune in the Playtest. Of those it takes a
-friend's first, then the one with the most people, then one in its lobby before one
-playing a map, then the lowest ping. While it looks, a dialog in the look of Connecting says
+50 ms is preferred, both numbers one constant each, to tune in the Playtest. A game nobody could
+tell the ping of is taken only from close by. Of those it takes a friend's first, then one under
+50 ms, then the one with the most people, then one in its lobby before one playing a map, then the
+lowest ping. Somebody in a game it joins whom the player has blocked sends it on to the next. While it looks, a dialog in the look of Connecting says
 "Finding a game near you..." with its bar and Cancel. With nothing found in about three seconds it
 waits a moment, 0 to 2 s at random, and asks once more, so two players pressing at once do not both
 start an empty game. Still nothing, the dialog says it is starting a game with bots and that people

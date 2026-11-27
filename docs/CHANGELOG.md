@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
   Steam's profile and Mute for each; only the host can kick. Kicked from a public game, a player
   stays out of it, a host's Steam blocks keep people out, and other players' names go through
   Steam's text filter.
+- **Quick Play.** First on Play Online's Steam tab: one press joins a public game near you, a
+  friend's first, or starts one with bots that people join as they come.
 - **Bots that make up four.** The Bots row in the match settings ends in Make up 4: bots fill the
   match up to four karts, fewer as more people play, and none past four.
 - **A bot for a kart left alone.** In a public game, a kart nobody touches for a minute is driven by

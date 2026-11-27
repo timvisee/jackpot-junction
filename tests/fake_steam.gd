@@ -269,6 +269,14 @@ func public_lobby(owner: int, data: Dictionary, distance := SteamPublic.CLOSE) -
 	return lobby
 
 
+func getNumLobbyMembers(lobby: int) -> int:
+	return (lobbies[lobby]["members"] as Array).size() if lobbies.has(lobby) else 0
+
+
+func getLobbyMemberByIndex(lobby: int, index: int) -> int:
+	return int(lobbies[lobby]["members"][index]) if lobbies.has(lobby) else 0
+
+
 func initRelayNetworkAccess() -> void:
 	calls.append("initRelayNetworkAccess")
 

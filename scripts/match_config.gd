@@ -114,6 +114,9 @@ var server_password := ""
 ## Steam to say.
 var steam := false
 var lobby_who := 1
+## A game Quick Play started, GAME.md 10.8: straight into its first map, with no choosing first, its
+## lobby starting by itself, and room for eight.
+var quick_play := false
 var steam_lobby := 0
 var steam_host := 0
 var steam_name := ""
