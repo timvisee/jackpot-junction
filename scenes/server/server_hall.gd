@@ -69,19 +69,19 @@ func open() -> Error:
 	link.hall = self
 	home.add_child(link)
 	var ports := args.game_ports()
-	var games := "1 game on port %d" % ports[0]
+	var games := "1 game on port %d" % ports[0]  # NO_TRANSLATE
 	if ports.size() > 1:
-		games = "%d games on ports %d to %d" % [ports.size(), ports[0], ports[-1]]
+		games = "%d games on ports %d to %d" % [ports.size(), ports[0], ports[-1]]  # NO_TRANSLATE
 	var named := ' "%s"' % args.name if not args.name.is_empty() else ""
 	_say(
 		(
-			"Jackpot Junction %s server%s on port %d, up to %s"
+			"Jackpot Junction %s server%s on port %d, up to %s"  # NO_TRANSLATE
 			% [GameVersion.current(), named, args.port, games]
 		)
 	)
 	_say(listening(args.port, IP.get_local_addresses()))
 	if not args.password.is_empty():
-		_say("Players need the server's password to come in")
+		_say("Players need the server's password to come in")  # NO_TRANSLATE
 		# Its games ask for it too, at their own ports, and read it from the environment they are
 		# started in, which they inherit from this one: never on a command line anybody on the
 		# machine can list.
@@ -100,7 +100,8 @@ func _open_web() -> void:
 	_web = ServerWeb.new()
 	var error := _web.open(args.web(), args, listing)
 	if error != OK:
-		_say("No web page: could not open TCP port %d: %s" % [args.web(), error_string(error)])
+		var line := "No web page: could not open TCP port %d: %s"  # NO_TRANSLATE
+		_say(line % [args.web(), error_string(error)])
 		_web = null
 		return
 	_say("A web page with the games and how to join is at http://<this address>:%d/" % args.web())
@@ -116,9 +117,9 @@ static func listening(port: int, addresses: PackedStringArray) -> String:
 		var local := address.begins_with("127.") or address in ["::1", "0:0:0:0:0:0:0:1"]
 		if not local and not address.to_lower().begins_with("fe80:"):
 			reached.append(address)
-	var where := "Listening on every address of this machine, UDP port %d" % port
+	var where := "Listening on every address of this machine, UDP port %d" % port  # NO_TRANSLATE
 	if reached.is_empty():
-		return where + ", and it has no address but its own loopback"
+		return where + ", and it has no address but its own loopback"  # NO_TRANSLATE
 	return "%s: %s" % [where, ServerLog.listed(reached)]
 
 
@@ -126,7 +127,7 @@ func _exit_tree() -> void:
 	if _web != null:
 		_web.close()
 	for id: int in _games.keys():
-		_forget(id, "stopped with the server", true)
+		_forget(id, "stopped with the server", true)  # NO_TRANSLATE
 	if link != null and is_instance_valid(link):
 		link.queue_free()
 	_reports.close()
@@ -145,12 +146,15 @@ func listing() -> Array[Dictionary]:
 		var state: Dictionary = game["state"]
 		if not game["up"] or int(state.get("players", 0)) <= 0:
 			continue
+		# What the server's page calls a host with no name, and a name to anybody else.
+		var host := str(state.get("name", ""))
+		host = host if not host.is_empty() else "Host"  # NO_TRANSLATE
 		(
 			found
 			. append(
 				{
 					"id": id,
-					"name": str(state.get("name", "")) if state.get("name", "") != "" else "Host",
+					"name": host,
 					"title": str(state.get("title", "")),
 					"map": str(state.get("map", "")),
 					"version": GameVersion.current(),
@@ -185,28 +189,28 @@ func count() -> int:
 func knocked(
 	peer: int, named: String, version: String, welcome: bool, listing := true, locked := ""
 ) -> void:
-	_visitors[peer] = named if not named.is_empty() else "Somebody"
+	_visitors[peer] = named if not named.is_empty() else "Somebody"  # NO_TRANSLATE
 	if not listing:
-		_say("Turned away %s: came from LAN games, looking for a game" % _visitor(peer))
+		var line := "Turned away %s: came from LAN games, looking for a game"  # NO_TRANSLATE
+		_say(line % _visitor(peer))
 	elif locked == ServerLink.WRONG:
-		_say(
-			"Turned away %s, from %s: the password was wrong" % [_visitor(peer), _address_of(peer)]
-		)
+		var wrong := "Turned away %s, from %s: the password was wrong"  # NO_TRANSLATE
+		_say(wrong % [_visitor(peer), _address_of(peer)])
 	elif locked == ServerLink.NEEDED:
-		_say("Asked %s for the password" % _visitor(peer))
+		_say("Asked %s for the password" % _visitor(peer))  # NO_TRANSLATE
 	elif not welcome:
-		_say("Turned away %s: version %s" % [_visitor(peer), version])
+		_say("Turned away %s: version %s" % [_visitor(peer), version])  # NO_TRANSLATE
 
 
 ## A connection dropped at the door, or a visitor shown out, see [NetGuard]: said in the log, with
 ## where it came from.
 func dropped(address: String, why: String) -> void:
-	_say("Dropped %s: %s" % [address, why])
+	_say("Dropped %s: %s" % [address, why])  # NO_TRANSLATE
 
 
 ## Shows [param peer], a visitor who is misbehaving, out: told why, and let go of a moment later.
 func show_out(peer: int, why: String) -> void:
-	_say("Kicked %s, from %s: %s" % [_visitor(peer), _address_of(peer), why])
+	_say("Kicked %s, from %s: %s" % [_visitor(peer), _address_of(peer), why])  # NO_TRANSLATE
 	link._shown_out.rpc_id(peer, NetGuard.KICKED)
 	get_tree().create_timer(0.5).timeout.connect(
 		func() -> void:
@@ -216,13 +220,13 @@ func show_out(peer: int, why: String) -> void:
 
 
 func visitor_came(peer: int) -> void:
-	_say("%s is looking at the games, from %s" % [_visitor(peer), _address_of(peer)])
+	_say("%s is looking at the games, from %s" % [_visitor(peer), _address_of(peer)])  # NO_TRANSLATE
 	link._games_are.rpc_id(peer, listing())
 
 
 func visitor_left(peer: int) -> void:
 	if _visitors.has(peer):
-		_say("%s left the list" % _visitor(peer))
+		_say("%s left the list" % _visitor(peer))  # NO_TRANSLATE
 	_visitors.erase(peer)
 
 
@@ -236,17 +240,19 @@ func make_game(peer: int) -> void:
 			return
 	var port := _free_port()
 	if port == 0:
+		# The log's, in English, NO_TRANSLATE.
 		var most := "%d game%s" % [args.games, "" if args.games == 1 else "s"]
-		_say("%s asked for a game, but the server holds %s at once" % [_visitor(peer), most])
-		link._not_made.rpc_id(peer, "The server is full: it holds %s at once" % most)
+		var line := "%s asked for a game, but the server holds %s at once"
+		_say(line % [_visitor(peer), most])
+		link._full.rpc_id(peer, args.games)
 		return
 	var id := _next_game
 	_next_game += 1
 	var key := "%08x%08x" % [randi(), randi()]
 	var pid: int = launch.call(_game_args(id, port, key))
 	if pid <= 0:
-		_say("Could not start game %d for %s" % [id, _visitor(peer)])
-		link._not_made.rpc_id(peer, "The server could not start a game")
+		_say("Could not start game %d for %s" % [id, _visitor(peer)])  # NO_TRANSLATE
+		link._not_made.rpc_id(peer, Lang.later("The server could not start a game"))
 		return
 	var now := Time.get_ticks_msec()
 	_games[id] = {
@@ -261,7 +267,7 @@ func make_game(peer: int) -> void:
 		"state": {},
 		"making": ServerLink.MAKING_STARTED,
 	}
-	_say("%s made game %d, on port %d" % [_visitor(peer), id, port])
+	_say("%s made game %d, on port %d" % [_visitor(peer), id, port])  # NO_TRANSLATE
 	link._making.rpc_id(peer, ServerLink.MAKING_STARTED)
 
 
@@ -294,10 +300,10 @@ func _game_args(id: int, port: int, key: String) -> PackedStringArray:
 			[
 				"--",
 				"--server",
-				"--game=%d" % id,
-				"--port=%d" % port,
-				"--report=%d" % _reports.get_local_port(),
-				"--key=%s" % key,
+				"--game=%d" % id,  # NO_TRANSLATE
+				"--port=%d" % port,  # NO_TRANSLATE
+				"--report=%d" % _reports.get_local_port(),  # NO_TRANSLATE
+				"--key=%s" % key,  # NO_TRANSLATE
 			]
 		)
 	)
@@ -339,7 +345,7 @@ func _hear_the_games() -> void:
 		game["heard"] = Time.get_ticks_msec()
 		game["from"] = from
 		if words.has("log"):
-			ServerLog.say("game %d" % id, str(words["log"]))
+			ServerLog.say("game %d" % id, str(words["log"]))  # NO_TRANSLATE
 		if words.has("making") and float(words["making"]) > float(game["making"]):
 			game["making"] = float(words["making"])
 			if id not in along:
@@ -377,12 +383,12 @@ func _look_at_the_games() -> void:
 		if not running.call(game["pid"]):
 			if not game["up"]:
 				_let_the_maker_down(id)
-			_forget(id, "over" if game["up"] else "ended before it was up")
+			_forget(id, "over" if game["up"] else "ended before it was up")  # NO_TRANSLATE
 		elif not game["up"] and now - int(game["made"]) > start_wait * 1000.0:
 			_let_the_maker_down(id)
-			_forget(id, "never started", true)
+			_forget(id, "never started", true)  # NO_TRANSLATE
 		elif game["up"] and now - int(game["heard"]) > quiet_wait * 1000.0:
-			_forget(id, "stopped answering", true)
+			_forget(id, "stopped answering", true)  # NO_TRANSLATE
 		elif int(game["from"]) > 0:
 			_reports.set_dest_address("127.0.0.1", game["from"])
 			_reports.put_packet(var_to_bytes({"alive": true}))
@@ -393,14 +399,14 @@ func _look_at_the_games() -> void:
 func _let_the_maker_down(id: int) -> void:
 	var maker: int = _games[id]["maker"]
 	if multiplayer.get_peers().has(maker):
-		link._not_made.rpc_id(maker, "The server could not start a game")
+		link._not_made.rpc_id(maker, Lang.later("The server could not start a game"))
 
 
 func _forget(id: int, why: String, stopping := false) -> void:
 	if stopping:
 		stop.call(_games[id]["pid"])
 	_games.erase(id)
-	_say("Game %d is %s" % [id, why] if why == "over" else "Game %d %s" % [id, why])
+	_say("Game %d is %s" % [id, why] if why == "over" else "Game %d %s" % [id, why])  # NO_TRANSLATE
 
 
 func _send_the_list() -> void:
@@ -428,5 +434,6 @@ func _address_of(peer: int) -> String:
 	return connection.get_remote_address() if connection != null else "somewhere"
 
 
+## A line for the server's log, which is in English whatever the machine speaks, GAME.md 10.9.
 func _say(text: String) -> void:
 	ServerLog.say("server", text)

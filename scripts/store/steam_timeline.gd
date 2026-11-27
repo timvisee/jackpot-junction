@@ -61,9 +61,9 @@ static func mode_for(scene: String, state: int, loading: bool, paused: bool) -> 
 	return Timeline.MENUS
 
 
-## The words along the timeline for [param place], as [method SteamPresence.place_of] reads it: the
-## map and the leg of a Grand Prix being played, and the place for the rooms between; none in the
-## menus.
+## The words along the timeline for [param place], as [method SteamPresence.place_of] reads it, in
+## the language spoken: the map and the leg of a Grand Prix being played, and the place for the
+## rooms between; none in the menus.
 static func tooltip_for(place: Dictionary) -> String:
 	match place.get("scene", ""):
 		Game.MATCH_SCENE:
@@ -72,12 +72,13 @@ static func tooltip_for(place: Dictionary) -> String:
 			var named := TimelineRecord.map_name(StringName(place["map"]))
 			var legs := int(place.get("legs", 0))
 			if legs > 0 and StringName(place["map"]) != ArenaMaps.SHOWDOWN:
-				return "%s · leg %d of %d" % [named, int(place.get("leg", 1)), legs]
+				var leg := Lang.t("{map} · leg {leg} of {legs}")
+				return leg.format({"map": named, "leg": int(place.get("leg", 1)), "legs": legs})
 			return named
 		Game.WAITING_SCENE:
-			return "Waiting room"
+			return Lang.t("Waiting room")
 		Game.GARAGE_SCENE:
-			return "Garage"
+			return Lang.t("Garage")
 		Game.TUTORIAL_SCENE, Game.DRIVING_SCHOOL_SCENE:
-			return "Driving school"
+			return Lang.t("Driving school")
 	return ""

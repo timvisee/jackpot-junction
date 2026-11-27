@@ -395,7 +395,8 @@ func claim() -> Array:
 ## this should read for most of a match on a decent wire.
 func debug_text() -> String:
 	if not kart.predicted:
-		return "prediction off"
+		return "prediction off"  # NO_TRANSLATE
+	# The debug overlay's, NO_TRANSLATE.
 	return (
 		(
 			"prediction %d ticks ahead  %d accepted, %d corrections, %d snapped  %d shots\n"

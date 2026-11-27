@@ -75,7 +75,7 @@ func _exit_tree() -> void:
 	_socket.close()
 
 
-## A line for the server's log.
+## A line for the server's log, which is in English whatever the machine speaks, GAME.md 10.9.
 func say(text: String) -> void:
 	_send({"log": text})
 
@@ -98,23 +98,24 @@ func _process(delta: float) -> void:
 			finish.call()
 		return
 	if _unheard > orphan_wait:
-		_over("Lost the server, so the game is over")
+		_over(Lang.later("Lost the server, so the game is over"))
 		return
 	_watch(Net.session)
 	if not _up:
 		if _session != null and _session.is_host:
 			_up = true
-			say("Up on port %d" % args.port)
+			say("Up on port %d" % args.port)  # NO_TRANSLATE
 		elif _since_start > HOSTING_WAIT:
-			_over("Could not host on port %d" % args.port)
+			# Nobody is in a game that is not hosted, so this is for the log alone.
+			_over("Could not host on port %d" % args.port)  # NO_TRANSLATE
 			return
 	var players := _players()
 	_had_players = _had_players or players > 0
 	if _up and _had_players and players == 0:
-		_over("Everybody left, so the game is over")
+		_over(Lang.later("Everybody left, so the game is over"))
 		return
 	if _up and not _had_players and _since_start > first_wait:
-		_over("Nobody came, so the game is over")
+		_over(Lang.later("Nobody came, so the game is over"))
 		return
 	_describe_the_room()
 	_report(delta)
@@ -188,7 +189,8 @@ func _host() -> String:
 	return _host_name
 
 
-## The game is over: said, anybody still in it told, and the process gone a moment later.
+## The game is over: said, anybody still in it told, [param why] in English, which their machines
+## say in their own languages, and the process gone a moment later.
 func _over(why: String) -> void:
 	say(why)
 	if _session != null:
@@ -246,11 +248,11 @@ func _on_came(peer: int) -> void:
 	var named := _name_of(peer)
 	_names[peer] = named
 	var to := "watch" if _session._watchers.has(peer) else "play"
-	say("%s came in to %s, from %s" % [named, to, _address_of(peer)])
+	say("%s came in to %s, from %s" % [named, to, _address_of(peer)])  # NO_TRANSLATE
 
 
 func _on_went(peer: int) -> void:
-	say("%s left" % _names.get(peer, "Somebody"))
+	say("%s left" % _names.get(peer, "Somebody"))  # NO_TRANSLATE
 	_names.erase(peer)
 
 
@@ -258,9 +260,9 @@ func _on_went(peer: int) -> void:
 ## arrives or leaves, and they are said to first.
 func _on_hands_changed(player: int) -> void:
 	if player == 0:
-		say.call_deferred("Nobody has the host's say")
+		say.call_deferred("Nobody has the host's say")  # NO_TRANSLATE
 		return
-	say.call_deferred("%s has the host's say" % _name_of(player))
+	say.call_deferred("%s has the host's say" % _name_of(player))  # NO_TRANSLATE
 
 
 func _on_planned(plan: Dictionary, still_choosing: bool) -> void:
@@ -268,23 +270,25 @@ func _on_planned(plan: Dictionary, still_choosing: bool) -> void:
 		return
 	var chosen := MatchConfig.new()
 	MatchOptions.from_wire(chosen, plan)
+	# The log's, in English, NO_TRANSLATE.
 	var bots := "%d bot%s" % [chosen.bot_count, "" if chosen.bot_count == 1 else "s"]
-	say("The host chose the next match: %s, %s asked for" % [MatchOptions.describe(chosen), bots])
+	var line := "The host chose the next match: %s, %s asked for"
+	say(line % [MatchOptions.describe(chosen), bots])
 
 
 func _on_door_set() -> void:
 	var door := _session.door
-	var watching := "watchers allowed" if door.watchers_allowed else "no watchers"
+	var watching := "watchers allowed" if door.watchers_allowed else "no watchers"  # NO_TRANSLATE
 	if door.watchers_allowed and not door.watchers_locked() and not door.password.is_empty():
-		watching = "watchers allowed without it"
+		watching = "watchers allowed without it"  # NO_TRANSLATE
 	var words: PackedStringArray = [
-		"%d players" % door.max_players,
-		"a password" if not door.password.is_empty() else "no password",
+		"%d players" % door.max_players,  # NO_TRANSLATE
+		"a password" if not door.password.is_empty() else "no password",  # NO_TRANSLATE
 		watching,
 	]
 	if not door.title.is_empty():
-		words.insert(0, 'named "%s"' % door.title)
-	say("Lobby settings: %s" % ", ".join(words))
+		words.insert(0, 'named "%s"' % door.title)  # NO_TRANSLATE
+	say("Lobby settings: %s" % ", ".join(words))  # NO_TRANSLATE
 
 
 ## A new room, the lobby or a map, said as it is taken over.
@@ -294,9 +298,9 @@ func _describe_the_room() -> void:
 		return
 	_room = match_node
 	if not _session.in_arena:
-		say("In the lobby")
+		say("In the lobby")  # NO_TRANSLATE
 		return
-	say("Onto %s" % LanBeacon.map_of(_session))
+	say("Onto %s" % LanBeacon.map_of(_session))  # NO_TRANSLATE
 
 
 func _on_state_changed(state: int) -> void:
@@ -304,13 +308,13 @@ func _on_state_changed(state: int) -> void:
 		return
 	match state:
 		Match.State.PLAYING:
-			say("Playing: %s" % ServerLog.listed(_everybody()))
+			say("Playing: %s" % ServerLog.listed(_everybody()))  # NO_TRANSLATE
 		Match.State.LAST_CALL:
-			say("Last call")
+			say("Last call")  # NO_TRANSLATE
 		Match.State.OVERTIME:
-			say("Overtime")
+			say("Overtime")  # NO_TRANSLATE
 		Match.State.RESULTS:
-			say("Results: %s" % _results())
+			say("Results: %s" % _results())  # NO_TRANSLATE
 
 
 ## Everybody in the match, the people first and then the bots, by the name the room shows.
@@ -323,7 +327,7 @@ func _everybody() -> Array[String]:
 		else:
 			bots += 1
 	if bots > 0:
-		people.append("%d bot%s" % [bots, "" if bots == 1 else "s"])
+		people.append("%d bot%s" % [bots, "" if bots == 1 else "s"])  # NO_TRANSLATE
 	return people
 
 
@@ -337,7 +341,7 @@ func _results() -> String:
 
 
 func _named(given: String) -> String:
-	return given if not given.is_empty() else "Somebody"
+	return given if not given.is_empty() else "Somebody"  # NO_TRANSLATE
 
 
 ## What [param peer] is called here: what they said at the door, known before they are all the way

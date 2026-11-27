@@ -12,7 +12,8 @@ extends Node
 
 ## Where hosts listen for somebody looking, apart from the port a game is played on.
 const PORT := 7779
-## What a question and an answer start with, so nothing else on the network is taken for either.
+## What a question and an answer start with, so nothing else on the network is taken for either:
+## the game's own words on the wire, NO_TRANSLATE.
 const QUESTION := "jackpot-junction?"
 const ANSWER := "jackpot-junction!"
 
@@ -66,7 +67,9 @@ func answer() -> Dictionary:
 	return {
 		"game": ANSWER,
 		"id": id,
-		"name": host_name if not host_name.is_empty() else "Host",
+		# Empty for a host with no name, which each list calls its own way, see
+		# [method GameList.default_title].
+		"name": host_name,
 		"title": session.door.listed_title(),
 		"map": map_of(session),
 		"version": session.version,
@@ -81,7 +84,10 @@ func answer() -> Dictionary:
 
 
 ## The map [param session]'s room is on, with how far into a Grand Prix it is, "Crossfire, map 2 of
-## 3", or nothing in the lobby: for the lists of games, and a dedicated server's log.
+## 3", or nothing in the lobby: for the lists of games, and a dedicated server's log. Always in
+## English, as it goes over the wire: each list reads the map and the numbers back out of it to say
+## them in its own language, see [method GameList.map_words], and the server's page to say them its
+## own way, see [method ServerWeb.map_words].
 static func map_of(session: NetSession) -> String:
 	var match_node := session.match_node if session != null else null
 	if match_node == null or not session.in_arena:
@@ -89,5 +95,5 @@ static func map_of(session: NetSession) -> String:
 	var rules := match_node.rules
 	var where := ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
 	if rules.rounds > 0:
-		where += ", map %d of %d" % [rules.round, rules.rounds]
+		where += ", map %d of %d" % [rules.round, rules.rounds]  # NO_TRANSLATE
 	return where

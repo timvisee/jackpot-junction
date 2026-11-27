@@ -10,7 +10,8 @@ extends Control
 const RADIUS := 36.0
 const TURN := -0.14
 const INK := Color(0.86, 0.66, 0.24, 0.86)
-## What it says over the word.
+# TRANSLATORS: Round the top of a rubber stamp, in capitals, over the word in its middle.
+## What it says over the word, shown through tr().
 const OVER := "PLAYED ON"
 
 ## The word in the middle, and the line under it.
@@ -25,15 +26,19 @@ func _init(drawn_at := RADIUS) -> void:
 	custom_minimum_size = Vector2.ONE * radius * 2.3
 
 
-## The word and the line under it for the game [param config] plays: STEAM among friends, SERVER
-## and the server's name, or LAN.
+## The word and the line under it for the game [param config] plays, in the language spoken: STEAM
+## among friends, SERVER and the server's name, or LAN.
 static func words_for(config: MatchConfig) -> PackedStringArray:
 	if config.steam:
-		return PackedStringArray(["STEAM", "FRIENDS"])
+		# TRANSLATORS: On a round rubber stamp, PLAYED ON over STEAM over this, in capitals.
+		var friends := Lang.t("FRIENDS")
+		return PackedStringArray(["STEAM", friends])  # NO_TRANSLATE
 	if not config.server.is_empty():
 		var named := config.server_name if not config.server_name.is_empty() else config.server
-		return PackedStringArray(["SERVER", named.to_upper()])
-	return PackedStringArray(["LAN", "THIS NETWORK"])
+		# TRANSLATORS: On a round rubber stamp, PLAYED ON over this over a server's name.
+		return PackedStringArray([Lang.t("SERVER"), named.to_upper()])
+	# TRANSLATORS: On a round rubber stamp, PLAYED ON over these two, a short word over a line.
+	return PackedStringArray([Lang.t("LAN"), Lang.t("THIS NETWORK")])
 
 
 ## Stamped for the game [param config] plays, or put away for none, a game on this machine alone.
@@ -48,4 +53,4 @@ func show_for(config: MatchConfig) -> void:
 
 
 func _draw() -> void:
-	StampArt.stamp(self, size * 0.5, radius, word, OVER, under, TURN, INK)
+	StampArt.stamp(self, size * 0.5, radius, word, tr(OVER), under, TURN, INK)

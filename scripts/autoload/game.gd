@@ -202,7 +202,8 @@ func _ready() -> void:
 		# So a booth's window says what it is, GAME.md 9.8.
 		if not is_headless():
 			var named: String = ProjectSettings.get_setting("application/config/name")
-			get_window().title = "%s (demo)" % named
+			# TRANSLATORS: The window's title in a demo at a booth, after the game's name.
+			get_window().title = tr("%s (demo)") % named
 	if Store.on():
 		add_child(load(STEAM_PRESENCE).new())
 		add_child(load(STEAM_JOINS).new())
@@ -398,7 +399,7 @@ static func settings_path_for(
 ) -> String:
 	var own := settings_path_in(args)
 	if own.is_empty() and not named.strip_edges().is_empty():
-		own = settings_path_in(PackedStringArray(["--settings=" + named]))
+		own = settings_path_in(PackedStringArray(["--settings=" + named]))  # NO_TRANSLATE
 	if own.is_empty() and scripted_run(engine_args):
 		own = TEST_SETTINGS
 	if own.is_empty() and Demo.asked(args):

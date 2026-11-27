@@ -14,7 +14,8 @@ const ROOM := 420.0
 const ROW := 72.0
 ## The longest search there is: as long as a Steam name.
 const LONGEST := 32
-## What a friend's row says once they are invited, after their name.
+# TRANSLATORS: After a friend's name on their row once they are invited, the gap and dot included.
+## What a friend's row says once they are invited, after their name, shown through tr().
 const INVITED := "  · invited"
 
 var _search: LineEdit
@@ -31,9 +32,9 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	add_child(column)
-	column.add_child(MenuTheme.title("Invite friends", Type.TITLE))
+	column.add_child(MenuTheme.title(tr("Invite friends"), Type.TITLE))
 	column.add_child(MenuTheme.perforation())
-	_search = MenuTheme.field("", "Search friends", LONGEST)
+	_search = MenuTheme.field("", tr("Search friends"), LONGEST)
 	_search.name = "Search"
 	_search.custom_minimum_size = Vector2(MenuTheme.button_size().x, 44.0)
 	_search.text_changed.connect(func(_typed: String) -> void: _show())
@@ -51,7 +52,7 @@ func _ready() -> void:
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_list.add_theme_constant_override("separation", 8)
 	_scroll.add_child(_list)
-	_back = MenuTheme.button("Back")
+	_back = MenuTheme.button(tr("Back"))
 	_back.pressed.connect(func() -> void: closed.emit())
 	column.add_child(_back)
 
@@ -90,20 +91,20 @@ func _show() -> void:
 		var invite := MenuTheme.button(str(friend["name"]), Type.BODY)
 		invite.name = "Invite%d" % (account & 0x7FFFFFFF)
 		if _invited.has(account):
-			invite.text += INVITED
+			invite.text += tr(INVITED)
 			invite.disabled = true
 		invite.pressed.connect(_invite.bind(account, invite))
 		_list.add_child(invite)
 	if _friends.is_empty():
-		_list.add_child(MenuTheme.subtitle("Nobody is online on Steam", Type.BODY))
+		_list.add_child(MenuTheme.subtitle(tr("Nobody is online on Steam"), Type.BODY))
 	elif shown.is_empty():
-		_list.add_child(MenuTheme.subtitle("Nobody online is called that", Type.BODY))
+		_list.add_child(MenuTheme.subtitle(tr("Nobody online is called that"), Type.BODY))
 
 
 func _invite(friend: int, button: Button) -> void:
 	if Store.on() and Store.steam.lobbies.invite_friend(friend):
 		_invited[friend] = true
-		button.text += INVITED
+		button.text += tr(INVITED)
 		button.disabled = true
 
 

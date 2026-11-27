@@ -11,6 +11,19 @@ extends CanvasLayer
 const LAYER := 95
 ## The group it is in, for the screens that join a friend's game through it.
 const GROUP := &"steam_joins"
+## What the player is asked before leaving for a friend's game, by what they would leave, see
+## [method busy_with]: with the friend's name, and for a friend Steam does not name. Shown through
+## tr().
+const LEAVE_FOR: Dictionary[String, String] = {
+	"match": "Leave this match to join {friend}?",
+	"game": "Leave this game to join {friend}?",
+	"room": "Leave this room to join {friend}?",
+}
+const LEAVE_FOR_A_FRIEND: Dictionary[String, String] = {
+	"match": "Leave this match to join a friend?",
+	"game": "Leave this game to join a friend?",
+	"room": "Leave this room to join a friend?",
+}
 
 ## Where joining waits on Steam, saying what it waits on: Play Online, out of whatever room was
 ## up, unless a test says otherwise.
@@ -71,14 +84,15 @@ func _on_asked(lobby: int) -> void:
 		join(lobby)
 		return
 	var whose := Store.steam.lobbies.host_of(lobby)
-	_ask(
-		"Leave this %s to join %s?" % [leaving, whose if not whose.is_empty() else "a friend"],
-		lobby
-	)
+	if whose.is_empty():
+		_ask(tr(LEAVE_FOR_A_FRIEND[leaving]), lobby)
+	else:
+		_ask(tr(LEAVE_FOR[leaving]).format({"friend": whose}), lobby)
 
 
 ## What the player would leave to join a friend's game, in a word, or nothing at the menus: a
-## match, another online game, or a room of this machine's own.
+## match, another online game, or a room of this machine's own. The word is an id, see
+## [constant LEAVE_FOR].
 static func busy_with(scene: Node, online: bool) -> String:
 	var path := scene.scene_file_path if scene != null else ""
 	if path == Game.MATCH_SCENE:
@@ -103,9 +117,10 @@ func join(lobby: int, watching := false) -> void:
 	get_tree().call_group(MatchRecord.GROUP, &"leave")
 	Game.settings.unlink_all()
 	var whose := Store.steam.lobbies.host_of(lobby)
-	wait_on.call(
-		"Joining %s on Steam..." % ("%s's game" % whose if not whose.is_empty() else "the game")
-	)
+	var waiting := tr("Joining the game on Steam...")
+	if not whose.is_empty():
+		waiting = tr("Joining %s's game on Steam...") % whose
+	wait_on.call(waiting)
 	_joining = lobby
 	_watching = watching
 	Store.steam.lobbies.join(lobby)
@@ -174,7 +189,13 @@ func _ask(question: String, lobby: int) -> void:
 			else:
 				_put_the_question_away()
 	)
-	_pane.ask(question, "Steam asked to join their game.", "Join", "Stay", RoadSign.Kind.QUESTION)
+	_pane.ask(
+		question,
+		tr("Steam asked to join their game."),
+		tr("Join"),
+		tr("Stay"),
+		RoadSign.Kind.QUESTION
+	)
 
 
 ## The question up just now, or null.

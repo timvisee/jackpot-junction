@@ -9,8 +9,8 @@ extends Node
 ## connection, it starts with each end saying its version, and a server this game cannot play with
 ## says so rather than listing games nobody here could join.
 
-## At a player's machine: through the server's door, turned away at it with [param reason], or
-## never answered; and later, the server gone.
+## At a player's machine: through the server's door, turned away at it with [param reason], in the
+## language spoken, or never answered; and later, the server gone.
 signal connected
 signal refused(reason: String)
 ## At a player's machine: the server wants a password, the one given was [param wrong] or none was.
@@ -20,7 +20,7 @@ signal lost
 ## At a player's machine: the games the server lists now, see [method ServerHall.listing].
 signal listed(games: Array[Dictionary])
 ## At a player's machine: the game it asked for is up and waiting for it on [param port], or it
-## could not be made, and [param reason] says why.
+## could not be made, and [param reason] says why in the language spoken.
 signal made(port: int)
 signal not_made(reason: String)
 ## At a player's machine: how far along the game it asked for is, from 0 to 1, see [constant
@@ -28,7 +28,7 @@ signal not_made(reason: String)
 signal making(done: float)
 
 ## Where it hangs under [Net], at both ends.
-const NAME := "Server"
+const NAME := "Server"  # NO_TRANSLATE
 ## What a knock asking for a server's list says it is, so that a game knocked at the same way, a
 ## LAN game on the port a server would have, says it is a game rather than seating a list.
 const LISTING := "list"
@@ -211,9 +211,11 @@ func _answer(peer: int, data: PackedByteArray) -> void:
 	if not wanted.is_empty() and GameVersion.compatible(version, theirs):
 		_give_up.call_deferred("", wanted == WRONG)
 		return
-	var why := "Wrong version: the server has %s, you have %s" % [theirs, version]
+	var why := tr("Wrong version: the server has {theirs}, you have {mine}").format(
+		{"theirs": theirs, "mine": version}
+	)
 	if bool(words.get("game", false)):
-		why = "That is a game rather than a server: join it from LAN games"
+		why = tr("That is a game rather than a server: join it from LAN games")
 	_give_up.call_deferred(why)
 
 
@@ -241,16 +243,18 @@ func _make() -> void:
 	_asked[peer] = times
 	if times.size() > MAKES_A_SECOND:
 		if times.size() == MAKES_A_SECOND + 1:
+			# For the log, NO_TRANSLATE.
 			hall.show_out(peer, "%d games asked for in a second, flooding" % times.size())
 		return
 	hall.make_game(peer)
 
 
-## At a player's machine: the server has shown this machine out, and [param why] is what it said.
+## At a player's machine: the server has shown this machine out, and [param why] is what it said,
+## in English as every word for another machine is, GAME.md 10.9, said here in the language spoken.
 @rpc("authority", "call_remote", "reliable")
 func _shown_out(why: String) -> void:
 	_turned_away = true
-	_give_up.call_deferred(why)
+	_give_up.call_deferred(tr(why))
 
 
 ## At a player's machine: the games as the server lists them, each as a found LAN game is, see
@@ -269,9 +273,23 @@ func _made(port: int) -> void:
 	made.emit(port)
 
 
+## At a player's machine: the game asked for could not be made, [param reason] saying why in
+## English, said here in the language spoken.
 @rpc("authority", "call_remote", "reliable")
 func _not_made(reason: String) -> void:
-	not_made.emit(reason)
+	not_made.emit(tr(reason))
+
+
+## At a player's machine: the game asked for could not be made, the server holding [param most] at
+## once and every one of them taken, said here with the number in it.
+@rpc("authority", "call_remote", "reliable")
+func _full(most: int) -> void:
+	var full := tr_n(
+		"The server is full: it holds %d game at once",
+		"The server is full: it holds %d games at once",
+		most
+	)
+	not_made.emit(full % most)
 
 
 @rpc("authority", "call_remote", "reliable")

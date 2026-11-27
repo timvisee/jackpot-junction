@@ -10,6 +10,7 @@ extends Control
 ## Gone, done or skipped.
 signal put_away
 
+## What the pane says, shown through tr().
 const TITLE := "Preparing"
 const LINE := "Compiling shaders, please wait..."
 const SKIP := "Skip"
@@ -54,8 +55,8 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	pane.add_child(column)
-	column.add_child(MenuTheme.title(TITLE, Type.TITLE))
-	var line := MenuTheme.subtitle(LINE, Type.BODY)
+	column.add_child(MenuTheme.title(tr(TITLE), Type.TITLE))
+	var line := MenuTheme.subtitle(tr(LINE), Type.BODY)
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	line.custom_minimum_size = Vector2(WIDE, 0.0)
 	column.add_child(line)
@@ -74,7 +75,7 @@ func _ready() -> void:
 	percent.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	Type.strong(percent, Type.BODY, Palette.CHIP_GOLD)
 	row.add_child(percent)
-	skip_button = MenuTheme.button(SKIP, Type.BODY)
+	skip_button = MenuTheme.button(tr(SKIP), Type.BODY)
 	skip_button.name = "Skip"
 	skip_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	skip_button.custom_minimum_size.x = 200.0

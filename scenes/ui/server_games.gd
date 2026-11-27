@@ -41,13 +41,13 @@ func _ready() -> void:
 	link = Net.link
 	var column := MenuTheme.screen(self, 16)
 	var called := link.server_name if link != null else ""
-	column.add_child(ListBox.fit(MenuTheme.title(called if not called.is_empty() else "Games", 64)))
-	var at := "%s:%d" % [link.address, link.port] if link != null else "the server"
-	column.add_child(
-		ListBox.fit(
-			MenuTheme.subtitle("Connected to %s. Join a game on this server, or make one now." % at)
-		)
-	)
+	var title := called if not called.is_empty() else tr("Games")
+	column.add_child(ListBox.fit(MenuTheme.title(title, 64)))
+	var line := tr("Connected to the server. Join a game on this server, or make one now.")
+	if link != null:
+		var at := "%s:%d" % [link.address, link.port]
+		line = tr("Connected to %s. Join a game on this server, or make one now.") % at
+	column.add_child(ListBox.fit(MenuTheme.subtitle(line)))
 	note = ListBox.fit(red_line())
 	note.text = Game.play_online_note
 	note.visible = not note.text.is_empty()
@@ -55,20 +55,20 @@ func _ready() -> void:
 	column.add_child(note)
 	_games = GameList.new()
 	_games.chosen.connect(_join)
-	_box = ListBox.of("Games on this server", _games, "Make a game")
+	_box = ListBox.of(tr("Games on this server"), _games, tr("Make a game"))
 	_box.link.pressed.connect(_make)
 	column.add_child(_box)
-	make_button = MenuTheme.button("Make a game")
+	make_button = MenuTheme.button(tr("Make a game"))
 	make_button.pressed.connect(_make)
 	column.add_child(make_button)
-	var back := MenuTheme.button("Back", 24)
+	var back := MenuTheme.button(tr("Back"), 24)
 	back.pressed.connect(func() -> void: leave.call(""))
 	column.add_child(back)
-	busy = FormDialog.add_to(self, "Making a game", "The server is starting it for you.")
+	busy = FormDialog.add_to(self, tr("Making a game"), tr("The server is starting it for you."))
 	busy.name = "Busy"
 	making_bar = busy.add_bar()
 	making_bar.visible = false
-	busy_button = busy.add_button("OK")
+	busy_button = busy.add_button(tr("OK"))
 	busy_button.pressed.connect(_busy_done)
 	make_button.grab_focus()
 	if link == null:
@@ -78,7 +78,7 @@ func _ready() -> void:
 	link.made.connect(_on_made)
 	link.not_made.connect(_on_not_made)
 	link.making.connect(_on_making)
-	link.lost.connect(func() -> void: leave.call("The server closed the connection"))
+	link.lost.connect(func() -> void: leave.call(tr("The server closed the connection")))
 	_show_games(link.games)
 
 
@@ -103,7 +103,7 @@ func _make() -> void:
 	if make_button.disabled:
 		return
 	make_button.disabled = true
-	busy.set_title("Making a game", "The server is starting it for you.")
+	busy.set_title(tr("Making a game"), tr("The server is starting it for you."))
 	making_bar.value = 0.0
 	making_bar.visible = true
 	busy_button.visible = false
@@ -125,10 +125,12 @@ func _on_made(port: int) -> void:
 	_enter(port, "join", true)
 
 
+## The game asked for could not be made, and [param reason], in the language spoken, says why, see
+## [signal ServerLink.not_made].
 func _on_not_made(reason: String) -> void:
 	make_button.disabled = false
 	making_bar.visible = false
-	busy.set_title("Could not make a game", "")
+	busy.set_title(tr("Could not make a game"), "")
 	busy_button.visible = true
 	if not busy.is_open():
 		busy.open(busy_button)

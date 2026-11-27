@@ -38,7 +38,8 @@ static func make(side: float, timed: bool) -> LagWarning:
 func show_trip(milliseconds: float) -> void:
 	visible = milliseconds > NetPing.SLOW
 	if visible and _time != null:
-		_time.text = "%d ms" % roundi(milliseconds)
+		# TRANSLATORS: Milliseconds there and back, small, beside a player's name on the HUD.
+		_time.text = tr("%d ms") % roundi(milliseconds)
 
 
 func is_up() -> bool:

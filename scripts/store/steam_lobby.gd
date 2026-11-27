@@ -10,7 +10,7 @@ extends RefCounted
 signal made(lobby: int)
 ## In the lobby, at a player joining, with the host's account to connect to.
 signal entered(lobby: int, host: int)
-## It did not work, and why, for the room to say.
+## It did not work, and why, in the language spoken, for the room to say.
 signal failed(why: String)
 ## Steam asks the game to join [param lobby]: an invite accepted, or Join game in the friends list.
 signal asked(lobby: int)
@@ -112,7 +112,7 @@ func _on_lobby_created(result: int, lobby: int) -> void:
 		return
 	if result != RESULT_OK:
 		hosting = false
-		failed.emit("Steam could not make the game: %d" % result)
+		failed.emit(tr("Steam could not make the game: %d") % result)
 		return
 	id = lobby
 	var version := GameVersion.current()
@@ -175,7 +175,7 @@ func _on_lobby_joined(lobby: int, _permissions: int, _locked: bool, response: in
 	if hosting or id != 0:
 		return
 	if response != ENTERED:
-		failed.emit("Could not get into the game on Steam")
+		failed.emit(tr("Could not get into the game on Steam"))
 		return
 	var why := refusal(
 		str(api.call(&"getLobbyData", lobby, GAME_KEY)),
@@ -224,12 +224,14 @@ func _on_lobby_chat_update(lobby: int, changed: int, _making_change: int, state:
 		host_left.emit()
 
 
-## Why a lobby saying [param game] and [param version] is not one to join here, or nothing.
+## Why a lobby saying [param game] and [param version] is not one to join here, in the language
+## spoken, or nothing.
 static func refusal(game: String, version: String) -> String:
 	if game != GAME:
-		return "That is not a Jackpot Junction game"
+		return Lang.t("That is not a Jackpot Junction game")
 	if not GameVersion.compatible(GameVersion.current(), version):
-		return "That game is version %s, and this one is %s" % [version, GameVersion.current()]
+		var other := Lang.t("That game is version {theirs}, and this one is {mine}")
+		return other.format({"theirs": version, "mine": GameVersion.current()})
 	return ""
 
 

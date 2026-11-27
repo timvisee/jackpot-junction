@@ -34,20 +34,20 @@ func _init(over: Control) -> void:
 	add_child(
 		ListBox.fit(
 			MenuTheme.subtitle(
-				"Games on your network show up here by themselves. Host one, or join a host."
+				tr("Games on your network show up here by themselves. Host one, or join a host.")
 			)
 		)
 	)
 	found = GameList.new()
 	found.chosen.connect(_join_found)
-	box = ListBox.of("Games on your network", found, "Host a game")
+	box = ListBox.of(tr("Games on your network"), found, tr("Host a game"))
 	box.link.pressed.connect(func() -> void: start("host"))
 	add_child(box)
 	var ways := ListBox.button_row()
 	add_child(ways)
-	host_button = ListBox.add_row_button(ways, "Host a game")
+	host_button = ListBox.add_row_button(ways, tr("Host a game"))
 	host_button.pressed.connect(func() -> void: start("host"))
-	direct_button = ListBox.add_row_button(ways, "Direct connect")
+	direct_button = ListBox.add_row_button(ways, tr("Direct connect"))
 	direct_button.pressed.connect(show_form)
 	_build_dialog(over)
 	visibility_changed.connect(_ask_while_up)
@@ -71,22 +71,24 @@ func _ask_while_up() -> void:
 
 func _build_dialog(over: Control) -> void:
 	dialog = FormDialog.add_to(
-		over, "Direct connect", "Join a game by its host's address, for one the list does not find."
+		over,
+		tr("Direct connect"),
+		tr("Join a game by its host's address, for one the list does not find.")
 	)
 	address_field = MenuTheme.host_field(Game.settings.last_address, ServerList.ADDRESS_LENGTH)
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
 	address_field.text_submitted.connect(func(_typed: String) -> void: start("join"))
-	dialog.add_box("Address", address_field)
+	dialog.add_box(tr("Address"), address_field)
 	port_field = MenuTheme.port_field(str(Game.settings.last_port), str(NetSession.DEFAULT_PORT))
 	port_field.custom_minimum_size = Vector2(320.0, 44.0)
 	port_field.text_submitted.connect(func(_typed: String) -> void: start("join"))
-	dialog.add_box("Port", port_field)
-	join_button = dialog.add_button("Join", true)
+	dialog.add_box(tr("Port"), port_field)
+	join_button = dialog.add_button(tr("Join"), true)
 	join_button.pressed.connect(func() -> void: start("join"))
 	# Join to watch, GAME.md 10.3: in the room with everybody, with no kart of your own.
-	watch_button = dialog.add_button("Watch")
+	watch_button = dialog.add_button(tr("Watch"))
 	watch_button.pressed.connect(func() -> void: start("watch"))
-	cancel_button = dialog.add_button("Cancel")
+	cancel_button = dialog.add_button(tr("Cancel"))
 	cancel_button.pressed.connect(put_dialog_away)
 
 
@@ -170,10 +172,10 @@ func _wrong(text: String) -> void:
 func start(mode: String) -> void:
 	var result := config(mode)
 	if result.port <= 0 or result.port > 65535:
-		_wrong("Port must be between 1 and 65535")
+		_wrong(tr("Port must be between 1 and 65535"))
 		return
 	if result.online == "join" and result.address.is_empty():
-		_wrong("Enter the host's address")
+		_wrong(tr("Enter the host's address"))
 		return
 	if result.online == "join" and not ServerList.address_problem(result.address).is_empty():
 		_wrong(ServerList.address_problem(result.address))

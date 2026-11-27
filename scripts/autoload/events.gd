@@ -91,7 +91,8 @@ signal bullet_fired(slot: int)
 signal cannon_jammed(slot: int)
 ## A player put up an emote over their kart, GAME.md 3.8: an index into [constant EmoteArt.EMOTES].
 signal emoted(slot: int, emote: int)
-## Somebody watching put one up, with no kart to put it over: what they are called and which.
+## Somebody watching put one up, with no kart to put it over: what they are called, or nothing for
+## somebody with no name, whom every screen calls a watcher in its own language, and which.
 signal watcher_emoted(watcher: String, emote: int)
 ## Somebody watching at this machine asked the host to put one up, GAME.md 3.8: for Front Row,
 ## 8.10, which is this machine's own.
@@ -162,7 +163,8 @@ signal player_left(slot: int)
 ## 3.14 and 9.6: decided by the host and told, so the puff of it goes up on every screen.
 signal team_joined(slot: int, team: int)
 ## The host showed [param named] out for sending what no copy of the game sends, GAME.md 10.3, see
-## [NetConduct]: said quietly on everybody's screen.
+## [NetConduct]: said quietly on everybody's screen, each in its own language, the name alone going
+## over the wire.
 signal player_kicked(named: String)
 ## A player in the waiting room of GAME.md 9.6 has said they are ready, by holding the pad long
 ## enough, or has taken it back by driving off it. The host works this out, since it is the host

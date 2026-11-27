@@ -83,17 +83,18 @@ func restart_through_steam(app_id: int) -> bool:
 
 ## Starts Steam as [param app_id], always named rather than taken from the environment: a game run
 ## from an editor that Steam started is otherwise the editor's app. GodotSteam runs Steam's
-## callbacks itself every frame. Says why it did not start, or nothing once it has.
+## callbacks itself every frame. Says why it did not start, in English, since it starts before there
+## is a language to say it in, see [member Store.missing], or nothing once it has.
 func start(app_id: int) -> String:
 	var answer: Dictionary = api.call(&"steamInitEx", app_id, true)
 	var status := int(answer.get("status", -1))
 	if status != STARTED:
 		push_warning("Steam did not start: %s (%d)" % [answer.get("verbal", ""), status])
 		if status == NO_CLIENT:
-			return "Steam isn't running"
+			return Lang.later("Steam isn't running")
 		if status == OLD_CLIENT:
-			return "Steam needs updating"
-		return "Steam did not start"
+			return Lang.later("Steam needs updating")
+		return Lang.later("Steam did not start")
 	app = app_id
 	account = int(api.call(&"getSteamID"))
 	lobbies = SteamLobby.new(api)

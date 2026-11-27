@@ -108,16 +108,16 @@ func _confine() -> void:
 
 
 ## Puts [param question] up, with [param message] under it, [param yes] on the button that goes
-## ahead and [param no] on the one that does not, which has the cursor, and a sign of [param kind]
-## before the question.
+## ahead and [param no] on the one that does not, Stay unless it says otherwise, which has the
+## cursor, and a sign of [param kind] before the question.
 func ask(
-	question: String, message: String, yes: String, no := "Stay", kind := RoadSign.Kind.WARNING
+	question: String, message: String, yes: String, no := "", kind := RoadSign.Kind.WARNING
 ) -> void:
 	_sign.kind = kind
 	_title.text = question
 	_message.text = message
 	_yes.text = yes
-	_no.text = no
+	_no.text = no if not no.is_empty() else tr("Stay")
 	# Read as a dialog of the question as the cursor comes into it, see [ScreenReader].
 	ScreenReader.name(self, question, message)
 	visible = true

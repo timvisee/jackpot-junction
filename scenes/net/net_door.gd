@@ -31,6 +31,8 @@ const WRONG := "wrong"
 ## The longest password the lobby's box takes.
 const PASSWORD_LENGTH := 64
 ## What a test's game is listed as, see [method listed_title]: after its name, or for one with none.
+## A game's name, as the one a host gives it is, for a developer's eyes: never translated,
+## NO_TRANSLATE.
 const TEST_MARK := " (test)"
 const TEST_TITLE := "Test game"
 
@@ -153,6 +155,7 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		var theirs := str(words.get("version", "?"))
 		var why := refusal(theirs, answered)
 		if wants_password(theirs, answered):
+			# For the log, NO_TRANSLATE.
 			why = "The password was wrong" if locked == WRONG else "Asked for the password"
 		turned_away.emit(PlayerNames.clean(str(words.get("name", ""))), why)
 	return answered
@@ -282,6 +285,8 @@ func guests(
 		if here != null and not here.get_peers().has(peer):
 			continue
 		var named: String = names.get(peer, "")
+		# Every watcher let in is given a name; this is for one who somehow was not, and goes to the
+		# player with the host's say as a name, NO_TRANSLATE.
 		found.append({"peer": peer, "name": named if not named.is_empty() else "Watcher"})
 	return found
 
@@ -295,22 +300,25 @@ static func wants_password(version: String, words: Dictionary) -> bool:
 	return not locked.is_empty() and compatible(version, theirs) and not shut
 
 
-## What a client with [param version] turned away with the host's [param words] is told.
+## What a client with [param version] turned away with the host's [param words] is told, in the
+## language spoken: made at the client from what the host said, and at a dedicated server, which
+## speaks English, for its log.
 static func refusal(version: String, words: Dictionary) -> String:
 	# A dedicated server on the port a LAN game is hosted on, GAME.md 9.3a.
 	if bool(words.get("server", false)):
-		return "That is a dedicated server: find its games in Play Online"
+		return Lang.t("That is a dedicated server: find its games in Play Online")
 	var theirs := str(words.get("version", "?"))
 	if not compatible(version, theirs):
-		return "Wrong version: the host has %s, you have %s" % [theirs, version]
+		var wrong := Lang.t("Wrong version: the host has {theirs}, you have {mine}")
+		return wrong.format({"theirs": theirs, "mine": version})
 	if bool(words.get("outside", false)):
-		return "This server has a password: join its games from Play Online"
+		return Lang.t("This server has a password: join its games from Play Online")
 	if bool(words.get("barred", false)):
-		return "You can't join this game"
+		return Lang.t("You can't join this game")
 	if bool(words.get("closed", false)):
-		return "This game is not open to watchers"
+		return Lang.t("This game is not open to watchers")
 	if bool(words.get("full", false)):
 		if bool(words.get("watch", false)):
-			return "As many are watching as the match can take"
-		return "The match is full"
-	return "The host turned you away"
+			return Lang.t("As many are watching as the match can take")
+		return Lang.t("The match is full")
+	return Lang.t("The host turned you away")

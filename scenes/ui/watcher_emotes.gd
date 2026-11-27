@@ -48,7 +48,8 @@ func _exit_tree() -> void:
 func _on_watcher_emoted(watcher: String, emote: int) -> void:
 	# Nor a watcher muted here, GAME.md 10.8.
 	if not Muted.watcher(watcher):
-		float_up(watcher, INK, emote)
+		# TRANSLATORS: Under an emote floating up, for somebody watching the match who has no name.
+		float_up(watcher if not watcher.is_empty() else tr("Watcher"), INK, emote)
 
 
 ## A player's emote, which goes over their kart unless they are dead, see [Emotes].

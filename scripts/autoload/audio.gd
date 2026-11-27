@@ -428,9 +428,10 @@ func _beats() -> float:
 	return position * bpm() / 60.0
 
 
-## One line for the debug overlay: the layer, both players' levels and positions, and the mute.
+## One line for the debug overlay, in English as the overlay is: the layer, both players' levels and
+## positions, and the mute.
 func music_debug() -> String:
-	var parts: PackedStringArray = ["music %s L%d" % [current_layer, excitement]]
+	var parts: PackedStringArray = ["music %s L%d" % [current_layer, excitement]]  # NO_TRANSLATE
 	for i: int in _music_players.size():
 		var player := _music_players[i]
 		var file := "-"
@@ -446,12 +447,12 @@ func music_debug() -> String:
 				)
 			)
 		else:
-			parts.append("%s%s off" % [mark, file])
-	parts.append("open %3.0f%%" % (_open * 100.0))
+			parts.append("%s%s off" % [mark, file])  # NO_TRANSLATE
+	parts.append("open %3.0f%%" % (_open * 100.0))  # NO_TRANSLATE
 	if _muffle > 0.0:
-		parts.append("under %3.0f%%" % (_muffle * 100.0))
+		parts.append("under %3.0f%%" % (_muffle * 100.0))  # NO_TRANSLATE
 	if is_music_muted():
-		parts.append("MUTED")
+		parts.append("MUTED")  # NO_TRANSLATE
 	elif not music_enabled:
 		parts.append("disabled")
 	return "  ".join(parts)

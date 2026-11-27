@@ -22,7 +22,8 @@ extends RefCounted
 ## Something dropped, with the address it came from and why, for the log.
 signal dropped(address: String, why: String)
 
-## What a client shown out for misbehaving is told, at the hall or in a game, see [NetConduct].
+## What a client shown out for misbehaving is told, at the hall or in a game, see [NetConduct]: in
+## English, shown through tr() by the machine it is told.
 const KICKED := "Kicked: abnormal behavior detected"
 ## What every hello says it is, under [constant MAGIC_KEY], so a connection of the engine's own kind
 ## that is not the game is known for what it is, see [method marked].
@@ -102,9 +103,9 @@ func came(peer: int) -> void:
 			waiting += 1
 	_waiting[peer] = [address, 0]
 	if waiting >= WAITING_AT_ONCE:
-		drop(peer, "%d connections waiting at once, a scan or a flood" % (waiting + 1))
+		drop(peer, "%d connections waiting at once, a scan or a flood" % (waiting + 1))  # NO_TRANSLATE
 	elif times.size() > PER_MINUTE:
-		drop(peer, "%d connections in a minute, a scan or a flood" % times.size())
+		drop(peer, "%d connections in a minute, a scan or a flood" % times.size())  # NO_TRANSLATE
 
 
 ## [param peer] said hello, [param data]: what it said, or empty, and dropped, for garbage or for a
@@ -114,11 +115,11 @@ func heard(peer: int, data: PackedByteArray) -> Dictionary:
 	entry[1] = int(entry[1]) + 1
 	_waiting[peer] = entry
 	if int(entry[1]) > 1:
-		drop(peer, "said hello twice")
+		drop(peer, "said hello twice")  # NO_TRANSLATE
 		return {}
 	var knock := knock_of(data)
 	if knock.is_empty():
-		drop(peer, "said %d bytes that are not a Jackpot Junction hello" % data.size())
+		drop(peer, "said %d bytes that are not a Jackpot Junction hello" % data.size())  # NO_TRANSLATE
 	return knock
 
 
@@ -130,7 +131,7 @@ func settled(peer: int) -> void:
 ## The handshake ran out of time for [param peer], which the engine drops for it.
 func timed_out(peer: int) -> void:
 	if _waiting.has(peer):
-		dropped.emit(str(_waiting[peer][0]), "connected and never said hello")
+		dropped.emit(str(_waiting[peer][0]), "connected and never said hello")  # NO_TRANSLATE
 	_waiting.erase(peer)
 
 
@@ -159,6 +160,7 @@ func watch(delta: float) -> void:
 	var now := Time.get_ticks_msec() * 0.001
 	if rate > expected and now - _flood_said >= FLOOD_QUIET:
 		_flood_said = now
+		# For the log, NO_TRANSLATE.
 		dropped.emit(
 			"somewhere",
 			(

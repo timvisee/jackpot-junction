@@ -58,31 +58,51 @@ static func title_of(game: Dictionary) -> String:
 	return default_title(SteamWords.heard(str(game.get("name", "")), host))
 
 
-## What a game hosted by [param host] is called when it was given no name.
+## What a game hosted by [param host] is called when it was given no name, or by a host with none.
 static func default_title(host: String) -> String:
 	var named := PlayerNames.clean(host)
-	return "%s's game" % (named if not named.is_empty() else "Host")
+	if named.is_empty():
+		# TRANSLATORS: A game in a list of games, named after its host, who has no name.
+		return Lang.t("Host's game")
+	# TRANSLATORS: A game in a list of games with no name of its own, named after its host: Ann's.
+	return Lang.t("%s's game") % named
 
 
 ## How [param game] stands, in a line under its name: in the lobby or on which map, how many play
 ## in it and may, and the rest.
 static func describe(game: Dictionary) -> String:
-	var where := "In the lobby"
+	var where := Lang.t("In the lobby")
 	if not game["lobby"]:
-		var map := PlayerNames.clean(str(game.get("map", "")), MAP_LENGTH)
-		where = "Playing %s" % map if not map.is_empty() else "Playing"
+		var map := map_words(PlayerNames.clean(str(game.get("map", "")), MAP_LENGTH))
+		where = Lang.t("Playing %s") % map if not map.is_empty() else Lang.t("Playing")
 	var parts: PackedStringArray = [where]
 	if bool(game.get("chips", false)):
 		var mode := PlayerNames.clean(str(game.get("mode", "")), MAP_LENGTH)
 		if not mode.is_empty():
 			parts.append(mode)
 	else:
-		parts.append("%d/%d players" % [game["players"], game["most"]])
+		var most := int(game["most"])
+		var count := Lang.tn("{players}/{most} player", "{players}/{most} players", most)
+		parts.append(count.format({"players": int(game["players"]), "most": most}))
 	if game["password"]:
-		parts.append("password")
+		# TRANSLATORS: In the line under a game's name in a list of games: it wants a password.
+		parts.append(Lang.t("password"))
 	if not NetDoor.compatible(Game.version(), str(game["version"])):
-		parts.append("version %s" % game["version"])
+		# TRANSLATORS: In the line under a game's name in a list of games: the version it plays.
+		parts.append(Lang.t("version %s") % game["version"])
 	return " · ".join(parts)
+
+
+## [param said], the map a game on the network says it is on, in the language spoken: written in
+## English on the wire, "Crossfire, map 2 of 3" in a Grand Prix, see [method LanBeacon.map_of], and
+## read back here into the map and how far along it is.
+static func map_words(said: String) -> String:
+	var parts := said.split(", map ", true, 1)
+	var leg := parts[1].split(" of ") if parts.size() == 2 else PackedStringArray()
+	if leg.size() != 2 or not leg[0].is_valid_int() or not leg[1].is_valid_int():
+		return Lang.t(said)
+	var words := Lang.t("{map}, map {leg} of {legs}")
+	return words.format({"map": Lang.t(parts[0]), "leg": int(leg[0]), "legs": int(leg[1])})
 
 
 ## Where [param game] is hosted, for its tooltip: the host's address and port, for a game found on
@@ -91,7 +111,7 @@ static func describe(game: Dictionary) -> String:
 static func where(game: Dictionary) -> String:
 	if not game.has("address"):
 		return ""
-	return "Host: %s:%d" % [game["address"], int(game["port"])]
+	return Lang.t("Host: %s") % ("%s:%d" % [game["address"], int(game["port"])])
 
 
 ## One game: the button that joins it, saying what it is, and where it is hosted when a pointer
@@ -115,10 +135,12 @@ func _row(game: Dictionary) -> HBoxContainer:
 	join.tooltip_text = where(game)
 	join.pressed.connect(func() -> void: chosen.emit(game, "join"))
 	row.add_child(join)
-	var watch := IconButton.of(IconButton.Kind.EYE, "Watch")
+	var watch := IconButton.of(IconButton.Kind.EYE, tr("Watch"))
 	watch.name = "Watch%d" % int(game["id"])
 	watch.disabled = not playable or not bool(game.get("watching", true))
-	watch.tooltip_text = ("Watch without a kart" if not watch.disabled else "Not open to watchers")
+	watch.tooltip_text = (
+		tr("Watch without a kart") if not watch.disabled else tr("Not open to watchers")
+	)
 	watch.pressed.connect(func() -> void: chosen.emit(game, "watch"))
 	row.add_child(watch)
 	return row

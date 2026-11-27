@@ -117,4 +117,4 @@ func _count_settled(slot: int) -> void:
 
 
 func debug_text() -> String:
-	return "takes %d, %d put back" % [taken, put_back]
+	return "takes %d, %d put back" % [taken, put_back]  # NO_TRANSLATE

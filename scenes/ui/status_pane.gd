@@ -49,12 +49,12 @@ func say(text: String, color: Color = Palette.NEON_CYAN) -> void:
 	visible = true
 
 
-## The room is over: says why, in red, and goes back to the menu once it has been read, the one
-## the room was reached from, see [method Game.back_to_the_menu].
+## The room is over: says why, [param message], in red, and goes back to the menu once it has been
+## read, the one the room was reached from, see [method Game.back_to_the_menu].
 func fail(message: String) -> void:
 	layer = OVER
 	ScreenReader.live(_label, true)
-	say(message + "\nReturning to the menu...", Palette.CHIP_RED)
+	say(message + "\n" + tr("Returning to the menu..."), Palette.CHIP_RED)
 	get_tree().create_timer(RETURN_DELAY).timeout.connect(
 		func() -> void: Game.back_to_the_menu(message)
 	)

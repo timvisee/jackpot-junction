@@ -148,17 +148,19 @@ static func runs_the_hall() -> bool:
 
 
 ## What is wrong with the arguments, for the server to say before it gives up, or nothing. Each
-## names the environment's setting as well as the argument, since either may have said it.
+## names the environment's setting as well as the argument, since either may have said it. Said on
+## the server's console, in English as all of it is, GAME.md 10.9.
 func problem() -> String:
 	if games < 1 or games > MOST_GAMES:
-		return "--games (JJ_GAMES) must be between 1 and %d" % MOST_GAMES
+		return "--games (JJ_GAMES) must be between 1 and %d" % MOST_GAMES  # NO_TRANSLATE
 	if port < 1 or port > 65535:
-		return "--port (JJ_PORT) must be a port, 1 to 65535"
+		return "--port (JJ_PORT) must be a port, 1 to 65535"  # NO_TRANSLATE
 	if first_game_port == 0 and port + games > 65535:
-		return "--port (JJ_PORT) must leave room for its games' ports below 65536"
+		return "--port (JJ_PORT) must leave room for its games' ports below 65536"  # NO_TRANSLATE
 	if table not in TABLES:
-		return "--table (JJ_TABLE) must be one of %s" % ", ".join(TABLES)
+		return "--table (JJ_TABLE) must be one of %s" % ", ".join(TABLES)  # NO_TRANSLATE
 	if web_port != -1 and (web_port < 0 or web_port > 65535):
+		# The console's, NO_TRANSLATE.
 		return "--web-port (JJ_WEB_PORT) must be a port, 1 to 65535, or 0 for no page"
 	return _range_problem() if first_game_port != 0 else ""
 
@@ -172,11 +174,14 @@ func web() -> int:
 ## What is wrong with the range of ports the games are to be played on, or nothing.
 func _range_problem() -> String:
 	if first_game_port < 1 or last_game_port > 65535 or first_game_port > last_game_port:
+		# The console's, NO_TRANSLATE.
 		return "--game-ports (JJ_GAME_PORTS) must be the first and last port, such as 7778-7785"
 	if port >= first_game_port and port <= last_game_port:
+		# The console's, NO_TRANSLATE.
 		return "--game-ports (JJ_GAME_PORTS) must leave out the server's own port, %d" % port
 	var room := last_game_port - first_game_port + 1
 	if games > room:
+		# The console's, NO_TRANSLATE.
 		return (
 			"--games (JJ_GAMES) is %d, but --game-ports (JJ_GAME_PORTS) has only %d ports"
 			% [games, room]

@@ -618,7 +618,7 @@ func _tell_push(device: int, stick: String, push: Vector2) -> void:
 	var way := ""
 	if push.length() > 0.9:
 		way = ("right" if push.x > 0.0 else "left") if absf(push.x) > absf(push.y) else ""
-		way = way if not way.is_empty() else ("y more" if push.y > 0.0 else "y less")
+		way = way if not way.is_empty() else ("y more" if push.y > 0.0 else "y less")  # NO_TRANSLATE
 	var key := "%d %s" % [device, stick]
 	if way != _pushed.get(key, ""):
 		_pushed[key] = way

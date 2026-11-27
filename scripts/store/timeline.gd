@@ -52,9 +52,10 @@ const MARKS: Dictionary[StringName, Array] = {
 ## The game's own icons, uploaded to Steamworks under these names, docs/STEAM.md.
 const OWN_ICONS: Array[String] = ["jj_royal_flush", "jj_777", "jj_cards"]
 ## A number in Steam's own icons, 0 to 99: a place, drawn as its figure.
-const NUMBER_ICON := "steam_%d"
+const NUMBER_ICON := "steam_%d"  # NO_TRANSLATE
 const MOST_NUMBER := 99
-## The groups a game phase's tags are shown in, and its one line of words.
+## The groups a game phase's tags are shown in, and its one line of words, shown through tr() as
+## they are told to Steam, whose timeline shows them.
 const MODE_GROUP := "Mode"
 const MAPS_GROUP := "Maps"
 const RESULT_GROUP := "Result"
@@ -72,7 +73,8 @@ static var _maps: Array[String] = []
 
 
 ## Marks the moment [param id] of [constant MARKS] now, as [param title] over [param description],
-## in its icon or [param icon] in its place. Steam's handle for it, 0 with no Steam.
+## words in the language spoken, which Steam's timeline shows as they are, in its icon or [param
+## icon] in its place. Steam's handle for it, 0 with no Steam.
 static func mark(id: StringName, title: String, description := "", icon := "") -> int:
 	if not Store.on():
 		return 0
@@ -115,7 +117,7 @@ static func place_icon(place: int) -> String:
 
 ## The game phase of [param key], a Grand Prix or a map played alone, begun unless it is the one
 ## being recorded already, the one before it ended first; tagged with [param modes], what kind of
-## play it is.
+## play it is, in the language spoken.
 static func begin_phase(key: String, modes: Array[String]) -> void:
 	if key == _phase or not Store.on():
 		return
@@ -124,28 +126,33 @@ static func begin_phase(key: String, modes: Array[String]) -> void:
 	_maps.clear()
 	Store.steam.phase_start("%s-%d" % [key, int(Time.get_unix_time_from_system())])
 	for mode: String in modes:
-		Store.steam.phase_tag(mode, MODE_ICON, MODE_GROUP, TAG_PRIORITY)
+		Store.steam.phase_tag(mode, MODE_ICON, Lang.t(MODE_GROUP), TAG_PRIORITY)
 
 
-## [param map] tagged on the game phase being recorded, once however often it is played in it.
+## [param map], its name in the language spoken, tagged on the game phase being recorded, once
+## however often it is played in it.
 static func phase_map(map: String) -> void:
 	if _phase.is_empty() or map in _maps or not Store.on():
 		return
 	_maps.append(map)
-	Store.steam.phase_tag(map, MAP_ICON, MAPS_GROUP, TAG_PRIORITY)
+	Store.steam.phase_tag(map, MAP_ICON, Lang.t(MAPS_GROUP), TAG_PRIORITY)
 
 
 ## How the game phase being recorded went, [param place] of [param sides], with [param score] for
-## its line: tagged "Won" or the place, and the line "3,120 points · 1st of 4".
+## its line, in the language spoken: tagged "Won" or the place, and the line "3,120 points · 1st of
+## 4".
 static func phase_result(place: int, sides: int, score: String) -> void:
 	if _phase.is_empty() or not Store.on():
 		return
 	var placed := ordinal(place)
 	var won := place == 1
 	var icon := WON_ICON if won else place_icon(place)
-	Store.steam.phase_tag("Won" if won else placed, icon, RESULT_GROUP, TAG_PRIORITY)
-	var line := "%s · %s of %d" % [score, placed, sides]
-	Store.steam.phase_attribute(SCORE_GROUP, line, TAG_PRIORITY)
+	# TRANSLATORS: How a game went, tagged on Steam's recording of it: won, or else the place.
+	var result := Lang.t("Won") if won else placed
+	Store.steam.phase_tag(result, icon, Lang.t(RESULT_GROUP), TAG_PRIORITY)
+	var line := Lang.t("{score} · {place} of {sides}")
+	line = line.format({"score": score, "place": placed, "sides": sides})
+	Store.steam.phase_attribute(Lang.t(SCORE_GROUP), line, TAG_PRIORITY)
 
 
 ## Ends the game phase being recorded, if any.
@@ -163,15 +170,16 @@ static func phase() -> String:
 	return _phase
 
 
-## A place in words: 1st, 2nd, 3rd, 4th and on.
+## A place in words, in the language spoken: 1st, 2nd, 3rd, 4th and on.
 static func ordinal(place: int) -> String:
-	var tail := "th"
+	# TRANSLATORS: A place in a race, 4th, and so for every number but those ending 1st, 2nd, 3rd.
+	var words := Lang.t("%dth")
 	if place % 100 < 11 or place % 100 > 13:
 		match place % 10:
 			1:
-				tail = "st"
+				words = Lang.t("%dst")
 			2:
-				tail = "nd"
+				words = Lang.t("%dnd")
 			3:
-				tail = "rd"
-	return "%d%s" % [place, tail]
+				words = Lang.t("%drd")
+	return words % place

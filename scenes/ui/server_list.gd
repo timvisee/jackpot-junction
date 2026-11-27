@@ -76,11 +76,12 @@ static func entry(
 ## nothing: an IPv4 or IPv6 address, the latter with or without its square brackets, or a host name,
 ## its labels of letters, digits and hyphens, none longer than 63 nor starting or ending with a
 ## hyphen. All digits and dots is an IPv4 address or nothing, so 999.1.1.1 is not a host name. An
-## address with a port after it is said to be one, since the port has a box of its own.
+## address with a port after it is said to be one, since the port has a box of its own. In the
+## language spoken.
 static func address_problem(typed: String) -> String:
 	var address := typed.strip_edges()
 	if address.is_empty():
-		return "Enter an address"
+		return Lang.t("Enter an address")
 	if address.begins_with("[") and address.ends_with("]"):
 		address = address.substr(1, address.length() - 2)
 	if address.is_valid_ip_address():
@@ -88,9 +89,9 @@ static func address_problem(typed: String) -> String:
 	var colon := address.rfind(":")
 	if colon > 0 and address.count(":") == 1 and address.substr(colon + 1).is_valid_int():
 		if address_problem(address.left(colon)).is_empty():
-			return "Put the port in the Port box"
+			return Lang.t("Put the port in the Port box")
 	if not _host_name(address):
-		return "That is not an address: use an IP address or a host name"
+		return Lang.t("That is not an address: use an IP address or a host name")
 	return ""
 
 
@@ -169,7 +170,8 @@ static func same(a: Dictionary, b: Dictionary) -> bool:
 
 ## The rows made again for [param servers], with the cursor on the row of [param focus] if that
 ## is one of them: on its button called [param part], Server, Grip, Edit or Remove, so a server
-## being moved keeps the cursor on the grip moving it. One picked up stays picked up.
+## being moved keeps the cursor on the grip moving it. One picked up stays picked up. NO_TRANSLATE:
+## the buttons by name.
 func show_servers(servers: Array[Dictionary], focus: Dictionary = {}, part := "Server") -> void:
 	_dragged = null
 	set_process(false)
@@ -211,7 +213,7 @@ func _row(server: Dictionary, index: int) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	row.set_meta(&"server", server)
-	var grip := IconButton.of(IconButton.Kind.GRIP, "Drag to move")
+	var grip := IconButton.of(IconButton.Kind.GRIP, tr("Drag to move"))
 	grip.name = "Grip%d" % index
 	grip.mouse_default_cursor_shape = Control.CURSOR_DRAG
 	grip.gui_input.connect(_on_grip.bind(row, grip))
@@ -224,11 +226,11 @@ func _row(server: Dictionary, index: int) -> HBoxContainer:
 	join.pressed.connect(func() -> void: chosen.emit(server))
 	row.add_child(join)
 	MenuTheme.two_lines(join, label(server), under(server), WHERE_INK)
-	var edit := IconButton.of(IconButton.Kind.PENCIL, "Edit")
+	var edit := IconButton.of(IconButton.Kind.PENCIL, tr("Edit"))
 	edit.name = "Edit%d" % index
 	edit.pressed.connect(func() -> void: editing.emit(server))
 	row.add_child(edit)
-	var remove := IconButton.of(IconButton.Kind.TRASH, "Remove")
+	var remove := IconButton.of(IconButton.Kind.TRASH, tr("Remove"))
 	remove.name = "Remove%d" % index
 	remove.pressed.connect(func() -> void: removing.emit(server))
 	row.add_child(remove)

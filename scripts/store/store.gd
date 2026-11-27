@@ -22,8 +22,9 @@ const STORE_PAGE := "https://store.steampowered.com/app/%d"
 ## Steam Input's controllers as the game's pads, GAME.md 10.8, by path: [SteamPads].
 const STEAM_PADS := "res://scripts/store/steam_pads.gd"
 ## Where Steam names the controllers it reads for a game it starts, for the engine to leave them
-## alone, see tools/steam-run; and what a run with Steam Input that has none says.
+## alone, see tools/steam-run; and what a run with Steam Input that has none says, in the log.
 const IGNORED_ENV := "SDL_GAMECONTROLLER_IGNORE_DEVICES"
+# The log's, NO_TRANSLATE.
 const TWICE := (
 	"Steam Input reads the controllers, but neither Steam nor make steam-run started the game, so"
 	+ " the engine reads them too and each press may come twice"
@@ -32,7 +33,8 @@ const TWICE := (
 ## Steam, once started, or null: none wanted, none in this build, or none answering.
 static var steam: SteamStore
 ## Why there is no Steam where one was wanted, for the screens that offer what Steam does, or
-## empty.
+## empty: in English, as it is known before the settings say which language to speak, and
+## translated where it is shown.
 static var missing := ""
 ## Whether Steam is starting the game again itself, GAME.md 10.8, so this one quits at once.
 static var restarting := false
@@ -71,7 +73,7 @@ static func start(args: PackedStringArray, serving: bool) -> void:
 			_start_for_pads()
 		return
 	if not Engine.has_singleton(SINGLETON):
-		missing = "This build has no Steam in it"
+		missing = Lang.later("This build has no Steam in it")
 		push_warning("Steam was asked for, but GodotSteam is not here: make steam-addon")
 		return
 	var app := app_id()

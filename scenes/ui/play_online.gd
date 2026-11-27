@@ -28,11 +28,11 @@ extends Control
 ## kept with the server if it is on the list, and for the rest of the run if it is not, so coming
 ## back from its games, or to it again, does not ask again.
 
-## The tabs, by the names they are kept under, and what each is called; Steam only in a Steam
-## build.
+## The tabs, by the names they are kept under; Steam only in a Steam build.
 const STEAM_TAB := "steam"
 const SERVERS_TAB := "servers"
 const LAN_TAB := "lan"
+## What each tab is called, shown through tr().
 const TAB_TITLES: Dictionary[String, String] = {
 	STEAM_TAB: "Steam",
 	SERVERS_TAB: "Servers",
@@ -109,7 +109,7 @@ var _back_button: Button
 
 func _ready() -> void:
 	var column := MenuTheme.screen(self, 16)
-	column.add_child(MenuTheme.title("Play Online", 64))
+	column.add_child(MenuTheme.title(tr("Play Online"), 64))
 	var steam := Store.on() or not Store.missing.is_empty()
 	if steam:
 		tab_keys.append(STEAM_TAB)
@@ -124,7 +124,9 @@ func _ready() -> void:
 	column.add_child(servers_page)
 	servers_page.add_child(
 		ListBox.fit(
-			MenuTheme.subtitle("Connect to a dedicated server to see the games being played on it.")
+			MenuTheme.subtitle(
+				tr("Connect to a dedicated server to see the games being played on it.")
+			)
 		)
 	)
 	_servers = ServerList.new()
@@ -134,21 +136,21 @@ func _ready() -> void:
 	_servers.removing.connect(_ask_to_remove)
 	_servers.editing.connect(show_edit)
 	_servers.moved.connect(_move)
-	servers_box = ListBox.of("Your servers", _servers, "Add a server")
+	servers_box = ListBox.of(tr("Your servers"), _servers, tr("Add a server"))
 	servers_box.link.pressed.connect(func() -> void: show_form(true))
 	servers_page.add_child(servers_box)
 	var ways := ListBox.button_row()
 	servers_page.add_child(ways)
-	adding_button = ListBox.add_row_button(ways, "Add a server")
+	adding_button = ListBox.add_row_button(ways, tr("Add a server"))
 	adding_button.pressed.connect(func() -> void: show_form(true))
-	direct_button = ListBox.add_row_button(ways, "Direct connect")
+	direct_button = ListBox.add_row_button(ways, tr("Direct connect"))
 	direct_button.pressed.connect(func() -> void: show_form(false))
 	# Somebody's machine on the same network hosting rather than a server, GAME.md 9.3.
 	lan = LanPage.new(self)
 	column.add_child(lan)
 	note = ListBox.fit(ServerGames.red_line())
 	column.add_child(note)
-	var back := MenuTheme.button("Back", 24)
+	var back := MenuTheme.button(tr("Back"), 24)
 	back.pressed.connect(_back)
 	column.add_child(back)
 	_back_button = back
@@ -187,7 +189,7 @@ func _tabs_row() -> MarginContainer:
 	room.add_child(row)
 	var titles: Array[String] = []
 	for key: String in tab_keys:
-		titles.append(TAB_TITLES[key])
+		titles.append(tr(TAB_TITLES[key]))
 	tab_bar = ListBox.tabs(titles)
 	tab_bar.name = "Tabs"
 	tab_bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -254,38 +256,38 @@ func _first_way_of(key: String) -> Control:
 
 func _build_dialog() -> void:
 	dialog = FormDialog.add_to(self, "", "")
-	server_name_field = MenuTheme.field("", "Optional", ServerList.NAME_LENGTH)
+	server_name_field = MenuTheme.field("", tr("Optional"), ServerList.NAME_LENGTH)
 	server_name_field.custom_minimum_size = Vector2(320.0, 44.0)
 	server_name_field.text_submitted.connect(func(_typed: String) -> void: _submit())
-	_name_row = dialog.add_box("Name", server_name_field)
+	_name_row = dialog.add_box(tr("Name"), server_name_field)
 	address_field = MenuTheme.host_field(Game.settings.last_server, ServerList.ADDRESS_LENGTH)
 	address_field.custom_minimum_size = Vector2(320.0, 44.0)
 	address_field.text_submitted.connect(func(_typed: String) -> void: _submit())
-	dialog.add_box("Address", address_field)
+	dialog.add_box(tr("Address"), address_field)
 	port_field = MenuTheme.port_field(str(Game.settings.last_server_port), str(ServerArgs.PORT))
 	port_field.custom_minimum_size = Vector2(320.0, 44.0)
 	port_field.text_submitted.connect(func(_typed: String) -> void: _submit())
-	dialog.add_box("Port", port_field)
-	add_button = dialog.add_button("Add", true)
+	dialog.add_box(tr("Port"), port_field)
+	add_button = dialog.add_button(tr("Add"), true)
 	add_button.pressed.connect(_add)
-	add_connect_button = dialog.add_button("Add and connect")
+	add_connect_button = dialog.add_button(tr("Add and connect"))
 	add_connect_button.pressed.connect(_add_and_connect)
-	connect_button = dialog.add_button("Connect", true)
+	connect_button = dialog.add_button(tr("Connect"), true)
 	connect_button.pressed.connect(_connect)
-	cancel_button = dialog.add_button("Cancel")
+	cancel_button = dialog.add_button(tr("Cancel"))
 	cancel_button.pressed.connect(_put_dialog_away)
 
 
 func _build_busy() -> void:
-	busy = FormDialog.add_to(self, "Connecting", "")
+	busy = FormDialog.add_to(self, tr("Connecting"), "")
 	busy.name = "Busy"
 	busy_bar = busy.add_bar()
-	busy_button = busy.add_button("Cancel")
+	busy_button = busy.add_button(tr("Cancel"))
 	busy_button.pressed.connect(_busy_pressed)
 
 
 func _build_password() -> void:
-	password_dialog = FormDialog.add_to(self, "Password", "")
+	password_dialog = FormDialog.add_to(self, tr("Password"), "")
 	password_dialog.name = "Password"
 	password_field = MenuTheme.field("", "", ServerArgs.PASSWORD_LENGTH)
 	password_field.secret = true
@@ -293,10 +295,10 @@ func _build_password() -> void:
 	password_field.text_submitted.connect(func(_typed: String) -> void: _give_password())
 	# A dialog for the box alone: Steam's keyboard comes up for it at once, GAME.md 10.8.
 	password_field.set_meta(SteamKeyboard.AT_ONCE, true)
-	password_dialog.add_box("Password", password_field)
-	password_button = password_dialog.add_button("Connect")
+	password_dialog.add_box(tr("Password"), password_field)
+	password_button = password_dialog.add_button(tr("Connect"))
 	password_button.pressed.connect(_give_password)
-	var cancel := password_dialog.add_button("Cancel")
+	var cancel := password_dialog.add_button(tr("Cancel"))
 	cancel.pressed.connect(_put_password_away)
 
 
@@ -325,7 +327,7 @@ func _build_question() -> void:
 ## The kept servers again, with the cursor on the row of [param focus] if it is one of them, on its
 ## button called [param part], see [method ServerList.show_servers], or else on the first row, or
 ## on Add a server.
-func show_list(focus: Dictionary = {}, part := "Server") -> void:
+func show_list(focus: Dictionary = {}, part := "Server") -> void:  # NO_TRANSLATE
 	_servers.show_servers(Game.settings.servers, focus, part)
 	if focus.is_empty() or not _kept(focus):
 		var first := _servers.connect_button(0)
@@ -336,15 +338,15 @@ func show_list(focus: Dictionary = {}, part := "Server") -> void:
 ## without keeping it.
 func show_form(adding: bool) -> void:
 	dialog.set_title(
-		"Add a server" if adding else "Direct connect",
+		tr("Add a server") if adding else tr("Direct connect"),
 		(
-			"Keep a server on your list, to connect to it again in one press."
+			tr("Keep a server on your list, to connect to it again in one press.")
 			if adding
-			else "Connect to a server without keeping it on your list."
+			else tr("Connect to a server without keeping it on your list.")
 		)
 	)
 	_editing = {}
-	add_button.text = "Add"
+	add_button.text = tr("Add")
 	_name_row.visible = adding
 	add_button.visible = adding
 	add_connect_button.visible = adding
@@ -360,8 +362,8 @@ func show_form(adding: bool) -> void:
 ## where it is, kept in its place on the list with Save.
 func show_edit(server: Dictionary) -> void:
 	show_form(true)
-	dialog.set_title("Edit a server", "Change what a kept server is called or where it is.")
-	add_button.text = "Save"
+	dialog.set_title(tr("Edit a server"), tr("Change what a kept server is called or where it is."))
+	add_button.text = tr("Save")
 	# Editing a kept server only saves it; connecting is a press on its own row on the list.
 	add_connect_button.visible = false
 	_editing = server
@@ -380,7 +382,7 @@ func _move(server: Dictionary, to: int) -> void:
 	kept.remove_at(at)
 	kept.insert(to, server)
 	Game.settings.save_to_disk()
-	show_list(server, "Grip")
+	show_list(server, "Grip")  # NO_TRANSLATE
 
 
 func _index_of(server: Dictionary) -> int:
@@ -450,7 +452,7 @@ func _put_dialog_away() -> void:
 	var adding := add_button.visible
 	dialog.close()
 	if not _editing.is_empty():
-		show_list(_editing, "Edit")
+		show_list(_editing, "Edit")  # NO_TRANSLATE
 		_editing = {}
 		return
 	(adding_button if adding else direct_button).grab_focus.call_deferred()
@@ -469,14 +471,14 @@ func _typed_server() -> Dictionary:
 	var address := address_field.text.strip_edges()
 	var port := int(port_field.text) if port_field.text.is_valid_int() else ServerArgs.PORT
 	if address.is_empty():
-		dialog.say("Enter the server's address")
+		dialog.say(tr("Enter the server's address"))
 		return {}
 	var wrong := ServerList.address_problem(address)
 	if not wrong.is_empty():
 		dialog.say(wrong)
 		return {}
 	if port <= 0 or port > 65535:
-		dialog.say("Port must be between 1 and 65535")
+		dialog.say(tr("Port must be between 1 and 65535"))
 		return {}
 	return ServerList.entry(server_name_field.text, address, port)
 
@@ -511,7 +513,7 @@ func _keep(server: Dictionary) -> bool:
 	if not _editing.is_empty():
 		var editing := _index_of(_editing)
 		if at >= 0 and at != editing:
-			dialog.say("That server is on your list already")
+			dialog.say(tr("That server is on your list already"))
 			return false
 		at = editing
 		_editing = {}
@@ -521,7 +523,7 @@ func _keep(server: Dictionary) -> bool:
 			server["called"] = kept[at].get("called", "")
 		kept[at] = server
 	elif kept.size() >= ServerList.MOST:
-		dialog.say("Your list is full: remove a server first")
+		dialog.say(tr("Your list is full: remove a server first"))
 		return false
 	else:
 		kept.append(server)
@@ -551,10 +553,10 @@ func _ask_to_remove(server: Dictionary) -> void:
 	_removing = server
 	_ask_layer.visible = true
 	_ask.ask(
-		"Remove this server?",
-		"%s comes off your list. You can add it again." % ServerList.label(server),
-		"Remove",
-		"Keep"
+		tr("Remove this server?"),
+		tr("%s comes off your list. You can add it again.") % ServerList.label(server),
+		tr("Remove"),
+		tr("Keep")
 	)
 
 
@@ -583,7 +585,7 @@ func _on_remove_answered(yes: bool) -> void:
 ## saying so in the busy dialog.
 func _connect_to(address: String, port: int, password := "") -> void:
 	if address.is_empty():
-		_fail("There is no server to connect to")
+		_fail(tr("There is no server to connect to"))
 		return
 	# A second press, or another server, while the first is still being knocked at: the new link
 	# takes the old one's place, see [method Net.open_link].
@@ -597,12 +599,13 @@ func _connect_to(address: String, port: int, password := "") -> void:
 	link.password = password if not password.is_empty() else _password_for(address, port)
 	link.connected.connect(_on_connected)
 	link.locked.connect(_ask_password)
-	link.failed.connect(func() -> void: _fail("Could not connect to %s" % _where()))
+	link.failed.connect(func() -> void: _fail(tr("Could not connect to %s") % _where()))
 	link.refused.connect(_fail)
-	link.lost.connect(func() -> void: _fail("The server closed the connection"))
+	link.lost.connect(func() -> void: _fail(tr("The server closed the connection")))
 	var error := link.reach(address, port)
 	if error != OK:
-		_fail("Could not connect: %s" % error_string(error))
+		# The engine's own name for the error, which is in English.
+		_fail(tr("Could not connect: %s") % error_string(error))
 		return
 	_knock()
 
@@ -614,10 +617,10 @@ func _where() -> String:
 ## The busy dialog up, saying the server is being knocked at, its bar easing along.
 func _knock() -> void:
 	_failed = false
-	busy.set_title("Connecting", "Connecting to %s..." % _where())
+	busy.set_title(tr("Connecting"), tr("Connecting to %s...") % _where())
 	busy_bar.visible = true
 	busy_bar.value = 0.0
-	busy_button.text = "Cancel"
+	busy_button.text = tr("Cancel")
 	busy.open(busy_button)
 	if _knocking != null:
 		_knocking.kill()
@@ -668,18 +671,18 @@ func _ask_password(wrong: bool) -> void:
 	link = null
 	var called := Net.link.server_name if Net.link != null else ""
 	var which := called if not called.is_empty() else _where()
-	password_dialog.set_title("Password", "%s needs a password." % which)
+	password_dialog.set_title(tr("Password"), tr("%s needs a password.") % which)
 	password_field.text = ""
 	password_dialog.open(password_field)
 	if wrong:
-		password_dialog.say("Wrong password")
+		password_dialog.say(tr("Wrong password"))
 
 
 ## Connect: knocked at again with what was typed.
 func _give_password() -> void:
 	var typed := password_field.text.strip_edges()
 	if typed.is_empty():
-		password_dialog.say("Enter the password")
+		password_dialog.say(tr("Enter the password"))
 		return
 	password_dialog.close()
 	_connect_to(_address, _port, typed)
@@ -697,9 +700,9 @@ func _fail(reason: String) -> void:
 	if _knocking != null:
 		_knocking.kill()
 	_failed = true
-	busy.set_title("Could not connect", "")
+	busy.set_title(tr("Could not connect"), "")
 	busy_bar.visible = false
-	busy_button.text = "OK"
+	busy_button.text = tr("OK")
 	if not busy.is_open():
 		busy.open(busy_button)
 	busy.say(reason)

@@ -20,7 +20,8 @@ signal shown_out(peer: int, named: String, why: String)
 ## How many a client may send before it is shown out: more than one, in case a bug of the game's
 ## own ever sends one.
 const KICK_AT := 3
-## What everybody else is told after its name; the client itself is told [constant
+## What everybody else is told with its name, shown through tr() at every screen, the name alone
+## going over the wire, see [signal Events.player_kicked]; the client itself is told [constant
 ## NetGuard.KICKED].
 const TOLD := "%s was kicked: abnormal behavior detected"
 ## How many messages a second a client may send before it is flooding, and shown out: its players'
@@ -64,14 +65,14 @@ func heard(peer: int) -> void:
 	total += 1
 	heard_from.emit(peer, count)
 	if count == KICK_AT:
-		_show_out(peer, "sent abnormal state %d times" % count)
+		_show_out(peer, "sent abnormal state %d times" % count)  # NO_TRANSLATE
 
 
 ## At the host: [param peer] sent a message; past [constant FLOOD] of them in a second, it is
 ## flooding.
 func spoke(peer: int) -> void:
 	if _counted(peer, _second, flood):
-		_show_out(peer, "more than %d messages in a second, flooding" % flood)
+		_show_out(peer, "more than %d messages in a second, flooding" % flood)  # NO_TRANSLATE
 
 
 ## At the host: [param peer] sent a message a person sends by hand, which counts as one it sent at
@@ -79,7 +80,7 @@ func spoke(peer: int) -> void:
 func said(peer: int) -> void:
 	spoke(peer)
 	if _counted(peer, _said, says):
-		_show_out(peer, "more than %d requests in a second, flooding" % says)
+		_show_out(peer, "more than %d requests in a second, flooding" % says)  # NO_TRANSLATE
 
 
 ## At the host: [param peer] sent by hand, see [method said], what carries [param size] of what no
@@ -117,7 +118,8 @@ func forget(peer: int) -> void:
 	_said.erase(peer)
 
 
-## Shows [param peer] out for [param why]: it is told, everybody else sees it in the feed.
+## Shows [param peer] out for [param why], which is for the log: it is told, everybody else sees it
+## in the feed.
 func _show_out(peer: int, why: String) -> void:
 	var named := name_of(peer)
 	shown_out.emit(peer, named, why)
@@ -134,4 +136,5 @@ func name_of(peer: int) -> String:
 		var index: int = held[number]
 		if match_node != null and index >= 0 and index < match_node.slots.size():
 			return match_node.slots[index].display_name()
+	# Somebody the door never named, which goes to every screen as a name, NO_TRANSLATE.
 	return session.door.names.get(peer, "Somebody")

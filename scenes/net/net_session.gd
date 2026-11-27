@@ -818,9 +818,10 @@ func _watcher_emote(emote: int, watcher: String) -> void:
 	if now < _watcher_next.get(peer, 0):
 		return
 	_watcher_next[peer] = now + roundi(Emotes.COOLDOWN * 1000.0)
-	# Under the name the host gave them, which is theirs to be seen by, not what they sent.
+	# Under the name the host gave them, which is theirs to be seen by, not what they sent; with
+	# none, every screen calls them a watcher in its own language.
 	var named: String = door.names.get(peer, PlayerNames.clean(watcher))
-	Events.watcher_emoted.emit(named if not named.is_empty() else "Watcher", emote)
+	Events.watcher_emoted.emit(named, emote)
 
 
 ## This client's players, the first made for it from [member local_input], [member player_name]

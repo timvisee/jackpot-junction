@@ -75,7 +75,7 @@ func account_of(peer: int) -> int:
 ## Where [param peer] is, for [NetGuard]: its Steam account, or an address on another connection.
 func address_of(peer: int) -> String:
 	if inner.has_method(&"get_steam_id_for_peer_id"):
-		return "steam:%d" % int(inner.call(&"get_steam_id_for_peer_id", peer))
+		return "steam:%d" % int(inner.call(&"get_steam_id_for_peer_id", peer))  # NO_TRANSLATE
 	var enet := inner as ENetMultiplayerPeer
 	var connection := enet.get_peer(peer) if enet != null else null
 	return connection.get_remote_address() if connection != null else "somewhere"

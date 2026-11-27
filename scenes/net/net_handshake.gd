@@ -53,6 +53,7 @@ func answer(peer: int, data: PackedByteArray) -> void:
 		if bool(words.get(ServerLink.LISTING, false)):
 			# Play Online, looking for a server's list at a game's port.
 			var named := PlayerNames.clean(str(words.get("name", "")))
+			# For the log, NO_TRANSLATE.
 			session.door.turned_away.emit(named, "Came from Play Online, looking for a server")
 			scene.send_auth(peer, var_to_bytes({"version": session.version, "game": true}))
 			return

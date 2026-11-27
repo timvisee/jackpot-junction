@@ -9,7 +9,8 @@ extends Node
 
 ## How often the room is read, in seconds.
 const EVERY := 1.0
-## The tokens, as docs/steam/rich_presence.vdf has them, a test holding the two together.
+## The tokens, as docs/steam/rich_presence.vdf has them, a test holding the two together. Steam's
+## keys, whose words are translated on Steamworks, GAME.md 10.9, NO_TRANSLATE.
 const MENUS := "#Menus"
 const GARAGE := "#Garage"
 const SCHOOL := "#School"
@@ -18,9 +19,9 @@ const MAP := "#Map"
 const GRAND_PRIX := "#GrandPrix"
 const SHOWDOWN := "#Showdown"
 ## What a token is called online, with the people playing in its words.
-const ONLINE := "Online"
+const ONLINE := "Online"  # NO_TRANSLATE
 ## What a map's own token is called after: `#Map_vault`.
-const MAP_PREFIX := "#Map_"
+const MAP_PREFIX := "#Map_"  # NO_TRANSLATE
 
 var _since := 0.0
 
