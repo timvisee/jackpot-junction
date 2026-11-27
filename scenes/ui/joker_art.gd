@@ -43,8 +43,10 @@ static func draw_into(
 ) -> void:
 	if id in KIT:
 		KitArt.draw_into(on, box, id, ink)
-	elif not IconPress.draw(on, box, id, ink, paper):
-		IconPress.draw(on, box, &"wild_card", ink, paper)
+	else:
+		var ground := IconPress.Ground.PAPER if paper else IconPress.Ground.CARD
+		if not IconPress.draw(on, box, id, ink, ground):
+			IconPress.draw(on, box, &"wild_card", ink, ground)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the catalog.

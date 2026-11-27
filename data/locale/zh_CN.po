@@ -7,11 +7,6 @@ msgstr ""
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#. A billboard of the House's: a headline, and a smaller line under it that finishes it.
-#: scenes/achievements/achievement_icons.gd scenes/story/oversight_desk.gd scripts/story/story_lines.gd
-msgid "APPROVED"
-msgstr "已批准"
-
 #: scenes/achievements/achievement_row.gd
 msgid "Hidden achievement"
 msgstr "隐藏成就"
@@ -3240,6 +3235,11 @@ msgstr "准驾车型：%s"
 #: scenes/story/operator_stamping.gd scenes/tutorial/school/license_card.gd
 msgid "Expires %s"
 msgstr "有效期限：%s"
+
+#. A billboard of the House's: a headline, and a smaller line under it that finishes it.
+#: scenes/story/oversight_desk.gd scripts/story/story_lines.gd
+msgid "APPROVED"
+msgstr "已批准"
 
 #. Under the big red button on the desk that approves the House's decisions.
 #: scenes/story/oversight_desk.gd

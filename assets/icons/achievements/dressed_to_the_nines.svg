@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Dressed to the Nines</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M5,44V21C5,15 9,11 15.5,9.5L24,25L32.5,9.5C39,11 43,15 43,21V44Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="cut" d="M15.5,9.5L19,26L24,25" stroke-width="1.2"/>
+    <path class="cut" d="M32.5,9.5L29,26L24,25" stroke-width="1.2"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M16.5,11.33L16.5,7.67A1,1 0 0 1 17.97,6.79L21.36,8.62A1,1 0 0 1 21.36,10.38L17.97,12.21A1,1 0 0 1 16.5,11.33ZM31.5,11.33L31.5,7.67A1,1 0 0 0 30.03,6.79L26.64,8.62A1,1 0 0 0 26.64,10.38L30.03,12.21A1,1 0 0 0 31.5,11.33Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M23,7.5H25A1,1 0 0 1 26,8.5V10.5A1,1 0 0 1 25,11.5H23A1,1 0 0 1 22,10.5V8.5A1,1 0 0 1 23,7.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22.6,30A1.4,1.4 0 1 0 25.4,30A1.4,1.4 0 1 0 22.6,30Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22.6,36A1.4,1.4 0 1 0 25.4,36A1.4,1.4 0 1 0 22.6,36Z"/>
+  </g>
+</g>
+</svg>

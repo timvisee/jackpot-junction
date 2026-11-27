@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Street Legal</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M8,10H40A3,3 0 0 1 43,13V35A3,3 0 0 1 40,38H8A3,3 0 0 1 5,35V13A3,3 0 0 1 8,10Z"/>
+    <path class="shade" d="M-20,33H70V70H-20Z"/>
+    <path class="cut" d="M10.5,15H18.5A1.5,1.5 0 0 1 20,16.5V26.5A1.5,1.5 0 0 1 18.5,28H10.5A1.5,1.5 0 0 1 9,26.5V16.5A1.5,1.5 0 0 1 10.5,15Z"/>
+    <path class="cut" d="M24,17H38M24,21.5H38M24,26H32" stroke-width="1.5"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M11.9,19.5A2.6,2.6 0 1 0 17.1,19.5A2.6,2.6 0 1 0 11.9,19.5ZM10.5,28C10.5,24.5 12.5,23 14.5,23C16.5,23 18.5,24.5 18.5,28Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M31,32A5,5 0 1 0 41,32A5,5 0 1 0 31,32ZM32.7,32A3.3,3.3 0 1 0 39.3,32A3.3,3.3 0 1 0 32.7,32Z" fill-rule="evenodd"/>
+  </g>
+</g>
+</svg>

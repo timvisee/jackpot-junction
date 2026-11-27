@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Toybox</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M11.72,18.91L13.83,12.44C15.02,8.78 17.73,7.23 19.32,6.87C20.39,8.1 21.67,10.94 20.48,14.61L18.38,21.07A1.2,1.2 18 0 1 16.87,21.84L12.49,20.42A1.2,1.2 18 0 1 11.72,18.91Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M23.5,16A6.5,6.5 0 1 0 36.5,16A6.5,6.5 0 1 0 23.5,16Z"/>
+  </g>
+  <path class="line ink" d="M33.5,10.5C35,8 37,7.5 39,8" stroke-width="2"/>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M4.09,20.55L5.71,23.49A1,1 0 0 0 6.59,24L13.28,24A1,1 0 0 0 14.15,22.5L11.41,17.71A1,1 0 0 0 10.22,17.26L4.64,19.12A1,1 0 0 0 4.09,20.55Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M43.91,20.55L42.29,23.49A1,1 0 0 1 41.41,24L34.72,24A1,1 0 0 1 33.85,22.5L36.59,17.71A1,1 0 0 1 37.78,17.26L43.36,19.12A1,1 0 0 1 43.91,20.55Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8,24H40A2,2 0 0 1 42,26V41A2,2 0 0 1 40,43H8A2,2 0 0 1 6,41V26A2,2 0 0 1 8,24Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="cut" d="M6,30.5H42" stroke-width="1.5"/>
+    <path class="cut" d="M22,26.5H26A1,1 0 0 1 27,27.5V31.5A1,1 0 0 1 26,32.5H22A1,1 0 0 1 21,31.5V27.5A1,1 0 0 1 22,26.5Z"/>
+  </g>
+</g>
+</svg>

@@ -78,6 +78,26 @@ static func draw_icon(on: CanvasItem, box: Rect2, icon: String, ink: Color, pape
 			var font := Type.display_font()
 			on.draw_string(font, at, "777", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, int(high), ink)
 		"jj_cards":
-			AchievementIcons.draw_into(on, box, &"full_house", ink, paper)
+			_cards(on, box, ink, paper)
 		_:
 			push_error("no picture for the timeline icon %s" % icon)
+
+
+## A hand of three cards fanned, a crown on each, as uploaded to Steam: what Full House's picture
+## was before the achievements were redrawn, kept here so the timeline's icon stays Steam's.
+static func _cards(on: CanvasItem, box: Rect2, ink: Color, paper: Color) -> void:
+	for i: int in 3:
+		var lean := -22.0 + 22.0 * i
+		var foot := Vector2(0.3 + 0.2 * i, 0.9 - (0.04 if i == 1 else 0.0))
+		var corners := PackedVector2Array()
+		for corner: Vector2 in [
+			Vector2(-0.16, 0.0), Vector2(-0.16, -0.5), Vector2(0.16, -0.5), Vector2(0.16, 0.0)
+		]:
+			var at := foot + corner.rotated(deg_to_rad(lean))
+			corners.append(IconShapes.at(box, at.x, at.y))
+		on.draw_colored_polygon(corners, paper)
+		corners.append(corners[0])
+		on.draw_polyline(corners, ink, IconShapes.width(box) * 0.8, true)
+		var middle := foot + Vector2(0.0, -0.3).rotated(deg_to_rad(lean))
+		var crown := Rect2(IconShapes.at(box, middle.x - 0.1, middle.y - 0.08), box.size * 0.2)
+		IconShapes.crown(on, crown, ink)

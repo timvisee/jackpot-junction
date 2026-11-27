@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Know Every Street</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M23.5,10H24.5A1.5,1.5 0 0 1 26,11.5V42.5A1.5,1.5 0 0 1 24.5,44H23.5A1.5,1.5 0 0 1 22,42.5V11.5A1.5,1.5 0 0 1 23.5,10Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M6,17.5L6,10.5A1.5,1.5 0 0 1 7.5,9L35.46,9A1.5,1.5 0 0 1 36.42,9.35L41.63,13.69A0.4,0.4 0 0 1 41.63,14.31L36.42,18.65A1.5,1.5 0 0 1 35.46,19L7.5,19A1.5,1.5 0 0 1 6,17.5Z"/>
+    <path class="shade" d="M-20,15H70V70H-20Z"/>
+    <path class="cut" d="M10,14H30" stroke-width="1.5"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M42,30.5L42,23.5A1.5,1.5 0 0 0 40.5,22L12.54,22A1.5,1.5 0 0 0 11.58,22.35L6.37,26.69A0.4,0.4 0 0 0 6.37,27.31L11.58,31.65A1.5,1.5 0 0 0 12.54,32L40.5,32A1.5,1.5 0 0 0 42,30.5Z"/>
+    <path class="shade" d="M-20,28H70V70H-20Z"/>
+    <path class="cut" d="M18,27H38" stroke-width="1.5"/>
+  </g>
+</g>
+</svg>

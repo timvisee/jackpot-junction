@@ -1,11 +1,12 @@
 extends GdUnitTestSuite
-## The house print of GAME.md 8.3a: every joker's and power-up's drawing is an SVG file that
-## IconPress reads and prints, and the files are held to the lists the way the lists are held to
-## the catalog.
+## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing is an SVG
+## file that IconPress reads and prints, and the files are held to the lists the way the lists are
+## held to the catalog.
 
 const FOLDERS := {
 	"res://assets/icons/jokers/": "jokers",
 	"res://assets/icons/powerups/": "powerups",
+	"res://assets/icons/achievements/": "achievements",
 }
 
 
@@ -46,6 +47,21 @@ func test_every_power_up_has_a_drawing_and_every_drawing_a_power_up() -> void:
 		)
 
 
+## And every achievement, held to the list of them, GAME.md 8.10.
+func test_every_achievement_has_a_drawing_and_every_drawing_an_achievement() -> void:
+	var files := _files("res://assets/icons/achievements/")
+	var ids: Array[StringName] = []
+	for each: Achievement in Achievements.all():
+		ids.append(each.id)
+		(
+			assert_bool(each.id in files)
+			. override_failure_message("%s has no drawing" % each.id)
+			. is_true()
+		)
+	for id: StringName in files:
+		assert_bool(id in ids).override_failure_message("%s is no achievement" % id).is_true()
+
+
 ## Every drawing reads: its pieces each have a shape, its lines a width, its cuts a shape too.
 func test_every_drawing_reads() -> void:
 	for folder: String in FOLDERS:
@@ -74,6 +90,7 @@ func test_every_drawing_reads() -> void:
 func test_every_drawing_prints_at_every_size() -> void:
 	var ids: Array[StringName] = _files("res://assets/icons/jokers/")
 	ids.append_array(_files("res://assets/icons/powerups/"))
+	ids.append_array(_files("res://assets/icons/achievements/"))
 	for id: StringName in ids:
 		for pixels: float in [30.0, 96.0]:
 			var printed := IconPress.texture(id, Color("#f2c14e"), pixels)
@@ -88,27 +105,54 @@ func test_every_drawing_prints_at_every_size() -> void:
 			)
 
 
-## The shadow side is a screen of dots on a dark card and nothing on paper or when small: the
-## halftone layer of a ball has something on it at a card's size and the printed ball differs
-## from its flat print, while at a HUD's size there is no shadow layer at all.
-func test_the_shadow_side_is_a_halftone_on_a_card_only() -> void:
+## The shadow side is a screen of dots on a dark card and on a chip's two inks, and nothing on
+## paper in one ink: the printed ball differs from its flat print on a card, and on paper it is
+## that flat print.
+func test_the_shadow_side_is_a_halftone_but_not_on_flat_paper() -> void:
 	var drawing := IconPress.parse(
 		FileAccess.get_file_as_string("res://assets/icons/powerups/bomb.svg")
 	)
 	var ink := Color("#e64d33")
+	var card := IconPress.look_of(ink, 128)
+	(
+		assert_bool(
+			IconPress.image(drawing, ink, 128).get_data() == _flat(drawing, card).get_data()
+		)
+		. is_false()
+	)
+	var paper := Color("#f2ead6")
+	var two := IconPress.look_of(ink, 128, IconPress.Ground.TWO_INKS, paper)
+	var on_chip := IconPress.image(drawing, ink, 128, IconPress.Ground.TWO_INKS, paper)
+	assert_bool(on_chip.get_data() == _flat(drawing, two).get_data()).is_false()
+	var dark := Color("#211f24")
+	var flat := IconPress.look_of(dark, 128, IconPress.Ground.PAPER, paper)
+	var on_paper := IconPress.image(drawing, dark, 128, IconPress.Ground.PAPER, paper)
+	assert_bool(on_paper.get_data() == _flat(drawing, flat).get_data()).is_true()
+
+
+## On paper the ink is never lifted, and cream is the paper's own: printed in the paper given, or
+## left bare with none.
+func test_on_paper_cream_is_the_paper() -> void:
+	var oil := Color("#3d334f")
+	assert_object(IconPress.look_of(oil, 96, IconPress.Ground.PAPER)["ink"]).is_equal(oil)
+	assert_float(IconPress.look_of(oil, 96)["ink"].get_luminance()).is_greater_equal(
+		IconPress.READABLE
+	)
+	var paper := Color("#c9c6bf")
+	assert_object(IconPress.look_of(oil, 96, IconPress.Ground.PAPER, paper)["cream"]).is_equal(
+		paper
+	)
+	assert_float(IconPress.look_of(oil, 96, IconPress.Ground.PAPER)["cream"].a).is_equal(0.0)
+	assert_bool(IconPress.look_of(oil, 96, IconPress.Ground.PAPER)["glints"]).is_false()
+	assert_bool(IconPress.look_of(oil, 96, IconPress.Ground.TWO_INKS, paper)["glints"]).is_true()
+
+
+static func _flat(drawing: Dictionary, look: Dictionary) -> Image:
 	var flat := Image.new()
 	flat.load_svg_from_string(
-		IconPress.compose(drawing, ink, true, false, IconPress.Layer.FLAT, 128), 128 / 48.0
+		IconPress.compose(drawing, look["ink"], look, IconPress.Layer.FLAT, 128), 128 / 48.0
 	)
-	var printed := IconPress.image(drawing, ink, 128)
-	assert_bool(printed.get_data() == flat.get_data()).is_false()
-	var on_paper := IconPress.image(drawing, Color("#211f24"), 128, true)
-	var paper_flat := Image.new()
-	paper_flat.load_svg_from_string(
-		IconPress.compose(drawing, Color("#211f24"), false, false, IconPress.Layer.FLAT, 128),
-		128 / 48.0
-	)
-	assert_bool(on_paper.get_data() == paper_flat.get_data()).is_true()
+	return flat
 
 
 ## Sizes come in steps, so a card growing in prints a few sizes rather than one a pixel.

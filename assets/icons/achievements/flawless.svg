@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Flawless</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M24,39.8C14.1,32.6 9,27.2 9,20.9C9,15.8 12.9,12.2 17.7,12.2C20.7,12.2 22.8,13.7 24,16.1C25.2,13.7 27.3,12.2 30.3,12.2C35.1,12.2 39,15.8 39,20.9C39,27.2 33.9,32.6 24,39.8Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+    <path class="glint" d="M12.08,18.63A5,5 0 0 1 15.71,14.67"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M40,5.5C40.81,9.19 40.81,9.19 44.5,10C40.81,10.81 40.81,10.81 40,14.5C39.19,10.81 39.19,10.81 35.5,10C39.19,9.19 39.19,9.19 40,5.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8,5.5C8.81,9.19 8.81,9.19 12.5,10C8.81,10.81 8.81,10.81 8,14.5C7.19,10.81 7.19,10.81 3.5,10C7.19,9.19 7.19,9.19 8,5.5Z"/>
+  </g>
+</g>
+</svg>

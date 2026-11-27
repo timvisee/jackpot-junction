@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A Fresh Start</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M10.5,31L6,31M12.31,24.25L8.41,22M17.25,19.31L15,15.41M24,17.5L24,13M30.75,19.31L33,15.41M35.69,24.25L39.59,22M37.5,31L42,31" stroke-width="2.5"/>
+  <g class="piece ink">
+    <path class="body" d="M14,31A10,10 0 0 1 34,31Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M6.75,33H41.25A1.75,1.75 0 0 1 43,34.75V34.75A1.75,1.75 0 0 1 41.25,36.5H6.75A1.75,1.75 0 0 1 5,34.75V34.75A1.75,1.75 0 0 1 6.75,33Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M14.5,39.5H33.5A1.5,1.5 0 0 1 35,41V41A1.5,1.5 0 0 1 33.5,42.5H14.5A1.5,1.5 0 0 1 13,41V41A1.5,1.5 0 0 1 14.5,39.5Z"/>
+  </g>
+</g>
+</svg>

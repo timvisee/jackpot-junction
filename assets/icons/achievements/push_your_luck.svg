@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Push Your Luck</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M24,34V44" stroke-width="2"/>
+  <g class="piece ink">
+    <path class="body" d="M9,20A15,15 0 1 0 39,20A15,15 0 1 0 9,20ZM21.5,34L26.5,34L25,37.5L23,37.5Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM5.5,17A15.5,15.5 0 1 0 36.5,17A15.5,15.5 0 1 0 5.5,17Z" fill-rule="evenodd"/>
+    <path class="glint" d="M14.03,15.35A11,11 0 0 1 19.35,10.03"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M17.5,20A6.5,6.5 0 1 0 30.5,20A6.5,6.5 0 1 0 17.5,20Z"/>
+    <path class="cut" d="M23.12,14.95L23.12,13A0.5,0.5 0 0 1 23.62,12.5L24.38,12.5A0.5,0.5 0 0 1 24.88,13L24.88,14.95A0.5,0.5 0 0 1 24.38,15.45L23.62,15.45A0.5,0.5 0 0 1 23.12,14.95Z"/>
+    <path class="cut" d="M26.95,15.81L28.33,14.43A0.5,0.5 0 0 1 29.04,14.43L29.57,14.96A0.5,0.5 0 0 1 29.57,15.67L28.19,17.05A0.5,0.5 0 0 1 27.48,17.05L26.95,16.52A0.5,0.5 0 0 1 26.95,15.81Z"/>
+    <path class="cut" d="M29.05,19.12L31,19.12A0.5,0.5 0 0 1 31.5,19.62L31.5,20.38A0.5,0.5 0 0 1 31,20.88L29.05,20.88A0.5,0.5 0 0 1 28.55,20.38L28.55,19.62A0.5,0.5 0 0 1 29.05,19.12Z"/>
+    <path class="cut" d="M28.19,22.95L29.57,24.33A0.5,0.5 0 0 1 29.57,25.04L29.04,25.57A0.5,0.5 0 0 1 28.33,25.57L26.95,24.19A0.5,0.5 0 0 1 26.95,23.48L27.48,22.95A0.5,0.5 0 0 1 28.19,22.95Z"/>
+    <path class="cut" d="M24.88,25.05L24.88,27A0.5,0.5 0 0 1 24.38,27.5L23.62,27.5A0.5,0.5 0 0 1 23.12,27L23.12,25.05A0.5,0.5 0 0 1 23.62,24.55L24.38,24.55A0.5,0.5 0 0 1 24.88,25.05Z"/>
+    <path class="cut" d="M21.05,24.19L19.67,25.57A0.5,0.5 0 0 1 18.96,25.57L18.43,25.04A0.5,0.5 0 0 1 18.43,24.33L19.81,22.95A0.5,0.5 0 0 1 20.52,22.95L21.05,23.48A0.5,0.5 0 0 1 21.05,24.19Z"/>
+    <path class="cut" d="M18.95,20.88L17,20.88A0.5,0.5 0 0 1 16.5,20.38L16.5,19.62A0.5,0.5 0 0 1 17,19.12L18.95,19.12A0.5,0.5 0 0 1 19.45,19.62L19.45,20.38A0.5,0.5 0 0 1 18.95,20.88Z"/>
+    <path class="cut" d="M19.81,17.05L18.43,15.67A0.5,0.5 0 0 1 18.43,14.96L18.96,14.43A0.5,0.5 0 0 1 19.67,14.43L21.05,15.81A0.5,0.5 0 0 1 21.05,16.52L20.52,17.05A0.5,0.5 0 0 1 19.81,17.05Z"/>
+    <path class="cut" d="M20.36,20A3.6400000000000006,3.6400000000000006 0 1 0 27.64,20A3.6400000000000006,3.6400000000000006 0 1 0 20.36,20Z" stroke-width="1.2"/>
+  </g>
+  <path class="line tint" d="M4.5,10L8,12M3.5,20H7.5M43.5,10L40,12M44.5,20H40.5" stroke-width="2"/>
+</g>
+</svg>

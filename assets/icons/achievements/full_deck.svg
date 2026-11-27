@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Full Deck</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M15.13,17.95L13.05,6.13A1.5,1.5 0 0 1 14.27,4.4L23.13,2.83A1.5,1.5 0 0 1 24.87,4.05L26.95,15.87A1.5,1.5 0 0 1 25.73,17.6L16.87,19.17A1.5,1.5 0 0 1 15.13,17.95Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M21.22,15.11L22.89,3.22A1.5,1.5 0 0 1 24.59,1.95L33.5,3.2A1.5,1.5 0 0 1 34.78,4.89L33.11,16.78A1.5,1.5 0 0 1 31.41,18.05L22.5,16.8A1.5,1.5 0 0 1 21.22,15.11Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M12.5,15H35.5A2.5,2.5 0 0 1 38,17.5V41.5A2.5,2.5 0 0 1 35.5,44H12.5A2.5,2.5 0 0 1 10,41.5V17.5A2.5,2.5 0 0 1 12.5,15Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="cut" d="M14.5,18H33.5A1.5,1.5 0 0 1 35,19.5V39.5A1.5,1.5 0 0 1 33.5,41H14.5A1.5,1.5 0 0 1 13,39.5V19.5A1.5,1.5 0 0 1 14.5,18Z" stroke-width="1.2"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M24,23.5C27.6,26.38 30,28.54 30,30.7C30,32.62 28.56,33.82 26.76,33.82C25.68,33.82 24.84,33.34 24.36,32.5L25.2,35.5L22.8,35.5L23.64,32.5C23.16,33.34 22.32,33.82 21.24,33.82C19.44,33.82 18,32.62 18,30.7C18,28.54 20.4,26.38 24,23.5Z"/>
+  </g>
+</g>
+</svg>

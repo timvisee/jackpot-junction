@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Snatch and Grab</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M11,42A13,2.5 0 1 0 37,42A13,2.5 0 1 0 11,42Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M16.5,30A7.5,7.5 0 1 0 31.5,30A7.5,7.5 0 1 0 16.5,30Z"/>
+    <path class="cut" d="M22.99,24.25L22.99,22A0.5,0.5 0 0 1 23.49,21.5L24.51,21.5A0.5,0.5 0 0 1 25.01,22L25.01,24.25A0.5,0.5 0 0 1 24.51,24.75L23.49,24.75A0.5,0.5 0 0 1 22.99,24.25Z"/>
+    <path class="cut" d="M27.35,25.22L28.94,23.63A0.5,0.5 0 0 1 29.65,23.63L30.37,24.35A0.5,0.5 0 0 1 30.37,25.06L28.78,26.65A0.5,0.5 0 0 1 28.07,26.65L27.35,25.93A0.5,0.5 0 0 1 27.35,25.22Z"/>
+    <path class="cut" d="M29.75,28.99L32,28.99A0.5,0.5 0 0 1 32.5,29.49L32.5,30.51A0.5,0.5 0 0 1 32,31.01L29.75,31.01A0.5,0.5 0 0 1 29.25,30.51L29.25,29.49A0.5,0.5 0 0 1 29.75,28.99Z"/>
+    <path class="cut" d="M28.78,33.35L30.37,34.94A0.5,0.5 0 0 1 30.37,35.65L29.65,36.37A0.5,0.5 0 0 1 28.94,36.37L27.35,34.78A0.5,0.5 0 0 1 27.35,34.07L28.07,33.35A0.5,0.5 0 0 1 28.78,33.35Z"/>
+    <path class="cut" d="M25.01,35.75L25.01,38A0.5,0.5 0 0 1 24.51,38.5L23.49,38.5A0.5,0.5 0 0 1 22.99,38L22.99,35.75A0.5,0.5 0 0 1 23.49,35.25L24.51,35.25A0.5,0.5 0 0 1 25.01,35.75Z"/>
+    <path class="cut" d="M20.65,34.78L19.06,36.37A0.5,0.5 0 0 1 18.35,36.37L17.63,35.65A0.5,0.5 0 0 1 17.63,34.94L19.22,33.35A0.5,0.5 0 0 1 19.93,33.35L20.65,34.07A0.5,0.5 0 0 1 20.65,34.78Z"/>
+    <path class="cut" d="M18.25,31.01L16,31.01A0.5,0.5 0 0 1 15.5,30.51L15.5,29.49A0.5,0.5 0 0 1 16,28.99L18.25,28.99A0.5,0.5 0 0 1 18.75,29.49L18.75,30.51A0.5,0.5 0 0 1 18.25,31.01Z"/>
+    <path class="cut" d="M19.22,26.65L17.63,25.06A0.5,0.5 0 0 1 17.63,24.35L18.35,23.63A0.5,0.5 0 0 1 19.06,23.63L20.65,25.22A0.5,0.5 0 0 1 20.65,25.93L19.93,26.65A0.5,0.5 0 0 1 19.22,26.65Z"/>
+    <path class="cut" d="M19.8,30A4.2,4.2 0 1 0 28.2,30A4.2,4.2 0 1 0 19.8,30Z" stroke-width="1.2"/>
+  </g>
+  <path class="line ink" d="M24,3V11" stroke-width="3"/>
+  <g class="piece ink">
+    <path class="body" d="M19.5,10H28.5A2.5,2.5 0 0 1 31,12.5V14.5A2.5,2.5 0 0 1 28.5,17H19.5A2.5,2.5 0 0 1 17,14.5V12.5A2.5,2.5 0 0 1 19.5,10Z"/>
+    <path class="shade" d="M27,-20H70V70H27Z"/>
+  </g>
+  <path class="line ink" d="M19,16C13.5,19.5 12,26.5 15.5,34" stroke-width="3.5" data-seam="false"/>
+  <path class="line ink" d="M29,16C34.5,19.5 36,26.5 32.5,34" stroke-width="3.5" data-seam="false"/>
+</g>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Property Damage</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M7,4L15.5,13" stroke-width="2" stroke-dasharray="2.4 1.6" stroke-linecap="butt"/>
+  <g class="piece ink">
+    <path class="body" d="M12,16.5A6.5,6.5 0 1 0 25,16.5A6.5,6.5 0 1 0 12,16.5Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM8.5,13.5A7,7 0 1 0 22.5,13.5A7,7 0 1 0 8.5,13.5Z" fill-rule="evenodd"/>
+    <path class="glint" d="M14.74,15.13A4,4 0 0 1 17.13,12.74"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24.64,19.15L39.31,22.27A2,2 12 0 1 40.85,24.64L37.73,39.31A2,2 12 0 1 35.36,40.85L20.69,37.73A2,2 12 0 1 19.15,35.36L22.27,20.69A2,2 12 0 1 24.64,19.15Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="cut" d="M25.59,21.91L37.32,24.4A1,1 12 0 1 38.09,25.59L35.6,37.32A1,1 12 0 1 34.41,38.09L22.68,35.6A1,1 12 0 1 21.91,34.41L24.4,22.68A1,1 12 0 1 25.59,21.91Z" stroke-width="1.2"/>
+    <path class="cut" d="M24.99,22.29L35.01,37.71M37.71,24.99L22.29,35.01" stroke-width="1.2"/>
+  </g>
+  <path class="line tint" d="M25.5,14.5L28.5,11.5M27.5,19.5L31.5,18.5M23,10.5L24,7.5" stroke-width="1.8"/>
+</g>
+</svg>

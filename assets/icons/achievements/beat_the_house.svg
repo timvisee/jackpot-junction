@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Beat the House</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M24,11V7" stroke-width="2"/>
+  <g class="piece ink">
+    <path class="body" d="M21.8,5.5A2.2,2.2 0 1 0 26.2,5.5A2.2,2.2 0 1 0 21.8,5.5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M7.5,21H9A1.5,1.5 0 0 1 10.5,22.5V29.5A1.5,1.5 0 0 1 9,31H7.5A1.5,1.5 0 0 1 6,29.5V22.5A1.5,1.5 0 0 1 7.5,21Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M39,21H40.5A1.5,1.5 0 0 1 42,22.5V29.5A1.5,1.5 0 0 1 40.5,31H39A1.5,1.5 0 0 1 37.5,29.5V22.5A1.5,1.5 0 0 1 39,21Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M15,11H33A5,5 0 0 1 38,16V33A5,5 0 0 1 33,38H15A5,5 0 0 1 10,33V16A5,5 0 0 1 15,11Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="cut" d="M15.5,18.5L21,24M21,18.5L15.5,24M27,18.5L32.5,24M32.5,18.5L27,24" stroke-width="1.8"/>
+    <path class="cut" d="M18.5,29.5H29.5A1.5,1.5 0 0 1 31,31V31A1.5,1.5 0 0 1 29.5,32.5H18.5A1.5,1.5 0 0 1 17,31V31A1.5,1.5 0 0 1 18.5,29.5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M16.5,38.5H31.5A1.5,1.5 0 0 1 33,40V41A1.5,1.5 0 0 1 31.5,42.5H16.5A1.5,1.5 0 0 1 15,41V40A1.5,1.5 0 0 1 16.5,38.5Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Employee of the Month</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M12,5H36A2,2 0 0 1 38,7V34A2,2 0 0 1 36,36H12A2,2 0 0 1 10,34V7A2,2 0 0 1 12,5Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="cut" d="M14.7,8.5H33.3A1.2,1.2 0 0 1 34.5,9.7V31.3A1.2,1.2 0 0 1 33.3,32.5H14.7A1.2,1.2 0 0 1 13.5,31.3V9.7A1.2,1.2 0 0 1 14.7,8.5Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M18.5,18A5.5,5.5 0 1 0 29.5,18A5.5,5.5 0 1 0 18.5,18ZM15,32.5C15,26.5 19,24.5 24,24.5C29,24.5 33,26.5 33,32.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M16.5,38.5H31.5A1.5,1.5 0 0 1 33,40V42A1.5,1.5 0 0 1 31.5,43.5H16.5A1.5,1.5 0 0 1 15,42V40A1.5,1.5 0 0 1 16.5,38.5Z"/>
+  </g>
+</g>
+</svg>

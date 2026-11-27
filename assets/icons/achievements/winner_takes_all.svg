@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Winner Takes All</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M18.5,25H29.5A1.5,1.5 0 0 1 31,26.5V42.5A1.5,1.5 0 0 1 29.5,44H18.5A1.5,1.5 0 0 1 17,42.5V26.5A1.5,1.5 0 0 1 18.5,25Z"/>
+    <path class="shade" d="M28,-20H70V70H28Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M6.5,33H15.5A1.5,1.5 0 0 1 17,34.5V42.5A1.5,1.5 0 0 1 15.5,44H6.5A1.5,1.5 0 0 1 5,42.5V34.5A1.5,1.5 0 0 1 6.5,33Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M32.5,37H41.5A1.5,1.5 0 0 1 43,38.5V42.5A1.5,1.5 0 0 1 41.5,44H32.5A1.5,1.5 0 0 1 31,42.5V38.5A1.5,1.5 0 0 1 32.5,37Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M31.66,18.8L16.34,18.8A0.74,0.74 0 0 1 15.61,17.97L16.61,10.3L20.02,13.72A0.74,0.74 0 0 0 21.17,13.6L24,9.2L26.83,13.6A0.74,0.74 0 0 0 27.98,13.72L31.39,10.3L32.39,17.97A0.74,0.74 0 0 1 31.66,18.8Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+  </g>
+</g>
+</svg>

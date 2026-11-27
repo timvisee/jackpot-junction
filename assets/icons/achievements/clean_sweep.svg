@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Clean Sweep</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" transform="rotate(30 24 24)">
+    <path class="body" d="M24,3H24A1.5,1.5 0 0 1 25.5,4.5V25.5A1.5,1.5 0 0 1 24,27H24A1.5,1.5 0 0 1 22.5,25.5V4.5A1.5,1.5 0 0 1 24,3ZM21,23H27A1.5,1.5 0 0 1 28.5,24.5V27.5A1.5,1.5 0 0 1 27,29H21A1.5,1.5 0 0 1 19.5,27.5V24.5A1.5,1.5 0 0 1 21,23ZM18.5,28H29.5L33,43H15Z"/>
+    <path class="shade" d="M26,-20H70V70H26Z"/>
+    <path class="cut" d="M20.5,32V42M24,32V42.5M27.5,32V42" stroke-width="1.2"/>
+    <path class="cut" d="M19.5,28.5H28.5" stroke-width="1.2"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M39,28.5C39.81,32.19 39.81,32.19 43.5,33C39.81,33.81 39.81,33.81 39,37.5C38.19,33.81 38.19,33.81 34.5,33C38.19,32.19 38.19,32.19 39,28.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M9,35C9.54,37.46 9.54,37.46 12,38C9.54,38.54 9.54,38.54 9,41C8.46,38.54 8.46,38.54 6,38C8.46,37.46 8.46,37.46 9,35Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M41.5,19.5C41.95,21.55 41.95,21.55 44,22C41.95,22.45 41.95,22.45 41.5,24.5C41.05,22.45 41.05,22.45 39,22C41.05,21.55 41.05,21.55 41.5,19.5Z"/>
+  </g>
+</g>
+</svg>

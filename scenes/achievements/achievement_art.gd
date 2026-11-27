@@ -15,6 +15,11 @@ enum Look { EARNED, LOCKED, HIDDEN }
 ## notches round each: a white chip's are blue, as a casino's ones are, the rest cream.
 const FACES: Array[Color] = [Color("#efe9dc"), Color("#b8332c"), Color("#2c7a52"), Color("#1d1c22")]
 const WHITE_NOTCHES := Color("#2f5ea8")
+## The ink each denomination's picture is printed in on its inlay, the second ink a dark screen on
+## its shadow side, GAME.md 8.10: a white chip's in the blue of its notches, the black's near black.
+const CHIP_INKS: Array[Color] = [
+	Color("#2f5ea8"), Color("#b8332c"), Color("#2c7a52"), Color("#2a2830")
+]
 ## The cream inlay, how much of the chip it takes, and its rim.
 const INLAY := HouseTheme.PAPER
 const INLAY_SIZE := 0.64
@@ -197,8 +202,15 @@ static func _chip(
 	if back:
 		IconShapes.star(on, _box(middle, inlay), 0.5, 0.5, 0.3, Color(face, 0.5))
 		return
-	var ink := LOCKED_INK if locked else HouseTheme.INK
-	AchievementIcons.draw_into(on, _box(middle, inlay), achievement.id, ink, INLAY)
+	var box := _box(middle, inlay)
+	if locked:
+		AchievementIcons.draw_into(
+			on, box, achievement.id, LOCKED_INK, IconPress.Ground.PAPER, LOCKED_INLAY
+		)
+	else:
+		AchievementIcons.draw_into(
+			on, box, achievement.id, CHIP_INKS[tier], IconPress.Ground.TWO_INKS, INLAY
+		)
 
 
 ## An enamel pin cut to the achievement's own shape: its metal edge, its enamel and its picture,
@@ -254,7 +266,9 @@ static func _pin(
 				maxf(radius * 0.02, 1.0),
 				true
 			)
-	AchievementIcons.draw_into(on, inside, achievement.id, ink, enamel)
+	# The House's pins print as a card does, gold on the dark; Kit's and one not earned yet are flat.
+	var ground := IconPress.Ground.CARD if house and not locked else IconPress.Ground.PAPER
+	AchievementIcons.draw_into(on, inside, achievement.id, ink, ground, enamel)
 
 
 ## The enamel of the House's pin [param id]: Employee of the Month's red, the rest black.

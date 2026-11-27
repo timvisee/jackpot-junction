@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Parry</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M5.5,20H9C15,20 19,22 21,24C19,26 15,28 9,28H5.5A1.5,1.5 0 0 1 4,26.5V21.5A1.5,1.5 0 0 1 5.5,20Z"/>
+    <path class="shade" d="M-20,25H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M42.5,20L39,20C33,20 29,22 27,24C29,26 33,28 39,28L42.5,28A1.5,1.5 0 0 0 44,26.5L44,21.5A1.5,1.5 0 0 0 42.5,20Z"/>
+    <path class="shade" d="M-20,25H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22.68,19.98L23.61,16.46A0.4,0.4 0 0 1 24.39,16.46L25.32,19.98A0.4,0.4 0 0 0 25.91,20.23L29.06,18.39A0.4,0.4 0 0 1 29.61,18.94L27.77,22.09A0.4,0.4 0 0 0 28.02,22.68L31.54,23.61A0.4,0.4 0 0 1 31.54,24.39L28.02,25.32A0.4,0.4 0 0 0 27.77,25.91L29.61,29.06A0.4,0.4 0 0 1 29.06,29.61L25.91,27.77A0.4,0.4 0 0 0 25.32,28.02L24.39,31.54A0.4,0.4 0 0 1 23.61,31.54L22.68,28.02A0.4,0.4 0 0 0 22.09,27.77L18.94,29.61A0.4,0.4 0 0 1 18.39,29.06L20.23,25.91A0.4,0.4 0 0 0 19.98,25.32L16.46,24.39A0.4,0.4 0 0 1 16.46,23.61L19.98,22.68A0.4,0.4 0 0 0 20.23,22.09L18.39,18.94A0.4,0.4 0 0 1 18.94,18.39L22.09,20.23A0.4,0.4 0 0 0 22.68,19.98Z"/>
+  </g>
+</g>
+</svg>

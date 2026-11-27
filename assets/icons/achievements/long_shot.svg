@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Long Shot</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M5,43L29,19" stroke-width="2" stroke-dasharray="2.5 2.5" stroke-linecap="butt"/>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M25.34,18.42L28.03,15.73C30.36,13.4 33.03,13.27 34.39,13.61C34.73,14.97 34.6,17.64 32.27,19.97L29.58,22.66A1.2,1.2 45 0 1 27.88,22.66L25.34,20.12A1.2,1.2 45 0 1 25.34,18.42Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M32,10A6,6 0 1 0 44,10A6,6 0 1 0 32,10ZM34.8,10A3.2,3.2 0 1 0 41.2,10A3.2,3.2 0 1 0 34.8,10Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M36.4,10A1.6,1.6 0 1 0 39.6,10A1.6,1.6 0 1 0 36.4,10Z"/>
+  </g>
+</g>
+</svg>

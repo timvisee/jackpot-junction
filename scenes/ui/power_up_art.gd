@@ -58,7 +58,8 @@ static func picture(id: StringName, ink: Color) -> Picture:
 static func draw_into(
 	on: CanvasItem, box: Rect2, id: StringName, ink: Color, paper := false
 ) -> void:
-	if not IconPress.draw(on, box, id, ink, paper):
+	var ground := IconPress.Ground.PAPER if paper else IconPress.Ground.CARD
+	if not IconPress.draw(on, box, id, ink, ground):
 		IconShapes.ring(on, box, 0.5, 0.5, 0.32, ink)
 
 

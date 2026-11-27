@@ -59,6 +59,8 @@ below, and hands the notes to the release workflow.
 - **Redrawn jokers and power-ups.** Every joker's and power-up's picture is redrawn as a house
   print, flat inks with a halftone shadow side, all on one grid so the set reads as one. Oil Stain
   no longer disappears on a dark card.
+- **Redrawn achievements.** Every achievement's picture is redrawn in the same house print, on its
+  chip in the chip's own color with a halftone shadow side, and on the House's pins in gold.
 
 ### Fixed
 

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Tough as Nails</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M5,18H33C39,18 42.5,20 44,23.5C38.5,23.5 35.5,24.5 34,26.5V28C34,30 31.5,32 28.5,32V35.5H33V40.5H15V35.5H19.5V32C16.5,32 14,30 14,28V26C10.5,25 7.5,23 5,21.5Z"/>
+    <path class="shade" d="M-20,30H70V70H-20Z"/>
+    <path class="glint" d="M8,20.5H24"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14,5C14.72,8.28 14.72,8.28 18,9C14.72,9.72 14.72,9.72 14,13C13.28,9.72 13.28,9.72 10,9C13.28,8.28 13.28,8.28 14,5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M25,3.4C25.47,5.53 25.47,5.53 27.6,6C25.47,6.47 25.47,6.47 25,8.6C24.53,6.47 24.53,6.47 22.4,6C24.53,5.53 24.53,5.53 25,3.4Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M33,7.3C33.58,9.92 33.58,9.92 36.2,10.5C33.58,11.08 33.58,11.08 33,13.7C32.42,11.08 32.42,11.08 29.8,10.5C32.42,9.92 32.42,9.92 33,7.3Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Long Distance</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M5.5,18H19.5A2,2 0 0 1 21.5,20V29A2,2 0 0 1 19.5,31H5.5A2,2 0 0 1 3.5,29V20A2,2 0 0 1 5.5,18Z"/>
+    <path class="shade" d="M17.5,-20H70V70H17.5Z"/>
+    <path class="cut" d="M7,20.5H18A1,1 0 0 1 19,21.5V27.5A1,1 0 0 1 18,28.5H7A1,1 0 0 1 6,27.5V21.5A1,1 0 0 1 7,20.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M11.5,31H13.5A0.5,0.5 0 0 1 14,31.5V34.5A0.5,0.5 0 0 1 13.5,35H11.5A0.5,0.5 0 0 1 11,34.5V31.5A0.5,0.5 0 0 1 11.5,31Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8.5,35H16.5A1.5,1.5 0 0 1 18,36.5V36.5A1.5,1.5 0 0 1 16.5,38H8.5A1.5,1.5 0 0 1 7,36.5V36.5A1.5,1.5 0 0 1 8.5,35Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M28.5,18H42.5A2,2 0 0 1 44.5,20V29A2,2 0 0 1 42.5,31H28.5A2,2 0 0 1 26.5,29V20A2,2 0 0 1 28.5,18Z"/>
+    <path class="shade" d="M40.5,-20H70V70H40.5Z"/>
+    <path class="cut" d="M30,20.5H41A1,1 0 0 1 42,21.5V27.5A1,1 0 0 1 41,28.5H30A1,1 0 0 1 29,27.5V21.5A1,1 0 0 1 30,20.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M34.5,31H36.5A0.5,0.5 0 0 1 37,31.5V34.5A0.5,0.5 0 0 1 36.5,35H34.5A0.5,0.5 0 0 1 34,34.5V31.5A0.5,0.5 0 0 1 34.5,31Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M31.5,35H39.5A1.5,1.5 0 0 1 41,36.5V36.5A1.5,1.5 0 0 1 39.5,38H31.5A1.5,1.5 0 0 1 30,36.5V36.5A1.5,1.5 0 0 1 31.5,35Z"/>
+  </g>
+  <path class="line tint" d="M14.5,14.5C18.5,8.5 29.5,8.5 33.5,14.5" stroke-width="2.2" stroke-dasharray="0.01 3.6"/>
+</g>
+</svg>

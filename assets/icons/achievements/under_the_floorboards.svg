@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Under the Floorboards</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M17.5,28L17.5,22A1.5,1.5 0 0 1 19,20.5L29,20.5A1.5,1.5 0 0 1 30.5,22L30.5,28A1.5,1.5 0 0 1 29,29.5L19,29.5A1.5,1.5 0 0 1 17.5,28Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M5.5,8H42.5A1.5,1.5 0 0 1 44,9.5V15.5A1.5,1.5 0 0 1 42.5,17H5.5A1.5,1.5 0 0 1 4,15.5V9.5A1.5,1.5 0 0 1 5.5,8Z"/>
+    <path class="cut" d="M7,12.5A1,1 0 1 0 9,12.5A1,1 0 1 0 7,12.5Z"/>
+    <path class="cut" d="M39,12.5A1,1 0 1 0 41,12.5A1,1 0 1 0 39,12.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M5.5,33H42.5A1.5,1.5 0 0 1 44,34.5V40.5A1.5,1.5 0 0 1 42.5,42H5.5A1.5,1.5 0 0 1 4,40.5V34.5A1.5,1.5 0 0 1 5.5,33Z"/>
+    <path class="cut" d="M7,37.5A1,1 0 1 0 9,37.5A1,1 0 1 0 7,37.5Z"/>
+    <path class="cut" d="M39,37.5A1,1 0 1 0 41,37.5A1,1 0 1 0 39,37.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M18.2,20.26L40.31,13.92A1.5,1.5 -16 0 1 42.17,14.95L43.82,20.72A1.5,1.5 -16 0 1 42.79,22.57L20.68,28.91A1.5,1.5 -16 0 1 18.83,27.88L17.17,22.12A1.5,1.5 -16 0 1 18.2,20.26Z"/>
+  </g>
+</g>
+</svg>

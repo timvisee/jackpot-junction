@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Most Valued Member</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M7,11H41A3,3 0 0 1 44,14V35A3,3 0 0 1 41,38H7A3,3 0 0 1 4,35V14A3,3 0 0 1 7,11Z"/>
+    <path class="shade" d="M-20,33H70V70H-20Z"/>
+    <path class="cut" d="M4,17.5H44" stroke-width="3"/>
+    <path class="cut" d="M9,32.5H22" stroke-width="1.5"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M39.31,31.96L26.69,31.96A0.61,0.61 0 0 1 26.09,31.27L26.91,24.96L29.73,27.77A0.61,0.61 0 0 0 30.67,27.67L33,24.04L35.33,27.67A0.61,0.61 0 0 0 36.27,27.77L39.09,24.96L39.91,31.27A0.61,0.61 0 0 1 39.31,31.96Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M9.7,22H14.8A1.2,1.2 0 0 1 16,23.2V26.3A1.2,1.2 0 0 1 14.8,27.5H9.7A1.2,1.2 0 0 1 8.5,26.3V23.2A1.2,1.2 0 0 1 9.7,22Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Payback</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M15.72,25.84A8.28,8.28 0 1 0 32.28,25.84A8.28,8.28 0 1 0 15.72,25.84Z"/>
+    <path class="shade" d="M27,-20H70V70H27Z"/>
+    <path class="cut" d="M18.38,25.84A2.38,2.38 0 1 0 23.14,25.84A2.38,2.38 0 1 0 18.38,25.84Z"/>
+    <path class="cut" d="M24.86,25.84A2.38,2.38 0 1 0 29.62,25.84A2.38,2.38 0 1 0 24.86,25.84Z"/>
+    <path class="cut" d="M22.87,30.34L23.69,28.91A0.36,0.36 0 0 1 24.31,28.91L25.13,30.34A0.36,0.36 0 0 1 24.82,30.88L23.18,30.88A0.36,0.36 0 0 1 22.87,30.34Z"/>
+  </g>
+  <g class="piece ink" data-seam="false" data-shade="false">
+    <path class="body" d="M21.48,29.44L26.52,29.44A2.16,2.16 0 0 1 28.68,31.6L28.68,34.48A2.16,2.16 0 0 1 26.52,36.64L21.48,36.64A2.16,2.16 0 0 1 19.32,34.48L19.32,31.6A2.16,2.16 0 0 1 21.48,29.44Z"/>
+    <path class="cut" d="M22.87,30.34L23.69,28.91A0.36,0.36 0 0 1 24.31,28.91L25.13,30.34A0.36,0.36 0 0 1 24.82,30.88L23.18,30.88A0.36,0.36 0 0 1 22.87,30.34Z"/>
+    <path class="cut" d="M22.2,33.04L22.2,36.64M24,33.04L24,36.64M25.8,33.04L25.8,36.64" stroke-width="1.2"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M5,24A19,19 0 1 0 43,24A19,19 0 1 0 5,24ZM7.5,24A16.5,16.5 0 1 0 40.5,24A16.5,16.5 0 1 0 7.5,24Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,3H24A1.5,1.5 0 0 1 25.5,4.5V11.5A1.5,1.5 0 0 1 24,13H24A1.5,1.5 0 0 1 22.5,11.5V4.5A1.5,1.5 0 0 1 24,3ZM24,35H24A1.5,1.5 0 0 1 25.5,36.5V43.5A1.5,1.5 0 0 1 24,45H24A1.5,1.5 0 0 1 22.5,43.5V36.5A1.5,1.5 0 0 1 24,35ZM4.5,22.5H11.5A1.5,1.5 0 0 1 13,24V24A1.5,1.5 0 0 1 11.5,25.5H4.5A1.5,1.5 0 0 1 3,24V24A1.5,1.5 0 0 1 4.5,22.5ZM36.5,22.5H43.5A1.5,1.5 0 0 1 45,24V24A1.5,1.5 0 0 1 43.5,25.5H36.5A1.5,1.5 0 0 1 35,24V24A1.5,1.5 0 0 1 36.5,22.5Z"/>
+  </g>
+</g>
+</svg>

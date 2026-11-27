@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Full House</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M17.86,31.67L6.14,31.67A0.57,0.57 0 0 1 5.58,31.04L6.35,25.17L8.96,27.79A0.57,0.57 0 0 0 9.84,27.69L12,24.33L14.16,27.69A0.57,0.57 0 0 0 15.04,27.79L17.65,25.17L18.42,31.04A0.57,0.57 0 0 1 17.86,31.67Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M41.86,31.67L30.14,31.67A0.57,0.57 0 0 1 29.58,31.04L30.35,25.17L32.96,27.79A0.57,0.57 0 0 0 33.84,27.69L36,24.33L38.16,27.69A0.57,0.57 0 0 0 39.04,27.79L41.65,25.17L42.42,31.04A0.57,0.57 0 0 1 41.86,31.67Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M33.01,26.65L14.99,26.65A0.87,0.87 0 0 1 14.13,25.67L15.3,16.65L19.32,20.67A0.87,0.87 0 0 0 20.67,20.53L24,15.35L27.33,20.53A0.87,0.87 0 0 0 28.68,20.67L32.7,16.65L33.87,25.67A0.87,0.87 0 0 1 33.01,26.65Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M11,36H37A2,2 0 0 1 39,38V39A2,2 0 0 1 37,41H11A2,2 0 0 1 9,39V38A2,2 0 0 1 11,36Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Stacked</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M7.48,30.79L5.6,12.89A2,2 0 0 1 7.38,10.69L19.32,9.43A2,2 0 0 1 21.52,11.21L23.4,29.11A2,2 0 0 1 21.62,31.31L9.68,32.57A2,2 0 0 1 7.48,30.79Z"/>
+    <path class="shade" d="M19,-20H70V70H19Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24.6,29.11L26.48,11.21A2,2 0 0 1 28.68,9.43L40.62,10.69A2,2 0 0 1 42.4,12.89L40.52,30.79A2,2 0 0 1 38.32,32.57L26.38,31.31A2,2 0 0 1 24.6,29.11Z"/>
+    <path class="shade" d="M38,-20H70V70H38Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M14.5,17C16.9,18.92 18.5,20.36 18.5,21.8C18.5,23.08 17.54,23.88 16.34,23.88C15.62,23.88 15.06,23.56 14.74,23L15.3,25L13.7,25L14.26,23C13.94,23.56 13.38,23.88 12.66,23.88C11.46,23.88 10.5,23.08 10.5,21.8C10.5,20.36 12.1,18.92 14.5,17Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M31.74,19.24A1.76,1.76 0 1 0 35.26,19.24A1.76,1.76 0 1 0 31.74,19.24ZM29.82,21.64A1.76,1.76 0 1 0 33.34,21.64A1.76,1.76 0 1 0 29.82,21.64ZM33.66,21.64A1.76,1.76 0 1 0 37.18,21.64A1.76,1.76 0 1 0 33.66,21.64ZM32.22,21.16A1.28,1.28 0 1 0 34.78,21.16A1.28,1.28 0 1 0 32.22,21.16ZM33.02,21.8L32.54,25L34.46,25L33.98,21.8Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M7.5,39A2,2 0 1 0 11.5,39A2,2 0 1 0 7.5,39Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M12.5,39A2,2 0 1 0 16.5,39A2,2 0 1 0 12.5,39Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M17.5,39A2,2 0 1 0 21.5,39A2,2 0 1 0 17.5,39Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M26.5,39A2,2 0 1 0 30.5,39A2,2 0 1 0 26.5,39Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M31.5,39A2,2 0 1 0 35.5,39A2,2 0 1 0 31.5,39Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M36.5,39A2,2 0 1 0 40.5,39A2,2 0 1 0 36.5,39Z"/>
+  </g>
+</g>
+</svg>

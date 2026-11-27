@@ -19,10 +19,16 @@ extends RefCounted
 enum Printing { FLAT, TONE, HALFTONE }
 ## The layers a picture is composed in: flat, with a flat shadow side, or the shadow side alone.
 enum Layer { FLAT, TONE, SHADE }
+## What a picture is printed on: the dark of a card or the HUD; paper in one ink, flat, its cream
+## the paper's own; or paper in two inks, the picture in a colored one with its shadow side screened
+## in a dark one, as the achievements' chips are, GAME.md 8.10.
+enum Ground { CARD, PAPER, TWO_INKS }
 
 const PRINTING := Printing.HALFTONE
 ## Where the drawings are, one file per id.
-const FOLDERS: Array[String] = ["res://assets/icons/jokers/", "res://assets/icons/powerups/"]
+const FOLDERS: Array[String] = [
+	"res://assets/icons/jokers/", "res://assets/icons/powerups/", "res://assets/icons/achievements/"
+]
 ## The grid the drawings are made on, and the widths every one of them shares, in its units: the
 ## gap a piece cuts round itself, a glint, and the rim of shadow along every inked piece.
 const GRID := 48.0
@@ -33,6 +39,9 @@ const RIM := 2.5
 const CREAM := Color("#f2ead6")
 const SHADOW := Color("#0b0a10")
 const SHADE := 0.5
+## The dark ink the shadow side is screened in on paper, and how far toward it.
+const INKY := Color("#17151c")
+const INKY_SHADE := 0.55
 const TINT := 0.4
 ## An ink too dark to read on the card is lifted toward white until it does: Oil Stain's purple.
 const READABLE := 0.34
@@ -95,15 +104,23 @@ static func has(id: StringName) -> bool:
 
 
 ## Draws [param id] into the square in the middle of [param box] on [param on], in [param ink],
-## at the size it will show on screen; [param paper] for a light ground, where it goes unshaded
-## and its cream is the paper's own. Its alpha fades the picture. False if there is no drawing.
-static func draw(on: CanvasItem, box: Rect2, id: StringName, ink: Color, paper := false) -> bool:
+## at the size it will show on screen, on [param ground]; on paper, what is cream is printed in
+## [param paper], or left bare where that is clear. Its alpha fades the picture. False if there is
+## no drawing.
+static func draw(
+	on: CanvasItem,
+	box: Rect2,
+	id: StringName,
+	ink: Color,
+	ground := Ground.CARD,
+	paper := Color.TRANSPARENT
+) -> bool:
 	var side := minf(box.size.x, box.size.y)
 	if side <= 0.0:
 		return false
 	var square := Rect2(box.get_center() - Vector2(side, side) * 0.5, Vector2(side, side))
 	var pixels := side * KeptPictures.scale_of(on)
-	var picture := texture(id, Color(ink, 1.0), pixels, paper)
+	var picture := texture(id, Color(ink, 1.0), pixels, ground, paper)
 	if picture == null:
 		return false
 	on.draw_texture_rect(picture, square, false, Color(1.0, 1.0, 1.0, ink.a))
@@ -111,16 +128,18 @@ static func draw(on: CanvasItem, box: Rect2, id: StringName, ink: Color, paper :
 
 
 ## [param id] printed in [param ink] for about [param pixels] a side, kept for the next asker.
-static func texture(id: StringName, ink: Color, pixels: float, paper := false) -> Texture2D:
+static func texture(
+	id: StringName, ink: Color, pixels: float, ground := Ground.CARD, paper := Color.TRANSPARENT
+) -> Texture2D:
 	var side := step(pixels)
-	var key := "%s|%s|%d|%d" % [id, ink.to_html(false), side, int(paper)]
+	var key := "%s|%s|%d|%d|%s" % [id, ink.to_html(false), side, ground, paper.to_html()]
 	var kept: Texture2D = _pictures.get(key)
 	if kept != null:
 		return kept
 	var drawing := _drawing(id)
 	if drawing.is_empty():
 		return null
-	var picture := ImageTexture.create_from_image(image(drawing, ink, side, paper))
+	var picture := ImageTexture.create_from_image(image(drawing, ink, side, ground, paper))
 	if _pictures.size() >= KEPT:
 		_pictures.erase(_pictures.keys()[0])
 	_pictures[key] = picture
@@ -135,20 +154,37 @@ static func step(pixels: float) -> int:
 	return STEPS[-1]
 
 
-## [param drawing] printed in [param ink], [param side] pixels a side.
-static func image(drawing: Dictionary, ink: Color, side: int, paper := false) -> Image:
-	var small := side < SMALL
-	var dark := not paper
-	if dark:
-		ink = lifted(ink)
-	var shaded := dark and not small and PRINTING != Printing.FLAT
+## [param drawing] printed in [param ink], [param side] pixels a side, on [param ground].
+static func image(
+	drawing: Dictionary, ink: Color, side: int, ground := Ground.CARD, paper := Color.TRANSPARENT
+) -> Image:
+	var look := look_of(ink, side, ground, paper)
+	ink = look["ink"]
+	var shaded := ground != Ground.PAPER and side >= SMALL and PRINTING != Printing.FLAT
 	var layer := Layer.TONE if shaded and PRINTING == Printing.TONE else Layer.FLAT
-	var printed := _raster(compose(drawing, ink, dark, small, layer, side), side)
+	var printed := _raster(compose(drawing, ink, look, layer, side), side)
 	if shaded and PRINTING == Printing.HALFTONE:
-		var mask := _raster(compose(drawing, ink, dark, small, Layer.SHADE, side), side)
-		var screen := _screen(side, ink.lerp(SHADOW, SHADE))
+		var mask := _raster(compose(drawing, ink, look, Layer.SHADE, side), side)
+		var screen := _screen(side, look["shade"])
 		printed.blend_rect_mask(screen, mask, Rect2i(0, 0, side, side), Vector2i.ZERO)
 	return printed
+
+
+## How [param ink] prints on [param ground] at [param side] pixels: the ink itself, lifted on a card
+## if it is too dark to read there; what cream is printed in, transparent for bare paper; the shadow
+## side's ink; and whether glints show.
+static func look_of(
+	ink: Color, side: int, ground := Ground.CARD, paper := Color.TRANSPARENT
+) -> Dictionary:
+	var card := ground == Ground.CARD
+	if card:
+		ink = lifted(ink)
+	return {
+		"ink": ink,
+		"cream": CREAM if card else paper,
+		"shade": ink.lerp(SHADOW, SHADE) if card else ink.lerp(INKY, INKY_SHADE),
+		"glints": ground != Ground.PAPER and side >= SMALL,
+	}
 
 
 ## [param ink] lifted toward white until it reads on a dark card.
@@ -256,10 +292,11 @@ static func _add(piece: Dictionary, classes: PackedStringArray, shape: Dictionar
 		piece["ct"].append(shape)
 
 
-## The SVG that prints one [param layer] of [param drawing]: the picture flat or with its shadow
-## side in a flat darker ink, or only the shadow side, white, for the halftone to be laid through.
+## The SVG that prints one [param layer] of [param drawing], as [param look] says, see
+## [method look_of]: the picture flat or with its shadow side in a flat darker ink, or only the
+## shadow side, white, for the halftone to be laid through.
 static func compose(
-	drawing: Dictionary, ink: Color, dark: bool, small: bool, layer: int, side: int
+	drawing: Dictionary, ink: Color, look: Dictionary, layer: int, side: int
 ) -> String:
 	var defs := PackedStringArray()
 	var out := PackedStringArray()
@@ -272,7 +309,7 @@ static func compose(
 		if layer == Layer.SHADE:
 			body = _shadow(drawing, i, defs)
 		else:
-			body = _body(drawing, i, ink, dark, small, layer == Layer.TONE, defs)
+			body = _body(drawing, i, ink, look, layer == Layer.TONE, defs)
 		if body.is_empty():
 			continue
 		var mask := _seams(drawing, i, layer == Layer.SHADE, grow, defs)
@@ -383,26 +420,21 @@ static func _clip(drawing: Dictionary, i: int, defs: PackedStringArray) -> Strin
 ## Piece [param i] as printed: a line, a cream or tinted shape, or an inked one with its shadow
 ## side in a flat darker ink when [param tone], and its glints.
 static func _body(
-	drawing: Dictionary,
-	i: int,
-	ink: Color,
-	dark: bool,
-	small: bool,
-	tone: bool,
-	defs: PackedStringArray
+	drawing: Dictionary, i: int, ink: Color, look: Dictionary, tone: bool, defs: PackedStringArray
 ) -> String:
 	var piece: Dictionary = drawing["parts"][i]
 	var placed := _placed(drawing, piece)
 	var kind: String = piece["tone"]
+	var cream: Color = look["cream"]
 	if piece["line"]:
-		if kind == "cream" and not dark:
+		if kind == "cream" and cream.a <= 0.0:
 			return ""
 		var line := _stroke(
-			piece["d"], placed, _hex(CREAM if kind == "cream" else ink), piece["w"], piece
+			piece["d"], placed, _hex(cream if kind == "cream" else ink), piece["w"], piece
 		)
 		return '<g opacity="%s">%s</g>' % [TINT, line] if kind == "tint" else line
 	if kind == "cream":
-		return _fill(piece["d"], placed, _hex(CREAM), piece["rule"]) if dark else ""
+		return _fill(piece["d"], placed, _hex(cream), piece["rule"]) if cream.a > 0.0 else ""
 	var printed := ""
 	var inner := PackedStringArray()
 	if kind == "tint":
@@ -410,16 +442,16 @@ static func _body(
 	else:
 		printed = _fill(piece["d"], placed, _hex(ink), piece["rule"])
 		if tone and piece["shade"]:
-			var shade := _hex(ink.lerp(SHADOW, SHADE))
+			var shade := _hex(look["shade"])
 			inner.append(_FULL % shade)
 			var back := "translate(%s,%s) %s" % [-RIM, -RIM, placed]
 			inner.append(_fill(piece["d"], back, _hex(ink), piece["rule"]))
 			for region: Dictionary in piece["sh"]:
 				inner.append(_fill(region["d"], placed, shade, region["rule"]))
-	if dark and not small:
+	if look["glints"] and cream.a > 0.0:
 		for glint: Dictionary in piece["gl"]:
 			var width: float = glint["w"] if glint["w"] > 0.0 else GLINT
-			inner.append(_stroke(glint["d"], placed, _hex(CREAM), width))
+			inner.append(_stroke(glint["d"], placed, _hex(cream), width))
 	if not inner.is_empty():
 		printed += '<g clip-path="url(#%s)">%s</g>' % [_clip(drawing, i, defs), "".join(inner)]
 	return printed

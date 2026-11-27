@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Bank Shot</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M5.5,5H6.5A1.5,1.5 0 0 1 8,6.5V41.5A1.5,1.5 0 0 1 6.5,43H5.5A1.5,1.5 0 0 1 4,41.5V6.5A1.5,1.5 0 0 1 5.5,5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M41.5,5H42.5A1.5,1.5 0 0 1 44,6.5V41.5A1.5,1.5 0 0 1 42.5,43H41.5A1.5,1.5 0 0 1 40,41.5V6.5A1.5,1.5 0 0 1 41.5,5Z"/>
+  </g>
+  <path class="line tint" d="M17,43L38,31L10,18L19.5,13" stroke-width="2.5" stroke-dasharray="0.01 4.4"/>
+  <g class="piece ink">
+    <path class="body" d="M38,28C38.54,30.46 38.54,30.46 41,31C38.54,31.54 38.54,31.54 38,34C37.46,31.54 37.46,31.54 35,31C37.46,30.46 37.46,30.46 38,28Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M10,15C10.54,17.46 10.54,17.46 13,18C10.54,18.54 10.54,18.54 10,21C9.46,18.54 9.46,18.54 7,18C9.46,17.46 9.46,17.46 10,15Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M20.68,8.9L24.92,6.64C28.31,4.84 31.34,5.61 32.74,6.45C32.65,8.08 31.6,11.02 28.2,12.83L23.96,15.08A1.2,1.2 62 0 1 22.34,14.58L20.18,10.52A1.2,1.2 62 0 1 20.68,8.9Z"/>
+  </g>
+</g>
+</svg>

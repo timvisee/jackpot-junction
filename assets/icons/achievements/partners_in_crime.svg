@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Partners in Crime</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M18.7,16.5A2.6,1.8 0 1 0 23.9,16.5A2.6,1.8 0 1 0 18.7,16.5ZM20,16.5A1.3,0.6 0 1 0 22.6,16.5A1.3,0.6 0 1 0 20,16.5Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M24.1,16.5A2.6,1.8 0 1 0 29.3,16.5A2.6,1.8 0 1 0 24.1,16.5ZM25.4,16.5A1.3,0.6 0 1 0 28,16.5A1.3,0.6 0 1 0 25.4,16.5Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M5,26A9,9 0 1 0 23,26A9,9 0 1 0 5,26ZM8,26A6,6 0 1 0 20,26A6,6 0 1 0 8,26Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM1.5,23A9.5,9.5 0 1 0 20.5,23A9.5,9.5 0 1 0 1.5,23Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M25,26A9,9 0 1 0 43,26A9,9 0 1 0 25,26ZM28,26A6,6 0 1 0 40,26A6,6 0 1 0 28,26Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM21.5,23A9.5,9.5 0 1 0 40.5,23A9.5,9.5 0 1 0 21.5,23Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M11,13.5H17A1.5,1.5 0 0 1 18.5,15V18.5A1.5,1.5 0 0 1 17,20H11A1.5,1.5 0 0 1 9.5,18.5V15A1.5,1.5 0 0 1 11,13.5Z"/>
+    <path class="cut" d="M12.8,16.75A1.2,1.2 0 1 0 15.2,16.75A1.2,1.2 0 1 0 12.8,16.75Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M31,13.5H37A1.5,1.5 0 0 1 38.5,15V18.5A1.5,1.5 0 0 1 37,20H31A1.5,1.5 0 0 1 29.5,18.5V15A1.5,1.5 0 0 1 31,13.5Z"/>
+    <path class="cut" d="M32.8,16.75A1.2,1.2 0 1 0 35.2,16.75A1.2,1.2 0 1 0 32.8,16.75Z"/>
+  </g>
+</g>
+</svg>

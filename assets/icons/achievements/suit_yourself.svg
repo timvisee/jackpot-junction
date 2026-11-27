@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Suit Yourself</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M14.5,22.4C9.55,18.8 7,16.1 7,12.95C7,10.4 8.95,8.6 11.35,8.6C12.85,8.6 13.9,9.35 14.5,10.55C15.1,9.35 16.15,8.6 17.65,8.6C20.05,8.6 22,10.4 22,12.95C22,16.1 19.45,18.8 14.5,22.4Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M33.5,7C38,10.6 41,13.3 41,16C41,18.4 39.2,19.9 36.95,19.9C35.6,19.9 34.55,19.3 33.95,18.25L35,22L32,22L33.05,18.25C32.45,19.3 31.4,19.9 30.05,19.9C27.8,19.9 26,18.4 26,16C26,13.3 29,10.6 33.5,7Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14.5,26C16.3,29 18.4,31.4 20.8,33.5C18.4,35.6 16.3,38 14.5,41C12.7,38 10.6,35.6 8.2,33.5C10.6,31.4 12.7,29 14.5,26Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M30.2,30.2A3.3,3.3 0 1 0 36.8,30.2A3.3,3.3 0 1 0 30.2,30.2ZM26.6,34.7A3.3,3.3 0 1 0 33.2,34.7A3.3,3.3 0 1 0 26.6,34.7ZM33.8,34.7A3.3,3.3 0 1 0 40.4,34.7A3.3,3.3 0 1 0 33.8,34.7ZM31.1,33.8A2.4,2.4 0 1 0 35.9,33.8A2.4,2.4 0 1 0 31.1,33.8ZM32.6,35L31.7,41L35.3,41L34.4,35Z"/>
+  </g>
+</g>
+</svg>

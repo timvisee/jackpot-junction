@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A Pit. Do Not.</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M6,37A18,6 0 1 0 42,37A18,6 0 1 0 6,37Z"/>
+    <path class="shade" d="M-20,38H70V70H-20Z"/>
+  </g>
+  <g class="piece tint" data-seam="false">
+    <path class="body" d="M12,37.5A12,3.2 0 1 0 36,37.5A12,3.2 0 1 0 12,37.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14.68,26.23L21.82,23.63A2.2,2.2 -20 0 1 24.64,24.95L24.64,24.95A2.2,2.2 -20 0 1 23.32,27.77L16.18,30.37A2.2,2.2 -20 0 1 13.36,29.05L13.36,29.05A2.2,2.2 -20 0 1 14.68,26.23Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M26.9,15.89L34.24,17.86A2.2,2.2 15 0 1 35.8,20.55L35.8,20.55A2.2,2.2 15 0 1 33.1,22.11L25.76,20.14A2.2,2.2 15 0 1 24.2,17.45L24.2,17.45A2.2,2.2 15 0 1 26.9,15.89Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M12.63,11.38L18.85,7.02A2.2,2.2 -35 0 1 21.91,7.56L21.91,7.56A2.2,2.2 -35 0 1 21.37,10.62L15.15,14.98A2.2,2.2 -35 0 1 12.09,14.44L12.09,14.44A2.2,2.2 -35 0 1 12.63,11.38Z"/>
+  </g>
+  <path class="line tint" d="M36,8V13M40,11V16" stroke-width="2"/>
+</g>
+</svg>

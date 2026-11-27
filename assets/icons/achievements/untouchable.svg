@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Untouchable</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M32.11,16.09L15.89,16.09A0.78,0.78 0 0 1 15.12,15.2L16.17,7.09L19.79,10.7A0.78,0.78 0 0 0 21,10.58L24,5.91L27,10.58A0.78,0.78 0 0 0 28.21,10.7L31.83,7.09L32.88,15.2A0.78,0.78 0 0 1 32.11,16.09Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,40.96C15.42,34.72 11,30.04 11,24.58C11,20.16 14.38,17.04 18.54,17.04C21.14,17.04 22.96,18.34 24,20.42C25.04,18.34 26.86,17.04 29.46,17.04C33.62,17.04 37,20.16 37,24.58C37,30.04 32.58,34.72 24,40.96Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+    <path class="glint" d="M14.06,23.31A4,4 0 0 1 16.96,20.14"/>
+  </g>
+</g>
+</svg>

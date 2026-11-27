@@ -5112,7 +5112,8 @@ everyone sees when an opponent cashes out.
 
 Two sets of pictures that read as one: one per joker, in the middle of its card,
 and one per power-up, beside its name in the HUD block. Each is an SVG file of
-its own, `assets/icons/jokers/<id>.svg` and `assets/icons/powerups/<id>.svg`,
+its own, `assets/icons/jokers/<id>.svg` and `assets/icons/powerups/<id>.svg`, as is every
+achievement's, `assets/icons/achievements/<id>.svg`, 8.10,
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt` and `PowerUpArt` are what the rest of the game
 calls; they hand an id and a color to the press. Kit's five cards keep his
@@ -5143,8 +5144,10 @@ a set.
 `TONE` (a flat darker ink) or `HALFTONE`. One constant, so the whole set goes
 back to flat by changing one line.
 
-On paper, where the program prints them in its dark ink, a picture goes
-unshaded and its cream is the paper's own. Below 40 pixels a picture drops its
+What a picture is printed on is its `IconPress.Ground`: a card's dark, paper in one ink, or paper
+in two. On paper, where the program prints them in its dark ink, a picture goes
+unshaded and its cream is the paper's own; on an achievement's chip it prints in two inks, the
+chip's color with its shadow side screened in a dark one, 8.10. Below 40 pixels a picture drops its
 shading and its glints, which would only blur it, and the halftone turns flat.
 An ink nearly as dark as the card, Oil Stain's purple, is lifted toward white
 until it reads.
@@ -7197,15 +7200,18 @@ count toward Know Every Street; switched on again, whatever is met is earned the
 
 **Chips and pins.** Every achievement is a commemorative chip, the kind a casino strikes for an
 occasion: a poker chip with the table's notches round its rim, 8.1a, a cream inlay in its middle and on
-it the achievement's own picture in ink, drawn as the landmarks' and the jokers' pictures are, 8.3a, so
-no two are alike and none of them is a picture file. Its color is its denomination, as a casino's are,
+it the achievement's own picture, an SVG drawing in assets/icons/achievements printed as the jokers'
+are, 8.3a, so no two are alike. On the inlay it is printed in two inks, the chip's own color (a white
+chip's in the blue of its notches, a black's near black) with its shadow side screened in a dark one,
+the paper standing in for cream; redrawn with the jokers' on 2026-11-26. Its color is its denomination, as a casino's are,
 and says what it took: white for a first step or for company, red for a moment, green for a feat and
 black for the hardest and the longest. The story's six are enamel pins instead, the kind staff wear
 on
 a lapel, each cut to a shape of its own and edged in metal: Terms Accepted's and Employee of the
 Month's struck by the House in its gold, black and red, Off the Books', Not This Time's, Under the
 Floorboards' and A Fresh Start's Kit's own, in
-their grays, painted by hand rather than struck. One not yet earned is drawn the same in gray, its picture
+their grays, painted by hand rather than struck: the House's print gold on their enamel as a card does,
+Kit's flat in his pencil. One not yet earned is drawn the same in gray, its picture flat and
 faint, so a player can see what they are after; a hidden one is the same for all six, a scrap of
 Kit's
 graph paper folded over something and taped shut, a question mark on it in pencil.

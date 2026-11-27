@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Front Row</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M11.5,15A4.5,4.5 0 1 0 20.5,15A4.5,4.5 0 1 0 11.5,15ZM17.5,11.5A5,5 0 1 0 27.5,11.5A5,5 0 1 0 17.5,11.5ZM24.7,13A4.8,4.8 0 1 0 34.3,13A4.8,4.8 0 1 0 24.7,13ZM30.2,18A3.8,3.8 0 1 0 37.8,18A3.8,3.8 0 1 0 30.2,18ZM9,19.5A3.5,3.5 0 1 0 16,19.5A3.5,3.5 0 1 0 9,19.5ZM19.5,18A4.5,4.5 0 1 0 28.5,18A4.5,4.5 0 1 0 19.5,18Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13.84,42.69L11.21,21.69A1.5,1.5 0 0 1 12.7,20L35.3,20A1.5,1.5 0 0 1 36.79,21.69L34.16,42.69A1.5,1.5 0 0 1 32.68,44L15.32,44A1.5,1.5 0 0 1 13.84,42.69Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+    <path class="cut" d="M18.5,21V43.5M24,21V43.5M29.5,21V43.5" stroke-width="2.6"/>
+  </g>
+</g>
+</svg>

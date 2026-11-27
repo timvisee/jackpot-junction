@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Terms Accepted</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M13,25L21,33L36,15" stroke-width="5.5" stroke-linecap="round"/>
+  <g class="piece ink">
+    <path class="body" d="M37,27.5C37.63,30.37 37.63,30.37 40.5,31C37.63,31.63 37.63,31.63 37,34.5C36.37,31.63 36.37,31.63 33.5,31C36.37,30.37 36.37,30.37 37,27.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M11,10.4C11.47,12.53 11.47,12.53 13.6,13C11.47,13.47 11.47,13.47 11,15.6C10.53,13.47 10.53,13.47 8.4,13C10.53,12.53 10.53,12.53 11,10.4Z"/>
+  </g>
+</g>
+</svg>

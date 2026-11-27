@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Not This Time</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M6,40.2L6,9.8A0.8,0.8 0 0 1 6.8,9L20.79,9A0.8,0.8 0 0 1 21.52,10.12L19.17,15.6A0.8,0.8 0 0 0 19.24,16.36L22.69,21.54A0.8,0.8 0 0 1 22.68,22.45L18.3,28.58A0.8,0.8 0 0 0 18.25,29.44L21.77,35.59A0.8,0.8 0 0 1 21.76,36.4L19.23,40.61A0.8,0.8 0 0 1 18.55,41L6.8,41A0.8,0.8 0 0 1 6,40.2Z"/>
+    <path class="cut" d="M10,16H16M10,21H17M10,26H15" stroke-width="1.5"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M26.32,12.97L30.15,7.53A0.8,0.8 12 0 1 30.98,7.21L45.33,10.26A0.8,0.8 12 0 1 45.94,11.21L39.62,40.95A0.8,0.8 12 0 1 38.67,41.56L22.25,38.07A0.8,0.8 12 0 1 21.84,36.75L24.53,33.85A0.8,0.8 12 0 0 24.7,33.06L22.54,26.32A0.8,0.8 12 0 1 22.77,25.49L28.33,20.4A0.8,0.8 12 0 0 28.53,19.51L26.23,13.73A0.8,0.8 12 0 1 26.32,12.97Z"/>
+  </g>
+</g>
+</svg>

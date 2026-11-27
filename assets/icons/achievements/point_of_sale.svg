@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Point of Sale</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M27,5H38A2,2 0 0 1 40,7V12A2,2 0 0 1 38,14H27A2,2 0 0 1 25,12V7A2,2 0 0 1 27,5Z"/>
+    <path class="cut" d="M28.5,7.5H36.5A1,1 0 0 1 37.5,8.5V10.5A1,1 0 0 1 36.5,11.5H28.5A1,1 0 0 1 27.5,10.5V8.5A1,1 0 0 1 28.5,7.5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M30,14H35A0.5,0.5 0 0 1 35.5,14.5V18.5A0.5,0.5 0 0 1 35,19H30A0.5,0.5 0 0 1 29.5,18.5V14.5A0.5,0.5 0 0 1 30,14Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M4.18,40.83L5.85,20.83A2,2 0 0 1 7.84,19L40.16,19A2,2 0 0 1 42.15,20.83L43.82,40.83A2,2 0 0 1 41.83,43L6.17,43A2,2 0 0 1 4.18,40.83Z"/>
+    <path class="shade" d="M36,-20H70V70H36Z"/>
+    <path class="cut" d="M5,32H43" stroke-width="1.5"/>
+    <path class="cut" d="M21.25,36H26.75A1.25,1.25 0 0 1 28,37.25V37.25A1.25,1.25 0 0 1 26.75,38.5H21.25A1.25,1.25 0 0 1 20,37.25V37.25A1.25,1.25 0 0 1 21.25,36Z"/>
+    <path class="cut" d="M10,23H24A1,1 0 0 1 25,24V27A1,1 0 0 1 24,28H10A1,1 0 0 1 9,27V24A1,1 0 0 1 10,23Z"/>
+  </g>
+</g>
+</svg>
