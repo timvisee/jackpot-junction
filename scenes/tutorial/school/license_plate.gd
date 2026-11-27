@@ -241,9 +241,9 @@ static func _fitted(font: Font, shown: String, most: int, room: float) -> int:
 
 
 ## What a plate wears over its paper, onto [param canvas] [param plate] big: the hairline of ink
-## inside its edge, a bolt either side at its top, and the issuer in microprint between them. Shared
-## with the plate that is a text box, see [PlateField].
-static func dress(canvas: CanvasItem, plate: Vector2) -> void:
+## inside its edge, a bolt either side at its top, and, where [param issued], the issuer in
+## microprint between them. Shared with the plate that is a text box, see [PlateField].
+static func dress(canvas: CanvasItem, plate: Vector2, issued := true) -> void:
 	var h := plate.y
 	var frame := StyleBoxFlat.new()
 	frame.draw_center = false
@@ -262,7 +262,7 @@ static func dress(canvas: CanvasItem, plate: Vector2) -> void:
 	var issuer := Lang.t(ISSUER)
 	var wide := micro.get_string_size(issuer, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x
 	var room := plate.x - h * 0.7
-	if wide <= room:
+	if issued and wide <= room:
 		canvas.draw_string(
 			micro,
 			Vector2((plate.x - wide) * 0.5, h * 0.25),

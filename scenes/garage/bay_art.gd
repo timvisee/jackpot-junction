@@ -559,8 +559,9 @@ static func draw_turntable(on: CanvasItem, box: Rect2, ink: Color) -> void:
 
 ## Back, as a plate the Department of Karts printed, as the bench's own is, in [param plate]: its
 ## paper, its hairline, a screw in each top corner with DEPT. OF KARTS between them, and
-## [param words_on] in its lettering. Lifted off the wall a little for [param lit], pressed onto
-## it for [param down].
+## [param words_on] in its lettering; a plate with no words has a picture on it instead, which
+## takes the issuer's room too. Lifted off the wall a little for [param lit], pressed onto it for
+## [param down].
 static func draw_back(
 	on: CanvasItem, plate: Rect2, words_on: String, lit: bool, down: bool
 ) -> void:
@@ -578,7 +579,7 @@ static func draw_back(
 	paper.set_corner_radius_all(roundi(round_by))
 	paper.anti_aliasing = true
 	on.draw_style_box(paper, Rect2(Vector2.ZERO, plate.size))
-	LicensePlate.dress(on, plate.size)
+	LicensePlate.dress(on, plate.size, not words_on.is_empty())
 	var face := LicensePlate.lettering(plate.size.y)
 	var size := roundi(plate.size.y * 0.5)
 	on.draw_string(
