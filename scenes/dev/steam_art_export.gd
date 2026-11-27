@@ -152,28 +152,97 @@ const APP_ICON := 184
 ## the seal, drivers and a kart, chips, the multiplier die, achievements, jokers and the house's
 ## card back.
 const AVATAR := 184
+## The shadow under an avatar's chip, as an achievement's pin has one, see [AchievementArt]: how
+## dark, and how far down it falls as a share of the chip's radius.
+const CHIP_SHADOW := Color(0.0, 0.0, 0.0, 0.3)
+const CHIP_DROP := 0.05
+## The avatars' screens, see [enum KeyArt.Sunburst.Screen], named short for the list under them.
+const RAYS := Sunburst.Screen.RAYS
+const FOUNTAIN := Sunburst.Screen.FOUNTAIN
+## The inks a split fountain drifts into, the players' colors and a rare card's magenta, by name.
+const INKS := {
+	&"red": Color("#E23D3D"),
+	&"orange": Color("#F28C3D"),
+	&"gold": Color("#F2C14E"),
+	&"green": Color("#43C463"),
+	&"cyan": Color("#3DD9E2"),
+	&"blue": Color("#3D6FE2"),
+	&"purple": Color("#9B4FE2"),
+	&"magenta": Color("#FF4FA3"),
+}
+## Each on its screen, see [enum KeyArt.Sunburst.Screen]: the race's rays, their ends printed,
+## behind the seal, the drivers and the kart, and behind the rest, the chips, the die, the house's
+## prints and its card back, the split fountain of a rare card's print, each drifting from its
+## seat's color into two inks of its own, neighbors of it round the wheel so the dots stay clean.
 const AVATARS: Array[Dictionary] = [
-	{"name": "seal", "seat": -1, "seal": true},
-	{"name": "driver_red", "seat": 0, "driver": {"paint": 5, "hat": 2, "body": 0}},
-	{"name": "driver_blue", "seat": 1, "driver": {"paint": 1, "hat": 3, "body": 0}},
-	{"name": "driver_green", "seat": 3, "driver": {"paint": 2, "hat": 6, "body": 0}},
-	{"name": "driver_pink", "seat": 7, "driver": {"paint": 7, "hat": 4, "body": 0}},
-	{"name": "kart", "seat": 5, "kart": {"paint": 6, "hat": 8, "flag": 3, "body": 0}},
-	{"name": "chip_stack", "seat": 3, "stack": true},
-	{"name": "gold_chip", "seat": -1, "chip": true},
-	{"name": "chip_flat", "seat": 3, "flat_chip": Color("#d23a32"), "text": ""},
-	{"name": "chip_hundred", "seat": 5, "flat_chip": Color("#24222b"), "text": "100"},
-	{"name": "die", "seat": 1, "die": true},
-	{"name": "terms_accepted", "seat": 1, "achievement": &"terms_accepted"},
-	{"name": "dressed_to_the_nines", "seat": 0, "achievement": &"dressed_to_the_nines"},
-	{"name": "beat_the_house", "seat": 4, "achievement": &"beat_the_house"},
-	{"name": "most_valued_member", "seat": 2, "achievement": &"most_valued_member"},
-	{"name": "clean_sweep", "seat": 2, "achievement": &"clean_sweep"},
-	{"name": "royal_court", "seat": 0, "joker": &"royal_court"},
-	{"name": "aimbot", "seat": 6, "joker": &"aimbot"},
-	{"name": "road_rage", "seat": 1, "joker": &"road_rage"},
-	{"name": "wild_card", "seat": 4, "joker": &"wild_card"},
-	{"name": "card_back", "seat": 6, "card_back": true},
+	{"name": "seal", "seat": -1, "seal": true, "screen": RAYS},
+	{"name": "driver_red", "seat": 0, "driver": {"paint": 5, "hat": 2, "body": 0}, "screen": RAYS},
+	{"name": "driver_blue", "seat": 1, "driver": {"paint": 1, "hat": 3, "body": 0}, "screen": RAYS},
+	{
+		"name": "driver_green",
+		"seat": 3,
+		"driver": {"paint": 2, "hat": 6, "body": 0},
+		"screen": RAYS
+	},
+	{"name": "driver_pink", "seat": 7, "driver": {"paint": 7, "hat": 4, "body": 0}, "screen": RAYS},
+	{
+		"name": "kart",
+		"seat": 5,
+		"kart": {"paint": 6, "hat": 8, "flag": 3, "body": 0},
+		"screen": RAYS
+	},
+	{"name": "chip_stack", "seat": 3, "stack": true, "drift": [&"cyan", &"blue"]},
+	{"name": "gold_chip", "seat": 4, "chip": true, "drift": [&"blue", &"cyan"]},
+	{
+		"name": "chip_flat",
+		"seat": 6,
+		"flat_chip": Color("#d23a32"),
+		"text": "",
+		"drift": [&"blue", &"purple"]
+	},
+	{
+		"name": "chip_hundred",
+		"seat": 5,
+		"flat_chip": Color("#24222b"),
+		"text": "100",
+		"drift": [&"red", &"magenta"]
+	},
+	{"name": "die", "seat": 1, "die": true, "drift": [&"purple", &"magenta"]},
+	{
+		"name": "terms_accepted",
+		"seat": 1,
+		"achievement": &"terms_accepted",
+		"drift": [&"cyan", &"green"]
+	},
+	{
+		"name": "dressed_to_the_nines",
+		"seat": 3,
+		"achievement": &"dressed_to_the_nines",
+		"drift": [&"cyan", &"blue"]
+	},
+	{
+		"name": "beat_the_house",
+		"seat": 4,
+		"achievement": &"beat_the_house",
+		"drift": [&"magenta", &"orange"]
+	},
+	{
+		"name": "most_valued_member",
+		"seat": 2,
+		"achievement": &"most_valued_member",
+		"drift": [&"orange", &"red"]
+	},
+	{
+		"name": "clean_sweep",
+		"seat": 7,
+		"achievement": &"clean_sweep",
+		"drift": [&"purple", &"blue"]
+	},
+	{"name": "royal_court", "seat": 0, "joker": &"royal_court", "drift": [&"magenta", &"purple"]},
+	{"name": "aimbot", "seat": 6, "joker": &"aimbot", "drift": [&"blue", &"purple"]},
+	{"name": "road_rage", "seat": 1, "joker": &"road_rage", "drift": [&"cyan", &"green"]},
+	{"name": "wild_card", "seat": 4, "joker": &"wild_card", "drift": [&"blue", &"cyan"]},
+	{"name": "card_back", "seat": 7, "card_back": true, "drift": [&"red", &"orange"]},
 ]
 ## The seats whose colors the candidates' sunbursts take in turn, see [method _candidates].
 const CANDIDATE_SEATS: Array[int] = [1, 3, 4, 6, 2, 7, 5, 0]
@@ -404,12 +473,18 @@ func _icons() -> void:
 	)
 
 
-## The avatar [param spec] says: its thing on a sunburst in its seat's color.
+## The avatar [param spec] says: its thing on a sunburst in its seat's color, or on the screen it
+## names in its place, a split fountain into the inks it names unless it says rays.
 func _avatar(spec: Dictionary) -> Image:
 	var side := AVATAR * OVER
 	var seat: int = spec["seat"]
 	var burst := Sunburst.new()
 	burst.ink = HouseTheme.FOIL if seat < 0 else Palette.PLAYER_COLORS[seat]
+	burst.screen = spec.get("screen", FOUNTAIN)
+	if spec.has("drift"):
+		burst.drift.assign(
+			(spec["drift"] as Array).map(func(name: StringName) -> Color: return INKS[name])
+		)
 	burst.size = Vector2.ONE * side
 	if spec.has("seal"):
 		var seal := LogoArt.new()
@@ -423,6 +498,12 @@ func _avatar(spec: Dictionary) -> Image:
 		var achievement := _achievement(spec["achievement"])
 		badge.draw.connect(
 			func() -> void:
+				# A chip has its shadow drawn here; a pin draws its own.
+				if not achievement.is_pin():
+					var drop := Vector2(0.0, side * 0.42 * CHIP_DROP)
+					badge.draw_circle(
+						badge.size / 2.0 + drop, side * 0.42, CHIP_SHADOW, true, -1.0, true
+					)
 				AchievementArt.draw(
 					badge, badge.size / 2.0, side * 0.42, achievement, AchievementArt.Look.EARNED
 				)
@@ -437,6 +518,8 @@ func _avatar(spec: Dictionary) -> Image:
 			func() -> void:
 				var middle := chip.size / 2.0
 				var radius := side * 0.4
+				var drop := Vector2(0.0, radius * CHIP_DROP)
+				chip.draw_circle(middle + drop, radius, CHIP_SHADOW, true, -1.0, true)
 				ChipArt.chip(chip, middle, radius, face)
 				if words != "":
 					var font := Type.numbers_font()
@@ -470,6 +553,8 @@ func _avatar(spec: Dictionary) -> Image:
 	for flat: String in ["seal", "achievement", "flat_chip", "joker", "card_back"]:
 		if spec.has(flat):
 			return back
+	# A chip turned up or stacked has its shadow, cast by its own shape, as the flat ones have.
+	var shaded := spec.has("chip") or spec.has("stack")
 	var room := studio(Vector2i.ONE * side)
 	if spec.has("chip"):
 		# Its face turned up toward the camera, a little off square, as one flipped onto the felt.
@@ -499,7 +584,10 @@ func _avatar(spec: Dictionary) -> Image:
 	elif spec.has("kart"):
 		_model(room, seat, spec["kart"], PI + 0.6)
 		look_in(room, Vector3(1.8, 2.0, 3.7), Vector3(0.0, 0.8, 0.0), 30.0)
-	return over(back, await taken(room, 8))
+	var front := await taken(room, 8)
+	if shaded:
+		return over(back, front, roundi(side * 0.4 * CHIP_DROP), CHIP_SHADOW)
+	return over(back, front)
 
 
 ## A camera in [param room] at [param eye] looking at [param at].

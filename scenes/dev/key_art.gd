@@ -435,31 +435,59 @@ func studio(size: Vector2i) -> SubViewport:
 	return viewport
 
 
-## [param front], drawn on nothing, laid over [param back], the two the same size.
-static func over(back: Image, front: Image) -> Image:
+## [param front], drawn on nothing, laid over [param back], the two the same size; with its own
+## shape under it in [param shadow], [param drop] pixels lower, where it casts one.
+static func over(back: Image, front: Image, drop := 0, shadow := Color.TRANSPARENT) -> Image:
 	var out := back.duplicate() as Image
 	out.convert(Image.FORMAT_RGBA8)
 	var top := front.duplicate() as Image
 	top.convert(Image.FORMAT_RGBA8)
 	straighten(top)
+	if drop > 0:
+		# The front's own shape in [param shadow], [param drop] pixels lower, under it.
+		var shade := Image.create(top.get_width(), top.get_height(), false, Image.FORMAT_RGBA8)
+		for y: int in range(drop, top.get_height()):
+			for x: int in top.get_width():
+				var cover := top.get_pixel(x, y - drop).a
+				if cover > 0.0:
+					shade.set_pixel(x, y, Color(shadow, shadow.a * cover))
+		out.blend_rect(shade, Rect2i(Vector2i.ZERO, shade.get_size()), Vector2i.ZERO)
 	out.blend_rect(top, Rect2i(Vector2i.ZERO, top.get_size()), Vector2i.ZERO)
 	out.convert(Image.FORMAT_RGB8)
 	return out
 
 
 ## A carnival sunburst in [param ink]: its beams round the middle, lit there and dark at the
-## corners.
+## corners, where the beams end in the house print's halftone screen, GAME.md 8.3. Or, as
+## [member screen] says, the screen in their place: dots thickening out to the corners and drifting
+## across from [member ink] into the two inks of [member drift], magenta and cyan unless it says,
+## the split fountain of a rare card's screen, see [CardPrint].
 class Sunburst:
 	extends Control
 
+	enum Screen { RAYS, FOUNTAIN }
+
 	const BEAMS := 24
+	## The screen's dots: how many across, from where out they start on the beams' ends and on the
+	## fountain, as a share of the way from the middle to a corner, and how big they grow; and the
+	## split fountain's drift across, see [constant CardPrint.FOUNTAIN].
+	const DOTS := 34.0
+	const ENDS_FROM := 0.62
+	const FOUNTAIN_FROM := 0.42
+	const DOTS_GROW := 1.05
+	const DRIFT := 1.4
 	var ink := HouseTheme.FOIL
+	var screen := Screen.RAYS
+	var drift: Array[Color] = [CardPrint.MAGENTA, CardPrint.CYAN]
 	# Kept while it is drawn: a texture made in [method _draw] alone is freed when that returns,
 	# and what is drawn of it is lost with it.
 	var _glow: GradientTexture2D
 	var _shade: GradientTexture2D
 
 	func _draw() -> void:
+		if screen == Screen.FOUNTAIN:
+			_draw_fountain()
+			return
 		var middle := size * 0.5
 		var reach := size.length()
 		draw_rect(Rect2(Vector2.ZERO, size), ink.darkened(0.7))
@@ -474,6 +502,7 @@ class Sunburst:
 				]
 			)
 			draw_colored_polygon(beam, ink.darkened(0.52))
+		_draw_dots(ENDS_FROM, true)
 		var dark := HouseTheme.STOCK_DOWN
 		if _glow == null:
 			_glow = _radial(
@@ -482,6 +511,48 @@ class Sunburst:
 			_shade = _radial(Color(dark, 0.0), Color(dark, 0.0), Color(dark, 0.75), 1.15)
 		draw_texture_rect(_glow, Rect2(Vector2.ZERO, size), false)
 		draw_texture_rect(_shade, Rect2(Vector2.ZERO, size), false)
+
+	## The split fountain in place of the beams: the stock in [member ink]'s dark, its screen, and a
+	## glow behind what stands on it.
+	func _draw_fountain() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), ink.darkened(0.72))
+		_draw_dots(FOUNTAIN_FROM, false)
+		if _glow == null:
+			_glow = _radial(
+				Color(ink.lightened(0.25), 0.45), Color(ink, 0.2), Color(ink, 0.0), 0.95
+			)
+		draw_texture_rect(_glow, Rect2(Vector2.ZERO, size), false)
+
+	## The screen's dots on a grid turned to the screen's angle: none in the middle, growing from
+	## [param from] out to whole at the corners, on the beams alone for [param beams_only], in the
+	## beams' ink or for the fountain its drift across.
+	func _draw_dots(from: float, beams_only: bool) -> void:
+		var middle := size * 0.5
+		var side := minf(size.x, size.y)
+		var pitch := side / DOTS
+		var turn := deg_to_rad(45.0)
+		var reach := ceili(size.length() * 0.5 / pitch)
+		for u: int in range(-reach, reach + 1):
+			for v: int in range(-reach, reach + 1):
+				var at := middle + Vector2(u, v).rotated(turn) * pitch
+				if not Rect2(Vector2.ZERO, size).grow(pitch).has_point(at):
+					continue
+				var off := at - middle
+				if beams_only and fposmod(off.angle(), TAU / BEAMS) >= TAU / BEAMS * 0.5:
+					continue
+				var out := off.length() / (side * 0.5 * sqrt(2.0))
+				var radius := smoothstep(from, 1.0, out) * DOTS_GROW * pitch * 0.5
+				if radius > 0.3:
+					var dot := ink.darkened(0.3) if beams_only else _drifted(at.x / size.x)
+					draw_circle(at, radius, dot, true, -1.0, true)
+
+	## The split fountain's ink [param across] the picture: [member ink] drifting into the first ink
+	## of [member drift] and on into the second.
+	func _drifted(across: float) -> Color:
+		var toward := clampf(across * DRIFT, 0.0, 1.0) * CardPrint.FOUNTAIN
+		var mixed := ink.lerp(drift[0], toward)
+		var further := clampf(across * DRIFT - 0.7, 0.0, 1.0) * CardPrint.FOUNTAIN
+		return mixed.lerp(drift[1], further).darkened(0.2)
 
 	## A round fade from [param inner] at the middle through [param mid] to [param outer], out to
 	## [param reach] of the half side.
