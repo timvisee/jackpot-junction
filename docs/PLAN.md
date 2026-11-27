@@ -5442,11 +5442,11 @@ gettext files, for community tools such as Weblate and Poedit. Built in worktree
 | Step | What | State |
 |------|------|-------|
 | G1 | `Lang`, `make strings`, Dutch's empty file loaded, the Language row on the Accessibility page | Done |
-| G2 | Every word in the code marked, by area: story, settings, menus, online, match, arena, jokers, garage | Open |
-| G3 | `make check` and CI fail on a word not marked, a file behind the code, or a broken placeholder | Open |
-| G4 | Words baked into pictures (the Workbench chalkboard, the House rail's microprint) drawn per language and swapped in by the engine's remaps | Open |
+| G2 | Every word in the code marked, by area: story, settings, menus, online, match, arena, jokers, garage | Done |
+| G3 | `make check` and CI fail on a word not marked, a file behind the code, or a broken placeholder | Done |
+| G4 | Words baked into pictures (the Workbench chalkboard, the House rail's microprint) drawn per language and swapped in by the engine's remaps | Tools done; Dutch pictures with G5 |
 | G5 | Dutch, informal ("je"), played through by the user | Open |
-| G6 | A guide for translators, `docs/TRANSLATING.md` | Open |
+| G6 | A guide for translators, `docs/TRANSLATING.md` | Done |
 | G7 | Simplified Chinese: a typeface with Chinese for each of the game's, line breaking in exports, a human translator | Open |
 | G8 | Steam: the store page, the achievements' names, the presence and the controller actions translated on Steamworks | Open |
 | G9 | Left in English for now, to translate later if wanted (the user, 2026-11-26): a dedicated server's web page and console, a debug build's story page, the tools in `scenes/dev` | Open |

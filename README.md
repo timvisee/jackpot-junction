@@ -123,6 +123,7 @@ Everything else is in [`docs/`](docs):
 | [SERVER.md](docs/SERVER.md)                    | Running a dedicated server, on its own or with Docker                     |
 | [STEAM.md](docs/STEAM.md)                      | Setting the Steam app up on Steamworks, for the Steam builds              |
 | [ITCH.md](docs/ITCH.md)                        | Setting the itch.io page up, for the releases published there             |
+| [TRANSLATING.md](docs/TRANSLATING.md)          | Translating the game into another language, with gettext's .po files     |
 | [GAME.md](docs/GAME.md)                        | The design, which the code cites by section, "GAME.md 3.8"                |
 | [STORY.md](docs/STORY.md)                      | The story under it (spoilers)                                            |
 | [PLAN.md](docs/PLAN.md)                        | The implementation plan, with the status of every milestone              |
