@@ -11425,7 +11425,8 @@ host gave that player alone proves, everybody else told no more than its proof (
 map can start it again and join the same game, and is back in their own kart, its score and all,
 however long they took, until the map is over (`RejoinSeats`). The host keeps the karts of anybody
 who goes during a map theirs, a bot at the wheel meanwhile as ever, but not of anybody it showed
-out: on Steam by their account, and off Steam by the secret it gave them alone, 16 random bytes,
+out, and nobody joining meanwhile is sat in one while there is another bot's kart or room for a
+kart of their own: on Steam by their account, and off Steam by the secret it gave them alone, 16 random bytes,
 which every player's machine keeps on disk, the last one only, for half an hour after it was last
 told, with where it holds: the host it joined and everybody in line to host after it. The game
 started again knocks with it at any of those, and nowhere else. A map carried over keeps the karts

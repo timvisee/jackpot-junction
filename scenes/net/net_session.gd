@@ -505,7 +505,8 @@ func _seat(peer: int, fresh: bool, number := 0) -> void:
 		_assign_slot.rpc_id(peer, seated, match_node.rng.seed, number)
 		return
 	var kept := _peer_slots.kept_for(peer, number)
-	var slot := match_node.join_network(NetInput.new(), kept)
+	var others := host_controls.rejoin.slots_kept(host_controls._kept_for)
+	var slot := match_node.join_network(NetInput.new(), kept, others)
 	if slot == null:
 		if fresh:
 			_turn_away(peer)

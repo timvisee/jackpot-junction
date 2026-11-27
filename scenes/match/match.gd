@@ -255,13 +255,17 @@ func join_human(device: int) -> PlayerSlot:
 	return _join_with_input(PlayerInput.new(device, seat), Game.settings.seat_color(seat))
 
 
-func _join_with_input(input: KartInput, wanted_color := -1) -> PlayerSlot:
-	var seat := PlayerSlot.bot_seat(slots, wanted_color)
+func _join_with_input(input: KartInput, wanted_color := -1, kept: Array[int] = []) -> PlayerSlot:
+	var seat := PlayerSlot.bot_seat(slots, wanted_color, kept)
+	var full := slots.size() >= rules.max_players or arena == null
+	if seat == null and full:
+		# A kart kept for somebody coming back only where there is nothing else, GAME.md 10.8.
+		seat = PlayerSlot.bot_seat(slots, wanted_color)
 	if seat != null:
 		_make_human(seat, input)
 		SeatIdentity.paint(self, seat, wanted_color)
 		return seat
-	if slots.size() >= rules.max_players or arena == null:
+	if full:
 		return null
 	var slot := _seat_new(input, wanted_color)
 	refresh_listener()
@@ -500,9 +504,11 @@ func kart_of(slot_index: int) -> Kart:
 
 
 ## A remote player joins through the network session: like a local join, with a [NetInput], in
-## the color and on the team [param kept] says they had in the room before, GAME.md 3.14 and 9.6.
-func join_network(input: NetInput, kept: Dictionary = {}) -> PlayerSlot:
-	var slot := _join_with_input(input, int(kept.get("color", -1)))
+## the color and on the team [param kept] says they had in the room before, GAME.md 3.14 and 9.6,
+## and in none of [param others], karts kept for somebody else coming back, 10.8, while there is
+## another kart or room for one.
+func join_network(input: NetInput, kept: Dictionary = {}, others: Array[int] = []) -> PlayerSlot:
+	var slot := _join_with_input(input, int(kept.get("color", -1)), others)
 	var team := int(kept.get("team", -1))
 	if slot != null and team >= 0 and team < rules.teams:
 		SeatIdentity.join_team(slot, team)

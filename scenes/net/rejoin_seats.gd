@@ -112,6 +112,18 @@ func claim(account: int, token: String) -> Dictionary:
 	return seats
 
 
+## The slots of the karts kept for anybody coming back, [param also] the seats kept for a map
+## carried over among them, for nobody else to be sat in while there is anything else.
+func slots_kept(also: Dictionary) -> Array[int]:
+	var found: Array[int] = []
+	for kept: Dictionary in [_left, also]:
+		for who: Variant in kept:
+			var seats: Dictionary = kept[who]
+			for number: Variant in seats:
+				found.append(int((seats[number] as Dictionary).get("slot", -1)))
+	return found
+
+
 ## The map is over: nobody's karts are kept any longer.
 func forget() -> void:
 	_left.clear()

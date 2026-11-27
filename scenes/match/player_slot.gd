@@ -160,12 +160,15 @@ static func traits_in(slots: Array[PlayerSlot]) -> Array[BotTrait]:
 
 
 ## The bot's seat a newcomer takes over, GAME.md 9.2: the one in [param wanted_color] if there is
-## one, so a player coming back from another room keeps theirs, and otherwise the first. A
-## practice dummy's seat is not there to be taken: it is furniture.
-static func bot_seat(slots: Array[PlayerSlot], wanted_color := -1) -> PlayerSlot:
+## one, so a player coming back from another room keeps theirs, and otherwise the first; none of
+## [param kept], the slots kept for somebody coming back, 10.8. A practice dummy's seat is not there
+## to be taken: it is furniture.
+static func bot_seat(
+	slots: Array[PlayerSlot], wanted_color := -1, kept: Array[int] = []
+) -> PlayerSlot:
 	var seat: PlayerSlot = null
 	for slot: PlayerSlot in slots:
-		if slot.is_human() or slot.is_dummy():
+		if slot.is_human() or slot.is_dummy() or slot.index in kept:
 			continue
 		if seat == null or (slot.color_index == wanted_color and seat.color_index != wanted_color):
 			seat = slot

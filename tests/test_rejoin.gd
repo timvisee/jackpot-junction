@@ -98,7 +98,8 @@ func _a_client(named: String) -> NetSession:
 
 
 ## Gone in the middle of a map, as a crash goes, and started again: back in its own kart, its score
-## and all, by the secret it kept on disk; and given a new one there, which is the one kept now.
+## and all, by the secret it kept on disk, nobody new sat in it meanwhile; and given a new secret
+## there, which is the one kept now.
 func test_back_in_its_own_kart_after_starting_again() -> void:
 	var host := _a_host()
 	var host_match := host.match_node
@@ -118,6 +119,13 @@ func test_back_in_its_own_kart_after_starting_again() -> void:
 	gone.multiplayer.multiplayer_peer.close()
 	await _until(func() -> bool: return not host_match.slots[index].is_human(), 4000)
 	assert_bool(host_match.slots[index].is_human()).is_false()
+	# Somebody new coming in meanwhile, with no secret, is sat in a kart of their own, not in it.
+	var memo := Game.settings.rejoin
+	Game.settings.rejoin = {}
+	var other: NetSession = await _a_client("OtherRoot")
+	assert_int(other.local_slot).is_not_equal(index)
+	await _until(func() -> bool: return not other.host_controls.rejoin_token.is_empty(), 4000)
+	Game.settings.rejoin = memo
 	var again: NetSession = await _a_client("AgainRoot")
 	assert_int(again.local_slot).is_equal(index)
 	assert_int(host_match.slots[index].color_index).is_equal(color)
