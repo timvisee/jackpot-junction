@@ -111,7 +111,7 @@ func _ready() -> void:
 ## [param finished], one of the loyalty program's finishes or 0.
 func say(index: int, named: String, color: Color, finished: int) -> void:
 	worn = named
-	finish_word = Loyalty.finish_name(finished)
+	finish_word = tr(Loyalty.finish_name(finished))
 	if picture != null:
 		picture.show_choice(part, index, color, finished)
 	queue_redraw()
@@ -140,13 +140,13 @@ func wait_for_license(on: bool) -> void:
 ## Named for a screen reader: its part, and the piece worn in its finish as its tape says, after
 ## its NEW tag, or for the shuffle what its plate says it does.
 func _tell() -> void:
-	var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
+	var tagged := ScreenReader.spoken(tr(CatalogCell.NEW)) if fresh else ""
 	var said := ScreenReader.line([tagged, worn, finish_word])
 	if learner:
-		said = ScreenReader.line([KartStyle.LEARNER, KartStyle.NO_LICENSE])
+		said = ScreenReader.line([tr(KartStyle.LEARNER), tr(KartStyle.NO_LICENSE)])
 	if part == BoardArt.SHUFFLE:
-		said = ScreenReader.spoken(BoardArt.SHUFFLE_SAYS)
-	ScreenReader.name(self, ScreenReader.spoken(BayArt.part_word(part)), said)
+		said = ScreenReader.spoken(tr(BoardArt.SHUFFLE_SAYS))
+	ScreenReader.name(self, ScreenReader.spoken(tr(BayArt.part_word(part))), said)
 
 
 ## Whether it wears the NEW tag, GAME.md 4.4a: while its part's rack holds a piece won, or moved up
@@ -254,8 +254,8 @@ func _draw() -> void:
 		var tape := BoardArt.tape_of(part)
 		tape.position -= position
 		var face := BayArt.marker_font()
-		var words := KartStyle.LEARNER if learner else worn
-		var under := KartStyle.NO_LICENSE if learner else finish_word
+		var words := tr(KartStyle.LEARNER) if learner else worn
+		var under := tr(KartStyle.NO_LICENSE) if learner else finish_word
 		var words_size := WORDS_SIZE
 		while (
 			BayArt.wide_of(words, words_size, face) > tape.size.x - 16.0
@@ -284,7 +284,7 @@ func _draw_picked(cursor: bool) -> void:
 	var shift := Vector2.ONE * PICKED_AROUND - BoardArt.hook_rect(part).position
 	var art := BayArt.kept(
 		self,
-		"hook_picked:%d:%s:%s" % [part, cursor, whole.size],
+		"hook_picked:%d:%s:%s" % [part, cursor, whole.size],  # NO_TRANSLATE
 		whole.size,
 		func(on: CanvasItem) -> void: draw_picked(on, which, shift, cursor),
 		PICKED

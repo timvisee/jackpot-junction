@@ -14,7 +14,7 @@ extends Control
 ## How long a plate may be, and what it may hold: letters, digits, a space and a dash, upper
 ## case, since a plate is stamped and not written.
 const MOST := 8
-const ALLOWED := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -"
+const ALLOWED := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -"  # NO_TRANSLATE
 ## The star a plate may hold where the Steam supporter pack is owned, GAME.md 10.8: typed as an
 ## asterisk, or as a star itself, kept as the asterisk and drawn as a five-pointed star, see
 ## [method draw_words]. Any plate off the wire may hold it, whoever owns what.
@@ -38,8 +38,8 @@ const PLATE := HouseTheme.PAPER
 const RIM := HouseTheme.INK
 const INK := HouseTheme.INK
 const BOLT := Color("#a59b80")
-## What is printed over the letters, and how far apart the letters stand, against the plate's
-## height.
+## What is printed over the letters, shown through tr(), and how far apart the letters stand,
+## against the plate's height.
 const ISSUER := "DEPT. OF KARTS"
 const SPACING := 0.045
 
@@ -125,7 +125,7 @@ static func suggest(holder: String, number: String) -> String:
 ## A plate for a bot called [param trait_name], its digits drawn with [param rng]: "HUN-382" for
 ## a Hunter, "BOT" and digits for one with no name.
 static func for_bot(trait_name: String, rng: RandomNumberGenerator) -> String:
-	var called := trait_name if not trait_name.is_empty() else "Bot"
+	var called := trait_name if not trait_name.is_empty() else "Bot"  # NO_TRANSLATE
 	return suggest(called, "%06d" % rng.randi_range(0, 999999))
 
 
@@ -248,13 +248,14 @@ static func dress(canvas: CanvasItem, plate: Vector2) -> void:
 		canvas.draw_circle(Vector2(x, corner), h * 0.046, BOLT, true, -1.0, true)
 	var micro := Type.micro_font()
 	var micro_size := maxi(roundi(h * 0.13), 6)
-	var wide := micro.get_string_size(ISSUER, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x
+	var issuer := Lang.t(ISSUER)
+	var wide := micro.get_string_size(issuer, HORIZONTAL_ALIGNMENT_LEFT, -1, micro_size).x
 	var room := plate.x - h * 0.7
 	if wide <= room:
 		canvas.draw_string(
 			micro,
 			Vector2((plate.x - wide) * 0.5, h * 0.25),
-			ISSUER,
+			issuer,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			micro_size,

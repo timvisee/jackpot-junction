@@ -14,7 +14,7 @@ const TURRET: PowerUp = preload("res://data/powerups/turret.tres")
 const LIGHT_AT := Vector3(0.0, 0.0, -1.1)
 ## How long a box taken takes to come back, in seconds.
 const RETURN_WAIT := 3.0
-## What the clipboard says the lesson is about.
+## What the clipboard says the lesson is about, shown through tr().
 const WORDS := "Targets drop {chips} when they are hit."
 
 var _hit: TutorialTask
@@ -29,14 +29,14 @@ var _wait := 0.0
 
 
 func _init() -> void:
-	title = "Shooting"
+	title = tr("Shooting")
 	spawn_cell = TestGround.ITEM_BOX
 	facing = TestGround.EAST
-	_hit = add_task("Hit the targets", "", [InputActions.FIRE])
+	_hit = add_task(tr("Hit the targets"), "", [InputActions.FIRE])
 	_hit.of = TestGround.TARGETS.size()
-	_take = add_task("Pick up the box", "")
+	_take = add_task(tr("Pick up the box"), "")
 	_take.arrow = TestGround.ITEM_BOX
-	_drop = add_task("Drop the Turret and let it hit them", "", [InputActions.USE_ITEM])
+	_drop = add_task(tr("Drop the Turret and let it hit them"), "", [InputActions.USE_ITEM])
 	_drop.of = TestGround.TARGETS.size()
 
 
@@ -54,7 +54,7 @@ func _prepare() -> void:
 
 
 func _begin() -> void:
-	run.list.say(&"shoot", WORDS)
+	run.list.say(&"shoot", tr(WORDS))
 	bring_up(piece_nodes(), 0.1)
 	for target: Target in _targets:
 		target.struck.connect(_on_struck)
@@ -168,4 +168,4 @@ func _on_picked(slot_index: int, id: StringName) -> void:
 	_take.complete()
 	if run.reveal != null and not run.reveal.shown.get(&"item", false):
 		pointer_until = _drop
-		run.reveal.show_piece(&"item", "Your item", [InputActions.USE_ITEM])
+		run.reveal.show_piece(&"item", tr("Your item"), [InputActions.USE_ITEM])

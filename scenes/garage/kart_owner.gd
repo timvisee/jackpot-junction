@@ -8,7 +8,7 @@ extends RefCounted
 ## What a piece is worn in and whether it may be worn at all is the loyalty program's, GAME.md 8.9:
 ## the seat's profile's, or for a guest the profile playing's.
 
-## How a seat's tab is headed, and a profile's that nobody plays as.
+## How a seat's tab is headed, and a profile's that nobody plays as, shown through tr().
 const SEAT := "Seat %d"
 const PROFILE := "Profile"
 
@@ -98,7 +98,7 @@ func is_guest() -> bool:
 
 ## What its tab says over its name: the seat, or that it is a profile nobody is playing as.
 func heading() -> String:
-	return SEAT % (seat + 1) if seat >= 0 else PROFILE
+	return tr(SEAT) % (seat + 1) if seat >= 0 else tr(PROFILE)
 
 
 ## What it is called, as typed, empty for a seat that gave no name.
@@ -117,7 +117,7 @@ func display_name() -> String:
 		return slot.display_name()
 	if seat < 0:
 		return profile.display_name()
-	return SEAT % (seat + 1)
+	return tr(SEAT) % (seat + 1)
 
 
 ## A name typed for it, cleaned, kept, and in a room its kart's from now on, see [SeatIdentity].
@@ -216,7 +216,7 @@ func owns(part: int, index: int) -> bool:
 ## [method KartStyle.won_name]; the card back's, past the kart's own parts, "card_back:Gilt".
 static func piece_name(part: int, index: int) -> String:
 	if part == KartStyle.CHOICES.size():
-		return "card_back:%s" % CardBack.STYLES[index]
+		return "card_back:%s" % CardBack.STYLES[index]  # NO_TRANSLATE
 	return KartStyle.won_name(part, index)
 
 

@@ -13,8 +13,10 @@ extends Control
 signal enrolled(holder_name: String)
 
 const MARK_SIDE := 110.0
+## Why anybody is here, shown through tr().
 const WHY := "Nobody drives the Junction without a license. Earn yours."
-## Over it, come straight from the invitation: the stub's own promise, STORY.md 6.1a.
+## Over it, come straight from the invitation: the stub's own promise, STORY.md 6.1a; and the
+## course's steps, each with its line, all shown through tr().
 const FREE_LESSON := "Free lesson included."
 const STEPS: Array[String] = ["Driving theory", "Driving test", "Your license"]
 const STEP_LINES: Array[String] = [
@@ -34,8 +36,9 @@ const TICK_SIDE := 22.0
 const ANSWER_AFTER := 1.2
 const BOX_AIR := 12.0
 const TERMS_AIR := 6.0
-## The question asked before the exam alone, GAME.md 9.4a, and its two answers: the theory and the
-## lessons are skipped, and a press meant for Enroll is not to cost a new player them.
+## The question asked before the exam alone, GAME.md 9.4a, and its two answers, shown through tr():
+## the theory and the lessons are skipped, and a press meant for Enroll is not to cost a new player
+## them.
 const EXAM_ASKS := "Straight to the exam?"
 const EXAM_SAYS := "No theory and no lessons: the final exam starts right away."
 const EXAM_YES := "To the exam"
@@ -145,10 +148,10 @@ func _ready() -> void:
 	var centered := CenterContainer.new()
 	centered.add_child(mark)
 	column.add_child(centered)
-	var named := MenuTheme.title("Jackpot Junction", Type.TITLE)
+	var named := MenuTheme.title("Jackpot Junction", Type.TITLE)  # NO_TRANSLATE
 	column.add_child(named)
 	var school := Label.new()
-	school.text = "DRIVING SCHOOL"
+	school.text = tr("DRIVING SCHOOL")
 	school.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.display(school, Type.LARGE, Palette.CHIP_WHITE)
 	school.add_theme_constant_override("line_spacing", 0)
@@ -164,24 +167,25 @@ func _ready() -> void:
 	if DrivingSchool.free_lesson:
 		var free := Label.new()
 		free.name = "FreeLesson"
-		free.text = FREE_LESSON
+		free.text = tr(FREE_LESSON)
 		free.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		Type.strong(free, Type.HEADING, Palette.CHIP_GOLD)
 		inside.add_child(free)
-	inside.add_child(MenuTheme.subtitle(WHY, Type.BODY))
-	field = MenuTheme.field(_starting_name(), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH)
+	inside.add_child(MenuTheme.subtitle(tr(WHY), Type.BODY))
+	var placeholder := tr(PlayerNames.PLACEHOLDER)
+	field = MenuTheme.field(_starting_name(), placeholder, PlayerNames.MAX_LENGTH)
 	field.name = "Name"
 	field.custom_minimum_size = Vector2(FIELD_WIDTH, MenuTheme.box_height())
 	field.text_submitted.connect(func(_text: String) -> void: _enroll())
-	inside.add_child(MenuTheme.row("Your name on the license", field))
+	inside.add_child(MenuTheme.row(tr("Your name on the license"), field))
 	inside.add_child(course(0))
 	# The way into the school, in foil, GAME.md 8.1a.
-	enroll = MenuTheme.primary(MenuTheme.button("Enroll", Type.HEADING))
+	enroll = MenuTheme.primary(MenuTheme.button(tr("Enroll"), Type.HEADING))
 	enroll.name = "Enroll"
 	enroll.custom_minimum_size = BUTTON
 	enroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	enroll.pressed.connect(_enroll)
-	exam = MenuTheme.button("Straight to the exam")
+	exam = MenuTheme.button(tr("Straight to the exam"))
 	exam.name = "StraightToExam"
 	exam.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	exam.pressed.connect(ask_exam)
@@ -201,7 +205,7 @@ func _ready() -> void:
 	signing.add_child(over_terms)
 	var terms := Label.new()
 	terms.name = "Terms"
-	terms.text = StoryLines.ENROLL
+	terms.text = tr(StoryLines.ENROLL)
 	terms.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.text(terms, Type.SMALL, PENDING_LINE)
 	signing.add_child(terms)
@@ -258,12 +262,12 @@ func _come_back() -> Control:
 	house_tick.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	row.add_child(house_tick)
 	var line := Label.new()
-	line.text = StoryLines.COME_BACK
+	line.text = tr(StoryLines.COME_BACK)
 	Type.text(line, Type.LABEL, PENDING_INK)
 	row.add_child(line)
 	_answered = Label.new()
 	_answered.name = "Answered"
-	_answered.text = StoryLines.ANSWERED_FOR_YOU
+	_answered.text = tr(StoryLines.ANSWERED_FOR_YOU)
 	Type.strong(_answered, Type.LABEL, HouseTheme.FOIL)
 	_answered.modulate.a = 0.0
 	row.add_child(_answered)
@@ -278,7 +282,7 @@ func _answer_for_you() -> void:
 	house_tick.queue_redraw()
 	Audio.play_sfx(&"ui_click", MenuTheme.CLICK_DB, 0.0)
 	create_tween().tween_property(_answered, "modulate:a", 1.0, 0.2)
-	ScreenReader.say(self, "%s %s" % [StoryLines.COME_BACK, StoryLines.ANSWERED_FOR_YOU])
+	ScreenReader.say(self, "%s %s" % [tr(StoryLines.COME_BACK), tr(StoryLines.ANSWERED_FOR_YOU)])
 
 
 ## The three steps of the course, numbered, each with a line under it, the first [param done]
@@ -305,11 +309,12 @@ static func course(done: int) -> Control:
 		var words := VBoxContainer.new()
 		words.add_theme_constant_override("separation", 0)
 		var title := Label.new()
-		title.text = STEPS[i] + ("  ·  done" if is_done else "")
+		var step := Lang.t(STEPS[i])
+		title.text = Lang.t("{step}  ·  done").format({"step": step}) if is_done else step
 		Type.strong(title, Type.BODY, PENDING_INK if pending else Color(0.92, 0.92, 0.95))
 		words.add_child(title)
 		var line := Label.new()
-		line.text = STEP_LINES[i]
+		line.text = Lang.t(STEP_LINES[i])
 		Type.text(line, Type.LABEL, PENDING_LINE if pending else Color(0.66, 0.66, 0.72))
 		words.add_child(line)
 		row.add_child(words)
@@ -331,7 +336,7 @@ static func course_row(done: int) -> HBoxContainer:
 		number.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		step.add_child(number)
 		var word := Label.new()
-		word.text = STEPS[i]
+		word.text = Lang.t(STEPS[i])
 		Type.strong(word, Type.LABEL, Color(0.92, 0.92, 0.95) if i < done else PENDING_INK)
 		step.add_child(word)
 		row.add_child(step)
@@ -397,7 +402,7 @@ func ask_exam() -> void:
 	question.name = "ExamQuestion"
 	middle.add_child(question)
 	question.answered.connect(_on_exam_answered)
-	question.ask(EXAM_ASKS, EXAM_SAYS, EXAM_YES, EXAM_NO)
+	question.ask(tr(EXAM_ASKS), tr(EXAM_SAYS), tr(EXAM_YES), tr(EXAM_NO))
 
 
 func _on_exam_answered(yes: bool) -> void:

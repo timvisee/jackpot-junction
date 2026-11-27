@@ -101,7 +101,7 @@ func _plate() -> Button:
 			var room := whole.grow(AROUND)
 			var art := BayArt.kept(
 				plate,
-				"next_new:%s:%s:%s" % [whole.size, lit, pushed],
+				"next_new:%s:%s:%s" % [whole.size, lit, pushed],  # NO_TRANSLATE
 				room.size,
 				func(on: CanvasItem) -> void:
 					BayArt.draw_back(on, Rect2(Vector2.ONE * AROUND, whole.size), "", lit, pushed),

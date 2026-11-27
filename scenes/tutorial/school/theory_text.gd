@@ -6,15 +6,19 @@ extends RefCounted
 ## will, all drawn by a seeded generator so it reads the same every time the book is opened. Its
 ## numbers only go up, and go on up when the book comes round to the start again, see [method
 ## words]. A few of its lines, its edition and its colophon read as the story has come, STORY.md
-## 6.7. [SchoolTheory] lays it out, cuts it into pages and turns them.
+## 6.7. [SchoolTheory] lays it out, cuts it into pages and turns them. Composed in the language
+## spoken: every word of it is shown through tr(), the filler a piece at a time in a sentence of
+## the language's own order.
 
+## The title page's words, shown through tr().
 const TITLE := "The Highway Code\nof the Junction"
 const EDITION := "212th edition, abridged for karts"
 const PUBLISHER := "DEPT. OF KARTS  ·  JACKPOT JUNCTION"
+## How big a figure and the game's mark are drawn.
 const FIGURE_SIDE := 104.0
 const MARK_SIDE := 104.0
 ## The figures among the clauses, each with its caption, numbered as they come, in the order of
-## the chapters they go with.
+## the chapters they go with; the captions shown through tr().
 const FIGURES: Array[Array] = [
 	[SchoolFigure.Kind.SPEED, "The speed limit. Advisory."],
 	[SchoolFigure.Kind.WARNING, "Karts crossing. They will not stop."],
@@ -29,7 +33,8 @@ const FIGURES: Array[Array] = [
 ## The code's chapters, each its title and the rules worth reading that open its sections, each
 ## true, more or less: the sections are numbered on through the chapters, and every section has
 ## clauses of filler under it, numbered after it. The first is Oversight, STORY.md 6.7, whatever the
-## stage and with the story off: the rule the license's fine print breaks.
+## stage and with the story off: the rule the license's fine print breaks. Shown through tr(), each
+## rule in English also what [constant FIXED_CLAUSES] and the story's revisions know it by.
 const CHAPTERS: Array[Array] = [
 	["Oversight", ["Every table is watched."]],
 	[
@@ -127,7 +132,7 @@ const CHAPTERS: Array[Array] = [
 ## The clauses a rule's section opens on before any filler, by the rule. The first page a reader
 ## sees is Oversight's, so its clauses are written out rather than left to the generator, each on
 ## the theme: § 1.1 the one clause kept word for word in every edition since the first, STORY.md 3.3
-## and note 12, and § 1.2 on down its own deadpan on being watched.
+## and note 12, and § 1.2 on down its own deadpan on being watched. Shown through tr().
 const FIXED_CLAUSES := {
 	"Every table is watched.":
 	[
@@ -137,12 +142,11 @@ const FIXED_CLAUSES := {
 		"Oversight is continuous, and total, and no reflection on the driver.",
 	],
 }
-## The back cover: what the publisher says of the book, what its readers say, each with who said
-## it, its number for the barcode and its price.
-const BLURB := (
-	"Everything a kart needs to know, and a fair amount it does not. "
-	+ "Revised for the 212th time, and still not finished."
-)
+## The back cover, shown through tr(): what the publisher says of the book, revised as many times
+## as there have been editions, see [method blurb], what its readers say, each with who said it,
+## its number for the barcode and its price.
+const BLURB := """Everything a kart needs to know, and a fair amount it does not. Revised for the \
+%dth time, and still not finished."""
 const QUOTES: Array[Array] = [
 	["\u201cImpossible to put down. It shuts itself.\u201d", "The Examiner"],
 	["\u201cI read it cover to cover. Quickly.\u201d", "A learner"],
@@ -152,7 +156,7 @@ const ISBN := "ISBN 0-212-2120-K"
 const PRICE := "212 CHIPS"
 ## The end of the book, on its last page: a chapter of its own after the one the page across
 ## from it is in, its one section concluding the code with a clause or two under it, and THE END
-## over the printer's note, see [method ending_after].
+## over the printer's note, see [method ending_after]; all of it shown through tr().
 const CLOSING_TITLE := "Final provisions"
 const CLOSING_RULE := "This concludes the Highway Code of the Junction."
 const CLOSING_CLAUSES: Array[String] = [
@@ -160,10 +164,8 @@ const CLOSING_CLAUSES: Array[String] = [
 	"Any part of it not read is deemed read.",
 ]
 const THE_END := "The End"
-const COLOPHON := (
-	"Printed and bound at the Junction. No karts were harmed in the making of this book. "
-	+ "Most were merely inconvenienced."
-)
+const COLOPHON := """Printed and bound at the Junction. No karts were harmed in the making of this \
+book. Most were merely inconvenienced."""
 ## How many clauses a section has under its rule, fewest and most; how many paragraphs at least
 ## stand between two figures, and the chance of one after any paragraph past that.
 const CLAUSES_FEWEST := 3
@@ -171,7 +173,10 @@ const CLAUSES_MOST := 7
 const FIGURE_GAP := 2
 const FIGURE_CHANCE := 0.3
 ## What the filler is made of: a subject, a verb, an object and a tail, drawn by a seeded
-## generator so the book reads the same every time it is opened.
+## generator so the book reads the same every time it is opened. Shown through tr(), and put
+## together as the language puts a sentence together, see [method _sentence].
+# TRANSLATORS: A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+# a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 const SUBJECTS: Array[String] = [
 	"A kart",
 	"The driver",
@@ -252,16 +257,17 @@ func _compose() -> void:
 				"number": number,
 				"chapter": number,
 				"section": sections,
-				"text": CHAPTERS[chapter][0]
+				"text": tr(CHAPTERS[chapter][0])
 			}
 		)
 		for rule: String in CHAPTERS[chapter][1]:
 			sections += 1
-			items.append({"kind": &"rule", "chapter": number, "section": sections, "text": rule})
+			var item := {"kind": &"rule", "chapter": number, "section": sections, "text": tr(rule)}
+			items.append(item)
 			since_figure += 1
 			var fixed: Array = FIXED_CLAUSES.get(rule, [])
 			for clause: int in rng.randi_range(CLAUSES_FEWEST, CLAUSES_MOST):
-				var said := str(fixed[clause]) if clause < fixed.size() else _filler(rng)
+				var said := tr(str(fixed[clause])) if clause < fixed.size() else _filler(rng)
 				items.append(
 					{
 						"kind": &"clause",
@@ -292,8 +298,8 @@ func ending_after(last: Dictionary) -> Array[Dictionary]:
 	var chapter := int(last.get("chapter", CHAPTERS.size())) + 1
 	var section := int(last.get("section", sections)) + 1
 	var ending: Array[Dictionary] = [
-		{"kind": &"chapter", "number": chapter, "text": CLOSING_TITLE},
-		{"kind": &"rule", "section": section, "text": CLOSING_RULE},
+		{"kind": &"chapter", "number": chapter, "text": tr(CLOSING_TITLE)},
+		{"kind": &"rule", "section": section, "text": tr(CLOSING_RULE)},
 	]
 	for clause: int in CLOSING_CLAUSES.size():
 		ending.append(
@@ -301,7 +307,7 @@ func ending_after(last: Dictionary) -> Array[Dictionary]:
 				"kind": &"clause",
 				"section": section,
 				"clause": clause + 1,
-				"text": CLOSING_CLAUSES[clause]
+				"text": tr(CLOSING_CLAUSES[clause])
 			}
 		)
 	ending.append({"kind": &"end"})
@@ -340,9 +346,11 @@ func _the_end() -> Control:
 	rule.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(rule)
-	box.add_child(_line(THE_END.to_upper(), Type.display_font(), Type.HEADING, SchoolTheory.INK))
+	box.add_child(
+		_line(tr(THE_END).to_upper(), Type.display_font(), Type.HEADING, SchoolTheory.INK)
+	)
 	var note := _line(
-		StoryLines.revise_code(COLOPHON, stage), Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK
+		StoryLines.revise_code(tr(COLOPHON), stage), Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK
 	)
 	note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	note.custom_minimum_size = Vector2(SchoolTheory.PAGE.x - SchoolTheory.MARGIN * 2.0, 0.0)
@@ -350,12 +358,14 @@ func _the_end() -> Control:
 	return box
 
 
-## What [param item] says, numbered for the [param lap]th time round.
+## What [param item] says, numbered for the [param lap]th time round, its words in the language
+## they were composed in.
 func words(item: Dictionary, lap: int) -> String:
 	match item["kind"]:
 		&"chapter":
 			var number := int(item["number"]) + lap * CHAPTERS.size()
-			return "Chapter %s  ·  %s" % [roman(number), item["text"]]
+			var heading := tr("Chapter {number}  ·  {title}")
+			return heading.format({"number": roman(number), "title": item["text"]})
 		&"rule":
 			var rule := StoryLines.revise_code(str(item["text"]), stage)
 			return "§ %d. %s" % [int(item["section"]) + lap * sections, rule]
@@ -365,7 +375,8 @@ func words(item: Dictionary, lap: int) -> String:
 		&"figure":
 			var number := int(item["number"]) + lap * figures
 			var entry: Array = FIGURES[(int(item["number"]) - 1) % FIGURES.size()]
-			return "Fig. %d. %s" % [number, StoryLines.revise_code(entry[1], stage)]
+			var caption := StoryLines.revise_code(tr(entry[1]), stage)
+			return tr("Fig. {number}. {caption}").format({"number": number, "caption": caption})
 	return ""
 
 
@@ -421,8 +432,9 @@ func _title_page() -> Control:
 	mark.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	page.add_child(mark)
-	page.add_child(_line("Jackpot Junction", Type.display_font(), Type.LARGE, SchoolTheory.INK))
-	page.add_child(_line(PUBLISHER, Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK))
+	var game := "Jackpot Junction"  # NO_TRANSLATE
+	page.add_child(_line(game, Type.display_font(), Type.LARGE, SchoolTheory.INK))
+	page.add_child(_line(tr(PUBLISHER), Type.TEXT, Type.SMALL, SchoolTheory.FAINT_INK))
 	var rule := ColorRect.new()
 	rule.color = Color(SchoolTheory.INK, 0.4)
 	rule.custom_minimum_size = Vector2(120.0, 1.0)
@@ -431,7 +443,7 @@ func _title_page() -> Control:
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 6.0)
 	page.add_child(gap)
-	page.add_child(_line(TITLE, Type.display_font(), Type.HEADING, SchoolTheory.INK))
+	page.add_child(_line(tr(TITLE), Type.display_font(), Type.HEADING, SchoolTheory.INK))
 	page.add_child(_line(edition(), Type.TEXT, Type.LABEL, SchoolTheory.FAINT_INK))
 	return page
 
@@ -440,22 +452,22 @@ func _title_page() -> Control:
 ## reader, STORY.md 6.7.
 func edition() -> String:
 	var line := str(StoryLines.at(StoryLines.EDITION, stage, EDITION))
-	return StoryFill.fill(line, Game.settings.profile)
+	return StoryFill.fill(tr(line), Game.settings.profile)
 
 
-## Which edition it is, 212th and on as [method edition] goes.
+## Which edition it is, 212th and on as [method edition] goes, as the English says it.
 static func ordinal() -> String:
 	return str(StoryLines.at(StoryLines.EDITION, Story.stage_here(), EDITION)).get_slice(" ", 0)
 
 
 ## The edition as the running heads and the front cover print it, in capitals.
 static func edition_mark() -> String:
-	return ordinal().to_upper() + " EDITION"
+	return Lang.t("%dTH EDITION") % ordinal().to_int()
 
 
 ## The back cover's blurb, revised as many times as there have been editions.
 static func blurb() -> String:
-	return BLURB.replace("212th", ordinal())
+	return Lang.t(BLURB) % ordinal().to_int()
 
 
 ## A centered line of the title page.
@@ -475,7 +487,8 @@ func _filler(rng: RandomNumberGenerator) -> String:
 	var more := rng.randf()
 	if more < 0.3:
 		var again := OBJECTS[rng.randi_range(0, OBJECTS.size() - 1)]
-		line += " Where this is not possible, the holder shall %s instead." % again
+		var other := tr("{sentence} Where this is not possible, the holder shall {object} instead.")
+		line = other.format({"sentence": line, "object": tr(again)})
 	elif more < 0.5:
 		line += " " + _sentence(rng)
 	return line
@@ -486,7 +499,11 @@ func _sentence(rng: RandomNumberGenerator) -> String:
 	var verb := VERBS[rng.randi_range(0, VERBS.size() - 1)]
 	var object := OBJECTS[rng.randi_range(0, OBJECTS.size() - 1)]
 	var tail := TAILS[rng.randi_range(0, TAILS.size() - 1)]
-	return "%s %s %s%s" % [subject, verb, object, tail]
+	# TRANSLATORS: A sentence of filler put together from its pieces, in the language's order.
+	var sentence := tr("{subject} {verb} {object}{tail}")
+	return sentence.format(
+		{"subject": tr(subject), "verb": tr(verb), "object": tr(object), "tail": tr(tail)}
+	)
 
 
 func _paragraph(text: String, strong: bool) -> Label:

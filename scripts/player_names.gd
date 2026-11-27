@@ -9,14 +9,16 @@ const MAX_LENGTH := 16
 ## The longest a game's name may be, or a dedicated server's, GAME.md 9.3: a row of a list of games
 ## each, cleaned the way a player's name is.
 const TITLE_LENGTH := 32
-## What an empty name box says. Not the name anybody will be given, which is drawn at the
-## whistle and would be a lie in a box: just the word for what goes here.
+## What an empty name box says, shown through tr(). Not the name anybody will be given, which is
+## drawn at the whistle and would be a lie in a box: just the word for what goes here.
 const PLACEHOLDER := "Player"
 ## Square brackets are dropped from a name because the standings and the kill feed are drawn with
 ## BBCode, and a name is a name rather than markup.
 const FORBIDDEN := ["[", "]", "\n", "\t", "\r"]
 ## Handed out to anybody who never gave a name, in the order they are drawn. Deliberately silly:
-## the alternative a player is being spared is being called P3 for five minutes.
+## the alternative a player is being spared is being called P3 for five minutes. Each is shown
+## through tr() as it is handed out, see [method pick], and is that player's name from then on.
+# TRANSLATORS: A silly name handed to a player who gave none; at most 16 characters.
 const NAMES: Array[String] = [
 	"Turbo Trout",
 	"Sir Crashalot",
@@ -58,7 +60,9 @@ const NAMES: Array[String] = [
 	"Penny Pincher",
 ]
 ## Handed out to the bots and to nobody else, GAME.md 3.8: what a kart full of gears gets called,
-## robot slang and worse, so a bot is told from a player at a glance down the standings.
+## robot slang and worse, so a bot is told from a player at a glance down the standings. Each is
+## shown through tr() as it is handed out, as [constant NAMES] are.
+# TRANSLATORS: A bot's name, robot slang; at most 16 characters.
 const BOT_NAMES: Array[String] = [
 	"Clanker",
 	"Rusty",
@@ -88,6 +92,8 @@ const BOT_NAMES: Array[String] = [
 ## Handed out to somebody watching a LAN game, GAME.md 10.3, who is not driving anything: names
 ## from the furniture they are sat on and the seat they have in the stands, so a name under an
 ## emote floating up the screen says it is from somebody watching before anybody reads the rim.
+## Each is shown through tr() as it is handed out, as [constant NAMES] are.
+# TRANSLATORS: The name of somebody watching, from what they sit on; at most 16 characters.
 const WATCHER_NAMES: Array[String] = [
 	"Couch Potato",
 	"Couch Critic",
@@ -141,25 +147,29 @@ static func clean(text: String, longest := MAX_LENGTH) -> String:
 
 ## One off the list that nobody in [param taken] is already using, drawn with [param rng] so a
 ## match seeded the same way names everybody the same way. Falls back to a numbered one in the
-## impossible case that the whole list is in use.
+## impossible case that the whole list is in use. In the language spoken as it is handed out, and
+## never translated again after: it is the player's name from then on, as one typed is.
 static func pick(rng: RandomNumberGenerator, taken: Array[String] = []) -> String:
-	return _pick_from(NAMES, "Player", rng, taken)
+	return _pick_from(NAMES, Lang.t("Player %d"), rng, taken)
 
 
 ## One of [constant WATCHER_NAMES] that nobody in [param taken] has, for somebody watching.
 static func pick_watcher(rng: RandomNumberGenerator, taken: Array[String] = []) -> String:
-	return _pick_from(WATCHER_NAMES, "Watcher", rng, taken)
+	return _pick_from(WATCHER_NAMES, Lang.t("Watcher %d"), rng, taken)
 
 
+## One of [param names], each in the language spoken, that nobody has, or [param fallback]
+## numbered past [param taken].
 static func _pick_from(
 	names: Array[String], fallback: String, rng: RandomNumberGenerator, taken: Array[String]
 ) -> String:
 	var free: Array[String] = []
 	for name: String in names:
-		if name not in taken and name not in held_elsewhere:
-			free.append(name)
+		var said := Lang.t(name)
+		if said not in taken and said not in held_elsewhere:
+			free.append(said)
 	if free.is_empty():
-		return "%s %d" % [fallback, taken.size() + 1]
+		return fallback % (taken.size() + 1)
 	return free[rng.randi_range(0, free.size() - 1)]
 
 
@@ -169,4 +179,4 @@ static func _pick_from(
 static func pick_bot(seed: int, taken: Array[String] = []) -> String:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed
-	return _pick_from(BOT_NAMES, "Bot", rng, taken)
+	return _pick_from(BOT_NAMES, Lang.t("Bot %d"), rng, taken)

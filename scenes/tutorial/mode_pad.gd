@@ -161,7 +161,7 @@ func _draw_face() -> void:
 	_icon = DriveArt.picture(_shown, Palette.CHIP_WHITE, ICON_SIDE)
 	_icon.position = Vector2((PICTURE_PIXELS - ICON_SIDE) * 0.5, ICON_TOP)
 	_viewport.add_child(_icon)
-	_label.text = DrivePicker.WORDS[_shown].to_upper()
+	_label.text = tr(DrivePicker.WORDS[_shown]).to_upper()
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 

@@ -101,7 +101,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	add_theme_stylebox_override("focus", StyleBoxEmpty.new())
-	ScreenReader.name(self, KartDialog.ENTRY, LicenseTab.KART_LINE)
+	ScreenReader.name(self, tr(KartDialog.ENTRY), tr(LicenseTab.KART_LINE))
 	_picture = TextureRect.new()
 	_picture.name = "Kart"
 	_picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -109,8 +109,8 @@ func _ready() -> void:
 	_picture.position = PICTURE.position
 	_picture.size = PICTURE.size
 	add_child(_picture)
-	_door_layer = _layer("Door", _draw_door)
-	_front = _layer("Front", _draw_front)
+	_door_layer = _layer("Door", _draw_door)  # NO_TRANSLATE
+	_front = _layer("Front", _draw_front)  # NO_TRANSLATE
 	add_to_group(GROUP)
 	_mark = _layer("FocusMark", _draw_mark)
 	# A touch screen has no hover to slide under: the tap opens the dialog on the spot.
@@ -436,12 +436,12 @@ func _draw_front() -> void:
 
 
 ## The picture of [param key], drawn by [param paint] for as many pixels as it is shown at, or null
-## till it is ready.
+## till it is ready; kept in the language spoken, for the sign's words.
 func _baked(key: String, paint: Callable) -> Texture2D:
 	var by := ceilf(KeptPictures.scale_of(self) * 4.0) / 4.0
 	return KeptPictures.of(
 		self,
-		key,
+		"%s|%s" % [key, Lang.current],
 		Vector2i((BAKED.size * by).round()),
 		func() -> Control: return Baked.new(paint, by),
 		GROUP,
@@ -527,11 +527,12 @@ static func _paint_front(on: CanvasItem) -> void:
 	BayArt.box(on, SIGN.grow(-4.0), 7.0, BayArt.ENAMEL_RED)
 	BayArt.ring(on, SIGN.grow(-8.0), 5.0, BayArt.ENAMEL, 1.5)
 	var middle := SIGN.get_center()
-	BayArt.words(on, middle + Vector2(0.0, -6.0), BayArt.TITLE, 34, SIGN_WORDS, Type.mark_font())
+	var title := Lang.t(BayArt.TITLE)
+	BayArt.words(on, middle + Vector2(0.0, -6.0), title, 34, SIGN_WORDS, Type.mark_font())
 	BayArt.words(
 		on,
 		middle + Vector2(0.0, 19.0),
-		BayArt.UNDER_TITLE,
+		Lang.t(BayArt.UNDER_TITLE),
 		10,
 		Color(SIGN_WORDS, 0.8),
 		Type.display_font()

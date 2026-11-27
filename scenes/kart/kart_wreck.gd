@@ -62,7 +62,7 @@ func _take(body: Node3D, model: Node3D) -> void:
 		if not part.is_visible_in_tree():
 			continue
 		hops.append(_copy(part))
-	for worn: String in ["Hat", "Flag", "Plate"]:
+	for worn: String in ["Hat", "Flag", "Plate"]:  # NO_TRANSLATE
 		var piece := body.get_node_or_null(worn) as Node3D
 		if piece != null and piece.visible:
 			var copied := piece.duplicate() as Node3D

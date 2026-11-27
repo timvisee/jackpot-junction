@@ -40,7 +40,7 @@ func _draw() -> void:
 		_draw_back(spine)
 		return
 	var font := Type.display_font()
-	var lines := SchoolTheory.COVER_TITLE.split("\n")
+	var lines := tr(SchoolTheory.COVER_TITLE).split("\n")
 	var font_size := 30
 	var top := size.y * 0.3
 	for i: int in lines.size():
@@ -100,17 +100,18 @@ func _draw_back(spine: float) -> void:
 	y += 34.0
 	var said := Color(SchoolTheory.PAPER, 0.85)
 	for quote: Array in TheoryText.QUOTES:
+		var quoted := tr(quote[0])
 		draw_multiline_string(
-			Type.TEXT, Vector2(left, y), quote[0], HORIZONTAL_ALIGNMENT_CENTER, width, 14, -1, said
+			Type.TEXT, Vector2(left, y), quoted, HORIZONTAL_ALIGNMENT_CENTER, width, 14, -1, said
 		)
 		var tall := Type.TEXT.get_multiline_string_size(
-			quote[0], HORIZONTAL_ALIGNMENT_CENTER, width, 14
+			quoted, HORIZONTAL_ALIGNMENT_CENTER, width, 14
 		)
 		y += tall.y + 2.0
 		draw_string(
 			Type.STRONG,
 			Vector2(left, y),
-			"\u2014 " + str(quote[1]),
+			"\u2014 " + tr(quote[1]),
 			HORIZONTAL_ALIGNMENT_CENTER,
 			width,
 			11,
@@ -149,7 +150,7 @@ func _draw_back(spine: float) -> void:
 	draw_string(
 		Type.STRONG,
 		Vector2(price_x, size.y - 50.0),
-		TheoryText.PRICE,
+		tr(TheoryText.PRICE),
 		price_align,
 		120.0,
 		13,

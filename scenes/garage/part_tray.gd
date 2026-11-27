@@ -40,22 +40,27 @@ enum Look { PLAIN, CURSOR, POINTER }
 ## Whether a piece is of the supporter pack, and owned: none, owned, or offered and locked.
 enum Pack { NONE, OWNED, LOCKED }
 
-## The words along its top: the part, how many of its pieces are won, and what the keys do, or a
-## finger on a touch screen.
-const COUNT := "%d of %d won"
+## The words along its top, shown through tr(): how many of the part's pieces are won.
+const COUNT := "{won} of {all} won"
+## What the keys do, after the count, each %s a key or a button in that order, or a finger on a
+## touch screen, shown through tr(); and how big.
+# TRANSLATORS: In a hint of the keys, each %s is a key or a button drawn in its place, in order.
 const WEAR := "%s wear it   %s put it away"
 const WEAR_STARLIGHT := "%s wear it   %s put it away   %s starlight"
 const WEAR_TOUCH := "tap a piece to wear it"
 const BINDS_SIZE := 13
+## Each part's heading, at the left of the top, and the word clipped to the piece worn, shown
+## through tr(); and the "?" of a piece not won yet.
 const HEADINGS: Array[String] = [
 	"PAINTS", "HATS", "FLAGS", "TRAILS", "PLATE FRAMES", "TIRE MARKS", "BODIES", "CARD BACKS"
 ]
 const NOT_WON := "?"
 const ON := "ON"
-## A piece of the supporter pack, GAME.md 10.8: what its tape says while the pack is not owned, the
-## night-blue tape and the cream it is written in, the star pinned to its outline, where and how
-## big, and how dim its piece hangs while the pack is not owned.
+## A piece of the supporter pack, GAME.md 10.8: what its tape says while the pack is not owned,
+## shown through tr().
 const SUPPORTER_PACK := "Supporter Pack"
+## The pack's night-blue tape and the cream it is written in, the star pinned to its outline, where
+## and how big, and how dim its piece hangs while the pack is not owned.
 const SUPPORTER_TAPE := Color("#1d2a4a")
 const SUPPORTER_WORDS := Color("#f3ead2")
 const SUPPORTER_STAR := Color("#f8eed4")
@@ -63,8 +68,9 @@ const STAR_AT := Vector2(4.0, -4.0)
 const STAR_SIZE := 12.0
 const LOCKED_DIM := 0.55
 ## The Starlight switch, GAME.md 10.8: a stenciled plate beside Close with the pack's star on it,
-## where it stands and what it says, and its word's size; the star lit while the piece worn is in
-## Starlight. Only where the pack is owned, and for a piece a finish lies on.
+## where it stands and what it says, and its word's size, and what Close says, shown through tr();
+## the star lit while the piece worn is in Starlight. Only where the pack is owned, and for a piece
+## a finish lies on.
 const STARLIGHT_AT := Rect2(858.0, -16.0, 170.0, 42.0)
 const STARLIGHT := "STARLIGHT"
 const STARLIGHT_SIZE := 17
@@ -258,7 +264,8 @@ func _ready() -> void:
 	var arrow_y := INSIDE.position.y + (INSIDE.size.y - ARROW.y) * 0.5
 	_back_arrow = _arrow(-1, Vector2(EDGE + 4.0, arrow_y))
 	_on_arrow = _arrow(1, Vector2(size.x - EDGE - 4.0 - ARROW.x, arrow_y))
-	var close := _plate_button("Close", CLOSE_AT)
+	var close_said := tr("Close")
+	var close := _plate_button("Close", close_said, CLOSE_AT)  # NO_TRANSLATE
 	close.draw.connect(
 		func() -> void:
 			var box := Rect2(Vector2.ZERO, close.size)
@@ -270,10 +277,12 @@ func _ready() -> void:
 			var cross := Vector2(34.0, middle)
 			for way: Vector2 in [Vector2(1.0, 1.0), Vector2(1.0, -1.0)]:
 				close.draw_line(cross - way * 8.0, cross + way * 8.0, ink, 3.4, true)
-			BayArt.left(close, Vector2(54.0, middle), CLOSE, CLOSE_SIZE, ink, Type.display_font())
+			var says := tr(CLOSE)
+			BayArt.left(close, Vector2(54.0, middle), says, CLOSE_SIZE, ink, Type.display_font())
 	)
 	close.pressed.connect(func() -> void: done.emit())
-	starlight = _plate_button("Starlight", STARLIGHT_AT)
+	var starlight_said := tr("Starlight")
+	starlight = _plate_button("Starlight", starlight_said, STARLIGHT_AT)  # NO_TRANSLATE
 	starlight.hide()
 	starlight.draw.connect(_draw_starlight)
 	starlight.pressed.connect(func() -> void: starlight_pressed.emit())
@@ -292,7 +301,7 @@ func _draw_starlight() -> void:
 		BayArt.screw(starlight, Vector2(x, middle), 3.5, 0.7)
 	draw_star(starlight, Vector2(32.0, middle), STAR_SIZE if starlight_on else STAR_SIZE * 0.85)
 	BayArt.left(
-		starlight, Vector2(50.0, middle), STARLIGHT, STARLIGHT_SIZE, ink, Type.display_font()
+		starlight, Vector2(50.0, middle), tr(STARLIGHT), STARLIGHT_SIZE, ink, Type.display_font()
 	)
 
 
@@ -345,12 +354,12 @@ static func pack_of(part_of: int, index: int) -> Pack:
 	return Pack.LOCKED if Supporter.offered() else Pack.NONE
 
 
-## A flat button of the rack's at [param place], named [param called], drawn by whoever connects to
-## its draw.
-func _plate_button(called: String, place: Rect2) -> Button:
+## A flat button of the rack's at [param place], named [param called] and said as [param said] to a
+## screen reader, drawn by whoever connects to its draw.
+func _plate_button(called: String, said: String, place: Rect2) -> Button:
 	var button := Button.new()
 	button.name = called
-	button.accessibility_name = called
+	button.accessibility_name = said
 	button.flat = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.position = place.position
@@ -365,7 +374,8 @@ func _plate_button(called: String, place: Rect2) -> Button:
 
 ## A chevron at [param at] that scrolls the rack a rackful toward [param way].
 func _arrow(way: int, at: Vector2) -> Button:
-	var arrow := _plate_button("Back" if way < 0 else "On", Rect2(at, ARROW))
+	var said := tr("Back", &"scroll") if way < 0 else tr("On", &"scroll")
+	var arrow := _plate_button("Back" if way < 0 else "On", said, Rect2(at, ARROW))  # NO_TRANSLATE
 	arrow.draw.connect(
 		func() -> void:
 			var box := Rect2(Vector2.ZERO, arrow.size)
@@ -411,19 +421,20 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 	starlight.visible = Supporter.owned() and part_of < KartStyle.BODY and worn > 0
 	starlight_on = starlight.visible and owner.starlit(part_of, worn)
 	starlight.queue_redraw()
-	ScreenReader.name(starlight, STARLIGHT.capitalize(), "on" if starlight_on else "off")
+	var state := tr("on") if starlight_on else tr("off")
+	ScreenReader.name(starlight, ScreenReader.spoken(tr(STARLIGHT)), state)
 	for i: int in order_of(part, owner):
 		var cell := TrayCell.new()
 		cell.name = "Cell%d" % i
 		cell.index = i
 		cell.part = part
-		cell.named = choices[i]
+		cell.named = tr(choices[i])
 		cell.owned = owner.owns(part, i)
 		cell.pack = pack_of(part, i)
 		cell.worn = i == worn
-		cell.where = "" if cell.owned else KartOwner.won_at(part, i)
+		cell.where = "" if cell.owned else tr(KartOwner.won_at(part, i))
 		if cell.pack == Pack.LOCKED:
-			cell.where = SUPPORTER_PACK
+			cell.where = tr(SUPPORTER_PACK)
 		cell.finish = owner.finish_of(part, i)
 		cell.fresh = Vector2i(part, i) in unseen
 		cell.color = color
@@ -436,12 +447,12 @@ func fill(part_of: int, owner: KartOwner, worn: int, color: Color) -> void:
 		won += 1 if cell.owned else 0
 	# The supporter pack's pieces where it is not owned are not won in the program, nor counted.
 	var counted := cells.filter(func(each: TrayCell) -> bool: return each.pack != Pack.LOCKED)
-	_count = COUNT % [won, counted.size()]
+	_count = tr(COUNT).format({"won": won, "all": counted.size()})
 	_scroll.scroll_horizontal = 0
 	_say_arrows()
 	show_binds(_hinted[0], _hinted[1], _hinted[2])
 	queue_redraw()
-	ScreenReader.say(self, ScreenReader.line([ScreenReader.spoken(HEADINGS[part]), _count]))
+	ScreenReader.say(self, ScreenReader.line([ScreenReader.spoken(tr(HEADINGS[part])), _count]))
 
 
 ## The keys that wear a piece and put the rack away, along its top after the count, for the device
@@ -453,7 +464,7 @@ func show_binds(touch: bool, keys: bool, pointer: bool) -> void:
 		_binds.queue_free()
 	var ink := Color(WORDS_ON_RED, 0.9)
 	if touch:
-		_binds = InputHint.row(WEAR_TOUCH, [], ink, BINDS_SIZE)
+		_binds = InputHint.row(tr(WEAR_TOUCH), [], ink, BINDS_SIZE)
 	else:
 		var wear: InputEvent
 		var away: InputEvent
@@ -483,7 +494,7 @@ func show_binds(touch: bool, keys: bool, pointer: bool) -> void:
 			star_button.button_index = JOY_BUTTON_Y
 			glyphs.append(InputGlyph.of_event(star_key if keys else star_button, ink, BINDS_SIZE))
 		_binds = InputHint.row(
-			WEAR_STARLIGHT if glyphs.size() > 2 else WEAR, glyphs, ink, BINDS_SIZE
+			tr(WEAR_STARLIGHT if glyphs.size() > 2 else WEAR), glyphs, ink, BINDS_SIZE
 		)
 	_binds.name = "Binds"
 	add_child(_binds)
@@ -494,7 +505,7 @@ func show_binds(touch: bool, keys: bool, pointer: bool) -> void:
 func _place_binds() -> void:
 	if _binds == null:
 		return
-	var heading := HEADINGS[part]
+	var heading := tr(HEADINGS[part])
 	var from := 34.0 + BayArt.wide_of(heading, 22, Type.mark_font())
 	from += BayArt.wide_of(_count, 14, Type.STRONG) + 28.0
 	_binds.position = Vector2(from, (BAND - _binds.get_combined_minimum_size().y) * 0.5).round()
@@ -516,7 +527,7 @@ func cell_at(index: int) -> TrayCell:
 
 func _draw() -> void:
 	BoardArt.draw_rack(self, Rect2(Vector2.ZERO, size), BAND, EDGE)
-	var heading := HEADINGS[part]
+	var heading := tr(HEADINGS[part])
 	BayArt.left(self, Vector2(22.0, BAND * 0.5), heading, 22, WORDS_ON_RED, Type.mark_font())
 	var from := 34.0 + BayArt.wide_of(heading, 22, Type.mark_font())
 	BayArt.left(
@@ -540,7 +551,7 @@ func warm() -> void:
 		var look: Look = each[2]
 		BayArt.kept(
 			self,
-			"place:%s:%s:%s:%d" % [hangs, in_gold, CELL, look],
+			"place:%s:%s:%s:%d" % [hangs, in_gold, CELL, look],  # NO_TRANSLATE
 			CELL + Vector2.ONE * AROUND * 2.0,
 			func(on: CanvasItem) -> void:
 				draw_place(on, Vector2.ONE * AROUND, hangs, in_gold, look),
@@ -588,7 +599,7 @@ static func draw_place(
 		)
 		BayArt.box(on, Rect2(tag.position + Vector2(1.0, 2.0), tag.size), 4.0, Color(0, 0, 0, 0.45))
 		BayArt.box(on, tag, 4.0, HouseTheme.FOIL)
-		BayArt.words(on, tag.get_center(), ON, 12, HouseTheme.ON_FOIL, Type.display_font())
+		BayArt.words(on, tag.get_center(), Lang.t(ON), 12, HouseTheme.ON_FOIL, Type.display_font())
 
 
 ## The supporter pack's star, GAME.md 10.8, pinned at [param middle] on [param on]: a night-blue
@@ -654,10 +665,12 @@ class TrayCell:
 	## Named for a screen reader as its tape says it, with its NEW tag, and ON while it is the one
 	## worn.
 	func _tell() -> void:
-		var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
-		var on := ScreenReader.spoken(ON) if worn else ""
-		var packed := SUPPORTER_PACK if pack == Pack.OWNED else ""
-		var said := named + ", " + SUPPORTER_PACK if pack == Pack.LOCKED else tape_words()
+		var tagged := ScreenReader.spoken(tr(CatalogCell.NEW)) if fresh else ""
+		var on := ScreenReader.spoken(tr(ON)) if worn else ""
+		var packed := tr(SUPPORTER_PACK) if pack == Pack.OWNED else ""
+		var said := tape_words()
+		if pack == Pack.LOCKED:
+			said = ScreenReader.line([named, tr(SUPPORTER_PACK)])
 		ScreenReader.name(self, said, ScreenReader.line([tagged, on, packed]))
 
 	## Whether it wears the NEW tag, GAME.md 4.4a: won or moved up a finish and not shown yet.
@@ -702,7 +715,7 @@ class TrayCell:
 	func tape_words() -> String:
 		if not owned:
 			return where
-		return named + (" · " + Loyalty.finish_name(finish) if finish > 0 else "")
+		return named + (" · " + tr(Loyalty.finish_name(finish)) if finish > 0 else "")
 
 	func _draw() -> void:
 		# By its size rounded: scrolled, a control's size drifts in its last places, and its
@@ -719,7 +732,7 @@ class TrayCell:
 		var packed := pack
 		var art := BayArt.kept(
 			self,
-			"place:%s:%s:%s:%d:%d" % [hangs, in_gold, cell.size, look, packed],
+			"place:%s:%s:%s:%d:%d" % [hangs, in_gold, cell.size, look, packed],  # NO_TRANSLATE
 			whole.size,
 			func(on: CanvasItem) -> void:
 				PartTray.draw_place(on, Vector2.ONE * AROUND, hangs, in_gold, look, packed),

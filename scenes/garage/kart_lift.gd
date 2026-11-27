@@ -23,8 +23,8 @@ const LINE := 0.08
 const POST_INK := Color("#b82e29")
 const ARM_INK := Color("#5b5f66")
 const LINE_INK := Color("#dbad33")
-## The words painted in the bay, how tall their capitals are for its depth, and how much of its
-## width they may take.
+## The words painted in the bay, shown through tr(), how tall their capitals are for its depth, and
+## how much of its width they may take.
 const WORDS := "YOUR KART"
 const UNDER := "STOP HERE"
 const WORDS_TALL := 0.24
@@ -100,8 +100,8 @@ func _build(corner: Vector2i) -> void:
 			arm.rotation.y = z * x * 0.18
 			add_child(arm)
 	# Its words painted on its floor, read from the camera's side of it, the name over what to do.
-	_paint(WORDS, Vector3(middle.x, 0.03, middle.z - deep * 0.02), deep * WORDS_TALL, across)
-	_paint(UNDER, Vector3(middle.x, 0.03, middle.z + deep * 0.3), deep * UNDER_TALL, across)
+	_paint(tr(WORDS), Vector3(middle.x, 0.03, middle.z - deep * 0.02), deep * WORDS_TALL, across)
+	_paint(tr(UNDER), Vector3(middle.x, 0.03, middle.z + deep * 0.3), deep * UNDER_TALL, across)
 
 
 ## [param words] painted flat on the floor of the bay at [param at] in its lines' yellow, their

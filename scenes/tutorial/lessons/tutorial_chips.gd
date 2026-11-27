@@ -12,7 +12,9 @@ extends TutorialLesson
 ## It teaches the cards the test teaches, see [method TutorialRun.taught]: the Royal Flush pads only
 ## once the House has opened them, and the Jackpot always. A retake teaches what has opened since.
 
-## What the clipboard says at each part.
+## What the clipboard says at each part, shown through tr().
+# TRANSLATORS: A word in braces is one of the game's own, drawn in its color: translate it inside
+# the braces, as in every lesson's line.
 const FLUSH_WORDS := "{Royal Flush} pads pay out {chips} while you hold them. Hold all four."
 const JACKPOT_WORDS := "Stand on a {Jackpot} to collect its {chips}."
 const BANK_WORDS := "You lose part of your {pot} when you die. Only {banked} points are safe."
@@ -31,21 +33,21 @@ var _peak := 0.0
 
 
 func _init() -> void:
-	title = "Chips"
+	title = tr("Chips")
 	spawn_cell = TestGround.ACROSS
 	facing = TestGround.WEST
-	reveals = [[&"pot", "Your {pot}", []]]
+	reveals = [[&"pot", tr("Your {pot}"), []]]
 	var taught := TutorialRun.taught()
 	# The lives come with the jokers lesson; with it left out, here.
 	if not TableCards.has(taught, TableCards.Card.JOKERS):
 		reveals.append([&"lives", "", []])
 	if TableCards.has(taught, TableCards.Card.FLUSH):
-		_flush = add_task("Hold all four {Royal Flush} pads at once", "")
+		_flush = add_task(tr("Hold all four {Royal Flush} pads at once"), "")
 		_flush.arrow = TestGround.FLUSH_PADS[0]
-	_drain = add_task("Drain the {Jackpot}", "", [], _flush != null)
+	_drain = add_task(tr("Drain the {Jackpot}"), "", [], _flush != null)
 	_drain.arrow = TestGround.JACKPOT
 	_drain.arrow_rect = TestGround.JACKPOT_RECT
-	_bank = add_task("{Bank} your {pot} at the {Junction}", "", [], true)
+	_bank = add_task(tr("{Bank} your {pot} at the {Junction}"), "", [], true)
 	_bank.arrow = TestGround.JUNCTION
 	_bank.arrow_rect = TestGround.JUNCTION_RECT
 
@@ -68,7 +70,7 @@ func _prepare() -> void:
 func _begin() -> void:
 	if _flush != null:
 		bring_up(_pads, 0.25)
-		run.list.say(&"flush", FLUSH_WORDS)
+		run.list.say(&"flush", tr(FLUSH_WORDS))
 	else:
 		_bring_jackpot()
 	Events.flush_completed.connect(_on_flush)
@@ -139,7 +141,7 @@ func _on_flush(slot_index: int) -> void:
 func _bring_jackpot() -> void:
 	if _zone != null:
 		bring_up([_zone], 0.0, 0.0, _fill)
-	run.list.say(&"jackpot", JACKPOT_WORDS)
+	run.list.say(&"jackpot", tr(JACKPOT_WORDS))
 
 
 ## The Jackpot up, and full.
@@ -165,10 +167,11 @@ func _bring_junction() -> void:
 	if _junction != null:
 		bring_up([_junction])
 	kart().banks_passively = true
-	run.list.say(&"bank", BANK_WORDS)
+	run.list.say(&"bank", tr(BANK_WORDS))
 	if run.reveal != null:
 		pointer_until = _bank
-		run.reveal.show_piece(&"bank", "{Bank}", [&"icon:safe"], &"pot", "{Pot}", [&"icon:risk"])
+		var bank := tr("{Bank}")
+		run.reveal.show_piece(&"bank", bank, [&"icon:safe"], &"pot", tr("{Pot}"), [&"icon:risk"])
 
 
 func _on_banked(slot_index: int, _coins: int, _mult: float, total: int) -> void:

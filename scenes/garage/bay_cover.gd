@@ -16,6 +16,7 @@ const NEAR := 1.5
 ## How far round the bay its picture reaches, for the frame's shadow.
 const AROUND := 24.0
 
+## The pictures drawn, by size, place, scale, frame and the language their words are in.
 static var _kept: Dictionary[String, Texture2D] = {}
 
 ## Where the stage stands in the bay, how big it is shown, and whether the bay is in its frame.
@@ -51,8 +52,8 @@ func _draw() -> void:
 	_settle()
 	var scale_by := maxf(KeptPictures.scale_of(self), 0.25)
 	var key := (
-		"%s|%s|%.4f|%.3f|%s"
-		% [_settled_size, _settled_at, _settled_stage, scale_by, _settled_framed]
+		"%s|%s|%.4f|%.3f|%s|%s"
+		% [_settled_size, _settled_at, _settled_stage, scale_by, _settled_framed, Lang.current]
 	)
 	var kept: Texture2D = _kept.get(key)
 	if kept != null:

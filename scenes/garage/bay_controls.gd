@@ -5,8 +5,8 @@ extends RefCounted
 ## that turn the kart over the bench's right end, drawn for the device in hand rather than written
 ## out; and where the binds hung on its buttons go, see [ButtonBinds].
 
-## What the paint chip card says of the color on it: the kart's own, one being tried on, or none
-## yet.
+## What the paint chip card says of the color on it, shown through tr(): the kart's own, one being
+## tried on, or none yet.
 const COLOR_YOURS := "yours"
 const COLOR_TRYING := "trying it on"
 const COLOR_NONE := "No color yet"
@@ -16,7 +16,8 @@ const COLOR_PICK := "pick a can"
 const LEARNER_SIDE := 64.0
 const LEARNER_AROUND := 4.0
 const LEARNER_GROUP := &"learner_plate"
-## How the binds that turn the kart read, by drag or by the stick, and how big they are.
+## How the binds that turn the kart read, by drag or by the stick, shown through tr(), the bind in
+## place of the %s, and how big they are.
 const TURN_DRAG := "%s drag to turn"
 const TURN_STICK := "%s to turn"
 const TURN_SIZE := 15
@@ -28,7 +29,7 @@ const TURN_INK := Color(1.0, 1.0, 1.0, 0.88)
 static func name_box() -> LineEdit:
 	var box := LineEdit.new()
 	box.name = "Name"
-	box.accessibility_name = ScreenReader.spoken(BayArt.NAME_WORD)
+	box.accessibility_name = ScreenReader.spoken(Lang.t(BayArt.NAME_WORD))
 	box.position = BayArt.NAME_TAPE.position
 	box.size = BayArt.NAME_TAPE.size
 	box.max_length = PlayerNames.MAX_LENGTH
@@ -97,7 +98,7 @@ static func learner_plate() -> Control:
 			var whole := Rect2(Vector2.ZERO, plate.size).grow(LEARNER_AROUND)
 			var art := BayArt.kept(
 				plate,
-				"learner:%s" % plate.size,
+				"learner:%s" % plate.size,  # NO_TRANSLATE
 				whole.size,
 				func(on: CanvasItem) -> void:
 					draw_learner(on, Rect2(Vector2.ONE * LEARNER_AROUND, plate.size)),
@@ -153,7 +154,7 @@ static func turn_hint(touch: bool, stick: bool) -> Control:
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_theme_constant_override("separation", 8)
 	row.add_child(mark)
-	row.add_child(InputHint.row(says, [glyph], TURN_INK, TURN_SIZE))
+	row.add_child(InputHint.row(Lang.t(says), [glyph], TURN_INK, TURN_SIZE))
 	var card := InputHint.card(row)
 	card.name = "TurnHint"
 	card.resized.connect(
@@ -204,12 +205,12 @@ static func draw_chip(on: Control, picked: int, tried: int) -> void:
 	var shown := tried if tried >= 0 else picked
 	var card := Rect2(Vector2.ZERO, on.size)
 	if shown < 0:
-		BayArt.draw_chip(on, card, Color(0, 0, 0, 0), COLOR_NONE, COLOR_PICK)
+		BayArt.draw_chip(on, card, Color(0, 0, 0, 0), Lang.t(COLOR_NONE), Lang.t(COLOR_PICK))
 		return
 	BayArt.draw_chip(
 		on,
 		card,
 		Palette.player_color(shown),
-		Palette.color_name(shown),
-		COLOR_TRYING if tried >= 0 else COLOR_YOURS
+		Lang.t(Palette.color_name(shown)),
+		Lang.t(COLOR_TRYING if tried >= 0 else COLOR_YOURS)
 	)

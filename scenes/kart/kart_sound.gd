@@ -72,12 +72,12 @@ func setup(kart: Kart, sound_stats: KartSoundStats, is_lean: bool = false) -> vo
 
 func _ready() -> void:
 	_silent = Game.is_headless()
-	_engine = _build("Engine", ENGINE_FILE, true)
-	_drift = _build("Drift", SCRUB_FILE if lean else SQUEAL_FILE, true)
+	_engine = _build("Engine", ENGINE_FILE, true)  # NO_TRANSLATE
+	_drift = _build("Drift", SCRUB_FILE if lean else SQUEAL_FILE, true)  # NO_TRANSLATE
 	if not lean:
-		_slide = _build("Slide", SCRUB_FILE, true)
-		_lock = _build("Lock", SCRUB_FILE, true)
-		_chirp = _build("Chirp", SQUEAL_FILE, false)
+		_slide = _build("Slide", SCRUB_FILE, true)  # NO_TRANSLATE
+		_lock = _build("Lock", SCRUB_FILE, true)  # NO_TRANSLATE
+		_chirp = _build("Chirp", SQUEAL_FILE, false)  # NO_TRANSLATE
 	if not _silent:
 		_engine.volume_db = _quiet_db()
 		_engine.play()
@@ -120,6 +120,7 @@ func _read_controls(delta: float) -> KartInput:
 ## One line for the debug overlay: where the needle is, what that does to the loop, and which
 ## tires are making a noise.
 func debug_text() -> String:
+	# NO_TRANSLATE: the debug overlay's, in English.
 	return (
 		"rev %4.2f  pitch %4.2f  load %3.0f%%  drift %3.0f%% slide %3.0f%% lock %3.0f%%"
 		% [

@@ -72,7 +72,7 @@ func _ready() -> void:
 	focus_mode = Control.FOCUS_NONE
 	for way: int in [-1, 1]:
 		var arrow := Button.new()
-		arrow.name = "Back" if way < 0 else "On"
+		arrow.name = "Back" if way < 0 else "On"  # NO_TRANSLATE
 		arrow.flat = true
 		arrow.focus_mode = Control.FOCUS_NONE
 		arrow.size = ARROW
@@ -308,7 +308,7 @@ func _draw_arrow(arrow: Button, way: int) -> void:
 	var box := Rect2(Vector2.ONE * FOB_AROUND, arrow.size.round())
 	var art := BayArt.kept(
 		arrow,
-		"fob:%d:%s:%s:%s" % [way, lit, down, box.size],
+		"fob:%d:%s:%s:%s" % [way, lit, down, box.size],  # NO_TRANSLATE
 		box.grow(FOB_AROUND).size,
 		func(on: CanvasItem) -> void: draw_fob(on, box, way, lit, down),
 		FOBS

@@ -86,7 +86,7 @@ func test_the_school_from_a_room_says_it_leaves() -> void:
 	dialog.hooks[KartStyle.FRAME].pressed.emit()
 	await _runner.simulate_frames(1, 17)
 	var question := dialog.school.question
-	assert_str(question.said()).contains(BaySchool.LINE_ROOM)
+	assert_str(question.said()).contains(BaySchool.LEAVES)
 	assert_bool(question.no_button().has_focus()).is_true()
 	question.yes_button().pressed.emit()
 	assert_array(schooled).is_equal([true])

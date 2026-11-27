@@ -25,10 +25,12 @@ const CHIPS_AT: Array[Vector2i] = [
 const CHIPS_EACH := 10
 ## Where a mult die or two lie as the exam opens, by cell, for a quicker road to the goal.
 const DICE_AT: Array[Vector2i] = [Vector2i(6, 11), Vector2i(26, 7)]
-## What the clipboard says over the hints under the goal, which the license is passed without.
+## What the clipboard says over the hints under the goal, which the license is passed without,
+## shown through tr().
 const OPTIONAL := "Optional endorsements:"
 ## What each hint under the goal is called on the license, see [LicenseCard], in the order of
-## the hints.
+## the hints, shown through tr(): in English, what the settings keep each by.
+# TRANSLATORS: An endorsement on the driving license, on a small chip in capitals.
 const ENDORSEMENTS: Array[String] = [
 	"KO", "MULT 4", "JACKPOT", "ROYAL FLUSH", "CASH-OUT", "ITEMS", "FULL HAND"
 ]
@@ -52,33 +54,33 @@ var _earned: Dictionary[String, bool] = {}
 
 
 func _init() -> void:
-	title = "Final exam"
+	title = tr("Final exam")
 	skippable = false
 	show_all = true
 	nudge_driving = false
 	spawn_cell = TestGround.START
-	reveals = [[&"stats", "", []], [&"feed", "", []], [&"mult", "Your {mult}", []]]
-	_bank = add_task("{Bank} points", "", [], true)
+	reveals = [[&"stats", "", []], [&"feed", "", []], [&"mult", tr("Your {mult}"), []]]
+	_bank = add_task(tr("{Bank} points"), "", [], true)
 	_bank.of = NEED
 	# The hints of the cards the profile playing has opened alone, GAME.md 3.17: a retake once more
 	# have opened can earn theirs.
 	var opened := TutorialRun.taught()
-	_kill = add_task("Take out another kart", "")
-	_mult = add_task("Reach a {mult} of 4", "")
+	_kill = add_task(tr("Take out another kart"), "")
+	_mult = add_task(tr("Reach a {mult} of 4"), "")
 	if TableCards.has(opened, TableCards.Card.JACKPOT):
-		_jackpot = add_task("Drain a {Jackpot}", "")
+		_jackpot = add_task(tr("Drain a {Jackpot}"), "")
 	if TableCards.has(opened, TableCards.Card.FLUSH):
-		_flush = add_task("Claim a {Royal Flush}", "")
-	_cash = add_task("{Bank} your whole {pot} at the {Junction}", "")
-	_use = add_task("Use an item", "")
+		_flush = add_task(tr("Claim a {Royal Flush}"), "")
+	_cash = add_task(tr("{Bank} your whole {pot} at the {Junction}"), "")
+	_use = add_task(tr("Use an item"), "")
 	if TableCards.has(opened, TableCards.Card.JOKERS):
-		_hand = add_task("Hold three jokers", "")
+		_hand = add_task(tr("Hold three jokers"), "")
 	var hints: Array[TutorialTask] = []
 	for task: TutorialTask in [_kill, _mult, _jackpot, _flush, _cash, _use, _hand]:
 		if task != null:
 			hints.append(task)
 	stations = [[_bank], hints]
-	station_heads = [OPTIONAL]
+	station_heads = [tr(OPTIONAL)]
 
 
 ## The rest of a table, held back: the item pads, the coin pads, the crates and the second Jackpot.

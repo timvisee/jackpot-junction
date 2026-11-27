@@ -16,12 +16,13 @@ signal stamped
 ## A way on was taken: garage, play or title.
 signal chosen(way: StringName)
 
+## What the two pages say, shown through tr(): the first over the card, the second over the ways
+## on, congratulating the holder by name.
 const TITLE := "YOU PASSED"
 const LINE := "The examiner found nothing to object to. Your license, then."
-const STAMP_LINE := "%s the stamp to make it official"
 const DONE_TITLE := "CONGRATULATIONS, %s"
 const DONE_LINE := "Class K. Valid on every table. The Junction is yours."
-## The ways on, in the order they stand, each its word on the button.
+## The ways on, in the order they stand, each its word on the button, shown through tr().
 const WAYS: Array[Array] = [
 	[&"garage", "Garage"], [&"play", "Hit the road"], [&"title", "Back to title"]
 ]
@@ -47,9 +48,7 @@ const STAMP_ROOM := 84.0
 ## The room over and under the card on the desk, and kept round the pane at the screen's edges.
 const PAD := 22.0
 const MARGIN := 16.0
-## The test's time, under the congratulations, and the best beside it once it was quicker.
-const TIME_LINE := "Test time %s"
-const BEST_LINE := "best %s"
+## How far under the test's time the ways on stand.
 const TIME_AIR := 8.0
 const SHAKES := 5
 const SHAKE := 7.0
@@ -131,8 +130,8 @@ func _ready() -> void:
 	_card_page.add_theme_constant_override("separation", 12)
 	_card_page.custom_minimum_size = Vector2(LicenseCard.SIZE.x + STAMP_ROOM * 2.0, 0.0)
 	pages.add_child(_card_page)
-	_card_page.add_child(MenuTheme.title(TITLE, Type.TITLE))
-	_card_page.add_child(MenuTheme.subtitle(LINE, Type.BODY))
+	_card_page.add_child(MenuTheme.title(tr(TITLE), Type.TITLE))
+	_card_page.add_child(MenuTheme.subtitle(tr(LINE), Type.BODY))
 	# The course, its theory done; the driving test ticks as the pane comes up, and the license
 	# as the stamp comes down.
 	course = SchoolEnrollment.course_row(1)
@@ -160,14 +159,14 @@ func _ready() -> void:
 	_foot = VBoxContainer.new()
 	_foot.name = "Ways"
 	_foot.add_theme_constant_override("separation", 14)
-	_foot.add_child(MenuTheme.title(DONE_TITLE % card.holder_name, Type.TITLE))
-	_foot.add_child(MenuTheme.subtitle(DONE_LINE, Type.BODY))
+	_foot.add_child(MenuTheme.title(tr(DONE_TITLE) % card.holder_name, Type.TITLE))
+	_foot.add_child(MenuTheme.subtitle(tr(DONE_LINE), Type.BODY))
 	_foot.add_child(_time_row())
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 16)
 	for way: Array in WAYS:
-		var button := MenuTheme.button(way[1], Type.LARGE)
+		var button := MenuTheme.button(tr(way[1]), Type.LARGE)
 		button.custom_minimum_size.x = WAY_WIDTH
 		button.pressed.connect(_choose.bind(way[0]))
 		buttons[way[0]] = button
@@ -184,9 +183,9 @@ func _ready() -> void:
 	stamp.grab_focus()
 
 
-## How the stamp is pressed, under the card, for the device in hand.
+## How the stamp is pressed, under the card, for the device in hand, as the House says it.
 func _say_how() -> void:
-	_hint.text = STAMP_LINE % stamp.press_word()
+	_hint.text = HouseEvaluation.how_to_stamp(stamp.device)
 
 
 ## The test's time, said once and quietly: small and gray, with the best beside it once an earlier
@@ -209,10 +208,11 @@ func _time_row() -> Control:
 static func time_words(profile: Profile) -> String:
 	if profile.test_time <= 0.0:
 		return ""
-	var words := TIME_LINE % clock(profile.test_time)
+	var time := clock(profile.test_time)
 	if profile.test_best > 0.0 and profile.test_best < profile.test_time - 0.05:
-		words += "  ·  " + BEST_LINE % clock(profile.test_best)
-	return words
+		var both := Lang.t("Test time {time}  ·  best {best}")
+		return both.format({"time": time, "best": clock(profile.test_best)})
+	return Lang.t("Test time %s") % time
 
 
 ## [param seconds] as minutes and seconds, 3:07.

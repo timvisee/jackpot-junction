@@ -35,18 +35,21 @@ signal put_away
 
 ## Over a room's pause menu, with the other dialogs.
 const LAYER := PauseMenu.LAYER + 5
-## What the buttons that open it say, in the pause menu's Clubhouse and on the settings' Me tab.
+## What the buttons that open it say, in the pause menu's Clubhouse and on the settings' Me tab,
+## and Back's tooltip and what its plate says, shown through tr().
 const ENTRY := "Customize kart"
 const SHADE := Color(0.0, 0.0, 0.0, 0.55)
 const BACK := "Back"
 const BACK_PRINTED := "BACK"
-## The titles of the dialogs the name and the plate are typed into with Steam's keyboard.
+## The titles of the dialogs the name and the plate are typed into with Steam's keyboard, shown
+## through tr().
 const NAME_TYPED := "Driver's name"
 const PLATE_TYPED := "License plate"
 ## The card back's part, past the kart's own parts, and the shuffle's hook past that.
 const CARD_BACK := 7
 const SHUFFLE := BoardArt.SHUFFLE
-## What the bench says by the plate for a seat that cannot change its own.
+## What the bench says by the plate for a seat that cannot change its own, whose it is in place of
+## the %s, and the die's tooltip, shown through tr().
 const GUEST_PLATE := "of %s"
 const DIE_TIP := "A name the house makes up"
 ## How far the right stick has to go before it turns the kart.
@@ -231,7 +234,7 @@ func _ready() -> void:
 	var well := PartTray.well()
 	_stage_node.add_child(well)
 	well.add_child(tray)
-	back = BayControls.back_plate(BACK_PRINTED, BACK)
+	back = BayControls.back_plate(tr(BACK_PRINTED), tr(BACK))
 	back.pressed.connect(close)
 	ButtonBinds.mark(back, &"ui_cancel")
 	ButtonBinds.mark(hooks[SHUFFLE], SHUFFLE_ACTION)
@@ -261,7 +264,7 @@ func _exit_tree() -> void:
 func _build_bench() -> void:
 	name_box = BayControls.name_box()
 	# Low in the bay, under where Steam's keyboard comes up: typed into in a dialog of its own there.
-	name_box.set_meta(SteamKeyboard.IN_DIALOG, NAME_TYPED)
+	name_box.set_meta(SteamKeyboard.IN_DIALOG, tr(NAME_TYPED))
 	name_box.text_submitted.connect(func(_typed: String) -> void: _keep_name())
 	name_box.focus_entered.connect(_typing.bind(true))
 	name_box.focus_exited.connect(
@@ -274,7 +277,7 @@ func _build_bench() -> void:
 	die.name = "Die"
 	die.position = BayArt.DIE.position
 	die.size = BayArt.DIE.size
-	die.tooltip_text = DIE_TIP
+	die.tooltip_text = tr(DIE_TIP)
 	die.pressed.connect(roll_name)
 	_stage_node.add_child(die)
 	for color: int in Palette.PLAYER_COLORS.size():
@@ -297,7 +300,7 @@ func _build_bench() -> void:
 	plate_field.name = "Plate"
 	plate_field.position = BayArt.PLATE_AT
 	plate_field.plate_changed.connect(_on_plate_typed)
-	plate_field.set_meta(SteamKeyboard.IN_DIALOG, PLATE_TYPED)
+	plate_field.set_meta(SteamKeyboard.IN_DIALOG, tr(PLATE_TYPED))
 	plate_field.focus_entered.connect(_typing.bind(true))
 	plate_field.focus_exited.connect(_typing.bind(false))
 	_stage_node.add_child(plate_field)
@@ -427,10 +430,10 @@ func _show_dress() -> void:
 	var worn := _style.to_array()
 	for part: int in KartStyle.CHOICES.size():
 		var index := worn[part]
-		hooks[part].say(index, choices_of(part)[index], color, _style.finish(part))
+		hooks[part].say(index, tr(choices_of(part)[index]), color, _style.finish(part))
 	hooks[KartStyle.FRAME].wait_for_license(not owner_now.may_change(KartStyle.FRAME))
 	var back_now := owner_now.card_back()
-	hooks[CARD_BACK].say(back_now, CardBack.STYLES[back_now], color, 0)
+	hooks[CARD_BACK].say(back_now, tr(CardBack.STYLES[back_now]), color, 0)
 	stage.show_kart(_style, kart_color(), owner_now.plate())
 
 
@@ -455,7 +458,7 @@ func _show_plate() -> void:
 	_learner.visible = not typed and open_part < 0 and owner_now.plate() == "L"
 	# Whose plate a guest wears; the learner's L says itself.
 	plate_note.visible = _plate_shown.visible and owner_now.is_guest()
-	plate_note.text = GUEST_PLATE % Game.settings.profile.display_name()
+	plate_note.text = tr(GUEST_PLATE) % Game.settings.profile.display_name()
 	if typed:
 		plate_field.text = owner_now.plate()
 	else:

@@ -248,7 +248,7 @@ static func redress(kart: Kart, was: KartStyle) -> void:
 	if body_of(kart.style) != body_of(was):
 		_rebody(kart, body)
 	KartStickers.dress(body.get_node("Model"), kart.style.paint)
-	for part: String in ["Hat", "Flag"]:
+	for part: String in ["Hat", "Flag"]:  # NO_TRANSLATE
 		var old := body.get_node_or_null(part)
 		if old != null:
 			# Left in the tree until it goes, under another name so the new one can take its own:

@@ -43,6 +43,7 @@ const REAR := 0.32
 const STEEL := Color(0.42, 0.44, 0.48)
 const DARK_STEEL := Color(0.16, 0.17, 0.19)
 const PLATE := Color(0.27, 0.28, 0.31)
+## What is painted on the floor before the rollers, shown through tr(), and how big.
 const WORDS := "DYNO"
 const WORDS_TALL := 0.26
 const WORDS_SIZE := 96
@@ -228,7 +229,7 @@ func _roller(at: Vector3) -> Node3D:
 func _words(at: Vector3) -> void:
 	var label := Label3D.new()
 	label.name = "Painted"
-	label.text = WORDS
+	label.text = tr(WORDS)
 	label.font = Type.mark_font()
 	label.font_size = WORDS_SIZE
 	label.outline_size = 0

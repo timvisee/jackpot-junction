@@ -6,7 +6,7 @@ extends TutorialLesson
 ## speedometer come into the corner with it. An extra: drift round the cones, one drift held long
 ## enough for a turbo, which the lesson does not wait for.
 
-## What the clipboard says the lesson is about.
+## What the clipboard says the lesson is about, shown through tr().
 const WORDS := "Use {nitro} to boost your speed. It refills over time."
 
 var _burn: TutorialTask
@@ -14,14 +14,14 @@ var _drift: TutorialTask
 
 
 func _init() -> void:
-	title = "Speed"
+	title = tr("Speed")
 	spawn_cell = TestGround.RUN_FROM
 	facing = TestGround.EAST
-	reveals = [[&"nitro", "Your {nitro}", [InputActions.NITRO]]]
-	_burn = add_task("Burn a full tank of {nitro}", "", [InputActions.NITRO], true)
+	reveals = [[&"nitro", tr("Your {nitro}"), [InputActions.NITRO]]]
+	_burn = add_task(tr("Burn a full tank of {nitro}"), "", [InputActions.NITRO], true)
 	_burn.arrow = TestGround.DRIFT_RING
 	_burn.ringed = false
-	_drift = add_task("Drift round the cones for a turbo", "", [InputActions.HANDBRAKE])
+	_drift = add_task(tr("Drift round the cones for a turbo"), "", [InputActions.HANDBRAKE])
 	_drift.extra = true
 
 
@@ -30,12 +30,13 @@ func _prepare() -> void:
 	var points := TestGround.ring(TestGround.RING_CONES, TestGround.RING_RADIUS)
 	for i: int in points.size():
 		var spot := at + Vector3(points[i].x, 0.0, points[i].y)
-		keep_back(SchoolCone.stand(arena(), spot, "DriftRing%d" % i), SchoolCone.ACROSS)
+		var called := "DriftRing%d" % i  # NO_TRANSLATE
+		keep_back(SchoolCone.stand(arena(), spot, called), SchoolCone.ACROSS)
 
 
 func _begin() -> void:
 	kart().refill_nitro(1.0)
-	run.list.say(&"nitro", WORDS)
+	run.list.say(&"nitro", tr(WORDS))
 	bring_up(piece_nodes(), 0.08)
 	Events.drift_boosted.connect(_on_boost)
 

@@ -86,7 +86,9 @@ const NOZZLE := Color("#e8e8ec")
 const DIE_FACE := Color("#f2eee4")
 const DIE_PIP := Color("#c23a2c")
 const WORDS_ON_WALL := Color(1.0, 1.0, 1.0, 0.62)
-## The boxes in the corners, and what is written on them, and on the drum.
+## The boxes in the corners, and what is written on them, and on the drum, the words shown through
+## tr(), as are the sign's and the bench's after them.
+# TRANSLATORS: Painted in capitals on the kart dialog's boxes, drum, sign and bench, little room.
 const BOXES: Array[Array] = [
 	[Rect2(236.0, 958.0, 118.0, 70.0), "BOLTS", 0.03],
 	[Rect2(1556.0, 950.0, 126.0, 76.0), "SPARES", -0.03],
@@ -99,6 +101,12 @@ const KEYS := "KEYS"
 const COLOR_WORD := "COLOR"
 const NAME_WORD := "NAME"
 const PLATE_WORD := "PLATE"
+## What each part is stenciled as on its hook, see [method part_word], shown through tr(); in
+## English it names the hook too.
+# TRANSLATORS: Stenciled in capitals on a pegboard hook's tag, about ten letters at most.
+const PART_WORDS: Array[String] = [
+	"PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "MARKS", "BODY", "CARD BACK", "SHUFFLE"
+]
 
 ## What everything is drawn under: the stage's place and scale on whatever it is drawn into, which a
 ## piece turned on its own goes back to after, see [method turn_at], so a picture kept of it at the
@@ -148,7 +156,7 @@ static func _storage(on: CanvasItem) -> void:
 			2.0
 		)
 	for box: Array in BOXES:
-		_box(on, box[0], box[1], box[2])
+		_box(on, box[0], Lang.t(box[1]), box[2])
 	var drum := DRUM
 	var corners := PackedVector2Array(
 		[
@@ -181,7 +189,7 @@ static func _storage(on: CanvasItem) -> void:
 	words(
 		on,
 		drum.get_center() + Vector2(0.0, 6.0),
-		DRUM_WORD,
+		Lang.t(DRUM_WORD),
 		26,
 		Color(1, 1, 1, 0.55),
 		Type.mark_font()
@@ -223,12 +231,13 @@ static func _bench(on: CanvasItem) -> void:
 	left(
 		on,
 		Vector2(NAME_TAPE.position.x + 4.0, APRON.position.y + 14.0),
-		NAME_WORD,
+		Lang.t(NAME_WORD),
 		12,
 		WORDS_ON_WALL,
 		Type.display_font()
 	)
-	left(on, PLATE_AT + Vector2(0.0, -16.0), PLATE_WORD, 12, WORDS_ON_WALL, Type.display_font())
+	var plate := Lang.t(PLATE_WORD)
+	left(on, PLATE_AT + Vector2(0.0, -16.0), plate, 12, WORDS_ON_WALL, Type.display_font())
 
 
 ## The title on an enamel sign, screwed to the wall, a chip off its corner.
@@ -238,13 +247,14 @@ static func _sign(on: CanvasItem) -> void:
 	box(on, sign, 14.0, ENAMEL)
 	box(on, sign.grow(-6.0), 10.0, ENAMEL_RED)
 	ring(on, sign.grow(-11.0), 7.0, ENAMEL, 2.0)
+	var title := Lang.t(TITLE)
 	words(
-		on, sign.get_center() + Vector2(0.0, -10.0), TITLE, 52, Color("#f6eedc"), Type.mark_font()
+		on, sign.get_center() + Vector2(0.0, -10.0), title, 52, Color("#f6eedc"), Type.mark_font()
 	)
 	words(
 		on,
 		sign.get_center() + Vector2(0.0, 30.0),
-		UNDER_TITLE,
+		Lang.t(UNDER_TITLE),
 		14,
 		Color("#f6eedc", 0.8),
 		Type.display_font()
@@ -276,7 +286,7 @@ static func _rail(on: CanvasItem) -> void:
 	words(
 		on,
 		Vector2(RAIL.position.x + 40.0, RAIL.get_center().y + 1.0),
-		KEYS,
+		Lang.t(KEYS),
 		13,
 		Color(BURNT, 0.8),
 		Type.display_font()
@@ -286,10 +296,10 @@ static func _rail(on: CanvasItem) -> void:
 # --- the keys, cans, chip and Back ---------------------------------------------------------------
 
 
-## What a part is stenciled as on its hook, the card back after the kart's own and the shuffle's
-## after that.
+## What a part is stenciled as on its hook, in English, the card back after the kart's own and the
+## shuffle's after that, see [constant PART_WORDS].
 static func part_word(part: int) -> String:
-	return ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "MARKS", "BODY", "CARD BACK", "SHUFFLE"][part]
+	return PART_WORDS[part]
 
 
 ## A seat's key tag hanging from its hook at [param hook]: a plastic fob in the seat's
@@ -496,7 +506,7 @@ static func draw_chip(on: CanvasItem, card: Rect2, ink: Color, named: String, sa
 	left(
 		on,
 		local.position + Vector2(9.0, 11.0),
-		COLOR_WORD,
+		Lang.t(COLOR_WORD),
 		10,
 		Color(MARKER, 0.6),
 		Type.display_font()
@@ -633,7 +643,8 @@ class Drawn:
 
 
 ## The picture of [param key], [param logical] big on [param host] and drawn by [param paint] in
-## its own space, kept at the screen's pixels; null until it is ready, the [param group] told then.
+## its own space, kept at the screen's pixels and in the language spoken, for any words in it; null
+## until it is ready, the [param group] told then.
 static func kept(
 	host: CanvasItem, key: String, logical: Vector2, paint: Callable, group: StringName
 ) -> Texture2D:
@@ -644,7 +655,7 @@ static func kept(
 		drawn.paint = paint
 		drawn.by = Transform2D(0.0, Vector2.ONE * by, 0.0, Vector2.ZERO)
 		return drawn
-	return KeptPictures.of(host, "%s|%.3f" % [key, by], pixels, made, group)
+	return KeptPictures.of(host, "%s|%s|%.3f" % [key, Lang.current, by], pixels, made, group)
 
 
 static func marker_font() -> Font:

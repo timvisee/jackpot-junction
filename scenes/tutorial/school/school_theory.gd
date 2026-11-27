@@ -17,6 +17,8 @@ extends Control
 
 signal finished
 
+## The book's name on its front cover, and the running heads over its left pages and its right,
+## shown through tr().
 const COVER_TITLE := "THE HIGHWAY\nCODE OF THE\nJUNCTION"
 const HEADS: Array[String] = ["DEPT. OF KARTS  ·  {edition}", "THE HIGHWAY CODE OF THE JUNCTION"]
 const PAGES := 212
@@ -112,10 +114,11 @@ const MEASURE_LAP := 2
 const PAGE_SPARE := 6.0
 ## The dust's seed, so the book shuts the same every time.
 const SEED := 212
+## The one question, and its answers, shown through tr() as the warning before it is.
 const QUESTION := "Got that?"
 ## Said beside the shut book, on the left where it will open, while it waits to be opened: the
 ## one question after it is no surprise then, and the half of the pane the book has yet to fill is
-## not empty. Gone as the book opens.
+## not empty. Gone as the book opens. Shown through tr().
 const WARNING := "Read carefully."
 const WARNING_MORE := "There will be a question. Just the one."
 const ANSWERS: Array[String] = ["Absolutely", "Not a word"]
@@ -188,7 +191,9 @@ var _ending: Array[Dictionary] = []
 ## The theory's place in the course, read off the enrollment's own list so the two never drift,
 ## GAME.md 9.4a: it is the first of its steps, see [constant SchoolEnrollment.STEPS].
 static func caption() -> String:
-	return "%s  ·  step 1 of %d" % [SchoolEnrollment.STEPS[0], SchoolEnrollment.STEPS.size()]
+	var step := Lang.t(SchoolEnrollment.STEPS[0])
+	var steps := SchoolEnrollment.STEPS.size()
+	return Lang.t("{step}  ·  step 1 of {steps}").format({"step": step, "steps": steps})
 
 
 ## How wide one half of the book is: its half of the cover, its page and its half of the gutter.
@@ -261,9 +266,9 @@ func _ready() -> void:
 	_question.position = Vector2(half_width() + GUTTER, 0.0)
 	_question.size = Vector2(half_width() - GUTTER, book_height())
 	_question.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_question.add_child(MenuTheme.title(QUESTION, Type.HEADING))
+	_question.add_child(MenuTheme.title(tr(QUESTION), Type.HEADING))
 	for word: String in ANSWERS:
-		var button := MenuTheme.button(word)
+		var button := MenuTheme.button(tr(word))
 		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		button.pressed.connect(_answered)
 		_question.add_child(button)
@@ -277,8 +282,8 @@ func _ready() -> void:
 	_warning.alignment = BoxContainer.ALIGNMENT_CENTER
 	_warning.size = Vector2(half_width() - GUTTER, book_height())
 	_warning.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_warning.add_child(MenuTheme.title(WARNING, Type.HEADING))
-	_warning.add_child(MenuTheme.subtitle(WARNING_MORE, Type.BODY))
+	_warning.add_child(MenuTheme.title(tr(WARNING), Type.HEADING))
+	_warning.add_child(MenuTheme.subtitle(tr(WARNING_MORE), Type.BODY))
 	_book.add_child(_warning)
 	# The title page at once; the page across from it once the text is laid out and cut.
 	_text = TheoryText.new()
@@ -527,7 +532,7 @@ func _page(side: int) -> Control:
 	page.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var outer := HORIZONTAL_ALIGNMENT_LEFT if side == 0 else HORIZONTAL_ALIGNMENT_RIGHT
 	var head := Label.new()
-	head.text = HEADS[side].replace("{edition}", TheoryText.edition_mark())
+	head.text = tr(HEADS[side]).replace("{edition}", TheoryText.edition_mark())
 	head.position = Vector2(MARGIN, 10.0)
 	head.size = Vector2(PAGE.x - MARGIN * 2.0, 16.0)
 	head.horizontal_alignment = outer
@@ -588,7 +593,7 @@ func _leaf_over() -> TextureRect:
 	# The front a right page, the back a left one: pages FRONT and BACK.
 	for side: int in [1, 0]:
 		var face := SubViewport.new()
-		face.name = "Front" if side == 1 else "Back"
+		face.name = "Front" if side == 1 else "Back"  # NO_TRANSLATE
 		face.size = Vector2i(PAGE)
 		face.transparent_bg = true
 		face.disable_3d = true

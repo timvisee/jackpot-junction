@@ -50,12 +50,12 @@ const TOOL_HANDLE := Color("#c0392b")
 ## How wide a hook's tape is, and how far in from its edge its words start.
 const TAPE_WIDE := 186.0
 ## The dialog's frame round the bay, while there is room round it: how thick, and what its foot
-## says.
+## says, and the halves of it on the boards' feet, the words shown through tr().
 const EDGE := 26.0
 const MOTTO := "THE GARAGE  ·  EVERY PART BACK IN ITS PLACE"
 const HALVES: Array[String] = ["EVERY PART", "BACK IN ITS PLACE"]
-## The shuffle's plate: how wide its hazard stripes are round it, how big its push button is, and
-## what is stenciled by it.
+## The shuffle's plate: how wide its hazard stripes are round it and how big its push button is,
+## see [constant SHUFFLE_WORD] for what is stenciled by it.
 const HAZARD := 14.0
 const PUSH := 36.0
 ## The reel the push button's die faces run down on as it rolls, see [method draw_push]: how big
@@ -65,6 +65,7 @@ const REEL_DRUM := 0.95
 const REEL_PITCH := 1.5
 const REEL_REACH := 30.0
 const REEL_FADE := 10.0
+## What is stenciled by the shuffle's push button, shown through tr().
 const SHUFFLE_WORD := "SHUFFLE"
 const SHUFFLE_SAYS := "PARTS AND COLOR AT RANDOM"
 
@@ -172,7 +173,7 @@ static func push_of() -> Vector2:
 ## Both boards on their stands, and every hook on them, on [param on] in the stage's space.
 static func draw_boards(on: CanvasItem) -> void:
 	for i: int in BOARDS.size():
-		_board(on, BOARDS[i], HALVES[i])
+		_board(on, BOARDS[i], Lang.t(HALVES[i]))
 	for part: int in SHUFFLE:
 		_hook(on, part)
 	_tools(on, _row_rect(TOOLS))
@@ -261,7 +262,7 @@ static func _hook(on: CanvasItem, part: int) -> void:
 	painted.append(painted[0])
 	on.draw_polyline(painted, Color(PAINT, 0.8), 3.0, true)
 	var slot := hook_rect(part)
-	var word := BayArt.part_word(part)
+	var word := Lang.t(BayArt.part_word(part))
 	var from := words_from(part)
 	var wide := BayArt.wide_of(word, 22, Type.mark_font())
 	BayArt.left(on, Vector2(from, slot.position.y + 28.0), word, 22, PAINT, Type.mark_font())
@@ -415,10 +416,10 @@ static func _shuffle(on: CanvasItem) -> void:
 	on.draw_arc(push, PUSH + 13.0, 0.0, TAU, 48, Color(0, 0, 0, 0.45), 2.0, true)
 	on.draw_circle(push, PUSH + 4.0, HAZARD_BLACK)
 	var from := push.x + PUSH + 26.0
-	BayArt.left(on, Vector2(from, push.y - 14.0), SHUFFLE_WORD, 32, PAINT, Type.mark_font())
-	BayArt.left(
-		on, Vector2(from, push.y + 20.0), SHUFFLE_SAYS, 12, Color(BayArt.ENAMEL, 0.85), Type.STRONG
-	)
+	var shuffle := Lang.t(SHUFFLE_WORD)
+	BayArt.left(on, Vector2(from, push.y - 14.0), shuffle, 32, PAINT, Type.mark_font())
+	var says := Lang.t(SHUFFLE_SAYS)
+	BayArt.left(on, Vector2(from, push.y + 20.0), says, 12, Color(BayArt.ENAMEL, 0.85), Type.STRONG)
 
 
 ## The shuffle's push button on [param on], its middle at [param at]: a red cap with a die's
@@ -643,13 +644,14 @@ static func draw_frame(on: CanvasItem, outside: Rect2) -> void:
 		Vector2(inside.position.x, inside.end.y + 4.0), Vector2(inside.size.x, EDGE - 8.0)
 	)
 	stripes(on, band, Color(HouseTheme.FOIL, 0.85))
-	var plate_wide := BayArt.wide_of(MOTTO, 13, Type.display_font()) + 40.0
+	var motto := Lang.t(MOTTO)
+	var plate_wide := BayArt.wide_of(motto, 13, Type.display_font()) + 40.0
 	var plate := Rect2(
 		Vector2(band.get_center().x - plate_wide * 0.5, band.position.y - 2.0),
 		Vector2(plate_wide, band.size.y + 4.0)
 	)
 	BayArt.box(on, plate, 4.0, STENCIL_PLATE)
-	BayArt.words(on, plate.get_center(), MOTTO, 13, PAINT, Type.display_font())
+	BayArt.words(on, plate.get_center(), motto, 13, PAINT, Type.display_font())
 	# Rivets along the top and the sides.
 	var rivets := PackedVector2Array()
 	var along := outside.position.x + 60.0

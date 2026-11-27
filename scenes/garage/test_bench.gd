@@ -21,10 +21,11 @@ const FRAME := 0.08
 ## The scaffold it is bolted to: its tubes, and how deep it stands, front to back.
 const TUBE := 0.09
 const DEEP := 0.6
-## How long the close look stays up after a time is set, in seconds, and its titles.
+## How long the close look stays up after a time is set, in seconds.
 const LOOK_HOLD := 4.0
 ## How much faster than the best before, in meters a second, a run on the rollers is a new best.
 const NEW_BEST := 0.05
+## The close look's titles, for the rolling road and for the speed trap, shown through tr().
 const DYNO_TITLE := "Dyno"
 const SPEED_TRAP := "Speed trap"
 const BOARD_INK := Color(0.07, 0.07, 0.09)
@@ -53,8 +54,9 @@ const ROW_GAP := 0.26
 const WORDS_X := 0.27
 const LIT := Color(1.0, 0.72, 0.18)
 const DARK := Color(0.14, 0.12, 0.1)
-## The words on the face, a row's for each row of digits: the rolling road's speed now, the speed
-## trap's last and best, and the longest drift, its seconds to the tenth.
+## The words on the face, shown through tr(), a row's for each row of digits: the rolling road's
+## speed now, the speed trap's last and best, and the longest drift, its seconds to the tenth.
+# TRANSLATORS: Painted on the Garage's test bench in capitals; a row's word is five letters or so.
 const TITLE := "TEST BENCH"
 const ROW_WORDS: Array[String] = ["DYNO", "TRAP", "BEST", "DRIFT"]
 const ROW_WORDS_TALL := 0.065
@@ -133,7 +135,7 @@ func _build() -> void:
 	still_face.add_child(_flat(FACE, arena.surfaces.painted(BOARD_INK), Vector2.ZERO, 0.0))
 	_dial(still_face)
 	_digits(face)
-	_words(face, TITLE, Vector2(0.0, FACE.y * 0.5 - 0.13), 0.09, WORDS_INK)
+	_words(face, tr(TITLE), Vector2(0.0, FACE.y * 0.5 - 0.13), 0.09, WORDS_INK)
 	_rows_words(face)
 	# The unit on the dial's face, in the gap at its foot, as the HUD's dial has it.
 	var unit := SpeedUnits.word(Game.settings.speed_unit())
@@ -147,7 +149,10 @@ func _build() -> void:
 ## draw rather than one a row.
 func _rows_words(board: Node3D) -> void:
 	var middle := Vector2(WORDS_X, ROWS_AT.y - ROW_GAP * (ROW_WORDS.size() - 1) * 0.5)
-	var rows := _words(board, "\n".join(ROW_WORDS), middle, ROW_WORDS_TALL, WORDS_INK)
+	var said: Array[String] = []
+	for word: String in ROW_WORDS:
+		said.append(tr(word))
+	var rows := _words(board, "\n".join(said), middle, ROW_WORDS_TALL, WORDS_INK)
 	rows.name = "Rows"
 	rows.line_spacing = ROW_GAP / rows.pixel_size - rows.font.get_height(WORDS_SIZE)
 
@@ -190,11 +195,11 @@ func _look(title: String, line: String) -> void:
 
 func _on_held(_slot: PlayerSlot) -> void:
 	_dyno_best_was = dyno.best
-	_look(DYNO_TITLE, "Hold the throttle, back off to leave")
+	_look(tr(DYNO_TITLE), tr("Hold the throttle, back off to leave"))
 
 
 func _on_let_go(_slot: PlayerSlot, at_best: float) -> void:
-	_look(DYNO_TITLE, "Best this visit: %s" % speed_text(at_best))
+	_look(tr(DYNO_TITLE), tr("Best this visit: %s") % speed_text(at_best))
 	_look_left = LOOK_HOLD
 	# A new best on the rollers jolts the feed.
 	if at_best > _dyno_best_was + NEW_BEST:
@@ -202,11 +207,9 @@ func _on_let_go(_slot: PlayerSlot, at_best: float) -> void:
 
 
 func _on_timed(_slot: PlayerSlot, speed: float) -> void:
-	var line := "Through at %s" % speed_text(speed)
 	var best := speed >= trap.best
-	if best:
-		line += "  ·  the best yet"
-	_look(SPEED_TRAP, line)
+	var line := tr("Through at %s  ·  the best yet") if best else tr("Through at %s")
+	_look(tr(SPEED_TRAP), line % speed_text(speed))
 	_look_left = maxf(_look_left, LOOK_HOLD)
 	if best:
 		view.feed.jolt()

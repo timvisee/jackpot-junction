@@ -14,7 +14,7 @@ const CAT_INK := Color(0.12, 0.11, 0.12)
 const CAT_PINK := Color(0.95, 0.58, 0.62)
 const CAT_BRASS := Color(0.85, 0.66, 0.28)
 const CAT_SIZE := 0.78
-## The tip jar's glass, its tape and the word on it.
+## The tip jar's glass, its tape and the word on it, shown through tr().
 const JAR_GLASS := Color(0.75, 0.9, 0.95, 0.24)
 const TAPE := Color(0.93, 0.86, 0.62)
 const TIPS := "TIPS"
@@ -185,7 +185,7 @@ static func tip_jar(worn: Node3D) -> void:
 	tape.rotation.z = deg_to_rad(-4.0)
 	worn.add_child(tape)
 	var word := Label3D.new()
-	word.text = TIPS
+	word.text = Lang.t(TIPS)
 	word.font = load("res://assets/fonts/PermanentMarker-Regular.ttf")
 	word.font_size = 64
 	# Small enough to leave the tape a margin round its word.

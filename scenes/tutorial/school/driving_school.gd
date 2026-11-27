@@ -90,7 +90,7 @@ func _ready() -> void:
 	if TouchInput.enabled:
 		_menu = CornerMenu.new()
 		_menu.name = "Menu"
-		ScreenReader.name(_menu, "Menu")
+		ScreenReader.name(_menu, tr("Menu"))
 		_menu.pressed.connect(open_menu)
 		add_child(_menu)
 	_turn_to(Page.ENROLL)

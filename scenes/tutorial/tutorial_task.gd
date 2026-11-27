@@ -62,7 +62,7 @@ func tally() -> void:
 func label(simple: bool) -> String:
 	var words := simple_text if simple and not simple_text.is_empty() else text
 	if extra:
-		words = "Extra: " + words
+		words = tr("Extra: %s") % words
 	return "%s  %d/%d" % [words, count, of] if of > 0 else words
 
 

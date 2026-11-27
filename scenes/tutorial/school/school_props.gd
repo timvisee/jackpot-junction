@@ -19,7 +19,8 @@ const SIGNS: Array[Array] = [
 	[SchoolFigure.Kind.WARNING, Vector2i(29, 0), 0.0],
 	[SchoolFigure.Kind.PARKING, Vector2i(28, 17), PI],
 ]
-## The plate pointing at the middle, where the final exam is played, on the south wall.
+## The plate pointing at the middle, where the final exam is played, on the south wall, and what it
+## says, shown through tr().
 const EXAM_PLATE := Vector2i(17, 17)
 const EXAM_WORDS := "FINAL EXAM"
 const EXAM_PLATE_TURN := PI
@@ -137,7 +138,7 @@ func _sign(kind: SchoolFigure.Kind, foot: Vector3, turn: float, steel: Material)
 func _plate(foot: Vector3, turn: float, steel: Material) -> void:
 	_cylinder(0.05, POLE_HEIGHT, steel, foot + Vector3(0.0, POLE_HEIGHT * 0.5, 0.0))
 	var face := Plate.new()
-	face.words = EXAM_WORDS
+	face.words = tr(EXAM_WORDS)
 	var pixels := Vector2i(512, 128)
 	var drawn := DrawnTexture.of(self, face, pixels)
 	var front := DrawnTexture.face(Vector2(2.4, 0.6), DrawnTexture.decal(drawn))

@@ -37,8 +37,8 @@ const BAY_WIDE := 3.0
 const BAY_FRONT := 1.5
 ## Where a bay's number is painted, in cells in front of the kart in it.
 const NUMBER_AT := 1.05
-## The words: the firing line's, how tall its capitals and the bays' numbers stand, and the size of
-## the font they are drawn from.
+## The words: the firing line's, shown through tr(), how tall its capitals and the bays' numbers
+## stand, and the size of the font they are drawn from.
 const FIRING_WORDS := "FIRING LINE"
 const WORDS_TALL := 0.26
 const NUMBER_TALL := 0.6
@@ -99,14 +99,14 @@ func _paint(bays: Array[Vector3]) -> void:
 	var white := PackedVector3Array()
 	_ring(white, middle, outer, OUTER_WIDE, 0)
 	_ring(white, middle, inner, INNER_WIDE, DASHES)
-	rings = _mesh(white, _arena.surfaces.marking(_arena.room.marking), "Rings")
+	rings = _mesh(white, _arena.surfaces.marking(_arena.room.marking), "Rings")  # NO_TRANSLATE
 	var yellow := PackedVector3Array()
 	_lanes(yellow)
 	for i: int in bays.size():
 		_bay(yellow, bays[i], i + 1)
 	for pit: Rect2i in _arena.grid.pits:
 		_stripes(yellow, pit)
-	lines = _mesh(yellow, _arena.surfaces.marking(KartLift.LINE_INK), "Lines")
+	lines = _mesh(yellow, _arena.surfaces.marking(KartLift.LINE_INK), "Lines")  # NO_TRANSLATE
 	marks = _old_marks(middle)
 
 
@@ -151,7 +151,9 @@ func _lanes(tris: PackedVector3Array) -> void:
 		_line(tris, Vector3(x, 0.0, top), Vector3(x, 0.0, foot), LINE)
 	var right := left + wide * xs.size()
 	_line(tris, Vector3(left, 0.0, foot), Vector3(right, 0.0, foot), FIRING_LINE)
-	_words(FIRING_WORDS, Vector3((left + right) * 0.5, 0.0, foot + WORDS_TALL * 1.4), WORDS_TALL)
+	_words(
+		tr(FIRING_WORDS), Vector3((left + right) * 0.5, 0.0, foot + WORDS_TALL * 1.4), WORDS_TALL
+	)
 
 
 ## The bay a kart is parked in at [param at], backed against the wall behind it: a line down either

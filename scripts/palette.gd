@@ -21,6 +21,7 @@ const NEON_MAGENTA := Color("#FF4FA3")
 const NEON_CYAN := Color("#35D0FF")
 
 ## Player colors by slot: red, blue, yellow, green, purple, orange, cyan, pink.
+# NO_TRANSLATE: colors by their codes.
 const PLAYER_COLORS: Array[Color] = [
 	Color("#E23D3D"),
 	Color("#3D6FE2"),
@@ -37,6 +38,7 @@ const PLAYER_COLORS: Array[Color] = [
 ## simulating each kind (Machado 2009) and keeping all eight at least 28 apart in CIELAB under it
 ## and under normal vision alike, and clear of the felt: the palette above keeps blue and purple
 ## 7 apart for a player without red or green cones, which is the same color.
+# NO_TRANSLATE: colors by their codes.
 const VISION_COLORS: Dictionary[String, Array] = {
 	"protanopia":
 	[
@@ -76,6 +78,7 @@ const VISION_COLORS: Dictionary[String, Array] = {
 ## What each color is called where it is written out, for the colors above and for each palette
 ## that stands in for them: the name of the color it is, not of the one it stands in for, since
 ## the second slot for deuteranopia is a white and calling it orange would be no help to anybody.
+## Shown through tr(), see [method color_name]; in English the first also name a node or two.
 const COLOR_NAMES: Array[String] = [
 	"Red", "Blue", "Yellow", "Green", "Purple", "Orange", "Cyan", "Pink"
 ]
@@ -95,7 +98,8 @@ static func player_color(slot: int) -> Color:
 	return colors[posmod(slot, colors.size())]
 
 
-## What player color [param index] is called in the palette worn here.
+## What player color [param index] is called in the palette worn here, in English, for tr() where
+## it is shown.
 static func color_name(index: int) -> String:
 	var names: Array = VISION_NAMES.get(vision, COLOR_NAMES)
 	return names[posmod(index, names.size())]

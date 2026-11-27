@@ -18,6 +18,7 @@ const STAR := 0.2
 ## How tall a capital stands in the face, as a share of its size.
 const CAP := 0.727
 
+## The game's name, over the top and along the foot. NO_TRANSLATE: a name.
 var top := "JACKPOT"
 var bottom := "JUNCTION"
 

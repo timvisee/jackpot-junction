@@ -83,17 +83,6 @@ func _ready() -> void:
 	_show_glyph()
 
 
-## What the stamp is pressed with, as a word: Tap, Click or Press.
-func press_word() -> String:
-	match device:
-		Device.TOUCH:
-			return "Tap"
-		Device.MOUSE:
-			return "Click"
-		_:
-			return "Press"
-
-
 func _input(event: InputEvent) -> void:
 	if _slammed:
 		return

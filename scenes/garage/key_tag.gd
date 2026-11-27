@@ -133,7 +133,7 @@ func _hang_tag() -> void:
 
 ## Named for a screen reader: whose kart it is, and NEW while it wears the tag.
 func _tell() -> void:
-	var tagged := ScreenReader.spoken(CatalogCell.NEW) if fresh else ""
+	var tagged := ScreenReader.spoken(tr(CatalogCell.NEW)) if fresh else ""
 	ScreenReader.name(self, ScreenReader.line([heading, named, tagged]))
 
 
@@ -147,7 +147,7 @@ func _draw() -> void:
 	# its own.
 	var lit := pointed and not here
 	var key := (
-		"key:%s:%s:%s:%s:%s:%s:%.2f:%s"
+		"key:%s:%s:%s:%s:%s:%s:%.2f:%s"  # NO_TRANSLATE
 		% [seat_key, heading, named, color.to_html(), here, tag, swing, lit]
 	)
 	var shown_key := seat_key

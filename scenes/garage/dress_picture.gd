@@ -24,7 +24,7 @@ const FILL := 0.74
 const BODY_FILL := 0.95
 const STEP := 32
 ## What a plate in a frame reads.
-const PLATE_WORDS := "JJ-777"
+const PLATE_WORDS := "JJ-777"  # NO_TRANSLATE
 ## The trail's confetti and chips, and the pencil's lead and wood.
 const CONFETTI: Array[Color] = [
 	Color("#ff4fa3"), Color("#35d0ff"), Color("#f2c14e"), Color("#43c463"), Color("#9b4fe2")
@@ -191,7 +191,7 @@ func _draw_kept(box: Rect2) -> void:
 		KeptPictures.step_up(room.size.x * scale_now, STEP),
 		KeptPictures.step_up(room.size.y * scale_now, STEP)
 	)
-	var key := "dress:%d:%d" % [part, index]
+	var key := "dress:%d:%d" % [part, index]  # NO_TRANSLATE
 	var shown_part := part
 	var shown_index := index
 	var kept := KeptPictures.of(

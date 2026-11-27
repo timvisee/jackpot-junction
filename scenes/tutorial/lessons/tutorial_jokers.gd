@@ -15,11 +15,9 @@ const DUMMIES := 1
 const CARD := &"magnet_hubcaps"
 ## How much floor the parked kart stands on, for its outline.
 const PARKED_ACROSS := Vector2(1.6, 2.2)
-## What the clipboard says the lesson is about.
-const WORDS := (
-	"Joker cards bend rules in your favor. A kart taken out may drop one, and every death "
-	+ "offers you a pick."
-)
+## What the clipboard says the lesson is about, shown through tr().
+const WORDS := """Joker cards bend rules in your favor. A kart taken out may drop one, and every \
+death offers you a pick."""
 
 var _shoot: TutorialTask
 var _pick_up: TutorialTask
@@ -34,19 +32,19 @@ var _fell := false
 
 
 func _init() -> void:
-	title = "Jokers"
+	title = tr("Jokers")
 	ensures = [&"hand"]
 	spawn_cell = TestGround.ITEM_BOX
 	facing = TestGround.EAST
 	reveals = [[&"lives", "", []]]
-	_shoot = add_task("Shoot the parked kart", "", [InputActions.FIRE])
+	_shoot = add_task(tr("Shoot the parked kart"), "", [InputActions.FIRE])
 	_shoot.arrow = TestGround.PARKED
-	_pick_up = add_task("Pick up the card it dropped", "")
+	_pick_up = add_task(tr("Pick up the card it dropped"), "")
 	_pick_up.arrow = TestGround.PARKED
-	_dive = add_task("Drive into the trench, then pick a joker", "")
+	_dive = add_task(tr("Drive into the trench, then pick a joker"), "")
 	_dive.arrow = TestGround.TRENCH.position + Vector2i(1, TestGround.PARKED.y - 1)
 	_dive.ringed = false
-	_read = add_task("Read each card in your hand", "", [InputActions.JOKER_MENU], true)
+	_read = add_task(tr("Read each card in your hand"), "", [InputActions.JOKER_MENU], true)
 	pointer_until = _read
 
 
@@ -59,7 +57,7 @@ func _prepare() -> void:
 func _begin() -> void:
 	# A death opens the joker pick from here on, GAME.md 3.7.
 	run.match_node.rules.offer_jokers = true
-	run.list.say(&"jokers", WORDS)
+	run.list.say(&"jokers", tr(WORDS))
 	bring_up(piece_nodes())
 	Events.kart_killed.connect(_on_killed)
 	Events.joker_taken.connect(_on_taken)
@@ -96,7 +94,7 @@ func step(_delta: float) -> void:
 		run.reveal.show_piece(&"hand", "", [])
 		if _dive.done:
 			_hand_shown = true
-			run.reveal.show_piece(&"hand", "Your jokers", [InputActions.JOKER_MENU])
+			run.reveal.show_piece(&"hand", tr("Your jokers"), [InputActions.JOKER_MENU])
 	_aim_at_card()
 	_read_cards()
 	# A hand already full takes no card off the floor: the picking up is as good as done.

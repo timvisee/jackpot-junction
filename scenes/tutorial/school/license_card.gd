@@ -34,14 +34,16 @@ const PHOTO_BACK := Color(0.18, 0.2, 0.26)
 const MARK_SIDE := 44.0
 const COLUMN := 200.0
 const RIGHT := 534.0
+## The band's words, and the class, shown through tr().
 const AGENCY := "JACKPOT JUNCTION  ·  DEPT. OF KARTS"
 const TITLE := "DRIVER LICENSE"
 const CLASS_WORD := "CLASS K"
 const CLASS_LINE := "K  ·  Kart"
 ## How long a license is good for, in years: unreasonably.
 const GOOD_FOR := 420
+## The fine print along the foot of the front, shown through tr().
 const MICRO := "VALID ON ALL TABLES  ·  NOT VALID AS ID  ·  KEEP OFF THE FELT  ·  NO CASH VALUE"
-## The stamp's mark, where it lands and how it lies: the lower right, a little askew.
+## The stamp's mark, where it lands and how it lies, lower right and askew; its word via tr().
 const STAMP_AT := Vector2(474.0, 296.0)
 const STAMP_TURN := -0.2
 const STAMP_RADIUS := 52.0
@@ -81,21 +83,27 @@ const HOLOGRAM_MARK := 68.0
 const HOLOGRAM_SHADER := preload("res://scenes/tutorial/school/hologram.gdshader")
 const BARCODE := Rect2(Vector2(232.0, 240.0), Vector2(300.0, 56.0))
 const BACK_COLUMN := 232.0
+## Whose card it is, on the back, shown through tr().
 const PROPERTY := "PROPERTY OF THE DEPT. OF KARTS"
+## The small print under it, a line each, broken where too long for one, shown through tr().
+# TRANSLATORS: The small print on the back of the driving license; a line break is where a line
+# runs out of room on the card, about 50 characters a line.
 const BACK_LINES: Array[String] = [
 	"If found, return to the nearest Junction. Any Junction.",
-	"Valid for Class K karts only. Not transferable, not edible,",
-	"not a coaster. Keep away from pits, turrets and plumbers.",
+	"""Valid for Class K karts only. Not transferable, not edible,\nnot a coaster. Keep away from \
+pits, turrets and plumbers.""",
 	"The holder agrees to drift responsibly, or at least often.",
 ]
+## The cheat code's field, shown through tr().
 const CODE := "CHEAT CODE"
-## The supporter pack's endorsement, GAME.md 10.8, and the day beside it.
+## The supporter pack's endorsement, GAME.md 10.8, and the day beside it; what the cheat code does
+## and who signs as the examiner, unless the holder does; all shown through tr().
 const SUPPORTER := "SUPPORTER"
 const SUPPORTER_SINCE := "since %s"
 const CODE_LINE := "Does nothing. We checked."
 const EXAMINER := "The Examiner"
-## A bot's card, GAME.md 9.4a: on gray stock rather than cream, Class B, AUTOMATED printed where
-## a hand signs, its own fine print, and the examiner waived, since it never sat the test.
+## A bot's card, GAME.md 9.4a: gray stock, Class B, AUTOMATED where a hand signs, its own fine
+## print and class on the back, the examiner waived as it never sat the test; words via tr().
 const BOT_PAPER := Color(0.83, 0.85, 0.86)
 const BOT_PAPER_LOW := Color(0.7, 0.73, 0.76)
 const BOT_CLASS_WORD := "CLASS B"
@@ -103,11 +111,12 @@ const BOT_CLASS_LINE := "B  ·  Bot"
 const BOT_SIGNED := "AUTOMATED"
 const BOT_MICRO := "NOT A PERSON  ·  NOT VALID AS ID  ·  DO NOT FEED"
 const BOT_EXAMINER := "WAIVED"
-## What the examiner's red pen notes of the cones knocked over.
+const BOT_BACK_LINE := """Valid for Class B karts only. Not transferable, not edible,\nnot a \
+coaster. Keep away from pits, turrets and plumbers."""
+## The examiner's red pen note of the cones knocked over, and the back's fine print, via tr().
 const CONES := "cones %d"
-const BACK_MICRO := (
-	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  " + "ISSUED BY A BOT, REVIEWED BY NOBODY."
-)
+const BACK_MICRO := """VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  ISSUED BY A BOT, REVIEWED BY \
+NOBODY."""
 
 var holder_name := ""
 var number := ""
@@ -271,7 +280,7 @@ func reads_operator() -> bool:
 
 ## A number for a new license: JJ and six digits, drawn with [param rng].
 static func new_number(rng: RandomNumberGenerator) -> String:
-	return "JJ-%06d" % rng.randi_range(100000, 999999)
+	return "JJ-%06d" % rng.randi_range(100000, 999999)  # NO_TRANSLATE
 
 
 ## Today, the way the card writes a date.
@@ -282,7 +291,7 @@ static func today() -> String:
 ## When a license issued on [param issued] expires: the same day, [constant GOOD_FOR] years on.
 static func expiry(issued: String) -> String:
 	if issued.length() < 4 or not issued.substr(0, 4).is_valid_int():
-		return "NEVER"
+		return Lang.t("NEVER")
 	return "%04d%s" % [issued.substr(0, 4).to_int() + GOOD_FOR, issued.substr(4)]
 
 
@@ -294,7 +303,7 @@ static func from_settings() -> LicenseCard:
 	if holder.is_empty():
 		holder = settings.player_names[0]
 	if holder.is_empty():
-		holder = "Player 1"
+		holder = Lang.t("Player %d") % 1
 	var earned: Dictionary[String, bool] = {}
 	for word: String in TutorialFight.ENDORSEMENTS:
 		earned[word] = word in settings.license_endorsements
@@ -316,7 +325,7 @@ static func from_settings() -> LicenseCard:
 	card.program_stamps = Loyalty.endorsements_of(settings.profile)
 	# And the laps of the roundabout, GAME.md 8.9.
 	if settings.profile.loyalty.laps > 0:
-		card.program_stamps.append(LoyaltyCard.LAP % settings.profile.loyalty.laps)
+		card.program_stamps.append(Lang.t(LoyaltyCard.LAP) % settings.profile.loyalty.laps)
 	return card
 
 
@@ -365,7 +374,7 @@ func _ready() -> void:
 	_lip.material = shine
 	_lip.draw.connect(_draw_lip)
 	add_child(_lip)
-	ScreenReader.name(self, ScreenReader.spoken(TITLE), words())
+	ScreenReader.name(self, ScreenReader.spoken(tr(TITLE)), words())
 
 
 ## A picture to a screen reader, or a button where whoever shows it has it take the cursor, as the
@@ -377,20 +386,20 @@ func _notification(what: int) -> void:
 ## What its face says, as a screen reader is told it: the fields down it under their labels, and
 ## the endorsements earned.
 func words() -> String:
-	var held := _class_line()
-	var expires := StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued)
+	var held := tr(_class_line())
+	var expires := tr(StoryLines.EXPIRES_AFTER) if reads_operator() else expiry(issued)
 	var earned := PackedStringArray()
 	for word: String in endorsements:
 		if endorsements[word]:
-			earned.append(word)
+			earned.append(tr(word))
 	var said := PackedStringArray(
 		[
 			holder_name,
-			"Class " + held,
-			"License no. " + number,
-			"Issued " + issued,
-			"Expires " + expires,
-			"Endorsements " + ScreenReader.line(earned) if not earned.is_empty() else "",
+			tr("Class %s") % held,
+			tr("License no. %s") % number,
+			tr("Issued %s") % issued,
+			tr("Expires %s") % expires,
+			tr("Endorsements %s") % ScreenReader.line(earned) if not earned.is_empty() else "",
 		]
 	)
 	return ScreenReader.line(said)
@@ -509,8 +518,8 @@ func _draw() -> void:
 			self,
 			HOUSE_STAMP_AT,
 			STAMP_RADIUS,
-			StoryLines.STAMP_WORD,
-			StoryLines.STAMP_OVER,
+			tr(StoryLines.STAMP_WORD),
+			tr(StoryLines.STAMP_OVER),
 			approved,
 			HOUSE_STAMP_TURN,
 			HOUSE_STAMP_INK
@@ -526,18 +535,23 @@ func _draw_back() -> void:
 		Rect2(STRIPE.position + Vector2(0.0, 6.0), Vector2(STRIPE.size.x, 1.0)),
 		Color(1.0, 1.0, 1.0, 0.08)
 	)
-	var owner := PROPERTY if approved.is_empty() else StoryLines.PROPERTY_AFTER
+	var owner := tr(PROPERTY if approved.is_empty() else StoryLines.PROPERTY_AFTER)
 	_text(Vector2(BACK_COLUMN, 94.0), owner, Type.STRONG, 11, INK)
+	var small: Array[String] = []
 	for i: int in BACK_LINES.size():
-		var line := BACK_LINES[i].replace("Class K", "Class B") if bot else BACK_LINES[i]
-		_text(Vector2(BACK_COLUMN, 110.0 + float(i) * 14.0), line, Type.TEXT, 10, FAINT)
-	_text(Vector2(BACK_COLUMN, 168.0), "EXAMINER", Type.STRONG, 8, FAINT)
+		var line := BOT_BACK_LINE if bot and i == 1 else BACK_LINES[i]
+		small.append_array(tr(line).split("\n"))
+	for i: int in small.size():
+		_text(Vector2(BACK_COLUMN, 110.0 + float(i) * 14.0), small[i], Type.TEXT, 10, FAINT)
+	_text(Vector2(BACK_COLUMN, 168.0), tr("EXAMINER"), Type.STRONG, 8, FAINT)
 	var hand := SIGNATURE_FONT
-	# A bot's examiner is typed, not signed: nobody examined it.
+	# A bot's examiner is typed, not signed: nobody examined it. The examiner signs in the language
+	# spoken; a holder signing after the ending, by name.
+	var signer := tr(examiner) if examiner in [EXAMINER, BOT_EXAMINER] else examiner
 	draw_string(
 		Type.STRONG if bot else hand,
 		Vector2(BACK_COLUMN + 60.0, 184.0),
-		examiner,
+		signer,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		12 if bot else 14,
@@ -551,27 +565,27 @@ func _draw_back() -> void:
 		draw_string(
 			hand,
 			Vector2(BACK_COLUMN + 208.0, 186.0),
-			CONES % cones,
+			tr(CONES) % cones,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			11,
 			Color(STAMP_INK, 0.95)
 		)
 	# The cheat code, a field like the others, for whoever turns the card over and reads the back.
-	_text(Vector2(BACK_COLUMN, 200.0), CODE, Type.STRONG, 8, FAINT)
+	_text(Vector2(BACK_COLUMN, 200.0), tr(CODE), Type.STRONG, 8, FAINT)
 	var at := Vector2(BACK_COLUMN, 212.0)
 	for way: float in [0.0, 0.0, 180.0, 180.0, 270.0, 90.0, 270.0, 90.0]:
 		IconShapes.tri(self, Rect2(at, Vector2(12.0, 12.0)), 0.5, 0.5, 0.95, way, INK)
 		at.x += 15.0
 	_text(at + Vector2(2.0, -1.0), "B  A", Type.STRONG, 10, INK)
-	_text(at + Vector2(36.0, 1.0), CODE_LINE, Type.TEXT, 8, FAINT)
+	_text(at + Vector2(36.0, 1.0), tr(CODE_LINE), Type.TEXT, 8, FAINT)
 	_draw_barcode()
 	_draw_program_stamps()
-	var fine := BACK_MICRO
+	var fine := tr(BACK_MICRO)
 	if not approved.is_empty():
-		fine = StoryFill.fill(StoryLines.BACK_MICRO_AFTER, Game.settings.profile)
+		fine = StoryFill.fill(tr(StoryLines.BACK_MICRO_AFTER), Game.settings.profile)
 	elif scratched:
-		fine += StoryLines.BACK_MICRO_OVERSIGHT
+		fine += tr(StoryLines.BACK_MICRO_OVERSIGHT)
 	if scratched:
 		_draw_scratch()
 	if _lip != null:
@@ -598,7 +612,7 @@ func _draw_scratch() -> void:
 		var to: Vector2 = stroke[1]
 		draw_line(from + Vector2(0.6, 0.8), to + Vector2(0.6, 0.8), SCRATCH_GROOVE, 1.4, true)
 		draw_line(from, to, Color(SCRATCH_CUT, 0.55), 0.9, true)
-	var said := StoryLines.LICENSE_SCRATCH
+	var said := tr(StoryLines.LICENSE_SCRATCH)
 	var hand := SCRATCH_HAND
 	draw_set_transform(_scratch_start() + Vector2(0.8, 1.1), SCRATCH_TURN, Vector2.ONE)
 	draw_string(hand, Vector2.ZERO, said, 0, -1, SCRATCH_SIZE, SCRATCH_GROOVE)
@@ -620,7 +634,7 @@ func _draw_lip() -> void:
 		return
 	var at := _scratch_start() - STRIPE.position + Vector2(-0.6, -0.7)
 	_lip.draw_set_transform(at, SCRATCH_TURN, Vector2.ONE)
-	var said := StoryLines.LICENSE_SCRATCH
+	var said := tr(StoryLines.LICENSE_SCRATCH)
 	_lip.draw_string(SCRATCH_HAND, Vector2.ZERO, said, 0, -1, SCRATCH_SIZE, SCRATCH_LIP)
 	_lip.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for stroke: Array in _strays():
@@ -717,8 +731,8 @@ func _draw_band() -> void:
 	band.corner_radius_top_right = roundi(RADIUS)
 	draw_style_box(band, Rect2(Vector2.ZERO, Vector2(SIZE.x, BAND_HEIGHT)))
 	draw_rect(Rect2(Vector2(0.0, BAND_HEIGHT), Vector2(SIZE.x, 3.0)), Palette.CHIP_GOLD)
-	_text(Vector2(72.0, 12.0), AGENCY, Type.STRONG, 11, Color(0.86, 0.84, 0.78))
-	_text(Vector2(72.0, 27.0), TITLE, Type.display_font(), 25, Palette.CHIP_GOLD)
+	_text(Vector2(72.0, 12.0), tr(AGENCY), Type.STRONG, 11, Color(0.86, 0.84, 0.78))
+	_text(Vector2(72.0, 27.0), tr(TITLE), Type.display_font(), 25, Palette.CHIP_GOLD)
 	var chip := StyleBoxFlat.new()
 	chip.bg_color = Palette.CHIP_GOLD
 	chip.set_corner_radius_all(6)
@@ -726,7 +740,7 @@ func _draw_band() -> void:
 	draw_style_box(chip, chip_rect)
 	_text(
 		chip_rect.position + Vector2(0.0, 5.0),
-		BOT_CLASS_WORD if bot else CLASS_WORD,
+		tr(BOT_CLASS_WORD if bot else CLASS_WORD),
 		Type.display_font(),
 		12,
 		BAND,
@@ -745,7 +759,7 @@ func _draw_photo_frame() -> void:
 	draw_style_box(back, PHOTO.grow(3.0))
 	_text(
 		Vector2(PHOTO.position.x, PHOTO.end.y + 6.0),
-		"PHOTO",
+		tr("PHOTO"),
 		Type.STRONG,
 		9,
 		FAINT,
@@ -757,24 +771,25 @@ func _draw_photo_frame() -> void:
 ## The fields down the right of the photo: the name large, then the class, the dates and the
 ## number, each under a small label.
 func _draw_fields() -> void:
-	_field(Vector2(COLUMN, 80.0), "NAME", holder_name, 30, Type.display_font(), RIGHT - COLUMN)
-	var held := _class_line()
+	var name_word := tr("NAME")
+	_field(Vector2(COLUMN, 80.0), name_word, holder_name, 30, Type.display_font(), RIGHT - COLUMN)
+	var held := tr(_class_line())
+	var class_word := tr("CLASS")
 	if reads_operator() and rewritten < 1.0:
-		_rewrite(Vector2(COLUMN, 134.0), "CLASS", Type.STRONG, _rewrites()[0])
+		_rewrite(Vector2(COLUMN, 134.0), class_word, Type.STRONG, _rewrites()[0])
 	else:
-		_field(Vector2(COLUMN, 134.0), "CLASS", held, 19, Type.STRONG, 160.0)
-	_field(
-		Vector2(COLUMN + 168.0, 134.0), "LICENSE NO.", number, 19, Type.numbers_text_font(), 166.0
-	)
-	_field(Vector2(COLUMN, 180.0), "ISSUED", issued, 19, Type.numbers_text_font(), 160.0)
+		_field(Vector2(COLUMN, 134.0), class_word, held, 19, Type.STRONG, 160.0)
+	var numbered := tr("LICENSE NO.")
+	_field(Vector2(COLUMN + 168.0, 134.0), numbered, number, 19, Type.numbers_text_font(), 166.0)
+	_field(Vector2(COLUMN, 180.0), tr("ISSUED"), issued, 19, Type.numbers_text_font(), 160.0)
 	var expires_at := Vector2(COLUMN + 168.0, 180.0)
 	if reads_operator() and rewritten < 1.0:
-		_rewrite(expires_at, "EXPIRES", Type.numbers_text_font(), _rewrites()[1])
+		_rewrite(expires_at, tr("EXPIRES"), Type.numbers_text_font(), _rewrites()[1])
 	else:
 		_field(
 			expires_at,
-			"EXPIRES",
-			StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued),
+			tr("EXPIRES"),
+			tr(StoryLines.EXPIRES_AFTER) if reads_operator() else expiry(issued),
 			19,
 			Type.numbers_text_font(),
 			166.0
@@ -785,8 +800,8 @@ func _draw_fields() -> void:
 ## one, and the part of [member rewritten] it is written over in.
 func _rewrites() -> Array[Array]:
 	return [
-		[CLASS_LINE, StoryLines.CLASS_AFTER, 0.0, REWRITE_OVERLAP],
-		[expiry(issued), StoryLines.EXPIRES_AFTER, 1.0 - REWRITE_OVERLAP, 1.0],
+		[tr(CLASS_LINE), tr(StoryLines.CLASS_AFTER), 0.0, REWRITE_OVERLAP],
+		[expiry(issued), tr(StoryLines.EXPIRES_AFTER), 1.0 - REWRITE_OVERLAP, 1.0],
 	]
 
 
@@ -845,18 +860,19 @@ func _field(
 ## The endorsements along the foot: a chip a word, lit gold for the ones earned.
 func _draw_endorsements() -> void:
 	var top := 228.0
-	_text(Vector2(COLUMN, top), "ENDORSEMENTS", Type.STRONG, 10, FAINT)
+	_text(Vector2(COLUMN, top), tr("ENDORSEMENTS"), Type.STRONG, 10, FAINT)
 	var x := COLUMN
 	var y := top + 16.0
 	var font := Type.STRONG
-	for word: String in endorsements:
+	for id: String in endorsements:
+		var word := tr(id)
 		var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 14.0
 		if x + wide > RIGHT:
 			x = COLUMN
 			y += 24.0
 		var chip := StyleBoxFlat.new()
 		chip.set_corner_radius_all(5)
-		var earned: bool = endorsements[word]
+		var earned: bool = endorsements[id]
 		if earned:
 			chip.bg_color = Palette.CHIP_GOLD
 		else:
@@ -883,8 +899,9 @@ func _draw_endorsements() -> void:
 ## pack's star and SUPPORTER in cream, the day it was first seen beside it, on the next row where
 ## this one has no room.
 func _draw_supporter(at: Vector2, font: Font) -> void:
-	var wide := font.get_string_size(SUPPORTER, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 30.0
-	var since := SUPPORTER_SINCE % supporter_since
+	var supporter := tr(SUPPORTER)
+	var wide := font.get_string_size(supporter, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x + 30.0
+	var since := tr(SUPPORTER_SINCE) % supporter_since
 	var dated := font.get_string_size(since, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x + 6.0
 	if at.x + wide + dated > RIGHT:
 		at = Vector2(COLUMN, at.y + 24.0)
@@ -898,7 +915,7 @@ func _draw_supporter(at: Vector2, font: Font) -> void:
 		var reach := 6.0 if i % 2 == 0 else 1.8
 		star.append(rect.position + Vector2(11.0, 9.5) + Vector2.UP.rotated(TAU * i / 8.0) * reach)
 	draw_colored_polygon(star, PartTray.SUPPORTER_STAR)
-	_text(rect.position + Vector2(20.0, 3.0), SUPPORTER, font, 10, PartTray.SUPPORTER_WORDS)
+	_text(rect.position + Vector2(20.0, 3.0), supporter, font, 10, PartTray.SUPPORTER_WORDS)
 	_text(rect.position + Vector2(wide + 6.0, 5.0), since, font, 8, FAINT)
 
 
@@ -906,7 +923,7 @@ func _draw_supporter(at: Vector2, font: Font) -> void:
 func _draw_signature() -> void:
 	var line_y := 292.0
 	draw_line(Vector2(26.0, line_y), Vector2(176.0, line_y), Color(INK, 0.5), 1.0)
-	_text(Vector2(26.0, line_y + 3.0), "SIGNATURE", Type.STRONG, 8, FAINT)
+	_text(Vector2(26.0, line_y + 3.0), tr("SIGNATURE"), Type.STRONG, 8, FAINT)
 	if bot:
 		_draw_automated(Vector2(101.0, line_y - 14.0))
 		return
@@ -933,15 +950,10 @@ func _draw_automated(at: Vector2) -> void:
 	draw_set_transform(at, -0.05, Vector2.ONE)
 	draw_rect(box, Color(SIGNATURE_INK, 0.85), false, 1.5)
 	draw_rect(box.grow(-2.5), Color(SIGNATURE_INK, 0.4), false, 0.8)
-	var baseline := Vector2(box.position.x, Type.STRONG.get_ascent(12) * 0.5 - 1.0)
+	var at_line := Vector2(box.position.x, Type.STRONG.get_ascent(12) * 0.5 - 1.0)
+	var word := tr(BOT_SIGNED)
 	draw_string(
-		Type.STRONG,
-		baseline,
-		BOT_SIGNED,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		box.size.x,
-		12,
-		SIGNATURE_INK
+		Type.STRONG, at_line, word, HORIZONTAL_ALIGNMENT_CENTER, box.size.x, 12, SIGNATURE_INK
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
@@ -949,7 +961,7 @@ func _draw_automated(at: Vector2) -> void:
 func _draw_micro() -> void:
 	_text(
 		Vector2(0.0, SIZE.y - 18.0),
-		BOT_MICRO if bot else MICRO,
+		tr(BOT_MICRO if bot else MICRO),
 		Type.STRONG,
 		8,
 		FAINT,
@@ -962,7 +974,14 @@ func _draw_micro() -> void:
 ## [StampArt].
 func _draw_stamp() -> void:
 	StampArt.stamp(
-		self, STAMP_AT, STAMP_RADIUS, STAMP_WORD, "DEPT. OF KARTS", issued, STAMP_TURN, STAMP_INK
+		self,
+		STAMP_AT,
+		STAMP_RADIUS,
+		tr(STAMP_WORD),
+		tr("DEPT. OF KARTS"),
+		issued,
+		STAMP_TURN,
+		STAMP_INK
 	)
 
 

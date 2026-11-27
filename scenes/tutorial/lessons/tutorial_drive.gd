@@ -18,6 +18,7 @@ const FORWARD := 10.0
 ## How many full circles' worth of turning going round the ring takes, every way added up.
 const TURNS := 1.5
 const NEAR_PADS := 6.0
+## What the clipboard says by the pad, shown through tr().
 const MODES_WORDS := "Drive onto the pad to choose how you drive.\nChange it any time in the menu."
 ## How far toward the outside of the lane its cones stand, in meters, so the middle is clear.
 const LANE_OUT := 0.3
@@ -32,15 +33,15 @@ var _pads: Array[ModePad] = []
 
 
 func _init() -> void:
-	title = "Driving"
+	title = tr("Driving")
 	spawn_cell = TestGround.START
 	facing = TestGround.NORTH
-	_drive = add_task("Drive forward", "", [InputActions.THROTTLE], true)
+	_drive = add_task(tr("Drive forward"), "", [InputActions.THROTTLE], true)
 	_drive.simple_way = true
 	_drive.arrow = TestGround.LANE[TestGround.LANE.size() - 1] + Vector2i(1, 0)
 	_drive.ringed = false
 	_round = add_task(
-		"Go round the cones", "", [InputActions.STEER_LEFT, InputActions.STEER_RIGHT], true
+		tr("Go round the cones"), "", [InputActions.STEER_LEFT, InputActions.STEER_RIGHT], true
 	)
 	_round.simple_way = true
 	_round.arrow = TestGround.ROUNDABOUT
@@ -56,9 +57,10 @@ func _prepare() -> void:
 	for i: int in TestGround.LANE.size():
 		var cell := TestGround.LANE[i]
 		var out := -LANE_OUT if cell.x == lane_x else LANE_OUT
-		var cone := SchoolCone.stand(arena(), run.cell(cell) + Vector3(out, 0.0, 0.0), "Lane%d" % i)
+		var lane := "Lane%d" % i  # NO_TRANSLATE
+		var cone := SchoolCone.stand(arena(), run.cell(cell) + Vector3(out, 0.0, 0.0), lane)
 		keep_back(cone, SchoolCone.ACROSS)
-	_ring(TestGround.ROUNDABOUT, "Roundabout")
+	_ring(TestGround.ROUNDABOUT, "Roundabout")  # NO_TRANSLATE
 
 
 ## A ring of cones round [param middle], held back, named after [param called].
@@ -88,7 +90,7 @@ func step(delta: float) -> void:
 	for pad: ModePad in _pads:
 		near_pads = near_pads or (pad.visible and here.distance_to(pad.global_position) < NEAR_PADS)
 	if near_pads and not run.list.is_saying(&"modes"):
-		run.list.say(&"modes", MODES_WORDS)
+		run.list.say(&"modes", tr(MODES_WORDS))
 	elif not near_pads:
 		run.list.unsay(&"modes")
 	var now := kart().motor.heading
@@ -127,7 +129,7 @@ func _switch_mode() -> void:
 		FloatingText.spawn(
 			run.match_node,
 			driver.global_position,
-			"%s DRIVING" % DrivePicker.WORDS[Game.settings.drive_mode(0)].to_upper(),
+			tr("%s DRIVING") % tr(DrivePicker.WORDS[Game.settings.drive_mode(0)]).to_upper(),
 			ModePad.LIT,
 			44,
 			1.4

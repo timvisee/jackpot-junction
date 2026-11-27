@@ -31,7 +31,7 @@ const DONE_INK := Color(HouseTheme.INK, 0.42)
 ## The examiner's red pen the ticks and the bars are in.
 const MARK := HouseTheme.STAMP_RED
 const MARK_SIDE := 17.0
-## What the form is headed, over the lesson's name, which says the rest.
+## What the form is headed, over the lesson's name, which says the rest, shown through tr().
 const FORM := "DEPT. OF KARTS  ·  DRIVING TEST"
 const HEADING := "%s"
 ## The board: its felt, how far it shows round the sheet, and the room over the sheet for the clip.
@@ -44,7 +44,7 @@ const SHEET_ROOM := Vector2(14.0, 12.0)
 const CLIP := Vector2(96.0, 24.0)
 const CLIP_OVER := 7.0
 ## A lesson done is stamped PASSED with the driving test's rubber stamp, GAME.md 8.1a: in what
-## green, how big, how far askew, and for how long, in seconds.
+## green, how big, how far askew, and for how long, in seconds; its word shown through tr().
 const DONE := Color(0.13, 0.55, 0.27)
 const CHECK_SIDE := 72.0
 const CHECK_FOR := 1.0
@@ -122,7 +122,14 @@ class Mark:
 			if done:
 				var day := LicenseCard.today()
 				StampArt.stamp(
-					self, size * 0.5, s * 0.5, PASSED, "DEPT. OF KARTS", day, STAMP_TURN, ink
+					self,
+					size * 0.5,
+					s * 0.5,
+					tr(PASSED),
+					tr("DEPT. OF KARTS"),
+					day,
+					STAMP_TURN,
+					ink
 				)
 			return
 		var outline := TicketStyle.outline(
@@ -191,7 +198,7 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
 	var form := Label.new()
-	form.text = FORM
+	form.text = tr(FORM)
 	form.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	form.add_theme_font_override("font", Type.micro_font())
 	form.add_theme_font_size_override("font_size", 10)

@@ -13,7 +13,8 @@ const RADIUS := 0.08
 const ALPHA := 0.45
 ## How far a player may set it, GAME.md 8.5: from a short guide of fewer dots to a long one, from
 ## dots half the size to dots two and a half times it, and from barely there to solid; and the
-## colors it may be drawn in: the player's own, white, or a yellow that stands off any felt.
+## colors it may be drawn in, shown through tr(): the player's own, white, or a yellow that stands
+## off any felt.
 const FEWEST := 2
 const MOST := 8
 const SMALLEST := 0.5

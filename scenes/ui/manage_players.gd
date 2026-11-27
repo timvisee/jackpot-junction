@@ -73,9 +73,7 @@ func open() -> void:
 	MenuTheme.deal(self)
 	_note.text = tr("Somebody kicked goes back to the title, and can join again.")
 	if Store.public_game():
-		_note.text = tr(
-			"Somebody kicked goes back to the title, and can't join this game again."
-		)
+		_note.text = tr("Somebody kicked goes back to the title, and can't join this game again.")
 	elif not _says() and Store.steam_game():
 		_note.text = tr(
 			"Mute hides somebody's emotes on your screen. Report is on their Steam profile."

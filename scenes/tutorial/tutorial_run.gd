@@ -17,7 +17,8 @@ signal finished
 const RING_OUT := 0.4
 ## What a task done sounds like.
 const TICK := &"ready"
-## What the clipboard says for a joker pick with the hand already full, GAME.md 3.7.
+## What the clipboard says for a joker pick with the hand already full, GAME.md 3.7, shown through
+## tr().
 const HAND_FULL := "Your hand is full. Replace a card or skip it."
 ## How much floor a bot coming up on a lift stands on, for its outline.
 const LIFT_ACROSS := Vector2(1.8, 2.2)
@@ -368,7 +369,7 @@ func _watch_hand() -> void:
 	var offer := _slot.offer
 	var full_pick := offer != null and not offer.is_done() and kart().jokers.is_full()
 	if full_pick and not list.is_saying(&"hand_full"):
-		list.say(&"hand_full", HAND_FULL)
+		list.say(&"hand_full", tr(HAND_FULL))
 	elif not full_pick and list.is_saying(&"hand_full"):
 		list.unsay(&"hand_full")
 

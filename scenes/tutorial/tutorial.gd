@@ -22,7 +22,7 @@ const EASY: BotDifficulty = preload("res://data/ai/easy.tres")
 const FIREWORKS_FOR := 8.0
 const LICENSE_AFTER := 2.4
 ## The menu's way to the end of the test in a debug build, said to be one, as the match's is.
-const DEBUG_SKIP := "Debug: skip to end"
+const DEBUG_SKIP := "Debug: skip to end"  # NO_TRANSLATE
 
 var match_node: Match
 var run: TutorialRun
@@ -72,7 +72,7 @@ func _ready() -> void:
 	match_node.prepare_arena(true).bake_scenery = false
 	# A turret dropped in here shoots the targets too, GAME.md 9.4a.
 	Turret.hunts_targets = true
-	await LoadingScreen.put_up(self, match_node, "Driving test")
+	await LoadingScreen.put_up(self, match_node, tr("Driving test"))
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
 	# The parked kart is the jokers lesson's, there only where it is taught.
 	if match_node.rules.has_card(TableCards.Card.JOKERS):
@@ -123,7 +123,7 @@ func _ready() -> void:
 	menu.names_and_colors = true
 	# Skip driving school where a room has Back to title, asking first, GAME.md 9.4a.
 	menu.for_the_school(Game.go_to_title)
-	_skip_entry = menu.add_entry("Skip lesson", run.skip)
+	_skip_entry = menu.add_entry(tr("Skip lesson"), run.skip)
 	# A debug build may skip the whole test, to the license coming up, to look at that end of it.
 	if OS.is_debug_build():
 		menu.add_entry(DEBUG_SKIP, run.skip_to_end, _skip_entry)

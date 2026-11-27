@@ -65,5 +65,5 @@ static func spared(kart: Kart, cause: StringName) -> bool:
 static func lose_on_death(kart: Kart) -> void:
 	for joker: Joker in kart.jokers.jokers.duplicate():
 		if joker.lost_on_death():
-			joker.used_up(kart, "LOST")
+			joker.used_up(kart, Lang.later("LOST"))
 			kart.jokers.remove(joker)

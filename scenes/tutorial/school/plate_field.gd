@@ -12,7 +12,7 @@ signal plate_changed(plate: String)
 
 ## How wide the plate is drawn, as a text box.
 const WIDE := 288.0
-## How the line beside it says it can be typed into, by the device in hand.
+## How the line beside it says it can be typed into, by the device in hand, shown through tr().
 const TAP := "Tap to edit"
 const CLICK := "Click to edit"
 const PRESS := "%s to edit"
@@ -22,7 +22,7 @@ const PRESS := "%s to edit"
 static func make(words: String, wide := WIDE) -> PlateField:
 	var field := PlateField.new()
 	field.text = words
-	ScreenReader.name(field, ScreenReader.spoken(BayArt.PLATE_WORD))
+	ScreenReader.name(field, ScreenReader.spoken(Lang.t(BayArt.PLATE_WORD)))
 	field.custom_minimum_size = Vector2(wide, wide * LicensePlate.SIZE.y / LicensePlate.SIZE.x)
 	return field
 
@@ -52,12 +52,12 @@ static func row(label_text: String, field: PlateField) -> HBoxContainer:
 static func hint(ink: Color, font_size: int) -> Control:
 	if TouchInput.enabled or Game.last_input_keyboard:
 		var line := Label.new()
-		line.text = TAP if TouchInput.enabled else CLICK
+		line.text = Lang.t(TAP if TouchInput.enabled else CLICK)
 		Type.text(line, font_size, ink)
 		line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		return line
 	var accept := InputGlyph.of_action(&"ui_accept", false, ink, font_size)
-	return InputHint.row(PRESS, [accept], ink, font_size)
+	return InputHint.row(Lang.t(PRESS), [accept], ink, font_size)
 
 
 func _ready() -> void:

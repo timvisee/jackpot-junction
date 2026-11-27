@@ -34,7 +34,7 @@ func _ready() -> void:
 		&"normal", &"hover", &"pressed", &"disabled", &"focus", &"hover_pressed"
 	]:
 		add_theme_stylebox_override(look, StyleBoxEmpty.new())
-	tooltip_text = Palette.color_name(color)
+	tooltip_text = tr(Palette.color_name(color))
 	focus_entered.connect(queue_redraw)
 	focus_exited.connect(queue_redraw)
 	mouse_entered.connect(queue_redraw)
@@ -49,7 +49,7 @@ func say(in_use: bool, by: String) -> void:
 	taken_by = by
 	disabled = not by.is_empty()
 	# Read by its tooltip, its color, and after it whose it is, as the chip card and its tag say.
-	accessibility_description = BayControls.COLOR_YOURS.capitalize() if in_use else by
+	accessibility_description = ScreenReader.spoken(tr(BayControls.COLOR_YOURS)) if in_use else by
 	queue_redraw()
 
 
@@ -65,7 +65,7 @@ func _draw() -> void:
 	var slot := Rect2(Vector2.ONE * AROUND, size.round())
 	var art := BayArt.kept(
 		self,
-		"can:%s:%s:%s:%s" % [ink.to_html(), in_use, by, slot.size],
+		"can:%s:%s:%s:%s" % [ink.to_html(), in_use, by, slot.size],  # NO_TRANSLATE
 		whole.size,
 		func(on: CanvasItem) -> void: BayArt.draw_can(on, slot, ink, in_use, by),
 		GROUP

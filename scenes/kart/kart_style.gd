@@ -9,6 +9,9 @@ extends RefCounted
 ## Small numbers rather than resources, because a kart has to look the same on every screen and
 ## these ride the wire with the rest of the roster, GAME.md 10.3.
 
+## The choices of each part by name, shown through tr(): in English, each also names its piece
+## among those won, see [method won_name].
+# TRANSLATORS: A piece of a kart's dress, written on masking tape on its hook in the kart dialog.
 const PAINTS: Array[String] = [
 	"Solid",
 	"Stripes",
@@ -66,6 +69,7 @@ const MARKS: Array[String] = ["Plain", "Chalk", "Dashed", "Pencil"]
 ## The bodies a kart is built in, GAME.md 4.4 and 8.1b, each the model its name in lower case
 ## names, see [method KartVisuals.body_of]: the racer everybody drives, and three the loyalty
 ## program pays. Every body is the same kart to play, over the same chassis and the same collider.
+## Shown through tr(), the English naming the model.
 const BODIES: Array[String] = ["Racer", "Woodie", "Streamliner", "Microcar"]
 ## Every part in the order they are asked for, offered and sent, at the lobby's stalls of 4.4 and
 ## in the kart dialog of 4.4a. The body last, a part of its own rather than of the dress: the
@@ -75,7 +79,7 @@ const CHOICES: Array[Array] = [PAINTS, HATS, FLAGS, TRAILS, FRAMES, MARKS, BODIE
 ## The plate's frame's part, which a kart wearing the learner's L has no plate for, GAME.md 4.4.
 const FRAME := 4
 ## What that part says it is while the kart wears the learner's L, on the kart dialog's hook and
-## at the lobby's stall, 4.4a and 4.4, and what is said under it.
+## at the lobby's stall, 4.4a and 4.4, and what is said under it, shown through tr().
 const LEARNER := "Learner's L"
 const NO_LICENSE := "No license yet"
 ## The body's part, the last of [constant CHOICES].

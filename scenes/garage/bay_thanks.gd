@@ -9,6 +9,8 @@ extends Button
 ## [method link], outlined in the house's gold while it is there. Only where something is taped up
 ## at all, see [BaySet].
 
+## What it is called for a screen reader, card or flyer, and what the flyer says it is, shown
+## through tr().
 const NAME := "Thank-you card"
 const FLYER_NAME := "Supporter Pack flyer"
 const FLYER_SAYS := "The Supporter Pack, on Steam"
@@ -74,8 +76,8 @@ func _on_press() -> void:
 ## What it is called, and says under the mouse: the card, or the flyer and where it leads.
 func _tell(taped: BaySet.Taped) -> void:
 	var flyer := taped == BaySet.Taped.FLYER
-	ScreenReader.name(self, FLYER_NAME if flyer else NAME, FLYER_SAYS if flyer else "")
-	tooltip_text = FLYER_SAYS if flyer else ""
+	ScreenReader.name(self, tr(FLYER_NAME if flyer else NAME), tr(FLYER_SAYS) if flyer else "")
+	tooltip_text = tr(FLYER_SAYS) if flyer else ""
 
 
 ## The card held up again over the dialog; put away, the cursor is back on it where it was.

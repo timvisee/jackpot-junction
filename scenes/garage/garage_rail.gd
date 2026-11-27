@@ -18,7 +18,9 @@ const TAGGED_MACHINE := 0
 const SCREWDRIVER_MACHINE := 1
 ## How far the open machine's door is swung, in radians.
 const DOOR_SWUNG := 1.75
-## The tag taped across the reels: its size and how far it is turned in its own plane.
+## The tag taped across the reels: its size, how far it is turned in its own plane, and what it
+## says, shown through tr().
+# TRANSLATORS: Written on a small card in two short lines.
 const TAG := Vector2(0.72, 0.3)
 const TAG_TURN := -0.12
 const TAG_WORDS := "OUT OF\nORDER"
@@ -169,7 +171,7 @@ func _tag(at: Vector3) -> void:
 		tag.add_child(strip)
 	var words := Label3D.new()
 	words.name = "Words"
-	words.text = TAG_WORDS
+	words.text = tr(TAG_WORDS)
 	words.font = Type.mark_font()
 	words.font_size = 64
 	words.outline_size = 0

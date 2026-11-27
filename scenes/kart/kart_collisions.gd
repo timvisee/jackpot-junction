@@ -161,7 +161,7 @@ static func _raged(kart: Kart) -> void:
 		return
 	for joker: Joker in kart.jokers.in_play:
 		if joker.ram_kills(kart):
-			joker.went_off(kart, "WRECKED")
+			joker.went_off(kart, Lang.later("WRECKED"))
 			return
 
 

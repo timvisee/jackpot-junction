@@ -66,7 +66,7 @@ func _ready() -> void:
 	Loyalty.deal_table(match_node, load("res://data/powerups/all.tres"), false)
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is.
-	await LoadingScreen.put_up(self, match_node, "Garage")
+	await LoadingScreen.put_up(self, match_node, tr("Garage"))
 	var inputs: Array[KartInput] = [PlayerInput.new(DeviceInput.ANY, 0)]
 	for i: int in DUMMIES:
 		inputs.append(DummyInput.new())

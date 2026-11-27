@@ -7,15 +7,13 @@ extends Node
 ## tab's does. For a profile nobody here is playing as, whose license the school would not earn, it
 ## only says how one is had. Kept out of [KartDialog] as [BayNew] is.
 
-## What it asks, and the line under it: out of a room, in one, where going leaves it, and for a
-## profile nobody is playing as, by its name.
+## What it asks, and the line under it, two sentences: in a room one more, as going leaves it, and
+## for a profile nobody is playing as, another by its name. Shown through tr().
 const QUESTION := "Missing license"
-const LINE := (
-	"Your kart wears the learner's L until you pass the driving test."
-	+ " Earn your license for a plate of your own."
-)
-const LINE_ROOM := LINE + " This leaves the room."
-const LINE_OTHER := "%s has no license yet. Play as %s and pass the driving test to earn one."
+const LINE := "Your kart wears the learner's L until you pass the driving test."
+const LINE_EARN := "Earn your license for a plate of your own."
+const LEAVES := "This leaves the room."
+const OTHER := "{name} has no license yet. Play as {name} and pass the driving test to earn one."
 const EARN := "Earn it now"
 const NOT_NOW := "Not now"
 const OK := "OK"
@@ -72,14 +70,15 @@ func ask(hook: Control) -> void:
 	middle.add_child(question)
 	question.answered.connect(_on_answered)
 	var owner_now := dialog.kart_owner()
+	var line := tr(LINE) + " " + tr(LINE_EARN)
 	if owner_now.profile != Game.settings.profile:
-		var named := owner_now.display_name()
-		question.ask(QUESTION, LINE_OTHER % [named, named], "", OK, RoadSign.Kind.QUESTION)
+		var other := tr(OTHER).format({"name": owner_now.display_name()})
+		question.ask(tr(QUESTION), other, "", tr(OK), RoadSign.Kind.QUESTION)
 		question.yes_button().visible = false
 	elif dialog._room != null:
-		question.ask(QUESTION, LINE_ROOM, EARN, NOT_NOW)
+		question.ask(tr(QUESTION), line + " " + tr(LEAVES), tr(EARN), tr(NOT_NOW))
 	else:
-		question.ask(QUESTION, LINE, EARN, NOT_NOW, RoadSign.Kind.QUESTION)
+		question.ask(tr(QUESTION), line, tr(EARN), tr(NOT_NOW), RoadSign.Kind.QUESTION)
 		question.yes_button().grab_focus()
 	Audio.play_sfx(&"ui_click", -6.0, 0.05)
 
