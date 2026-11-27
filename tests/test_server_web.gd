@@ -153,7 +153,8 @@ func test_the_licenses_page_carries_the_notices() -> void:
 				assert_str(page).contains(line)
 	for key: String in Licenses.keys(Credits.in_this_build(), Licenses.pieces()):
 		assert_str(page).contains("<details><summary>%s</summary>" % Licenses.title(key))
-	assert_str(page).contains('<a href="./">Back to the server</a>')
+	assert_str(page).contains('<a class="back" href="./" aria-label="Back to the server">')
+	assert_str(page).contains('<footer><a href="./">Back to the server</a></footer>')
 	# Its links in the house's gold, as the main page's, rather than the browser's blue.
 	assert_str(page).contains("a{color:#f2c14e}")
 

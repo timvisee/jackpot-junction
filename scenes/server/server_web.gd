@@ -394,18 +394,17 @@ func _licenses_html() -> String:
 	out.append('<meta name="viewport" content="width=device-width, initial-scale=1">')
 	out.append("<title>Licenses</title>")
 	out.append("<style>%s</style></head><body><main>" % _style())
-	out.append("<h1>Licenses</h1>")
+	# A way back beside the heading, an arrow as its HTML name, so no odd character has to survive
+	# the source to the page.
+	out.append(
+		'<h1><a class="back" href="./" aria-label="Back to the server">&larr;</a>Licenses</h1>'
+	)
 	out.append('<p class="sub">Jackpot Junction %s dedicated server</p>' % _escape(_version()))
 	var source := (
 		'<a href="%s">%s</a>' % [Credits.REPOSITORY, Credits.REPOSITORY.trim_prefix("https://")]
 	)
 	var terms := _escape(Licenses.own_terms()).replace(_escape(Credits.REPOSITORY), source)
-	out.append(
-		(
-			'<section class="card"><p>%s</p><p><a href="./">Back to the server</a></p></section>'
-			% terms
-		)
-	)
+	out.append('<section class="card"><p class="terms">%s</p></section>' % terms)
 	out.append('<section class="card"><h2>Made with</h2><ul class="notices">')
 	for thing: Dictionary in things:
 		var said := PackedStringArray(
@@ -516,6 +515,9 @@ func _style() -> String:
 					".note-line{color:#f2c14e;margin:10px 0 0}",
 					# Every link in the house's gold, the footer's quieter, below.
 					"a{color:#f2c14e}",
+					".back{text-decoration:none;margin-right:12px;opacity:.75}",
+					".back:hover,.back:focus{opacity:1}",
+					".terms{margin:0}",
 					".links a{display:inline-block;margin:0 14px 0 0;color:#f2c14e}",
 					".fields{margin:4px 0 4px;display:flex;flex-wrap:wrap;gap:10px}",
 					".field{background:#15131a;border:1px solid #332e40;border-radius:8px;",
