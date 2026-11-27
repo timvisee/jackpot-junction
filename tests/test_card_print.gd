@@ -57,6 +57,21 @@ func test_the_outline_is_bitten_at_the_stub() -> void:
 	assert_bool(Geometry2D.is_point_in_polygon(Vector2(3.0, 60.0), shape)).is_true()
 
 
+## A card's shadow, and its glow when it is lit, has the card's own shape: the nearest of its layers
+## leaves the bite out of the card's side, as a box's shadow would not, and covers the card.
+func test_the_shadow_has_the_bites() -> void:
+	for spread: int in [6, 18]:
+		var layers := JokerCard.Body.shadow_layers(spread)
+		assert_int(layers.size()).is_greater_equal(3)
+		var nearest: PackedVector2Array = layers[layers.size() - 1]
+		var bite := Vector2(1.5, CardPrint.STUB)
+		assert_bool(Geometry2D.is_point_in_polygon(bite, nearest)).is_false()
+		assert_bool(Geometry2D.is_point_in_polygon(Vector2(60.0, 60.0), nearest)).is_true()
+		var farthest: PackedVector2Array = layers[0]
+		var out := Vector2(-spread + 0.5, 60.0)
+		assert_bool(Geometry2D.is_point_in_polygon(out, farthest)).is_true()
+
+
 ## The frame, drawn in from the card's edge, runs straight down its sides into the bites: every
 ## point of it away from the bites and the corners' rounds lies on the side, and where it meets a
 ## bite it is still on the side rather than out on the card's edge.

@@ -74,24 +74,30 @@ const KIT_CARD := "One of Kit's cards"
 const KIT_MARK := "K."
 
 
-## How a card stands, for its body and frame, see [JokerCard.Body]: the shadow round it is the
-## style's own, and its fill, frame color and frame width are drawn by the body, bites and all.
+## How a card stands, for its body and frame, see [JokerCard.Body]: its fill, frame color and frame
+## width, and the shadow round it or the glow when it is lit and how far out that reaches, all drawn
+## by the body in the card's own shape, bites and all, rather than as the box a style would draw.
 class CardStyle:
 	extends StyleBoxFlat
 
 	var fill := Color(0.11, 0.11, 0.14, 0.96)
 	var frame := Color.WHITE
 	var frame_width := 3.0
+	var shadow := Color.TRANSPARENT
+	var spread := 0.0
 
 	func _init() -> void:
 		draw_center = false
 		set_corner_radius_all(10)
 
 
-## The card's body under everything on it: its stock in the shape of the card, a bite out of either
-## side at the stub, and the frame round it, as the card's style says.
+## The card's body under everything on it: its shadow or its glow, its stock in the shape of the
+## card, a bite out of either side at the stub, and the frame round it, as the card's style says.
 class Body:
 	extends Control
+
+	## The shadows drawn so far, by how far out they reach, see [method shadow_layers].
+	static var _shadows: Dictionary[int, Array] = {}
 
 	var _shape := PackedVector2Array()
 
@@ -105,11 +111,33 @@ class Body:
 			return
 		if _shape.is_empty():
 			_shape = CardPrint.outline(0.0, 10.0)
+		if style.shadow.a > 0.0 and style.spread >= 1.0:
+			var layers := shadow_layers(roundi(style.spread))
+			var each := 1.0 - pow(1.0 - style.shadow.a, 1.0 / layers.size())
+			for layer: PackedVector2Array in layers:
+				draw_colored_polygon(layer, Color(style.shadow, each))
 		draw_colored_polygon(_shape, style.fill)
 		var half := style.frame_width * 0.5
 		var frame := CardPrint.outline(half, 10.0 - half)
 		frame.append(frame[0])
 		draw_polyline(frame, style.frame, style.frame_width, true)
+
+	## The card's outline grown out a step at a time to [param spread], the farthest first: a shadow
+	## or a glow laid in them, a little of it in each, fades out from the card's edge as a box's
+	## does, but in the card's own shape, its bites and all.
+	static func shadow_layers(spread: int) -> Array:
+		if _shadows.has(spread):
+			return _shadows[spread]
+		var shape := CardPrint.outline(0.0, 10.0)
+		var count := clampi(roundi(spread / 1.5), 3, 12)
+		var layers: Array = []
+		for i: int in count:
+			var grow := spread * float(count - i) / count
+			var grown := Geometry2D.offset_polygon(shape, grow, Geometry2D.JOIN_ROUND)
+			if not grown.is_empty():
+				layers.append(grown[0])
+		_shadows[spread] = layers
+		return layers
 
 
 ## What is printed on a card's face, under everything else on it: the linen of its stock, the
@@ -363,8 +391,8 @@ func set_glowing(amount: float) -> void:
 		set_highlighted(false)
 		return
 	_glowing.frame = _normal.frame.lerp(GLOW, amount)
-	_glowing.shadow_color = Color(GLOW, 0.9 * amount)
-	_glowing.shadow_size = roundi(26.0 * amount)
+	_glowing.shadow = Color(GLOW, 0.9 * amount)
+	_glowing.spread = 26.0 * amount
 	add_theme_stylebox_override("panel", _glowing)
 	_body.queue_redraw()
 
@@ -386,8 +414,8 @@ static func style_of(
 	style.fill = fill
 	style.frame = frame
 	style.frame_width = width
-	style.shadow_color = shadow
-	style.shadow_size = spread
+	style.shadow = shadow
+	style.spread = spread
 	return style
 
 
