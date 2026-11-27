@@ -130,7 +130,7 @@ Under Metadata, where itch.io has them:
 | Multiplayer | Local multiplayer, Ad-hoc networked multiplayer, Server-based networked multiplayer |
 | Player count | 1 to 4 at one screen, up to 8 online |
 | Average session | A few minutes: a map is five, a Grand Prix several |
-| Languages | English, Dutch |
+| Languages | English, Dutch, Chinese (Simplified) |
 | Links | Steam: `https://store.steampowered.com/app/5652730`; source code: `https://github.com/timvisee/jackpot-junction`; the server's Docker image: `https://hub.docker.com/r/timvisee/jackpot-junction-server` |
 
 ### Short description
@@ -215,6 +215,8 @@ is CC BY 4.0.
 
 **Speelt ook in het Nederlands.** Kies Nederlands onder Taal op de pagina
 Toegankelijkheid van de instellingen, of laat het spel je systeem volgen.
+
+**也支持简体中文。** 在设置的“辅助功能”页面中，把“语言”选为简体中文，或者让游戏跟随你的系统语言。
 
 ---
 
