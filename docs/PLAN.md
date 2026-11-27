@@ -5451,6 +5451,27 @@ gettext files, for community tools such as Weblate and Poedit. Built in worktree
 | G8 | Steam: the controller actions, the achievements and the presence written in every language from the game's translations; the store page's words by hand, `docs/steam/store_dutch.md`, its pictures and screenshots drawn per language | Done; Dutch to put up on Steamworks, STEAM.md |
 | G9 | Left in English for now, to translate later if wanted (the user, 2026-11-26): a dedicated server's web page and console, a debug build's story page, the tools in `scenes/dev` | Open |
 
+### Simplified Chinese (G7)
+
+Asked for by the user on 2026-11-27: built on branch `chinese`, on `localization`, every problem
+Chinese brings fixed before a word is picked, and both languages landed together. The partner fonts
+and the answers to five questions were picked on a page of choices: the defaults, but Long Cang for
+the scratched line, and a plate may carry the characters a Chinese plate does.
+
+| Step | What | State |
+|------|------|-------|
+| C1 | Exported games carry the text server's line-break data | Done |
+| C2 | Rows the game draws itself break where the text server says, `Type.rows()` | Done |
+| C3 | Sentences run on as the language runs them, `Lang.sentences()`; a stack's aside is a format | Done |
+| C4 | `zh_CN.po` started, Steam's files written for `schinese`, TRANSLATING.md's notes | Done |
+| C5 | A Chinese partner behind every face, `make fonts` and `Type.dress()`, credited | Done |
+| C6 | The art tools draw Chinese in the partners | Done |
+| C7 | A Chinese character counts as two letters in a name | Open |
+| C8 | A road's stacked words split a Chinese phrase at its middle | Open |
+| C9 | A plate takes the characters Chinese plates carry, two at most | Open |
+| C10 | Every screen looked at in pseudo-Chinese, and what that shows fixed | Open |
+| C11 | The translation, read over by a native speaker; the store page, its pictures, the trailer's words | Open |
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
