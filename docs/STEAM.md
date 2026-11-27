@@ -221,7 +221,9 @@ first:
 - `<app>-achievements-definitions.csv` and `<app>-achievements-localization.csv`,
   written as Steam's own export writes them: every achievement by its API name, a
   spoiler when hidden, set by the client, and each bar's statistic with its range;
-  then its English name and description.
+  then its name and description in English and in every language the game speaks,
+  the game's own translations, a column each under Steam's name for the language
+  (`dutch`). Steam shows each player their own, and English where it has none.
 - `<API_NAME>_ACHIEVED.png` and `<API_NAME>_UNACHIEVED.png` for each, at 256
   pixels, the names Steam pairs icons with their achievements by.
 - `stats.txt`, the statistics the bars are drawn from. The importer does not take
@@ -242,6 +244,9 @@ Under Stats & Achievements:
 and 64 pixels and the hidden scrap in `build/achievements/`, with
 `achievements.txt` to read and `achievements.csv`, every id, name, objective and
 bar.
+
+When a language comes or the translations of the achievements change, run it again and import
+what it writes again.
 
 A bar's target grows with the game: when a release adds jokers, power-ups or
 dress, run `make steam-achievement-art` again. Raise the stat's max by hand to

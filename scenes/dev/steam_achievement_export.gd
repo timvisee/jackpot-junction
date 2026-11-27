@@ -3,7 +3,8 @@ extends "res://scenes/dev/achievement_export.gd"
 ## `make steam-achievement-art` runs. It writes each achievement's icon, earned and not yet earned,
 ## at Steam's [constant ICON] pixels. Each icon is named the way Steam pairs it with its
 ## achievement, `STREET_LEGAL_ACHIEVED.png` and `STREET_LEGAL_UNACHIEVED.png`. Beside the icons go
-## the definitions and the English words, written as Steam's own export writes them and named
+## the definitions and the words in every language the game speaks, written as Steam's own export
+## writes them and named
 ## after the app, [code]--app=<id>[/code]. Last comes the list of statistics, which the importer
 ## does not take, to make by hand first. Into `build/steam-achievements/`, emptied first, so that
 ## everything in it can be dropped on the upload box at once; `docs/STEAM.md` says the steps.
@@ -28,7 +29,9 @@ const DEFINITIONS: Array[String] = [
 	"progress_stat_min (number, no lower than the stat's own min)",
 	"progress_stat_max (number, above min and no higher than the stat's own max)",
 ]
-const LOCALIZATION: Array[String] = ["api_name", "field", "english"]
+## The localization's first columns, then a column of words for each language the game speaks, by
+## the name Steam gives it.
+const LOCALIZATION: Array[String] = ["api_name", "field"]
 ## Steam's own export is UTF-8 with a byte order mark, and has Windows line ends.
 const BOM := "﻿"
 const END := "\r\n"
@@ -87,12 +90,20 @@ static func definitions_csv() -> String:
 	return _table(rows)
 
 
-## Every achievement's name and description in English, two rows each.
+## Every achievement's name and description, two rows each, in English and every other language the
+## game speaks, from its translations, as the game shows them.
 static func localization_csv() -> String:
-	var rows: Array[Array] = [LOCALIZATION]
+	var steam := Lang.on_steam()
+	var head: Array[String] = LOCALIZATION.duplicate()
+	head.append_array(steam.keys())
+	var rows: Array[Array] = [head]
 	for each: Achievement in Achievements.all():
-		rows.append([each.store_name(), "name", each.title])
-		rows.append([each.store_name(), "description", each.objective])
+		for field: String in ["name", "description"]:
+			var row: Array[String] = [each.store_name(), field]
+			for language: String in steam:
+				var english := each.title if field == "name" else each.objective
+				row.append(Lang.t_in(steam[language], english))
+			rows.append(row)
 	return _table(rows)
 
 

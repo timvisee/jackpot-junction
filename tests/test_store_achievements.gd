@@ -175,15 +175,24 @@ func test_the_steamworks_tables_hold_what_steam_is_told() -> void:
 			assert_str(",".join(fields.slice(6))).is_equal("0,%d" % target)
 		else:
 			assert_str(",".join(fields.slice(5))).is_equal(",0,0")
+	# The words in English and in every other language the game speaks, the game's own.
 	var words := SteamExport.localization_csv().substr(1).split("\r\n")
-	assert_str(words[0]).is_equal("api_name,field,english")
-	assert_str(words[1]).is_equal("STREET_LEGAL,name,Street Legal")
+	assert_str(words[0]).is_equal("api_name,field,english,dutch")
+	assert_str(words[1]).is_equal("STREET_LEGAL,name,Street Legal,%s" % tr_in_dutch("Street Legal"))
 	assert_str(words[2]).is_equal(
-		"STREET_LEGAL,description,Pass the driving test and earn your license"
+		(
+			"STREET_LEGAL,description,Pass the driving test and earn your license,%s"
+			% tr_in_dutch("Pass the driving test and earn your license")
+		)
 	)
-	assert_bool(
-		words.has('MOST_WANTED,description,"Cash out 1,000 or more with a bounty on your head"')
+	var bounty := "Cash out 1,000 or more with a bounty on your head"
+	# Quoted only where a language writes a comma: Dutch writes 1.000.
+	assert_str(tr_in_dutch(bounty)).contains("1.000")
+	(
+		assert_bool(words.has('MOST_WANTED,description,"%s",%s' % [bounty, tr_in_dutch(bounty)]))
+		. is_true()
 	)
+	assert_str(tr_in_dutch("Street Legal")).is_not_equal("Street Legal")
 	var all_in := Achievement.new()
 	all_in.id = &"all_in"
 	assert_str(SteamExport.icon_name(all_in, AchievementArt.Look.EARNED)).is_equal(
@@ -192,3 +201,7 @@ func test_the_steamworks_tables_hold_what_steam_is_told() -> void:
 	assert_str(SteamExport.icon_name(all_in, AchievementArt.Look.LOCKED)).is_equal(
 		"ALL_IN_UNACHIEVED.png"
 	)
+
+
+func tr_in_dutch(english: String) -> String:
+	return Lang.t_in("nl", english)

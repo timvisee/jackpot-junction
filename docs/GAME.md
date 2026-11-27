@@ -7408,7 +7408,8 @@ and 64, the sizes Steam's pages have used, into `build/achievements/`, with a te
 of every id, its name on a store, its name, its objective, whether it is hidden and its bar's count.
 `make steam-achievement-art` draws the same for Steamworks' bulk import, 10.8: at 256 pixels alone,
 each named after its name on Steam and `_ACHIEVED` or `_UNACHIEVED`, which is how Steam pairs them,
-beside the definitions and English words written as Steam's own export writes them.
+beside the definitions and the words, in English and every language the game speaks, written as
+Steam's own export writes them.
 
 **Growing it.** Each achievement is a line of data, `data/achievements/`: its id, name, objective, group,
 chip, whether hidden and its count; a picture of its own; and, for a moment of a map, a few lines that
@@ -11819,11 +11820,11 @@ engine's translation remaps: a picture loaded once in one language stays in its 
 Left in English: the tools in `scenes/dev` for the store's pictures and trailers, debug builds' own
 pages, the log, and a dedicated server's console and web page; whatever a server sends a player goes
 as words for another machine. Steam's own words come from the game's translations where the game
-hands them to Steam: the controller actions' names in `data/steam/input/` are written in English and
-every language the game speaks, each under the name Steam gives it (`Lang.on_steam()`, the words
-looked up with `Lang.t_in()` whatever is spoken), by `make steam-input`, a test failing until they
-are. The store page, the achievements' names on Steam and the presence are translated on
-Steamworks.
+hands them to Steam, in English and every language the game speaks, each under the name Steam gives
+it (`Lang.on_steam()`, the words looked up with `Lang.t_in()` whatever is spoken): the controller
+actions' names in `data/steam/input/`, written by `make steam-input`, a test failing until they are,
+and the achievements' names and objectives in the table `make steam-achievement-art` writes for
+Steamworks' bulk import. The store page and the presence are translated on Steamworks.
 
 ## 11. Roadmap
 
