@@ -37,6 +37,33 @@ func test_the_about_page_says_what_it_is_and_who_made_it() -> void:
 ## Everybody THIRD_PARTY.md says has work in the repository is credited on the page, so the two
 ## cannot drift apart.
 func test_everybody_in_the_third_party_list_is_credited() -> void:
+	var authors := _third_party_authors()
+	assert_int(authors.size()).is_greater(5)
+	var who := ""
+	for thing: Dictionary in Credits.THINGS:
+		who += " " + String(thing["who"])
+	for author: String in authors:
+		assert_str(who).override_failure_message("%s is not credited" % author).contains(author)
+
+
+## And the other way: everybody the page credits has a row in THIRD_PARTY.md, with the files and the
+## terms, but Godot, which is the engine rather than anything in the repository.
+func test_everybody_credited_is_in_the_third_party_list() -> void:
+	var authors := _third_party_authors()
+	for thing: Dictionary in Credits.THINGS:
+		if thing["what"] == "Godot Engine":
+			continue
+		var who := String(thing["who"])
+		var listed := authors.any(func(author: String) -> bool: return who.contains(author))
+		(
+			assert_bool(listed)
+			. override_failure_message("%s has no row in THIRD_PARTY.md" % who)
+			. is_true()
+		)
+
+
+## Who made each row of THIRD_PARTY.md's table, its second column.
+func _third_party_authors() -> Array[String]:
 	var text := FileAccess.get_file_as_string("res://THIRD_PARTY.md")
 	var authors: Array[String] = []
 	for line: String in text.split("\n"):
@@ -48,12 +75,7 @@ func test_everybody_in_the_third_party_list_is_credited() -> void:
 		):
 			continue
 		authors.append(cells[2].strip_edges())
-	assert_int(authors.size()).is_greater(5)
-	var who := ""
-	for thing: Dictionary in Credits.THINGS:
-		who += " " + String(thing["who"])
-	for author: String in authors:
-		assert_str(who).override_failure_message("%s is not credited" % author).contains(author)
+	return authors
 
 
 ## What only a Steam build has in it, GAME.md 10.8, is credited only where it is.
