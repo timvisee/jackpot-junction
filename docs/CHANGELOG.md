@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-11-27
+
+The game speaks Dutch and Simplified Chinese, Steam games can be public and carry on when their
+host leaves, and every picture is redrawn as a house print. It doesn't play with 0.24.x.
+
 ### Added
 
 - **Your thank-you card from the title.** If you own the Supporter Pack, click or tap its line in
@@ -102,7 +107,6 @@ below, and hands the notes to the release workflow.
 - **Karts outside the room come back.** A kart that ends up off the edge, inside a wall, or under
   or over the floor respawns after half a second, keeping its pot, as one can after a host leaves
   mid-map.
-
 ## [0.24.1] - 2026-11-26
 
 Button hints are drawn the way Steam draws them, the right stick scrolls every pane, and a die at
@@ -3127,7 +3131,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.24.1...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.25.0
 [0.24.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.1
 [0.24.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.0
 [0.23.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.23.1
