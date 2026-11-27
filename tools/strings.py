@@ -67,7 +67,7 @@ QUIET_CALLS = {
     "print", "prints", "printt", "printerr", "print_rich", "print_debug", "push_warning",
     "push_error", "assert", "get_node", "get_node_or_null", "has_node", "find_child",
     "find_children", "set_meta", "get_meta", "has_meta", "remove_meta", "connect", "disconnect",
-    "is_connected", "emit_signal", "call", "call_deferred", "callv", "has_method", "set", "get",
+    "is_connected", "emit_signal", "has_method", "set", "get",
     "set_deferred", "get_indexed", "set_indexed", "tween_property", "tween_method", "load",
     "preload", "get_value", "set_value", "has_section_key", "has_section", "get_section_keys",
     "erase_section_key", "get_environment", "has_environment", "set_environment", "has_feature",
