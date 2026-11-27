@@ -29,6 +29,9 @@ signal asked_to_go(where: StringName)
 ## player] out, for the server's log.
 signal door_set
 signal kicked(player: int)
+## On a client: its kart left alone too long in a public game was handed to a bot, GAME.md 10.8,
+## and it watches until a press takes the kart back, [param benched], or a press has.
+signal benched_changed(benched: bool)
 
 ## How long a kicked client has to hear why before the host lets go of it, in seconds, and what it
 ## is told when the host showed it out.
@@ -39,6 +42,11 @@ const REMOVED := "The host removed you from the game"
 const GUESTS_EVERY := 0.25
 ## Where the room can be asked to go.
 const PLACES: Array[StringName] = [&"lobby", &"next", &"rematch", &"start"]
+## How long a player's controls may be left alone in a public Steam game's match before a bot
+## drives their kart, in seconds, GAME.md 10.8, and how far a stick has to be off its middle to
+## count as touched.
+const IDLE_FOR := 60.0
+const TOUCHED := 0.2
 
 var session: NetSession
 ## Whether the host's say has stopped the match for everybody without waiting to be asked: on the
@@ -53,6 +61,9 @@ var choosing := false
 ## the room: empty when it came with the game or passed on as its holder left.
 var granted := false
 var given_by := ""
+## On a client in a public Steam game: whether its kart, left alone, is a bot's while it watches,
+## GAME.md 10.8.
+var benched := false
 
 ## At a dedicated server: the players in the order they first sat down, for the say to pass down.
 var _order: Array[int] = []
@@ -67,6 +78,10 @@ var _guests: Array[Dictionary] = []
 ## accounts this machine has told Steam it played with.
 var _told_each: Dictionary[int, String] = {}
 var _played: Dictionary[int, bool] = {}
+## In a public Steam game, GAME.md 10.8: at the host, how long each slot driven from elsewhere has
+## been left alone, and the clients watching for it till a press brings them back.
+var _idle: Dictionary[int, float] = {}
+var _benched: Dictionary[int, bool] = {}
 
 
 static func of(owner: NetSession) -> HostControls:
@@ -304,6 +319,91 @@ func _process(delta: float) -> void:
 	if said != _told:
 		_told = said
 		_guests_are.rpc_id(peer, others)
+
+
+## A kart left alone too long in a public Steam game's match is driven by a bot, GAME.md 10.8: at
+## the host, each slot driven from elsewhere is timed; at a client watching for it, the first
+## press takes it back.
+func _physics_process(delta: float) -> void:
+	if not session.is_host:
+		if benched and touched(session.local_input):
+			benched = false
+			session.watching = false
+			benched_changed.emit(false)
+			_back.rpc_id(1)
+		return
+	var match_node := session.match_node
+	if not Store.public_game() or match_node == null or not session.in_arena:
+		_idle.clear()
+		return
+	if not match_node.is_running():
+		return
+	for slot: PlayerSlot in match_node.slots:
+		var input := slot.input as NetInput
+		if input == null or touched(input):
+			_idle.erase(slot.index)
+			continue
+		_idle[slot.index] = _idle.get(slot.index, 0.0) + delta
+		if _idle[slot.index] >= IDLE_FOR:
+			_idle.erase(slot.index)
+			bench(slot.index)
+
+
+## Whether [param input] says anybody is at the controls: a stick off its middle, a pedal, a button.
+static func touched(input: KartInput) -> bool:
+	if input == null:
+		return false
+	var held := input.handbrake or input.nitro or input.fire or input.joker_menu
+	var pressed := input.fire_pressed or input.use_item_pressed or input.emote >= 0
+	var moved := absf(input.steer) > TOUCHED or input.throttle > TOUCHED or input.brake > TOUCHED
+	return held or pressed or moved or input.aim.length() > TOUCHED
+
+
+## At the host: the player driving the slot [param index] from another machine has left it alone,
+## GAME.md 10.8. A bot drives the kart from here as for somebody who leaves; one of several players
+## at that machine goes from it, and the last watches until a press brings them back.
+func bench(index: int) -> void:
+	var seats := session._peer_slots
+	for player: int in seats.held:
+		var theirs: Dictionary = seats.held[player]
+		for number: int in theirs:
+			if int(theirs[number]) != index:
+				continue
+			session._empty_seat(player, number)
+			if not (seats.held.get(player, {}) as Dictionary).is_empty():
+				session._seat_dropped.rpc_id(player, number)
+				return
+			_benched[player] = true
+			seats.take_all(player)
+			session._watchers[player] = true
+			session._watch(player)
+			_bench_here.rpc_id(player)
+			return
+
+
+## At a client: its kart is a bot's, GAME.md 10.8, and it watches until a press.
+@rpc("authority", "call_remote", "reliable")
+func _bench_here() -> void:
+	for each: ClientSeat in session.seats.duplicate():
+		session._here.stand_up(each, session.match_node)
+	session.local_slot = -1
+	session.watching = true
+	benched = true
+	benched_changed.emit(true)
+
+
+## At the host: a client watching since its kart was left alone pressed something, and is seated
+## again, in a bot's kart, GAME.md 10.8.
+@rpc("any_peer", "call_remote", "reliable")
+func _back() -> void:
+	var player := multiplayer.get_remote_sender_id()
+	session.conduct.said(player)
+	if not session.is_host or not _benched.has(player):
+		return
+	_benched.erase(player)
+	session._watchers.erase(player)
+	session._watching_here.erase(player)
+	session._seat(player, false)
 
 
 ## Everybody in the game, GAME.md 10.8: the host's own players first, then everybody else, each with

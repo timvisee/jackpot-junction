@@ -11208,9 +11208,9 @@ rather than as the "somewhere" every peer without an address would share.
 #### Public games and Quick Play
 
 For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: who may come in, the list, a
-row, a full game, and Players but for idle karts; until Quick Play is in, an empty list's link is
-Host a game. Still planned: idle karts, Joining a match in play, Quick Play and A host who goes,
-which once built replaces the host leaving described above. Decided with the user on 2026-11-26
+row, a full game, and Players; until Quick Play is in, an empty list's link is Host a game. Still
+planned: Joining a match in play, Quick Play and A host who goes, which once built replaces the host
+leaving described above. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
@@ -11290,7 +11290,10 @@ reader's Steam friend go through Steam's text filter, by the reader's own Steam 
 come in, at the host as a client says them, at a client as the host's snapshot does, and on the
 list as Steam reads it. There is
 no vote kick: the host kicks, and anybody unhappy with the host leaves, which costs nothing. In a
-public match a kart with no input for 60 s is driven by a bot, and any press takes it back.
+public match a kart with no input for 60 s is driven by a bot, and any press takes it back: the host
+hands the kart over as for somebody who leaves, and its player watches, a line at the foot of the
+screen saying a bot drives their kart and a press takes it back, until a press seats them again in
+a bot's kart, as anybody joining is. One of several players at a machine just goes from it.
 
 **A host who goes.** The game carries on at a new host, the map being played included. Steam hands
 the lobby to another player by itself when its owner goes, to the title, for good or with a lost

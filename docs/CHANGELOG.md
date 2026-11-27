@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
   Steam's profile and Mute for each; only the host can kick. Kicked from a public game, a player
   stays out of it, a host's Steam blocks keep people out, and other players' names go through
   Steam's text filter.
+- **A bot for a kart left alone.** In a public game, a kart nobody touches for a minute is driven by
+  a bot, and any press takes it back.
 
 ### Changed
 

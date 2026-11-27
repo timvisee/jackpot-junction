@@ -92,6 +92,8 @@ func _ready() -> void:
 	if not config.dedicated:
 		DebugOverlay.add_to(self, match_node, session)
 		DebugGrantMenu.add_to(self, match_node)
+		# Brought back here watching, a kart left alone in a public game, GAME.md 10.8.
+		BenchedLine.add_to(self, session)
 		# What the players here do in the lobby counts too, GAME.md 8.5, as they leave it.
 		MatchRecord.add_to(match_node).maps = false
 		CatalogRecord.add_to(match_node)
