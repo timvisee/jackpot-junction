@@ -4,9 +4,10 @@ the music's bars. Each shot is played and recorded on its own by Godot's movie w
 scenes/dev/trailer.tscn for play and scenes/dev/trailer_posed.tscn for the posed screens, at a
 fixed frame rate so it plays the same every time. ffmpeg cuts them together in order, frame for
 frame, a few with a transition laid across the cut, and lays the music under them: Ovani Sound's
-Deceased Rodent, its beats on the trailer's half seconds, its calm layer muffled under the opening
-and full from its drop, going up to its tense layer and then its peak at the trailer's turns, and
-back to the calm one muffled under the license at the end; the game's own sound quieter beneath it.
+Deceased Rodent, its beats on the trailer's half seconds, its calm layer muffled under the opening,
+its tense one on the drop for a bar settling into the calm one, going up to its tense layer and
+then its peak at the trailer's turns, and back to the calm one muffled under the license at the
+end; the game's own sound quieter beneath it.
 
 A draft is drawn at 1920x1080; the final, `--final`, at 3840x2160 and scaled down to 1920x1080 for
 smooth edges, as the store's screenshots are; and `--8k` at 7680x4320, scaled down to two at once:
@@ -71,7 +72,8 @@ TABLE = "--clean=1 --fixed-camera=1 --camera-distance=0.8"
 # The music: the track's layers, calm, tense and its peak, made to be played together and crossfaded
 # at one place in them, as the game does, see scripts/autoload/audio.gd; and where in it the trailer
 # starts, three bars before its drop, so its beats fall on the trailer's half seconds. The calm
-# layer muffled, as if through a wall, and faded in slowly until the drop; then full, going up a
+# layer muffled, as if through a wall, and faded in slowly until the drop; then full, the tense
+# layer on the drop settling into the calm one by the next bar, see [constant SETTLED], going up a
 # layer at each of [constant LAYER_UP], its loud phrase ending as the run of features does and its
 # quieter bars after under the end card, sliding back into the calm layer muffled over the end
 # card's last bars and going on so, unchanged, under the license after it, faded out a little after
@@ -100,6 +102,11 @@ GAME_SOUND = 0.5
 # features. The layers keep to one beat, so the swap is quick, the bar heard in the new one.
 LAYER_UP = [14.0, 26.0]
 LAYER_SWAP = (0.2, 0.05)
+# The drop lands in the tense layer, which the calm one has too little bass and beat for, and slides
+# back into the calm one over the bar's last two beats, calm from the bar after it on: the bar it is
+# calm by and how long the slide takes.
+SETTLED = 8.0
+SETTLING = 1.0
 PICTURE_IN = 0.9
 # The black held at the very end, a whole second of it, so the trailer ends on black.
 END_BLACK = 1.0
@@ -585,7 +592,9 @@ def _sound(spans: list[tuple], total: float, sound: pathlib.Path) -> None:
     graph.append(f"[{music + 2}:a]atrim=0:{total},asetpts=PTS-STARTPTS[peak]")
     # Each part's loudness over the trailer: the muffled one up slowly to the drop and gone at it,
     # then back, sliding in as the full one slides out over the end card's last bars, and on
-    # unchanged under the license, out with its picture; the full one from the drop to there.
+    # unchanged under the license, out with its picture; the full one from the drop to there. The
+    # layers are different recordings, which at half each add up quieter than either: each switch
+    # between them shares out their power rather than their amplitude, so nothing dips.
     shots = SHOTS_IN_ORDER
     starts = _starts(shots)
     card = next(t for t, shot in zip(starts, shots) if shot[0] == "endcard")
@@ -594,15 +603,21 @@ def _sound(spans: list[tuple], total: float, sound: pathlib.Path) -> None:
     sound_end = total - END_BLACK
     seam = 0.06
     muffled = (
-        f"if(lt(t,{DROP + seam}),min(t/{FADE_IN},1)*clip(({DROP + seam}-t)/{2 * seam},0,1),"
+        f"if(lt(t,{DROP + seam}),min(t/{FADE_IN},1)*{_even(f'({DROP + seam}-t)/{2 * seam}')},"
         f"{STING_MUSIC}*clip((t-{muffle_from})/{MUFFLE_INTO},0,1)"
         f"*clip(({sound_end + MUSIC_PAST}-t)/{MUSIC_OUT},0,1))"
     )
-    full = f"clip((t-{DROP - seam})/{2 * seam},0,1)*clip(({card_end}-t)/{MUFFLE_INTO},0,1)"
-    # How far the full music has gone up into each layer above the calm one by then.
+    full = f"{_even(f'(t-{DROP - seam})/{2 * seam}')}*clip(({card_end}-t)/{MUFFLE_INTO},0,1)"
+    # How far the full music has settled from the tense layer into the calm one after the drop, and
+    # gone up into each layer above the calm one by then.
+    down = f"clip((t-{SETTLED - SETTLING:g})/{SETTLING:g},0,1)"
     before, after = LAYER_SWAP
     up = [f"clip((t-{at - before:g})/{before + after:g},0,1)" for at in LAYER_UP]
-    shares = {"calm": f"(1-{up[0]})", "tense": f"({up[0]}-{up[1]})", "peak": up[1]}
+    shares = {
+        "calm": _even(f"{down}-{up[0]}"),
+        "tense": _even(f"1-{down}+{up[0]}-{up[1]}"),
+        "peak": _even(up[1]),
+    }
     graph.append(
         f"[through]lowpass=f={MUFFLED},lowpass=f={MUFFLED},volume={MUFFLED_GAIN},"
         f"volume='{muffled}':eval=frame[muffled]"
@@ -617,6 +632,13 @@ def _sound(spans: list[tuple], total: float, sound: pathlib.Path) -> None:
         *inputs, "-filter_complex", ";".join(graph), "-map", "[sound]", "-c:a", "pcm_f32le",
         str(sound),
     ])  # fmt: skip
+
+
+def _even(share: str) -> str:
+    """The loudness of a layer given [share] of the sound, 0 to 1, as an expression in ffmpeg's
+    terms: two layers switched between, their shares adding up to one, keep its power the same all
+    through the switch."""
+    return f"sin(PI/2*clip({share},0,1))"
 
 
 # How many threads each trailer's encoder works on: on all of them, one at 4K alone holds 5 GB.

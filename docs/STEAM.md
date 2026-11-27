@@ -400,9 +400,9 @@ the music's bars with ffmpeg.
   it, is listed in `tools/trailer`. The scenes are left out of every export.
 - **The music**: Ovani Sound's Deceased Rodent, which Ovani's terms allow in a
   game's trailer. Its three layers are crossfaded as the game does: the calm one
-  muffled under the opening, the tense one from 14 s, its peak from 26 s, and
-  the calm one muffled again under the license. The game's own sound plays
-  quieter under it.
+  muffled under the opening, the tense one on the drop for a bar settling into
+  the calm one, the tense one from 14 s, its peak from 26 s, and the calm one
+  muffled again under the license. The game's own sound plays quieter under it.
 - **Making it**: `make trailer-draft` draws at 1920 × 1080 and writes
   `build/trailer/jackpot-junction-trailer-draft.mp4`. `make trailer` draws at
   7680 × 4320 and scales it down twice: `jackpot-junction-trailer-4k.mp4`,
