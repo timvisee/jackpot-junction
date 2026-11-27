@@ -19,6 +19,8 @@ func _start() -> void:
 		named = "eight_driver"
 	elif "--house" in args:
 		named = "house_driver"
+	elif "--handover" in args:
+		named = "handover_driver"
 	var driver: Node = load("res://tools/%s.gd" % named).new()
 	driver.name = "MultiplayerCheck"
 	root.add_child(driver)

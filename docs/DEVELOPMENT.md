@@ -33,7 +33,7 @@ make warmup-check  # whether the shader warm-up behind the title covers everythi
 make dialog-bench  # the achievements dialog's and the catalog's draw calls a frame, against budgets
 make ui-bench   # the HUD's, pause menu's, match settings', title's, settings' and school's draw calls, against budgets
                 # (the performance rules these keep, and their numbers, are in GAME.md 10.7)
-make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen
+make multiplayer  # a whole Grand Prix online (two games, up to two clients) and on one screen, and two handovers
 make server-check  # a game on a dedicated server, made, joined and watched by three clients
 make export     # release builds for Linux, Windows and macOS, and the Linux server, in build/
 make android    # a debug build for Android in build/android, see GAME.md 10.5
@@ -330,7 +330,9 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
   `tests/free_ports.gd` the same way.
 - `tools/multiplayer_driver.gd` is started by `tools/multiplayer_check`, with
   `--role`, `--port`, `--clients`, `--locals`, `--jokers`, `--password`,
-  `--wrong-first` and `--nameless`.
+  `--wrong-first` and `--nameless`. With `--handover` it starts
+  `tools/handover_driver.gd` instead, `--role` `host`, `first` or `second`, and
+  `--in-a-map` for the host to go during a map rather than from the lobby.
 - `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port, a free
   block otherwise, and
   `SVCHECK_LOGS=<dir>` keeps every process's whole log there, the server's among
