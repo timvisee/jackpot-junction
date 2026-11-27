@@ -162,6 +162,8 @@ func test_the_first_in_line_takes_it_on() -> void:
 	assert_int(_went[0].port).is_equal(port)
 	assert_str(_went[0].password).is_equal("secret")
 	assert_bool(client.host_controls.succession.is_empty()).is_false()
+	# Told so once its room is up: it hosts the game now, in place of the host who went.
+	assert_str(_handover._new_host_words).starts_with("You host the game now, in place of ")
 
 
 ## Somebody watching, let in without the password, is told who hosts next but not the password.
