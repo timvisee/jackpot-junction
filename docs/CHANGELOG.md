@@ -29,6 +29,9 @@ below, and hands the notes to the release workflow.
   Steam's text filter.
 - **Quick Play.** First on Play Online's Steam tab: one press joins a public game near you, a
   friend's first, or starts one with bots that people join as they come.
+- **The game goes on when its host leaves.** In a Steam game the player who has been in it longest
+  hosts it next and everybody follows them into a fresh lobby; a host leaving is asked first, and
+  Make host in Players hands the game to somebody else.
 - **Joining a Steam game's match in play.** Taking over a bot's kart, a ticket says whose it was and
   what came with it; coming in during Last Call or on the podium, you watch and play the next map.
 - **Bots that make up four.** The Bots row in the match settings ends in Make up 4: bots fill the

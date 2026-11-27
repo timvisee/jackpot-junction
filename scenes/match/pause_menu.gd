@@ -475,11 +475,7 @@ static func leave_words(
 	hosting: bool, saying := false, others := 1, watching := 0
 ) -> Array[String]:
 	if hosting:
-		return [
-			"Back to the title?",
-			"Everybody who has joined will be disconnected.",
-			"Disconnect everybody"
-		]
+		return HostControls.host_leave_words()
 	var line := "You leave the room, and the others play on without you."
 	if saying and others <= 0:
 		line = (

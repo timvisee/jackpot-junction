@@ -269,6 +269,14 @@ func public_lobby(owner: int, data: Dictionary, distance := SteamPublic.CLOSE) -
 	return lobby
 
 
+func setLobbyOwner(lobby: int, owner: int) -> bool:
+	calls.append("setLobbyOwner %d %d" % [lobby, owner])
+	if not lobbies.has(lobby):
+		return false
+	lobbies[lobby]["owner"] = owner
+	return true
+
+
 func getNumLobbyMembers(lobby: int) -> int:
 	return (lobbies[lobby]["members"] as Array).size() if lobbies.has(lobby) else 0
 

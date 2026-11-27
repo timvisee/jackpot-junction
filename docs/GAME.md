@@ -11189,13 +11189,10 @@ everybody's name on Steam beside where they stand, "Playing · bo_92 on Steam", 
 whatever they call their kart, and has Profile beside everybody else, first of their buttons, which
 opens their Steam profile in Steam's overlay; with the overlay off there is none.
 
-The host leaving ends the game for everybody, at once. Quitting the game closes its connections
-before it goes, in any online game, so nobody is left waiting for theirs to give up; and in a Steam
-game everybody watches the lobby as well, so the host leaving it, for the title or for good, or
-losing Steam, hangs them up the moment Steam says so. They are back on Play Online saying the
-connection to the game was lost. The game is not handed to anybody: Steam passes the lobby on to
-another member by itself, but the match is played on the host's machine, every kart, bot, joker and
-rule of it, and none of that is anywhere else to carry on from.
+The host leaving hands the game to a new host, see A host who goes below. Quitting the game closes
+its connections before it goes, in any online game, so nobody is left waiting for theirs to give
+up; and in a Steam game everybody watches the lobby as well, so the host leaving it, for the title
+or for good, or losing Steam, is heard the moment Steam says so.
 
 A game runs on one network: a LAN game is not also a Steam game. Under the session the peer is
 GodotSteam's, wrapped in `SteamPeer` the way `NetLag` wraps ENet, for two things ENet did by itself.
@@ -11207,8 +11204,9 @@ rather than as the "somewhere" every peer without an address would share.
 
 #### Public games and Quick Play
 
-For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: everything but A host who goes,
-which once built replaces the host leaving described above. Decided with the user on 2026-11-26
+For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: everything but the map in play
+carried over to a new host. Until it is, a host going during a map takes everybody to the new
+host's lobby, the map lost, as from the lobby or the podium. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
@@ -11313,6 +11311,18 @@ lobby or the podium, the new host opens the same room with the game's rules, and
 
 Built in two steps, both before the launch: first the handover from the lobby and the podium, with a
 map in play ended and everybody taken to the new host's lobby; then the map carried over as above.
+
+How it is handed over. The host keeps in its lobby what a new host takes the game on with, the match
+as its settings have it and its door but for a password, whether it is a Quick Play game and who may
+come in, and which account hosts it now, see `SteamLobby.PLAN_KEY` and `HOSTED_KEY`. A client whose
+connection to the host goes, in a Steam game, keeps the lobby and puts the dialog up, "Kit left"
+over "Migrating host...", with a bar and Leave, rather than going back to Play Online
+(`SteamHandover`). Whoever Steam makes the lobby's owner hosts the game afresh from what the lobby
+says, into a waiting room with nothing chosen again and its door as it was, and says in the lobby
+once the game is up; the dialog then says "Migrating host to Bob...", and everybody else follows
+them there. With nobody taking it on in 45 s, or at Leave, the lobby is left and Play Online says
+"Kit left, so the game is over."
+
 Who takes over: on a planned leave, the player who has been in the game longest, as at
 a dedicated server; on a crash or a lost connection, whoever Steam makes the lobby's owner; never
 somebody only watching. LAN games still end when the host goes, and a dedicated server's games keep

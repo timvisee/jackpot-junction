@@ -117,6 +117,11 @@ var lobby_who := 1
 ## A game Quick Play started, GAME.md 10.8: straight into its first map, with no choosing first, its
 ## lobby starting by itself, and room for eight.
 var quick_play := false
+## A Steam game taken over from a host who went, GAME.md 10.8: its lobby kept rather than made, the
+## match as the old host had it chosen and nothing chosen again, and its door as [member door_plan],
+## see [method NetDoor.to_wire].
+var rehost := false
+var door_plan := {}
 var steam_lobby := 0
 var steam_host := 0
 var steam_name := ""

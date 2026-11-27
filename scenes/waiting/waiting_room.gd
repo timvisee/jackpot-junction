@@ -151,6 +151,9 @@ func _host() -> void:
 		session.door.watchers_allowed = Game.settings.lobby_watchers
 		session.door.watchers_need_password = not Game.settings.lobby_watch_free
 		session.door.title = Game.settings.lobby_title
+		# Taken on from a host who went, its door as theirs was, GAME.md 10.8.
+		if not config.door_plan.is_empty():
+			session.door.from_wire(config.door_plan)
 		# A Steam game is for friends, or for those invited, and has no password, GAME.md 10.8.
 		session.door.password = "" if config.steam else config.password
 		session.door.server_password = config.server_password
@@ -159,7 +162,10 @@ func _host() -> void:
 			var on := "on Steam" if config.steam else "on port %d" % config.port
 			ready_room_hint("Could not host %s: %s" % [on, error_string(error)])
 			return
-		if config.steam:
+		if config.steam and config.rehost:
+			# The lobby is the old host's, kept: the game is said to be up for the others to follow.
+			Store.steam.lobbies.hosted_here()
+		elif config.steam:
 			_open_the_lobby()
 	if config.steam:
 		ready_room_hint(STEAM_HINT)
@@ -362,9 +368,9 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them. Quick Play chose it
 	# all already, GAME.md 10.8, and goes straight on, the first time into the map.
-	if not config.quick_play:
+	if not config.quick_play and not config.rehost:
 		_choose_or_ask(not _came_back)
-	elif not _came_back:
+	elif not _came_back and not config.rehost:
 		ready_room.go_now.call_deferred()
 
 

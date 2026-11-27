@@ -64,6 +64,10 @@ func close() -> void:
 	if session == null:
 		return
 	var going := session
+	# A Steam game's host going hands its lobby to the player who has been in it longest, GAME.md
+	# 10.8, who hosts it next; Make host has handed it already.
+	if going.is_host and Store.steam_game() and Store.steam.lobbies.hosting:
+		Store.steam.lobbies.hand_to(going.host_controls.successor_account())
 	session = null
 	remove_child(going)
 	going.free()

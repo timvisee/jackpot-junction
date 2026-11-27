@@ -44,6 +44,7 @@ func _process(delta: float) -> void:
 		var said := lobby_says(get_tree().current_scene, Net.session, Game.pending_config)
 		said[SteamLobby.HOST_KEY] = Store.steam.persona()
 		said[SteamLobby.PING_KEY] = Store.steam.public.here()
+		said[SteamLobby.PLAN_KEY] = plan_of(Game.pending_config, Net.session.door, lobbies.who)
 		lobbies.describe(said)
 
 
@@ -104,6 +105,19 @@ static func lobby_says(scene: Node, session: NetSession, config: MatchConfig) ->
 		SteamLobby.MODE_KEY: mode_of(config),
 		SteamLobby.WATCHING_KEY: "1" if door.watchers_allowed else "0",
 	}
+
+
+## What a new host takes the game on with, GAME.md 10.8, in words the lobby keeps: the match
+## [param config] sets up, the [param door] but for a password, which a Steam game has none of,
+## whether it is a Quick Play game, and [param who] may come in.
+static func plan_of(config: MatchConfig, door: NetDoor, who: int) -> String:
+	var chosen := MatchOptions.to_wire(config) if config != null else {}
+	chosen.erase("house")
+	chosen.erase("final_hand")
+	var opened := door.to_wire()
+	opened.erase("password")
+	var quick := config != null and config.quick_play
+	return JSON.stringify({"match": chosen, "door": opened, "quick": quick, "who": who})
 
 
 ## How the game [param config] sets up is played, in a few words for the lists of games: "Grand

@@ -311,7 +311,21 @@ static func blocked(account: int) -> bool:
 	return steam != null and steam.lobbies != null and steam.lobbies.blocked(account)
 
 
-## The game being played is over for this machine: a Steam game's lobby is left, GAME.md 10.8.
+## The game being played is over for this machine: a Steam game's lobby is left, GAME.md 10.8, but
+## while the game is handed to another host, which keeps it once.
 static func left_game() -> void:
 	if steam != null and steam.lobbies != null:
+		if steam.lobbies.handing_over:
+			steam.lobbies.handing_over = false
+			return
 		steam.lobbies.leave()
+
+
+## The connection to a Steam game's host gone, at [param session], a client: the game is handed to
+## the next host rather than over, GAME.md 10.8, if there is one to hand it to. Says whether it is.
+static func hand_over(session: NetSession) -> bool:
+	if not steam_game() or session.is_host:
+		return false
+	var tree := Engine.get_main_loop() as SceneTree
+	var handover: Node = tree.get_first_node_in_group(&"steam_handover") if tree != null else null
+	return handover != null and bool(handover.call(&"take", session))

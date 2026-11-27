@@ -530,7 +530,7 @@ has for it:
 [list]
 [*][b]Got one screen?[/b] Hit the road with up to four friends, joining whenever they like. Yes, even mid-match.
 [*][b]LANning?[/b] Host your own game and invite your friends, your way.
-[*][b]Playing online?[/b] Either make a dedicated server game or join an existing one with up to eight reckless drivers.
+[*][b]Playing online?[/b] Quick Play drops you into a public game near you, or starts one with bots that make way for people as they join. Or host for your Steam friends, up to eight reckless drivers.
 [/list]
 
 [img]{STEAM_APP_IMAGE}/extras/heading_your_ride.png[/img]

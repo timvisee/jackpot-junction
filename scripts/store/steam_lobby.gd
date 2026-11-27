@@ -61,6 +61,11 @@ const BOTS_KEY := "bots"
 const COLORS_KEY := "colors"
 const MODE_KEY := "mode"
 const PING_KEY := "ping"
+## For a host who goes, GAME.md 10.8: the account hosting the game now, which a new host writes once
+## its game is up for the others to follow it into, and the match and door the host plays by, for a
+## new host to take on.
+const HOSTED_KEY := "hosted"
+const PLAN_KEY := "plan"
 
 var api: Object
 ## The lobby this game is, or 0 for none, whether this machine hosts it, and at a player who
@@ -70,6 +75,9 @@ var hosting := false
 var host_account := 0
 ## Who may come in, at the host, a [enum Who].
 var who := Who.FRIENDS
+## Whether the game is being handed to another host, GAME.md 10.8: the lobby is kept as the
+## session closes, the next to close it being the next host's or the next game's.
+var handing_over := false
 ## The friend who asked, by the lobby, for the word in a question, see [method host_of].
 var _said: Dictionary = {}
 
@@ -109,7 +117,27 @@ func _on_lobby_created(result: int, lobby: int) -> void:
 	id = lobby
 	var version := GameVersion.current()
 	describe({GAME_KEY: GAME, VERSION_KEY: version, LINE_KEY: line_of(version)})
+	describe({HOSTED_KEY: str(api.call(&"getSteamID"))})
 	made.emit(lobby)
+
+
+## The lobby this machine is in taken over as its new host, GAME.md 10.8, Steam having made it the
+## owner: open to whoever the old host had it open to, and said to be hosted here once the game is.
+func take_over(open_to: int) -> void:
+	hosting = true
+	host_account = 0
+	who = open_to as Who
+
+
+## The game hosted here said to be up, GAME.md 10.8, for the others to follow into.
+func hosted_here() -> void:
+	describe({HOSTED_KEY: str(api.call(&"getSteamID"))})
+
+
+## The lobby handed to [param account], at the host, GAME.md 10.8, for it to host the game next.
+func hand_to(account: int) -> void:
+	if id != 0 and hosting and account != 0:
+		api.call(&"setLobbyOwner", id, account)
 
 
 ## The minor version [param version] belongs to, "0.24" of "0.24.1", which every version of it

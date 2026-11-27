@@ -91,8 +91,10 @@ var _played: Dictionary[int, bool] = {}
 ## been left alone, and the clients watching for it till a press brings them back.
 var _idle: Dictionary[int, float] = {}
 var _benched: Dictionary[int, bool] = {}
-## In a Steam game, at the host: the newcomers watching until the next map, GAME.md 10.8.
+## In a Steam game, at the host: the newcomers watching until the next map, GAME.md 10.8, and the
+## Steam account the game is to be handed to once the map in play is over, 0 for nobody.
 var _next_map: Dictionary[int, bool] = {}
+var _hand_on_to := 0
 
 
 func _ready() -> void:
@@ -253,12 +255,66 @@ func make_host(player: int) -> void:
 
 ## At a dedicated server: [param player] has sat down. The first of them has the say.
 func seated(player: int) -> void:
-	if not session.is_host or not session.dedicated:
+	if not session.is_host:
 		return
 	if player not in _order:
 		_order.append(player)
+	if not session.dedicated:
+		return
 	if peer == 0:
 		_hand_to(player)
+
+
+## Hands the Steam game hosted here to the account [param account], GAME.md 10.8: at once in the
+## lobby and on the podium, and at the podium when asked during a map. Make host.
+func hand_on(account: int) -> void:
+	if not session.is_host or not Store.steam_game() or account == 0:
+		return
+	if _in_a_map():
+		_hand_on_to = account
+		return
+	var handover := get_tree().get_first_node_in_group(&"steam_handover")
+	if handover != null:
+		handover.call(&"hand_to", account)
+
+
+## Whether a map is being played here, its podium not yet up.
+func _in_a_map() -> bool:
+	var match_node := session.match_node
+	return session.in_arena and match_node != null and match_node.state != Match.State.RESULTS
+
+
+## Who hosts a Steam game after the host here, GAME.md 10.8: the player at another machine who has
+## been in it longest, 0 for nobody; their Steam account, and the name they go by in the room.
+func successor() -> int:
+	var here := session._player_peers()
+	for each: int in _order:
+		if each in here:
+			return each
+	return here[0] if not here.is_empty() else 0
+
+
+func successor_account() -> int:
+	return ManagePlayers.account_at(session, successor())
+
+
+func successor_name() -> String:
+	return _seat_name(successor())
+
+
+## What is asked before a host leaves for the title, GAME.md 9.3 and 10.8: a Steam game with
+## somebody else playing in it goes on with them hosting it; any other is over for everybody who has
+## joined.
+static func host_leave_words() -> Array[String]:
+	var session := Net.session
+	if Store.steam_game() and session != null and session.host_controls.successor() != 0:
+		var next := session.host_controls.successor_name()
+		return ["Leave the game?", "%s hosts it after you." % next, "Leave", "Stay"]
+	return [
+		"Back to the title?",
+		"Everybody who has joined will be disconnected.",
+		"Disconnect everybody"
+	]
 
 
 ## At a dedicated server: [param player] has gone. With the say, it passes to whoever has been here
@@ -319,6 +375,11 @@ func _process(delta: float) -> void:
 	# seat in it, GAME.md 10.8.
 	if not session._room_up and not _next_map.is_empty():
 		_let_go_of_the_held()
+	# Make host asked during a map, done once it is over.
+	if _hand_on_to != 0 and not _in_a_map():
+		var to := _hand_on_to
+		_hand_on_to = 0
+		hand_on(to)
 	var steam := Store.steam_game()
 	if peer == 0 and not steam:
 		return

@@ -25,6 +25,7 @@ const DEMO_HOST := "res://scenes/demo/demo_host.gd"
 ## too.
 const STEAM_PRESENCE := "res://scripts/store/steam_presence.gd"
 const STEAM_JOINS := "res://scripts/store/steam_joins.gd"
+const STEAM_HANDOVER := "res://scripts/store/steam_handover.gd"
 const STEAM_TIMELINE := "res://scripts/store/steam_timeline.gd"
 const STEAM_KEYBOARD := "res://scripts/store/steam_keyboard.gd"
 ## The supporter pack bought while the game runs, its thank-you card at once in the menus,
@@ -200,6 +201,7 @@ func _ready() -> void:
 	if Store.on():
 		add_child(load(STEAM_PRESENCE).new())
 		add_child(load(STEAM_JOINS).new())
+		add_child(load(STEAM_HANDOVER).new())
 		add_child(load(STEAM_TIMELINE).new())
 		add_child(load(STEAM_KEYBOARD).new())
 	# Steam's controllers as pads, unless the player turned Steam Input off, GAME.md 10.8; in the
