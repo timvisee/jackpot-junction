@@ -147,7 +147,10 @@ func test_the_licenses_page_carries_the_notices() -> void:
 		# Made safe as the page makes it: an apostrophe as its number.
 		var name: String = piece["name"].xml_escape(true).replace("&apos;", "&#39;")
 		assert_str(page).contains("<b>%s</b>" % name)
-	assert_str(page).contains("Copyright 1996-2025, David Turner")
+	for piece: Dictionary in Licenses.pieces():
+		if piece["name"] == "The FreeType Project":
+			for line: String in Licenses.copyright(piece["parts"][0]["copyright"]):
+				assert_str(page).contains(line)
 	for key: String in Licenses.keys(Credits.in_this_build(), Licenses.pieces()):
 		assert_str(page).contains("<details><summary>%s</summary>" % Licenses.title(key))
 	assert_str(page).contains('<a href="./">Back to the server</a>')

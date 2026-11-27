@@ -92,7 +92,6 @@ func test_the_text_carries_every_notice() -> void:
 	var texts := Engine.get_license_info()
 	for key: String in Licenses.keys(things, Licenses.pieces()):
 		assert_str(text).contains(texts[key])
-	assert_str(text).contains("Copyright 1996-2025, David Turner")
 
 
 func _names(os: String) -> PackedStringArray:

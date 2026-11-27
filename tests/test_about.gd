@@ -64,7 +64,8 @@ func test_the_licenses_open_under_their_link() -> void:
 	var of := Licenses.pieces()
 	for piece: Dictionary in of:
 		assert_str(said).contains(piece["name"])
-	assert_str(said).contains("Copyright 1996-2025, David Turner")
+	for line: String in _copyright_of("The FreeType Project"):
+		assert_str(said).contains(line)
 	for thing: Dictionary in things:
 		if thing.has("license"):
 			assert_str(said).contains(thing["what"])
@@ -144,6 +145,17 @@ func test_everybody_credited_is_in_the_third_party_list() -> void:
 			. override_failure_message("%s has no row in THIRD_PARTY.md" % who)
 			. is_true()
 		)
+
+
+## The copyright lines of the piece of Godot named [param name], as the notices write them.
+func _copyright_of(name: String) -> PackedStringArray:
+	var lines := PackedStringArray()
+	for piece: Dictionary in Licenses.pieces():
+		if piece["name"] == name:
+			for part: Dictionary in piece["parts"]:
+				lines.append_array(Licenses.copyright(part["copyright"]))
+	assert_bool(lines.is_empty()).is_false()
+	return lines
 
 
 ## Who made each row of THIRD_PARTY.md's table, its second column.
