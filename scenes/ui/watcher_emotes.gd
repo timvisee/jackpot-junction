@@ -46,12 +46,14 @@ func _exit_tree() -> void:
 
 
 func _on_watcher_emoted(watcher: String, emote: int) -> void:
-	float_up(watcher, INK, emote)
+	# Nor a watcher muted here, GAME.md 10.8.
+	if not Muted.watcher(watcher):
+		float_up(watcher, INK, emote)
 
 
 ## A player's emote, which goes over their kart unless they are dead, see [Emotes].
 func _on_emoted(index: int, emote: int) -> void:
-	if match_node == null or index < 0 or index >= match_node.slots.size():
+	if match_node == null or index < 0 or index >= match_node.slots.size() or Muted.slot(index):
 		return
 	var slot := match_node.slots[index]
 	if slot.kart != null and is_instance_valid(slot.kart) and slot.kart.alive:

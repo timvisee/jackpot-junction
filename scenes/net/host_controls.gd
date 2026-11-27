@@ -60,8 +60,13 @@ var _order: Array[int] = []
 ## looked at again.
 var _told := ""
 var _look_left := 0.0
-## On a client with the say: everybody else in the game, as the server last said.
+## On a client with the say, and on every client in a Steam game: everybody else in the game, as the
+## host last said.
 var _guests: Array[Dictionary] = []
+## In a Steam game, GAME.md 10.8: what each client was last told of everybody else, and the Steam
+## accounts this machine has told Steam it played with.
+var _told_each: Dictionary[int, String] = {}
+var _played: Dictionary[int, bool] = {}
 
 
 static func of(owner: NetSession) -> HostControls:
@@ -145,6 +150,10 @@ func kick(player: int, number := -1, why := REMOVED) -> void:
 		session._empty_seat(player, number)
 		session._seat_dropped.rpc_id(player, number)
 		return
+	# Out of a public Steam game for as long as it is hosted, GAME.md 10.8; a friend may come back.
+	var account := ManagePlayers.account_at(session, player)
+	if account != 0 and Store.public_game() and account not in session.door.barred:
+		session.door.barred.append(account)
 	_kicked.rpc_id(player, why)
 	get_tree().create_timer(KICK_GRACE).timeout.connect(_let_go_of.bind(player))
 
@@ -271,14 +280,22 @@ func _seat_name(player: int) -> String:
 
 
 ## At a dedicated server, the player with the say is told whenever somebody else comes, goes or
-## changes, for their Manage players.
+## changes, for their Manage players; in a Steam game, everybody is, for their Players, GAME.md
+## 10.8.
 func _process(delta: float) -> void:
-	if peer == 0 or not session.is_host or not session._connected():
+	if not session.is_host or not session._connected():
+		return
+	var steam := Store.steam_game()
+	if peer == 0 and not steam:
 		return
 	_look_left -= delta
 	if _look_left > 0.0:
 		return
 	_look_left = GUESTS_EVERY
+	if steam:
+		_tell_everybody()
+	if peer == 0:
+		return
 	var others: Array[Dictionary] = []
 	for guest: Dictionary in guests():
 		if int(guest["peer"]) != peer:
@@ -287,6 +304,56 @@ func _process(delta: float) -> void:
 	if said != _told:
 		_told = said
 		_guests_are.rpc_id(peer, others)
+
+
+## Everybody in the game, GAME.md 10.8: the host's own players first, then everybody else, each with
+## the slot they play this room in and their Steam account, 0 where there is none.
+func everybody() -> Array[Dictionary]:
+	var found: Array[Dictionary] = []
+	var match_node := session.match_node
+	if session.is_host and not session.dedicated and match_node != null:
+		var own := Store.steam.account if Store.on() else 0
+		for slot: PlayerSlot in match_node.slots:
+			if slot.is_local_human():
+				var plate := KartVisuals.plate_worn(slot.kart) if slot.kart != null else ""
+				var each := {"peer": 1, "seat": slot.index, "slot": slot.index, "host": true}
+				each.merge({"name": slot.display_name(), "color": slot.color(), "plate": plate})
+				each["account"] = own
+				found.append(each)
+	for guest: Dictionary in guests():
+		var each := guest.duplicate()
+		each["account"] = ManagePlayers.account_at(session, int(guest["peer"]))
+		found.append(each)
+	return found
+
+
+## In a Steam game, each client is told who else is in it whenever that changes, GAME.md 10.8, and
+## Steam told this machine played with them.
+func _tell_everybody() -> void:
+	var all := everybody()
+	_heard_of(all)
+	for client: int in multiplayer.get_peers():
+		var others: Array[Dictionary] = []
+		for each: Dictionary in all:
+			if int(each["peer"]) != client:
+				others.append(each)
+		var said := str(others)
+		if said != _told_each.get(client, ""):
+			_told_each[client] = said
+			_guests_are.rpc_id(client, others)
+
+
+## Everybody in the game, [param all], as this machine knows them: which slot is whom, for whose
+## emotes are muted, and each new Steam account told to Steam as played with.
+func _heard_of(all: Array[Dictionary]) -> void:
+	Muted.seen(all)
+	if not Store.on():
+		return
+	for each: Dictionary in all:
+		var account := int(each.get("account", 0))
+		if account != 0 and not _played.has(account):
+			_played[account] = true
+			Store.steam.played_with(account)
 
 
 ## Whether the call being answered came from the player with the say, at a dedicated server. Every
@@ -360,6 +427,8 @@ func _guests_are(others: Array) -> void:
 	for guest: Variant in others:
 		if guest is Dictionary and (guest as Dictionary).has("peer"):
 			_guests.append(guest)
+	if Store.steam_game():
+		_heard_of(_guests)
 
 
 @rpc("authority", "call_remote", "reliable")

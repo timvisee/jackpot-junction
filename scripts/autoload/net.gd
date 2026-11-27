@@ -67,8 +67,9 @@ func close() -> void:
 	session = null
 	remove_child(going)
 	going.free()
-	# A Steam game's lobby goes with it, GAME.md 10.8.
+	# A Steam game's lobby goes with it, GAME.md 10.8, and the players muted in it.
 	Store.left_game()
+	Muted.clear()
 
 
 ## Whether this machine is talking to anybody.

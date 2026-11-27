@@ -51,7 +51,12 @@ func answer(peer: int, data: PackedByteArray) -> void:
 		var match_node := session.match_node
 		var players := session._player_peers().size()
 		# Full is only known while there is a room to be full: between rooms nobody is refused.
+		var account := ManagePlayers.account_at(session, peer)
 		var room := {
+			"account": account,
+			# Kept out of a public game the host showed them out of, or by the host's block on
+			# Steam, GAME.md 10.8.
+			"barred": account in session.door.barred or Store.blocked(account),
 			"no_seat":
 			session._room_up and match_node != null and not SeatLimit.has_seat(match_node),
 			"players": players,

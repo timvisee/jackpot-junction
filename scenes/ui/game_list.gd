@@ -49,8 +49,13 @@ func show_games(games: Array[Dictionary], fallback: Control) -> void:
 
 ## What [param game] is called: the name its host gave it, or else whose it is, "Ann's game".
 static func title_of(game: Dictionary) -> String:
-	var title := PlayerNames.clean(str(game.get("title", "")), PlayerNames.TITLE_LENGTH)
-	return title if not title.is_empty() else default_title(str(game.get("name", "")))
+	# As this player's Steam filter lets them be seen, GAME.md 10.8, written by the host.
+	var host := int(game.get("steam_host", 0))
+	var given := SteamWords.heard(str(game.get("title", "")), host)
+	var title := PlayerNames.clean(given, PlayerNames.TITLE_LENGTH)
+	if not title.is_empty():
+		return title
+	return default_title(SteamWords.heard(str(game.get("name", "")), host))
 
 
 ## What a game hosted by [param host] is called when it was given no name.

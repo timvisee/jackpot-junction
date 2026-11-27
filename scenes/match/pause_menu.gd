@@ -94,8 +94,8 @@ var _settings: SettingsScreen
 ## The achievements dialog open over the menu, by its path: it names this menu's group, and a
 ## script naming the other back is a cycle among the rooms', see [method open_achievements].
 var _achievements: CanvasLayer
-## Online, on the host: who else is in the game, with a way to show any of them out, and the
-## button that opens it. Up in place of the menu while it is open, as a question is.
+## Online, on the host, and in a Steam game for everybody: who else is in the game, with a way to
+## show any of them out, and the button that opens it. Up in place of the menu while it is open.
 var _players: ManagePlayers
 var _manage: Button
 ## And who may come in: how many may play, and the password, GAME.md 9.6.
@@ -252,6 +252,7 @@ func _ready() -> void:
 	_manage = MenuTheme.button("Manage players")
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
+	_players.button = _manage
 	buttons.add_child(_manage)
 	# What of the title's Clubhouse can be had in a room, GAME.md 3.8, behind one button as there:
 	# the loyalty program, the catalog and the achievements, and not the Garage or the Driving
@@ -966,13 +967,13 @@ func _process(_delta: float) -> void:
 	if _force.visible:
 		_show_force()
 	var says := session == null or session.host_controls.mine()
-	_manage.visible = session != null and says
+	_manage.visible = ManagePlayers.offered(session, says)
 	_door_button.visible = _manage.visible
 	_invite.visible = Store.steam_game()
 	if _to_lobby != null:
 		_to_lobby.visible = says
 	# The say handed to somebody else at a dedicated server, GAME.md 9.3a, takes its panes with it.
-	if not says and (_aside == _players or _aside == _door):
+	if not says and (_aside == _door or (_aside == _players and not _manage.visible)):
 		if asking() and _asked_over == _aside:
 			_put_the_question_away()
 		_put_away_aside()

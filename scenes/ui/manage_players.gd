@@ -10,6 +10,10 @@ extends PanelContainer
 ## kart on, as for anybody who leaves. The list follows whoever comes and goes while it is up, and
 ## scrolls between the title and Back where a room of eight and its watchers do not fit on the
 ## screen, GAME.md 9.3, keeping the row with the cursor in sight, see [FitScroll].
+##
+## In a Steam game, GAME.md 10.8, everybody has it, called Players for whoever has no say: every
+## row has Profile and Mute, which hides that player's emotes on this screen, see [Muted], and only
+## the host has Kick. Kicked from a public game, a player cannot come back to it.
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -23,10 +27,14 @@ const ROW_WIDE := 640.0
 const KICK_SIZE := Vector2(110.0, 44.0)
 const HAND_SIZE := Vector2(150.0, 44.0)
 const PROFILE_SIZE := Vector2(130.0, 44.0)
+const MUTE_SIZE := Vector2(130.0, 44.0)
 ## The room between a row's buttons.
 const BUTTON_ROOM := 10.0
 
 var session: NetSession
+## The button on the menu that opens the list, which it names: Manage players with the say, and
+## Players without.
+var button: Button
 
 var _rows: VBoxContainer
 var _scroll: FitScroll
@@ -60,6 +68,10 @@ func open() -> void:
 	visible = true
 	MenuTheme.deal(self)
 	_note.text = "Somebody kicked goes back to the title, and can join again."
+	if Store.public_game():
+		_note.text = "Somebody kicked goes back to the title, and can't join this game again."
+	elif not _says():
+		_note.text = "Mute hides somebody's emotes on your screen. Report is on their Steam profile."
 	if _handing():
 		_note.text = (
 			"Somebody kicked goes back to the server's games, and can join again."
@@ -71,14 +83,32 @@ func open() -> void:
 
 
 func _process(_delta: float) -> void:
+	if button != null:
+		button.text = "Manage players" if _says() else "Players"
 	if visible:
 		_redraw()
 
 
+## Whether a pause menu offers the list, see [member button]: to whoever has the host's say, and in
+## a Steam game, GAME.md 10.8, to everybody.
+static func offered(session: NetSession, says: bool) -> bool:
+	return session != null and (says or Store.steam_game())
+
+
+## Whether the host's say is here, which kicks.
+func _says() -> bool:
+	return session != null and session.host_controls.mine()
+
+
 func _redraw() -> void:
 	var guests := session.host_controls.guests() if session != null else []
+	if session != null and session.is_host and Store.steam_game():
+		# With their Steam accounts, and without the host's own, listed as Me.
+		guests = session.host_controls.everybody().filter(
+			func(each: Dictionary) -> bool: return not each.get("host", false)
+		)
 	var mine := _mine()
-	var drawn := str(mine) + str(guests)
+	var drawn := str(mine) + str(guests) + str(_says()) + Muted.said()
 	if drawn == _drawn:
 		return
 	_drawn = drawn
@@ -128,20 +158,27 @@ func _row(guest: Dictionary) -> SeatCard:
 	var plays := guest.has("color")
 	var seat: int = guest.get("seat", -1)
 	var me: bool = guest.get("me", false)
-	var says := with_steam_name(
-		"Me" if me else ("Playing" if plays else "Watching"), _steam_name(guest)
-	)
+	var where := "Me" if me else ("Playing" if plays else "Watching")
+	if bool(guest.get("host", false)):
+		where = "Host"
+	var says := with_steam_name(where, _steam_name(guest))
 	var mark := str(seat + 1) if plays and seat >= 0 else ""
 	var card := SeatCard.make(
 		str(guest["name"]), guest.get("color", SeatCard.NO_COLOR), mark, says, me
 	)
 	# Room for the buttons on every row, so the plates line up over rows with none, and the row
-	# wider by Profile's, so the names keep theirs.
-	var room := KICK_SIZE.x + (HAND_SIZE.x + BUTTON_ROOM if _handing() else 0.0)
+	# wider by Profile's and Mute's, so the names keep theirs.
+	var room := (
+		(KICK_SIZE.x if _says() else 0.0) + (HAND_SIZE.x + BUTTON_ROOM if _handing() else 0.0)
+	)
 	var profiles := _profiles()
+	var wider := 0.0
 	if profiles:
-		room += PROFILE_SIZE.x + BUTTON_ROOM
-	card.custom_minimum_size.x = ROW_WIDE + (PROFILE_SIZE.x + BUTTON_ROOM if profiles else 0.0)
+		wider += PROFILE_SIZE.x + BUTTON_ROOM
+	if Store.steam_game():
+		wider += MUTE_SIZE.x + BUTTON_ROOM
+	room += wider
+	card.custom_minimum_size.x = ROW_WIDE + wider
 	card.actions.custom_minimum_size.x = room
 	# Somebody watching has no kart, and the room a plate would take.
 	card.show_plate(str(guest.get("plate", "")))
@@ -152,6 +189,9 @@ func _row(guest: Dictionary) -> SeatCard:
 	var account := _account(guest) if profiles else 0
 	if account != 0:
 		card.actions.add_child(profile_button(account))
+	# Their emotes hidden on this screen, or shown again, GAME.md 10.8.
+	if Store.steam_game():
+		card.actions.add_child(_mute_button(guest))
 	# Somebody else playing can be handed the say at a dedicated server, GAME.md 9.3a. A LAN game's
 	# host is the machine it runs on, and has nobody to hand it to.
 	var named := str(guest["name"])
@@ -166,13 +206,16 @@ func _row(guest: Dictionary) -> SeatCard:
 				)
 		)
 		card.actions.add_child(hand)
+	if not _says():
+		return card
 	var kick := MenuTheme.button("Kick", Type.BODY)
 	kick.name = "Kick"
 	kick.custom_minimum_size = KICK_SIZE
+	var barring := Store.public_game()
 	kick.pressed.connect(
 		func() -> void:
 			asking.emit(
-				kick_words(named, _handing()),
+				kick_words(named, _handing(), barring),
 				func() -> void: session.host_controls.kick(peer, seat),
 				kick
 			)
@@ -181,11 +224,23 @@ func _row(guest: Dictionary) -> SeatCard:
 	return card
 
 
+## Mute, hiding [param guest]'s emotes on this screen, or Unmute once it has, GAME.md 10.8.
+func _mute_button(guest: Dictionary) -> Button:
+	var muted := Muted.is_muted(guest)
+	var mute := MenuTheme.button("Unmute" if muted else "Mute", Type.BODY)
+	mute.name = "Mute"
+	mute.custom_minimum_size = MUTE_SIZE
+	mute.pressed.connect(func() -> void: Muted.mute(guest, not Muted.is_muted(guest)))
+	return mute
+
+
 ## What is asked before [param named] is kicked: back to the title, or to the server's games when
-## [param to_games], at a dedicated server, and free to join again.
-static func kick_words(named: String, to_games: bool) -> Array[String]:
+## [param to_games], at a dedicated server, and free to join again, unless [param barred] from a
+## public Steam game, GAME.md 10.8.
+static func kick_words(named: String, to_games: bool, barred := false) -> Array[String]:
 	var where := "the server's games" if to_games else "the title"
-	return ["Kick %s?" % named, "%s goes back to %s, and can join again." % [named, where], "Kick"]
+	var after := "can't join this game again" if barred else "can join again"
+	return ["Kick %s?" % named, "%s goes back to %s, and %s." % [named, where, after], "Kick"]
 
 
 ## What is asked before the host's say is handed to [param named], at a dedicated server, GAME.md
@@ -214,20 +269,32 @@ static func profile_button(account: int) -> Button:
 	return profile
 
 
-## The Steam name of [param guest] in a Steam game, the host's own included, or nothing.
+## The Steam name of [param guest] in a Steam game, the host's own included, or nothing; somebody
+## else's through Steam's filter, GAME.md 10.8.
 func _steam_name(guest: Dictionary) -> String:
 	if not Store.steam_game():
 		return ""
 	if guest.get("me", false):
 		return Store.persona()
 	var account := _account(guest)
-	return Store.steam.persona_of(account) if account != 0 else ""
+	return SteamWords.heard(Store.steam.persona_of(account), account) if account != 0 else ""
 
 
-## The Steam account of [param guest], somebody else in a Steam game, or 0.
+## The Steam account of [param guest], somebody else in a Steam game, as the host said it or as the
+## connection knows it, or 0.
 func _account(guest: Dictionary) -> int:
-	var steam := SteamPeer.of(session.multiplayer.multiplayer_peer) if session != null else null
-	return steam.account_of(int(guest["peer"])) if steam != null else 0
+	if guest.has("account"):
+		return int(guest["account"])
+	return account_at(session, int(guest["peer"]))
+
+
+## The Steam account of whoever is at [param peer] of [param session]'s connection, or 0: on any
+## other kind, and at a client for anybody but the host.
+static func account_at(session: NetSession, peer: int) -> int:
+	if session == null or session.multiplayer.multiplayer_peer == null:
+		return 0
+	var steam := SteamPeer.of(session.multiplayer.multiplayer_peer)
+	return steam.account_of(peer) if steam != null else 0
 
 
 ## Whether the rows offer the players' profiles on Steam: in a Steam game, with Steam's overlay to

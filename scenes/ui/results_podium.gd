@@ -237,7 +237,8 @@ func _exit_tree() -> void:
 ## Somebody on the podium has emoted, GAME.md 3.8: up it pops over their kart in the photo finish
 ## as well as over the kart itself, so it is seen where everybody is looking.
 func _on_emoted(index: int, emote: int) -> void:
-	if not visible:
+	# Nor a player muted here, GAME.md 10.8.
+	if not visible or Muted.slot(index):
 		return
 	for place: int in _standing.size():
 		var slot := _standing[place]

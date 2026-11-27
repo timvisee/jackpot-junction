@@ -23,6 +23,10 @@ below, and hands the notes to the release workflow.
 - **Public games on Steam.** A Steam game can be open to anyone, not only to friends or those
   invited, and Play Online's Steam tab lists public games beside friends' ones, nearest first, with
   their seats, bots and ping.
+- **Players for everybody in a Steam game.** Everybody's pause menu lists who is in the game, with
+  Steam's profile and Mute for each; only the host can kick. Kicked from a public game, a player
+  stays out of it, a host's Steam blocks keep people out, and other players' names go through
+  Steam's text filter.
 
 ### Changed
 

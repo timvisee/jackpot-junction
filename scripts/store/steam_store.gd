@@ -102,7 +102,23 @@ func start(app_id: int) -> String:
 	# Where this machine is on Steam's network is measured from the start, for a host to say it in
 	# its lobby and a player to tell a host's ping by, GAME.md 10.8.
 	api.call(&"initRelayNetworkAccess")
+	# And Steam's filter readied for the words other players wrote, see [SteamWords].
+	api.call(&"initFilterText")
 	return ""
+
+
+## [param text], words the account [param source] wrote, as Steam's text filter lets the player see
+## them, GAME.md 10.8, by their own Steam setting; [param context] is GodotSteam's
+## TEXT_FILTERING_CONTEXT_*, a name or game content.
+func filter_text(context: int, source: int, text: String) -> String:
+	return str(api.call(&"filterText", context, source, text))
+
+
+## Tells Steam the player played with the account [param other], GAME.md 10.8, for Steam's list of
+## recent players, where Steam's own Report and Block are.
+func played_with(other: int) -> void:
+	if other != 0 and other != account:
+		api.call(&"setPlayedWith", other)
 
 
 ## Which of Steam's own machines the game runs on, see [constant NOT_STEAM_HARDWARE].

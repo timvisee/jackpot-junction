@@ -65,7 +65,8 @@ func _physics_process(delta: float) -> void:
 ## Somebody has emoted, here or on the host: up it goes over their kart, in place of one still up.
 ## A dead one's has no kart to go over, and floats up from the bottom instead, see [WatcherEmotes].
 func _on_emoted(index: int, emote: int) -> void:
-	if index < 0 or index >= match_node.slots.size():
+	# Nor a player muted here, GAME.md 10.8.
+	if index < 0 or index >= match_node.slots.size() or Muted.slot(index):
 		return
 	var slot := match_node.slots[index]
 	var kart := slot.kart

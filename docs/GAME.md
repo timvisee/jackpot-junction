@@ -7955,7 +7955,9 @@ a press too many shows nobody out. Kick asks first, in place of the list,
 is no, and the list again with the cursor on that Kick.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
-whatever they do with that, so nobody stays by not listening. They may join again. Their seat
+whatever they do with that, so nobody stays by not listening. They may join again, but for a
+public Steam game, 10.8, which keeps them out for as long as it is hosted. In a Steam game everybody
+has the list, as Players, see 10.8. Their seat
 goes the way a seat does when anybody leaves: emptied in the waiting room, a bot's on a map.
 
 A window in the background keeps playing. A window the desktop has stopped
@@ -11206,9 +11208,9 @@ rather than as the "somewhere" every peer without an address would share.
 #### Public games and Quick Play
 
 For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: who may come in, the list, a
-row and a full game; until Quick Play is in, an empty list's link is Host a game. Still planned:
-everything from Joining a match in play on, which once built replaces the host leaving described
-above. Decided with the user on 2026-11-26
+row, a full game, and Players but for idle karts; until Quick Play is in, an empty list's link is
+Host a game. Still planned: idle karts, Joining a match in play, Quick Play and A host who goes,
+which once built replaces the host leaving described above. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
@@ -11284,7 +11286,9 @@ by their Steam account, until the host stops hosting; in a friends' game it is a
 may come back. A lasting ban is Steam's own Block, which the game keeps to: a host turns away
 anybody it has blocked, the list leaves out games hosted by anybody the player has blocked, and
 Quick Play skips games with them in. Names, kart plates and game names from anybody who is not the
-reader's Steam friend go through Steam's text filter, by the reader's own Steam setting. There is
+reader's Steam friend go through Steam's text filter, by the reader's own Steam setting: as they
+come in, at the host as a client says them, at a client as the host's snapshot does, and on the
+list as Steam reads it. There is
 no vote kick: the host kicks, and anybody unhappy with the host leaves, which costs nothing. In a
 public match a kart with no input for 60 s is driven by a bot, and any press takes it back.
 

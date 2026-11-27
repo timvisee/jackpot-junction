@@ -298,6 +298,19 @@ static func steam_game() -> bool:
 	)
 
 
+## Whether the game hosted here is a public Steam game, open to anyone, GAME.md 10.8.
+static func public_game() -> bool:
+	if not steam_game() or not steam.lobbies.hosting:
+		return false
+	return steam.lobbies.who == SteamLobby.Who.ANYONE
+
+
+## Whether the player has blocked the account [param account] on Steam, GAME.md 10.8: never with
+## no Steam, nor for no account.
+static func blocked(account: int) -> bool:
+	return steam != null and steam.lobbies != null and steam.lobbies.blocked(account)
+
+
 ## The game being played is over for this machine: a Steam game's lobby is left, GAME.md 10.8.
 static func left_game() -> void:
 	if steam != null and steam.lobbies != null:

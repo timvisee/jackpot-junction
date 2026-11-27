@@ -516,7 +516,9 @@ static func _apply_slots(match_node: Match, entries: Array) -> void:
 		slot.out_at = int(entry.get("out", -1))
 		# Only now and then, see [SlowParts]: missing, they are what they were.
 		if entry.has("name"):
-			slot.player_name = entry["name"]
+			# Somebody else's through this player's Steam filter, GAME.md 10.8.
+			var named := str(entry["name"])
+			slot.player_name = named if slot.is_local_human() else SteamWords.heard(named)
 		if entry.has("stats"):
 			slot.stats.from_array(entry["stats"])
 		if entry.has("trait"):
@@ -649,7 +651,7 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 		if kart != null and entry.has("plate"):
 			# The plate on its back as the host has it, GAME.md 4.4: a learner's L, a license plate,
 			# or none, put on or taken off as the host's word changes.
-			var worn: String = entry["plate"]
+			var worn := SteamWords.heard(str(entry["plate"]))
 			if worn != KartVisuals.plate_worn(kart):
 				KartVisuals.plate_like(kart.get_node_or_null("Body") as Node3D, worn)
 		if kart == null:
@@ -665,7 +667,8 @@ static func _apply_karts(match_node: Match, entries: Array) -> void:
 				kart.decoy_owner = kart
 			match_node.add_child(kart)
 			kart.make_puppet()
-			KartVisuals.plate_like(kart.get_node_or_null("Body") as Node3D, entry.get("plate", ""))
+			var plate := SteamWords.heard(str(entry.get("plate", "")))
+			KartVisuals.plate_like(kart.get_node_or_null("Body") as Node3D, plate)
 			kart.global_position = Vector3(entry["x"], 0.0, entry["z"])
 			match_node.puppet_karts[id] = kart
 			if not entry["decoy"] and entry["slot"] < match_node.slots.size():

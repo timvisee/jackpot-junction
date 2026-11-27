@@ -57,6 +57,9 @@ var names: Dictionary[int, String] = {}
 ## 8.9, see [method HostControls.tell_unlocks]: what a dedicated server deals while that client has
 ## the host's say, see [method Loyalty.table_unlocks].
 var unlocks: Dictionary[int, Dictionary] = {}
+## In a public Steam game, the Steam accounts the host has shown out, GAME.md 10.8: kept out of
+## this game for as long as it is hosted.
+var barred: Array[int] = []
 
 var _rng := RandomNumberGenerator.new()
 ## The watchers' names this door has kept off the list, by who has them.
@@ -113,6 +116,8 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 	if watch:
 		full = room["watchers"] >= MAX_WATCHERS
 	var closed := watch and not watchers_allowed
+	# Somebody shown out of a public Steam game, or blocked on Steam by its host, GAME.md 10.8.
+	var kept_out := bool(room.get("barred", false))
 	# Without the server's own password nobody comes in: they never came by its list, and are not
 	# asked for it here, nor for the lobby's.
 	var given_server := str(words.get("server_password", ""))
@@ -126,8 +131,12 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		elif given != password:
 			locked = WRONG
 	var welcome := playable and not outside and not full and not closed and locked.is_empty()
+	welcome = welcome and not kept_out
 	if welcome:
-		names[peer] = PlayerNames.clean(str(words.get("name", "")))
+		# As the host's Steam filter lets it be seen, GAME.md 10.8, written by [param room]'s
+		# account, if any.
+		var named := PlayerNames.clean(str(words.get("name", "")))
+		names[peer] = SteamWords.heard(named, int(room.get("account", 0)))
 		if watch:
 			_name_watcher(peer, room.get("match"))
 	var answered := {
@@ -138,6 +147,7 @@ func answer(version: String, peer: int, words: Dictionary, room: Dictionary) -> 
 		"locked": locked,
 		"closed": closed,
 		"outside": outside,
+		"barred": kept_out,
 	}
 	if not welcome:
 		var theirs := str(words.get("version", "?"))
@@ -261,6 +271,7 @@ func guests(
 						{
 							"peer": peer,
 							"seat": number,
+							"slot": index,
 							"name": slot.display_name(),
 							"color": slot.color(),
 							"plate": KartVisuals.plate_worn(slot.kart),
@@ -294,6 +305,8 @@ static func refusal(version: String, words: Dictionary) -> String:
 		return "Wrong version: the host has %s, you have %s" % [theirs, version]
 	if bool(words.get("outside", false)):
 		return "This server has a password: join its games from Play Online"
+	if bool(words.get("barred", false)):
+		return "You can't join this game"
 	if bool(words.get("closed", false)):
 		return "This game is not open to watchers"
 	if bool(words.get("full", false)):

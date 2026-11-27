@@ -287,7 +287,7 @@ func test_manage_players_opens_a_steam_profile() -> void:
 	_steam()
 	assert_bool(ManagePlayers._profiles()).is_false()
 	Net.session = NetSession.new()
-	Game.pending_config = SteamJoins.host_config(false)
+	Game.pending_config = SteamJoins.host_config()
 	assert_bool(ManagePlayers._profiles()).is_true()
 	var pane: SteamRows = auto_free(SteamRows.new())
 	add_child(pane)

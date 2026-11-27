@@ -40,7 +40,7 @@ func say_color(color: int, number: int) -> void:
 @rpc("any_peer", "call_remote", "reliable")
 func _named(claimed: String, number := 0) -> void:
 	var slot := _claimed_by(claimed.length(), PlayerNames.MAX_LENGTH, number)
-	var named := PlayerNames.clean(claimed)
+	var named := _heard(PlayerNames.clean(claimed))
 	if slot != null and not named.is_empty():
 		slot.player_name = named
 
@@ -58,7 +58,7 @@ func _plated(claimed: String, number := 0) -> void:
 	var slot := _claimed_by(claimed.length(), LicensePlate.MOST, number)
 	if slot != null and slot.kart != null:
 		var body := slot.kart.get_node_or_null("Body") as Node3D
-		KartVisuals.plate_like(body, LicensePlate.valid(claimed))
+		KartVisuals.plate_like(body, _heard(LicensePlate.valid(claimed)))
 
 
 ## A color, which the client gets if nobody else in the room is in it, or a team, see
@@ -68,6 +68,13 @@ func _colored(color: int, number := 0) -> void:
 	var slot := _claimed_by(0, 0, number)
 	if slot != null:
 		SeatIdentity.claim(session.match_node, slot, color)
+
+
+## [param words] a client wrote, through the host's Steam filter, GAME.md 10.8, written by the
+## account of whoever sent the call being answered.
+func _heard(words: String) -> String:
+	var account := ManagePlayers.account_at(session, multiplayer.get_remote_sender_id())
+	return SteamWords.heard(words, account)
 
 
 ## At the host, in a call from a client carrying [param size] of what no copy of the game sends
