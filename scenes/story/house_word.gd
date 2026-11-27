@@ -32,6 +32,10 @@ const LIFT := 0.014
 const STRETCH := 1.6
 ## How far apart a display's dots are, and a satin stitch's threads, in meters.
 const DOT := 0.16
+## How many dots up a Chinese character wants on a display, as a sign's own type has them, GAME.md
+## 10.9: a letter reads in seven, a character of a dozen strokes in no fewer than sixteen, so a
+## display saying Chinese sets its dots closer.
+const DOTS_CHINESE := 16
 const THREAD := 0.11
 ## The near apron's word: how big, and how far apart the places it tries are, along it and out.
 const APRON := Vector2(10.0, 2.4)
@@ -98,6 +102,8 @@ func lay(
 	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var skin := material(how, ink, under, across)
 	skin.set_shader_parameter(&"seed", fmod(absf(at.x * 0.37 + at.z * 0.71), 13.0))
+	if how == Medium.DOTS and Array(text.to_utf32_buffer().to_int32_array()).any(Lang.wide):
+		skin.set_shader_parameter(&"dots", minf(DOT, across.y * FILL.y / DOTS_CHINESE))
 	material_override = skin
 	var pixels := Vector2i((across * PER_METER).round())
 	var most := maxi(pixels.x, pixels.y)

@@ -177,3 +177,18 @@ func test_stacked_words_split_where_the_language_allows() -> void:
 	assert_array(Array(HouseWord.lines_of("禁止停车"))).is_equal(["禁止", "停车"])  # NO_TRANSLATE
 	assert_array(Array(HouseWord.lines_of("请勿停车。"))).is_equal(["请勿停", "车。"])  # NO_TRANSLATE
 	assert_array(Array(HouseWord.lines_of("禁止 停车"))).is_equal(["禁止", "停车"])  # NO_TRANSLATE
+
+
+## A display saying Chinese sets its dots closer, sixteen up a character, so one of a dozen strokes
+## still reads; one saying English keeps its own, GAME.md 10.9.
+func test_a_display_saying_chinese_sets_its_dots_closer() -> void:
+	var across := Vector2(12.0, 2.8)
+	for said: String in ["KEEP CLEAR", "禁止停车"]:  # NO_TRANSLATE
+		var word: HouseWord = auto_free(HouseWord.new())
+		word.text = said
+		word.lay(Vector3.ZERO, across, Color.WHITE, HouseWord.Medium.DOTS)
+		var dots: float = (word.material_override as ShaderMaterial).get_shader_parameter(&"dots")
+		if said == "KEEP CLEAR":
+			assert_float(dots).is_equal(HouseWord.DOT)
+		else:
+			assert_float(across.y * HouseWord.FILL.y / dots).is_equal_approx(16.0, 0.01)
