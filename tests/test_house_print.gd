@@ -220,6 +220,9 @@ func test_a_corner_block_is_a_strip_in_its_players_color() -> void:
 	assert_float(card.size.x).is_equal_approx(MatchHud.BLOCK_WIDTH, 0.5)
 	assert_object(block["nitro"]).is_instanceof(NitroBottle)
 	assert_object(block["speed_dial"]).is_instanceof(SpeedDial)
+	# The bottle lies under the dial, so the dial's rim takes the inner edge of its collar.
+	var bottle := (block["nitro"] as Control).get_index()
+	assert_int(bottle).is_less((block["speed_dial"] as Control).get_index())
 
 
 ## A slip is torn along its top and its foot rather than notched, its teeth reaching the edge

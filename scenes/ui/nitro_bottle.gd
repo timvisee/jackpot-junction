@@ -5,11 +5,13 @@ extends Range
 ## gauge sits under its speedometer. Dark glass rounded at its foot, filling from the left in the
 ## player's own color with the shadow side of the house print, marked off in tenths, a glint along
 ## it; it narrows over its shoulder into a neck, and a gas cylinder's valve stands straight off
-## that, its outlet turned to the dial as if it fed it and its red hand wheel across its end. Amber
-## while the bottle burns, as the dial's fill is, see [SpeedDial].
+## that, its red hand wheel across its end and its outlet piped into the dial's rim through a
+## collar laid against the rim's edge, curved as the rim is. Amber while the bottle burns, as the
+## dial's fill is, see [SpeedDial].
 ##
-## Laid over the dial's box and drawn past its foot, into the room the block leaves under it, see
-## [HudBlock]. Its shapes are worked out once for a size, so a frame of driving draws them only.
+## Laid in the dial's box under the dial, whose rim takes the collar's inner edge, and drawn past
+## its foot, into the room the block leaves under it, see [HudBlock]. Its shapes are worked out
+## once for a size, so a frame of driving draws them only.
 
 ## The bottle round the dial's middle, in shares of half the dial's side: from how far out to how
 ## far out, and in degrees clockwise from east with y down, where its foot is, where its shoulder
@@ -32,6 +34,16 @@ const SHADE := 0.72
 const WHEEL := Color(0.8, 0.17, 0.14)
 ## The size the valve is drawn at, the dial's own pixels for a dial [constant SIZE] across.
 const SIZE := 88.0
+## Along the valve, as [method _draw_valve] has it: the outlet, from the valve's block up to the
+## collar, and the middle of its end, where the collar is laid.
+const OUTLET := Rect2(4.6, -6.0, 2.6, 2.9)
+const OUTLET_END := Vector2(5.9, -6.0)
+## The collar the outlet goes into the dial's rim through: how far out from the rim's middle it
+## reaches and how wide it is along the rim, in the dial's pixels at its own size. It starts on
+## the rim's middle, see [constant SpeedDial.RIM], under the rim's foil, so it lies flush against
+## the rim however thin the rim is drawn at a scale.
+const COLLAR_DEEP := 2.3
+const COLLAR_WIDE := 4.6
 
 ## The player's own color, the fill's, see [HudBlock].
 var ink := Color.WHITE:
@@ -101,21 +113,34 @@ func _draw() -> void:
 		true
 	)
 	var neck := middle + Vector2.from_angle(deg_to_rad(NECK)) * half * (INNER + OUTER) * 0.5
-	draw_set_transform(neck, deg_to_rad(NECK - 90.0), Vector2.ONE * k)
+	var turn := deg_to_rad(NECK - 90.0)
+	draw_set_transform(neck, turn, Vector2.ONE * k)
 	_draw_valve()
 	draw_set_transform(Vector2.ZERO)
+	# The collar, round the dial's middle rather than along the valve, so it lies flush against the
+	# rim where the outlet meets it; its far half in the foil's shadow.
+	var at := rad_to_deg((neck + OUTLET_END.rotated(turn) * k - middle).angle())
+	var edge := half * SpeedDial.RIM
+	var spread := rad_to_deg(COLLAR_WIDE * 0.5 * k / edge)
+	var foil := HouseTheme.FOIL
+	draw_colored_polygon(
+		_band(middle, edge, edge + COLLAR_DEEP * k, at - spread, at + spread), foil
+	)
+	draw_colored_polygon(
+		_band(middle, edge, edge + COLLAR_DEEP * k, at, at + spread), Color(foil * SHADE, 1.0)
+	)
 
 
 ## The valve along +x from the end of the neck, +y its shadow side, away from the dial: the neck,
-## the valve's block with its outlet turned to the dial, a stem, and the hand wheel on its end seen
-## edge on, red, as a bar across.
+## the valve's block with its outlet turned to the dial and running up to the dial's rim, a stem,
+## and the hand wheel on its end seen edge on, red, as a bar across.
 func _draw_valve() -> void:
 	var foil := HouseTheme.FOIL
 	var dark := Color(foil * SHADE, 1.0)
 	draw_rect(Rect2(0.0, -2.0, 2.8, 4.0), dark)
 	draw_rect(Rect2(2.6, -3.3, 6.4, 6.6), foil)
 	draw_rect(Rect2(2.6, 0.3, 6.4, 3.0), dark)
-	draw_rect(Rect2(4.6, -5.5, 2.6, 2.4), foil)
+	draw_rect(OUTLET, foil)
 	draw_rect(Rect2(8.8, -1.0, 1.9, 2.0), dark)
 	draw_rect(Rect2(10.5, -5.4, 2.4, 10.8), WHEEL)
 	draw_rect(Rect2(10.5, 0.6, 2.4, 4.8), Color(WHEEL * SHADE, 1.0))

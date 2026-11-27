@@ -172,17 +172,18 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	dial_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	dial_box.custom_minimum_size = Vector2(DIAL, DIAL)
 	dial_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	var speed_dial := SpeedDial.new()
-	speed_dial.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	speed_dial.tooltip_text = Lang.t("Speed")
-	speed_dial.ink = slot.color()
-	dial_box.add_child(speed_dial)
+	# The nitro bottle under the dial, whose rim takes the inner edge of the bottle's collar.
 	var nitro := NitroBottle.new()
 	nitro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	nitro.ink = slot.color()
 	nitro.value = 100.0
 	nitro.tooltip_text = Lang.t("Nitro")
 	dial_box.add_child(nitro)
+	var speed_dial := SpeedDial.new()
+	speed_dial.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	speed_dial.tooltip_text = Lang.t("Speed")
+	speed_dial.ink = slot.color()
+	dial_box.add_child(speed_dial)
 	var speed := Label.new()
 	speed.text = "0"
 	Type.set_font(speed, Type.numbers_font(), Type.HEADING)

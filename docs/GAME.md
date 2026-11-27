@@ -4791,8 +4791,9 @@ lane beside it is as wide as it was.
   dark glass rounded at its foot, filling from the left in the player's color as
   far as the tank is full, with its shadow side and a glint, marked off in
   tenths, narrowing into a neck with a gas cylinder's valve standing straight off
-  it, its outlet turned to the dial as if it fed it and its red hand wheel across
-  its end. Amber while it burns, as the dial's fill is (`NitroBottle`).
+  it, its red hand wheel across its end and its outlet piped into the dial's rim
+  through a collar laid against the rim's edge, curved as the rim is. Amber while
+  it burns, as the dial's fill is (`NitroBottle`).
 - **Speedometer** in it: a small dial, three quarters of a ring open at the
   foot, with the number in km/h in its middle and the unit written in the gap,
   the number and the ring's fill turning the nitro's amber while the bottle is lit. The dial is full at a kart flat out on
