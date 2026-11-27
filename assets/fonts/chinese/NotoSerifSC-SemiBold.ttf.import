@@ -2,13 +2,13 @@
 
 importer="font_data_dynamic"
 type="FontFile"
-uid="uid://dwrv0f0g5b20q"
-path="res://.godot/imported/ZCOOLXiaoWei-Regular.ttf-34866904803dd1f406dddfb25783a32d.fontdata"
+uid="uid://dlhtpjvf2ql22"
+path="res://.godot/imported/NotoSerifSC-SemiBold.ttf-d16b77e1a06580b8c66618eab1e10f45.fontdata"
 
 [deps]
 
-source_file="res://assets/fonts/chinese/ZCOOLXiaoWei-Regular.ttf"
-dest_files=["res://.godot/imported/ZCOOLXiaoWei-Regular.ttf-34866904803dd1f406dddfb25783a32d.fontdata"]
+source_file="res://assets/fonts/chinese/NotoSerifSC-SemiBold.ttf"
+dest_files=["res://.godot/imported/NotoSerifSC-SemiBold.ttf-d16b77e1a06580b8c66618eab1e10f45.fontdata"]
 
 [params]
 
@@ -21,8 +21,7 @@ msdf_pixel_range=8
 msdf_size=48
 allow_system_fallback=true
 force_autohinter=false
-modulate_color_glyphs=false
-hinting=3
+hinting=1
 subpixel_positioning=4
 keep_rounding_remainders=true
 oversampling=0.0

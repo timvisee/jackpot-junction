@@ -7663,24 +7663,12 @@ msgid "fonts.google.com/noto/specimen/Noto+Sans+SC"
 msgstr "fonts.google.com/noto/specimen/Noto+Sans+SC"
 
 #: scripts/credits.gd
-msgid "Noto Serif SC typeface, for Chinese typed"
-msgstr "Noto Serif SC 字体，用于打字机打出的中文"
+msgid "Noto Serif SC typeface, for Chinese typed and in an old book"
+msgstr "Noto Serif SC 字体，用于打字机打出的和旧书里的中文"
 
 #: scripts/credits.gd
 msgid "fonts.google.com/noto/specimen/Noto+Serif+SC"
 msgstr "fonts.google.com/noto/specimen/Noto+Serif+SC"
-
-#: scripts/credits.gd
-msgid "ZCOOL XiaoWei typeface, for Chinese in an old book"
-msgstr "ZCOOL XiaoWei 字体，用于旧书里的中文"
-
-#: scripts/credits.gd
-msgid "Li Dawei and ZCOOL"
-msgstr "Li Dawei 和 ZCOOL"
-
-#: scripts/credits.gd
-msgid "fonts.google.com/specimen/ZCOOL+XiaoWei"
-msgstr "fonts.google.com/specimen/ZCOOL+XiaoWei"
 
 #: scripts/credits.gd
 msgid "LXGW WenKai typeface, for Chinese in pencil"
@@ -13411,3 +13399,15 @@ msgstr "头奖：%d"
 #: tools/make_workbench_prints.py
 msgid "check the wheel!"
 msgstr "检查轮盘！"
+
+#~ msgid "Noto Serif SC typeface, for Chinese typed"
+#~ msgstr "Noto Serif SC 字体，用于打字机打出的中文"
+
+#~ msgid "ZCOOL XiaoWei typeface, for Chinese in an old book"
+#~ msgstr "ZCOOL XiaoWei 字体，用于旧书里的中文"
+
+#~ msgid "Li Dawei and ZCOOL"
+#~ msgstr "Li Dawei 和 ZCOOL"
+
+#~ msgid "fonts.google.com/specimen/ZCOOL+XiaoWei"
+#~ msgstr "fonts.google.com/specimen/ZCOOL+XiaoWei"

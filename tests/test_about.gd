@@ -273,8 +273,8 @@ func test_the_chinese_fonts_are_credited_only_where_a_build_has_them() -> void:
 				. is_true()
 			)
 			theirs.append(thing)
-	assert_int(theirs.size()).is_equal(8)
-	assert_int(Credits.in_this_build(theirs).size()).is_equal(8)
+	assert_int(theirs.size()).is_equal(7)
+	assert_int(Credits.in_this_build(theirs).size()).is_equal(7)
 	# The same rows in a build without the folder, as a dedicated server's is.
 	var elsewhere: Array[Dictionary] = []
 	for thing: Dictionary in theirs:

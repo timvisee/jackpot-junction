@@ -11765,7 +11765,7 @@ first translation, Simplified Chinese the second, a draft to be read over by a n
 None of the game's typefaces draws Chinese, so each has a Chinese partner behind it as a fallback,
 `Type.dress()` at start: a letter the face has is drawn in the face, a Chinese character in its
 partner. The partners are open fonts chosen to match the faces (Noto Sans SC behind Barlow at three
-weights, Noto Serif SC behind the typewriter, ZCOOL XiaoWei behind the old book, LXGW WenKai behind
+weights, Noto Serif SC behind the typewriter and, heavier, behind the old book, LXGW WenKai behind
 Kit's pencil, Xiaolai behind the driver's hand, Long Cang behind the stranger's and the scratch,
 Zhi Mang Xing behind the signatures, ZCOOL KuaiLe behind the marker), and `make fonts`,
 `tools/partner_fonts.py`, cuts each from its upstream release, pinned and checksummed and never kept

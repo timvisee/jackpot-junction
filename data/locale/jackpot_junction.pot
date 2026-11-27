@@ -7724,23 +7724,11 @@ msgid "fonts.google.com/noto/specimen/Noto+Sans+SC"
 msgstr ""
 
 #: scripts/credits.gd
-msgid "Noto Serif SC typeface, for Chinese typed"
+msgid "Noto Serif SC typeface, for Chinese typed and in an old book"
 msgstr ""
 
 #: scripts/credits.gd
 msgid "fonts.google.com/noto/specimen/Noto+Serif+SC"
-msgstr ""
-
-#: scripts/credits.gd
-msgid "ZCOOL XiaoWei typeface, for Chinese in an old book"
-msgstr ""
-
-#: scripts/credits.gd
-msgid "Li Dawei and ZCOOL"
-msgstr ""
-
-#: scripts/credits.gd
-msgid "fonts.google.com/specimen/ZCOOL+XiaoWei"
 msgstr ""
 
 #: scripts/credits.gd

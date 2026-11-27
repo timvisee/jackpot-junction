@@ -185,28 +185,17 @@ const THINGS: Array[Dictionary] = [
 		],
 	},
 	{
-		"what": "Noto Serif SC typeface, for Chinese typed",
+		"what": "Noto Serif SC typeface, for Chinese typed and in an old book",
 		"who": "Adobe and Google",
 		"terms": "SIL Open Font License 1.1",
 		"where": "fonts.google.com/noto/specimen/Noto+Serif+SC",
-		"files": ["res://assets/fonts/chinese/NotoSerifSC-Regular.ttf"],
+		"files":
+		[
+			"res://assets/fonts/chinese/NotoSerifSC-Regular.ttf",
+			"res://assets/fonts/chinese/NotoSerifSC-SemiBold.ttf",
+		],
 		"license": "OFL-1.1",  # NO_TRANSLATE
 		"copyright": ["2012 Google Inc. All Rights Reserved."],  # NO_TRANSLATE
-	},
-	{
-		"what": "ZCOOL XiaoWei typeface, for Chinese in an old book",
-		"who": "Li Dawei and ZCOOL",
-		"terms": "SIL Open Font License 1.1",
-		"where": "fonts.google.com/specimen/ZCOOL+XiaoWei",
-		"files": ["res://assets/fonts/chinese/ZCOOLXiaoWei-Regular.ttf"],
-		"license": "OFL-1.1",  # NO_TRANSLATE
-		"copyright":
-		[
-			(
-				"2018 The ZCOOL XiaoWei Project Authors"  # NO_TRANSLATE
-				+ " (https://github.com/googlefonts/zcool-xiaowei/)"
-			),
-		],
 	},
 	{
 		"what": "LXGW WenKai typeface, for Chinese in pencil",

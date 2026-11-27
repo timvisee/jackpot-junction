@@ -7741,24 +7741,12 @@ msgid "fonts.google.com/noto/specimen/Noto+Sans+SC"
 msgstr "fonts.google.com/noto/specimen/Noto+Sans+SC"
 
 #: scripts/credits.gd
-msgid "Noto Serif SC typeface, for Chinese typed"
-msgstr "Lettertype Noto Serif SC, voor getypt Chinees"
+msgid "Noto Serif SC typeface, for Chinese typed and in an old book"
+msgstr "Lettertype Noto Serif SC, voor getypt Chinees en Chinees in een oud boek"
 
 #: scripts/credits.gd
 msgid "fonts.google.com/noto/specimen/Noto+Serif+SC"
 msgstr "fonts.google.com/noto/specimen/Noto+Serif+SC"
-
-#: scripts/credits.gd
-msgid "ZCOOL XiaoWei typeface, for Chinese in an old book"
-msgstr "Lettertype ZCOOL XiaoWei, voor Chinees in een oud boek"
-
-#: scripts/credits.gd
-msgid "Li Dawei and ZCOOL"
-msgstr "Li Dawei en ZCOOL"
-
-#: scripts/credits.gd
-msgid "fonts.google.com/specimen/ZCOOL+XiaoWei"
-msgstr "fonts.google.com/specimen/ZCOOL+XiaoWei"
 
 #: scripts/credits.gd
 msgid "LXGW WenKai typeface, for Chinese in pencil"
@@ -13490,6 +13478,18 @@ msgstr "jackpots: %d"
 #: tools/make_workbench_prints.py
 msgid "check the wheel!"
 msgstr "check het wiel!"
+
+#~ msgid "Noto Serif SC typeface, for Chinese typed"
+#~ msgstr "Lettertype Noto Serif SC, voor getypt Chinees"
+
+#~ msgid "ZCOOL XiaoWei typeface, for Chinese in an old book"
+#~ msgstr "Lettertype ZCOOL XiaoWei, voor Chinees in een oud boek"
+
+#~ msgid "Li Dawei and ZCOOL"
+#~ msgstr "Li Dawei en ZCOOL"
+
+#~ msgid "fonts.google.com/specimen/ZCOOL+XiaoWei"
+#~ msgstr "fonts.google.com/specimen/ZCOOL+XiaoWei"
 
 #~ msgid "Godot Engine license"
 #~ msgstr "Licentie van Godot Engine"

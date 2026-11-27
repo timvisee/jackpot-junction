@@ -71,12 +71,6 @@ SOURCES = {
         GOOGLE + "notoserifsc/OFL.txt",
         "5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6",
     ),
-    "zcool-xiaowei": (
-        GOOGLE + "zcoolxiaowei/ZCOOLXiaoWei-Regular.ttf",
-        "a42b620140f493db42f741351dfbf343c0936d58588ee8004b8b2a218d997ff1",
-        GOOGLE + "zcoolxiaowei/OFL.txt",
-        "a094514ca57cf8f9c5e8d8d1adab5d8cd3a377297ff016f9df2c05b3ecd77f0a",
-    ),
     "wenkai": (
         WENKAI + "releases/download/v1.530/LXGWWenKai-Regular.ttf",
         "2d73eea94ad808999d90c0000c239a84a33b09d4bc6ab6c5b8bbf1eda8a7fc8b",
@@ -125,7 +119,7 @@ CUTS = [
      ["BarlowCondensed-ExtraBold.ttf", "BarlowCondensed-Black.ttf"]),
     ("NotoSerifSC-Regular.ttf", "noto-serif-sc", 400, WORDS, "Noto Serif SC JJ", "Regular",
      ["CourierPrime-Regular.ttf"]),
-    ("ZCOOLXiaoWei-Regular.ttf", "zcool-xiaowei", None, WORDS, "ZCOOL XiaoWei JJ", "Regular",
+    ("NotoSerifSC-SemiBold.ttf", "noto-serif-sc", 600, WORDS, "Noto Serif SC JJ", "SemiBold",
      ["IMFellEnglish-Regular.ttf"]),
     ("WenKai-Regular.ttf", "wenkai", None, WORDS, "WenKai JJ", "Regular",
      ["Caveat-Variable.ttf"]),
