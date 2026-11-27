@@ -5470,7 +5470,8 @@ the scratched line, and a plate may carry the characters a Chinese plate does.
 | C8 | A road's stacked words split a Chinese phrase at its middle | Done |
 | C9 | A plate takes the characters Chinese plates carry, two at most | Done |
 | C10 | Every screen looked at in pseudo-Chinese, and what that shows fixed | Done 2026-11-27: the settings, title, match, joker pick, payout slip, catalog, loyalty map, license, invitation, garage, waiting room, tutorial, every note and the road words, from a throwaway translation the length of a real one. Fixed: the engine drew a hand's Chinese in the text face's partner, not reckoning a cut partner Han (`Type.dress` says so); headings in capitals ran into the line under them (partners cut to the capitals' room); the Arcade's dot display set closer for Chinese. A glyph drawn the first time costs 0.04 ms, a page of new characters about 10 ms once: no warming wanted |
-| C11 | The translation, read over by a native speaker; the store page, its pictures, the trailer's words | Open |
+| C11 | The store page's words, `docs/steam/store_schinese.md`, its pictures with words, the trailer's words and itch.io's line, setting the terms in TRANSLATING.md | Done: a draft to be read over |
+| C12 | The game's words, read over by a native speaker with the store page's; the screenshots and the trailer recorded in Chinese then | Open |
 
 ## Pending
 
