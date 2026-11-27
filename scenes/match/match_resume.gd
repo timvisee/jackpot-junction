@@ -112,7 +112,8 @@ static func owners_of(session: NetSession) -> Dictionary:
 				owner["seat"] = int(number)
 				owners[int(seats[number])] = owner
 	for guest: Dictionary in session.host_controls.guests():
-		if guest.has("slot"):
+		# The host who went is not coming back to their karts: nobody waits on them.
+		if guest.has("slot") and not bool(guest.get("host", false)):
 			var account := int(guest.get("account", 0))
 			var owner := {"account": account, "peer": int(guest.get("peer", 0))}
 			owner["seat"] = int(guest.get("seat", 0))

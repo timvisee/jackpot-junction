@@ -100,7 +100,10 @@ func test_a_client_takes_the_map_as_its_host_goes() -> void:
 	assert_int(int(slots[0]["banked"])).is_equal(250)
 	assert_int(int(slots[0]["coins"])).is_equal(17)
 	assert_bool(slots[0]["here"]).is_false()
-	assert_int(int(slots[0]["account"])).is_equal(Store.steam.account)
+	# The host's own kart is nobody's to come back to: the host is the one who went, and nobody
+	# holds the start for them.
+	assert_bool((slots[0] as Dictionary).has("account")).is_false()
+	assert_dict(MatchResume.seats_kept(resume)).is_empty()
 	assert_bool(slots[1]["here"]).is_true()
 	assert_bool(slots[1]["human"]).is_true()
 	# Nothing to carry over from a lobby.
