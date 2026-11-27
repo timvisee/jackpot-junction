@@ -124,6 +124,7 @@ static func text(things: Array[Dictionary]) -> String:
 	out.append("Jackpot Junction %s, licenses" % GameVersion.current())
 	out.append("")
 	out.append(own_terms())
+	out.append("Source: %s" % Credits.REPOSITORY)
 	out.append("")
 	out.append("== Made with ==")
 	for thing: Dictionary in things:
@@ -154,9 +155,10 @@ static func text(things: Array[Dictionary]) -> String:
 	return "\n".join(out)
 
 
-## The game's own terms in a sentence, and where its source is.
+## The game's own terms in a sentence; where its source is, [constant Credits.REPOSITORY], goes on
+## a line of its own.
 static func own_terms() -> String:
 	return (
 		"Jackpot Junction is free software under the GNU General Public License 3.0, and the assets"
-		+ " made for it are under CC-BY-4.0. Its source: %s" % Credits.REPOSITORY
+		+ " made for it are under CC-BY-4.0."
 	)

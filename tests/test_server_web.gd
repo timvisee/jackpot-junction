@@ -139,7 +139,13 @@ func test_the_licenses_page_carries_the_notices() -> void:
 	assert_str(page).contains("200 OK")
 	assert_str(page).contains("text/html")
 	assert_str(page).contains("GNU General Public License 3.0")
-	assert_str(page).contains('<a href="%s">' % Credits.REPOSITORY)
+	# The source on a line of its own, linked as the page links it.
+	assert_str(page).contains(
+		(
+			'<p class="links"><a href="%s" target="_blank" rel="noopener">%s</a></p>'
+			% [Credits.REPOSITORY, ServerWeb.SOURCE]
+		)
+	)
 	assert_str(page).contains("Copyright 2017 The Barlow Project Authors")
 	assert_str(page).contains("Nicolae &quot;Xelu&quot; Berbece")
 	assert_str(page).contains("Godot Engine contributors")

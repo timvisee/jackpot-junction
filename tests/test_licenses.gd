@@ -77,7 +77,7 @@ func test_the_text_carries_every_notice() -> void:
 	var things := Credits.in_this_build()
 	var text := Licenses.text(things)
 	assert_str(text).contains(Licenses.own_terms())
-	assert_str(text).contains(Credits.REPOSITORY)
+	assert_str(text).contains("Source: %s" % Credits.REPOSITORY)
 	assert_str(text).contains(Engine.get_license_text())
 	for piece: Dictionary in Licenses.pieces():
 		assert_str(text).contains(piece["name"])

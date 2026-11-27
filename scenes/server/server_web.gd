@@ -18,6 +18,8 @@ extends RefCounted
 const STEAM := "https://store.steampowered.com/app/5652730"
 const ITCH := "https://timvisee.itch.io/jackpot-junction"
 const GITHUB := "https://github.com/timvisee/jackpot-junction"
+## What the link to the source says, on the page and on the licenses page alike.
+const SOURCE := "Source on GitHub"
 ## How often the page refreshes itself, in seconds, so a list left open keeps up with the games.
 const REFRESH := 5
 ## The most connections waited on at once, the most bytes a request may run to before it is dropped,
@@ -299,7 +301,7 @@ func _games(list: Array) -> String:
 ## where it is.
 func _links() -> String:
 	var links: Array[Array] = [
-		["Get it on Steam", STEAM], ["Get it on itch.io", ITCH], ["Source on GitHub", GITHUB]
+		["Get it on Steam", STEAM], ["Get it on itch.io", ITCH], [SOURCE, GITHUB]
 	]
 	if not args.web_link.is_empty():
 		links.append([args.web_link, args.web_link])
@@ -400,11 +402,14 @@ func _licenses_html() -> String:
 		'<h1><a class="back" href="./" aria-label="Back to the server">&larr;</a>Licenses</h1>'
 	)
 	out.append('<p class="sub">Jackpot Junction %s dedicated server</p>' % _escape(_version()))
-	var source := (
-		'<a href="%s">%s</a>' % [Credits.REPOSITORY, Credits.REPOSITORY.trim_prefix("https://")]
+	# The terms, and under them the source as the page links it, opening in a tab of its own.
+	var source := '<a href="%s" target="_blank" rel="noopener">%s</a>' % [GITHUB, SOURCE]
+	out.append(
+		(
+			'<section class="card"><p class="terms">%s</p><p class="links">%s</p></section>'
+			% [_escape(Licenses.own_terms()), source]
+		)
 	)
-	var terms := _escape(Licenses.own_terms()).replace(_escape(Credits.REPOSITORY), source)
-	out.append('<section class="card"><p class="terms">%s</p></section>' % terms)
 	out.append('<section class="card"><h2>Made with</h2><ul class="notices">')
 	for thing: Dictionary in things:
 		var said := PackedStringArray(
@@ -518,6 +523,7 @@ func _style() -> String:
 					".back{text-decoration:none;margin-right:12px;opacity:.75}",
 					".back:hover,.back:focus{opacity:1}",
 					".terms{margin:0}",
+					".terms+.links{margin:10px 0 0}",
 					".links a{display:inline-block;margin:0 14px 0 0;color:#f2c14e}",
 					".fields{margin:4px 0 4px;display:flex;flex-wrap:wrap;gap:10px}",
 					".field{background:#15131a;border:1px solid #332e40;border-radius:8px;",
