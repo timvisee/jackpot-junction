@@ -16,7 +16,7 @@ import pathlib
 
 from PIL import Image, ImageDraw, ImageFont
 
-from baked_words import _, languages, remap, translates_any, translator
+from baked_words import _, languages, translates_any, translator
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
@@ -65,10 +65,7 @@ def rail(tr=lambda text: text, name="rail_print.png"):
 
 if __name__ == "__main__":
     rail()
-    spoken = {}
     for locale in languages():
         if translates_any(locale, MICROPRINT):
-            spoken[locale] = OUT / ("rail_print.%s.png" % locale)
-            rail(translator(locale), spoken[locale].name)
-    remap(OUT / "rail_print.png", spoken)
+            rail(translator(locale), "rail_print.%s.png" % locale)
     print("prints in", OUT)

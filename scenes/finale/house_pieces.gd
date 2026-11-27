@@ -199,12 +199,12 @@ static func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> Me
 ## moved so a run starts at its foot. The same shader as the table's rail's, the scale and the
 ## offset being only numbers to it.
 static func _print(height: float, foot: float) -> StandardMaterial3D:
-	var key := "%.3f:%.3f" % [height, fposmod(foot / height, 1.0)]
+	var key := "%.3f:%.3f:%s" % [height, fposmod(foot / height, 1.0), Lang.current]  # NO_TRANSLATE
 	if _prints.has(key):
 		return _prints[key]
 	var scale := 1.0 / height
 	var printed := StandardMaterial3D.new()
-	printed.albedo_texture = HouseRail.PRINT
+	printed.albedo_texture = Lang.picture(HouseRail.PRINT)
 	printed.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	printed.uv1_triplanar = true
 	printed.uv1_world_triplanar = true

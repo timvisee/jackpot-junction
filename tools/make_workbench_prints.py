@@ -24,7 +24,7 @@ import re
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from baked_words import _, languages, remap, translates_any, translator
+from baked_words import _, languages, translates_any, translator
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
@@ -224,13 +224,10 @@ if __name__ == "__main__":
     chalk = RNG.bit_generator.state
     chalkboard()
     after = RNG.bit_generator.state
-    spoken = {}
     for locale in languages():
         if translates_any(locale, SLATE_WORDS):
-            spoken[locale] = OUT / ("kit_chalkboard.%s.png" % locale)
             RNG.bit_generator.state = chalk
-            chalkboard(translator(locale), spoken[locale].name)
+            chalkboard(translator(locale), "kit_chalkboard.%s.png" % locale)
     RNG.bit_generator.state = after
-    remap(OUT / "kit_chalkboard.png", spoken)
     calculator()
     print("prints in", OUT)

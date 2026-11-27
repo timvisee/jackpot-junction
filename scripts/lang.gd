@@ -144,6 +144,13 @@ static func ordinal(place: int) -> String:
 	return forms[form] % place
 
 
+## The picture at [param path] with its words in the language spoken: the one the art tools drew
+## for it beside it, <name>.<locale>.png, see tools/baked_words.py, or the picture itself.
+static func picture(path: String) -> Texture2D:
+	var own := "%s.%s.%s" % [path.get_basename(), current, path.get_extension()]
+	return load(own if current != ENGLISH and ResourceLoader.exists(own) else path)
+
+
 ## [param items] as a list in a sentence: "a", "a and b", "a, b and c".
 static func listed(items: Array) -> String:
 	if items.is_empty():

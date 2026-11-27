@@ -6,7 +6,8 @@ extends RefCounted
 ## along it, a cap of lit stock with a foil hairline down each edge of it, and the House's seal in
 ## foil at each end of a run. It stays inside the wall's box, which is what a kart drives into.
 
-const PRINT := preload("res://assets/textures/rail_print.png")
+## The print, in the language spoken by way of [method Lang.picture].
+const PRINT := "res://assets/textures/rail_print.png"
 ## How far along the rail one run of its print goes.
 const RUN := 8.0
 ## The cap: how much of the height it takes, how far in from each side it stands, and the foil
@@ -22,6 +23,8 @@ const SEAL := 0.36
 const SEAL_WIDEST := 2.6
 
 static var _print: StandardMaterial3D
+## The language [member _print]'s words are in.
+static var _print_in := ""
 static var _cap: StandardMaterial3D
 static var _foil: StandardMaterial3D
 
@@ -82,9 +85,13 @@ static func _box(into: Node3D, size: Vector3, skin: Material, at: Vector3) -> Me
 
 static func _make_materials() -> void:
 	if _print != null:
+		if _print_in != Lang.current:
+			_print.albedo_texture = Lang.picture(PRINT)
+			_print_in = Lang.current
 		return
 	_print = StandardMaterial3D.new()
-	_print.albedo_texture = PRINT
+	_print.albedo_texture = Lang.picture(PRINT)
+	_print_in = Lang.current
 	_print.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	_print.uv1_triplanar = true
 	_print.uv1_world_triplanar = true

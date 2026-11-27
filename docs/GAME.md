@@ -11798,8 +11798,9 @@ How a word is marked, so the template finds it and the language spoken shows it 
 Words drawn into a picture by the art tools, the House rail's microprint and Kit's chalkboard, are
 marked with `_()` in the tool as gettext's tools mark them, and `make strings` reads them with the
 rest. The tool draws its picture again as `<name>.<locale>.png` for every language that translates
-its words, the chalk and noise the same as the English, and lists it in the project's translation
-remaps, so the engine loads that picture in that language (`tools/baked_words.py`).
+its words, the chalk and noise the same as the English, and the game loads a picture with words
+through `Lang.picture()`, which takes that one in that language (`tools/baked_words.py`). Not the
+engine's translation remaps: a picture loaded once in one language stays in its cache as that one.
 
 Left in English: the tools in `scenes/dev` for the store's pictures and trailers, debug builds' own
 pages, the log, and a dedicated server's console and web page; whatever a server sends a player goes

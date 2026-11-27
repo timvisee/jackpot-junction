@@ -78,7 +78,11 @@ func _slate(shell: RoomShell, face: float) -> void:
 	var slate := QuadMesh.new()
 	slate.size = size
 	shell._dim(
-		shell._put(slate, style.printed(WorkbenchStyle.SLATE), middle + Vector3(0.0, 0.0, 0.32))
+		shell._put(
+			slate,
+			style.printed(Lang.picture(WorkbenchStyle.SLATE)),
+			middle + Vector3(0.0, 0.0, 0.32)
+		)
 	)
 	var maple := style.wood(WorkbenchStyle.MAPLE)
 	var rail := 0.8

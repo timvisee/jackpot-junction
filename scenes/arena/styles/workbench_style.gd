@@ -18,7 +18,8 @@ extends RoomStyle
 const GRAIN := preload("res://assets/textures/kit_maple.png")
 const RULE := preload("res://assets/textures/kit_rule.png")
 const MARK := preload("res://assets/textures/kit_mark.png")
-const SLATE := preload("res://assets/textures/kit_chalkboard.png")
+## Kit's plan of the table, its words in the language spoken by way of [method Lang.picture].
+const SLATE := "res://assets/textures/kit_chalkboard.png"
 const CALCULATOR := preload("res://assets/textures/kit_calculator.png")
 const BENCH := "res://scenes/arena/styles/workbench_bench.gd"
 
