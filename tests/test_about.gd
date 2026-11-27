@@ -18,7 +18,7 @@ func test_the_about_page_says_what_it_is_and_who_made_it() -> void:
 	assert_str(said).contains(Game.version())
 	assert_str(said).contains("experiment")
 	for model: String in Credits.MODELS:
-		assert_str(said).contains(model)
+		assert_str(said).contains(model.replace(" ", "\u00a0"))
 	for thing: Dictionary in Credits.in_this_build():
 		assert_str(said).contains(thing["what"])
 	# The links that go somewhere: the game's pages and its source. The one that opens the
@@ -246,9 +246,16 @@ func test_every_license_credited_has_its_text() -> void:
 			)
 
 
+## The models read as a sentence, each name held together so no line breaks inside one; and a link
+## on the page breaks after none of its slashes.
 func test_the_models_read_as_a_sentence() -> void:
-	assert_str(Credits.models_in_words()).is_equal(
+	var said := Credits.models_in_words()
+	assert_str(said.replace("\u00a0", " ")).is_equal(
 		"Claude Fable 5.1, Claude Opus 5 and Claude Opus 5.5"
+	)
+	assert_str(said).contains("Claude\u00a0Fable\u00a05.1")
+	assert_str(AboutTab.whole("github.com/jpt/barlow")).is_equal(
+		"github.com/\u2060jpt/\u2060barlow"
 	)
 
 

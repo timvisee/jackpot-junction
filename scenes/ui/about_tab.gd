@@ -345,7 +345,13 @@ static func _credit(thing: Dictionary) -> RichTextLabel:
 		"what": "[b]%s[/b]" % Lang.t(thing["what"]),
 		"who": Lang.t(thing["who"]),
 		"terms": Lang.t(thing["terms"]),
-		"where": "[color=#%s]%s[/color]" % [FAINT.to_html(false), thing["where"]],
+		"where": "[color=#%s]%s[/color]" % [FAINT.to_html(false), whole(thing["where"])],
 	}
 	line.text = "[center]%s[/center]" % Lang.t("{what} by {who}, {terms}, {where}").format(parts)
 	return line
+
+
+## [param link] kept on one line, as a line of Chinese, which may break anywhere, would otherwise
+## break it after a slash: a word joiner after each, which allows no break and shows nothing.
+static func whole(link: String) -> String:
+	return link.replace("/", "/⁠")

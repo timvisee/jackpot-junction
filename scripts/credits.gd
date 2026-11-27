@@ -365,6 +365,9 @@ static func holds(path: String) -> bool:
 	return ResourceLoader.exists(path) or FileAccess.file_exists(path)
 
 
-## The models, written out as a list in a sentence in the language spoken: "A, B and C".
+## The models, written out as a list in a sentence in the language spoken: "A, B and C", each
+## name's words held together by no-break spaces, so a line ends between two names, never in one.
 static func models_in_words() -> String:
-	return Lang.listed(MODELS)
+	return Lang.listed(
+		MODELS.map(func(model: String) -> String: return model.replace(" ", "\u00a0"))
+	)
