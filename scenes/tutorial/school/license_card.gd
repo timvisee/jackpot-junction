@@ -177,6 +177,33 @@ static func create(
 	return card
 
 
+## Somebody else's card, from [param said], their license as it came over the wire, see
+## [LicenseWire], cleaned here again whoever sent it: as their own card shows it but the story's
+## marks, which are theirs to know, GAME.md 10.8. Stamped, as every card issued is.
+static func from_wire(said: Dictionary) -> LicenseCard:
+	var given := LicenseWire.clean(said)
+	var earned: Dictionary[String, bool] = {}
+	var words: PackedStringArray = given.get("earned", PackedStringArray())
+	for word: String in TutorialFight.ENDORSEMENTS:
+		earned[word] = word in words
+	var card := create(
+		str(given.get("name", "")),
+		str(given.get("number", "")),
+		str(given.get("issued", "")),
+		int(given.get("color", 0)),
+		KartStyle.from_array(given.get("style", [])),
+		earned
+	)
+	card.stamped = true
+	card.supporter_since = str(given.get("supporter", ""))
+	card.program_stamps = given.get("stamps", PackedStringArray())
+	card.cones = int(given.get("cones", 0))
+	card.scratched = false
+	card.examiner = EXAMINER
+	card.approved = ""
+	return card
+
+
 func _set_house_shown(value: bool) -> void:
 	house_shown = value
 	queue_redraw()

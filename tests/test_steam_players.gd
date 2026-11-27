@@ -118,6 +118,20 @@ func test_kick_words() -> void:
 	)
 
 
+## A row with a driver license to show has License, GAME.md 10.8; a learner's, none.
+func test_a_row_with_a_license() -> void:
+	var pane: ManagePlayers = auto_free(ManagePlayers.new())
+	add_child(pane)
+	var licensed := {"name": "Bo", "color": Color.RED, "seat": 0, "slot": 1, "peer": 9}
+	licensed["license"] = {"name": "Bo", "number": "K-9"}
+	var card := pane._row(licensed)
+	auto_free(card)
+	assert_object(card.find_child("License", true, false)).is_not_null()
+	var learner := pane._row({"name": "Cy", "color": Color.BLUE, "seat": 0, "slot": 2, "peer": 8})
+	auto_free(learner)
+	assert_object(learner.find_child("License", true, false)).is_null()
+
+
 ## Every row's chip says the seat in the room, as the corner of the screen does: a guest's own too,
 ## not the number of their seat at their machine, which is for Kick. And off Steam a player without
 ## the say is told only the host kicks, not about Steam's Mute and Report.

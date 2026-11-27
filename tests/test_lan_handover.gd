@@ -186,6 +186,30 @@ func test_everybody_sees_who_hosts() -> void:
 	host.free()
 
 
+## Each machine's driver license goes round, GAME.md 10.8: a client's to the host once it is seated,
+## kept on its first seat, and the host's with the rest of who is in the game to the client; nobody
+## is shown their own. Both ends share one profile here, so both are licensed alike.
+func test_licenses_go_round() -> void:
+	var kept := Game.settings.profile
+	Game.settings.profile = Profile.new()
+	Game.settings.license_number = "K-1"
+	Game.settings.license_holder = "Ann"
+	var host := _a_host()
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.port = port
+	var client: NetSession = await _a_client()
+	var mine := client.local_slot
+	await _until(func() -> bool: return not host.host_controls._licenses.is_empty(), 4000)
+	assert_str(str(host.host_controls.license_of(mine).get("number", ""))).is_equal("K-1")
+	var told := func() -> bool: return not client.host_controls.license_of(0).is_empty()
+	await _until(told, 4000)
+	assert_str(str(client.host_controls.license_of(0).get("name", ""))).is_equal("Ann")
+	assert_dict(client.host_controls.license_of(mine)).is_empty()
+	assert_dict(host.host_controls.license_of(0)).is_empty()
+	host.free()
+	Game.settings.profile = kept
+
+
 ## Somebody watching, let in without the password, is told who hosts next but not the password.
 func test_watchers_are_not_told_the_password() -> void:
 	var host := _a_host()

@@ -27,6 +27,8 @@ below, and hands the notes to the release workflow.
   and who hosts it, on Steam with their profile and Mute; only the host can kick. Kicked from a
   public game, a player stays out of it, a host's Steam blocks keep people out, and other players'
   names go through Steam's text filter.
+- **Other players' licenses.** License in Players, and a little license after a name on the payout
+  slip, hold up that player's driver license, as yours is on the title.
 - **Quick Play.** First on Play Online's Steam tab: one press joins a public game near you, a
   friend's first, or starts one with bots that people join as they come.
 - **The game goes on when its host leaves.** In Steam and LAN games the player who has been in it

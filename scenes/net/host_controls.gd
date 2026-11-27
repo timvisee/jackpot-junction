@@ -99,6 +99,10 @@ var _look_left := 0.0
 ## On a client with the say, and on every client in a Steam game: everybody else in the game, as the
 ## host last said.
 var _guests: Array[Dictionary] = []
+## At the host, each client's driver license, by peer, see [LicenseWire]; at a client, whether its
+## own has been sent, GAME.md 10.8.
+var _licenses: Dictionary[int, Dictionary] = {}
+var _license_sent := false
 ## In a Steam game, GAME.md 10.8: what each client was last told of everybody else, and the Steam
 ## accounts this machine has told Steam it played with.
 var _told_each: Dictionary[int, String] = {}
@@ -190,9 +194,49 @@ func mine() -> bool:
 func guests() -> Array[Dictionary]:
 	if not session.is_host:
 		return _guests
-	return session.door.guests(
+	var found := session.door.guests(
 		session.match_node, session._peer_slots.held, session._watchers, multiplayer
 	)
+	# Each machine's driver license on its first seat, which sat the test, GAME.md 10.8.
+	for row: Dictionary in found:
+		var license: Dictionary = _licenses.get(int(row.get("peer", 0)), {})
+		if not license.is_empty() and int(row.get("seat", -1)) == 0:
+			row["license"] = license
+	return found
+
+
+## The driver license of whoever plays in the slot [param index], as the host has it or told it,
+## GAME.md 10.8: empty for a bot, a learner, this machine's own players, and a game that tells
+## nobody who is in it.
+func license_of(index: int) -> Dictionary:
+	for row: Dictionary in everybody() if session.is_host else guests():
+		if int(row.get("slot", -1)) == index and not (session.is_host and row.get("host", false)):
+			return row.get("license", {})
+	return {}
+
+
+## At a client, once seated: this machine's driver license told to the host, once, for everybody
+## else to be shown it, GAME.md 10.8; a learner has none to tell.
+func _send_license() -> void:
+	if _license_sent or not session._connected() or session.local_slot < 0:
+		return
+	_license_sent = true
+	var mine := LicenseWire.here()
+	if not mine.is_empty():
+		_license_is.rpc_id(1, mine)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _license_is(said: Dictionary) -> void:
+	if not session.is_host or session.dedicated:
+		return
+	var sender := multiplayer.get_remote_sender_id()
+	session.conduct.said(sender)
+	var license := LicenseWire.clean(said)
+	if license.is_empty():
+		_licenses.erase(sender)
+	else:
+		_licenses[sender] = license
 
 
 ## Shows [param player] out of the game: told why, [param why], and let go of a moment later
@@ -471,6 +515,8 @@ func _seat_name(player: int) -> String:
 ## changes, for their Manage players; in a Steam game, everybody is, for their Players, GAME.md
 ## 10.8.
 func _process(delta: float) -> void:
+	if not session.is_host:
+		_send_license()
 	if not session.is_host or not session._connected():
 		return
 	# The host leaving the room lets go of everybody held for the next map, before they ask for a
@@ -778,12 +824,17 @@ func everybody() -> Array[Dictionary]:
 	var match_node := session.match_node
 	if session.is_host and not session.dedicated and match_node != null:
 		var own := Store.steam.account if Store.on() else 0
+		# The host's license on its first player, which sat the test, GAME.md 10.8.
+		var license := LicenseWire.here()
 		for slot: PlayerSlot in match_node.slots:
 			if slot.is_local_human():
 				var plate := KartVisuals.plate_worn(slot.kart) if slot.kart != null else ""
 				var each := {"peer": 1, "seat": slot.index, "slot": slot.index, "host": true}
 				each.merge({"name": slot.display_name(), "color": slot.color(), "plate": plate})
 				each["account"] = own
+				if not license.is_empty():
+					each["license"] = license
+					license = {}
 				found.append(each)
 	for guest: Dictionary in guests():
 		var each := guest.duplicate()

@@ -31,6 +31,7 @@ const KICK_SIZE := Vector2(110.0, 44.0)
 const HAND_SIZE := Vector2(150.0, 44.0)
 const PROFILE_SIZE := Vector2(130.0, 44.0)
 const MUTE_SIZE := Vector2(130.0, 44.0)
+const LICENSE_SIZE := Vector2(130.0, 44.0)
 ## The room between a row's buttons.
 const BUTTON_ROOM := 10.0
 
@@ -184,7 +185,8 @@ func _row(guest: Dictionary) -> SeatCard:
 	var handing := _handing() or _hosting_here()
 	var room := (KICK_SIZE.x if _says() else 0.0) + (HAND_SIZE.x + BUTTON_ROOM if handing else 0.0)
 	var profiles := _profiles()
-	var wider := 0.0
+	# Room for License on every row, GAME.md 10.8, whoever has one to show.
+	var wider := LICENSE_SIZE.x + BUTTON_ROOM
 	if profiles:
 		wider += PROFILE_SIZE.x + BUTTON_ROOM
 	if Store.steam_game():
@@ -197,6 +199,10 @@ func _row(guest: Dictionary) -> SeatCard:
 	if me:
 		return card
 	var peer: int = guest["peer"]
+	# Their driver license, held up to be looked at, GAME.md 10.8; a learner has none.
+	var license: Dictionary = guest.get("license", {})
+	if not license.is_empty():
+		card.actions.add_child(_license_button(license, str(guest["name"])))
 	# Their profile on Steam, in Steam's overlay over the game, GAME.md 10.8.
 	var account := _account(guest) if profiles else 0
 	if account != 0:
@@ -299,6 +305,22 @@ func _hosting_here() -> bool:
 ## name the host knows them by on Steam whatever they call their kart.
 static func with_steam_name(says: String, steam_name: String) -> String:
 	return says if steam_name.is_empty() else "%s · %s on Steam" % [says, steam_name]
+
+
+## License, holding up [param license], the driver license of the player called [param named] as
+## it came over the wire, see [LicenseWire], over everything, GAME.md 10.8; the cursor back on it
+## once it is put away.
+func _license_button(license: Dictionary, named: String) -> Button:
+	var button := MenuTheme.button("License", Type.BODY)
+	button.name = "License"
+	button.custom_minimum_size = LICENSE_SIZE
+	ScreenReader.label(button, "%s's license" % named)
+	button.pressed.connect(
+		func() -> void:
+			var view := LicenseView.open_theirs(self, license, Game.last_input_keyboard)
+			view.put_away.connect(func() -> void: LicenseView.give_cursor(button), CONNECT_ONE_SHOT)
+	)
+	return button
 
 
 ## Profile, opening the Steam profile of the account [param account] in Steam's overlay, GAME.md

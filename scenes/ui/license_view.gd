@@ -11,6 +11,9 @@ extends Control
 signal put_away
 
 ## How big the card is shown.
+## The layer somebody else's license comes up on, see [method open_theirs]: over the HUD, the pause
+## menu and its notices, under the handover and the loading screen.
+const THEIRS_LAYER := 50
 const FULL := 1.15
 ## How to turn it over and put it away, by the device in hand, and what the buttons say to the
 ## mouse.
@@ -64,6 +67,9 @@ var _round: Array[CanvasItem] = []
 var _closing := false
 ## Whether it has the way back to the school under it, the title's, see [method open].
 var _with_school := false
+## Whose license it is, as it came over the wire, see [method open_theirs]: empty for this
+## machine's own.
+var _holder: Dictionary = {}
 
 
 ## The license from the settings, up over [param parent], its line drawn for a keyboard and mouse
@@ -73,14 +79,34 @@ var _with_school := false
 ## showing the license, where there is one. With [param with_school], the title's, a button under
 ## it goes back to the Driving School the license came from, GAME.md 3.8 and 9.4a.
 static func open(
-	parent: Node, on_keyboard: bool, grows_from: Control = null, with_school := false
+	parent: Node,
+	on_keyboard: bool,
+	grows_from: Control = null,
+	with_school := false,
+	holder: Dictionary = {}
 ) -> LicenseView:
 	var view := LicenseView.new()
 	view.name = "LicenseView"
 	view.keyboard = on_keyboard
 	view._from = grows_from
 	view._with_school = with_school
+	view._holder = holder
 	parent.add_child(view)
+	return view
+
+
+## Somebody else's license, [param holder] as it came over the wire, see [LicenseWire], GAME.md
+## 10.8: from Players and the payout slip, which [param from] is on, up on a layer of its own over
+## the HUD, the pause menu and the slip, which goes with the room it was shown in, or once it is put
+## away.
+static func open_theirs(from: Control, holder: Dictionary, on_keyboard: bool) -> LicenseView:
+	var layer := CanvasLayer.new()
+	layer.name = "TheirLicense"
+	layer.layer = THEIRS_LAYER
+	var room: Node = from.get_tree().current_scene
+	(room if room != null else from).add_child(layer)
+	var view := open(layer, on_keyboard, null, false, holder)
+	view.put_away.connect(layer.queue_free)
 	return view
 
 
@@ -123,7 +149,7 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 22)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(column)
-	card = LicenseCard.from_settings()
+	card = LicenseCard.from_settings() if _holder.is_empty() else LicenseCard.from_wire(_holder)
 	card.name = "LicenseFull"
 	stand = TiltedCard.of(card, FULL)
 	stand.name = "LicenseStand"

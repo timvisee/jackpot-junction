@@ -550,7 +550,10 @@ Below it, with air between the picture and the list, the slip is printed as a
 receipt: cream paper torn off the house's printer, the winner's color in the hairline
 inside its edge. Each player gets a line of their own rather than a line of text,
 with their place on a chip of their color and their name in it, darkened to read on
-paper, a bot's with the robot's head after it as in the room's standings, dotted leaders across to what they banked on the right, their kills and
+paper, a bot's with the robot's head after it as in the room's standings, and a player's at another
+machine with a little license after it, in gray and darker under the pointer, which holds up their
+driver license over the slip, 10.8, for the mouse and a finger alone, so the slip's buttons keep the
+cursor; dotted leaders across to what they banked on the right, their kills and
 deaths in gray, and a dashed rule under the line. The line of whoever is reading the
 slip is marked in foil, the way a line is with a highlighter, and the winner's is
 stamped WINNER with the driving test's red rubber stamp. Lines level on what they banked say what
@@ -11293,7 +11296,15 @@ Otherwise it is the host's game like any other: their rules, their kicks, their 
 
 **Players.** Everybody in a game a player hosts has Players on their pause menu, a LAN game's
 too: a seat card for everybody, the host's saying Host, so whoever hosts the game, the one it was
-handed to among them, is there to see. In a Steam game each card has their name on Steam, Profile,
+handed to among them, is there to see. License on the card of anybody at another machine with
+one holds up their driver license, 9.4a, as the title holds up the player's own, on a layer of its
+own over the HUD and the menu; the payout slip has the same behind a little license after their
+name. Each machine's license is its first seat's, the profile's that sat the test: sent to the
+host once seated, kept there and told to everybody with the rest of who is in the game
+(`LicenseWire`), cleaned at either end. Another player's card is theirs but the story's marks, the
+House's stamp, the Operator's class and the scratched stripe, which would tell a player who has not
+got that far what is to come. A learner has none to show, nor does a bot; a dedicated server's game
+tells nobody but the player with the say who is in it, so it has none either. In a Steam game each card has their name on Steam, Profile,
 which opens their Steam profile in the overlay, and Mute. The
 host's is Manage players, with Kick as well. Mute hides that player's emotes, picture and sound, on
 this screen for the rest of the game. Profile is where Steam's Report and Block are: the game has no
