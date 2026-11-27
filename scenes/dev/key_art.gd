@@ -93,8 +93,27 @@ const STUDIO_LIGHTS: Array[Array] = [
 const STUDIO_AIR := Color(0.78, 0.76, 0.84)
 const STUDIO_AIR_ENERGY := 0.55
 
+## The language the words drawn in are in, by its locale: English whatever the machine speaks, or
+## another the game speaks that `-- --language=<locale>` asks for, as the game says it there.
+var language := Lang.ENGLISH
+
 var _runners: Array[Dictionary] = []
 var _frame := 0
+
+
+func _enter_tree() -> void:
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--language="):
+			language = arg.trim_prefix("--language=")
+	if language not in Lang.spoken():
+		push_error("no translation into %s: drawn in English" % language)
+		language = Lang.ENGLISH
+	Lang.apply(language)
+
+
+## Steam's name for [member language], `dutch` for nl: what a picture of words in it is marked with.
+func steam_language() -> String:
+	return Lang.STEAM_NAMES.find_key(language)
 
 
 func _process(delta: float) -> void:

@@ -7,7 +7,9 @@ extends "res://scenes/dev/key_art.gd"
 ## tools/screenshots.
 ##
 ## `-- --only=header,hero` renders those alone: the names of [constant SHOTS], or background, logo,
-## icons, avatars, headings and pictures.
+## icons, avatars, headings and pictures. `-- --language=nl` draws the description's pictures that
+## have words in them in another language the game speaks, for the store page in it, see
+## [method _described]; nothing else has words but the game's name.
 
 const OUT := "res://build/steam-art"
 ## The description's headings and pictures, kept with the words they go with too: docs/STEAM.md
@@ -188,6 +190,17 @@ const HEADINGS: Dictionary[String, String] = {
 	"heading_never_play_alone": "You never play cards alone. Or do you?",
 	"heading_your_ride": "Your ride, your way",
 }
+## The headings in each other language the game speaks, by its locale, as the store page's words
+## in it, docs/steam/store_<language>.md, have them.
+const HEADINGS_IN: Dictionary[String, Dictionary] = {
+	"nl":
+	{
+		"heading_how_the_cards_roll": "Zo liggen de kaarten",
+		"heading_whats_in_the_deck": "Wat zit er in het deck, vraag je?",
+		"heading_never_play_alone": "Je speelt nooit alleen kaart. Of toch?",
+		"heading_your_ride": "Jouw kart, jouw stijl",
+	},
+}
 const PICTURE := 616
 ## How tall a hand of cards is, and how much of it a card is.
 const HAND := 240
@@ -215,6 +228,10 @@ func _ready() -> void:
 		make_out(OUT + folder)
 	make_out(OUT + "/event")
 	make_out(DESCRIBED)
+	if language != Lang.ENGLISH:
+		await _in_language()
+		get_tree().quit()
+		return
 	for shot: String in SHOTS:
 		if _wanted(shot):
 			var spec := SHOTS[shot]
@@ -239,17 +256,34 @@ func _ready() -> void:
 				0.95
 			)
 	if _wanted("headings"):
-		for heading: String in HEADINGS:
-			_described(
-				await _heading(HEADINGS[heading], HEADINGS.keys().find(heading)),
-				"%s.png" % heading,
-				HEADING
-			)
+		await _headings(HEADINGS)
 	if OS.get_cmdline_user_args().has("--candidates"):
 		await _candidates()
 	if _wanted("pictures"):
 		await _pictures()
 	get_tree().quit()
+
+
+## The description's pictures with words in them, in [member language]: its headings and the hands
+## of cards. The karts have none, so the store page in it shows the English picture.
+func _in_language() -> void:
+	if not HEADINGS_IN.has(language):
+		push_error("no headings in %s: give them in HEADINGS_IN" % language)
+		return
+	if _wanted("headings"):
+		await _headings(HEADINGS_IN[language])
+	if _wanted("pictures"):
+		await _hands()
+
+
+## Each of [param headings], by its file's name, as [method _heading] draws it.
+func _headings(headings: Dictionary) -> void:
+	for heading: String in headings:
+		_described(
+			await _heading(headings[heading], headings.keys().find(heading)),
+			"%s.png" % heading,
+			HEADING
+		)
 
 
 func _wanted(name_of: String) -> bool:
@@ -543,14 +577,7 @@ func _heading(words: String, suit: int) -> Image:
 ## The description's pictures, on nothing so they sit on Steam's column and on itch.io's: a fan of
 ## jokers, a fan of power-ups, and a line of karts in their dress.
 func _pictures() -> void:
-	var jokers: Array[Control] = []
-	for id: StringName in PICTURE_JOKERS:
-		jokers.append(JokerCard.create(load("res://data/jokers/%s.tres" % id)))
-	_described(await _fan(jokers, HAND, 6.0), "picture_jokers.png", Vector2i(PICTURE, HAND))
-	var items: Array[Control] = []
-	for id: StringName in PICTURE_ITEMS:
-		items.append(ItemCard.create(load("res://data/powerups/%s.tres" % id)))
-	_described(await _fan(items, HAND, 6.0), "picture_power_ups.png", Vector2i(PICTURE, HAND))
+	await _hands()
 	var high := 200
 	var room := studio(Vector2i(PICTURE, high) * OVER)
 	for i: int in PICTURE_KARTS.size():
@@ -562,6 +589,19 @@ func _pictures() -> void:
 	var karts := await taken(room, 8)
 	straighten(karts)
 	_described(karts, "picture_karts.png", Vector2i(PICTURE, high))
+
+
+## The description's hands of cards, a fan of jokers and one of power-ups, their words in
+## [member language].
+func _hands() -> void:
+	var jokers: Array[Control] = []
+	for id: StringName in PICTURE_JOKERS:
+		jokers.append(JokerCard.create(load("res://data/jokers/%s.tres" % id)))
+	_described(await _fan(jokers, HAND, 6.0), "picture_jokers.png", Vector2i(PICTURE, HAND))
+	var items: Array[Control] = []
+	for id: StringName in PICTURE_ITEMS:
+		items.append(ItemCard.create(load("res://data/powerups/%s.tres" % id)))
+	_described(await _fan(items, HAND, 6.0), "picture_power_ups.png", Vector2i(PICTURE, HAND))
 
 
 ## [param cards] held as a hand across a picture [param high] tall, each turned [param spread]
@@ -589,10 +629,24 @@ func _fan(cards: Array[Control], high: int, spread: float) -> Image:
 
 
 ## A heading or picture of the description, [param image] at [param size], as [param file] in
-## both [constant OUT]'s description and [constant DESCRIBED].
+## both [constant OUT]'s description and [constant DESCRIBED]. In another language, in a folder of
+## its own and named for it, Steam's name for both, `dutch/heading_your_ride_dutch.png`, so it goes
+## up beside the English rather than over it.
 func _described(image: Image, file: String, size: Vector2i) -> void:
-	save(image, OUT + "/description/" + file, size)
-	save(image, DESCRIBED + "/" + file, size)
+	for folder: String in [OUT + "/description", DESCRIBED]:
+		save(image, in_language(folder, file), size)
+
+
+## Where [param file] of [param folder] goes in [member language]: as it is in English, and in a
+## folder of the language's and named for it in another, Steam's name for both, which it makes.
+func in_language(folder: String, file: String) -> String:
+	if language == Lang.ENGLISH:
+		return folder.path_join(file)
+	var steam := steam_language()
+	make_out(folder.path_join(steam))
+	return folder.path_join(steam).path_join(
+		"%s_%s.%s" % [file.get_basename(), steam, file.get_extension()]
+	)
 
 
 ## An icon file at [param path] of [param pictures], PNGs by side, one for each side of

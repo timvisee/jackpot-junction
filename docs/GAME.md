@@ -11732,7 +11732,9 @@ steam-achievement-art`, the statistics, Auto-Cloud, the presence file, and the b
 `make steam-art` renders every other picture Steamworks asks for from the game's own pieces, as
 `make itch-art` does the itch.io page's, 10.5: the store's capsules and background, the library's
 capsule, header, hero and logo, the icons, the avatars, the description's headings and pictures,
-and the store page's screenshots.
+and the store page's screenshots. Each is drawn in English whatever the machine speaks; then, for
+the store page in each other language the game speaks, 10.9, the screenshots and the description's
+pictures with words in them are drawn again in it (`--language=<locale>`), named for it.
 
 #### Licensing
 

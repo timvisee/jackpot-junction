@@ -8,7 +8,12 @@
 # where they mean to. The gameplay shots run long enough to be past the countdown, so the match is
 # being played and the touch controls are up.
 #
-# Usage: tools/screenshots [--steam | --supporter] [name ...]   (default: every shot of the set)
+# Usage: tools/screenshots [--steam | --supporter] [--language=<locale>] [name ...]
+#        (default: every shot of the set, in English whatever the machine speaks)
+#        --language=nl  the shots in another language the game speaks, for Steam's store page in
+#                       it: each named for the language and in a folder of its own, Steam's name for
+#                       both, build/steam-art/screenshots/dutch/01-teams-close-up_dutch.png, which
+#                       Steamworks takes as that screenshot's own in the language
 #        GODOT_HIDDEN=1 tools/screenshots           renders without a window, in gamescope
 #        (needs a display, or GODOT_HIDDEN=1 and gamescope; about a minute for the README's five)
 set -uo pipefail
@@ -77,6 +82,23 @@ elif [[ ${1:-} == --supporter ]]; then
 	out=build/steam-art/supporter/screenshots
 fi
 
+# The language the game speaks in them, and Steam's name for it from scripts/lang.gd's STEAM_NAMES.
+language=en
+marked=""
+if [[ ${1:-} == --language=* ]]; then
+	language=${1#--language=}
+	shift
+fi
+if [ "$language" != en ]; then
+	steam_name=$(sed -n "s/^\t\"\([a-z]*\)\": \"$language\",\$/\1/p" scripts/lang.gd)
+	if [ -z "$steam_name" ] || [ ! -f "data/locale/$language.po" ]; then
+		echo "screenshots: the game speaks no $language" >&2
+		exit 1
+	fi
+	out="$out/$steam_name"
+	marked="_$steam_name"
+fi
+
 mkdir -p "$out"
 wanted=("$@")
 failed=0
@@ -88,15 +110,15 @@ for shot in "${shots[@]}"; do
 	echo "screenshots: $name (1920x1080, ${over}x oversampled)"
 	# Godot keeps user:// under XDG_DATA_HOME on Linux, so this points it at a scratch of its own,
 	# with settings of its own: the game sizes its window to them as it starts, over --resolution,
-	# and holds each frame to the display without vsync off.
+	# holds each frame to the display without vsync off, and speaks the language asked for.
 	user="$scratch/$name/godot/app_userdata/Jackpot Junction"
 	mkdir -p "$user"
-	printf '[video]\n\nwindow_size=Vector2i(%d, %d)\nvsync=false\n' \
-		"$((1920 * over))" "$((1080 * over))" >"$user/settings.cfg"
+	printf '[game]\n\nlanguage="%s"\n\n[video]\n\nwindow_size=Vector2i(%d, %d)\nvsync=false\n' \
+		"$language" "$((1920 * over))" "$((1080 * over))" >"$user/settings.cfg"
 	# shellcheck disable=SC2086
 	XDG_DATA_HOME="$scratch/$name" tools/godot --path . \
 		--resolution "$((1920 * over))x$((1080 * over))" --fixed-fps 60 "$scene" -- $args \
-		--screenshot="$out/$name.png" --screenshot-oversample="$over" --frames="$frames" ||
+		--screenshot="$out/$name$marked.png" --screenshot-oversample="$over" --frames="$frames" ||
 		failed=1
 done
 exit $failed

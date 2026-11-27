@@ -7,7 +7,8 @@ extends "res://scenes/dev/steam_art_export.gd"
 ## of its screenshots, the table close up, the rest coming from `tools/screenshots --supporter`.
 ##
 ## `-- --only=header,karts` renders those alone: the names of [constant PACK_SHOTS], or screens,
-## headings, karts and backs.
+## headings, karts and backs. `-- --language=nl` draws the headings alone in another language the
+## game speaks, the only pictures with words in them but the pack's name, see [method _described].
 
 const PACK_OUT := "res://build/steam-art/supporter"
 const PACK_DESCRIBED := "res://docs/description/supporter"
@@ -59,6 +60,14 @@ const PACK_HEADINGS: Dictionary[String, String] = {
 	"heading_supporter_thanks": "A thank-you you can wear",
 	"heading_supporter_pieces": "Everything in the pack",
 }
+## The headings in each other language the game speaks, by its locale, see [constant HEADINGS_IN].
+const PACK_HEADINGS_IN: Dictionary[String, Dictionary] = {
+	"nl":
+	{
+		"heading_supporter_thanks": "Een bedankje om te dragen",
+		"heading_supporter_pieces": "Alles in het pakket",
+	},
+}
 
 ## The store page's screenshots of the table, at the size Steam takes, drawn as the capsules are
 ## with no seal over them, the camera close enough for the pieces to be seen, which at a match's
@@ -89,6 +98,13 @@ func _ready() -> void:
 	for folder: String in ["", "/store", "/description", "/screenshots"]:
 		make_out(PACK_OUT + folder)
 	make_out(PACK_DESCRIBED)
+	if language != Lang.ENGLISH:
+		if not PACK_HEADINGS_IN.has(language):
+			push_error("no headings in %s: give them in PACK_HEADINGS_IN" % language)
+		elif _wanted("headings"):
+			await _pack_headings(PACK_HEADINGS_IN[language])
+		get_tree().quit()
+		return
 	for shot: String in PACK_SHOTS:
 		if _wanted(shot):
 			var spec := PACK_SHOTS[shot]
@@ -96,12 +112,7 @@ func _ready() -> void:
 	if _wanted("screens"):
 		await _screens()
 	if _wanted("headings"):
-		for heading: String in PACK_HEADINGS:
-			_pack_described(
-				await _heading(PACK_HEADINGS[heading], PACK_HEADINGS.keys().find(heading) + 1),
-				"%s.png" % heading,
-				HEADING
-			)
+		await _pack_headings(PACK_HEADINGS)
 	if _wanted("karts"):
 		await _karts()
 	if _wanted("backs"):
@@ -249,8 +260,19 @@ func _backs() -> void:
 	)
 
 
+## Each of [param headings], by its file's name, as the game's are.
+func _pack_headings(headings: Dictionary) -> void:
+	for heading: String in headings:
+		_pack_described(
+			await _heading(headings[heading], headings.keys().find(heading) + 1),
+			"%s.png" % heading,
+			HEADING
+		)
+
+
 ## A heading or picture of the pack's description, as [param file] in both [constant PACK_OUT]'s
-## description and [constant PACK_DESCRIBED].
+## description and [constant PACK_DESCRIBED], in a language's folder in another, see
+## [method in_language].
 func _pack_described(image: Image, file: String, size: Vector2i) -> void:
-	save(image, PACK_OUT + "/description/" + file, size)
-	save(image, PACK_DESCRIBED + "/" + file, size)
+	for folder: String in [PACK_OUT + "/description", PACK_DESCRIBED]:
+		save(image, in_language(folder, file), size)

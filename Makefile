@@ -146,25 +146,41 @@ steam-timeline-icons: | $(CACHE)
 itch-art: | $(CACHE)
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/itch_export.tscn
 
+# The languages the game speaks besides English, by locale: a .po file each, GAME.md 10.9.
+LANGUAGES := $(basename $(notdir $(wildcard data/locale/*.po)))
+
 # Every picture Steamworks asks for but the achievements', docs/STEAM.md, into build/steam-art,
 # emptied first, each named after its field: the store's capsules and background, the library's
 # capsule, header, hero and logo, the icons, the avatars, the description's headings and pictures,
 # an announcement's cover and header, all put up from the game's own pieces, and the store page's
-# screenshots. Needs a display, or GODOT_HIDDEN=1 and gamescope.
+# screenshots. Then, for the store page in each other language the game speaks, the screenshots and
+# the description's pictures with words in them in it, in a folder named for it. Needs a display,
+# or GODOT_HIDDEN=1 and gamescope.
 steam-art: | $(CACHE)
 	rm -rf build/steam-art
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/steam_art_export.tscn
 	tools/screenshots --steam
+	for language in $(LANGUAGES); do \
+		JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 \
+			res://scenes/dev/steam_art_export.tscn -- --language=$$language && \
+		tools/screenshots --steam --language=$$language || exit 1; \
+	done
 	$(MAKE) steam-supporter-art
 
 # The supporter pack's DLC's own store art, GAME.md 10.8, docs/STEAM.md "The supporter pack", into
 # build/steam-art/supporter, apart from the game's: its capsules, its description's headings and
-# pictures, also kept in docs/description/supporter, and its screenshots. Needs a display, or
-# GODOT_HIDDEN=1 and gamescope.
+# pictures, also kept in docs/description/supporter, and its screenshots; then its headings and
+# screenshots in each other language the game speaks. Needs a display, or GODOT_HIDDEN=1 and
+# gamescope.
 steam-supporter-art: | $(CACHE)
 	rm -rf build/steam-art/supporter
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/supporter_art_export.tscn
 	tools/screenshots --supporter
+	for language in $(LANGUAGES); do \
+		JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 \
+			res://scenes/dev/supporter_art_export.tscn -- --language=$$language && \
+		tools/screenshots --supporter --language=$$language || exit 1; \
+	done
 
 # The screenshots the README wears, into docs/screenshots, each drawn oversize and brought back down
 # for smooth edges, GAME.md 10.7. Needs a display, or GODOT_HIDDEN=1 and gamescope.
