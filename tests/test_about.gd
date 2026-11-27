@@ -105,6 +105,51 @@ func test_music_is_credited_only_where_it_is_in_the_build() -> void:
 	assert_bool(cascadia).is_true()
 
 
+## The name Credits knows GodotSteam by is Store's, named again so the hall need not load Store.
+func test_the_steam_singleton_is_stores() -> void:
+	assert_str(String(Credits.STEAM_SINGLETON)).is_equal(String(Store.SINGLETON))
+
+
+## Every file a credit names is in the project, so a file renamed or taken out cannot quietly take
+## its credit out of every build.
+func test_every_file_credited_is_here() -> void:
+	for thing: Dictionary in Credits.THINGS:
+		for path: String in thing.get("files", []):
+			(
+				assert_bool(Credits.holds(path))
+				. override_failure_message("%s is not here" % path)
+				. is_true()
+			)
+
+
+## A credit whose files a build does not hold is left out of it, the way the server, built without
+## its sound, leaves the sounds out; one with any of them, or with no files named, stays.
+func test_a_credit_is_left_out_of_a_build_without_its_files() -> void:
+	var missing := "res://assets/audio/sfx/not_here.ogg"
+	var gone := {"what": "Gone", "files": [missing]}
+	var here := {"what": "Here", "files": [missing, "res://assets/fonts/Inter-Regular.ttf"]}
+	var always := {"what": "Always"}
+	var things: Array[Dictionary] = [gone, here, always]
+	assert_array(Credits.in_this_build(things)).contains_exactly([here, always])
+
+
+## The terms a credit names a text for are in the engine's table, which the notices print from, and
+## a credit with a text says whose it is, but where its terms waive that: CC0's.
+func test_every_license_credited_has_its_text() -> void:
+	var texts := Engine.get_license_info()
+	for thing: Dictionary in Credits.THINGS:
+		if not thing.has("license"):
+			continue
+		var key: String = thing["license"]
+		assert_bool(texts.has(key)).override_failure_message("%s has no text" % key).is_true()
+		if key != "CC0-1.0":
+			(
+				assert_bool(thing.has("copyright"))
+				. override_failure_message("%s says nothing of whose it is" % thing["what"])
+				. is_true()
+			)
+
+
 func test_the_models_read_as_a_sentence() -> void:
 	assert_str(Credits.models_in_words()).is_equal(
 		"Claude Fable 5.1, Claude Opus 5 and Claude Opus 5.5"

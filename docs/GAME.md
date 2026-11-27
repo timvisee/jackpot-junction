@@ -5939,8 +5939,10 @@ from a section's button low in its box was the one beside it.
   would have made, and put their name on it.", which says in the story's terms what
   it always said, for everybody and whether the story of 8.7 is on or off, being true
   either way, STORY.md 3.11. Then everybody else whose
-  work is in it, what, by whom, on what terms and where; music only in a build that
-  has it, 8.4, as GodotSteam only in a Steam build. A test holds them to
+  work is in it, what, by whom, on what terms and where, each only in a build that
+  holds it: sounds, fonts and pads by their files, music by its tracks, 8.4, GodotSteam
+  in a Steam build, so a dedicated server's notices, 9.3a, name no sound, and gdUnit4,
+  never exported, is in no build a player gets. A test holds them to
   THIRD_PARTY.md, links to the game's pages on Steam and itch.io to get it from and one to
   its source on GitHub, and Godot's own license, which a game made with it has to carry.
 - **Story**, in a debug build only, last: where the profile playing is in the story of 8.7,
