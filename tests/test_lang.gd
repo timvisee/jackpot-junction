@@ -18,6 +18,12 @@ func before_test() -> void:
 	_words.add_message(", ", ", ", &"list")
 	_words.add_message("{some} and {last}", "{some} en {last}")
 	_words.add_plural_message("%d chip", PackedStringArray(["%d fiche", "%d fiches"]))
+	_words.add_message("{name} paid {chips}", "{name} betaalde {chips}")
+	_words.add_message("{who} said: {what}", "{who} zei: {what}")
+	_words.add_message("Bye", "Doei")
+	_words.add_plural_message(
+		"{count} table left", PackedStringArray(["{count} tafel over", "{count} tafels over"])
+	)
 	for english: String in ["%dST", "%dND", "%dRD", "%dTH"]:
 		_words.add_message(english, "%dE", &"ordinal")
 	TranslationServer.add_translation(_words)
@@ -80,6 +86,45 @@ func test_a_word_for_later_is_kept_in_english() -> void:
 	Lang.apply(DUTCH)
 	assert_str(Lang.later("{some} and {last}")).is_equal("{some} and {last}")
 	assert_str(Lang.t("{some} and {last}")).is_equal("{some} en {last}")
+
+
+## Words for another machine go in English with their values packed beside them, and come out in
+## the language spoken where they arrive: its numbers, a name as it is, words packed among the
+## values said in turn. Plain English marked for later is looked up as it is.
+func test_words_from_another_machine_are_said_in_the_language_spoken_here() -> void:
+	var paid := Lang.message("{name} paid {chips}", {"name": "Ann", "chips": 1500})
+	var left := Lang.message_n("{count} table left", "{count} tables left", 3)
+	var told := Lang.message("{who} said: {what}", {"who": "Bo", "what": Lang.message("Bye")})
+	Lang.apply(Lang.ENGLISH)
+	assert_str(Lang.said(paid)).is_equal("Ann paid 1,500")
+	assert_str(Lang.said(left)).is_equal("3 tables left")
+	assert_str(Lang.said(told)).is_equal("Bo said: Bye")
+	Lang.apply(DUTCH)
+	assert_str(Lang.said(paid)).is_equal("Ann betaalde 1.500")
+	assert_str(Lang.said(left)).is_equal("3 tafels over")
+	assert_str(Lang.said(Lang.message_n("{count} table left", "{count} tables left", 1))).is_equal(
+		"1 tafel over"
+	)
+	assert_str(Lang.said(told)).is_equal("Bo zei: Doei")
+	assert_str(Lang.said(Lang.message("+{mult} MULT", {"mult": 1.5}))).is_equal("+1,5 MULT")
+	assert_str(Lang.said(Lang.message("+{mult} MULT", {"mult": 2}))).is_equal("+2 MULT")
+	assert_str(Lang.said(Lang.later("Bye"))).is_equal("Doei")
+	# Braces that are not packed words are words like any other.
+	assert_str(Lang.said("{some} and {last}")).is_equal("{some} en {last}")
+	assert_str(Lang.said("{nobody's words}")).is_equal("{nobody's words}")
+
+
+## Packed words are part of what goes over the wire, GAME.md 10.3: their fields keep the names they
+## have, so words a later version sends are said by an earlier one, which leaves out a field it
+## does not know, and a change to the words never needs a new protocol.
+func test_packed_words_keep_their_fields() -> void:
+	var json := JSON.new()
+	assert_int(json.parse(Lang.message_n("{count} table left", "x", 2, {"a": 1}, &"b"))).is_zero()
+	assert_dict(json.data).contains_keys(["words", "many", "count", "values", "context"])
+	assert_str(json.data["words"]).is_equal("{count} table left")
+	Lang.apply(DUTCH)
+	var later := '{"words": "{name} paid {chips}", "values": {"name": "Cy", "chips": 7}, "new": 1}'
+	assert_str(Lang.said(later)).is_equal("Cy betaalde 7")
 
 
 ## A script's run speaks English whatever the machine is set to, the tests' own among them.

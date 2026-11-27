@@ -9783,6 +9783,11 @@ is never seated: it is told which version the host has and which it has itself, 
 the menu. The handshake has 5 s to finish, so a client too old to know about it is dropped rather
 than left waiting for a seat that never comes.
 
+Languages never change what goes over the wire, so a new translation, a translation's words put
+right, a new language or English words changed is a patch release, see 10.9: words cross in
+English, or packed with their values in fields that keep their names, and each machine says them in
+its own language.
+
 #### Leaving the room together
 
 The waiting room and the arena are two matches on one connection, and the changeover is the
@@ -11780,8 +11785,15 @@ How a word is marked, so the template finds it and the language spoken shows it 
   loyalty bet: the fields `tools/strings.py` lists are read from the resources and translated where
   shown, `tr(joker.display_name)`.
 - **Words for another machine.** Words sent over the network, or kept to be shown later, go in
-  English, marked with `Lang.later()`, and are translated by the machine that shows them, since a
-  host's language is not its guests'. A name a player gave is never translated.
+  English, marked with `Lang.later()`, and are said by the machine that shows them with
+  `Lang.said()`, since a host's language is not its guests'. Words with a value in them, a count,
+  a figure, a name, go packed with their values instead, `Lang.message("{name} left", {...})` or
+  `Lang.message_n()` for a count, never with the value put into the English, which no translation
+  has: the machine that shows them fills them in in its own language. So a message with values
+  needs no network call of its own, and the language needs no new protocol, 10.3: the packed
+  fields keep their names, and a field an earlier version does not know it leaves out. Words
+  already translated never go over the wire. A name a player gave is never translated; a bot's is
+  translated by the machine that seats it, and goes as a name.
 - **Numbers and lists.** `Lang.number()` sets thousands apart as the language does (1,204 and 1.204),
   `Lang.decimal()` writes its decimal mark, and `Lang.listed()` makes a list in a sentence.
 - **Not text.** A string that is a name the code goes by, a node's, a key, a typeface's, an id, is

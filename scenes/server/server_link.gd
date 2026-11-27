@@ -254,7 +254,7 @@ func _make() -> void:
 @rpc("authority", "call_remote", "reliable")
 func _shown_out(why: String) -> void:
 	_turned_away = true
-	_give_up.call_deferred(tr(why))
+	_give_up.call_deferred(Lang.said(why))
 
 
 ## At a player's machine: the games as the server lists them, each as a found LAN game is, see
@@ -274,22 +274,10 @@ func _made(port: int) -> void:
 
 
 ## At a player's machine: the game asked for could not be made, [param reason] saying why in
-## English, said here in the language spoken.
+## English, the server's count of games in it if it is full, said here in the language spoken.
 @rpc("authority", "call_remote", "reliable")
 func _not_made(reason: String) -> void:
-	not_made.emit(tr(reason))
-
-
-## At a player's machine: the game asked for could not be made, the server holding [param most] at
-## once and every one of them taken, said here with the number in it.
-@rpc("authority", "call_remote", "reliable")
-func _full(most: int) -> void:
-	var full := tr_n(
-		"The server is full: it holds %d game at once",
-		"The server is full: it holds %d games at once",
-		most
-	)
-	not_made.emit(full % most)
+	not_made.emit(Lang.said(reason))
 
 
 @rpc("authority", "call_remote", "reliable")

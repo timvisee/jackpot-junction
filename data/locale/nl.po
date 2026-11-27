@@ -1229,8 +1229,8 @@ msgid ": %s."
 msgstr ": %s."
 
 #: scenes/jokers/list/brake_check.gd scenes/jokers/list/not_today.gd scenes/jokers/list/royal_court.gd
-msgid "%s MULT"
-msgstr "%s MULT"
+msgid "+{mult} MULT"
+msgstr "+{mult} MULT"
 
 #: scenes/jokers/list/burnout.gd
 msgid "Made a turbo pad of a drift once"
@@ -1317,6 +1317,10 @@ msgid "Sweetened a pull once"
 msgid_plural "Sweetened %d pulls"
 msgstr[0] "Eén draai verzoet"
 msgstr[1] "%d draaien verzoet"
+
+#: scenes/jokers/list/not_today.gd
+msgid "{mult} MULT"
+msgstr "{mult} MULT"
 
 #: scenes/jokers/list/pickpocket.gd
 msgid "STOLEN"
@@ -2997,6 +3001,12 @@ msgid "Nobody came, so the game is over"
 msgstr "Er kwam niemand, dus het spel is voorbij"
 
 #: scenes/server/server_hall.gd
+msgid "The server is full: it holds {count} game at once"
+msgid_plural "The server is full: it holds {count} games at once"
+msgstr[0] "De server is vol: er past {count} spel tegelijk op"
+msgstr[1] "De server is vol: er passen {count} spellen tegelijk op"
+
+#: scenes/server/server_hall.gd
 msgid "The server could not start a game"
 msgstr "De server kon geen spel starten"
 
@@ -3007,12 +3017,6 @@ msgstr "Verkeerde versie: de server heeft {theirs}, jij hebt {mine}"
 #: scenes/server/server_link.gd
 msgid "That is a game rather than a server: join it from LAN games"
 msgstr "Dat is een spel en geen server: doe mee via LAN-spellen"
-
-#: scenes/server/server_link.gd
-msgid "The server is full: it holds %d game at once"
-msgid_plural "The server is full: it holds %d games at once"
-msgstr[0] "De server is vol: er past %d spel tegelijk op"
-msgstr[1] "De server is vol: er passen %d spellen tegelijk op"
 
 #: scenes/story/folder_back.gd scripts/story/story_lines.gd
 msgid "STATUS"
@@ -13261,3 +13265,11 @@ msgstr "check het wiel!"
 
 #~ msgid "Godot Engine license"
 #~ msgstr "Licentie van Godot Engine"
+
+#~ msgid "%s MULT"
+#~ msgstr "%s MULT"
+
+#~ msgid "The server is full: it holds %d game at once"
+#~ msgid_plural "The server is full: it holds %d games at once"
+#~ msgstr[0] "De server is vol: er past %d spel tegelijk op"
+#~ msgstr[1] "De server is vol: er passen %d spellen tegelijk op"

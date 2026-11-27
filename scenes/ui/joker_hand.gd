@@ -354,12 +354,12 @@ func _glow(index: int) -> float:
 ## Joker.went_off], does not.
 func _on_went_off(slot: int, joker: StringName, word: String) -> void:
 	if kart != null and kart.slot == slot and not word.is_empty():
-		flash(joker, Joker.shown_word(word))
+		flash(joker, Lang.said(word))
 
 
 func _on_used_up(slot: int, joker: StringName, word: String) -> void:
 	if kart != null and kart.slot == slot:
-		burn(joker, Joker.shown_word(word))
+		burn(joker, Lang.said(word))
 
 
 ## How far into the screen the cards come while none is lifted, for what has to stay clear of

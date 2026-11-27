@@ -2,8 +2,8 @@
 """The game's words for translators, GAME.md 10.9.
 
 Every word a player reads is written in English in the code and marked for translation where it is
-written: inside tr(), tr_n(), Lang.t(), Lang.tn() or Lang.later(), or in a table of words, a const
-or var whose comment above says it is shown through tr(). This reads them all, with the words the
+written: inside tr(), tr_n(), Lang.t(), Lang.tn(), or Lang.later() and Lang.message() for another
+machine, or in a table of words, a const or var whose comment above says it is shown through tr(). This reads them all, with the words the
 data resources hold (a joker's name, an achievement's objective), into a gettext template, and
 merges that into each language's .po file, keeping every translation already made.
 
@@ -59,6 +59,8 @@ CALLS = {
     "Lang.t": ((0,), 1),
     "Lang.tn": ((0, 1), 3),
     "Lang.later": ((0,), 1),
+    "Lang.message": ((0,), 2),
+    "Lang.message_n": ((0, 1), 4),
     "TranslationServer.translate": ((0,), 1),
     "TranslationServer.translate_plural": ((0, 1), 3),
 }

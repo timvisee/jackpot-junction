@@ -13,7 +13,7 @@ func on_respawn(kart: Kart) -> void:
 			cursed += 1
 	if cursed > 0:
 		kart.jokers.pay_mult(self, float(cursed), &"royal_court")
-		went_off(kart, Lang.later("%s MULT") % ("+%d" % cursed))
+		went_off(kart, Lang.message("+{mult} MULT", {"mult": cursed}))
 
 
 func went_off_words(times: int) -> String:

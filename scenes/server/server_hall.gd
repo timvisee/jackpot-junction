@@ -244,7 +244,12 @@ func make_game(peer: int) -> void:
 		var most := "%d game%s" % [args.games, "" if args.games == 1 else "s"]
 		var line := "%s asked for a game, but the server holds %s at once"
 		_say(line % [_visitor(peer), most])
-		link._full.rpc_id(peer, args.games)
+		var full := Lang.message_n(
+			"The server is full: it holds {count} game at once",
+			"The server is full: it holds {count} games at once",
+			args.games
+		)
+		link._not_made.rpc_id(peer, full)
 		return
 	var id := _next_game
 	_next_game += 1

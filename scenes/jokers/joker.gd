@@ -16,9 +16,6 @@ const RARITY_WEIGHTS: Dictionary[int, float] = {
 	Rarity.COMMON: 60.0, Rarity.UNCOMMON: 30.0, Rarity.RARE: 10.0
 }
 
-## A number in a word said over a card, see [method shown_word].
-static var _number := RegEx.create_from_string("[+-]?\\d+(\\.\\d+)?")
-
 @export var id: StringName
 @export var display_name := ""
 @export var description := ""
@@ -64,8 +61,8 @@ var standing_for: Joker
 ## says it to every client: a puppet's jokers do nothing of their own. With no word it is only
 ## counted for the catalog, GAME.md 8.8, and the card stays still: for one that does its thing too
 ## often for the card to say so every time, Cushion Shot's bounces. The word goes in English, marked
-## with [method Lang.later], and whoever shows it says it in its own language, see [method
-## shown_word].
+## with [method Lang.later], or with a figure in it packed by [method Lang.message], and whoever
+## shows it says it in its own language with [method Lang.said], GAME.md 10.9.
 func went_off(kart: Kart, word: String) -> void:
 	if kart != null and not kart.puppet:
 		Events.joker_went_off.emit(kart.slot, id, word)
@@ -76,16 +73,6 @@ func went_off(kart: Kart, word: String) -> void:
 ## [method went_off].
 func went_off_words(_times: int) -> String:
 	return ""
-
-
-## [param word] said over a card gone off or used up, see [method went_off], in the language spoken
-## here: sent in English, any number in it, "+2 MULT", is put back into its translated words.
-static func shown_word(word: String) -> String:
-	var number := _number.search(word)
-	if number == null:
-		return Lang.t(word)
-	var bare := word.substr(0, number.get_start()) + "%s" + word.substr(number.get_end())
-	return Lang.t(bare) % number.get_string().replace(".", Lang.t(".", &"decimal"))
 
 
 ## [param words] from [method Object.tr_n] for [param count], with the count put in where the

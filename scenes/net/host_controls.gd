@@ -283,7 +283,7 @@ func _let_go_of(player: int) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _kicked(why: String) -> void:
 	session._turned_away = true
-	session._hang_up.call_deferred(tr(why))
+	session._hang_up.call_deferred(Lang.said(why))
 
 
 ## At a dedicated server, the game is over with somebody still in it, and [param reason] says why,
@@ -297,7 +297,7 @@ func end_the_game(reason: String) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _ended(reason: String) -> void:
 	session._turned_away = true
-	session._hang_up.call_deferred(tr(reason))
+	session._hang_up.call_deferred(Lang.said(reason))
 
 
 ## The host stopping the match for everybody at once, GAME.md 3.8, rather than waiting for each

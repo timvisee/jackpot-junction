@@ -1227,7 +1227,7 @@ msgid ": %s."
 msgstr ""
 
 #: scenes/jokers/list/brake_check.gd scenes/jokers/list/not_today.gd scenes/jokers/list/royal_court.gd
-msgid "%s MULT"
+msgid "+{mult} MULT"
 msgstr ""
 
 #: scenes/jokers/list/burnout.gd
@@ -1315,6 +1315,10 @@ msgid "Sweetened a pull once"
 msgid_plural "Sweetened %d pulls"
 msgstr[0] ""
 msgstr[1] ""
+
+#: scenes/jokers/list/not_today.gd
+msgid "{mult} MULT"
+msgstr ""
 
 #: scenes/jokers/list/pickpocket.gd
 msgid "STOLEN"
@@ -2995,6 +2999,12 @@ msgid "Nobody came, so the game is over"
 msgstr ""
 
 #: scenes/server/server_hall.gd
+msgid "The server is full: it holds {count} game at once"
+msgid_plural "The server is full: it holds {count} games at once"
+msgstr[0] ""
+msgstr[1] ""
+
+#: scenes/server/server_hall.gd
 msgid "The server could not start a game"
 msgstr ""
 
@@ -3005,12 +3015,6 @@ msgstr ""
 #: scenes/server/server_link.gd
 msgid "That is a game rather than a server: join it from LAN games"
 msgstr ""
-
-#: scenes/server/server_link.gd
-msgid "The server is full: it holds %d game at once"
-msgid_plural "The server is full: it holds %d games at once"
-msgstr[0] ""
-msgstr[1] ""
 
 #: scenes/story/folder_back.gd scripts/story/story_lines.gd
 msgid "STATUS"

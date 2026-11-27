@@ -29,6 +29,16 @@ const STEAM_NAMES: Dictionary[String, String] = {
 }
 ## Where the translations are kept, a gettext .po file for each language named by its locale.
 const FOLDER := "res://data/locale"
+## The fields of words packed for another machine by [method message] and [method message_n], each
+## a name on the wire, GAME.md 10.3: the English, the plural's, the count, the values for the
+## placeholders and the context. They stay as they are from version to version; a later one may
+## add a field, which an earlier one leaves out, so a change to the words never needs a new
+## protocol.
+const WORDS := "words"
+const MANY := "many"
+const COUNT := "count"
+const VALUES := "values"
+const CONTEXT := "context"
 
 ## The locale of the language spoken now.
 static var current := ENGLISH
@@ -104,10 +114,82 @@ static func tn(one: String, many: String, count: int, context := &"") -> String:
 
 
 ## [param text] as it is, marked to be translated where it is shown rather than where it is
-## written: words sent to another machine, which shows them in its own language, or kept for
-## later. `make strings` finds it as it finds [method Object.tr].
+## written: words sent to another machine, which shows them in its own language with
+## [method said], or kept for later. `make strings` finds it as it finds [method Object.tr]. Words
+## with a value in them go with [method message] instead.
 static func later(text: String, _context := &"") -> String:
 	return text
+
+
+## [param text] for another machine to say in its own language with [method said], with
+## [param values] for the {placeholders} in it: the English and the values packed together, as a
+## value put into the English here would make words nobody has a translation for, GAME.md 10.9.
+## `make strings` finds [param text] as it finds [method Object.tr]. A value is said as
+## [method said] says it: a number as the language writes one, words packed here said in turn, and
+## anything else, a player's name, as it is.
+static func message(text: String, values := {}, context := &"") -> String:
+	return _packed({WORDS: text}, values, context)
+
+
+## [param one] or [param many] for another machine to say as [param count] asks, see
+## [method message]; {count} in either is [param count], written as the language writes it.
+static func message_n(
+	one: String, many: String, count: int, values := {}, context := &""
+) -> String:
+	return _packed({WORDS: one, MANY: many, COUNT: count}, values, context)
+
+
+static func _packed(words: Dictionary, values: Dictionary, context: StringName) -> String:
+	if not values.is_empty():
+		words[VALUES] = values
+	if not context.is_empty():
+		words[CONTEXT] = String(context)
+	return JSON.stringify(words)
+
+
+## [param words] that came from another machine, or were kept for later, said in the language
+## spoken: packed by [method message] or [method message_n], or English marked with [method later]
+## and looked up as it is, which anything else that is not packed is too.
+static func said(words: String) -> String:
+	var packed := _unpacked(words)
+	if packed.is_empty():
+		return t(words)
+	var context := StringName(str(packed.get(CONTEXT, "")))
+	var values := {}
+	var given: Variant = packed.get(VALUES, {})
+	if given is Dictionary:
+		for key: Variant in given:
+			values[str(key)] = _value_said((given as Dictionary)[key])
+	var text := str(packed[WORDS])
+	if packed.has(MANY):
+		var count := roundi(float(packed.get(COUNT, 0)))
+		values[COUNT] = number(count)
+		return tn(text, str(packed[MANY]), count, context).format(values)
+	return t(text, context).format(values)
+
+
+## [param words] as [method message] packed them, or empty for anything else.
+static func _unpacked(words: String) -> Dictionary:
+	if not words.begins_with("{"):
+		return {}
+	var json := JSON.new()
+	if json.parse(words) != OK or not json.data is Dictionary:
+		return {}
+	var packed: Dictionary = json.data
+	return packed if packed.get(WORDS) is String else {}
+
+
+## A value for a placeholder, as [method said] says it. A number comes over the wire as JSON's, the
+## same for 3 as for 3.0, so a whole one is written as a whole number.
+static func _value_said(value: Variant) -> String:
+	if value is float or value is int:
+		var figure := float(value)
+		if is_equal_approx(figure, roundf(figure)):
+			return number(roundi(figure))
+		return String.num(figure, 2).replace(".", Lang.t(".", &"decimal"))
+	if value is String and not _unpacked(value).is_empty():
+		return said(value)
+	return str(value)
 
 
 ## [param value] with its thousands set apart as the language spoken sets them: 1,204,388 in
