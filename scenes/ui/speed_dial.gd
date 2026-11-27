@@ -1,42 +1,58 @@
 class_name SpeedDial
 extends Range
 ## The speedometer of a corner block, GAME.md 8.3 and 8.1a: a small dial, three quarters of a ring
-## open at the foot, filling clockwise from the bottom left with the kart's speed. Its face is a
-## gauge's: a foil rim, a tick every so far round, longer every third, the track foil past the
-## kart's own top speed where only nitro takes it and red at the end of that, and the unit written
-## in the gap at the foot. Over the fill a pointer swings onto the speed on a spring,
-## overshooting a little and settling, and a small foil mark holds the highest speed of the last
-## moment before it falls back. The number itself is a label laid over the middle of it by whoever
-## builds the block, so it is set in the same type as the rest of the corner, and the pointer stays
-## out on the ring, clear of it. The fill is drawn to where the pointer stands, so the two always
+## open at the foot, filling clockwise from the bottom left with the kart's speed, in its player's
+## own color, as their name and their nitro cells are, and amber while the nitro is lit. Its face
+## is a gauge's: a foil rim, a tick every so far round between the ring and the rim, longer every
+## third, the track foil past the kart's own top speed where only nitro takes it and red at the end
+## of that, and the unit written in the gap at the foot. A cream needle swings onto the speed on a
+## spring, overshooting a little and settling, and a small foil mark holds the highest speed of
+## the last moment before it falls back. The number itself is a label laid over the middle of it
+## by whoever builds the block, so it is set in the same type as the rest of the corner; the ring
+## is pulled in from the rim and the needle stays out on it, across the track and the ticks, so
+## nothing crosses the number. The fill is drawn to where the needle stands, so the two always
 ## move as one, spring and all.
 ##
 ## Cheap to have up, GAME.md 10.7: the face is drawn once into a picture and shown from then on,
-## the pointer and the peak mark are drawn once each and only turned, and a frame of driving
-## redraws the fill alone, one arc. Drawn in white and foil, so the block can light the whole gauge
-## the nitro's color by its modulate.
+## the needle and the peak mark are drawn once each and only turned, and a frame of driving
+## redraws the fill alone, one arc.
 
 ## Where the ring starts and ends, in radians clockwise from east with y down: the bottom left
 ## round over the top to the bottom right.
 const FROM := PI * 0.75
 const TO := PI * 2.25
-## How thick the ring is, as a share of the dial's radius, and how many ticks go round it.
-const RING := 0.16
+## How thick the ring is and how far out its middle runs, as shares of half the dial's side, and
+## how many ticks go round it.
+const RING := 0.123
+const RING_AT := 0.807
 const TICKS := 12
+## The ticks, between the ring and the rim: where they start and where a short one and a long one
+## end, as shares of half the dial's side; and the rim's own reach.
+const TICK_FROM := 0.9
+const TICK_TO := 0.939
+const TICK_LONG := 0.961
+const RIM := 0.986
 const TRACK := Color(0.0, 0.0, 0.0, 0.5)
 const TICK_INK := Color(0.66, 0.65, 0.71, 0.8)
 const FACE := Color(0.06, 0.06, 0.08, 0.55)
 const BOOST_TRACK := Color(0.45, 0.33, 0.1, 0.6)
 const RED_TRACK := Color(0.55, 0.12, 0.1, 0.75)
+## The fill while the nitro is lit, the amber the number over it turns too.
+const NITRO := Color(1.0, 0.75, 0.3)
+## The needle's cream, and the cream of its shadow side.
+const NEEDLE := HouseTheme.PAPER
+const NEEDLE_SHADE := Color(0.77, 0.73, 0.63)
 ## Where on the ring the kart's own top speed falls, past which only nitro takes it, see
 ## [constant MatchHud.SPEED_FULL], and where the red starts.
 const BOOST_FROM := 1.0 / MatchHud.SPEED_FULL
 const RED_FROM := 0.88
-## The pointer: from how far out it starts to how far it reaches, as shares of the radius, how wide
-## its foot is, and its spring, how stiff and how damped, which overshoots a new speed a little.
-const POINTER_IN := 0.5
-const POINTER_OUT := 1.06
-const POINTER_FOOT := 0.11
+## The needle: from how far out it starts to how far it reaches, how wide it is at either end, as
+## shares of half the dial's side, and its spring, how stiff and how damped, which overshoots a new
+## speed a little.
+const POINTER_IN := 0.741
+const POINTER_OUT := 0.968
+const POINTER_FOOT := 0.025
+const POINTER_TIP := 0.036
 const STIFF := 220.0
 const DAMP := 19.0
 ## The peak mark: how long it holds the highest speed before it falls, and how fast it falls, as a
@@ -51,6 +67,12 @@ const FACES := &"speed_dial_faces"
 ## What is written in the gap at the foot, the unit the number is in, see [SpeedUnits].
 var unit := SpeedUnits.KMH_WORD:
 	set = _set_unit
+## The player's own color, the fill's, see [HudBlock].
+var ink := Color.WHITE:
+	set = _set_ink
+## Whether the nitro is lit, which turns the fill [constant NITRO].
+var lit := false:
+	set = _set_lit
 
 var _pointer: Node2D
 var _peak: Node2D
@@ -122,14 +144,14 @@ func _draw() -> void:
 			FROM,
 			lerpf(FROM, TO, _filled),
 			48,
-			Color.WHITE,
+			NITRO if lit else ink,
 			_thick(size),
 			true
 		)
 
 
 ## The face, drawn on [param on] at [param across]: the disc, the track, the boost and the red
-## stretches, the ticks, the rim and the unit.
+## stretches, the ticks outside it, the rim and the unit.
 static func _draw_face(on: CanvasItem, across: Vector2, written: String) -> void:
 	var side := minf(across.x, across.y)
 	var middle := across * 0.5
@@ -143,27 +165,27 @@ static func _draw_face(on: CanvasItem, across: Vector2, written: String) -> void
 	on.draw_arc(middle, radius, FROM, boost, 32, TRACK, thick, true)
 	on.draw_arc(middle, radius, boost, red, 24, BOOST_TRACK, thick, true)
 	on.draw_arc(middle, radius, red, TO, 12, RED_TRACK, thick, true)
+	var half := side * 0.5
 	for i: int in TICKS + 1:
 		var angle := lerpf(FROM, TO, float(i) / float(TICKS))
 		var toward := Vector2.from_angle(angle)
 		var long := i % 3 == 0
-		var inner := radius - thick * (2.6 if long else 1.9)
 		var ink := HouseTheme.STAMP_RED if float(i) / TICKS >= RED_FROM else TICK_INK
 		on.draw_line(
-			middle + toward * (radius - thick * 1.1),
-			middle + toward * inner,
+			middle + toward * half * TICK_FROM,
+			middle + toward * half * (TICK_LONG if long else TICK_TO),
 			ink,
-			1.6 if long else 1.0,
+			1.7 if long else 1.1,
 			true
 		)
 	# The rim, foil, round the whole of it.
-	on.draw_arc(middle, side * 0.5 - 1.0, 0.0, TAU, 64, Color(HouseTheme.FOIL, 0.7), 1.2, true)
+	on.draw_arc(middle, half * RIM, 0.0, TAU, 64, Color(HouseTheme.FOIL, 0.7), 1.2, true)
 	var font := Type.STRONG
 	var unit_size := maxi(int(side * 0.11), 8)
 	var wide := font.get_string_size(written, HORIZONTAL_ALIGNMENT_LEFT, -1, unit_size).x
 	on.draw_string(
 		font,
-		Vector2(middle.x - wide * 0.5, middle.y + radius * 0.92),
+		Vector2(middle.x - wide * 0.5, middle.y + half * 0.82),
 		written,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
@@ -189,30 +211,29 @@ func _turning(draw: Callable) -> Node2D:
 	return node
 
 
-## The pointer, along +x from the middle, as [method _place] has it: a slim wedge out on the ring,
-## clear of the number in the middle, foil along its back, and a dot of light at its tip.
+## The needle, along +x from the middle, as [method _place] has it: a slim bar out on the ring,
+## across the track and the ticks and clear of the number, a little wider at its tip, cream with
+## its shadow side, the half the light does not reach, a darker cream.
 func _draw_pointer(on: Node2D) -> void:
-	var radius := _radius(size)
-	var foot := radius * POINTER_FOOT
-	var from := radius * POINTER_IN
-	var to := radius * POINTER_OUT
-	var wedge := PackedVector2Array(
-		[
-			Vector2(from, -foot),
-			Vector2(to, -foot * 0.25),
-			Vector2(to, foot * 0.25),
-			Vector2(from, foot)
-		]
+	var half := minf(size.x, size.y) * 0.5
+	var foot := half * POINTER_FOOT
+	var tip := half * POINTER_TIP
+	var from := half * POINTER_IN
+	var to := half * POINTER_OUT
+	var needle := PackedVector2Array(
+		[Vector2(from, -foot), Vector2(to, -tip), Vector2(to, tip), Vector2(from, foot)]
 	)
-	on.draw_colored_polygon(wedge, Color(1.0, 0.36, 0.28))
-	on.draw_line(Vector2(from, 0.0), Vector2(to, 0.0), Color(1.0, 0.9, 0.85, 0.9), 1.0, true)
-	on.draw_circle(Vector2(from, 0.0), foot, HouseTheme.FOIL)
+	on.draw_colored_polygon(needle, NEEDLE)
+	var shade := PackedVector2Array(
+		[Vector2(from, 0.0), Vector2(to, 0.0), Vector2(to, tip), Vector2(from, foot)]
+	)
+	on.draw_colored_polygon(shade, NEEDLE_SHADE)
 
 
 ## The peak mark: a foil bar across the track, where the speed last stood highest.
 func _draw_peak(on: Node2D) -> void:
 	var radius := _radius(size)
-	var half := _thick(size) * 0.75
+	var half := _thick(size) * 0.63
 	on.draw_line(
 		Vector2(radius - half, 0.0), Vector2(radius + half, 0.0), HouseTheme.FOIL, 2.5, true
 	)
@@ -240,11 +261,25 @@ static func _thick(across: Vector2) -> float:
 
 
 static func _radius(across: Vector2) -> float:
-	return minf(across.x, across.y) * 0.5 - _thick(across) * 0.5 - 1.0
+	return minf(across.x, across.y) * 0.5 * RING_AT
 
 
 func _set_unit(value: String) -> void:
 	if value == unit:
 		return
 	unit = value
+	queue_redraw()
+
+
+func _set_ink(value: Color) -> void:
+	if value == ink:
+		return
+	ink = value
+	queue_redraw()
+
+
+func _set_lit(value: bool) -> void:
+	if value == lit:
+		return
+	lit = value
 	queue_redraw()

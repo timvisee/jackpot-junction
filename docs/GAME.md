@@ -4789,22 +4789,24 @@ lane beside it is as wide as it was.
   color while burning.
 - **Speedometer** over it: a small dial, three quarters of a ring open at the
   foot, with the number in km/h in its middle and the unit written in the gap,
-  both turning the nitro color while the bottle is lit. The dial is full at a kart flat out on
+  the number and the ring's fill turning the nitro's amber while the bottle is lit. The dial is full at a kart flat out on
   nitro, so the needle still has somewhere to go when it lights. The number is the
   kart's real speed scaled by 20, which puts a kart at about 210 km/h flat out and
   400 on nitro: the honest meters a second is a single figure and says nothing
   about how the driving feels. In mph, chosen in the settings or by the system's
   locale, 8.5, it is the same converted, about 130 and 250, MPH in the gap. A dead
   kart reads zero. Its face is a gauge's, a
-  foil rim and a tick every so far round, the ring's track dark up to the kart's
-  own top speed, the foil's past it where only nitro takes it and red at the end
-  of that; the fill is white over it, and a slim red pointer out on the ring,
-  clear of the number, swings onto the speed on a spring, overshooting a sudden
+  foil rim and a tick every so far round between the ring and the rim, the ring's
+  track dark up to the kart's own top speed, the foil's past it where only nitro
+  takes it and red at the end of that; the fill is in the player's own color over
+  it, as their name and nitro cells are, and a slim cream needle out on the ring,
+  across the track and the ticks, swings onto the speed on a spring, overshooting a sudden
   change a little before it settles, and trembles at the top of the nitro's
-  stretch. The fill is drawn to where the pointer stands rather than to the speed
-  itself, so the two always move as one. A foil bar across the track holds the highest speed of the last
+  stretch. The fill is drawn to where the needle stands rather than to the speed
+  itself, so the two always move as one. The ring is pulled in from the rim far enough that
+  nothing of it, nor of the needle, ever crosses the number. A foil bar across the track holds the highest speed of the last
   moment, a second or so, before it falls back. The face is drawn once into a
-  picture, the pointer and the bar once each and only turned, so a frame of
+  picture, the needle and the bar once each and only turned, so a frame of
   driving redraws the fill alone, one arc, 10.7.
 - **Control hints**, on by default and switchable in 8.5: a line under each
   player's block, on a small ticket of the HUD's stock hung from its foot (or

@@ -1,6 +1,6 @@
 extends GdUnitTestSuite
 ## The speedometer in the HUD block, GAME.md 8.3: the dial and the number both read what the kart
-## is doing, and both light up while the nitro is lit.
+## is doing, the dial's fill in its player's color, and both turn amber while the nitro is lit.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 
@@ -56,6 +56,8 @@ func test_the_dial_and_the_number_follow_the_kart() -> void:
 	var flat_out := roundi(kart.stats.top_speed * MatchHud.SPEED_SCALE)
 	assert_int(_reading(readout)).is_between(flat_out - 15, flat_out)
 	var calm: Color = readout.get_theme_color("font_color")
+	assert_object(dial.ink).is_equal(match_node.slots[0].color())
+	assert_bool(dial.lit).is_false()
 	# On nitro the needle uses that room, and both parts of the gauge light up.
 	kart.input.nitro = true
 	_set_speed(kart, kart.stats.top_speed * kart.stats.nitro_speed_multiplier)
@@ -64,7 +66,8 @@ func test_the_dial_and_the_number_follow_the_kart() -> void:
 	assert_float(dial.value).is_greater(95.0)
 	assert_int(_reading(readout)).is_greater(flat_out + 100)
 	assert_object(readout.get_theme_color("font_color")).is_not_equal(calm)
-	assert_object(dial.modulate).is_equal(readout.get_theme_color("font_color"))
+	assert_bool(dial.lit).is_true()
+	assert_object(readout.get_theme_color("font_color")).is_equal(SpeedDial.NITRO)
 	# In miles an hour, chosen, the number and the unit on the dial both say so.
 	Game.settings.speed_unit_chosen = SpeedUnits.MPH
 	await _runner.simulate_frames(2, 17)

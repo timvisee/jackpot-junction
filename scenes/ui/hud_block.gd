@@ -174,6 +174,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	var speed_dial := SpeedDial.new()
 	speed_dial.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	speed_dial.tooltip_text = Lang.t("Speed")
+	speed_dial.ink = slot.color()
 	dial_box.add_child(speed_dial)
 	var speed := Label.new()
 	speed.text = "0"
@@ -309,6 +310,7 @@ static func follow(block: Dictionary, slot: PlayerSlot) -> void:
 	name_label.text = slot.display_name()
 	name_label.add_theme_color_override("font_color", slot.color())
 	(block["nitro"] as NitroCells).ink = slot.color()
+	(block["speed_dial"] as SpeedDial).ink = slot.color()
 	InputGlyph.seat_under(block["hints"], slot.color())
 	var card: Control = block["box"]
 	var style := card.get_theme_stylebox(&"panel") as StripStyle

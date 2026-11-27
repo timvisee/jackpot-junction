@@ -72,6 +72,8 @@ below, and hands the notes to the release workflow.
   rewards use the same house print; the book's pit is a barrier before a hole.
 - **Redrawn HUD marks and stamps.** The lives, the bounty's crown, a bot's robot, the skull, the
   mult's die and the House's rubber stamp are redrawn in the same house print.
+- **Speed dial in your color.** The HUD's speed dial fills in the player's own color, amber on
+  nitro, with a cream needle out on the ring that no longer crosses the number.
 - **Redrawn loyalty map marks.** The WON seal and stamp, Kit's tick, the keystone crest and the
   roundabout's chip are redrawn in the same house print.
 - **Reprinted joker and power-up cards.** The cards are printed in the house print: a stub torn

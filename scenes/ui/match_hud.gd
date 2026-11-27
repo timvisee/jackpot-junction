@@ -813,9 +813,9 @@ func _update_speed(block: Dictionary, kart: Kart) -> void:
 	var unit := Game.settings.speed_unit()
 	dial.unit = SpeedUnits.word(unit)
 	readout.text = "%d" % roundi(SpeedUnits.from_kmh(speed * SPEED_SCALE, unit))
-	var lit := Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
-	dial.modulate = lit
-	Type.ink(readout, lit)
+	# The fill turns amber on the nitro, and the number over it with it.
+	dial.lit = kart.nitro_active
+	Type.ink(readout, SpeedDial.NITRO if kart.nitro_active else Color(0.85, 0.85, 0.9))
 
 
 ## nitro and which plays the item they are holding. Each one only appears while it is worth
