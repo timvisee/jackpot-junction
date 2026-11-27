@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A robot</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M24,12V8" stroke-width="2.5" stroke-linecap="butt"/>
+  <g class="piece ink">
+    <path class="body" d="M21.4,6.2A2.6,2.6 0 1 0 26.6,6.2A2.6,2.6 0 1 0 21.4,6.2Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M6.5,20H8.5A1.5,1.5 0 0 1 10,21.5V29.5A1.5,1.5 0 0 1 8.5,31H6.5A1.5,1.5 0 0 1 5,29.5V21.5A1.5,1.5 0 0 1 6.5,20Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M39.5,20H41.5A1.5,1.5 0 0 1 43,21.5V29.5A1.5,1.5 0 0 1 41.5,31H39.5A1.5,1.5 0 0 1 38,29.5V21.5A1.5,1.5 0 0 1 39.5,20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M15,11H33A5,5 0 0 1 38,16V34A5,5 0 0 1 33,39H15A5,5 0 0 1 10,34V16A5,5 0 0 1 15,11Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="cut" d="M15.1,22A3.4,3.4 0 1 0 21.9,22A3.4,3.4 0 1 0 15.1,22Z"/>
+    <path class="cut" d="M26.1,22A3.4,3.4 0 1 0 32.9,22A3.4,3.4 0 1 0 26.1,22Z"/>
+    <path class="cut" d="M18.7,30H29.3A1.7,1.7 0 0 1 31,31.7V31.7A1.7,1.7 0 0 1 29.3,33.4H18.7A1.7,1.7 0 0 1 17,31.7V31.7A1.7,1.7 0 0 1 18.7,30Z"/>
+  </g>
+</g>
+</svg>

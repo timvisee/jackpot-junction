@@ -4699,9 +4699,9 @@ lane beside it is as wide as it was.
   (4.2): smaller and half past the edge while none of its cards is being read,
   coming out to its full size as the joker menu opens or the mouse comes onto
   it. Four hands at full size are four hands over the arena.
-- **Lives**: two hearts in the player color under the banked score, drawn off the
-  heart curve so they have the dip and the point that tell the shape apart at
-  twenty-one pixels. A square said one of something and left you to work out what.
+- **Lives**: two hearts in the player color under the banked score, the deck's
+  own heart, the suits' drawing of 8.3a, its dip and its point telling the shape
+  apart at twenty-one pixels. A square said one of something and left you to work out what.
   A lost life goes dark.
 - **Held power-up**: the item's own picture beside its name, both in the item's
   color, see 8.3a. While the box is still opening the picture flicks through the
@@ -5131,9 +5131,10 @@ table's cards (`table/`, 3.17), the two kinds of game (`modes/`, 9.7), the ways 
 drive and the touch layouts (`drive/`, 4.2), the parts of the dress (`dress/`, 4.4),
 the emotes (`emotes/`, 3.8), the landmarks of the loyalty program's map (`landmarks/`, 8.9),
 the glyphs the house's buttons wear with the padlock of a sealed table card (`ui/`, 8.1a), the
-suits' marks with the wild card's jester (`suits/`, 7.3) and the loyalty map's marks, its WON seal
-and stamp, Kit's tick, a keystone's crest and the roundabout's pot (`marks/`, 8.9), each id named
-for its family,
+suits' marks with the wild card's jester (`suits/`, 7.3), the loyalty map's marks, its WON seal
+and stamp, Kit's tick, a keystone's crest and the roundabout's pot, with the House's rubber stamp
+(`marks/`, 8.9), and the HUD's marks, the bounty's crown, a bot's robot, the skull of a kart out of
+a showdown and the mult's die (`hud/`, 8.3), each id named for its family,
 `table_jackpot`, `dress_hat`, `landmark_slip_road`, `ui_trash`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,
@@ -8803,9 +8804,9 @@ line says "Click the stamp to make it official", or Tap, or Press, by the same
 device. It is a button, so a click, a tap, or that control with the cursor on
 it, which it starts with, presses it. Pressed, it lifts and swings over the
 card's lower right corner, slams down with a thud, which is when the card takes
-the mark, two red rings with PASSED inside them, DEPT. OF KARTS over the word
-and the date under it, a star in the outer ring's gap either side, laid a little
-askew and short of solid the way ink is, a smaller stamp the same one scaled down,
+the mark, a heavy red ring broken either side for a star and a fine one inside it,
+a drawing of 8.3a, with PASSED inside them, DEPT. OF KARTS over the word and the
+date under it, laid a little askew, a smaller stamp the same one scaled down,
 and the card shivers; then the stamp fades away leaving the mark. Nothing goes
 on without stamping: the stamp is the point. A moment after, the license is held
 up in full over the screen, as the title and the settings show it, see below, for

@@ -514,7 +514,9 @@ func _name(slot: PlayerSlot) -> Control:
 		bot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		bot.draw.connect(
 			func() -> void:
-				IconShapes.robot(bot, Rect2(Vector2.ZERO, bot.size), FAINT, HouseTheme.PAPER)
+				IconPress.draw(
+					bot, Rect2(Vector2.ZERO, bot.size), &"hud_robot", FAINT, IconPress.Ground.PAPER
+				)
 		)
 		named.add_child(bot)
 	if not license.is_empty():

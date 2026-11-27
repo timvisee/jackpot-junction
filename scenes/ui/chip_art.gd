@@ -10,9 +10,8 @@ extends RefCounted
 ## The cream of the notches, and how many of them a chip has.
 const NOTCHES := Color(0.97, 0.95, 0.9)
 const NOTCH_COUNT := 8
-## The die: its face and its pips.
+## The die's face.
 const DIE := Color(0.97, 0.95, 0.9)
-const PIP := Color(0.09, 0.09, 0.1)
 ## The clay a real chip is pressed from shows in faint flecks over its face: how many, how strong,
 ## and how small a chip goes before they are left off as dust.
 const FLECKS := 26
@@ -133,15 +132,10 @@ static func numbered(
 	)
 
 
-## The die the mult is picked up as, filling [param box]: white with three pips across it.
+## The die the mult is picked up as, filling [param box]: a white face with three pips cut through
+## it, a drawing of GAME.md 8.3a.
 static func die(canvas: CanvasItem, box: Rect2) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = DIE
-	style.set_corner_radius_all(roundi(box.size.x * 0.2))
-	style.anti_aliasing = true
-	canvas.draw_style_box(style, box)
-	for at: float in [0.27, 0.5, 0.73]:
-		canvas.draw_circle(box.position + box.size * at, box.size.x * 0.09, PIP, true, -1.0, true)
+	IconPress.draw(canvas, box, &"hud_die", DIE)
 
 
 ## Whether [param ink] is light enough that what is written on it wants dark ink rather than white.

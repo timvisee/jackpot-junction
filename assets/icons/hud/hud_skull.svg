@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A skull</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M24,5C33,5 40,11.5 40,20.5C40,25.5 38,29 35,31V37.5A3,3 0 0 1 32,40.5H16A3,3 0 0 1 13,37.5V31C10,29 8,25.5 8,20.5C8,11.5 15,5 24,5Z"/>
+    <path class="shade" d="M33,-20H70V70H33Z"/>
+    <path class="cut" d="M12.9,21A4.6,4.6 0 1 0 22.1,21A4.6,4.6 0 1 0 12.9,21Z"/>
+    <path class="cut" d="M25.9,21A4.6,4.6 0 1 0 35.1,21A4.6,4.6 0 1 0 25.9,21Z"/>
+    <path class="cut" d="M21.92,30.1L23.48,27.4A0.6,0.6 0 0 1 24.52,27.4L26.08,30.1A0.6,0.6 0 0 1 25.56,31L22.44,31A0.6,0.6 0 0 1 21.92,30.1Z"/>
+    <path class="cut" d="M20,35V40.5M24,35V40.5M28,35V40.5" stroke-width="1.8"/>
+  </g>
+</g>
+</svg>

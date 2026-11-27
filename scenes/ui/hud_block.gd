@@ -88,7 +88,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	bot.visible = false
 	bot.draw.connect(
 		func() -> void:
-			IconShapes.robot(bot, Rect2(Vector2.ZERO, bot.size), slot.color(), HouseTheme.STOCK)
+			IconPress.draw(bot, Rect2(Vector2.ZERO, bot.size), &"hud_robot", slot.color())
 	)
 	name_label.add_child(bot)
 	var stats := Label.new()

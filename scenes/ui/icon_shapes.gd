@@ -77,20 +77,6 @@ static func crown(on: CanvasItem, box: Rect2, ink: Color) -> void:
 		disc(on, box, tip.x, tip.y, 0.08, ink)
 
 
-## A robot's head in [param box], what a bot is marked with beside its name, GAME.md 8.3: a square
-## head with an antenna and a ball on it, ears either side, and two eyes and a mouth cut out of it
-## in [param cut], the color of whatever it is drawn on.
-static func robot(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
-	line(on, box, 0.5, 0.3, 0.5, 0.12, ink)
-	disc(on, box, 0.5, 0.1, 0.08, ink)
-	bar(on, box, 0.06, 0.48, 0.12, 0.24, ink)
-	bar(on, box, 0.82, 0.48, 0.12, 0.24, ink)
-	bar(on, box, 0.16, 0.28, 0.68, 0.62, ink)
-	disc(on, box, 0.36, 0.52, 0.09, cut)
-	disc(on, box, 0.64, 0.52, 0.09, cut)
-	bar(on, box, 0.34, 0.72, 0.32, 0.07, cut)
-
-
 ## A driver license in [param box], GAME.md 9.4a, what the payout slip shows somebody's by, 10.8: a
 ## card of [param ink], wider than tall, its photo and two lines of writing cut out of it in
 ## [param cut], the color of whatever it is drawn on.
@@ -99,19 +85,6 @@ static func license(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
 	bar(on, box, 0.1, 0.3, 0.3, 0.4, cut)
 	bar(on, box, 0.5, 0.34, 0.38, 0.08, cut)
 	bar(on, box, 0.5, 0.52, 0.26, 0.08, cut)
-
-
-## A skull in [param box], what a kart out of a showdown is marked with, GAME.md 9.7a: a round
-## crown over a jaw, the eyes, the nose and the gaps between the teeth cut out of it in
-## [param cut], the color of whatever it is drawn on.
-static func skull(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
-	disc(on, box, 0.5, 0.42, 0.36, ink)
-	bar(on, box, 0.3, 0.58, 0.4, 0.32, ink)
-	disc(on, box, 0.35, 0.46, 0.11, cut)
-	disc(on, box, 0.65, 0.46, 0.11, cut)
-	tri(on, box, 0.5, 0.66, 0.13, 0.0, cut)
-	for x: float in [0.42, 0.58]:
-		bar(on, box, x - 0.02, 0.78, 0.04, 0.12, cut)
 
 
 ## A solid triangle of [param span] across, pointing [param facing] degrees clockwise from up.

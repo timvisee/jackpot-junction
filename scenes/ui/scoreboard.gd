@@ -428,7 +428,7 @@ func _draw_fate(fate: Control, slot: PlayerSlot) -> void:
 	var side := minf(fate.size.y, fate.size.x)
 	if slot.out_at >= 0:
 		var box := Rect2((fate.size - Vector2(side, side)) * 0.5, Vector2(side, side))
-		IconShapes.skull(fate, box, DIM, HouseTheme.STOCK)
+		IconPress.draw(fate, box, &"hud_skull", DIM)
 		return
 	var lives := slot.kart.lives if slot.kart != null else 0
 	var each := fate.size.x / float(maxi(lives, 1))
@@ -498,7 +498,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		func() -> void:
 			var side := minf(bounty.size.x, bounty.size.y) * 0.9
 			var box := Rect2((bounty.size - Vector2(side, side)) * 0.5, Vector2(side, side))
-			IconShapes.crown(bounty, box, Palette.CHIP_GOLD)
+			IconPress.draw(bounty, box, &"hud_crown", Palette.CHIP_GOLD)
 	)
 	# A bot, a robot's head after its name, so a room of players and bots says which is which.
 	var bot := Control.new()
@@ -510,7 +510,7 @@ func _row(slot: PlayerSlot) -> Dictionary:
 		func() -> void:
 			var side := minf(bot.size.x, bot.size.y) * 0.85
 			var box := Rect2((bot.size - Vector2(side, side)) * 0.5, Vector2(side, side))
-			IconShapes.robot(bot, box, DIM, HouseTheme.STOCK)
+			IconPress.draw(bot, box, &"hud_robot", DIM)
 	)
 	named.add_child(bot)
 	# A slow line to the host, beside the name, GAME.md 10.3.
@@ -604,7 +604,7 @@ func _head(team: int) -> Dictionary:
 		func() -> void:
 			var side := minf(bounty.size.x, bounty.size.y) * 0.9
 			var box := Rect2((bounty.size - Vector2(side, side)) * 0.5, Vector2(side, side))
-			IconShapes.crown(bounty, box, Palette.CHIP_GOLD)
+			IconPress.draw(bounty, box, &"hud_crown", Palette.CHIP_GOLD)
 	)
 	for part: Control in [chip, suit, name_label, score, risk, bounty]:
 		line.add_child(part)

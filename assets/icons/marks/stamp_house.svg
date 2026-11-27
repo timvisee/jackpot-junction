@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Printed rings</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M43.99,28.98A20.6,20.6 0 0 1 4.01,28.98M4.01,19.02A20.6,20.6 0 0 1 43.99,19.02" stroke-width="2.6" stroke-linecap="butt" data-seam="false"/>
+  <path class="line ink" d="M40.6,24A16.6,16.6 0 1 1 40.6,23.97" stroke-width="0.9" data-seam="false"/>
+  <g class="piece ink" data-seam="false" data-shade="false">
+    <path class="body" d="M2.65,22.68L3.12,21.38A0.3,0.3 0 0 1 3.68,21.38L4.15,22.68A0.3,0.3 0 0 0 4.43,22.87L5.81,22.92A0.3,0.3 0 0 1 5.98,23.46L4.89,24.31A0.3,0.3 0 0 0 4.79,24.63L5.17,25.96A0.3,0.3 0 0 1 4.71,26.29L3.57,25.51A0.3,0.3 0 0 0 3.23,25.51L2.09,26.29A0.3,0.3 0 0 1 1.63,25.96L2.01,24.63A0.3,0.3 0 0 0 1.91,24.31L0.82,23.46A0.3,0.3 0 0 1 0.99,22.92L2.37,22.87A0.3,0.3 0 0 0 2.65,22.68ZM43.85,22.68L44.32,21.38A0.3,0.3 0 0 1 44.88,21.38L45.35,22.68A0.3,0.3 0 0 0 45.63,22.87L47.01,22.92A0.3,0.3 0 0 1 47.18,23.46L46.09,24.31A0.3,0.3 0 0 0 45.99,24.63L46.37,25.96A0.3,0.3 0 0 1 45.91,26.29L44.77,25.51A0.3,0.3 0 0 0 44.43,25.51L43.29,26.29A0.3,0.3 0 0 1 42.83,25.96L43.21,24.63A0.3,0.3 0 0 0 43.11,24.31L42.02,23.46A0.3,0.3 0 0 1 42.19,22.92L43.57,22.87A0.3,0.3 0 0 0 43.85,22.68Z"/>
+  </g>
+</g>
+</svg>

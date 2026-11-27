@@ -17,6 +17,7 @@ const FOLDERS := {
 	"res://assets/icons/ui/": "ui",
 	"res://assets/icons/suits/": "suits",
 	"res://assets/icons/marks/": "marks",
+	"res://assets/icons/hud/": "hud",
 }
 
 
@@ -113,12 +114,37 @@ func test_every_glyph_and_suit_has_a_drawing() -> void:
 ## keystone's crest and the roundabout's pot, and nothing else is in their folder.
 func test_every_mark_of_the_map_has_a_drawing() -> void:
 	var marks: Array[StringName] = [
-		&"medal_seal", &"medal_seal_red", &"stamp_ring", &"tick_print", &"crest_disc", &"pot_chip"
+		&"medal_seal",
+		&"medal_seal_red",
+		&"stamp_ring",
+		&"stamp_house",
+		&"tick_print",
+		&"crest_disc",
+		&"pot_chip",
 	]
 	var files := _files("res://assets/icons/marks/")
 	assert_int(files.size()).is_equal(marks.size())
 	for id: StringName in marks:
 		assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
+
+
+## The HUD's marks and the mult's die have their drawings, and a life is the deck's heart: as wide
+## as its box, its point at the foot of its middle.
+func test_the_hud_marks_have_drawings_and_a_life_is_the_decks_heart() -> void:
+	var marks: Array[StringName] = [&"hud_crown", &"hud_robot", &"hud_skull", &"hud_die"]
+	var files := _files("res://assets/icons/hud/")
+	assert_int(files.size()).is_equal(marks.size())
+	for id: StringName in marks:
+		assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
+	var heart := Heart.unit_shape()
+	var low := Vector2(INF, INF)
+	var high := Vector2(-INF, -INF)
+	for point: Vector2 in heart:
+		low = Vector2(minf(low.x, point.x), minf(low.y, point.y))
+		high = Vector2(maxf(high.x, point.x), maxf(high.y, point.y))
+	assert_float(low.x).is_equal_approx(0.0, 0.01)
+	assert_float(high.x).is_equal_approx(1.0, 0.01)
+	assert_vector(heart[0]).is_equal_approx(Vector2(0.5, 0.96), Vector2(0.01, 0.01))
 
 
 ## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,

@@ -9,7 +9,20 @@ extends Control
 
 ## How many points the curve is walked in. Enough that the shoulders are round rather than
 ## faceted at the size a pip is drawn.
-const POINTS := 56
+const POINTS := 60
+## The deck's heart, as the suits draw it: where it starts, at its point, and its curves from there,
+## each two handles and its end, in a box as wide as the heart and [constant SHAPE_TALL] of that
+## tall.
+const SHAPE_FROM := Vector2(0.5, 0.92)
+const SHAPE: Array[Array] = [
+	[Vector2(0.17, 0.68), Vector2(0.0, 0.5), Vector2(0.0, 0.29)],
+	[Vector2(0.0, 0.12), Vector2(0.13, 0.0), Vector2(0.29, 0.0)],
+	[Vector2(0.39, 0.0), Vector2(0.46, 0.05), Vector2(0.5, 0.13)],
+	[Vector2(0.54, 0.05), Vector2(0.61, 0.0), Vector2(0.71, 0.0)],
+	[Vector2(0.87, 0.0), Vector2(1.0, 0.12), Vector2(1.0, 0.29)],
+	[Vector2(1.0, 0.5), Vector2(0.83, 0.68), Vector2(0.5, 0.92)],
+]
+const SHAPE_TALL := 0.92
 ## The crack a broken one comes apart along, top to bottom in the unit box. It wanders either
 ## side of the middle because a straight cut reads as a notch rather than as a break.
 const CRACK: Array[Vector2] = [
@@ -76,18 +89,20 @@ static func _tipped(piece: PackedVector2Array, side: float) -> PackedVector2Arra
 static func unit_shape() -> PackedVector2Array:
 	if not _unit.is_empty():
 		return _unit
-	var raw := PackedVector2Array()
-	var low := Vector2(INF, INF)
-	var high := Vector2(-INF, -INF)
-	for i: int in POINTS:
-		var t := TAU * i / float(POINTS)
-		# The classic heart curve. Its y runs upwards, so it is negated into screen space here.
-		var x := 16.0 * pow(sin(t), 3.0)
-		var y := -(13.0 * cos(t) - 5.0 * cos(2.0 * t) - 2.0 * cos(3.0 * t) - cos(4.0 * t))
-		raw.append(Vector2(x, y))
-		low = Vector2(minf(low.x, x), minf(low.y, y))
-		high = Vector2(maxf(high.x, x), maxf(high.y, y))
-	var span := high - low
-	for point: Vector2 in raw:
-		_unit.append((point - low) / Vector2(maxf(span.x, 0.001), maxf(span.y, 0.001)))
+	# The deck's heart, the suits' drawing of GAME.md 8.3a: its six curves walked a few points each,
+	# as wide as the box and as tall as its shape is, in the middle of the box's height.
+	var from := SHAPE_FROM
+	var steps := POINTS / SHAPE.size()
+	for curve: Array in SHAPE:
+		for step: int in steps:
+			var t := float(step) / steps
+			var u := 1.0 - t
+			var point: Vector2 = (
+				from * u * u * u
+				+ (curve[0] as Vector2) * 3.0 * u * u * t
+				+ (curve[1] as Vector2) * 3.0 * u * t * t
+				+ (curve[2] as Vector2) * t * t * t
+			)
+			_unit.append(point + Vector2(0.0, (1.0 - SHAPE_TALL) * 0.5))
+		from = curve[2]
 	return _unit

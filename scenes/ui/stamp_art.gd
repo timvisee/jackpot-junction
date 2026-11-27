@@ -1,19 +1,16 @@
 class_name StampArt
 extends RefCounted
-## The house's rubber stamp, GAME.md 9.4a and 8.1a: two rings with a word inside them, the agency
-## over the word and a date under it, a star in the outer ring's gap either side, laid a little
-## askew and short of solid, the way ink is. The driving test stamps PASSED on the license with it
+## The house's rubber stamp, GAME.md 9.4a and 8.1a: a heavy ring broken at either side for a star
+## and a fine ring inside it, a drawing of 8.3a, with a word inside them, the agency over the word
+## and a date under it, laid a little askew. The driving test stamps PASSED on the license with it
 ## and the payout slip WINNER. Drawn to [constant DESIGN] and scaled to the radius asked for, words,
 ## rings and stars alike, so a small stamp is the same stamp smaller.
 
-## The radius it is drawn to; the outer ring's gaps either side, in radians each way from level;
-## how far in the inner ring is; how big the stars are; and how wide the word may be, inside the
-## inner ring, all at [constant DESIGN].
+## The radius it is drawn to, and how wide the word may be inside the inner ring, at
+## [constant DESIGN]; and the heavy ring's radius in its drawing's 48 units.
 const DESIGN := 52.0
-const GAP := 0.24
-const INNER := 8.0
-const STAR := 12.0
 const WORD_WIDE := 76.0
+const RING := 20.6
 
 
 ## Stamps [param word] onto [param canvas] round [param at], [param radius] out and turned
@@ -30,9 +27,11 @@ static func stamp(
 ) -> void:
 	var k := radius / DESIGN
 	canvas.draw_set_transform(at, turn, Vector2.ONE)
-	canvas.draw_arc(Vector2.ZERO, radius, GAP, PI - GAP, 40, ink, 4.0 * k, true)
-	canvas.draw_arc(Vector2.ZERO, radius, PI + GAP, TAU - GAP, 40, ink, 4.0 * k, true)
-	canvas.draw_arc(Vector2.ZERO, radius - INNER * k, 0.0, TAU, 48, Color(ink, 0.6), 1.5 * k, true)
+	# The rings and the stars, a drawing of GAME.md 8.3a pressed in the ink: its heavy ring is
+	# RING units out of its 48.
+	var unit := radius / RING
+	var box := Rect2(-Vector2.ONE * 24.0 * unit, Vector2.ONE * 48.0 * unit)
+	IconPress.draw(canvas, box, &"stamp_house", ink, IconPress.Ground.PAPER)
 	var wide := radius * 2.0
 	var display := Type.display_font()
 	var word_size := _fitting(word, display, 24.0 * k, WORD_WIDE * k)
@@ -47,11 +46,6 @@ static func stamp(
 		ink,
 		wide
 	)
-	for side: float in [-1.0, 1.0]:
-		var star := Rect2(
-			Vector2(side * radius, 0.0) - Vector2.ONE * STAR * k * 0.5, Vector2.ONE * STAR * k
-		)
-		IconShapes.star(canvas, star, 0.5, 0.5, 0.9, ink)
 	canvas.draw_set_transform(Vector2.ZERO)
 
 
