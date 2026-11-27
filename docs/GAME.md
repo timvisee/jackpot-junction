@@ -11772,7 +11772,9 @@ Zhi Mang Xing behind the signatures, ZCOOL KuaiLe behind the marker), and `make 
 whole: down to the characters the Chinese translation uses, and for the text faces every character
 of GB 2312 as well, the signatures its 3,755 common ones, so a name typed in Chinese shows; drawn so
 a Chinese character stands as tall beside its face's lowercase as Noto Sans SC's does beside
-Barlow's, so a hand set bigger for its small letters does not set its Chinese bigger too; with a
+Barlow's, so a hand set bigger for its small letters does not set its Chinese bigger too, and behind
+the faces set in capitals, the display cuts and the marker, a little taller than the capitals and
+seated on their baseline, so a heading's Chinese takes the room its capitals did; with a
 line no taller nor deeper than its faces', so neither a line with Chinese in it nor a face measured
 with its fallbacks is any taller; and under a name of its own, as the license asks of a font
 changed. Behind every hand's partner stands the text face's, for a character in a name the hand's

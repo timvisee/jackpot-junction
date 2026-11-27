@@ -9,7 +9,9 @@ build/fonts, never kept whole in the repository:
   draws players' names the characters of GB 2312 as well, so a name typed in Chinese shows;
 - to its face's size: scaled so that a Chinese character stands as tall beside the face's lowercase
   as one of Noto Sans SC beside Barlow's, so a hand set bigger for its small letters, as Kit's is,
-  does not set its Chinese bigger too;
+  does not set its Chinese bigger too; or, behind a face set in capitals, the display cuts and the
+  marker, a little taller than its capitals and seated on their baseline, so a heading's Chinese
+  takes the room its capitals did and no line set close under it is run into;
 - to its faces' line: no taller over the baseline nor deeper under it than any face it stands
   behind. The engine sets a line by its face and by every fallback a character of it is drawn in,
   and measures a face with its fallbacks too, so a line with Chinese in it, and the face itself,
@@ -136,6 +138,11 @@ CUTS = [
     ("ZCOOLKuaiLe-Regular.ttf", "zcool-kuaile", None, WORDS, "ZCOOL KuaiLe JJ", "Regular",
      ["PermanentMarker-Regular.ttf"]),
 ]
+# The partners behind faces set in capitals, and how much taller than the capitals their Chinese
+# stands, and how far below the baseline it reaches, in ems.
+CAPITALS = ["NotoSansSC-Black.ttf", "ZCOOLKuaiLe-Regular.ttf"]
+OVER_CAPITALS = 1.12
+SEATED = 0.02
 # The partner a hand falls back on for a character its own lacks, a name's say: the text face's,
 # which so stands behind every face.
 LAST = "NotoSansSC-Medium.ttf"
@@ -221,10 +228,35 @@ def opened(source, weight):
 
 def measured(font):
     """How tall [font] draws [MEASURE], in ems."""
+    low, high = reach(font)
+    return (high - low) / font["head"].unitsPerEm
+
+
+def reach(font):
+    """How far under the baseline and over it [font] draws [MEASURE], in its units."""
     glyphs = font.getGlyphSet()
     pen = BoundsPen(glyphs)
     glyphs[font.getBestCmap()[ord(MEASURE)]].draw(pen)
-    return (pen.bounds[3] - pen.bounds[1]) / font["head"].unitsPerEm
+    return pen.bounds[1], pen.bounds[3]
+
+
+def capitals(face):
+    """How tall [face]'s capitals stand, in ems."""
+    return face["OS/2"].sCapHeight / face["head"].unitsPerEm
+
+
+def seat(font, low, depth):
+    """Moves every outline of [font] up or down so [MEASURE], reaching [low] units under the
+    baseline, reaches [depth] ems under it."""
+    rise = round(-depth * font["head"].unitsPerEm - low)
+    glyf = font["glyf"]
+    for name in font.getGlyphOrder():
+        glyph = glyf[name]
+        if not glyph.isComposite() and glyph.numberOfContours > 0:
+            glyph.coordinates.translate((0, rise))
+    # A composite is moved with the glyphs it is made of.
+    for name in font.getGlyphOrder():
+        glyf[name].recalcBounds(glyf)
 
 
 def lowercase(face):
@@ -232,9 +264,12 @@ def lowercase(face):
     return face["OS/2"].sxHeight / face["head"].unitsPerEm
 
 
-def cut(font, keep, faces, scale, family, style):
-    """[font] cut down to [keep], drawn [scale] times its size, in a line no taller over the
-    baseline nor deeper under it than any of [faces], named [family] [style]."""
+def cut(font, keep, faces, scale, family, style, seated=None):
+    """[font] cut down to [keep], drawn [scale] times its size, seated [seated] ems under the
+    baseline where given, in a line no taller over the baseline nor deeper under it than any of
+    [faces], named [family] [style]."""
+    # Measured before the cut, which may leave no [MEASURE] to measure.
+    low, _ = reach(font)
     options = subset.Options()
     options.hinting = False
     options.notdef_outline = True
@@ -246,6 +281,8 @@ def cut(font, keep, faces, scale, family, style):
     # Drawn smaller by being drawn in more units to the em, every outline and advance as it is.
     upm = round(font["head"].unitsPerEm / scale)
     font["head"].unitsPerEm = upm
+    if seated is not None:
+        seat(font, low, seated)
     # Rounded in, so that rounded to pixels it is never a pixel over.
     ascent = math.floor(min(f["hhea"].ascent / f["head"].unitsPerEm for f in faces) * upm)
     descent = math.ceil(max(f["hhea"].descent / f["head"].unitsPerEm for f in faces) * upm)
@@ -291,9 +328,13 @@ def main(args):
         named = faces + (others if file == LAST else [])
         behind = [TTFont(os.path.join(FACES, each)) for each in named]
         font = opened(source, weight)
-        scale = lowercase(behind[0]) * reference / measured(font)
         keep = characters(cover, words)
-        cut(font, keep, behind, scale, family, style).save(os.path.join(OUT, file))
+        if file in CAPITALS:
+            scale = capitals(behind[0]) * OVER_CAPITALS / measured(font)
+            cut(font, keep, behind, scale, family, style, SEATED).save(os.path.join(OUT, file))
+        else:
+            scale = lowercase(behind[0]) * reference / measured(font)
+            cut(font, keep, behind, scale, family, style).save(os.path.join(OUT, file))
         print("%-26s %5d characters, %.2f times its size, %4d KB" % (
             file, len(keep), scale, os.path.getsize(os.path.join(OUT, file)) // 1024))
         for each in faces:
