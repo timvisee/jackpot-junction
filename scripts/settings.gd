@@ -347,6 +347,9 @@ var lobby_who := 1
 var play_online_tab := ""
 ## What such a game is called, empty for its host's name, see [member NetDoor.title]; kept too.
 var lobby_title := ""
+## The last secret a host gave this machine, where it holds and till when, GAME.md 10.8, for the
+## game started again after a crash to be back in its own kart, see [RejoinSeats].
+var rejoin := {}
 ## The Steam supporter pack, GAME.md 10.8: the day it was first seen owned here, for the license's
 ## endorsement, and whether its thank-you card has been shown. Kept with the machine and its Steam
 ## account rather than a profile, which the cloud would carry to the next install.
@@ -474,6 +477,8 @@ func load_machine(file: ConfigFile) -> void:
 	lobby_title = PlayerNames.clean(
 		str(file.get_value("online", "lobby_title", lobby_title)), PlayerNames.TITLE_LENGTH
 	)
+	var kept: Variant = file.get_value("online", "rejoin", {})
+	rejoin = kept if kept is Dictionary else {}
 	supporter_since = str(file.get_value("supporter", "since", ""))
 	supporter_thanked = bool(file.get_value("supporter", "thanked", false))
 
@@ -549,6 +554,7 @@ func write_machine(file: ConfigFile) -> void:
 		file.erase_section_key("online", "lobby_invite_only")
 	file.set_value("online", "play_online_tab", play_online_tab)
 	file.set_value("online", "lobby_title", lobby_title)
+	file.set_value("online", "rejoin", rejoin)
 	file.set_value("supporter", "since", supporter_since)
 	file.set_value("supporter", "thanked", supporter_thanked)
 

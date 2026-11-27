@@ -298,7 +298,7 @@ func test_only_their_secret_gets_a_kart_back() -> void:
 	host.match_node = host_match
 	host.is_host = true
 	_host_root.add_child(host)
-	var token := HostControls.new_token()
+	var token := RejoinSeats.new_token()
 	var resume := _a_resume(host_match.joker_catalog.printed()[0].id)
 	var bo: Dictionary = resume["slots"][1]
 	bo.erase("account")
@@ -308,7 +308,7 @@ func test_only_their_secret_gets_a_kart_back() -> void:
 	MatchResume.start(host_match, resume)
 	host.host_controls.resume_from(resume)
 	host.host_controls.knocked(77, {"was": 3})
-	host.host_controls.knocked(78, {"was": 3, "token": HostControls.new_token()})
+	host.host_controls.knocked(78, {"was": 3, "token": RejoinSeats.new_token()})
 	host.host_controls.knocked(79, {"was": 3, "token": bo["proof"]})
 	assert_dict(host._peer_slots.kept).is_empty()
 	host.host_controls.knocked(80, {"was": 3, "token": token})

@@ -127,7 +127,7 @@ var door_plan := {}
 var resume := {}
 ## Joining the new host of a game handed over off Steam: the peer this machine was in the old one,
 ## said as it knocks, for a map carried over to seat it in its own kart, 0 otherwise; and the
-## secret the old host gave it to prove it, see [member HostControls.succession_token].
+## secret the old host gave it to prove it, see [member HostControls.rejoin_token].
 var was_peer := 0
 var was_token := ""
 var steam_lobby := 0

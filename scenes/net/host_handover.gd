@@ -209,7 +209,7 @@ func _take_line(session: NetSession, config: MatchConfig) -> void:
 	_port = controls.succession_port
 	_plan = controls.succession_plan
 	_me = controls.succession_me
-	_token = controls.succession_token
+	_token = controls.rejoin_token
 	_password = config.password if config != null else ""
 	_old_address = config.address if config != null else ""
 	_old_port = config.port if config != null else _port
@@ -262,7 +262,7 @@ func hand_down(line: Array, port: int, plan: String) -> void:
 	_port = port
 	_plan = plan
 	_me = 1
-	_token = Net.session.host_controls.succession_token
+	_token = Net.session.host_controls.rejoin_token
 	_password = Net.session.door.password
 	_asking_old = false
 	_watching = false

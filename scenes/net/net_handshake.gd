@@ -27,6 +27,9 @@ func knock(peer: int) -> void:
 	if session.host_controls.was_peer != 0:
 		words["was"] = session.host_controls.was_peer
 		words["token"] = session.host_controls.was_token
+	# Or back to a game it went from, started again, with the last secret it was given there.
+	elif not RejoinSeats.token_for(Game.pending_config).is_empty():
+		words["token"] = RejoinSeats.token_for(Game.pending_config)
 	(session.multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 
 

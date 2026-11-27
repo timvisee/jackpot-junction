@@ -264,16 +264,17 @@ func test_make_host_hands_it_down() -> void:
 	assert_str(str(plan["door"]["password"])).is_equal("secret")
 	# Told before it was handed down: the order as of now has gone to the client already.
 	assert_str(str(host.host_controls._succession_told.get(peer, ""))).contains(str(peer))
-	# With a secret of its own, which only the proof of goes down the line, for the new host to
-	# know it by as it comes back.
-	var secret := client.host_controls.succession_token
+	# With a secret of its own, sent to it alone, which only the proof of goes down the line, for
+	# the new host to know it by as it comes back.
+	await _until(func() -> bool: return not client.host_controls.rejoin_token.is_empty(), 4000)
+	var secret := client.host_controls.rejoin_token
 	assert_int(secret.length()).is_equal(32)
 	assert_str(str((stub.got[0] as Array)[0]["proof"])).is_equal(secret.sha256_text())
 	assert_str(str(stub.got)).not_contains(secret)
-	assert_str(host.host_controls.succession_token).is_not_empty()
-	assert_str(host.host_controls.succession_token).is_not_equal(secret)
+	assert_str(host.host_controls.rejoin_token).is_not_empty()
+	assert_str(host.host_controls.rejoin_token).is_not_equal(secret)
 	# And that the host's players play on, for their karts to be kept for them.
-	var proof := host.host_controls.succession_token.sha256_text()
+	var proof := host.host_controls.rejoin_token.sha256_text()
 	var stays := func() -> bool:
 		for guest: Dictionary in client.host_controls.guests():
 			if guest.has("stays") and str(guest.get("proof", "")) == proof:

@@ -658,6 +658,8 @@ func _on_peer_disconnected(peer: int) -> void:
 	door.forget(peer)
 	_watching_here.erase(peer)
 	host_controls.left(peer)
+	if is_host:
+		host_controls.rejoin.went(self, peer, _peer_slots.held.get(peer, {}))
 	if not is_host or not _peer_slots.has(peer):
 		return
 	var held := _peer_slots.take_all(peer)
