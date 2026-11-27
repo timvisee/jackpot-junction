@@ -425,7 +425,7 @@ func _send_the_list() -> void:
 
 
 func _visitor(peer: int) -> String:
-	return _visitors.get(peer, "Somebody")
+	return _visitors.get(peer, "Somebody")  # NO_TRANSLATE: the log's.
 
 
 func _address_of(peer: int) -> String:

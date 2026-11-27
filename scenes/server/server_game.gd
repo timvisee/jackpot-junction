@@ -216,26 +216,32 @@ func _watch(session: NetSession) -> void:
 	_session = session
 	session.multiplayer.peer_connected.connect(_on_came)
 	session.multiplayer.peer_disconnected.connect(_on_went)
+	# For the log, in English: NO_TRANSLATE.
 	session.door.turned_away.connect(
 		func(named: String, why: String) -> void: say("Turned away %s: %s" % [_named(named), why])
 	)
 	session.host_controls.changed_hands.connect(_on_hands_changed)
 	session.host_controls.planned.connect(_on_planned)
 	session.host_controls.door_set.connect(_on_door_set)
+	# For the log, in English: NO_TRANSLATE.
 	session.host_controls.kicked.connect(
 		func(player: int) -> void: say("The host showed %s out" % _names.get(player, "somebody"))
 	)
+	# For the log, in English: NO_TRANSLATE.
 	session.conduct.heard_from.connect(
 		func(peer: int, count: int) -> void:
 			say("%s sent abnormal state (%d/%d)" % [_name_of(peer), count, NetConduct.KICK_AT])
 	)
+	# For the log, in English: NO_TRANSLATE.
 	session.conduct.shown_out.connect(
 		func(peer: int, named: String, why: String) -> void:
 			say("Kicked %s, from %s: %s" % [_named(named), _address_of(peer), why])
 	)
+	# For the log, in English: NO_TRANSLATE.
 	session.guard.dropped.connect(
 		func(address: String, why: String) -> void: say("Dropped %s: %s" % [address, why])
 	)
+	# For the log, in English: NO_TRANSLATE.
 	session.host_controls.handed.connect(
 		func(player: int) -> void:
 			var from := _name_of(session.host_controls.peer)

@@ -81,10 +81,37 @@ QUIET_CALLS = {
     "has_theme_font", "has_theme_font_size", "has_theme_stylebox", "has_theme_icon",
     "load_threaded_request", "load_threaded_get", "load_threaded_get_status", "exists",
     "get_animation", "has_animation", "play", "match", "search", "compile", "RegEx",
-    "create_from", "expect", "parse", "begins_with", "ends_with", "find", "rfind", "contains",
+    "create_from", "create_from_string", "expect", "parse", "begins_with", "ends_with", "find", "rfind", "contains",
     "replace", "split", "get_slice", "trim_prefix", "trim_suffix", "count",
 }
 QUIET_PREFIXES = ("add_theme_", "get_theme_", "remove_theme_", "has_theme_")
+# Of these, only the arguments that name something are quiet: a value set beside a name may well be
+# words. Every other quiet call is quiet in all its arguments.
+QUIET_ARGS = {
+    "set_meta": (0,),
+    "get_meta": (0,),
+    "has_meta": (0,),
+    "remove_meta": (0,),
+    "connect": (0,),
+    "disconnect": (0,),
+    "is_connected": (0,),
+    "emit_signal": (0,),
+    "has_method": (0,),
+    "set": (0,),
+    "get": (0,),
+    "set_deferred": (0,),
+    "get_indexed": (0,),
+    "set_indexed": (0,),
+    "tween_property": (1,),
+    "tween_method": (),
+    "Callable": (1,),
+    "add_to_group": (0,),
+    "is_in_group": (0,),
+    "remove_from_group": (0,),
+    "get_nodes_in_group": (0,),
+    "get_first_node_in_group": (0,),
+    "call_group": (0, 1),
+}
 
 DECLARATION = re.compile(r"^\s*(?:static\s+)?(?:const|var)\s+[A-Za-z_]\w*")
 CALLEE = re.compile(r"([A-Za-z_][\w.]*)\s*$")
@@ -194,6 +221,15 @@ def lex(source):
             continue
         if c == "," and frames:
             frames[-1]["arg"] += 1
+        # A function written inside a call's brackets: what it says is not the call's argument.
+        if (
+            c == "f"
+            and frames
+            and source.startswith("func", i)
+            and (i == 0 or not (source[i - 1].isalnum() or source[i - 1] == "_"))
+            and not (source[i + 4 : i + 5].isalnum() or source[i + 4 : i + 5] == "_")
+        ):
+            frames[-1]["lambda"] = True
         i += 1
     return literals, comments, depth_at_line
 
@@ -207,9 +243,13 @@ def translating(callee):
     return None
 
 
-def quiet(callee):
-    last = callee.rsplit(".", 1)[-1]
-    return last in QUIET_CALLS or last.startswith(QUIET_PREFIXES)
+def quiet(frame):
+    """Whether a string inside [frame], a call's brackets, is never shown: an argument of a call
+    that only names things, but not one in a function written inside the call."""
+    last = frame["callee"].rsplit(".", 1)[-1]
+    if frame.get("lambda") or not (last in QUIET_CALLS or last.startswith(QUIET_PREFIXES)):
+        return False
+    return last not in QUIET_ARGS or frame["arg"] in QUIET_ARGS[last]
 
 
 def looks_like_text(s):
@@ -312,7 +352,7 @@ def scan(path):
             if inner["arg"] in texts:
                 words.append((lit, notes, inner, texts, context_at))
             continue
-        if mode == "quiet" or any(quiet(f["callee"]) for f in calls):
+        if mode == "quiet" or any(quiet(f) for f in calls):
             continue
         if mode == "table":
             if table_word(lit.value) and not lit.key:
