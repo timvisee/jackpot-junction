@@ -177,21 +177,18 @@ func test_the_steamworks_tables_hold_what_steam_is_told() -> void:
 			assert_str(",".join(fields.slice(5))).is_equal(",0,0")
 	# The words in English and in every other language the game speaks, the game's own.
 	var words := SteamExport.localization_csv().substr(1).split("\r\n")
-	assert_str(words[0]).is_equal("api_name,field,english,dutch")
-	assert_str(words[1]).is_equal("STREET_LEGAL,name,Street Legal,%s" % tr_in_dutch("Street Legal"))
-	assert_str(words[2]).is_equal(
-		(
-			"STREET_LEGAL,description,Pass the driving test and earn your license,%s"
-			% tr_in_dutch("Pass the driving test and earn your license")
-		)
-	)
+	var languages := Lang.on_steam()
+	assert_str(words[0]).is_equal("api_name,field," + ",".join(languages.keys()))
+	assert_array(languages.keys()).contains(["english", "dutch", "schinese"])
+	var street := "Street Legal"
+	var test := "Pass the driving test and earn your license"
+	assert_str(words[1]).is_equal("STREET_LEGAL,name," + in_every(street, languages))
+	assert_str(words[2]).is_equal("STREET_LEGAL,description," + in_every(test, languages))
 	var bounty := "Cash out 1,000 or more with a bounty on your head"
 	# Quoted only where a language writes a comma: Dutch writes 1.000.
 	assert_str(tr_in_dutch(bounty)).contains("1.000")
-	(
-		assert_bool(words.has('MOST_WANTED,description,"%s",%s' % [bounty, tr_in_dutch(bounty)]))
-		. is_true()
-	)
+	assert_str(in_every(bounty, languages)).contains(",%s," % tr_in_dutch(bounty))
+	assert_bool(words.has("MOST_WANTED,description," + in_every(bounty, languages))).is_true()
 	assert_str(tr_in_dutch("Street Legal")).is_not_equal("Street Legal")
 	var all_in := Achievement.new()
 	all_in.id = &"all_in"
@@ -205,3 +202,14 @@ func test_the_steamworks_tables_hold_what_steam_is_told() -> void:
 
 func tr_in_dutch(english: String) -> String:
 	return Lang.t_in("nl", english)
+
+
+## [param english] in each of [param languages], Steam's name to the game's locale, as the fields
+## of a row: each quoted only where it has a comma or a quote.
+func in_every(english: String, languages: Dictionary[String, String]) -> String:
+	var fields: Array[String] = []
+	for steam: String in languages:
+		var said := Lang.t_in(languages[steam], english)
+		var plain := not said.contains(",") and not said.contains('"')
+		fields.append(said if plain else '"%s"' % said.replace('"', '""'))
+	return ",".join(fields)

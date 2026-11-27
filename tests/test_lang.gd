@@ -59,14 +59,17 @@ func test_chinese_is_matched_by_script() -> void:
 	assert_str(Lang.resolve("", "", "zh_Hant_HK", known)).is_equal(Lang.ENGLISH)
 
 
-## The game's own translations are offered, English first, with Dutch's file in the project.
+## The game's own translations are offered, English first, with Dutch's and Chinese's files in the
+## project.
 func test_english_is_spoken_first_and_each_translation_after() -> void:
-	assert_array(Lang.spoken()).contains_exactly([Lang.ENGLISH, DUTCH])
+	assert_array(Lang.spoken()).contains_exactly([Lang.ENGLISH, DUTCH, "zh_CN"])
 
 
 ## Steam is handed words in every language the game speaks, each in its own whatever is spoken.
 func test_words_for_steam_are_in_the_language_asked() -> void:
-	assert_dict(Lang.on_steam()).is_equal({"english": Lang.ENGLISH, "dutch": DUTCH})
+	assert_dict(Lang.on_steam()).is_equal(
+		{"english": Lang.ENGLISH, "dutch": DUTCH, "schinese": "zh_CN"}
+	)
 	# A language of the test's own, so the game's Dutch file is not asked.
 	var own := Translation.new()
 	own.locale = "eo"

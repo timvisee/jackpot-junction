@@ -107,7 +107,7 @@ func test_steam_hears_only_what_changed() -> void:
 func test_every_token_has_words() -> void:
 	var files := SteamPresence.files()
 	assert_array(files.keys()).contains_exactly(
-		["rich_presence_english.vdf", "rich_presence_dutch.vdf"]
+		["rich_presence_english.vdf", "rich_presence_dutch.vdf", "rich_presence_schinese.vdf"]
 	)
 	var tokens: Array[String] = []
 	for base: String in [SteamPresence.MAP, SteamPresence.GRAND_PRIX, SteamPresence.SHOWDOWN]:

@@ -115,3 +115,21 @@ Informal: *je* and *jij*, never *u*, the House included. Common English game wor
 | achievement | prestatie |
 | note(s), K.'s | briefje(s) |
 | Human Oversight | Menselijk Toezicht |
+
+### Simplified Chinese (`zh_CN`)
+
+Not translated yet. What the game already expects:
+
+- **Punctuation** is full-width: ，。：；！？、（）“”, …… for an ellipsis and —— for a dash. Figures,
+  Latin letters and placeholders stay half-width.
+- **Sentences** run on with no space after 。. Where the game shows two entries as one paragraph it
+  puts no space between them itself.
+- **Capitals.** Chinese has none: where an entry says the House prints in capitals, its voice is
+  carried by the wording alone.
+- **Numbers.** `thousands` is `,`, `decimal` is `.`, `list` is `、`, "{some} and {last}" is
+  `{some}和{last}`, and every `ordinal` entry is `第%d`. A count has one form, so a plural entry
+  has one translation.
+- **Receipts.** A typed line's columns are found by its dot leader: keep two or more half-width
+  dots between its sides, as in `第 41 周 ......... 0`.
+- **Room.** A Chinese line has fewer characters than the English, but each is about twice as wide,
+  so it comes out about as wide. HUD words, stamps and buttons want two to four characters.

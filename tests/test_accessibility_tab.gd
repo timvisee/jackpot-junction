@@ -78,7 +78,7 @@ func test_the_language_row_offers_each_language_by_its_own_name() -> void:
 	for index: int in choice.item_count:
 		words.append(choice.get_item_text(index))
 	assert_str(words[0]).starts_with("Automatic (")
-	assert_array(words.slice(1)).contains_exactly(["English", "Nederlands"])
+	assert_array(words.slice(1)).contains_exactly(["English", "Nederlands", "简体中文"])
 	assert_int(choice.selected).is_equal(0)
 	assert_bool(choice.disabled).is_false()
 	var over: AccessibilityTab = auto_free(AccessibilityTab.make(Game.settings, true))

@@ -14,7 +14,9 @@ func test_every_language_has_its_store_page() -> void:
 	var steam := Lang.on_steam()
 	for language: String in steam:
 		var locale := steam[language]
-		if locale == Lang.ENGLISH:
+		# A language only just started, with no words yet, has no store page yet either: its store
+		# words come with its translation.
+		if locale == Lang.ENGLISH or not _has_words(locale):
 			continue
 		var words := "res://docs/steam/store_%s.md" % language
 		assert_bool(FileAccess.file_exists(words)).override_failure_message(words).is_true()
@@ -63,3 +65,12 @@ func test_the_trailers_words_are_its_own() -> void:
 			assert_array(printed).override_failure_message("%s: %s" % [locale, english]).contains(
 				[english]
 			)
+
+
+## Whether [param locale]'s file has any of its words translated yet.
+func _has_words(locale: String) -> bool:
+	var translation := TranslationServer.get_translation_object(locale)
+	for said: String in translation.get_translated_message_list():
+		if not said.is_empty():
+			return true
+	return false

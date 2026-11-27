@@ -62,7 +62,8 @@ func test_the_words_are_in_every_language_the_game_speaks() -> void:
 	for steam: String in Lang.on_steam():
 		assert_str(manifest).contains('\t\t"%s"\n\t\t{\n\t\t\t"Set_Play"' % steam)
 		assert_str(xbox).contains('\t\t"%s"\n\t\t{\n\t\t\t"Set_Play"' % steam)
-	var dutch := manifest.substr(manifest.find('"dutch"'))
+	# Dutch's block alone, up to the next language's.
+	var dutch := manifest.get_slice('"dutch"', 1).get_slice('"schinese"', 0)
 	assert_str(dutch).contains('"Action_handbrake"\t\t"%s"' % Lang.t_in("nl", "Drift"))
 	assert_str(dutch).contains('"Action_brake"\t\t"Remmen"')
 	assert_str(dutch).not_contains('"Brake"')
