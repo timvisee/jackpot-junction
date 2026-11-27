@@ -592,9 +592,17 @@ func test_the_hosts_menu_manages_its_players() -> void:
 	menu._players._back.pressed.emit()
 	assert_bool(menu._players.visible).is_false()
 	assert_bool(menu._main.visible).is_true()
+	# A client of a game a player hosts sees who is in it too, GAME.md 10.8; one at a dedicated
+	# server's game without the say does not, its host the server.
 	session.is_host = false
 	await await_idle_frame()
+	assert_bool(menu._manage.visible).is_true()
+	var kept := Game.pending_config
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.server = "a server"
+	await await_idle_frame()
 	assert_bool(menu._manage.visible).is_false()
+	Game.pending_config = kept
 
 
 ## GAME.md 9.6: a lobby that wants a password asks for it and knocks again with what was typed;

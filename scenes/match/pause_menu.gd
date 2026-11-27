@@ -964,7 +964,7 @@ func _process(_delta: float) -> void:
 		_show_force()
 	var says := session == null or session.host_controls.mine()
 	_manage.visible = ManagePlayers.offered(session, says)
-	_door_button.visible = _manage.visible
+	_door_button.visible = session != null and (says or Store.steam_game())
 	_invite.visible = Store.steam_game()
 	if _to_lobby != null:
 		_to_lobby.visible = says

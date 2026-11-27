@@ -118,12 +118,19 @@ func test_kick_words() -> void:
 	)
 
 
-## The list is offered to whoever has the say, and in a Steam game to everybody.
+## The list is offered to whoever has the say, and to everybody in a game a player hosts, on Steam
+## or off it; not to a player at a dedicated server's game without the say.
 func test_who_the_list_is_offered_to() -> void:
 	assert_bool(ManagePlayers.offered(null, true)).is_false()
 	var session: NetSession = auto_free(NetSession.new())
 	assert_bool(ManagePlayers.offered(session, true)).is_true()
+	var kept := Game.pending_config
+	Game.pending_config = MatchConfig.new()
+	assert_bool(ManagePlayers.offered(session, false)).is_true()
+	Game.pending_config.server = "a server"
 	assert_bool(ManagePlayers.offered(session, false)).is_false()
+	assert_bool(ManagePlayers.offered(session, true)).is_true()
+	Game.pending_config = kept
 	_in_a_steam_game()
 	assert_bool(ManagePlayers.offered(Net.session, false)).is_true()
 

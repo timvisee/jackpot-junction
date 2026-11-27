@@ -167,6 +167,25 @@ func test_the_first_in_line_takes_it_on() -> void:
 	assert_bool(_handover.dialog.visible).is_false()
 
 
+## Everybody in a game a player hosts off Steam is told who is in it and who hosts it, and offered
+## the list on their pause menu; a player at a dedicated server's game is not, its host the server.
+func test_everybody_sees_who_hosts() -> void:
+	var host := _a_host()
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.port = port
+	var client: NetSession = await _a_client()
+	var told := func() -> bool: return not client.host_controls.guests().is_empty()
+	await _until(told, 4000)
+	var hosts := client.host_controls.guests().filter(
+		func(guest: Dictionary) -> bool: return bool(guest.get("host", false))
+	)
+	assert_int(hosts.size()).is_equal(1)
+	assert_bool(ManagePlayers.offered(client, false)).is_true()
+	Game.pending_config.server = "a server"
+	assert_bool(ManagePlayers.offered(client, false)).is_false()
+	host.free()
+
+
 ## Somebody watching, let in without the password, is told who hosts next but not the password.
 func test_watchers_are_not_told_the_password() -> void:
 	var host := _a_host()

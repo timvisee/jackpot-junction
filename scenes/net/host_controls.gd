@@ -491,9 +491,10 @@ func _process(delta: float) -> void:
 	if _look_left > 0.0:
 		return
 	_look_left = GUESTS_EVERY
-	if steam:
+	# Everybody told who is in it and who hosts it, for their Players, GAME.md 10.8.
+	if steam or hosted_here:
 		_tell_everybody()
-	elif hosted_here:
+	if hosted_here:
 		_tell_succession()
 	if peer == 0:
 		return

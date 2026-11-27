@@ -89,10 +89,16 @@ func _process(_delta: float) -> void:
 		_redraw()
 
 
-## Whether a pause menu offers the list, see [member button]: to whoever has the host's say, and in
-## a Steam game, GAME.md 10.8, to everybody.
+## Whether a pause menu offers the list, see [member button]: to whoever has the host's say, and to
+## everybody in a game a player hosts, on Steam or off it, GAME.md 10.8, to see who is in it and
+## who hosts it; not to a player at a dedicated server's game, whose host is the server.
 static func offered(session: NetSession, says: bool) -> bool:
-	return session != null and (says or Store.steam_game())
+	if session == null:
+		return false
+	if says or Store.steam_game():
+		return true
+	var config := Game.pending_config
+	return config == null or config.server.is_empty()
 
 
 ## Whether the host's say is here, which kicks.

@@ -7965,8 +7965,9 @@ is no, and the list again with the cursor on that Kick.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again, but for a
-public Steam game, 10.8, which keeps them out for as long as it is hosted. In a Steam game everybody
-has the list, as Players, see 10.8. Their seat
+public Steam game, 10.8, which keeps them out for as long as it is hosted. In a game a player hosts,
+on Steam or off it, everybody has the list, to see who is in it and who hosts it, the host's row
+saying Host, see 10.8; at a dedicated server's only the player with the say does. Their seat
 goes the way a seat does when anybody leaves: emptied in the waiting room, a bot's on a map.
 
 A window in the background keeps playing. A window the desktop has stopped
@@ -11289,8 +11290,10 @@ the Bots row instead is played as it is today, that many bots on top of the peop
 pad, or 30 s after half of the room is, counted down over the pad; the host keeps Start now.
 Otherwise it is the host's game like any other: their rules, their kicks, their invites.
 
-**Players.** Everybody in a Steam game has Players on their pause menu: a seat card for everybody,
-with their name on Steam, Profile, which opens their Steam profile in the overlay, and Mute. The
+**Players.** Everybody in a game a player hosts has Players on their pause menu, a LAN game's
+too: a seat card for everybody, the host's saying Host, so whoever hosts the game, the one it was
+handed to among them, is there to see. In a Steam game each card has their name on Steam, Profile,
+which opens their Steam profile in the overlay, and Mute. The
 host's is Manage players, with Kick as well. Mute hides that player's emotes, picture and sound, on
 this screen for the rest of the game. Profile is where Steam's Report and Block are: the game has no
 report form of its own. It tells Steam whom it played with (`setPlayedWith`), so they stay in

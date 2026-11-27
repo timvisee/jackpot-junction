@@ -268,12 +268,26 @@ func _word_gone() -> bool:
 	)
 
 
+## Whether this machine's list of players says who hosts the game: the one it followed in.
+func _sees_who_hosts() -> bool:
+	return await _until(
+		func() -> bool:
+			for guest: Dictionary in Net.session.host_controls.guests():
+				if bool(guest.get("host", false)):
+					return true
+			return false,
+		10.0,
+		"its players list says who hosts the game now"
+	)
+
+
 ## In the new host's lobby, sat down.
 func _in_the_lobby() -> bool:
 	var lobby := await _room()
 	return (
 		lobby != null
 		and _check(Net.session.match_node == lobby.match_node, "in the new host's lobby")
+		and await _sees_who_hosts()
 	)
 
 
@@ -286,6 +300,8 @@ func _back_in_the_map(map: StringName, color: int) -> bool:
 	_check(played.rules.map == map, "the same map carried on here too")
 	var mine := played.slots[played.local_slot].color_index
 	_check(mine == color, "in its own kart again, color %d" % mine)
+	if not await _sees_who_hosts():
+		return false
 	return await _until(func() -> bool: return played.is_running(), 40.0, "and it plays on here")
 
 
