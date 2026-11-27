@@ -39,8 +39,9 @@ const GIVE_UP_AFTER := 45.0
 ## on, in seconds, and how often they are asked whether it is up yet.
 const STAGE := 10.0
 const ASK_EVERY := 1.0
-## Off Steam, at Make host: how long the host stays after telling everybody the new order, in
-## seconds, for it to reach them before the connection goes, which drops whatever has not.
+## At Make host: how long the host stays after telling everybody that its players play on and,
+## off Steam, the new order, in seconds, for it to reach them before the connection goes, which
+## drops whatever has not.
 const TOLD_FOR := 1.0
 ## Why the game was given up on when it was this machine's connection that went, not the host.
 const LOST := "The connection to the game was lost"
@@ -243,7 +244,7 @@ func hand_to(account: int) -> void:
 	lobbies.hosting = false
 	lobbies.handing_over = true
 	_open("Handing over")
-	Net.close.call_deferred()
+	_close_soon()
 
 
 ## Hands the game hosted here on the game's own network to the first of [param line], GAME.md 10.8:
@@ -267,7 +268,12 @@ func hand_down(line: Array, port: int, plan: String) -> void:
 	_stage_left = STAGE
 	_probe = null
 	_open("Handing over")
-	# Closed once everybody has heard who is first in line now, see [constant TOLD_FOR].
+	_close_soon()
+
+
+## The game hosted here closed once everybody has heard what it said last, see [constant TOLD_FOR]:
+## who is first in line now, and that this machine's players play on in it.
+func _close_soon() -> void:
 	var going := Net.session
 	var closing := func() -> void:
 		if Net.session == going:

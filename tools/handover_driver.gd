@@ -5,8 +5,9 @@ extends "res://tools/multiplayer_driver.gd"
 ## second follows them in. With --in-a-map the host sends the room to a map first and goes during
 ## it: the new host carries the map on, the same map with its clock where it was, and the second
 ## sits down in it again. Otherwise the host goes from the lobby, and the new host opens a lobby,
-## never a map. With --make-host the host hands the game from the lobby to the second in line by
-## Make host instead, and follows them in with the first. Started by tools/multiplayer_check.gd
+## never a map. With --make-host the host hands the game to the second in line by Make host
+## instead, from the lobby or with --in-a-map during the map, and follows them in with the first,
+## back in its own kart with its score in a map. Started by tools/multiplayer_check.gd
 ## with --handover, and says what it saw the way tools/multiplayer_driver.gd does, a line starting
 ## MPCHECK for every step.
 ##
@@ -18,6 +19,8 @@ extends "res://tools/multiplayer_driver.gd"
 ## of.
 const MAP := &"lucky_crossing"
 const MINUTES := 3
+## What the old host has banked as it makes another host during a map, to find again.
+const BANKED := 345
 
 var _in_a_map := false
 var _made := false
@@ -81,18 +84,20 @@ func _host_goes() -> void:
 		return
 	# Told who hosts after it, and knocked on a few times, as a host long in a room has.
 	await _seconds(2.0)
-	if _made:
-		await _makes_host(room)
-		return
+	var played: Match = null
 	if _in_a_map:
 		room.ready_room.go_now()
 		var arena := await _up_in_a_map(true)
 		if arena == null:
 			return
-		var played: Match = arena.match_node
+		played = arena.match_node
 		if not await _until(func() -> bool: return played.is_running(), 30.0, "the lamps went"):
 			return
 		await _seconds(3.0)
+	if _made:
+		await _makes_host(Net.session, played)
+		return
+	if played != null:
 		_say("leaving with %.0f s on the clock" % played.time_left)
 	_say("leaving")
 	Game.go_to_title()
@@ -100,15 +105,29 @@ func _host_goes() -> void:
 	await _seconds(1.0)
 
 
-## Make host from the lobby, to the second in line, as Manage players does it: this machine then
-## follows them in as everybody else does, sat down in their lobby.
-func _makes_host(room: Node) -> void:
-	var controls: HostControls = room.session.host_controls
-	var old := (room.session as NetSession).get_instance_id()
+## Make host to the second in line, as Manage players does it, from the lobby or during
+## [param played]: this machine then follows them in as everybody else does, sat down in their
+## lobby, or back in its own kart in the map with what it had banked.
+func _makes_host(session: NetSession, played: Match) -> void:
+	var controls := session.host_controls
+	var old := session.get_instance_id()
 	var to := int(controls.succession_line()[1]["peer"])
-	_say("making the second in line host")
+	var color := -1
+	# Said now: the match is freed once this machine follows, and a freed match reads as null.
+	var in_map := played != null
+	if in_map:
+		for slot: PlayerSlot in played.slots:
+			if slot.is_local_human():
+				slot.banked = BANKED
+				color = slot.color_index
+		# Seen at the others before it goes.
+		await _seconds(0.5)
+	_say("making the second in line host%s" % (" during the map" if in_map else ""))
 	controls.hand_on(to)
-	if not await _sat_down_away_from(old) or not await _in_the_lobby():
+	if not await _sat_down_away_from(old):
+		return
+	var back := await _back_in_the_map(MAP, color, BANKED) if in_map else await _in_the_lobby()
+	if not back:
 		return
 	await _seconds(2.0)
 	_finished = true
@@ -134,7 +153,7 @@ func _takes_it_on(place: int) -> void:
 	if not hosting:
 		return
 	var others := 2 if _made else 1
-	var on := await _carries_on(map) if _in_a_map else await _opens_the_lobby(others)
+	var on := await _carries_on(map, others) if _in_a_map else await _opens_the_lobby(others)
 	if not on:
 		return
 	await _until(func() -> bool: return multiplayer_peers() == 0, 30.0, "the others finished")
@@ -224,10 +243,10 @@ func _opens_the_lobby(others: int) -> bool:
 	)
 
 
-## The new host's map: [param map] carried on with its clock, the other player back in it, and
+## The new host's map: [param map] carried on with its clock, the [param others] back in it, and
 ## playing on after a countdown.
-func _carries_on(map: StringName) -> bool:
-	var carried := await _up_in_a_map(true, 1)
+func _carries_on(map: StringName, others: int) -> bool:
+	var carried := await _up_in_a_map(true, others)
 	if carried == null:
 		return false
 	var played: Match = carried.match_node
@@ -293,8 +312,9 @@ func _in_the_lobby() -> bool:
 	)
 
 
-## Back in [param map] at the new host, in its own kart, the one in [param color], and playing on.
-func _back_in_the_map(map: StringName, color: int) -> bool:
+## Back in [param map] at the new host, in its own kart, the one in [param color], with
+## [param banked] banked where it is given, and playing on.
+func _back_in_the_map(map: StringName, color: int, banked := -1) -> bool:
 	var carried := await _up_in_a_map(false)
 	if carried == null:
 		return false
@@ -302,6 +322,9 @@ func _back_in_the_map(map: StringName, color: int) -> bool:
 	_check(played.rules.map == map, "the same map carried on here too")
 	var mine := played.slots[played.local_slot].color_index
 	_check(mine == color, "in its own kart again, color %d" % mine)
+	if banked >= 0:
+		var has := played.slots[played.local_slot].banked
+		_check(has == banked, "with what it had banked, %d" % has)
 	if not await _sees_who_hosts():
 		return false
 	return await _until(func() -> bool: return played.is_running(), 40.0, "and it plays on here")

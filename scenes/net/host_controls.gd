@@ -111,10 +111,11 @@ var _played: Dictionary[int, bool] = {}
 ## been left alone, and the clients watching for it till a press brings them back.
 var _idle: Dictionary[int, float] = {}
 var _benched: Dictionary[int, bool] = {}
-## In a Steam game, at the host: the newcomers watching until the next map, GAME.md 10.8, and the
-## Steam account the game is to be handed to once the map in play is over, 0 for nobody.
+## In a Steam game, at the host: the newcomers watching until the next map, GAME.md 10.8.
 var _next_map: Dictionary[int, bool] = {}
-var _hand_on_to := 0
+## At the host: whether it is handing the game on by Make host and playing on in it, which its own
+## players' rows say, for the new host to keep their karts for them, see [method everybody].
+var _staying := false
 ## At a new host carrying a map over, GAME.md 10.8: the seats kept for the players coming back, see
 ## [method MatchResume.seats_kept]; whether its start is held for them, how much longer for them to
 ## connect and then to put the room up; and the clients that have it up, see [method room_built].
@@ -337,22 +338,24 @@ func seated(player: int) -> void:
 		_hand_to(player)
 
 
-## Hands the game hosted here to the player at [param player], GAME.md 10.8: at once in the lobby
-## and on the podium, and at the podium when asked during a map. A Steam game's lobby goes to their
-## account; off Steam they are put first in line, and everybody follows them. Make host.
+## Hands the game hosted here to the player at [param player], GAME.md 10.8, at once: a map in play
+## carried over as when a host goes, and this machine's own players' karts kept for them, since they
+## play on in it. A Steam game's lobby goes to their account; off Steam they are put first in line,
+## and everybody follows them. Make host.
 func hand_on(player: int) -> void:
 	if not session.is_host or session.dedicated or player == 0:
-		return
-	if _in_a_map():
-		_hand_on_to = player
 		return
 	var handover := get_tree().get_first_node_in_group(&"host_handover")
 	if handover == null:
 		return
+	var account := ManagePlayers.account_at(session, player) if Store.steam_game() else 0
+	if Store.steam_game() and account == 0:
+		return
+	# Everybody told this machine's players play on, before it goes.
+	_staying = true
+	_tell_everybody()
 	if Store.steam_game():
-		var account := ManagePlayers.account_at(session, player)
-		if account != 0:
-			handover.call(&"hand_to", account)
+		handover.call(&"hand_to", account)
 		return
 	_order.erase(player)
 	_order.push_front(player)
@@ -422,12 +425,6 @@ func _succession_is(line: Array, port: int, plan: String, host: String) -> void:
 	succession_plan = plan
 	succession_host = PlayerNames.clean(host)
 	succession_me = multiplayer.get_unique_id()
-
-
-## Whether a map is being played here, its podium not yet up.
-func _in_a_map() -> bool:
-	var match_node := session.match_node
-	return session.in_arena and match_node != null and match_node.state != Match.State.RESULTS
 
 
 ## Who hosts the game after the host here, GAME.md 10.8: the player at another machine who has been
@@ -523,11 +520,6 @@ func _process(delta: float) -> void:
 	# seat in it, GAME.md 10.8.
 	if not session._room_up and not _next_map.is_empty():
 		_let_go_of_the_held()
-	# Make host asked during a map, done once it is over.
-	if _hand_on_to != 0 and not _in_a_map() and session._connected():
-		var to := _hand_on_to
-		_hand_on_to = 0
-		hand_on(to)
 	var steam := Store.steam_game()
 	# A game hosted here off Steam: everybody told who hosts after it, GAME.md 10.8.
 	var hosted_here := not steam and not session.dedicated
@@ -830,6 +822,10 @@ func everybody() -> Array[Dictionary]:
 			if slot.is_local_human():
 				var plate := KartVisuals.plate_worn(slot.kart) if slot.kart != null else ""
 				var each := {"peer": 1, "seat": slot.index, "slot": slot.index, "host": true}
+				if _staying:
+					# Playing on after Make host: the seat it is at this machine.
+					var player := slot.input as PlayerInput
+					each["stays"] = maxi(player.seat, 0) if player != null else 0
 				each.merge({"name": slot.display_name(), "color": slot.color(), "plate": plate})
 				each["account"] = own
 				if not license.is_empty():

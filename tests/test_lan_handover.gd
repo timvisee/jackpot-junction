@@ -254,7 +254,8 @@ func test_make_host_hands_it_down() -> void:
 	stub.add_to_group(HostHandover.GROUP)
 	add_child(stub)
 	var peer := client.multiplayer.get_unique_id()
-	host.in_arena = false
+	# During a map as anywhere else: at once.
+	host.in_arena = true
 	host.host_controls.hand_on(peer)
 	assert_int(stub.got.size()).is_equal(3)
 	assert_int(int((stub.got[0] as Array)[0]["peer"])).is_equal(peer)
@@ -263,6 +264,14 @@ func test_make_host_hands_it_down() -> void:
 	assert_str(str(plan["door"]["password"])).is_equal("secret")
 	# Told before it was handed down: the order as of now has gone to the client already.
 	assert_str(str(host.host_controls._succession_told.get(peer, ""))).contains(str(peer))
+	# And that the host's players play on, for their karts to be kept for them.
+	var stays := func() -> bool:
+		for guest: Dictionary in client.host_controls.guests():
+			if bool(guest.get("host", false)) and guest.has("stays"):
+				return true
+		return false
+	await _until(stays, 4000)
+	assert_bool(stays.call()).is_true()
 	host.free()
 
 

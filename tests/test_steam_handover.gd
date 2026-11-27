@@ -156,8 +156,9 @@ func test_giving_up_once_the_host_is_gone() -> void:
 	assert_array(_gave_up).is_equal(["Kit left, so the game is over."])
 
 
-## Make host: the lobby handed to the player, the game's session closed with the lobby kept, and
-## this machine following them as the others do.
+## Make host: the lobby handed to the player, the game's session closed with the lobby kept once
+## everybody has heard this machine's players play on, and this machine following them as the
+## others do.
 func test_make_host_hands_the_lobby_on() -> void:
 	Game.pending_config = SteamJoins.host_config()
 	Store.steam.lobbies.host(8, SteamLobby.Who.FRIENDS)
@@ -167,9 +168,11 @@ func test_make_host_hands_the_lobby_on() -> void:
 	assert_array(_fake.calls).contains(["setLobbyOwner %d %d" % [lobby, NEXT]])
 	assert_bool(_handover.is_handing_over()).is_true()
 	await await_idle_frame()
+	assert_object(Net.session).is_not_null()
+	await await_millis(roundi(HostHandover.TOLD_FOR * 1000.0) + 200)
 	assert_object(Net.session).is_null()
 	assert_array(_fake.calls).not_contains(["leaveLobby %d" % lobby])
 	_fake.lobbies[lobby]["data"][SteamLobby.HOSTED_KEY] = str(NEXT)
-	await await_idle_frame()
+	await await_millis(100)
 	assert_array(_went).has_size(1)
 	assert_int(_went[0].steam_host).is_equal(NEXT)

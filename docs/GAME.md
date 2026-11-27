@@ -11406,8 +11406,10 @@ first: "Leave the game? Bob hosts it after you.", with Leave and Stay, and the g
 before they go. There is no Leave after this map: a host who wants the map finished leaves once it
 is. Manage players in
 a game hosted at a player's machine, on Steam or off it, has Make host on everybody else's row, as a
-dedicated server's has: the game is handed to that player at once in the lobby and on the podium,
-and at the podium when pressed during a map. Whenever a Steam game changes hands, the lobby goes
+dedicated server's has: the game is handed to that player at once, in the lobby, on the podium
+or during a map, which is carried over to them as when a host goes; the old host plays on in it,
+told everybody so before it went, and is kept its own karts, its score and all, as everybody else
+coming back is. Whenever a Steam game changes hands, the lobby goes
 with it (`setLobbyOwner`); off Steam the player made host is put first in line, and the old host
 follows them as everybody else does. Nobody but the host hands a game on. A client's connection to
 the host going is the one thing that starts a handover at a client, and who hosts next is

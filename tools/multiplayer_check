@@ -152,8 +152,8 @@ host_h_status=$?
 wait "$client_h"
 client_h_status=$?
 
-# A handover from the lobby, one from a map and one by Make host, three machines each.
-for where in lobby map made; do
+# A handover from the lobby, one from a map, and one by Make host from each, three machines each.
+for where in lobby map made mademap; do
 	extra=()
 	offset=4
 	if [[ $where == map ]]; then
@@ -162,6 +162,9 @@ for where in lobby map made; do
 	elif [[ $where == made ]]; then
 		extra=(--make-host)
 		offset=6
+	elif [[ $where == mademap ]]; then
+		extra=(--make-host --in-a-map)
+		offset=7
 	fi
 	for role in host first second; do
 		run "${role}_o_$where" --handover --role="$role" --port="$((port + offset))" \
@@ -169,7 +172,7 @@ for where in lobby map made; do
 		eval "pid_${role}_$where=\$!"
 	done
 done
-for where in lobby map made; do
+for where in lobby map made mademap; do
 	for role in host first second; do
 		eval "wait \$pid_${role}_$where"
 		eval "status_${role}_$where=\$?"
@@ -189,7 +192,7 @@ report client_82 "$client_82_status"
 report client_83 "$client_83_status"
 report host_h "$host_h_status"
 report client_h "$client_h_status"
-for where in lobby map made; do
+for where in lobby map made mademap; do
 	for role in host first second; do
 		eval "report ${role}_o_$where \"\$status_${role}_$where\""
 	done

@@ -106,6 +106,18 @@ func test_a_client_takes_the_map_as_its_host_goes() -> void:
 	assert_dict(MatchResume.seats_kept(resume)).is_empty()
 	assert_bool(slots[1]["here"]).is_true()
 	assert_bool(slots[1]["human"]).is_true()
+	# Unless it handed the game on by Make host and plays on in it: its kart is kept for it then,
+	# by the seat at its machine.
+	host.host_controls._staying = true
+	var stays := func() -> bool:
+		for guest: Dictionary in client.host_controls.guests():
+			if guest.has("stays"):
+				return true
+		return false
+	await _until(stays, 4000)
+	var kept := MatchResume.seats_kept(MatchResume.capture(client))
+	assert_int(kept.size()).is_equal(1)
+	assert_int(int((kept.values()[0] as Dictionary)[0]["slot"])).is_equal(0)
 	# Nothing to carry over from a lobby.
 	client_match.state = Match.State.LOBBY
 	assert_dict(MatchResume.capture(client)).is_empty()

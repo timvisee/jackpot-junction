@@ -112,12 +112,15 @@ static func owners_of(session: NetSession) -> Dictionary:
 				owner["seat"] = int(number)
 				owners[int(seats[number])] = owner
 	for guest: Dictionary in session.host_controls.guests():
-		# The host who went is not coming back to their karts: nobody waits on them.
-		if guest.has("slot") and not bool(guest.get("host", false)):
-			var account := int(guest.get("account", 0))
-			var owner := {"account": account, "peer": int(guest.get("peer", 0))}
-			owner["seat"] = int(guest.get("seat", 0))
-			owners[int(guest["slot"])] = owner
+		# The host who went is not coming back to their karts, and nobody waits on them; one who
+		# handed the game on by Make host plays on, and has them back by the seat at its machine.
+		var host := bool(guest.get("host", false))
+		if not guest.has("slot") or (host and not guest.has("stays")):
+			continue
+		var account := int(guest.get("account", 0))
+		var owner := {"account": account, "peer": int(guest.get("peer", 0))}
+		owner["seat"] = int(guest.get("stays" if host else "seat", 0))
+		owners[int(guest["slot"])] = owner
 	var own := Store.steam.account if Store.on() else 0
 	for each: ClientSeat in session.seats:
 		if each.slot >= 0:
