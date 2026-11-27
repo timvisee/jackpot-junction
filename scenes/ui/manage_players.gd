@@ -23,6 +23,9 @@ signal closed
 signal asking(words: Array[String], action: Callable, from: Button)
 
 ## How wide a row is, and its buttons.
+## What a player without the host's say is told over the list off Steam, where it has no Profile or
+## Mute: only to see who is in the game and who hosts it, GAME.md 10.8.
+const OFF_STEAM_NOTE := "Only the host can kick players or make someone else the host."
 const ROW_WIDE := 640.0
 const KICK_SIZE := Vector2(110.0, 44.0)
 const HAND_SIZE := Vector2(150.0, 44.0)
@@ -70,8 +73,10 @@ func open() -> void:
 	_note.text = "Somebody kicked goes back to the title, and can join again."
 	if Store.public_game():
 		_note.text = "Somebody kicked goes back to the title, and can't join this game again."
-	elif not _says():
+	elif not _says() and Store.steam_game():
 		_note.text = "Mute hides somebody's emotes on your screen. Report is on their Steam profile."
+	elif not _says():
+		_note.text = OFF_STEAM_NOTE
 	if _handing():
 		_note.text = (
 			"Somebody kicked goes back to the server's games, and can join again."

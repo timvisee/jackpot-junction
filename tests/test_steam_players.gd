@@ -119,7 +119,8 @@ func test_kick_words() -> void:
 
 
 ## Every row's chip says the seat in the room, as the corner of the screen does: a guest's own too,
-## not the number of their seat at their machine, which is for Kick.
+## not the number of their seat at their machine, which is for Kick. And off Steam a player without
+## the say is told only the host kicks, not about Steam's Mute and Report.
 func test_every_chip_says_the_seat_in_the_room() -> void:
 	var pane: ManagePlayers = auto_free(ManagePlayers.new())
 	add_child(pane)
@@ -129,6 +130,11 @@ func test_every_chip_says_the_seat_in_the_room() -> void:
 	var mine := pane._row({"name": "Ann", "color": Color.BLUE, "seat": 1, "me": true})
 	auto_free(mine)
 	assert_str(mine._mark).is_equal("2")
+	var session: NetSession = auto_free(NetSession.new())
+	add_child(session)
+	pane.session = session
+	pane.open()
+	assert_str(pane._note.text).is_equal(ManagePlayers.OFF_STEAM_NOTE)
 
 
 ## The list is offered to whoever has the say, and to everybody in a game a player hosts, on Steam
