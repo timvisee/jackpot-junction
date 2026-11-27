@@ -32,6 +32,12 @@ signal kicked(player: int)
 ## On a client: its kart left alone too long in a public game was handed to a bot, GAME.md 10.8,
 ## and it watches until a press takes the kart back, [param benched], or a press has.
 signal benched_changed(benched: bool)
+## On a client in a Steam game: come in during Last Call or on the podium, it watches until the next
+## map, GAME.md 10.8, [param held], or is let go to sit down there.
+signal held_changed(held: bool)
+## On a client in a Steam game: its player took over [param from]'s kart in the middle of a match,
+## with [param banked] banked, [param coins] in the pot and [param jokers] jokers, GAME.md 10.8.
+signal took_over(from: String, banked: int, coins: int, jokers: int)
 
 ## How long a kicked client has to hear why before the host lets go of it, in seconds, and what it
 ## is told when the host showed it out.
@@ -64,6 +70,9 @@ var given_by := ""
 ## On a client in a public Steam game: whether its kart, left alone, is a bot's while it watches,
 ## GAME.md 10.8.
 var benched := false
+## On a client in a Steam game: whether it watches until the next map, come in too late in this one,
+## GAME.md 10.8.
+var held := false
 
 ## At a dedicated server: the players in the order they first sat down, for the say to pass down.
 var _order: Array[int] = []
@@ -82,6 +91,12 @@ var _played: Dictionary[int, bool] = {}
 ## been left alone, and the clients watching for it till a press brings them back.
 var _idle: Dictionary[int, float] = {}
 var _benched: Dictionary[int, bool] = {}
+## In a Steam game, at the host: the newcomers watching until the next map, GAME.md 10.8.
+var _next_map: Dictionary[int, bool] = {}
+
+
+func _ready() -> void:
+	Events.player_joined.connect(_on_player_joined)
 
 
 static func of(owner: NetSession) -> HostControls:
@@ -300,6 +315,10 @@ func _seat_name(player: int) -> String:
 func _process(delta: float) -> void:
 	if not session.is_host or not session._connected():
 		return
+	# The host leaving the room lets go of everybody held for the next map, before they ask for a
+	# seat in it, GAME.md 10.8.
+	if not session._room_up and not _next_map.is_empty():
+		_let_go_of_the_held()
 	var steam := Store.steam_game()
 	if peer == 0 and not steam:
 		return
@@ -347,6 +366,69 @@ func _physics_process(delta: float) -> void:
 		if _idle[slot.index] >= IDLE_FOR:
 			_idle.erase(slot.index)
 			bench(slot.index)
+
+
+## At the host in a Steam game: a newcomer, [param player], asking for its seat in Last Call, in
+## sudden death or on the podium watches until the next map instead, GAME.md 10.8, told so, and is
+## let go to sit down there as the host leaves for it. Says whether it is held.
+func holds_for_next_map(player: int) -> bool:
+	var match_node := session.match_node
+	if not Store.steam_game() or match_node == null or not session.in_arena:
+		return false
+	if not match_node.in_the_finale() and match_node.state != Match.State.RESULTS:
+		return false
+	_next_map[player] = true
+	session._watchers[player] = true
+	session._watch(player)
+	_held_here.rpc_id(player, true)
+	return true
+
+
+## At the host: the room is being left, and everybody held for the next map may sit down in it.
+func _let_go_of_the_held() -> void:
+	for player: int in _next_map:
+		session._watchers.erase(player)
+		session._watching_here.erase(player)
+		if multiplayer.get_peers().has(player):
+			_held_here.rpc_id(player, false)
+	_next_map.clear()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _held_here(on: bool) -> void:
+	held = on
+	session.watching = on
+	held_changed.emit(on)
+
+
+## At the host: somebody sat down in [param index] of the room, maybe in a bot's kart in the middle
+## of a match, which a player from elsewhere in a Steam game is told, GAME.md 10.8: whose it was and
+## what came with it. Looked at once the seat is on record.
+func _on_player_joined(index: int) -> void:
+	if session.is_host and Store.steam_game():
+		_tell_who_was_here.call_deferred(index)
+
+
+func _tell_who_was_here(index: int) -> void:
+	var match_node := session.match_node
+	if match_node == null or index >= match_node.slots.size() or not match_node.is_running():
+		return
+	var slot := match_node.slots[index]
+	if slot.taken_from.is_empty() or slot.kart == null or not slot.input is NetInput:
+		return
+	for player: int in session._peer_slots.held:
+		if index in (session._peer_slots.held[player] as Dictionary).values():
+			var kart := slot.kart
+			var jokers := kart.jokers.ids().size()
+			_took_over_here.rpc_id(player, slot.taken_from, slot.banked, kart.pot.coins, jokers)
+			# Told once.
+			slot.taken_from = ""
+			return
+
+
+@rpc("authority", "call_remote", "reliable")
+func _took_over_here(from: String, banked: int, coins: int, jokers: int) -> void:
+	took_over.emit(PlayerNames.clean(from), banked, coins, jokers)
 
 
 ## Whether [param input] says anybody is at the controls: a stick off its middle, a pedal, a button.

@@ -29,6 +29,8 @@ below, and hands the notes to the release workflow.
   Steam's text filter.
 - **Quick Play.** First on Play Online's Steam tab: one press joins a public game near you, a
   friend's first, or starts one with bots that people join as they come.
+- **Joining a Steam game's match in play.** Taking over a bot's kart, a ticket says whose it was and
+  what came with it; coming in during Last Call or on the podium, you watch and play the next map.
 - **Bots that make up four.** The Bots row in the match settings ends in Make up 4: bots fill the
   match up to four karts, fewer as more people play, and none past four.
 - **A bot for a kart left alone.** In a public game, a kart nobody touches for a minute is driven by

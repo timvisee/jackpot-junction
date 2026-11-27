@@ -40,6 +40,9 @@ var out_at := -1
 ## Milliseconds there and back to the machine this player plays at, as the host last timed it,
 ## GAME.md 10.3: 0 for a player at the host, and for a bot.
 var round_trip := 0.0
+## Whose kart this was before a player took it over in the middle of a match, by the name it went
+## by, GAME.md 10.8; empty for a kart of its own.
+var taken_from := ""
 
 
 func _init(slot_index: int, kart_input: KartInput, slot_color: int = -1) -> void:

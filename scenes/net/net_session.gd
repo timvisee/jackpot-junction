@@ -501,6 +501,8 @@ func _seat(peer: int, fresh: bool, number := 0) -> void:
 	if _watchers.has(peer):
 		_watch(peer)
 		return
+	if fresh and host_controls.holds_for_next_map(peer):
+		return
 	var seated := _peer_slots.seated_in(match_node, peer, number)
 	if seated >= 0:
 		_assign_slot.rpc_id(peer, seated, match_node.rng.seed, number)

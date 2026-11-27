@@ -11207,9 +11207,8 @@ rather than as the "somewhere" every peer without an address would share.
 
 #### Public games and Quick Play
 
-For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: who may come in, the list, a
-row, empty and full, Players and Quick Play. Still planned: Joining a match in play and A host who
-goes, which once built replaces the host leaving described above. Decided with the user on 2026-11-26
+For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: everything but A host who goes,
+which once built replaces the host leaving described above. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
@@ -11248,10 +11247,12 @@ anybody can join it", as every list's does; a drawing of an empty table may come
 game, one without a seat for every player at this machine, is listed last. Its button is dimmed,
 says Full in place of its seats and cannot be pressed; its eye stays lit while it takes watchers.
 
-**Joining a match in play.** A newcomer goes straight in, into a bot's kart with its score, pot and
-jokers as 9.2 has it. A ticket over the arena says for three seconds whose kart it was and what came
-with it: "You took over Kit's kart · 420 banked · 60 in the pot · 2 jokers". Not in Last Call or on
-the podium: then the newcomer watches, told they take a seat on the next map, and is seated there.
+**Joining a match in play.** In a Steam game a newcomer goes straight in, into a bot's kart with its
+score, pot and jokers as 9.2 has it. A paper ticket at the foot of the screen says for three seconds
+whose kart it was and what came with it: "You took over Kit's kart" over "420 banked · 60 in the
+pot · 2 jokers"; the host tells them once it has seated them. Not in Last Call, sudden death or on
+the podium: then the newcomer watches, a line at the foot of the screen saying they take a seat on
+the next map, and is let go to sit down there as the host leaves for it.
 
 **Quick Play.** First on Play Online, in a Steam build, in foil over the box, which is a row
 shorter for it, so the pages stay one height; the cursor starts on it, and the box's link, "Start a

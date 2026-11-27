@@ -146,8 +146,10 @@ func _ready() -> void:
 	if not config.dedicated:
 		DebugOverlay.add_to(self, match_node, session)
 		DebugGrantMenu.add_to(self, match_node)
-		# A kart left alone in a public game is a bot's until a press, GAME.md 10.8.
+		# A kart left alone in a public game is a bot's until a press, GAME.md 10.8, and a bot's
+		# kart taken over in a Steam game says whose it was.
 		BenchedLine.add_to(self, session)
+		TakeoverTicket.add_to(self, session)
 	# Even with nobody here to open it: it is what stops the match once everybody asks.
 	var menu := PauseMenu.add_to(self, session)
 	# The way back to the lobby is whoever decides where the room goes: this machine alone, or

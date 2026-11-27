@@ -352,6 +352,7 @@ func _resolve_any_device(joiner: int) -> void:
 
 
 func _make_human(slot: PlayerSlot, input: KartInput) -> void:
+	slot.taken_from = slot.display_name()
 	MatchRecord.seat_taken(self, slot)
 	if slot.input is VacantSeat:
 		VacantSeat.fill(self, slot)
