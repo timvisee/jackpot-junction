@@ -11236,8 +11236,8 @@ row, to watch. Each host writes its Steam ping location into its lobby, so the p
 estimate from here, made without connecting. Over 200 ms it is one red bar, and the game can still
 be joined. There is no language on a row: the game has no chat, so players of different languages
 have nothing to say to each other that emotes do not say. Over the list, how many people are
-playing the game on Steam right now, "1,240 playing now", but only once it is past a threshold
-still to be settled: a small number would advertise an empty game.
+playing the game on Steam right now, "140 playing now", but only from 50 up: a smaller number
+would advertise an empty game.
 
 **Empty and full.** With no game listed, the box holds its link alone, "Start a game with bots:
 anybody can join it", as every list's does; a drawing of an empty table may come later. A full
@@ -11285,12 +11285,22 @@ reader's Steam friend go through Steam's text filter, by the reader's own Steam 
 no vote kick: the host kicks, and anybody unhappy with the host leaves, which costs nothing. In a
 public match a kart with no input for 60 s is driven by a bot, and any press takes it back.
 
-**A host who goes.** The game carries on at a new host. Steam hands the lobby to another player by
-itself when its owner goes, to the title, for good or with a lost connection. That player's machine
-opens a lobby with the game's rules as it was last sent them, and everybody else follows it there
-within a few seconds. The map being played is lost, since every kart, bot and joker of it ran at the
-old host, but the room and its people are kept. Carrying the map itself over to the new host is
-still open. Who takes over: on a planned leave, the player who has been in the game longest, as at
+**A host who goes.** The game carries on at a new host, the map being played included. Steam hands
+the lobby to another player by itself when its owner goes, to the title, for good or with a lost
+connection. Everybody's arena stops where it stands, under a short dialog over it: the old host's
+name for its title, "Kit left", a line saying "Migrating host to Bob...", and a bar while everybody
+connects to Bob. Bob's machine then runs the match from the last snapshot it was sent, 10.3: every
+kart where it stood, every banked score, pot, held item, joker, respawn and open joker pick, the
+bullets, the floor, the Jackpot, the bounty and the clock. The start's countdown of 3.8 runs again,
+and the map plays on. What a client never sees starts afresh: the bots' plans, the order of the deck,
+the counters some jokers keep, when the pickups come back, the random numbers. A host who leaves
+on purpose sends those to the new host before going, so only a crash or a lost connection loses
+them. It is not hidden, since it should seldom happen: a few seconds and a countdown. From the
+lobby or the podium, the new host opens the same room with the game's rules, and everybody follows.
+
+Built in two steps, both before the launch: first the handover from the lobby and the podium, with a
+map in play ended and everybody taken to the new host's lobby; then the map carried over as above.
+Who takes over: on a planned leave, the player who has been in the game longest, as at
 a dedicated server; on a crash or a lost connection, whoever Steam makes the lobby's owner; never
 somebody only watching. LAN games still end when the host goes, and a dedicated server's games keep
 Make host, 9.3a.
@@ -11301,6 +11311,7 @@ before they go. There is no Leave after this map: a host who wants the map finis
 is. Manage players in
 a Steam game has Make host on everybody else's row, as a dedicated server's has: the game is handed
 to that player at once in the lobby and on the podium, and at the podium when pressed during a map.
+Whenever the game changes hands, the Steam lobby goes with it (`setLobbyOwner`).
 
 **The store page** says in one line how online works.
 
