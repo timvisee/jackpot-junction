@@ -127,6 +127,7 @@ Not translated yet, but for the cards the store page's pictures show. The store 
 
 | English | Simplified Chinese |
 |---|---|
+| Jackpot Junction, the game | 头奖路口 |
 | the House | 庄家 |
 | chip(s) / pot / mult | 筹码 / 彩池 / 倍率 |
 | cash out | 兑现 |
@@ -139,6 +140,10 @@ Not translated yet, but for the cards the store page's pictures show. The store 
 | Grand Prix / Showdown / bounty | 大奖赛 / 摊牌对决 / 悬赏 |
 | card back / endorsement | 牌背 / 签注 |
 | Supporter Pack | 支持者礼包 |
+
+The game's name in a Chinese sentence is 头奖路口, its name on Steam in Chinese, as 头奖路口（Jackpot
+Junction） where a page first names it; the title's wordmark stays English. 路口 is the Junction's
+alone: Lucky Crossing, and any other crossing, takes another word, such as 十字街 (幸运十字街).
 
 What the game already expects:
 

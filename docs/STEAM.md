@@ -452,7 +452,7 @@ out: the links go in Basic Info's fields.
 
 | Field | What to put |
 |---|---|
-| Name | Jackpot Junction |
+| Name | Jackpot Junction; in Simplified Chinese 头奖路口, set as a Localized Application Name, see [store_schinese.md](steam/store_schinese.md) |
 | Developer, publisher | timvisee, as on itch.io and GitHub |
 | Supported languages | English, Dutch and Simplified Chinese: interface only, since nothing is voiced or subtitled; the other pages' words are in [store_dutch.md](steam/store_dutch.md) and [store_schinese.md](steam/store_schinese.md) |
 | Platforms | Windows, and SteamOS + Linux; macOS once it is on Steam, see [Builds](#builds) |
@@ -674,7 +674,7 @@ its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands
 
 | Field | What to put |
 |---|---|
-| Name | Jackpot Junction - Supporter Pack |
+| Name | Jackpot Junction - Supporter Pack; its Localized Application Names, Dutch's and Simplified Chinese's, are in their store pages' words |
 | Type | DLC, cosmetic only |
 
 Neither description names the thank-you card, which a player who bought the pack is to find for

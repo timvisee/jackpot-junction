@@ -4,6 +4,8 @@ The Simplified Chinese for everything [STEAM.md](../STEAM.md) has the store page
 "Words for the store page" and the supporter pack's "Words for its store page", in the game's own
 terms ([TRANSLATING.md](../TRANSLATING.md), Simplified Chinese): 庄家 for the House, 筹码 for chips,
 彩池 for the pot, 兑现 for cashing out, 小丑牌 for jokers, 道具 for power-ups, 路口 for the Junction.
+The game itself is 头奖路口, the Jackpot and the Junction word for word, as most games put into
+Chinese have a Chinese name on Steam; 头奖路口（Jackpot Junction） where a page first names it.
 Steam shows each visitor the page in the language their Steam is in, and English where a part has
 none, so the English stays as it is. When the English changes, this changes with it.
 
@@ -14,28 +16,32 @@ controller actions, comes from the game's translations, see STEAM.md.
 
 ## Putting it up
 
-1. **Supported languages** (Edit Store Page > Basic Info): add Simplified Chinese with Interface
+1. **The name**: under the game's General Application Settings (Steamworks Settings), Localized
+   Application Names, Simplified Chinese: `头奖路口`, and publish the Steamworks settings. Chinese
+   visitors see it on the store page and in their library, and Steam's search finds the game by
+   either name. The capsules keep the English wordmark.
+2. **Supported languages** (Edit Store Page > Basic Info): add Simplified Chinese with Interface
    ticked, not Full Audio, not Subtitles, as nothing is voiced.
-2. **The words** (Edit Store Page, each tab with words): pick Simplified Chinese in the language
+3. **The words** (Edit Store Page, each tab with words): pick Simplified Chinese in the language
    menu at the top and fill in the fields below, then save. A field left empty in Simplified
    Chinese shows the English.
-3. **The description's pictures**: `make steam-art` draws the ones with words in them in Simplified
+4. **The description's pictures**: `make steam-art` draws the ones with words in them in Simplified
    Chinese, into `build/steam-art/description/schinese/` and `docs/description/schinese/`, each
    named for the language, `heading_your_ride_schinese.png`, so it goes up beside the English
    instead of over it. With the Simplified Chinese description open, upload them with the editor's
    image button as the English ones were. The karts have no words: the Chinese description shows
    the English picture.
-4. **The screenshots**: `make steam-art` also takes them in Simplified Chinese, into
+5. **The screenshots**: `make steam-art` also takes them in Simplified Chinese, into
    `build/steam-art/screenshots/schinese/`, `01-teams-close-up_schinese.png` and on. On the
    screenshots page, drag each onto the thumbnail of the English one with its number: Steam keeps it
    as that screenshot's Simplified Chinese version, which the `_schinese` in its name tells it. Mark
    each suitable for all ages, as the English ones are. Take them once the game's own Chinese is
    done, or they show its English.
-5. **The trailer**, if wanted: `make trailer LANGUAGE=zh_CN` records it in Simplified Chinese into
+6. **The trailer**, if wanted: `make trailer LANGUAGE=zh_CN` records it in Simplified Chinese into
    `build/trailer/schinese/`, see STEAM.md "The trailer". Upload `jackpot-junction-trailer.mp4`
    from there as a trailer of its own and set its language to Simplified Chinese, so Chinese
    visitors see it in place of the English one.
-6. Publish the store page. The capsules and the library's art have no words but the game's name,
+7. Publish the store page. The capsules and the library's art have no words but the game's name,
    which stays, and Steam has no Chinese version of them.
 
 ## Short description
@@ -92,7 +98,7 @@ The pictures, with their alt text in the Description tab:
 [img]{STEAM_APP_IMAGE}/extras/picture_karts.png[/img]
 不管你是看不惯场边那群迪斯科观众，还是正和那位离不开辅助瞄准的朋友一起玩：游戏都能按你的需要来调整。
 
-Jackpot Junction 是开源游戏，采用 GPL-3.0 许可，使用 Godot 制作。游戏自有的美术采用 CC BY 4.0 许可。
+头奖路口（Jackpot Junction）是开源游戏，采用 GPL-3.0 许可，使用 Godot 制作。游戏自有的美术采用 CC BY 4.0 许可。
 ```
 
 ## System requirements
@@ -107,7 +113,7 @@ English, with numbers and names that need no translating.
 Where Steamworks takes them per language.
 
 - **AI disclosure**: "本游戏由生成式 AI 制作，人类提供了一些协助。AI 编写了代码和游戏内的文字，美术由这些代码绘制，因此没有使用任何图像、语音或音乐生成工具。音乐、音效和字体均由人类创作。"
-- **Legal notice**: "Jackpot Junction 是自由软件，采用 GPL-3.0 许可，并附有链接 Steamworks SDK 的额外许可。游戏自有的美术采用 CC BY 4.0 许可。音乐由 Ovani Sound 创作，授权给本游戏的开发者使用。第三方素材列于游戏的制作人员名单中。"
+- **Legal notice**: "头奖路口（Jackpot Junction）是自由软件，采用 GPL-3.0 许可，并附有链接 Steamworks SDK 的额外许可。游戏自有的美术采用 CC BY 4.0 许可。音乐由 Ovani Sound 创作，授权给本游戏的开发者使用。第三方素材列于游戏的制作人员名单中。"
 
 ## The supporter pack
 
@@ -117,7 +123,7 @@ Supported languages, the words below with Simplified Chinese picked, its two hea
 `build/steam-art/supporter/screenshots/schinese/`, each dragged onto its English one.
 
 **Its name**: under the DLC's General Application Settings (Steamworks Settings), Localized
-Application Names, Simplified Chinese: `Jackpot Junction - 支持者礼包`, which the game's own
+Application Names, Simplified Chinese: `头奖路口 - 支持者礼包`, which the game's own
 Chinese for the Supporter Pack should match.
 
 Short description:
@@ -136,7 +142,7 @@ The pictures, with their alt text:
 About This Content:
 
 ```text
-Jackpot Junction 是免费的，并且会一直免费。支持者礼包是为那些想回馈一点、也想在牌桌上亮出来的人准备的。
+头奖路口是免费的，并且会一直免费。支持者礼包是为那些想回馈一点、也想在牌桌上亮出来的人准备的。
 
 [img]{STEAM_APP_IMAGE}/extras/heading_supporter_thanks_schinese.png[/img]
 [img]{STEAM_APP_IMAGE}/extras/picture_supporter_karts.png[/img]
