@@ -23,6 +23,8 @@ func _match() -> Match:
 	_runner = scene_runner(match_node)
 	var inputs: Array[KartInput] = [BotInput.new(), BotInput.new()]
 	match_node.start(inputs, 9)
+	# Some of these drive out past the room on purpose, where a kart would be brought back into it.
+	KartBounds.of(match_node).set_physics_process(false)
 	return match_node
 
 

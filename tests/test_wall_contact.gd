@@ -25,6 +25,8 @@ func _kart(input: KartInput, walls: Array, start: Vector3, facing: Vector3) -> K
 	match_node.offer_size = 0
 	_runner = scene_runner(match_node)
 	match_node.start([input, BotInput.new()] as Array[KartInput], 31)
+	# Out past the room on purpose, where a kart would be brought back into it.
+	KartBounds.of(match_node).set_physics_process(false)
 	await _runner.simulate_frames(20, 17)
 	for wall: Array in walls:
 		var body := StaticBody3D.new()

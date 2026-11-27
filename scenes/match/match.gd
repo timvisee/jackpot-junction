@@ -123,6 +123,7 @@ func _ready() -> void:
 	BotEmotes.add_to(self)
 	PadLights.add_to(self)
 	LostPads.add_to(self)
+	KartBounds.add_to(self)
 	if rules == null:
 		rules = load("res://data/match/default.tres")
 	if power_ups == null:
