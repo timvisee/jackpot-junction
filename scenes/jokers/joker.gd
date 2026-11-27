@@ -130,7 +130,10 @@ func describe(copies := 1, mark := "%s", details := false) -> String:
 		var alone := str(one[key])
 		var shown := value if value == alone else mark % value
 		if details and value != alone:
-			shown += " (%s)" % (alone.left(1).to_lower() + alone.substr(1))
+			# TRANSLATORS: A stack's number with one copy's beside it: "×6 (×2)", "+40% (+20%)".
+			shown = tr("{stack} ({one})", &"stack").format(
+				{"stack": shown, "one": alone.left(1).to_lower() + alone.substr(1)}
+			)
 		said = said.replace("{%s}" % key, shown)
 	if stackable and details:
 		said = Lang.sentences(said, tr("Stacks up to ×%d.") % most if most > 0 else tr("Stacks."))

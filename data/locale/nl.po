@@ -1068,6 +1068,12 @@ msgstr "vier keer"
 msgid "five times"
 msgstr "vijf keer"
 
+#. A stack's number with one copy's beside it: "×6 (×2)", "+40% (+20%)".
+#: scenes/jokers/joker.gd
+msgctxt "stack"
+msgid "{stack} ({one})"
+msgstr "{stack} ({one})"
+
 #: scenes/jokers/joker.gd
 msgid "Stacks up to ×%d."
 msgstr "Stapelbaar tot ×%d."
