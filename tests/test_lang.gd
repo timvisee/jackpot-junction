@@ -102,3 +102,14 @@ func test_a_place_is_written_as_the_language_writes_it() -> void:
 	assert_str(Lang.ordinal(1)).is_equal("1E")
 	assert_str(Lang.ordinal(12)).is_equal("12E")
 	assert_str(Timeline.ordinal(3)).is_equal("3e")
+
+
+## A picture with words in it is the one drawn for the language spoken, where there is one, and the
+## English otherwise, however often the language changes.
+func test_a_picture_with_words_is_the_one_for_the_language_spoken() -> void:
+	Lang.apply(DUTCH)
+	assert_str(Lang.picture(HouseRail.PRINT).resource_path).ends_with("rail_print.nl.png")
+	Lang.apply(Lang.ENGLISH)
+	assert_str(Lang.picture(HouseRail.PRINT).resource_path).ends_with("rail_print.png")
+	Lang.apply("zh_CN")
+	assert_str(Lang.picture(WorkbenchStyle.SLATE).resource_path).ends_with("kit_chalkboard.png")

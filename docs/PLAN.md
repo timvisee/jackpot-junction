@@ -5444,7 +5444,7 @@ gettext files, for community tools such as Weblate and Poedit. Built in worktree
 | G1 | `Lang`, `make strings`, Dutch's empty file loaded, the Language row on the Accessibility page | Done |
 | G2 | Every word in the code marked, by area: story, settings, menus, online, match, arena, jokers, garage | Done |
 | G3 | `make check` and CI fail on a word not marked, a file behind the code, or a broken placeholder | Done |
-| G4 | Words baked into pictures (the Workbench chalkboard, the House rail's microprint) drawn per language and swapped in by the engine's remaps | Tools done; Dutch pictures with G5 |
+| G4 | Words baked into pictures (the Workbench chalkboard, the House rail's microprint) drawn per language and swapped in by the engine's remaps | Done |
 | G5 | Dutch, informal ("je"), played through by the user | Open |
 | G6 | A guide for translators, `docs/TRANSLATING.md` | Done |
 | G7 | Simplified Chinese: a typeface with Chinese for each of the game's, line breaking in exports, a human translator | Open |

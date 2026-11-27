@@ -44,6 +44,8 @@ below, and hands the notes to the release workflow.
   match up to four karts, fewer as more people play, and none past four.
 - **A bot for a kart left alone.** In a public game, a kart nobody touches for a minute is driven by
   a bot, and any press takes it back.
+- **Nederlands.** The game speaks Dutch: pick it under Language on the Accessibility page, or let
+  it follow Steam or your system. More languages can follow, see docs/TRANSLATING.md.
 
 ### Changed
 
