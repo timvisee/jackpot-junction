@@ -7,13 +7,15 @@ extends "res://tools/multiplayer_driver.gd"
 ## sits down in it again. Otherwise the host goes from the lobby, and the new host opens a lobby,
 ## never a map. With --make-host the host hands the game to the second in line by Make host
 ## instead, from the lobby or with --in-a-map during the map, and follows them in with the first,
-## back in its own kart with its score in a map. Started by tools/multiplayer_check.gd
-## with --handover, and says what it saw the way tools/multiplayer_driver.gd does, a line starting
-## MPCHECK for every step.
+## back in its own kart with its score in a map. With --killed, and --in-a-map, the host's process
+## is killed during the map, as a crash goes, saying nothing to anybody: the others find it gone
+## once its line goes quiet, and the game is handed down the line they were told before, each back
+## in its own kart by its secret. Started by tools/multiplayer_check.gd with --handover, and says
+## what it saw the way tools/multiplayer_driver.gd does, a line starting MPCHECK for every step.
 ##
 ##   godot --headless --path . -s tools/multiplayer_check.gd -- --handover --role=host --port=7855
-##   ... --role=first, then --role=second, each with the same port and the same --in-a-map or
-##   --make-host
+##   ... --role=first, then --role=second, each with the same port and the same --in-a-map,
+##   --make-host or --killed
 
 ## The map played with --in-a-map, chosen for a few minutes: long enough to be left in the middle
 ## of.
@@ -21,15 +23,20 @@ const MAP := &"lucky_crossing"
 const MINUTES := 3
 ## What the old host has banked as it makes another host during a map, to find again.
 const BANKED := 345
+## How long the others may take to find a killed host gone, as its line goes quiet, see [NetLine],
+## and to ask after it at its address before going down the line, see [HostHandover], in seconds.
+const FOUND_GONE := 60.0
 
 var _in_a_map := false
 var _made := false
+var _killed := false
 
 
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	_in_a_map = "--in-a-map" in args
 	_made = "--make-host" in args
+	_killed = "--killed" in args
 	multiplayer.server_disconnected.connect(func() -> void: _say("the host hung up"))
 	# Settings of its own, by process, since three run at once.
 	Game.settings = Settings.new()
@@ -99,6 +106,11 @@ func _host_goes() -> void:
 		return
 	if played != null:
 		_say("leaving with %.0f s on the clock" % played.time_left)
+	if _killed:
+		# Nothing said, nothing closed: tools/multiplayer_check counts this process's death as its
+		# end.
+		_say("killed")
+		OS.kill(OS.get_process_id())
 	_say("leaving")
 	Game.go_to_title()
 	_finished = true
@@ -147,7 +159,7 @@ func _takes_it_on(place: int) -> void:
 		return
 	var hosting := await _until(
 		func() -> bool: return Net.session != null and Net.session.is_host,
-		30.0,
+		FOUND_GONE if _killed else 30.0,
 		"the game came to this machine and it hosts it now"
 	)
 	if not hosting:
@@ -194,7 +206,7 @@ func _sat_down_away_from(old: int) -> bool:
 				and not Net.session.is_host
 				and Net.session.local_slot >= 0
 			),
-		40.0,
+		FOUND_GONE if _killed else 40.0,
 		"the game changed hands and this machine sat down at the new host"
 	)
 

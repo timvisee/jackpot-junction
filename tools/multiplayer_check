@@ -34,7 +34,7 @@ set -uo pipefail
 # On the settings and profiles every test and check shares, never the player's own, GAME.md 10.2.
 export JJ_SETTINGS="${JJ_SETTINGS:-tests.cfg}"
 cd "$(dirname "$0")/.."
-port="${MPCHECK_PORT:-$(tools/free_port 8)}"
+port="${MPCHECK_PORT:-$(tools/free_port 9)}"
 ping="${MPCHECK_PING:-0}"
 # MPCHECK_LOGS keeps the whole of each run's output there, for a failure that needs reading.
 if [[ -n ${MPCHECK_LOGS:-} ]]; then
@@ -152,8 +152,9 @@ host_h_status=$?
 wait "$client_h"
 client_h_status=$?
 
-# A handover from the lobby, one from a map, and one by Make host from each, three machines each.
-for where in lobby map made mademap; do
+# A handover from the lobby, one from a map, one by Make host from each, and one from a map whose
+# host is killed, three machines each.
+for where in lobby map made mademap killed; do
 	extra=()
 	offset=4
 	if [[ $where == map ]]; then
@@ -165,6 +166,9 @@ for where in lobby map made mademap; do
 	elif [[ $where == mademap ]]; then
 		extra=(--make-host --in-a-map)
 		offset=7
+	elif [[ $where == killed ]]; then
+		extra=(--in-a-map --killed)
+		offset=8
 	fi
 	for role in host first second; do
 		run "${role}_o_$where" --handover --role="$role" --port="$((port + offset))" \
@@ -172,12 +176,16 @@ for where in lobby map made mademap; do
 		eval "pid_${role}_$where=\$!"
 	done
 done
-for where in lobby map made mademap; do
+for where in lobby map made mademap killed; do
 	for role in host first second; do
 		eval "wait \$pid_${role}_$where"
 		eval "status_${role}_$where=\$?"
 	done
 done
+# The killed host's end is its death, SIGKILL's 137, once it said so.
+if [[ $status_host_killed -eq 137 ]] && grep -q '^MPCHECK.* killed' "$logs/host_o_killed.log"; then
+	status_host_killed=0
+fi
 
 report host_a "$host_a_status"
 report client_a "$client_a_status"
@@ -192,7 +200,7 @@ report client_82 "$client_82_status"
 report client_83 "$client_83_status"
 report host_h "$host_h_status"
 report client_h "$client_h_status"
-for where in lobby map made mademap; do
+for where in lobby map made mademap killed; do
 	for role in host first second; do
 		eval "report ${role}_o_$where \"\$status_${role}_$where\""
 	done
