@@ -165,7 +165,6 @@ func _vision_row() -> HBoxContainer:
 		"Off", "Protanopia (red-weak)", "Deuteranopia (green-weak)", "Tritanopia (blue-weak)"
 	]
 	var choice := MenuTheme.option(words, Settings.VISIONS.find(_settings.color_vision))
-	choice.custom_minimum_size = Vector2(0.0, 44.0)
 	var swatches := HBoxContainer.new()
 	swatches.add_theme_constant_override("separation", 6)
 	for slot: int in Palette.PLAYER_COLORS.size():

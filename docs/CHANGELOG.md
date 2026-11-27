@@ -21,6 +21,8 @@ below, and hands the notes to the release workflow.
 
 - **The cursor stays on the About page when you buy the Supporter Pack.** Bought from its link on a
   controller, the cursor moves to the link above it rather than getting lost.
+- **Color blindness's box is as tall as the others.** On the Accessibility page it was a little
+  shorter than every other box to pick from.
 
 ## [0.24.1] - 2026-11-26
 

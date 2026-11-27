@@ -91,3 +91,13 @@ func test_rumble_switched_on_knocks_every_pad() -> void:
 	assert_int(knocked.size()).is_equal(count)
 	DeviceInput.steam_pads.clear()
 	DeviceInput.steam_rumble = was
+
+
+## Every box to pick from on the page is as tall as the house's, Color blindness's among them.
+func test_every_choice_is_as_tall_as_the_others() -> void:
+	var page: AccessibilityTab = auto_free(AccessibilityTab.make(Game.settings))
+	add_child(page)
+	var boxes := page.find_children("*", "OptionButton", true, false)
+	assert_int(boxes.size()).is_greater(4)
+	for box: OptionButton in boxes:
+		assert_float(box.get_combined_minimum_size().y).is_equal(MenuTheme.box_height())
