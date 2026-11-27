@@ -122,7 +122,7 @@ Informal: *je* and *jij*, never *u*, the House included. Common English game wor
 
 ### Simplified Chinese (`zh_CN`)
 
-Not translated yet, but for the cards the store page's pictures show. The store page
+Translated, a first draft for a native speaker to read over. The store page
 ([store_schinese.md](steam/store_schinese.md)) set these terms, which the game's words keep:
 
 | English | Simplified Chinese |
@@ -140,6 +140,13 @@ Not translated yet, but for the cards the store page's pictures show. The store 
 | Grand Prix / Showdown / bounty | 大奖赛 / 摊牌对决 / 悬赏 |
 | card back / endorsement | 牌背 / 签注 |
 | Supporter Pack | 支持者礼包 |
+| Dept. of Karts / the Final Hand / terms (the House's) | 卡丁车部 / 最后一手 / 条款 |
+| Clubhouse / Showroom / Lost Property | 俱乐部 / 展厅 / 失物招领 |
+| graze / crate / pad / cone | 擦弹 / 木箱 / 垫 / 锥桶 |
+| the bots' traits: Balanced, Greedy, Cautious, Hunter, Bumper, Grazer | 均衡型, 贪婪型, 谨慎型, 猎手型, 冲撞型, 擦弹型 |
+| watcher / the crowd (the House's figures) | 观众 / 人群 |
+| off the books / edition (a dress finish) | 账外 / 版本 |
+| shift / Clock in (after the ending) | 班次 / 打卡上班 |
 
 The game's name in a Chinese sentence is 头奖路口, its name on Steam in Chinese, as 头奖路口（Jackpot
 Junction） where a page first names it; the title's wordmark stays English. 路口 is the Junction's

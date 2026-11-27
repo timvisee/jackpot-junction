@@ -11760,7 +11760,7 @@ differ from its English, which the game would fill wrongly. The files are plain 
 translation tool, Weblate or Poedit: `make strings` keeps whatever such a tool adds, its header
 fields and the translators' comments, and the check reads the entries, not the bytes, so a tool's
 wrapping is no change. A word with no translation is said in English, and so is one marked fuzzy. Dutch is the
-first translation; Simplified Chinese is under way, to be read over by a native speaker.
+first translation, Simplified Chinese the second, a draft to be read over by a native speaker.
 
 None of the game's typefaces draws Chinese, so each has a Chinese partner behind it as a fallback,
 `Type.dress()` at start: a letter the face has is drawn in the face, a Chinese character in its

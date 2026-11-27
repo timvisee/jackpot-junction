@@ -46,6 +46,7 @@ below, and hands the notes to the release workflow.
   a bot, and any press takes it back.
 - **Nederlands.** The game speaks Dutch, on Steam too: pick it under Language on the Accessibility
   page, or let it follow Steam or your system. More languages can follow, see docs/TRANSLATING.md.
+- **简体中文.** The game speaks Simplified Chinese as 头奖路口, on Steam too, picked the same way.
 
 ### Changed
 

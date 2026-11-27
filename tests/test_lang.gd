@@ -179,6 +179,11 @@ func test_a_picture_with_words_is_the_one_for_the_language_spoken() -> void:
 	Lang.apply(Lang.ENGLISH)
 	assert_str(Lang.picture(HouseRail.PRINT).resource_path).ends_with("rail_print.png")
 	Lang.apply("zh_CN")
+	assert_str(Lang.picture(WorkbenchStyle.SLATE).resource_path).ends_with(
+		"kit_chalkboard.zh_CN.png"
+	)
+	# A language with no picture of its own drawn yet shows the English.
+	Lang.current = "eo"
 	assert_str(Lang.picture(WorkbenchStyle.SLATE).resource_path).ends_with("kit_chalkboard.png")
 
 
