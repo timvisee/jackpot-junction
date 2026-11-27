@@ -167,3 +167,13 @@ func test_the_hoardings_carry_the_stage() -> void:
 	assert_bool(found).override_failure_message(str(said)).is_true()
 	for line: String in said:
 		assert_bool(line.contains("{")).is_false()
+
+
+## Words stacked as a road paints them, KEEP over CLEAR, go a line to each word; a phrase written
+## without spaces, as Chinese is, is split at its middle, GAME.md 10.9.
+func test_stacked_words_split_where_the_language_allows() -> void:
+	assert_array(Array(HouseWord.lines_of("KEEP CLEAR"))).is_equal(["KEEP", "CLEAR"])
+	assert_array(Array(HouseWord.lines_of("CLEAR"))).is_equal(["CLEAR"])
+	assert_array(Array(HouseWord.lines_of("禁止停车"))).is_equal(["禁止", "停车"])  # NO_TRANSLATE
+	assert_array(Array(HouseWord.lines_of("请勿停车。"))).is_equal(["请勿停", "车。"])  # NO_TRANSLATE
+	assert_array(Array(HouseWord.lines_of("禁止 停车"))).is_equal(["禁止", "停车"])  # NO_TRANSLATE

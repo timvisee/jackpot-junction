@@ -11839,7 +11839,8 @@ server's data, which the editor carries built in and an exported game takes alon
 project's `internationalization/locale/include_text_server_data` on, 4.8 MB of it: without it a
 line breaks at its spaces alone. What the game draws a row at a time itself, a note's lines and
 the loyalty map's titles, it breaks where the text server says a line may, `Type.rows()`, never
-at its spaces.
+at its spaces. Words a road paints stacked, KEEP over CLEAR, go a line to each word, and a phrase
+with no spaces in it, Chinese, is split at its middle, 禁止 over 停车.
 
 Words drawn into a picture by the art tools, the House rail's microprint and Kit's chalkboard, are
 marked with `_()` in the tool as gettext's tools mark them, and `make strings` reads them with the

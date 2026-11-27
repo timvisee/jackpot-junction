@@ -201,7 +201,7 @@ func _draw_word(on: Control) -> void:
 	elif _plated:
 		_ticket(on, area, letters)
 	var font := _font()
-	var lines := text.split(" ", false) if stacked else PackedStringArray([text])
+	var lines := lines_of(text) if stacked else PackedStringArray([text])
 	var spans: Array[float] = []
 	var span := 0.0
 	for line: String in lines:
@@ -243,6 +243,16 @@ func _draw_word(on: Control) -> void:
 			)
 		on.draw_string(font, at, lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE, letters)
 	on.draw_set_transform(Vector2.ZERO)
+
+
+## [param said] stacked one under another as a road paints it, KEEP over CLEAR: a line to each
+## word, or a phrase written without spaces, as Chinese is, split at its middle, GAME.md 10.9.
+static func lines_of(said: String) -> PackedStringArray:
+	var words := said.split(" ", false)
+	if words.size() != 1 or said.length() < 2 or not Lang.wide(said.unicode_at(0)):
+		return words
+	var half := ceili(said.length() / 2.0)
+	return PackedStringArray([said.left(half), said.substr(half)])
 
 
 ## A ticket for the word to stand on, the whole of [param area], with a line inside its edge in

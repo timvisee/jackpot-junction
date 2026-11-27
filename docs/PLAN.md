@@ -5467,7 +5467,7 @@ the scratched line, and a plate may carry the characters a Chinese plate does.
 | C5 | A Chinese partner behind every face, `make fonts` and `Type.dress()`, credited | Done |
 | C6 | The art tools draw Chinese in the partners | Done |
 | C7 | A Chinese character counts as two letters in a name | Done |
-| C8 | A road's stacked words split a Chinese phrase at its middle | Open |
+| C8 | A road's stacked words split a Chinese phrase at its middle | Done |
 | C9 | A plate takes the characters Chinese plates carry, two at most | Open |
 | C10 | Every screen looked at in pseudo-Chinese, and what that shows fixed | Open |
 | C11 | The translation, read over by a native speaker; the store page, its pictures, the trailer's words | Open |
