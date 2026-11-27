@@ -2505,7 +2505,7 @@ msgstr "Het laatste woord"
 
 #: scenes/match/player_stats.gd
 msgid "Knocking on the Door"
-msgstr "Aan de poort kloppen"
+msgstr "Op de deur kloppen"
 
 #: scenes/match/player_stats.gd
 msgid "Piggy Bank"
@@ -2640,8 +2640,8 @@ msgstr[1] "%d eigen kills"
 #: scenes/match/player_stats.gd scenes/ui/slip_page.gd scenes/ui/tie_words.gd
 msgid "%d death"
 msgid_plural "%d deaths"
-msgstr[0] "%d dood"
-msgstr[1] "%d doden"
+msgstr[0] "%d keer dood"
+msgstr[1] "%d keer dood"
 
 #: scenes/match/player_stats.gd
 msgid "%d chip out of the Jackpot"
@@ -4319,7 +4319,7 @@ msgstr "Markering boven mijn kart"
 
 #: scenes/ui/accessibility_tab.gd
 msgid "Faint"
-msgstr "Zwak"
+msgstr "Vaag"
 
 #: scenes/ui/accessibility_tab.gd scripts/settings.gd
 msgid "Full"
@@ -4427,7 +4427,7 @@ msgstr "Grootte richtlijn"
 
 #: scenes/ui/aim_guide_rows.gd
 msgid "Aim guide opacity"
-msgstr "Dekking richtlijn"
+msgstr "Zichtbaarheid richtlijn"
 
 #: scenes/ui/aim_guide_rows.gd
 msgid "Aim guide color"
@@ -5488,7 +5488,7 @@ msgstr "terug over %s"
 
 #: scenes/ui/match_hud.gd
 msgid "GO"
-msgstr "START"
+msgstr "AF"
 
 #: scenes/ui/match_hud.gd
 msgid "+%s MULT"
@@ -5607,7 +5607,7 @@ msgstr "Mapgroottes"
 
 #: scenes/ui/match_options.gd scenes/ui/results_screen.gd
 msgid "Tie-breaker"
-msgstr "Beslissing"
+msgstr "Beslissingsronde"
 
 #: scenes/ui/match_options.gd
 msgid "Arena"
@@ -5701,7 +5701,7 @@ msgstr "XL-maps"
 
 #: scenes/ui/match_options.gd
 msgid "tie-breaker"
-msgstr "beslissing"
+msgstr "beslissingsronde"
 
 #: scenes/ui/match_options.gd
 msgid "XL with 5+"
@@ -5781,7 +5781,7 @@ msgstr "3 kaarten gedeeld per map"
 
 #: scenes/ui/match_presets.gd
 msgid "High roller"
-msgstr "Grote gokker"
+msgstr "High roller"
 
 #: scenes/ui/match_presets.gd
 msgid "8 min · every card"
@@ -7209,11 +7209,11 @@ msgstr "Tafel"
 
 #: scenes/ui/video_tab.gd
 msgid "Performance"
-msgstr "Prestaties"
+msgstr "Snelheid"
 
 #: scenes/ui/video_tab.gd
 msgid "Graphics"
-msgstr "Graphics"
+msgstr "Weergave"
 
 #: scenes/ui/video_tab.gd
 msgid "UI scale"
@@ -8346,7 +8346,7 @@ msgstr "Roestbout"
 #. A bot's name, robot slang; at most 16 characters.
 #: scripts/player_names.gd
 msgid "Droid Rage"
-msgstr "Droid Rage"
+msgstr "Robotrazernij"
 
 #. A bot's name, robot slang; at most 16 characters.
 #: scripts/player_names.gd
@@ -10473,7 +10473,7 @@ msgstr "JACKPOT JUNCTION  ·  HET HUIS  ·  ONDER MENSELIJK TOEZICHT  ·  "
 
 #: scripts/story/story_lines.gd
 msgid "A human oversaw it: played it as it grew, made the calls no model would have made, and put their name on it."
-msgstr "Een mens hield er toezicht op: speelde het terwijl het groeide, maakte de keuzes die geen model gemaakt zou hebben, en zette er de eigen naam onder."
+msgstr "Een mens hield er toezicht op: speelde het terwijl het groeide, maakte de keuzes die geen model gemaakt zou hebben, en zette er een handtekening onder."
 
 #: scripts/story/story_notes.gd
 msgid "To You"
