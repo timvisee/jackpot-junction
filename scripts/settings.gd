@@ -210,6 +210,8 @@ var bindings: Dictionary = {}
 var match_seconds := 300
 var target_score := 3000
 var bot_count := 3
+## Whether the bots make up four karts rather than that many on top of the people, GAME.md 10.8.
+var bots_make_up := false
 var difficulty := "normal"
 var item_set := "first"
 ## Which arena the lobby last picked, GAME.md 6.3.

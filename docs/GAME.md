@@ -11269,8 +11269,8 @@ empty lobby.
 
 The game Quick Play hosts is public and called "Ann's game": a quick match, one map with its arena
 dealt, the host's Standard preset, normal bots and a player limit of 8. Bots make up four karts:
-the Bots row of the match settings has a new first choice, Make up 4, which a Quick Play game
-starts on. Each person who joins takes a bot's kart; between maps the bots are dealt again, so
+the Bots row of the match settings has a choice after the numbers, Make up 4, which a Quick Play
+game starts on, and which any game can be played with, worked out as each map is built. Each person who joins takes a bot's kart; between maps the bots are dealt again, so
 people and bots are four, and past four people there are none, up to eight. A number picked in
 the Bots row instead is played as it is today, that many bots on top of the people. In its lobby the match starts when everybody is on the
 pad, or 30 s after half of the room is, counted down over the pad; the host keeps Start now.

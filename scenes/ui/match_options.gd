@@ -33,6 +33,9 @@ const TARGETS: Array[int] = [0, 1500, 2000, 3000, 5000]
 ## How many bots a match may ask for, GAME.md 3.8: the row offers as many of them as the arena has
 ## seats for beside one player, see [method fit_seats].
 const BOTS: Array[int] = [0, 1, 2, 3, 4, 5, 6, 7]
+## The Bots row's last choice, after the numbers: bots making up four karts with the people,
+## GAME.md 10.8.
+const MAKE_UP_WORDS := "Make up 4"
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
 const ITEM_SETS: Array[String] = ["first", "all"]
 ## Index order of the own-bullets option: off first, so it is the default.
@@ -190,6 +193,7 @@ static func to_wire(config: MatchConfig) -> Dictionary:
 		"duration": roundi(config.duration),
 		"target_score": config.target_score,
 		"bot_count": config.bot_count,
+		"make_up": config.make_up,
 		"difficulty": config.difficulty,
 		"item_set": config.item_set,
 		"own_bullets_hurt": config.own_bullets_hurt,
@@ -230,6 +234,9 @@ static func from_wire(config: MatchConfig, plan: Dictionary) -> void:
 	var bots := int(plan.get("bot_count", -1))
 	if bots in BOTS:
 		config.bot_count = bots
+	var make_up := int(plan.get("make_up", -1))
+	if make_up == 0 or make_up == MatchConfig.MAKE_UP:
+		config.make_up = make_up
 	var difficulty := str(plan.get("difficulty", ""))
 	if difficulty in DIFFICULTIES:
 		config.difficulty = difficulty
@@ -267,7 +274,8 @@ func apply_to(config: MatchConfig) -> void:
 	config.small_maps = small_maps_toggle.button_pressed
 	config.duration = float(match_lengths()[minutes_option.selected])
 	config.target_score = TARGETS[target_option.selected]
-	config.bot_count = BOTS[bots_option.selected]
+	config.make_up = MatchConfig.MAKE_UP if bots_count() < 0 else 0
+	config.bot_count = maxi(bots_count(), 0)
 	config.difficulty = DIFFICULTIES[difficulty_option.selected]
 	config.item_set = ITEM_SETS[items_option.selected]
 	config.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
@@ -286,7 +294,9 @@ func remember(settings: Settings) -> void:
 	settings.map = String(_map_id())
 	settings.match_seconds = match_lengths()[minutes_option.selected]
 	settings.target_score = TARGETS[target_option.selected]
-	settings.bot_count = BOTS[bots_option.selected]
+	settings.bots_make_up = bots_count() < 0
+	if bots_count() >= 0:
+		settings.bot_count = bots_count()
 	settings.difficulty = DIFFICULTIES[difficulty_option.selected]
 	settings.item_set = ITEM_SETS[items_option.selected]
 	settings.own_bullets_hurt = OWN_BULLETS[own_bullets_option.selected]
@@ -325,7 +335,7 @@ func show(config: MatchConfig) -> void:
 	choose(config.rounds > 0)
 	minutes_option.select(maxi(match_lengths().find(roundi(config.duration)), 0))
 	target_option.select(maxi(TARGETS.find(config.target_score), 0))
-	_bots_wanted = config.bot_count
+	_bots_wanted = -1 if config.make_up > 0 else config.bot_count
 	fit_seats(_seats)
 	difficulty_option.select(maxi(DIFFICULTIES.find(config.difficulty), 0))
 	items_option.select(maxi(ITEM_SETS.find(config.item_set), 0))
@@ -457,20 +467,32 @@ func _shown_here(value: Control) -> bool:
 ## up to three on one machine, and up to seven in a lobby for eight. The bots last asked for are
 ## chosen again as far as there is room for them.
 func fit_seats(seats: int) -> void:
-	if bots_option.selected != _bots_shown:
-		_bots_wanted = maxi(bots_option.selected, 0)
+	if bots_count() != _bots_shown:
+		_bots_wanted = bots_count()
 	var most := clampi(seats - 1, 0, BOTS.size() - 1)
-	if bots_option.item_count != most + 1:
+	if bots_option.item_count != most + 2:
 		bots_option.clear()
 		for count: int in BOTS.slice(0, most + 1):
 			bots_option.add_item(str(count))
-	_bots_shown = mini(_bots_wanted, most)
-	bots_option.select(_bots_shown)
+		bots_option.add_item(MAKE_UP_WORDS)
+	_bots_shown = _bots_wanted if _bots_wanted < 0 else mini(_bots_wanted, most)
+	bots_option.select(_bots_index(_bots_shown))
 	# Whether a small map is too small is a question only a room of more than four asks.
 	_seats = seats
 	_small_maps_row.visible = seats > SeatLimit.SEATS
 	_show_room()
 	_refresh()
+
+
+## How many bots the Bots row asks for, or -1 for Make up 4, its last choice, GAME.md 10.8.
+func bots_count() -> int:
+	var at := maxi(bots_option.selected, 0)
+	return -1 if at == bots_option.item_count - 1 and at > 0 else at
+
+
+## Where in the Bots row [param count] bots are, -1 being Make up 4, last.
+func _bots_index(count: int) -> int:
+	return bots_option.item_count - 1 if count < 0 else count
 
 
 ## Whether these rows are setting up a Grand Prix rather than a quick match.
@@ -499,9 +521,14 @@ func _build(column: Container, settings: Settings) -> void:
 		named.append(length_words(seconds))
 	minutes_option = MenuTheme.option(named, maxi(lengths.find(settings.match_seconds), 0))
 	target_option = MenuTheme.option(_target_labels(), TARGETS.find(settings.target_score))
-	_bots_wanted = clampi(settings.bot_count, 0, BOTS[-1])
+	_bots_wanted = -1 if settings.bots_make_up else clampi(settings.bot_count, 0, BOTS[-1])
 	_bots_shown = _bots_wanted
-	bots_option = MenuTheme.option(BOTS, _bots_wanted)
+	var bot_choices: Array = []
+	bot_choices.assign(BOTS)
+	bot_choices.append(MAKE_UP_WORDS)
+	bots_option = MenuTheme.option(bot_choices, _bots_wanted)
+	if _bots_wanted < 0:
+		bots_option.select(BOTS.size())
 	difficulty_option = MenuTheme.option(
 		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
 	)
@@ -880,7 +907,7 @@ func _refresh() -> void:
 		where = map_option.get_item_text(map_option.selected)
 		if _xl_label.visible:
 			where += " · XL with 5+"
-	var bots := BOTS[maxi(bots_option.selected, 0)]
+	var bots := bots_count()
 	var who := (
 		"No bots"
 		if bots == 0
@@ -889,6 +916,8 @@ func _refresh() -> void:
 			% [bots, "" if bots == 1 else "s", DIFFICULTIES[difficulty_option.selected]]
 		)
 	)
+	if bots < 0:
+		who = "Bots make up 4, %s" % DIFFICULTIES[difficulty_option.selected]
 	if teams_option.selected > 0:
 		who += " · %d teams" % Teams.COUNTS[teams_option.selected]
 		if friendly_fire_option.selected > 0:

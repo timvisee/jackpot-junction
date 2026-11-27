@@ -638,7 +638,9 @@ func arena_config() -> MatchConfig:
 	config.network_teams = sides
 	config.seats = SeatLimit.seats_for(SeatLimit.limit(match_node, session))
 	var free := config.seats - config.human_devices.size() - remote
-	config.bot_count = clampi(config.bot_count, 0, maxi(free, 0))
+	# Making up four karts, GAME.md 10.8, as many as there are not people for.
+	var wanted := config.bots_for(config.human_devices.size() + remote)
+	config.bot_count = clampi(wanted, 0, maxi(free, 0))
 	return config
 
 

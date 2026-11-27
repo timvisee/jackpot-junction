@@ -92,7 +92,7 @@ static func lobby_says(scene: Node, session: NetSession, config: MatchConfig) ->
 	if not in_match and config != null:
 		# In the lobby the bots are still to come: as many as the match settings ask for, as far as
 		# there are seats for them.
-		bots = clampi(config.bot_count, 0, maxi(config.seats - colors.size(), 0))
+		bots = clampi(config.bots_for(colors.size()), 0, maxi(config.seats - colors.size(), 0))
 	var door := session.door
 	return {
 		SteamLobby.TITLE_KEY: door.title,

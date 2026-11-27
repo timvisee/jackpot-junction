@@ -63,6 +63,7 @@ static func set_table(config: MatchConfig, difficulty: String) -> void:
 	config.difficulty = difficulty
 	config.item_set = ITEMS
 	config.bot_count = BOTS
+	config.make_up = 0
 	config.own_bullets_hurt = usual.own_bullets_hurt
 	config.overtime = usual.overtime
 	config.teams = usual.teams
@@ -81,7 +82,9 @@ static func clear_table(config: MatchConfig) -> void:
 		config.set(field, usual.get(field))
 	for field: StringName in [&"item_set", &"bot_count", &"own_bullets_hurt", &"overtime"]:
 		config.set(field, usual.get(field))
-	for field: StringName in [&"teams", &"friendly_fire", &"joker_slots", &"small_maps"]:
+	for field: StringName in [
+		&"teams", &"friendly_fire", &"joker_slots", &"small_maps", &"make_up"
+	]:
 		config.set(field, usual.get(field))
 
 

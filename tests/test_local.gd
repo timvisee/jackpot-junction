@@ -221,10 +221,12 @@ func test_the_bots_on_offer_follow_the_seats() -> void:
 	Game.settings.bot_count = 7
 	var pane: HostSettings = auto_free(HostSettings.add_to(self, true))
 	var options := pane.options
-	assert_int(options.bots_option.item_count).is_equal(4)
+	# Make up 4 after the numbers, GAME.md 10.8.
+	assert_int(options.bots_option.item_count).is_equal(5)
+	assert_str(options.bots_option.get_item_text(4)).is_equal(MatchOptions.MAKE_UP_WORDS)
 	assert_int(options.bots_option.selected).is_equal(3)
 	options.fit_seats(8)
-	assert_int(options.bots_option.item_count).is_equal(8)
+	assert_int(options.bots_option.item_count).is_equal(9)
 	assert_int(options.bots_option.selected).is_equal(7)
 	options.bots_option.selected = 5
 	options.fit_seats(4)
@@ -237,6 +239,25 @@ func test_the_bots_on_offer_follow_the_seats() -> void:
 	options.bots_option.selected = 0
 	options.apply_to(config)
 	assert_int(config.bot_count).is_equal(0)
+	assert_int(config.make_up).is_equal(0)
+	# Make up 4: kept through a change of seats, applied and kept for next time; four karts with
+	# the people, and none past four.
+	options.bots_option.selected = options.bots_option.item_count - 1
+	assert_int(options.bots_count()).is_equal(-1)
+	options.fit_seats(4)
+	assert_int(options.bots_count()).is_equal(-1)
+	options.apply_to(config)
+	assert_int(config.make_up).is_equal(MatchConfig.MAKE_UP)
+	assert_int(config.bots_for(1)).is_equal(3)
+	assert_int(config.bots_for(4)).is_equal(0)
+	assert_int(config.bots_for(6)).is_equal(0)
+	options.remember(Game.settings)
+	assert_bool(Game.settings.bots_make_up).is_true()
+	assert_int(Game.settings.bot_count).is_equal(7)
+	var again := MatchConfig.new()
+	MatchOptions.from_wire(again, MatchOptions.to_wire(config))
+	assert_int(again.make_up).is_equal(MatchConfig.MAKE_UP)
+	options.bots_option.selected = 0
 	# Whether a small map is too small, GAME.md 6.3, is asked only of a room of more than four.
 	options.map_option.select(ArenaMaps.index_of(&"vault"))
 	options.map_option.item_selected.emit(options.map_option.selected)

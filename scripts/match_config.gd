@@ -2,6 +2,9 @@ class_name MatchConfig
 extends RefCounted
 ## What the lobby hands to the match scene: who plays, how many bots, how hard, how long.
 
+## How many karts Make up 4 in the Bots row makes up, GAME.md 10.8.
+const MAKE_UP := 4
+
 ## An excitement level no match reaches, for the floor jokers of a table without Jokers, GAME.md
 ## 3.17, as a showdown has it.
 const UNDEALT := 1 << 20
@@ -33,6 +36,10 @@ var tie_breaker := true
 ## 6.3. Off, it is played as its XL, see [method crowded].
 var small_maps := false
 var bot_count := 3
+## How many karts the bots make up, people and bots together, GAME.md 10.8: Make up 4 in the Bots
+## row, see [constant MAKE_UP], and 0 for [member bot_count] on top of the people. Worked out into
+## [member bot_count] as each map is built, see [method bots_for].
+var make_up := 0
 ## How many karts the arena has seats for, GAME.md 9.3: four, and online as many as the host's
 ## lobby lets play when that is more, see [method SeatLimit.seats_for].
 var seats := SeatLimit.SEATS
@@ -222,6 +229,12 @@ func table_dealt(rng: RandomNumberGenerator = null) -> int:
 	return TableCards.deal(table, rng)
 
 
+## How many bots play beside [param people]: as many as make up [member make_up] karts with them,
+## or [member bot_count] on top of them.
+func bots_for(people: int) -> int:
+	return maxi(make_up - people, 0) if make_up > 0 else bot_count
+
+
 ## How many karts the arena starts with: everybody here, everybody kept a seat from elsewhere, and
 ## the bots.
 func karts() -> int:
@@ -267,6 +280,7 @@ func take_locals(match_node: Match) -> void:
 static func from_settings(settings: Settings) -> MatchConfig:
 	var config := MatchConfig.new()
 	config.bot_count = settings.bot_count
+	config.make_up = MAKE_UP if settings.bots_make_up else 0
 	config.difficulty = settings.difficulty
 	config.duration = float(settings.match_seconds)
 	config.target_score = settings.target_score
