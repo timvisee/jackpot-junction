@@ -179,6 +179,9 @@ func give_up() -> void:
 	if _lobby == 0:
 		return
 	var why := "%s left, so the game is over." % _left_name
+	# The host still in the lobby: it was this machine's connection that went, not the host.
+	if Store.steam.lobbies.has_member(_lobby, _old_host):
+		why = "The connection to the game was lost"
 	Store.steam.lobbies.handing_over = false
 	Store.steam.lobbies.leave()
 	_done()

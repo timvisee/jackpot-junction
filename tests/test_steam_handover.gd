@@ -136,12 +136,24 @@ func test_giving_up() -> void:
 	var lobby := Store.steam.lobby()
 	_handover.take(session)
 	await await_idle_frame()
+	# The host still in the lobby: this machine lost its connection rather than the host going.
 	_handover.leave_button.pressed.emit()
-	assert_array(_gave_up).is_equal(["Kit left, so the game is over."])
+	assert_array(_gave_up).is_equal(["The connection to the game was lost"])
 	assert_array(_fake.calls).contains(["leaveLobby %d" % lobby])
 	assert_bool(_handover.is_handing_over()).is_false()
 	# Not a Steam game's client, nothing to take.
 	assert_bool(_handover.take(null)).is_false()
+
+
+## The host gone from the lobby and nobody taking it on: the game is over, saying who left.
+func test_giving_up_once_the_host_is_gone() -> void:
+	var session := _a_client()
+	var lobby := Store.steam.lobby()
+	_fake.lobbies[lobby]["members"].erase(OLD_HOST)
+	_handover.take(session)
+	await await_idle_frame()
+	_handover.give_up()
+	assert_array(_gave_up).is_equal(["Kit left, so the game is over."])
 
 
 ## Make host: the lobby handed to the player, the game's session closed with the lobby kept, and
