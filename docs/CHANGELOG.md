@@ -14,7 +14,8 @@ below, and hands the notes to the release workflow.
 ### Added
 
 - **Third-party licenses on the About page.** Show third-party licenses, under Godot's own license,
-  lists everything inside the game and the engine that was made by others, and their licenses.
+  lists everything inside the game and the engine that was made by others, and their licenses. A
+  dedicated server's page links the same for the server in its footer.
 
 ### Fixed
 

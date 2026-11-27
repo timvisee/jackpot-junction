@@ -9,7 +9,9 @@ extends RefCounted
 ## No framework and no files: a [TCPServer] takes the connections and the HTTP is written out by
 ## hand, one small GET answered per connection and the connection closed, nothing read off the disk
 ## and no path followed, since this is open to the whole internet. A request that floods or dawdles
-## is dropped.
+## is dropped, and so is a reader that does not take its answer: answers go out a slice a frame,
+## see [method _send], so none can hold the hall. Its footer links the notices the server carries,
+## [code]/licenses.html[/code], see [Licenses].
 
 ## The links the page always carries to get the game, beside whatever the operator adds with
 ## [member ServerArgs.web_link].
@@ -23,6 +25,10 @@ const REFRESH := 5
 const MOST_WAITING := 24
 const REQUEST_CAP := 8192
 const REQUEST_WAIT := 3.0
+## The most bytes written to one connection a frame, and how long a reader has to take its answer
+## in full, in seconds: the licenses run to some 80 KB, and a reader that does not read is let go.
+const SLICE := 16384
+const SEND_WAIT := 10.0
 
 ## How the server was started, for what the page says, and what the games list returns, see
 ## [method ServerHall.listing].
@@ -32,6 +38,12 @@ var games: Callable
 var _server := TCPServer.new()
 ## Each connection waited on: its peer, what has come in so far, and when it knocked, in msec.
 var _waiting: Array[Dictionary] = []
+## Each answer on its way out: its peer, its bytes, how many have gone, and since when, in msec.
+var _sending: Array[Dictionary] = []
+## The licenses page, made once as the page opens, as it is and gzipped: it is the same for every
+## visitor, and some 80 KB.
+var _licenses := PackedByteArray()
+var _licenses_gzip := PackedByteArray()
 
 
 ## Opens the page on [param port], saying what [param of] holds and listing what [param listing]
@@ -39,24 +51,28 @@ var _waiting: Array[Dictionary] = []
 func open(port: int, of: ServerArgs, listing: Callable) -> Error:
 	args = of
 	games = listing
+	_licenses = _licenses_html().to_utf8_buffer()
+	_licenses_gzip = _licenses.compress(FileAccess.COMPRESSION_GZIP)
 	return _server.listen(port)
 
 
 func close() -> void:
-	for waiting: Dictionary in _waiting:
+	for waiting: Dictionary in _waiting + _sending:
 		(waiting["peer"] as StreamPeerTCP).disconnect_from_host()
 	_waiting.clear()
+	_sending.clear()
 	if _server.is_listening():
 		_server.stop()
 
 
 ## Takes the new connections and reads what has come in on the old, answering a request once its
-## head is whole and dropping one that floods or dawdles. Called every frame by the hall.
+## head is whole and dropping one that floods or dawdles, and sends the next slice of each answer.
+## Called every frame by the hall.
 func poll() -> void:
 	var now := Time.get_ticks_msec()
 	while _server.is_connection_available():
 		var peer := _server.take_connection()
-		if _waiting.size() >= MOST_WAITING:
+		if _waiting.size() + _sending.size() >= MOST_WAITING:
 			peer.disconnect_from_host()
 		else:
 			_waiting.append({"peer": peer, "in": PackedByteArray(), "since": now})
@@ -65,6 +81,33 @@ func poll() -> void:
 		if not _served(waiting, now):
 			still.append(waiting)
 	_waiting = still
+	_send(now)
+
+
+## Writes the next [constant SLICE] bytes of each answer on its way out, without waiting on the
+## reader, closing the connection behind the last of it; a reader that has not taken it all in
+## [constant SEND_WAIT] seconds, or has gone, is let go.
+func _send(now: int) -> void:
+	var still: Array[Dictionary] = []
+	for sending: Dictionary in _sending:
+		var peer: StreamPeerTCP = sending["peer"]
+		peer.poll()
+		if peer.get_status() != StreamPeerTCP.STATUS_CONNECTED:
+			continue
+		var out: PackedByteArray = sending["out"]
+		var at: int = sending["at"]
+		var sent := peer.put_partial_data(out.slice(at, at + SLICE))
+		if sent[0] == OK:
+			at += int(sent[1])
+		elif sent[0] != ERR_BUSY:
+			peer.disconnect_from_host()
+			continue
+		sending["at"] = at
+		if at >= out.size() or now - int(sending["since"]) > int(SEND_WAIT * 1000.0):
+			peer.disconnect_from_host()
+			continue
+		still.append(sending)
+	_sending = still
 
 
 ## Whether [param waiting] is done with — its request answered, or the connection dropped. Reads
@@ -103,11 +146,17 @@ func _handle(peer: StreamPeerTCP, text: String) -> void:
 		return
 	var path := request[1].get_slice("?", 0)
 	var host := ""
+	var gzip := false
 	for i: int in range(1, lines.size()):
-		if lines[i].to_lower().begins_with("host:"):
+		var line := lines[i].to_lower()
+		if line.begins_with("host:"):
 			host = lines[i].substr(5).strip_edges()
-			break
-	if path == "/" or path == "/index.html":
+		elif line.begins_with("accept-encoding:"):
+			gzip = line.substr(16).contains("gzip")
+	if path == "/licenses.html":
+		var body := _licenses_gzip if gzip else _licenses
+		_answer_bytes(peer, 200, "text/html; charset=utf-8", body, "gzip" if gzip else "")
+	elif path == "/" or path == "/index.html":
 		_answer(peer, 200, "text/html; charset=utf-8", _html(host))
 	elif path == "/games.html":
 		# The games section on its own, for the page's script to pull in again as they change.
@@ -120,10 +169,18 @@ func _handle(peer: StreamPeerTCP, text: String) -> void:
 		_answer(peer, 404, "text/plain", "Not found.\n")
 
 
-## Writes the HTTP response on [param peer] and closes it: one GET, one answer, connection done.
+## Answers on [param peer] with [param body], see [method _answer_bytes].
 func _answer(peer: StreamPeerTCP, code: int, kind: String, body: String) -> void:
+	_answer_bytes(peer, code, kind, body.to_utf8_buffer())
+
+
+## Puts the HTTP response on its way out on [param peer], which closes once it is sent, see
+## [method _send]: one GET, one answer, connection done. [param encoding] is how [param payload] is
+## compressed, if it is.
+func _answer_bytes(
+	peer: StreamPeerTCP, code: int, kind: String, payload: PackedByteArray, encoding := ""
+) -> void:
 	var said := {200: "OK", 400: "Bad Request", 404: "Not Found", 405: "Method Not Allowed"}
-	var payload := body.to_utf8_buffer()
 	var head := PackedStringArray(
 		[
 			"HTTP/1.1 %d %s" % [code, str(said.get(code, "OK"))],
@@ -131,12 +188,15 @@ func _answer(peer: StreamPeerTCP, code: int, kind: String, body: String) -> void
 			"Content-Length: %d" % payload.size(),
 			"Connection: close",
 			"Cache-Control: no-store",
-			"\r\n",
 		]
 	)
-	peer.put_data("\r\n".join(head).to_ascii_buffer())
-	peer.put_data(payload)
-	peer.disconnect_from_host()
+	if not encoding.is_empty():
+		head.append("Content-Encoding: %s" % encoding)
+		head.append("Vary: Accept-Encoding")
+	head.append("\r\n")
+	var out := "\r\n".join(head).to_ascii_buffer()
+	out.append_array(payload)
+	_sending.append({"peer": peer, "out": out, "at": 0, "since": Time.get_ticks_msec()})
 
 
 ## The hostname a visitor came in by, from the request's Host header, without the web page's port,
@@ -174,7 +234,15 @@ func _html(host: String) -> String:
 	var address := args.web_address if not args.web_address.is_empty() else _address(host)
 	out.append(_join(address))
 	out.append('<section class="card" id="games">%s</section>' % _games(_listing()))
-	out.append("<footer>This page updates every %d seconds.</footer>" % REFRESH)
+	(
+		out
+		. append(
+			(
+				'<footer>This page updates every %d seconds. <a href="licenses.html">Licenses</a></footer>'
+				% REFRESH
+			)
+		)
+	)
 	out.append("<script>%s</script></main></body></html>" % _script())
 	return "\n".join(out)
 
@@ -314,6 +382,69 @@ func _json() -> String:
 	)
 
 
+## The notices this server carries, see [Licenses], as a page of their own: the game's own terms
+## and its source, what the server is made with, Godot's license, the pieces inside it, and each
+## license's text, folded. Made once, as the page opens.
+func _licenses_html() -> String:
+	var things := Credits.in_this_build()
+	var of := Licenses.pieces()
+	var out := PackedStringArray()
+	out.append("<!doctype html>")
+	out.append('<html lang="en"><head><meta charset="utf-8">')
+	out.append('<meta name="viewport" content="width=device-width, initial-scale=1">')
+	out.append("<title>Licenses</title>")
+	out.append("<style>%s</style></head><body><main>" % _style())
+	out.append("<h1>Licenses</h1>")
+	out.append('<p class="sub">Jackpot Junction %s dedicated server</p>' % _escape(_version()))
+	var source := (
+		'<a href="%s">%s</a>' % [Credits.REPOSITORY, Credits.REPOSITORY.trim_prefix("https://")]
+	)
+	var terms := _escape(Licenses.own_terms()).replace(_escape(Credits.REPOSITORY), source)
+	out.append(
+		(
+			'<section class="card"><p>%s</p><p><a href="./">Back to the server</a></p></section>'
+			% terms
+		)
+	)
+	out.append('<section class="card"><h2>Made with</h2><ul class="notices">')
+	for thing: Dictionary in things:
+		var said := PackedStringArray(
+			[_escape("by %s, %s, %s" % [thing["who"], thing["terms"], thing["where"]])]
+		)
+		for line: String in Licenses.copyright(thing.get("copyright", [])):
+			said.append(_escape(line))
+		out.append("<li><b>%s</b> %s</li>" % [_escape(thing["what"]), "<br>".join(said)])
+	out.append("</ul></section>")
+	out.append(
+		(
+			'<section class="card"><h2>Godot Engine</h2><pre>%s</pre></section>'
+			% _escape(Engine.get_license_text())
+		)
+	)
+	out.append('<section class="card"><h2>Inside Godot Engine</h2><ul class="notices">')
+	for piece: Dictionary in of:
+		var parts := PackedStringArray()
+		for part: Dictionary in piece["parts"]:
+			var terms_of := Licenses.copyright(part["copyright"])
+			terms_of.append(Licenses.title(part["license"]))
+			parts.append(_escape(", ".join(terms_of)))
+		out.append("<li><b>%s</b> %s</li>" % [_escape(piece["name"]), "<br>".join(parts)])
+	out.append("</ul></section>")
+	out.append('<section class="card"><h2>License texts</h2>')
+	var texts := Engine.get_license_info()
+	for key: String in Licenses.keys(things, of):
+		out.append(
+			(
+				"<details><summary>%s</summary><pre>%s</pre></details>"
+				% [_escape(Licenses.title(key)), _escape(texts[key])]
+			)
+		)
+	out.append("</section>")
+	out.append('<footer><a href="./">Back to the server</a></footer>')
+	out.append("</main></body></html>")
+	return "\n".join(out)
+
+
 ## The server's version, as the hall says it, see [method GameVersion.current].
 func _version() -> String:
 	return GameVersion.current()
@@ -404,6 +535,11 @@ func _style() -> String:
 					".state{color:#9b96a6}",
 					".empty{color:#9b96a6;margin:0}",
 					"footer{color:#6c6678;font-size:13px;text-align:center;margin:8px 0 20px}",
+					"footer a{color:#6c6678;margin-left:6px}",
+					".notices{margin:0;padding-left:18px;font-size:14px;color:#9b96a6}",
+					".notices li{margin:0 0 6px}",
+					"pre{white-space:pre-wrap;font-size:12px;color:#9b96a6;margin:8px 0 0}",
+					"summary{cursor:pointer;color:#f2c14e;margin:6px 0}",
 				]
 			)
 		)

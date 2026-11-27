@@ -76,7 +76,10 @@ adds a link of your own beside the Steam, itch.io and source links it always car
 and `--web-description` or `JJ_WEB_DESCRIPTION` puts a line or two of your own at
 the top — a welcome, the rules, when it is up. It also answers `/status.json`
 with the list for tools, `/games.html` with the games on their own, and
-`/health` with `ok`. In Docker the page's TCP port wants publishing to be
+`/health` with `ok`. Licenses in its footer opens `/licenses.html`: the game's
+license and source, and the license of everything the server is built with,
+Godot and the pieces inside it among them. With the page off, `--licenses`
+prints the same and quits. In Docker the page's TCP port wants publishing to be
 reached, see below; the host's own port 80 is usually already taken, so map it.
 
 ## With Docker

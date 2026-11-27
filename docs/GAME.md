@@ -8108,19 +8108,23 @@ never says it is up, or says nothing for ten seconds.
 and version, a line or two of the operator's own at the top where they give one, how to join — get
 the game, Play Online, the Servers tab, Add a server or Direct connect, with the address and port
 each in a field to click and copy — the links to get the game, Steam's, itch.io's and the source,
-and the games being played right now, their names, maps and how full they are. A little JavaScript pulls the list in again every few
-seconds without a reload and does the copying; without it the page still shows everything and
-reloads itself now and then. It is served from the hall's own process, the connections taken by
-hand and one small `GET` answered per connection, nothing read off the disk and no path followed,
-this being open to the internet; a request that floods or dawdles is dropped. The game is UDP, so
-the page is on TCP at the server's own number, `--web-port` or `JJ_WEB_PORT` to move it and `0` to
-turn it off, `--web-address` or `JJ_WEB_ADDRESS` to show a domain of the operator's rather than the
-address a visitor came in by, `--web-link` or `JJ_WEB_LINK` to add a link of their own and
-`--web-description` or `JJ_WEB_DESCRIPTION` their text. It also answers `/status.json` with the list
-for tools,
-`/games.html` with the games on their own, and `/health` with `ok`. In a container the page's TCP
-port is published to be reached, see docker/compose.yaml, the host's own port 80 usually being taken
-already.
+and the games being played right now, their names, maps and how full they are. A little JavaScript
+pulls the list in again every few seconds without a reload and does the copying; without it the page
+still shows everything and reloads itself now and then. It is served from the hall's own process,
+the connections taken by hand and one small `GET` answered per connection, nothing read off the disk
+and no path followed, this being open to the internet; a request that floods or dawdles is dropped,
+and every answer goes out a slice a frame (16 KB), so a reader that does not read never holds the
+hall, and one that has not taken it all in 10 s is let go. The game is UDP, so the page is on TCP at
+the server's own number, `--web-port` or `JJ_WEB_PORT` to move it and `0` to turn it off,
+`--web-address` or `JJ_WEB_ADDRESS` to show a domain of the operator's rather than the address a
+visitor came in by, `--web-link` or `JJ_WEB_LINK` to add a link of their own and `--web-description`
+or `JJ_WEB_DESCRIPTION` their text. It also answers `/status.json` with the list for tools,
+`/games.html` with the games on their own, and `/health` with `ok`. A quiet Licenses in the footer
+opens `/licenses.html`, the notices the server carries, 8.5: the game's own terms and its source,
+what the server build is made with (no sound, no GodotSteam), Godot's license, the pieces inside it,
+each license's text folded; made once as the page opens and gzipped where the browser takes it, some
+80 KB as it is. In a container the page's TCP port is published to be reached, see
+docker/compose.yaml, the host's own port 80 usually being taken already.
 
 **Idle.** A server nobody plays on is little more than the engine: about 90 MB and next to no
 processor, and no game's process runs until somebody makes a game. The game's own autoloads, its
