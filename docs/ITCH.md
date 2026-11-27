@@ -130,7 +130,7 @@ Under Metadata, where itch.io has them:
 | Multiplayer | Local multiplayer, Ad-hoc networked multiplayer, Server-based networked multiplayer |
 | Player count | 1 to 4 at one screen, up to 8 online |
 | Average session | A few minutes: a map is five, a Grand Prix several |
-| Languages | English |
+| Languages | English, Dutch |
 | Links | Steam: `https://store.steampowered.com/app/5652730`; source code: `https://github.com/timvisee/jackpot-junction`; the server's Docker image: `https://hub.docker.com/r/timvisee/jackpot-junction-server` |
 
 ### Short description
@@ -146,7 +146,9 @@ Shown under the title wherever the game is listed. One of:
 ### Description
 
 The page's main text. Pasted from this file as GitHub shows it, it keeps its
-lists. Its headings and pictures are pictures of the game's own, in
+lists. itch.io has one description for every language, so the page is in English with
+a line in each other language the game speaks at its end, and those languages under
+Languages; Steam's page has one of its own in each, docs/STEAM.md. Its headings and pictures are pictures of the game's own, in
 `docs/description/`, which `make steam-art` renders: on itch.io each is uploaded
 into the description where it stands here, with the editor's image button, its
 words in brackets here its alt text. Steam's page wears the same.
@@ -210,6 +212,9 @@ that one friend needing aim assist: the game can be tuned to your needs.
 
 Jackpot Junction is open source, under the GPL-3.0, made with Godot. Its own art
 is CC BY 4.0.
+
+**Speelt ook in het Nederlands.** Kies Nederlands onder Taal op de pagina
+Toegankelijkheid van de instellingen, of laat het spel je systeem volgen.
 
 ---
 
