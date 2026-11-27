@@ -37,6 +37,10 @@ fails on it:
 - **Placeholders** stay as they are. `{name}`, `{count}` and the like may move within the sentence,
   but keep their names. `%d`, `%s` and `%.1f` must stay **in the same order** as the English; if
   your language needs another order, rephrase. A plural's singular form keeps its `%d` too.
+- **The lessons' words.** In the driving school's lines a game word in braces, `{chips}` or
+  `{Royal Flush}`, is drawn in its color. Translate the word inside the braces, using the same
+  translation as the word's own entry (`chips` and the like, noted as the lessons' words), or it is
+  drawn plain.
 - **Markup** such as `[b]`, `[/b]` or `[color=#ffd700]` stays, with every tag the English has.
 - **Line breaks** (`\n`) stay roughly where the English has them.
 

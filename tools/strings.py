@@ -710,11 +710,33 @@ def same_po(a, b):
     return True
 
 
+# The lessons' words drawn in their colors, marked with braces as a placeholder is: a translation
+# puts its own word for each in the braces, see scenes/ui/terms.gd.
+TERMS_FILE = os.path.join("scenes", "ui", "terms.gd")
+
+
+def terms():
+    """The English of the words a lesson marks with braces, lowered, from Terms.WORDS."""
+    with open(os.path.join(ROOT, TERMS_FILE), encoding="utf-8") as f:
+        m = re.search(r"^const WORDS: Array\[String\] = \[(.*?)\]", f.read(), re.M | re.S)
+    return {word.lower() for word in re.findall(r'"([^"]+)"', m.group(1))} if m else set()
+
+
 def broken_translations(locale, path):
     """Translations whose placeholders, format codes or markup differ from their English, which
     the game would show wrongly or fail to fill: (word, what is wrong)."""
     with open(path, encoding="utf-8") as f:
         _, entries = parse_po(f.read())
+    english_terms = terms()
+    said_terms = set(english_terms)
+    for term in english_terms:
+        entry = entries.get(("", term))
+        if entry and entry["strings"] and entry["strings"][0]:
+            said_terms.add(entry["strings"][0].lower())
+
+    def placeholders(text, words):
+        return sorted(p for p in PLACEHOLDER.findall(text) if p[1:-1].lower() not in words)
+
     found = []
     for (context, word), entry in entries.items():
         if entry["obsolete"] or entry["fuzzy"]:
@@ -725,7 +747,13 @@ def broken_translations(locale, path):
             english = word
             if entry["plural"] and (i > 0 or len(entry["strings"]) == 1):
                 english = entry["plural"]
-            if sorted(PLACEHOLDER.findall(text)) != sorted(PLACEHOLDER.findall(english)):
+            for term in re.findall(r"\{([^{}]+)\}", text):
+                if term.lower() in said_terms or not english_terms & {
+                    t[1:-1].lower() for t in re.findall(r"\{[^{}]+\}", english)
+                }:
+                    continue
+                found.append((word, "{%s} is none of the lessons' words in this language" % term))
+            if placeholders(text, said_terms) != placeholders(english, english_terms):
                 found.append((word, "the {placeholders} differ from the English"))
             elif FORMAT.findall(text.replace("%%", "")) != FORMAT.findall(
                 english.replace("%%", "")
