@@ -23,9 +23,14 @@ const CHIP := Vector2(24.0, 30.0)
 const GAP := 3
 const INSET := 4.0
 const FADED := 0.55
-## What the chip for every suit says, shown through tr(), and how big.
+## What the chip for every suit is called to a screen reader, shown through tr(). It shows an
+## asterisk, any suit, the same in every language, rather than a word that has to fit the chip
+## in each, GAME.md 10.9: how many strokes cross in it, how thick, and how much of the chip's
+## inside it spans.
 const ALL_WORD := "All"
-const ALL_SIZE := 13
+const ALL_STROKES := 3
+const ALL_STROKE := 2.4
+const ALL_REACH := 0.92
 const PICTURES := &"suit_filter_pictures"
 
 var _chips: Array[Button] = []
@@ -124,11 +129,11 @@ static func paint(on: CanvasItem, shown_suit: int, over: int) -> void:
 			if fade < 1.0:
 				on.draw_rect(mark.grow(1.0), Color(face.bg_color, 1.0 - fade))
 			continue
-		var font := Type.STRONG
-		var every := Lang.t(ALL_WORD)
-		var wide := font.get_string_size(every, 0, -1, ALL_SIZE).x
-		var at := box.position + Vector2(box.size.x - wide, box.size.y + ALL_SIZE * 0.72) * 0.5
-		on.draw_string(font, at, every, 0, -1, ALL_SIZE, ink)
+		var middle := box.get_center()
+		var reach := (minf(box.size.x, box.size.y) * 0.5 - INSET) * ALL_REACH
+		for stroke: int in ALL_STROKES:
+			var arm := Vector2.UP.rotated(PI * float(stroke) / float(ALL_STROKES)) * reach
+			on.draw_line(middle - arm, middle + arm, ink, ALL_STROKE, true)
 
 
 func _draw() -> void:
