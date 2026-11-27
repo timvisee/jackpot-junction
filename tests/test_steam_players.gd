@@ -1,8 +1,8 @@
 extends GdUnitTestSuite
 ## Managing players in a Steam game, GAME.md 10.8: words other players wrote, through Steam's text
-## filter; somebody kicked from a public game, or blocked by its host, kept out; the players muted on
-## a screen; Players for everybody, with Profile and Mute and only the host's Kick; and Steam told
-## who was played with. Steam here is always [FakeSteam].
+## filter; somebody kicked from a public game, or blocked by its host, kept out; the players muted
+## on a screen; Players for everybody, with Profile and Mute and only the host's Kick; and Steam
+## told who was played with. Steam here is always [FakeSteam].
 
 const FRIEND := 76561197960287931
 const STRANGER := 76561197960287960
