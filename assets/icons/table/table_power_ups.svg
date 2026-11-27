@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Power-ups</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M11,10H37A3,3 0 0 1 40,13V39A3,3 0 0 1 37,42H11A3,3 0 0 1 8,39V13A3,3 0 0 1 11,10Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="cut" d="M8,17H40" stroke-width="1.5"/>
+  </g>
+  <path class="line cream" d="M19.5,24C19.5,19.5 28.5,19.5 28.5,24C28.5,27.5 24,27.5 24,31" stroke-width="3" data-seam="false"/>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M22.1,35.5A1.9,1.9 0 1 0 25.9,35.5A1.9,1.9 0 1 0 22.1,35.5Z"/>
+  </g>
+</g>
+</svg>

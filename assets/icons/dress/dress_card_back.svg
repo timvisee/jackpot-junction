@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Card back</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M14,5H34A3,3 0 0 1 37,8V40A3,3 0 0 1 34,43H14A3,3 0 0 1 11,40V8A3,3 0 0 1 14,5Z"/>
+    <path class="shade" d="M31,-20H70V70H31Z"/>
+    <path class="cut" d="M15.5,8H32.5A1.5,1.5 0 0 1 34,9.5V38.5A1.5,1.5 0 0 1 32.5,40H15.5A1.5,1.5 0 0 1 14,38.5V9.5A1.5,1.5 0 0 1 15.5,8Z" stroke-width="1.2"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M22.57,21.66L23.63,18.95A0.4,0.4 0 0 1 24.37,18.95L25.43,21.66A0.4,0.4 0 0 0 25.78,21.91L28.69,22.09A0.4,0.4 0 0 1 28.92,22.79L26.67,24.64A0.4,0.4 0 0 0 26.54,25.05L27.27,27.87A0.4,0.4 0 0 1 26.67,28.3L24.22,26.74A0.4,0.4 0 0 0 23.78,26.74L21.33,28.3A0.4,0.4 0 0 1 20.73,27.87L21.46,25.05A0.4,0.4 0 0 0 21.33,24.64L19.08,22.79A0.4,0.4 0 0 1 19.31,22.09L22.22,21.91A0.4,0.4 0 0 0 22.57,21.66Z"/>
+  </g>
+</g>
+</svg>

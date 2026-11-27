@@ -5113,9 +5113,14 @@ everyone sees when an opponent cashes out.
 Two sets of pictures that read as one: one per joker, in the middle of its card,
 and one per power-up, beside its name in the HUD block. Each is an SVG file of
 its own, `assets/icons/jokers/<id>.svg` and `assets/icons/powerups/<id>.svg`, as is every
-achievement's, `assets/icons/achievements/<id>.svg`, 8.10,
+achievement's, `assets/icons/achievements/<id>.svg`, 8.10, and the pictures of the
+table's cards (`table/`, 3.17), the two kinds of game (`modes/`, 9.7), the ways to
+drive and the touch layouts (`drive/`, 4.2), the parts of the dress (`dress/`, 4.4)
+and the emotes (`emotes/`, 3.8), each id named for its family, `table_jackpot`,
+`dress_hat`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
-the size it is shown. `JokerArt` and `PowerUpArt` are what the rest of the game
+the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,
+`GameModeArt`, `DriveArt`, `DressArt` and `EmoteArt` are what the rest of the game
 calls; they hand an id and a color to the press. Kit's five cards keep his
 pencil, STORY.md 6.3, drawn by `KitArt` as before.
 
@@ -5147,7 +5152,12 @@ back to flat by changing one line.
 What a picture is printed on is its `IconPress.Ground`: a card's dark, paper in one ink, or paper
 in two. On paper, where the program prints them in its dark ink, a picture goes
 unshaded and its cream is the paper's own; on an achievement's chip it prints in two inks, the
-chip's color with its shadow side screened in a dark one, 8.10. Below 40 pixels a picture drops its
+chip's color with its shadow side screened in a dark one, 8.10, and so do the table's cards on
+their stock, each card in an ink of its own so the row reads at a glance. A picture on a button,
+a kind of game, a way to drive, a part of the dress, prints flat in one ink on bare paper: its
+cream is left unprinted, cut out of whatever is under it, so the button shows through and the
+picture follows the button's gold or gray as it is chosen. The emotes print in the House's ink
+on their chip's inlay, the heart in the table's red in two inks. Below 40 pixels a picture drops its
 shading and its glints, which would only blur it, and the halftone turns flat.
 An ink nearly as dark as the card, Oil Stain's purple, is lifted toward white
 until it reads.
@@ -5178,7 +5188,7 @@ its class, and that is all the press reads:
 
 ```xml
 <g class="icon" transform="rotate(45 24 24)">  <!-- the whole drawing turned, if it is -->
-  <g class="piece ink">                       <!-- ink, tint or cream -->
+  <g class="piece ink">                       <!-- ink, tint, cream or dark -->
     <path class="body" d="..."/>              <!-- the piece itself -->
     <path class="shade" d="..."/>             <!-- more shadow side, inside the piece -->
     <path class="glint" d="..."/>             <!-- a cream highlight stroke, 1.5 wide -->
@@ -5193,7 +5203,9 @@ its class, and that is all the press reads:
 Pieces are printed in the order they come, each cutting its gap into those
 before it; `data-seam="false"` lays a piece straight on top, a hand on a dial,
 and `data-shade="false"` leaves an inked piece without its rim of shadow, for a
-thin part that would be all rim. A piece's `transform` places it; the press
+thin part that would be all rim. A `dark` piece is printed solid in the House's
+dark ink beside the ink handed in, the black of a red-and-black pair: Royal
+Flush's spades and clubs. A piece's `transform` places it; the press
 works the light out after it, so a turned rocket still has its shadow on the
 lower right. The files are kept by Godot as they are (their `.import` says
 `importer="keep"`), so an exported game ships the SVG itself.
@@ -10975,8 +10987,8 @@ stays won. New code is held to these, and a pull that breaks one says why:
   glass over them is drawn as itself, about ten. The HUD is about 250 draw calls a
   frame, from 660. The match settings of 9.6 are about 300 with their columns
   folded, as a newcomer sees them, and about 470 with both open, every row on the
-  screen at once; the trophy and the stopwatch on their two big buttons are kept
-  pictures, `GameModeArt.kept`, where they were some thirty shapes a frame, and a
+  screen at once; the trophy and the stopwatch on their two big buttons are
+  printed pictures of 8.3a, one texture each, where they were some thirty shapes a frame, and a
   preset's poker chip is a kept chip. `make ui-bench` puts up each, the HUD, the
   pause menu and the match settings with both columns open over a match, measured
   against the match with them hidden, and the title, the settings and the driving

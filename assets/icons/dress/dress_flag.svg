@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Flag</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M11,6V44" stroke-width="3"/>
+  <g class="piece ink" data-seam="false">
+    <path class="body" d="M8.6,5.5A2.4,2.4 0 1 0 13.4,5.5A2.4,2.4 0 1 0 8.6,5.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14,8C20,6 26,11 33,9C36,8.2 38,7.5 41,7V26C38,26.5 36,27.2 33,28C26,30 20,25 14,27Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="glint" d="M17,11.5C20,11 23,12 26,13"/>
+  </g>
+</g>
+</svg>

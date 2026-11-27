@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Slider</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M24,4H24A7,7 0 0 1 31,11V37A7,7 0 0 1 24,44H24A7,7 0 0 1 17,37V11A7,7 0 0 1 24,4Z"/>
+    <path class="cut" d="M16,35.5H32" stroke-width="1.5"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M18,15H30A1,1 0 0 1 31,16V25A1,1 0 0 1 30,26H18A1,1 0 0 1 17,25V16A1,1 0 0 1 18,15Z"/>
+  </g>
+</g>
+</svg>

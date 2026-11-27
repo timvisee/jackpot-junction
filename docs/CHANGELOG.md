@@ -61,6 +61,8 @@ below, and hands the notes to the release workflow.
   no longer disappears on a dark card.
 - **Redrawn achievements.** Every achievement's picture is redrawn in the same house print, on its
   chip in the chip's own color with a halftone shadow side, and on the House's pins in gold.
+- **Redrawn table cards, buttons and emotes.** The table's cards, the game mode and drive pictures,
+  the dress and the emotes are redrawn in the same house print, each table card in its own ink.
 
 ### Fixed
 

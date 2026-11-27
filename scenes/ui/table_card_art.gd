@@ -16,6 +16,29 @@ const NAME_MOST := 17
 ## A card that cannot be played, Suits & hands without Jokers or one not opened yet, under a wash
 ## of its own paper this strong.
 const DIM := 0.62
+## Each card's drawing, in [enum TableCards.Card] order, and the ink it is printed in, one for each
+## so the row reads at a glance: a power-up's box, the jackpot's pile, the jester's hat, the four
+## suits' pads, a pinball bumper, a slot machine, the crown the leader wears and a suited hand.
+const PICTURES: Array[StringName] = [
+	&"table_power_ups",
+	&"table_jackpot",
+	&"table_jokers",
+	&"table_royal_flush",
+	&"table_room_tricks",
+	&"table_slot_machines",
+	&"table_bounty",
+	&"table_suits_and_hands",
+]
+const INKS: Array[Color] = [
+	Color("#2f5ea8"),
+	Color("#2c7a52"),
+	Color("#7a3f9e"),
+	Color("#b8332c"),
+	Color("#1f7f86"),
+	Color("#c8502a"),
+	Color("#b07a1e"),
+	Color("#2a2830"),
+]
 
 static var _paper: StyleBoxFlat
 
@@ -124,104 +147,7 @@ static func _two_lines(named: String) -> PackedStringArray:
 	return PackedStringArray([named.left(best), named.substr(best + 1)])
 
 
-## The picture of [param card] in the square [param box].
+## The picture of [param card] in the square [param box]: its drawing of 8.3a, in its own ink,
+## printed in two inks on the card's stock.
 static func picture(on: CanvasItem, box: Rect2, card: int) -> void:
-	match card:
-		TableCards.Card.ITEMS:
-			_item_box(on, box)
-		TableCards.Card.JACKPOT:
-			_chip_stack(on, box)
-		TableCards.Card.JOKERS:
-			JokerSuits.draw_jester(on, box.grow(-box.size.x * 0.06), true)
-		TableCards.Card.FLUSH:
-			_four_suits(on, box)
-		TableCards.Card.TRICKS:
-			_bumper(on, box)
-		TableCards.Card.SLOTS:
-			_reels(on, box)
-		TableCards.Card.BOUNTY:
-			IconShapes.crown(on, box, HouseTheme.FOIL_LOW)
-		TableCards.Card.SUITS:
-			_fan(on, box)
-
-
-## A power-up's box: gold, with a band across its lid and a question mark under it.
-static func _item_box(on: CanvasItem, box: Rect2) -> void:
-	IconShapes.bar(on, box, 0.12, 0.14, 0.76, 0.74, HouseTheme.INK)
-	IconShapes.bar(on, box, 0.17, 0.19, 0.66, 0.64, Palette.CHIP_GOLD)
-	IconShapes.bar(on, box, 0.12, 0.34, 0.76, 0.06, HouseTheme.INK)
-	CardBack.draw_mark(on, IconShapes.at(box, 0.5, 0.62), roundi(box.size.y * 0.4), HouseTheme.INK)
-
-
-## Four chips stacked, as a Jackpot's pile is, 3.5.
-static func _chip_stack(on: CanvasItem, box: Rect2) -> void:
-	var faces: Array[Color] = [
-		Palette.CHIP_RED, Palette.CHIPS, Palette.CHIP_WHITE, Palette.CHIP_GOLD
-	]
-	var radius := box.size.x * 0.3
-	for i: int in faces.size():
-		var middle := IconShapes.at(box, 0.5 + (0.04 if i % 2 == 1 else -0.03), 0.74 - 0.16 * i)
-		on.draw_circle(middle + Vector2(0, radius * 0.12), radius, HouseTheme.INK, true, -1.0, true)
-		ChipArt.chip(on, middle, radius, faces[i])
-
-
-## The four suits of the Royal Flush pads, 3.9, a pad each.
-static func _four_suits(on: CanvasItem, box: Rect2) -> void:
-	var suits: Array[int] = [
-		Joker.Suit.SPADES, Joker.Suit.HEARTS, Joker.Suit.DIAMONDS, Joker.Suit.CLUBS
-	]
-	for i: int in suits.size():
-		var x := 0.05 + 0.48 * (i % 2)
-		var y := 0.05 + 0.48 * (i / 2)
-		IconShapes.bar(on, box, x, y, 0.42, 0.42, HouseTheme.INK)
-		IconShapes.bar(on, box, x + 0.03, y + 0.03, 0.36, 0.36, HouseTheme.PAPER)
-		var cell := Rect2(IconShapes.at(box, x + 0.08, y + 0.08), box.size * 0.26)
-		JokerSuits.draw_mark(on, cell, suits[i], true)
-
-
-## A pinball machine's pop bumper seen from over it, 6.2: a room's trick.
-static func _bumper(on: CanvasItem, box: Rect2) -> void:
-	IconShapes.disc(on, box, 0.5, 0.5, 0.46, HouseTheme.INK)
-	IconShapes.disc(on, box, 0.5, 0.5, 0.4, Palette.CHIP_RED)
-	IconShapes.disc(on, box, 0.5, 0.5, 0.27, HouseTheme.PAPER)
-	IconShapes.star(on, box, 0.5, 0.5, 0.3, Palette.CHIP_GOLD)
-
-
-## A slot machine's three reels, three sevens, 3.15.
-static func _reels(on: CanvasItem, box: Rect2) -> void:
-	IconShapes.bar(on, box, 0.0, 0.16, 1.0, 0.68, HouseTheme.INK)
-	IconShapes.bar(on, box, 0.04, 0.2, 0.92, 0.6, Palette.CHIP_GOLD)
-	var font := Type.display_font()
-	var size := roundi(box.size.y * 0.42)
-	for i: int in 3:
-		var x := 0.08 + 0.29 * i
-		IconShapes.bar(on, box, x, 0.27, 0.26, 0.46, HouseTheme.PAPER)
-		var at := IconShapes.at(box, x, 0.5 + Type.CAP_HEIGHT * 0.21)
-		on.draw_string(
-			font,
-			at,
-			"7",
-			HORIZONTAL_ALIGNMENT_CENTER,
-			box.size.x * 0.26,
-			size,
-			HouseTheme.on_paper(Palette.CHIP_RED)
-		)
-
-
-## Three cards fanned, all of one suit: a Suited hand, 7.3. Turned by hand rather than by the
-## canvas's transform, which the picture of a face is drawn under, see [TableStrip].
-static func _fan(on: CanvasItem, box: Rect2) -> void:
-	var pivot := IconShapes.at(box, 0.5, 0.95)
-	var half := box.size * Vector2(0.2, 0.28)
-	for i: int in 3:
-		var turn := (i - 1) * 0.3
-		var middle := pivot + Vector2(0.0, -box.size.y * 0.54).rotated(turn)
-		for pass_at: int in 2:
-			var grow := 1.5 if pass_at == 0 else 0.0
-			var corners := PackedVector2Array()
-			for corner: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
-				corners.append(middle + ((half + Vector2.ONE * grow) * corner).rotated(turn))
-			on.draw_colored_polygon(corners, HouseTheme.INK if pass_at == 0 else HouseTheme.PAPER)
-		var mark := box.size.x * 0.22
-		var at := middle + Vector2(0.0, -half.y * 0.35).rotated(turn) - Vector2.ONE * mark * 0.5
-		JokerSuits.draw_mark(on, Rect2(at, Vector2.ONE * mark), Joker.Suit.CLUBS, true)
+	IconPress.draw(on, box, PICTURES[card], INKS[card], IconPress.Ground.TWO_INKS, HouseTheme.PAPER)

@@ -1,13 +1,15 @@
 class_name IconPress
 extends RefCounted
-## Prints the pictures of GAME.md 8.3a: every joker's and power-up's icon is an SVG file in
+## Prints the pictures of GAME.md 8.3a: every joker's, power-up's and achievement's icon, the
+## table's cards, the kinds of game, the ways to drive, the dress and the emotes are SVG files in
 ## assets/icons, drawn on a 48-unit grid with what each shape is written in its class, and printed
 ## here the way the house prints: in the ink it is handed, its tint, cream for whatever is light,
 ## and the shadow side as a halftone screen, at the size it is shown. Each picture is rasterized
 ## once for an ink and a size and kept.
 ##
 ## The files are plain SVG and open in any editor or browser. A [code]piece[/code] group of
-## [code]ink[/code], [code]tint[/code] or [code]cream[/code] holds its [code]body[/code], its
+## [code]ink[/code], [code]tint[/code], [code]cream[/code] or [code]dark[/code] (the black of a
+## red-and-black pair, solid) holds its [code]body[/code], its
 ## [code]shade[/code] (the shadow side, on top of the rim every inked piece gets on its lower
 ## right), its [code]glint[/code]s and its [code]cut[/code]s; a [code]line[/code] is a stroke; a
 ## [code]cut-all[/code] group cuts through everything. A piece cuts a gap round itself into what
@@ -27,7 +29,14 @@ enum Ground { CARD, PAPER, TWO_INKS }
 const PRINTING := Printing.HALFTONE
 ## Where the drawings are, one file per id.
 const FOLDERS: Array[String] = [
-	"res://assets/icons/jokers/", "res://assets/icons/powerups/", "res://assets/icons/achievements/"
+	"res://assets/icons/jokers/",
+	"res://assets/icons/powerups/",
+	"res://assets/icons/achievements/",
+	"res://assets/icons/table/",
+	"res://assets/icons/modes/",
+	"res://assets/icons/drive/",
+	"res://assets/icons/dress/",
+	"res://assets/icons/emotes/",
 ]
 ## The grid the drawings are made on, and the widths every one of them shares, in its units: the
 ## gap a piece cuts round itself, a glint, and the rim of shadow along every inked piece.
@@ -42,6 +51,8 @@ const SHADE := 0.5
 ## The dark ink the shadow side is screened in on paper, and how far toward it.
 const INKY := Color("#17151c")
 const INKY_SHADE := 0.55
+## What a dark piece prints in on paper: the House's ink, the black beside a red.
+const DARK := Color("#211f24")
 const TINT := 0.4
 ## An ink too dark to read on the card is lifted toward white until it does: Oil Stain's purple.
 const READABLE := 0.34
@@ -172,7 +183,7 @@ static func image(
 
 ## How [param ink] prints on [param ground] at [param side] pixels: the ink itself, lifted on a card
 ## if it is too dark to read there; what cream is printed in, transparent for bare paper; the shadow
-## side's ink; and whether glints show.
+## side's ink; what a dark piece is printed in; and whether glints show.
 static func look_of(
 	ink: Color, side: int, ground := Ground.CARD, paper := Color.TRANSPARENT
 ) -> Dictionary:
@@ -183,6 +194,7 @@ static func look_of(
 		"ink": ink,
 		"cream": CREAM if card else paper,
 		"shade": ink.lerp(SHADOW, SHADE) if card else ink.lerp(INKY, INKY_SHADE),
+		"dark": ink.lerp(SHADOW, SHADE) if card else DARK,
 		"glints": ground != Ground.PAPER and side >= SMALL,
 	}
 
@@ -253,7 +265,7 @@ static func parse(text: String) -> Dictionary:
 
 static func _part(reader: XMLParser, classes: PackedStringArray, line: bool) -> Dictionary:
 	var tone := "ink"
-	for name: String in ["tint", "cream"]:
+	for name: String in ["tint", "cream", "dark"]:
 		if name in classes:
 			tone = name
 	return {
@@ -303,6 +315,7 @@ static func compose(
 	var parts: Array = drawing["parts"]
 	# In the shadow layer every cut and gap is widened by the inset, so no dot touches an edge.
 	var grow := INSET * GRID / side if layer == Layer.SHADE else 0.0
+	var bare := (look["cream"] as Color).a <= 0.0
 	for i: int in parts.size():
 		var piece: Dictionary = parts[i]
 		var body := ""
@@ -312,7 +325,7 @@ static func compose(
 			body = _body(drawing, i, ink, look, layer == Layer.TONE, defs)
 		if body.is_empty():
 			continue
-		var mask := _seams(drawing, i, layer == Layer.SHADE, grow, defs)
+		var mask := _seams(drawing, i, layer == Layer.SHADE, grow, bare, defs)
 		out.append(body if mask.is_empty() else '<g mask="url(#%s)">%s</g>' % [mask, body])
 	return _SVG + "<defs>%s</defs>%s</svg>" % ["".join(defs), "".join(out)]
 
@@ -360,9 +373,11 @@ static func _fill(d: String, placed: String, paint: String, rule := "", extra :=
 
 ## The mask that cuts [param i]'s own cuts and everything cut through all, and a gap round every
 ## piece after it that seams; in the shadow layer also the exact shape of those that do not, and a
-## band along the piece's own edge, so the screen stops short of it.
+## band along the piece's own edge, so the screen stops short of it. On [param bare] paper, where
+## cream is left unprinted, a cream piece that does not seam is cut out exactly, so the paper shows
+## through it.
 static func _seams(
-	drawing: Dictionary, i: int, shadow: bool, grow: float, defs: PackedStringArray
+	drawing: Dictionary, i: int, shadow: bool, grow: float, bare: bool, defs: PackedStringArray
 ) -> String:
 	var parts: Array = drawing["parts"]
 	var piece: Dictionary = parts[i]
@@ -377,7 +392,7 @@ static func _seams(
 		var later: Dictionary = parts[j]
 		if later["seam"]:
 			black.append(_knock(drawing, later, GAP + grow))
-		elif shadow:
+		elif shadow or (bare and later["tone"] == "cream"):
 			black.append(_knock(drawing, later, grow))
 	if black.is_empty():
 		return ""
@@ -417,8 +432,8 @@ static func _clip(drawing: Dictionary, i: int, defs: PackedStringArray) -> Strin
 	return id
 
 
-## Piece [param i] as printed: a line, a cream or tinted shape, or an inked one with its shadow
-## side in a flat darker ink when [param tone], and its glints.
+## Piece [param i] as printed: a line, a cream, dark or tinted shape, or an inked one with its
+## shadow side in a flat darker ink when [param tone], and its glints.
 static func _body(
 	drawing: Dictionary, i: int, ink: Color, look: Dictionary, tone: bool, defs: PackedStringArray
 ) -> String:
@@ -435,6 +450,8 @@ static func _body(
 		return '<g opacity="%s">%s</g>' % [TINT, line] if kind == "tint" else line
 	if kind == "cream":
 		return _fill(piece["d"], placed, _hex(cream), piece["rule"]) if cream.a > 0.0 else ""
+	if kind == "dark":
+		return _fill(piece["d"], placed, _hex(look["dark"]), piece["rule"])
 	var printed := ""
 	var inner := PackedStringArray()
 	if kind == "tint":

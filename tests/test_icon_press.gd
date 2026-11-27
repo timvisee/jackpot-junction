@@ -1,5 +1,6 @@
 extends GdUnitTestSuite
-## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing is an SVG
+## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing, the
+## table's cards', the kinds of game's, the ways to drive's, the dress's and the emotes', is an SVG
 ## file that IconPress reads and prints, and the files are held to the lists the way the lists are
 ## held to the catalog.
 
@@ -7,6 +8,11 @@ const FOLDERS := {
 	"res://assets/icons/jokers/": "jokers",
 	"res://assets/icons/powerups/": "powerups",
 	"res://assets/icons/achievements/": "achievements",
+	"res://assets/icons/table/": "table",
+	"res://assets/icons/modes/": "modes",
+	"res://assets/icons/drive/": "drive",
+	"res://assets/icons/dress/": "dress",
+	"res://assets/icons/emotes/": "emotes",
 }
 
 
@@ -62,6 +68,32 @@ func test_every_achievement_has_a_drawing_and_every_drawing_an_achievement() -> 
 		assert_bool(id in ids).override_failure_message("%s is no achievement" % id).is_true()
 
 
+## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,
+## and every drawing in their folders is one of theirs.
+func test_every_card_button_and_emote_has_a_drawing() -> void:
+	assert_int(TableCardArt.PICTURES.size()).is_equal(TableCards.Card.size())
+	assert_int(TableCardArt.INKS.size()).is_equal(TableCards.Card.size())
+	assert_int(DressArt.PICTURES.size()).is_equal(KartStyle.CHOICES.size() + 1)
+	assert_int(EmoteArt.PICTURES.size()).is_equal(EmoteArt.EMOTES.size())
+	var drive: Array[StringName] = [
+		&"drive_simple", &"drive_advanced", &"drive_slider", &"drive_buttons"
+	]
+	var modes: Array[StringName] = [&"mode_grand_prix", &"mode_quick_match"]
+	var lists := {
+		"res://assets/icons/table/": TableCardArt.PICTURES,
+		"res://assets/icons/modes/": modes,
+		"res://assets/icons/drive/": drive,
+		"res://assets/icons/dress/": DressArt.PICTURES,
+		"res://assets/icons/emotes/": EmoteArt.PICTURES,
+	}
+	for folder: String in lists:
+		var files := _files(folder)
+		var wanted: Array = lists[folder]
+		assert_int(files.size()).override_failure_message(folder).is_equal(wanted.size())
+		for id: StringName in wanted:
+			assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
+
+
 ## Every drawing reads: its pieces each have a shape, its lines a width, its cuts a shape too.
 func test_every_drawing_reads() -> void:
 	for folder: String in FOLDERS:
@@ -88,9 +120,9 @@ func test_every_drawing_reads() -> void:
 
 ## Every drawing prints, at a card's size and a HUD's, square and with something on it.
 func test_every_drawing_prints_at_every_size() -> void:
-	var ids: Array[StringName] = _files("res://assets/icons/jokers/")
-	ids.append_array(_files("res://assets/icons/powerups/"))
-	ids.append_array(_files("res://assets/icons/achievements/"))
+	var ids: Array[StringName] = []
+	for folder: String in FOLDERS:
+		ids.append_array(_files(folder))
 	for id: StringName in ids:
 		for pixels: float in [30.0, 96.0]:
 			var printed := IconPress.texture(id, Color("#f2c14e"), pixels)
@@ -145,6 +177,35 @@ func test_on_paper_cream_is_the_paper() -> void:
 	assert_float(IconPress.look_of(oil, 96, IconPress.Ground.PAPER)["cream"].a).is_equal(0.0)
 	assert_bool(IconPress.look_of(oil, 96, IconPress.Ground.PAPER)["glints"]).is_false()
 	assert_bool(IconPress.look_of(oil, 96, IconPress.Ground.TWO_INKS, paper)["glints"]).is_true()
+
+
+## On bare paper what is cream is left unprinted, even where it lies on ink without a gap round it:
+## a slot machine's reels show the button under them, the cabinet round them is ink.
+func test_cream_on_bare_paper_shows_what_is_under_it() -> void:
+	var drawing := IconPress.parse(
+		FileAccess.get_file_as_string("res://assets/icons/table/table_slot_machines.svg")
+	)
+	var ink := Color("#e0e0eb")
+	var printed := IconPress.image(drawing, ink, 96, IconPress.Ground.PAPER)
+	assert_float(printed.get_pixel(29, 41).a).is_less(0.1)
+	assert_float(printed.get_pixel(24, 22).a).is_greater(0.9)
+
+
+## A dark piece prints in the House's ink beside a red: Royal Flush's spade pad is dark and its
+## heart pad red.
+func test_a_dark_piece_prints_in_the_house_ink() -> void:
+	var drawing := IconPress.parse(
+		FileAccess.get_file_as_string("res://assets/icons/table/table_royal_flush.svg")
+	)
+	var red := Color("#b8332c")
+	var printed := IconPress.image(drawing, red, 96, IconPress.Ground.TWO_INKS, Color("#f2ead6"))
+	assert_bool(_near(printed.get_pixel(13, 42), IconPress.DARK)).is_true()
+	assert_bool(_near(printed.get_pixel(53, 13), red)).is_true()
+
+
+## Whether [param a] is [param b] but for a step of rounding in the raster.
+static func _near(a: Color, b: Color) -> bool:
+	return absf(a.r - b.r) < 0.02 and absf(a.g - b.g) < 0.02 and absf(a.b - b.b) < 0.02
 
 
 static func _flat(drawing: Dictionary, look: Dictionary) -> Image:

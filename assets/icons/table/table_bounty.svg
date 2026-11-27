@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Bounty</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M38.6,34L9.4,34A1.5,1.5 0 0 1 7.9,32.6L6.5,12L15.07,20.57A1.5,1.5 0 0 0 17.45,20.22L24,8L30.55,20.22A1.5,1.5 0 0 0 32.93,20.57L41.5,12L40.1,32.6A1.5,1.5 0 0 1 38.6,34Z"/>
+    <path class="shade" d="M30,-20H70V70H30Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M3.9,11A2.6,2.6 0 1 0 9.1,11A2.6,2.6 0 1 0 3.9,11Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M21.4,7A2.6,2.6 0 1 0 26.6,7A2.6,2.6 0 1 0 21.4,7Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M38.9,11A2.6,2.6 0 1 0 44.1,11A2.6,2.6 0 1 0 38.9,11Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M9,34H39A2,2 0 0 1 41,36V39A2,2 0 0 1 39,41H9A2,2 0 0 1 7,39V36A2,2 0 0 1 9,34Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M14.4,37.5A1.6,1.3 0 1 0 17.6,37.5A1.6,1.3 0 1 0 14.4,37.5ZM22.4,37.5A1.6,1.3 0 1 0 25.6,37.5A1.6,1.3 0 1 0 22.4,37.5ZM30.4,37.5A1.6,1.3 0 1 0 33.6,37.5A1.6,1.3 0 1 0 30.4,37.5Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Royal Flush</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}.dark>.body{fill:#211f24}</style>
+<g class="icon">
+  <g class="piece dark" data-shade="false">
+    <path class="body" d="M7.5,5H20.5A2.5,2.5 0 0 1 23,7.5V20.5A2.5,2.5 0 0 1 20.5,23H7.5A2.5,2.5 0 0 1 5,20.5V7.5A2.5,2.5 0 0 1 7.5,5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M27.5,5H40.5A2.5,2.5 0 0 1 43,7.5V20.5A2.5,2.5 0 0 1 40.5,23H27.5A2.5,2.5 0 0 1 25,20.5V7.5A2.5,2.5 0 0 1 27.5,5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M7.5,25H20.5A2.5,2.5 0 0 1 23,27.5V40.5A2.5,2.5 0 0 1 20.5,43H7.5A2.5,2.5 0 0 1 5,40.5V27.5A2.5,2.5 0 0 1 7.5,25Z"/>
+  </g>
+  <g class="piece dark" data-shade="false">
+    <path class="body" d="M27.5,25H40.5A2.5,2.5 0 0 1 43,27.5V40.5A2.5,2.5 0 0 1 40.5,43H27.5A2.5,2.5 0 0 1 25,40.5V27.5A2.5,2.5 0 0 1 27.5,25Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M14,8.5C17.3,11.14 19.5,13.12 19.5,15.1C19.5,16.86 18.18,17.96 16.53,17.96C15.54,17.96 14.77,17.52 14.33,16.75L15.1,19.5L12.9,19.5L13.67,16.75C13.23,17.52 12.46,17.96 11.47,17.96C9.82,17.96 8.5,16.86 8.5,15.1C8.5,13.12 10.7,11.14 14,8.5Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M34,19.79C30.21,17.03 28.25,14.96 28.25,12.54C28.25,10.59 29.75,9.21 31.59,9.21C32.73,9.21 33.54,9.79 34,10.71C34.46,9.79 35.27,9.21 36.41,9.21C38.26,9.21 39.75,10.59 39.75,12.54C39.75,14.96 37.8,17.03 34,19.79Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M14,28.25C15.38,30.55 16.99,32.39 18.83,34C16.99,35.61 15.38,37.45 14,39.75C12.62,37.45 11.01,35.61 9.17,34C11.01,32.39 12.62,30.55 14,28.25Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M31.58,31.58A2.42,2.42 0 1 0 36.42,31.58A2.42,2.42 0 1 0 31.58,31.58ZM28.94,34.88A2.42,2.42 0 1 0 33.78,34.88A2.42,2.42 0 1 0 28.94,34.88ZM34.22,34.88A2.42,2.42 0 1 0 39.06,34.88A2.42,2.42 0 1 0 34.22,34.88ZM32.24,34.22A1.76,1.76 0 1 0 35.76,34.22A1.76,1.76 0 1 0 32.24,34.22ZM33.34,35.1L32.68,39.5L35.32,39.5L34.66,35.1Z"/>
+  </g>
+</g>
+</svg>

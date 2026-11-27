@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Plate</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M7,13H41A3,3 0 0 1 44,16V32A3,3 0 0 1 41,35H7A3,3 0 0 1 4,32V16A3,3 0 0 1 7,13Z"/>
+    <path class="shade" d="M-20,30H70V70H-20Z"/>
+    <path class="cut" d="M8.5,16H39.5A1.5,1.5 0 0 1 41,17.5V30.5A1.5,1.5 0 0 1 39.5,32H8.5A1.5,1.5 0 0 1 7,30.5V17.5A1.5,1.5 0 0 1 8.5,16Z" stroke-width="1.2"/>
+    <path class="cut" d="M8.5,18.5A1,1 0 1 0 10.5,18.5A1,1 0 1 0 8.5,18.5ZM37.5,18.5A1,1 0 1 0 39.5,18.5A1,1 0 1 0 37.5,18.5Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M13,20.5H17A1,1 0 0 1 18,21.5V27.5A1,1 0 0 1 17,28.5H13A1,1 0 0 1 12,27.5V21.5A1,1 0 0 1 13,20.5ZM22,20.5H26A1,1 0 0 1 27,21.5V27.5A1,1 0 0 1 26,28.5H22A1,1 0 0 1 21,27.5V21.5A1,1 0 0 1 22,20.5ZM31,20.5H35A1,1 0 0 1 36,21.5V27.5A1,1 0 0 1 35,28.5H31A1,1 0 0 1 30,27.5V21.5A1,1 0 0 1 31,20.5Z"/>
+  </g>
+</g>
+</svg>

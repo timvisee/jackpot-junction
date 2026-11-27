@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Body</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M38.38,30L9.63,30A1.88,1.88 0 0 1 7.75,28.13L7.75,25.54A1.88,1.88 0 0 1 8.79,23.86L12.35,22.07A1.88,1.88 0 0 1 13.19,21.88L33.48,21.88A1.88,1.88 0 0 1 34.45,22.14L39.34,25.07A1.88,1.88 0 0 1 40.25,26.69L40.25,28.13A1.88,1.88 0 0 1 38.38,30Z"/>
+    <path class="shade" d="M-20,26.25H70V70H-20Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M18,16.88A4.75,4.75 0 1 0 27.5,16.88A4.75,4.75 0 1 0 18,16.88Z"/>
+    <path class="cut" d="M24.75,15.25L28,15.25A1.38,1.38 0 0 1 29.38,16.63L29.38,16.63A1.38,1.38 0 0 1 28,18L24.75,18A1.38,1.38 0 0 1 23.38,16.63L23.38,16.63A1.38,1.38 0 0 1 24.75,15.25Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M8.38,30.63A5,5 0 1 0 18.38,30.63A5,5 0 1 0 8.38,30.63Z"/>
+    <path class="cut" d="M11.5,30.63A1.88,1.88 0 1 0 15.25,30.63A1.88,1.88 0 1 0 11.5,30.63Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M29.63,30.63A5,5 0 1 0 39.63,30.63A5,5 0 1 0 29.63,30.63Z"/>
+    <path class="cut" d="M32.75,30.63A1.88,1.88 0 1 0 36.5,30.63A1.88,1.88 0 1 0 32.75,30.63Z"/>
+  </g>
+</g>
+</svg>

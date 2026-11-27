@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Angry, open</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M11.5,13.5L20,17.5M36.5,13.5L28,17.5" stroke-width="3.2"/>
+  <g class="piece ink">
+    <path class="body" d="M14.7,23A2.8,2.8 0 1 0 20.3,23A2.8,2.8 0 1 0 14.7,23ZM27.7,23A2.8,2.8 0 1 0 33.3,23A2.8,2.8 0 1 0 27.7,23Z"/>
+  </g>
+  <path class="line ink" d="M15,36.5C18.5,30.5 29.5,30.5 33,36.5" stroke-width="3.5"/>
+</g>
+</svg>

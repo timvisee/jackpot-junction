@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Grand Prix</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M14,11H10C6.5,11 6.5,20 13.5,21" stroke-width="2.5"/>
+  <path class="line ink" d="M34,11H38C41.5,11 41.5,20 34.5,21" stroke-width="2.5"/>
+  <g class="piece ink">
+    <path class="body" d="M14,6H34V14C34,22.5 29.5,27.5 24,27.5C18.5,27.5 14,22.5 14,14Z"/>
+    <path class="shade" d="M28,-20H70V70H28Z"/>
+    <path class="glint" d="M17.5,10V14.5C17.5,17.5 18.5,20 20,21.5"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M22.74,13.39L23.63,11.01A0.4,0.4 0 0 1 24.37,11.01L25.26,13.39A0.4,0.4 0 0 0 25.62,13.65L28.15,13.76A0.4,0.4 0 0 1 28.39,14.47L26.4,16.05A0.4,0.4 0 0 0 26.26,16.47L26.94,18.91A0.4,0.4 0 0 1 26.34,19.35L24.22,17.95A0.4,0.4 0 0 0 23.78,17.95L21.66,19.35A0.4,0.4 0 0 1 21.06,18.91L21.74,16.47A0.4,0.4 0 0 0 21.6,16.05L19.61,14.47A0.4,0.4 0 0 1 19.85,13.76L22.38,13.65A0.4,0.4 0 0 0 22.74,13.39Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M22.5,27H25.5A1,1 0 0 1 26.5,28V32.5A1,1 0 0 1 25.5,33.5H22.5A1,1 0 0 1 21.5,32.5V28A1,1 0 0 1 22.5,27Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M16.5,33H31.5A1.5,1.5 0 0 1 33,34.5V35.5A1.5,1.5 0 0 1 31.5,37H16.5A1.5,1.5 0 0 1 15,35.5V34.5A1.5,1.5 0 0 1 16.5,33Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13,37.5H35A2,2 0 0 1 37,39.5V41A2,2 0 0 1 35,43H13A2,2 0 0 1 11,41V39.5A2,2 0 0 1 13,37.5Z"/>
+    <path class="shade" d="M31,-20H70V70H31Z"/>
+  </g>
+</g>
+</svg>

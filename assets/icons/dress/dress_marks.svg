@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Marks</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M16.71,1.57L21.56,2.78A1.5,1.5 14 0 1 22.65,4.6L13.7,40.5A1.5,1.5 14 0 1 11.88,41.59L7.03,40.38A1.5,1.5 14 0 1 5.94,38.56L14.89,2.66A1.5,1.5 14 0 1 16.71,1.57Z"/>
+    <path class="cut" d="M14.41,4.6L19.01,2.66L22.17,6.54" stroke-width="1.5"/>
+    <path class="cut" d="M13.08,9.94L17.68,8L20.84,11.88" stroke-width="1.5"/>
+    <path class="cut" d="M11.75,15.28L16.35,13.33L19.51,17.21" stroke-width="1.5"/>
+    <path class="cut" d="M10.42,20.61L15.02,18.67L18.18,22.55" stroke-width="1.5"/>
+    <path class="cut" d="M9.09,25.95L13.69,24.01L16.85,27.89" stroke-width="1.5"/>
+    <path class="cut" d="M7.75,31.29L12.36,29.34L15.52,33.22" stroke-width="1.5"/>
+    <path class="cut" d="M6.42,36.62L11.03,34.68L14.19,38.56" stroke-width="1.5"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M36.12,6.41L40.97,7.62A1.5,1.5 14 0 1 42.06,9.44L33.11,45.34A1.5,1.5 14 0 1 31.29,46.43L26.44,45.22A1.5,1.5 14 0 1 25.35,43.4L34.3,7.5A1.5,1.5 14 0 1 36.12,6.41Z"/>
+    <path class="cut" d="M33.81,9.44L38.42,7.5L41.58,11.38" stroke-width="1.5"/>
+    <path class="cut" d="M32.48,14.78L37.09,12.84L40.25,16.71" stroke-width="1.5"/>
+    <path class="cut" d="M31.15,20.11L35.76,18.17L38.91,22.05" stroke-width="1.5"/>
+    <path class="cut" d="M29.82,25.45L34.43,23.51L37.58,27.39" stroke-width="1.5"/>
+    <path class="cut" d="M28.49,30.79L33.1,28.84L36.25,32.72" stroke-width="1.5"/>
+    <path class="cut" d="M27.16,36.12L31.77,34.18L34.92,38.06" stroke-width="1.5"/>
+    <path class="cut" d="M25.83,41.46L30.44,39.52L33.59,43.4" stroke-width="1.5"/>
+  </g>
+</g>
+</svg>

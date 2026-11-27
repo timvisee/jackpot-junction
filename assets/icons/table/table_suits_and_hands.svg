@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Suits &amp; Hands</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M12.65,34.26L6.28,18.5A2.5,2.5 0 0 1 7.66,15.24L17.86,11.12A2.5,2.5 0 0 1 21.12,12.51L27.48,28.27A2.5,2.5 0 0 1 26.1,31.52L15.9,35.64A2.5,2.5 0 0 1 12.65,34.26Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M16,30.5L16,13.5A2.5,2.5 0 0 1 18.5,11L29.5,11A2.5,2.5 0 0 1 32,13.5L32,30.5A2.5,2.5 0 0 1 29.5,33L18.5,33A2.5,2.5 0 0 1 16,30.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M20.52,28.27L26.88,12.51A2.5,2.5 0 0 1 30.14,11.12L40.34,15.24A2.5,2.5 0 0 1 41.72,18.5L35.35,34.26A2.5,2.5 0 0 1 32.1,35.64L21.9,31.52A2.5,2.5 0 0 1 20.52,28.27Z"/>
+    <path class="shade" d="M37,-20H70V70H37Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M11.98,21.4C9.81,20.86 8.57,20.29 8.14,19.22C7.79,18.35 8.2,17.48 9.02,17.15C9.53,16.94 9.99,17.05 10.36,17.38C10.4,16.89 10.65,16.49 11.16,16.28C11.98,15.95 12.89,16.29 13.24,17.16C13.67,18.23 13.17,19.5 11.98,21.4Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M20.2,18.33C18.38,17.01 17.45,16.02 17.45,14.87C17.45,13.93 18.16,13.27 19.04,13.27C19.59,13.27 19.98,13.54 20.2,13.99C20.42,13.54 20.8,13.27 21.36,13.27C22.23,13.27 22.95,13.93 22.95,14.87C22.95,16.02 22.02,17.01 20.2,18.33Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M29.58,27.18C27.42,23.72 26.52,21.42 27.31,19.47C27.94,17.89 29.6,17.27 31.08,17.87C32.01,18.24 32.47,18.97 32.54,19.86C33.21,19.27 34.05,19.07 34.98,19.44C36.46,20.04 37.21,21.64 36.58,23.22C35.79,25.16 33.54,26.2 29.58,27.18Z"/>
+  </g>
+</g>
+</svg>
