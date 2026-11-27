@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Under the Table</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M9,12H11A1,1 0 0 1 12,13V43A1,1 0 0 1 11,44H9A1,1 0 0 1 8,43V13A1,1 0 0 1 9,12Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M37,12H39A1,1 0 0 1 40,13V43A1,1 0 0 1 39,44H37A1,1 0 0 1 36,43V13A1,1 0 0 1 37,12Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M6,8.5H42A2,2 0 0 1 44,10.5V12.5A2,2 0 0 1 42,14.5H6A2,2 0 0 1 4,12.5V10.5A2,2 0 0 1 6,8.5Z"/>
+    <path class="shade" d="M38,-20H70V70H38Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M18.5,39.5H29.5A1.5,1.5 0 0 1 31,41V41.5A1.5,1.5 0 0 1 29.5,43H18.5A1.5,1.5 0 0 1 17,41.5V41A1.5,1.5 0 0 1 18.5,39.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M18.5,34.5H29.5A1.5,1.5 0 0 1 31,36V36.5A1.5,1.5 0 0 1 29.5,38H18.5A1.5,1.5 0 0 1 17,36.5V36A1.5,1.5 0 0 1 18.5,34.5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M18.5,29.5H29.5A1.5,1.5 0 0 1 31,31V31.5A1.5,1.5 0 0 1 29.5,33H18.5A1.5,1.5 0 0 1 17,31.5V31A1.5,1.5 0 0 1 18.5,29.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M18.5,24.5H29.5A1.5,1.5 0 0 1 31,26V26.5A1.5,1.5 0 0 1 29.5,28H18.5A1.5,1.5 0 0 1 17,26.5V26A1.5,1.5 0 0 1 18.5,24.5Z"/>
+  </g>
+</g>
+</svg>

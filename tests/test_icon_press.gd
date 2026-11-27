@@ -27,13 +27,10 @@ static func _files(folder: String) -> Array[StringName]:
 	return ids
 
 
-## Every joker but Kit's pencil ones has a drawing, and every drawing is a joker's.
-func test_every_house_joker_has_a_drawing_and_every_drawing_a_joker() -> void:
+## Every joker has a drawing, Kit's pencil ones too, and every drawing is a joker's.
+func test_every_joker_has_a_drawing_and_every_drawing_a_joker() -> void:
 	var files := _files("res://assets/icons/jokers/")
 	for id: StringName in JokerArt.known():
-		if id in JokerArt.KIT:
-			assert_bool(id in files).override_failure_message("%s is Kit's" % id).is_false()
-			continue
 		assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
 	for id: StringName in files:
 		(

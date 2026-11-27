@@ -5125,10 +5125,11 @@ printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,
 `GameModeArt`, `DriveArt`, `DressArt`, `EmoteArt`, `LandmarkIcons`, `HouseArt`, `IconButton` and
 `JokerSuits` are what the rest of the game
-calls; they hand an id and a color to the press. Kit's five cards keep his
-pencil, STORY.md 6.3, drawn by `KitArt` as before.
+calls; they hand an id and a color to the press. Kit's five cards, the House's
+painted over and drawn on again, STORY.md 6.3, are drawings of the same set printed flat in his
+pencil, as his signs on the loyalty map are.
 
-The set was redrawn on 2026-11-26 over six rounds of review, from five
+The set was redrawn on 2026-11-26 over seven rounds of review, from five
 directions (flat cut, enamel pin, engraved, two-ink print, struck relief) down
 to a mix of the first and the fourth: the house printing its own pictures. Every
 icon was marked keep, tweak or redo, and the uncertain ones were picked from

@@ -4,9 +4,10 @@ extends RefCounted
 ## printed by [IconPress] in the kind's color on the dark of the card. Every drawing keeps the same
 ## grid, corners, gaps and light, which is what makes fifty of them one set rather than fifty
 ## drawings; the printing is the house's, flat inks with the shadow side in a halftone screen.
-## Kit's five cards are drawn over in pencil instead, see [KitArt].
+## Kit's five cards, the House's painted over and drawn on again, print flat in his pencil instead,
+## as his signs on the loyalty map do.
 
-## Kit's cards, STORY.md 6.3, which keep his pencil.
+## Kit's cards, STORY.md 6.3, which print flat in his pencil.
 const KIT: Array[StringName] = [
 	&"brake_check", &"not_today", &"blind_spot", &"loose_change", &"under_the_table"
 ]
@@ -41,12 +42,9 @@ static func picture(id: StringName, ink: Color) -> Control:
 static func draw_into(
 	on: CanvasItem, box: Rect2, id: StringName, ink: Color, paper := false
 ) -> void:
-	if id in KIT:
-		KitArt.draw_into(on, box, id, ink)
-	else:
-		var ground := IconPress.Ground.PAPER if paper else IconPress.Ground.CARD
-		if not IconPress.draw(on, box, id, ink, ground):
-			IconPress.draw(on, box, &"wild_card", ink, ground)
+	var ground := IconPress.Ground.PAPER if paper or id in KIT else IconPress.Ground.CARD
+	if not IconPress.draw(on, box, id, ink, ground):
+		IconPress.draw(on, box, &"wild_card", ink, ground)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the catalog.
