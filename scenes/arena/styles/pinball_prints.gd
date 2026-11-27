@@ -68,6 +68,7 @@ const PANEL_PIXELS := 24
 const PANEL_FINER := 2.0
 const CARD := Color("#EFE6D0")
 const PIP_RED := Color("#B4473C")
+# NO_TRANSLATE
 ## The windows of the backglass in the seats' colors, the first four.
 const SEATS: Array[Color] = [Color("#E23D3D"), Color("#3D6FE2"), Color("#F2D23D"), Color("#43C463")]
 
@@ -366,10 +367,14 @@ func _glass() -> void:
 	for i: int in windows:
 		var x := size.x * (0.5 + (float(i) - 1.5) * 0.205)
 		_score(Rect2(x - wide * 0.5, size.y * 0.86, wide, size.y * 0.09), SEATS[i], i)
-	_lamp_window(Rect2(size.x * 0.05, size.y * 0.5, size.x * 0.17, size.y * 0.12), "GAME OVER")
-	_lamp_window(Rect2(size.x * 0.78, size.y * 0.5, size.x * 0.17, size.y * 0.12), "TILT")
-	var line := "SAME PLAYER SHOOTS AGAIN"
-	var font_size := int(size.y * 0.04)
+	# TRANSLATORS: A window on a pinball machine's backglass, lit between games.
+	var over := tr("GAME OVER")
+	_lamp_window(Rect2(size.x * 0.05, size.y * 0.5, size.x * 0.17, size.y * 0.12), over)
+	# TRANSLATORS: A window on a pinball machine's backglass, lit when it is tilted.
+	_lamp_window(Rect2(size.x * 0.78, size.y * 0.5, size.x * 0.17, size.y * 0.12), tr("TILT"))
+	# TRANSLATORS: Along a pinball machine's backglass, lit when a player wins a ball back.
+	var line := tr("SAME PLAYER SHOOTS AGAIN")
+	var font_size := _fitting(line, int(size.y * 0.04), size.x * 0.9)
 	var width := FONT.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	var spot := Vector2(size.x * 0.5 - width * 0.5, size.y * 0.81)
 	draw_string(FONT, spot, line, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("#6B3A3A"))
@@ -422,7 +427,7 @@ func _wheel(at: Vector2, radius: float) -> void:
 ## JACKPOT JUNCTION arched over the wheel, its middle at [param top] on an arch [param arc]
 ## round, cream with an ink edge and an ochre shadow.
 func _title(top: Vector2, arc: float) -> void:
-	var text := "JACKPOT JUNCTION"
+	var text := "JACKPOT JUNCTION"  # NO_TRANSLATE
 	var font_size := int(size.y * 0.15)
 	var widths: Array[float] = []
 	var total := 0.0
@@ -461,7 +466,14 @@ func _score(rect: Rect2, ink: Color, seat: int) -> void:
 func _lamp_window(rect: Rect2, words: String) -> void:
 	draw_rect(rect.grow(3.0), INK)
 	draw_rect(rect, Color("#24161F"))
-	var font_size := int(rect.size.y * 0.5)
+	var font_size := _fitting(words, int(rect.size.y * 0.5), rect.size.x * 0.9)
 	var width := FONT.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 	var spot := rect.get_center() + Vector2(-width * 0.5, font_size * 0.36)
 	draw_string(FONT, spot, words, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color("#6B3A3A"))
+
+
+## [param font_size], or less where [param text] would be wider than [param room] drawn at it,
+## so words longer in another language than in English still fit their window.
+func _fitting(text: String, font_size: int, room: float) -> int:
+	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	return font_size if width <= room else int(font_size * room / width)

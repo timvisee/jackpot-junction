@@ -60,8 +60,9 @@ const RIM_BACK := 0.6
 ## back, and a resting kart is shown a clock of its wait, see [SlotDial]. Nothing is said: there
 ## are sounds enough at the table.
 const TURNED_AWAY := 0.8
+# TRANSLATORS: Over a slot machine whose pull is void, its bettor taken out mid-spin.
 ## A pull made void, its bettor taken out mid-spin: the red of it, how far and how often the machine
-## shakes and for how long, how long its reels stay dark, and what stands over it.
+## shakes and for how long, how long its reels stay dark, and the word over it, shown through tr().
 const VOID_RED := Color(0.86, 0.16, 0.14)
 const SHAKE := 0.12
 const SHAKES := 6
@@ -487,7 +488,7 @@ func _on_voided(_slot_of: int, pad: int) -> void:
 		shake.tween_property(self, "position", toward, SHAKE_TIME / SHAKES)
 	shake.tween_property(self, "position", home, SHAKE_TIME / SHAKES)
 	var words := global_position + Vector3(0.0, WORDS_HEIGHT, 0.0)
-	FloatingText.spawn(get_parent(), words, VOID_WORD, VOID_RED, 56)
+	FloatingText.spawn(get_parent(), words, tr(VOID_WORD), VOID_RED, 56)
 	Audio.play_sfx(&"slot_void", -12.0, 0.0)
 
 
@@ -633,6 +634,7 @@ static func draw_face(on: CanvasItem, box: Rect2, face: int) -> void:
 			var high := box.size.y * 0.24
 			var at := box.position + Vector2(0.0, box.size.y * 0.5 + high * 0.36)
 			var cream := Strip.CREAM
+			# The reel's symbol, as every machine prints it, NO_TRANSLATE.
 			on.draw_string(
 				font, at, "BAR", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, int(high), cream
 			)

@@ -32,26 +32,29 @@ func facts() -> Array[PackedStringArray]:
 	return []
 
 
-## A line of [method facts].
+## A line of [method facts], its words already translated.
 static func fact(what: String, how_much: String) -> PackedStringArray:
 	return PackedStringArray([what, how_much])
 
 
 ## Seconds as the catalog says them: "3 s", "0.6 s".
 static func seconds(value: float) -> String:
-	return "%s s" % number(value)
+	# TRANSLATORS: A number of seconds, as an item's facts in the catalog say it.
+	return Lang.t("%s s") % number(value)
 
 
 ## Meters as the catalog says them: "8 m", "2.6 m".
 static func meters(value: float) -> String:
-	return "%s m" % number(value)
+	# TRANSLATORS: A number of meters, as an item's facts in the catalog say it.
+	return Lang.t("%s m") % number(value)
 
 
-## A number as the catalog says it: whole where it is whole, and one decimal at most.
+## A number as the catalog says it: whole where it is whole, and one decimal at most, with the
+## decimal mark of the language spoken, see [method Lang.decimal].
 static func number(value: float) -> String:
 	if is_equal_approx(value, roundf(value)):
 		return str(roundi(value))
-	return String.num(value, 1)
+	return String.num(value, 1).replace(".", Lang.t(".", &"decimal"))
 
 
 ## The color the catalog draws [param item] in: its own, lifted where it is too dark to be told

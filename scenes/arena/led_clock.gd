@@ -84,7 +84,7 @@ func _process(delta: float) -> void:
 	_step_state(delta)
 	var word := _word_now()
 	if word.is_empty():
-		_say("", "TIME", LIT)
+		_say("", tr("TIME"), LIT)
 		_show(_clock_text(), _last_call())
 	else:
 		_say(word, _caption_now(), _word_color())
@@ -106,26 +106,27 @@ func _step_state(delta: float) -> void:
 func _word_now() -> String:
 	match match_node.state:
 		Match.State.COUNTDOWN:
-			return "READY" if match_node.countdown_lamps() <= 1 else "SET"
+			# TRANSLATORS: The match clock's board counting down to the start: READY, SET, GO!
+			return tr("READY") if match_node.countdown_lamps() <= 1 else tr("SET")
 		Match.State.OVERTIME:
-			return "OVERTIME"
+			return tr("OVERTIME")
 		Match.State.RESULTS:
 			return _winner()
 		_:
-			return "GO!" if _go_left > 0.0 else ""
+			return tr("GO!") if _go_left > 0.0 else ""
 
 
 ## The smaller line above it, which says what the word is about.
 func _caption_now() -> String:
 	match match_node.state:
 		Match.State.COUNTDOWN:
-			return "START"
+			return tr("START")
 		Match.State.OVERTIME:
-			return "SUDDEN DEATH"
+			return tr("SUDDEN DEATH")
 		Match.State.RESULTS:
-			return "CHAMPION" if _champion() != null else "WINNER"
+			return tr("CHAMPION") if _champion() != null else tr("WINNER")
 		_:
-			return "START"
+			return tr("START")
 
 
 ## Amber to hold the field, green for the drop, the winner's own color at the whistle, and red
@@ -151,7 +152,7 @@ func _winner() -> String:
 	if champion != null:
 		return Teams.called(champion)
 	if FinalHand.candidate(match_node) != null:
-		return StoryLines.CANDIDATE
+		return tr(StoryLines.CANDIDATE)
 	# In team play the team that won it, GAME.md 3.14.
 	return Teams.called(match_node.standings()[0])
 
@@ -242,7 +243,7 @@ func _build() -> void:
 		var dot := Vector2(left + SPACING * 1.5 + COLON * 0.5, -0.18 + (0.24 if high else -0.24))
 		SegmentDigits.bar(bars, index, dot, Vector2(SEGMENT, SEGMENT), LIT)
 		_colon.append(index)
-	_caption = _board.words("TIME", Vector2(0.0, 0.74), CAPTION_SIZE, CAPTION_INK)
+	_caption = _board.words(tr("TIME"), Vector2(0.0, 0.74), CAPTION_SIZE, CAPTION_INK)
 	_word = _board.words("", Vector2(0.0, -0.2), WORD_SIZE, LIT)
 	_word.visible = false
 	# Nobody stands in front of a board put up to be read.

@@ -10,9 +10,9 @@ extends PowerUp
 
 func facts() -> Array[PackedStringArray]:
 	return [
-		fact("Arms after", seconds(Bomb.ARM_TIME)),
-		fact("Fuse", seconds(fuse)),
-		fact("Blast", meters(Bomb.RADIUS))
+		fact(tr("Arms after"), seconds(Bomb.ARM_TIME)),
+		fact(tr("Fuse"), seconds(fuse)),
+		fact(tr("Blast"), meters(Bomb.RADIUS))
 	]
 
 

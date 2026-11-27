@@ -48,6 +48,7 @@ const PLASTIC_IN := 0.05
 const PLASTIC_TALL := 0.035
 const SPACER := 0.06
 const POST := 0.11
+# NO_TRANSLATE
 ## The chips a Jackpot's pile is stacked from, never the coin pads' blue.
 const PILE: Array[Color] = [
 	Color("#B4473C"), Color("#E9DFC8"), Color("#C4943F"), Color("#5B3A63"), Color("#2E6B6C")
@@ -357,7 +358,7 @@ func _up(lift: float) -> Vector3:
 
 ## Satin: the lacquer, the plastics and the ivory, each with a soft highlight and no mirror in it.
 func _satin(color: Color, roughness := 0.45) -> StandardMaterial3D:
-	var key := "satin%s%.2f" % [color.to_html(false), roughness]
+	var key := "satin%s%.2f" % [color.to_html(false), roughness]  # NO_TRANSLATE
 	if not _made.has(key):
 		var paint := StandardMaterial3D.new()
 		paint.albedo_color = color
@@ -409,7 +410,7 @@ func _chrome() -> StandardMaterial3D:
 
 ## A lamp under plastic: lit from inside at [param energy], kept low so a shot outshines it.
 func _lamp(color: Color, energy: float) -> StandardMaterial3D:
-	var key := "lamp%s%.2f" % [color.to_html(false), energy]
+	var key := "lamp%s%.2f" % [color.to_html(false), energy]  # NO_TRANSLATE
 	if not _made.has(key):
 		var lit := StandardMaterial3D.new()
 		lit.albedo_color = color.darkened(0.25)

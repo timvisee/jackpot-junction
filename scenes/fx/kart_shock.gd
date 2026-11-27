@@ -29,7 +29,7 @@ const ARCS := 0.06
 const SMOKE_TIME := 1.4
 const SMOKE_LIFE := 1.6
 ## The parts of a kart worn over its look that spring off with it, as [KartWreck] has them.
-const WORN: Array[String] = ["Hat", "Flag", "Plate"]
+const WORN: Array[String] = ["Hat", "Flag", "Plate"]  # NO_TRANSLATE
 
 ## The karts whose look is held in a shock just now, by their instance ids.
 static var _held: Dictionary[int, bool] = {}

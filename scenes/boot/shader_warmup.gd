@@ -719,7 +719,7 @@ func _story_rooms() -> void:
 	house_turret.global_position = at + Vector3(-3.0, 0.0, 0.0)
 	house_turret.age = HouseRack.MARK + HouseRack.RISE * 0.5
 	house_turret.lay()
-	var stamp := HouseWatch.approved("CANDIDATE")
+	var stamp := HouseWatch.approved("CANDIDATE")  # NO_TRANSLATE
 	_match.add_child(stamp)
 	stamp.global_position = at + Vector3(0.0, 2.0, 0.0)
 

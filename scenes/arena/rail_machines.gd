@@ -385,7 +385,7 @@ func _on_jackpot_emptied(zone_index: int) -> void:
 		if full:
 			var at := zone.global_position
 			Burst.spawn(_arena, at + Vector3(0.0, 0.4, 0.0), Palette.CHIP_GOLD, 2.2, 48)
-			FloatingText.spawn(_arena, at, "JACKPOT!", Palette.CHIP_GOLD, 80, 2.2)
+			FloatingText.spawn(_arena, at, tr("JACKPOT!"), Palette.CHIP_GOLD, 80, 2.2)
 	_jar_slot = -1
 	_jar_chips = 0
 	if full:

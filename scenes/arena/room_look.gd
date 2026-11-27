@@ -14,7 +14,7 @@ extends Resource
 enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 
 @export var id: StringName = &"room"
-@export var display_name := "Room"
+@export var display_name := "Room"  # NO_TRANSLATE: every room names itself in its data.
 ## What makes this room look like no other, a [RoomStyle] script, GAME.md 8.1c; none for a room
 ## built by its kit alone.
 @export var style: Script
@@ -29,7 +29,7 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 ## tighter and crop a room's dark edges, the pinball table's near apron say.
 @export var opening_fill := 1.0
 
-@export_group("Light")
+@export_group("Light")  # NO_TRANSLATE
 ## The key: where the room's own light comes from, and how hard.
 @export var key_color := Color(1.0, 0.94, 0.85)
 @export var key_energy := 2.2
@@ -60,7 +60,7 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 @export var fog_color := Color(0.09, 0.06, 0.05)
 @export var fog_density := 0.012
 
-@export_group("Film")
+@export_group("Film")  # NO_TRANSLATE
 ## How far past whatever the camera is looking at the room starts going soft, in meters, and how
 ## soft it goes. A table reads as a model when what is behind it is out of focus, and the margin
 ## follows the camera so the table stays sharp however close the rig comes in, GAME.md 8.2.
@@ -73,7 +73,7 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 @export var saturation := 1.08
 @export var contrast := 1.06
 
-@export_group("Surfaces")
+@export_group("Surfaces")  # NO_TRANSLATE
 @export var felt := Color("#2F5D45")
 @export var felt_edge := Color("#24402F")
 @export var table := Color("#8A5A3C")
@@ -95,7 +95,7 @@ enum Dress { CARNIVAL, SILHOUETTE, WORKWEAR, UNIFORM }
 ## wants them to read as paint that happens to glow.
 @export var neon := 1.0
 
-@export_group("Crowd")
+@export_group("Crowd")  # NO_TRANSLATE
 @export var crowd_dress: Dress = Dress.CARNIVAL
 @export var crowd_colors: PackedColorArray = PackedColorArray()
 @export var crowd_rim := Color(1.0, 0.8, 0.5)

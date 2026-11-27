@@ -852,6 +852,7 @@ func _jewel_bezel(into: Node3D, radius: float, cue: JunctionCue) -> void:
 	cue.lit = Color("#FF9A1A")
 	cue.glow = 1.7
 	cue.steps = Vector2(3.0, 11.0)
+	# NO_TRANSLATE
 	var lights: Array[Color] = [Color("#FF9A1A"), Color("#FF4A3A"), Color("#FFD84A")]
 	var clear: Array[StandardMaterial3D] = []
 	for light: Color in lights:

@@ -13,10 +13,14 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
+	# TRANSLATORS: In the catalog, how many karts a bolt leaps on to: "Leaps 3".
+	var leaps := tr("Leaps")
+	# TRANSLATORS: In the catalog, how far one leap of a bolt reaches: "Leap 6 m".
+	var leap := tr("Leap")
 	return [
-		fact("Shots", str(shots)),
-		fact("Leaps", str(chain)),
-		fact("Leap", meters(leap_range)),
+		fact(tr("Shots"), str(shots)),
+		fact(leaps, str(chain)),
+		fact(leap, meters(leap_range)),
 	]
 
 

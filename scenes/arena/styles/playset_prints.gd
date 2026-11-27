@@ -175,10 +175,16 @@ func _marquee() -> void:
 		var y := size.y * 0.05 + (size.y * 0.9) * (float(i) + 0.5) / float(down)
 		for x: float in [size.y * 0.05, size.x - size.y * 0.05]:
 			draw_circle(Vector2(x, y), size.y * 0.032, CREAM if i % 2 == 0 else Color("#8E6A3A"))
-	_centered("JACKPOT JUNCTION", FONT, int(size.y * 0.36), size.y * 0.52, CREAM)
-	_centered(
-		"A HOUSE PLAYSET  ·  COLLECT EVERY TABLE", SMALL, int(size.y * 0.1), size.y * 0.75, OCHRE
-	)
+	_centered("JACKPOT JUNCTION", FONT, int(size.y * 0.36), size.y * 0.52, CREAM)  # NO_TRANSLATE
+	# TRANSLATORS: Under the game's name on the marquee of a toy playset's box.
+	var line := tr("A HOUSE PLAYSET  ·  COLLECT EVERY TABLE")
+	# Smaller where it would not fit inside the bulbs, as a longer translation might not.
+	var line_size := int(size.y * 0.1)
+	var room := size.x - size.y * 0.3
+	var wide := SMALL.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, line_size).x
+	if wide > room:
+		line_size = int(line_size * room / wide)
+	_centered(line, SMALL, line_size, size.y * 0.75, OCHRE)
 
 
 func _centered(text: String, font: Font, font_size: int, baseline: float, ink: Color) -> void:

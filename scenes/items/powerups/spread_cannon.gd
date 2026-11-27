@@ -12,10 +12,12 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
+	# TRANSLATORS: In the catalog, how wide a shot's bullets fan out: "Fan 30°".
+	var fan := tr("Fan")
 	return [
-		fact("Shots", str(shots)),
-		fact("Bullets a shot", str(bullets_per_shot)),
-		fact("Fan", "%s°" % number(spread_angle_deg))
+		fact(tr("Shots"), str(shots)),
+		fact(tr("Bullets a shot"), str(bullets_per_shot)),
+		fact(fan, "%s°" % number(spread_angle_deg))
 	]
 
 

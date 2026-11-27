@@ -38,6 +38,7 @@ const CELL := 1.25
 const QUILT_TILE := 7.0
 ## The felt chips a Jackpot's pile is sewn from, never the coin pads' blue.
 const CHIPS: Array[Color] = [PLUM, CREAM, CHARCOAL, MUSTARD]
+# NO_TRANSLATE
 ## The heads of the pins in a pit and in the pincushion.
 const PIN_HEADS: Array[Color] = [
 	Color("#B4473C"), Color("#ECE2CC"), Color("#C9A23C"), Color("#5E2F4A"), Color("#2E6B6C")
@@ -588,7 +589,7 @@ func _bolster_top() -> StandardMaterial3D:
 
 ## A stuffed block's faces in [param suit]: one quarter of the blocks' print.
 func _block(suit: int) -> StandardMaterial3D:
-	var key := "block%d" % suit
+	var key := "block%d" % suit  # NO_TRANSLATE
 	if not _made.has(key):
 		var faces := StandardMaterial3D.new()
 		faces.albedo_color = Color(0.78, 0.74, 0.78)

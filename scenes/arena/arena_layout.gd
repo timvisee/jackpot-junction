@@ -38,21 +38,22 @@ func validate() -> PackedStringArray:
 	var problems: PackedStringArray = []
 	var rows := lines()
 	if rows.size() < 3:
-		problems.append("grid needs at least 3 rows")
+		problems.append("grid needs at least 3 rows")  # NO_TRANSLATE
 		return problems
 	var width := rows[0].length()
 	for y: int in rows.size():
 		var row := rows[y]
 		if row.length() != width:
+			# For the log and the tests, as every problem is: NO_TRANSLATE.
 			problems.append("row %d has length %d, expected %d" % [y, row.length(), width])
 			continue
 		for x: int in width:
 			var glyph := row[x]
 			if glyph not in ArenaGrid.KNOWN_GLYPHS:
-				problems.append("unknown glyph '%s' at %d,%d" % [glyph, x, y])
+				problems.append("unknown glyph '%s' at %d,%d" % [glyph, x, y])  # NO_TRANSLATE
 			var on_border := x == 0 or y == 0 or x == width - 1 or y == rows.size() - 1
 			if on_border and glyph != ArenaGrid.WALL:
-				problems.append("border cell %d,%d is not a wall" % [x, y])
+				problems.append("border cell %d,%d is not a wall" % [x, y])  # NO_TRANSLATE
 	return problems
 
 

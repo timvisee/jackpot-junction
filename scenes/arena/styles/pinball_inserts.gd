@@ -386,7 +386,8 @@ static func _drains(on: CanvasItem, grid: ArenaGrid, cell: float) -> void:
 			var b: Vector2 = corners[(i + 1) % 4] * cell
 			on.draw_dashed_line(a, b, Color(OCHRE, 0.45), _px(cell, 3.0), cell * 0.22, true, true)
 		var font_size := int(cell * 0.42)
-		var words := "DRAIN"
+		# TRANSLATORS: Printed under a pit on the pinball table's floor, a pinball machine's drain.
+		var words := Lang.t("DRAIN")
 		var width := FONT.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		var at := Vector2(frame.get_center().x * cell - width * 0.5, (frame.end.y + 0.55) * cell)
 		on.draw_string(FONT, at, words, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(OCHRE, 0.5))

@@ -7,7 +7,7 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
-	return [fact("Reach", meters(radius))]
+	return [fact(tr("Reach"), meters(radius))]
 
 
 func activate(kart: Kart) -> void:

@@ -381,9 +381,9 @@ func _add_billboards() -> void:
 		var at := _billboard_spot(i)
 		var board := Billboard.add_to(billboards, at, Vector3.ZERO, room)
 		board.panel(Vector2(0.0, -0.78), Vector2(Billboard.WIDTH - 1.0, 0.2), ad[2], true)
-		board.words(StoryFill.fill(ad[0], profile), Vector2(0.0, 0.45), 0.92, ad[2])
+		board.words(StoryFill.fill(tr(ad[0]), profile), Vector2(0.0, 0.45), 0.92, ad[2])
 		board.words(
-			StoryFill.fill(ad[1], profile), Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94)
+			StoryFill.fill(tr(ad[1]), profile), Vector2(0.0, -0.3), 0.4, Color(0.86, 0.88, 0.94)
 		)
 		var bay := board.footprint()
 		if crowd != null:
@@ -824,7 +824,7 @@ func _add_junction() -> void:
 		var rect := grid.junctions[i]
 		var size2 := grid.rect_size(rect)
 		var pad := JunctionPad.new()
-		pad.name = "JunctionPad" if i == 0 else "JunctionPad%d" % i
+		pad.name = "JunctionPad" if i == 0 else "JunctionPad%d" % i  # NO_TRANSLATE
 		pad.radius = minf(size2.x, size2.y) * 0.5
 		pad.position = grid.rect_center(rect)
 		add_child(pad)

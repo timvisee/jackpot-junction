@@ -9,9 +9,9 @@ extends PowerUp
 
 func facts() -> Array[PackedStringArray]:
 	return [
-		fact("Lasts", seconds(duration)),
-		fact("Top speed", percent(speed_multiplier)),
-		fact("Steering", percent(steer_multiplier))
+		fact(tr("Lasts"), seconds(duration)),
+		fact(tr("Top speed"), percent(speed_multiplier)),
+		fact(tr("Steering"), percent(steer_multiplier))
 	]
 
 

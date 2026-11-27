@@ -41,11 +41,13 @@ const WORD_INK := 0.72
 const FAINT_INK := 0.5
 const FONT := preload("res://assets/fonts/BarlowCondensed-ExtraBold.ttf")
 const SERIF := preload("res://assets/fonts/IMFellEnglish-Regular.ttf")
-## The terms round the Junction, over it and under it.
-## Each short enough to lie in the clear floor between the Junction and the coin pads at its
-## corners, which on Lucky Crossing is a quarter of the way round.
+# TRANSLATORS: The House's terms printed in an arc round the Junction; keep them as short.
+## The terms round the Junction, over it and under it, shown through tr(). Each short enough to
+## lie in the clear floor between the Junction and the coin pads at its corners, which on Lucky
+## Crossing is a quarter of the way round.
 const OVER := "JUNCTION PAYS THE POT"
 const UNDER := "DYING BANKS HALF"
+## The maker's line along the foot of the layout, shown through tr().
 const MAKER := "LAYOUT No. 000001  ·  PRINTED BY THE HOUSE  ·  NOT VALID AS CURRENCY"
 
 var grid: ArenaGrid
@@ -215,7 +217,8 @@ func _jackpot(rect: Rect2i) -> void:
 	var middle := (Vector2(rect.position) + Vector2(rect.size) * 0.5) * CELL_PIXELS
 	var reach := rect.size.y * 0.5 * CELL_PIXELS + CELL_PIXELS * 0.5
 	var height := CELL_PIXELS * 0.5
-	var half := SERIF.get_string_size("JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, int(height)).x * 0.5
+	var jackpot := tr("JACKPOT")
+	var half := SERIF.get_string_size(jackpot, HORIZONTAL_ALIGNMENT_LEFT, -1, int(height)).x * 0.5
 	for side: float in [-1.0, 1.0]:
 		var row := rect.position.y - 1 if side < 0.0 else rect.end.y
 		var open := true
@@ -224,7 +227,7 @@ func _jackpot(rect: Rect2i) -> void:
 		):
 			open = open and grid.glyph(Vector2i(x, row)) == ArenaGrid.FLOOR
 		if open:
-			_word("JACKPOT", middle + Vector2(0.0, reach * side), height, SERIF)
+			_word(jackpot, middle + Vector2(0.0, reach * side), height, SERIF)
 			return
 
 
@@ -235,8 +238,8 @@ func _terms(rect: Rect2i) -> void:
 	var radius := (rect.size.x * 0.5 + 0.62) * CELL_PIXELS
 	draw_arc(middle, radius - CELL_PIXELS * 0.3, 0.0, TAU, 96, _ink(line, LINE_INK), 4.0, true)
 	draw_arc(middle, radius + CELL_PIXELS * 0.3, 0.0, TAU, 96, _ink(line, FAINT_INK), 2.5, true)
-	_arc_words(OVER, middle, radius, -PI * 0.5, true)
-	_arc_words(UNDER, middle, radius, PI * 0.5, false)
+	_arc_words(tr(OVER), middle, radius, -PI * 0.5, true)
+	_arc_words(tr(UNDER), middle, radius, PI * 0.5, false)
 
 
 func _arc_words(text: String, middle: Vector2, radius: float, around: float, over: bool) -> void:
@@ -272,7 +275,7 @@ func _arc_words(text: String, middle: Vector2, radius: float, around: float, ove
 
 func _maker() -> void:
 	var at := Vector2(size.x * 0.5, size.y - CELL_PIXELS * 1.05)
-	_word(MAKER, at, CELL_PIXELS * 0.2, FONT, FAINT_INK)
+	_word(tr(MAKER), at, CELL_PIXELS * 0.2, FONT, FAINT_INK)
 
 
 func _word(text: String, at: Vector2, height: float, font: Font, share := WORD_INK) -> void:

@@ -14,9 +14,11 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
+	# TRANSLATORS: In the catalog, how long a hit kart's controls are scrambled: "Jams 2 s".
+	var jams := tr("Jams")
 	return [
-		fact("Shots", str(shots)),
-		fact("Jams", seconds(jam)),
+		fact(tr("Shots"), str(shots)),
+		fact(jams, seconds(jam)),
 	]
 
 

@@ -12,10 +12,12 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
+	# TRANSLATORS: In the catalog, how long a flak shell flies before it bursts: "Burst 0.5 s".
+	var burst := tr("Burst")
 	return [
-		fact("Shots", str(shots)),
-		fact("Pellets", str(pellets)),
-		fact("Burst", seconds(fuse)),
+		fact(tr("Shots"), str(shots)),
+		fact(tr("Pellets"), str(pellets)),
+		fact(burst, seconds(fuse)),
 	]
 
 

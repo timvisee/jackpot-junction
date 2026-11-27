@@ -255,7 +255,7 @@ static func card_back() -> Texture2D:
 ## on a die. Mapped off the mesh's own UVs rather than triplanar, because a picture has a right
 ## way up and a wrong one, and tinted, so that one picture of a chip serves a rack of them.
 func printed(image: Texture2D, tint := Color.WHITE) -> StandardMaterial3D:
-	var key := "print:%s:%s" % [image.resource_path, tint.to_html()]
+	var key := "print:%s:%s" % [image.resource_path, tint.to_html()]  # NO_TRANSLATE
 	if _cache.has(key):
 		return _cache[key]
 	var card := StandardMaterial3D.new()
@@ -269,7 +269,7 @@ func printed(image: Texture2D, tint := Color.WHITE) -> StandardMaterial3D:
 
 ## Neon: lit from inside, so it blooms in a dark room and still reads in a bright one.
 func neon(color: Color, strength := 1.0) -> StandardMaterial3D:
-	var key := _key("neon%.2f" % strength, color)
+	var key := _key("neon%.2f" % strength, color)  # NO_TRANSLATE
 	if _cache.has(key):
 		return _cache[key]
 	var lit := StandardMaterial3D.new()

@@ -15,10 +15,12 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
+	# TRANSLATORS: What the sticky bomb does to a kart it hits, in its facts in the catalog.
+	var sticks := tr("sticks")
 	return [
-		fact("Shots", str(shots)),
-		fact("Blast", meters(blast_radius)),
-		fact("On hit", "sticks"),
+		fact(tr("Shots"), str(shots)),
+		fact(tr("Blast"), meters(blast_radius)),
+		fact(tr("On hit"), sticks),
 	]
 
 

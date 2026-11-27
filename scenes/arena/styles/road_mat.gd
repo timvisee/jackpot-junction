@@ -324,7 +324,7 @@ func _commit_paint() -> void:
 	for ink: Color in _paint:
 		var paint := MeshInstance3D.new()
 		paint.name = (
-			"RoadPaint%s"
+			"RoadPaint%s"  # NO_TRANSLATE
 			% ("" if arena.get_node_or_null("RoadPaint") == null else ink.to_html(false))
 		)
 		paint.mesh = (_paint[ink] as SurfaceTool).commit()

@@ -13,8 +13,8 @@ extends PowerUp
 
 func facts() -> Array[PackedStringArray]:
 	return [
-		fact("Shots", str(shots)),
-		fact("Range", meters(out_range)),
+		fact(tr("Shots"), str(shots)),
+		fact(tr("Range"), meters(out_range)),
 	]
 
 

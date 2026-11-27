@@ -8,7 +8,7 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
-	return [fact("Lasts", seconds(lifetime) + ", or one hit")]
+	return [fact(tr("Lasts"), tr("%s, or one hit") % seconds(lifetime))]
 
 
 func activate(kart: Kart) -> void:

@@ -6,7 +6,7 @@ extends PowerUp
 
 
 func facts() -> Array[PackedStringArray]:
-	return [fact("Lasts", seconds(duration))]
+	return [fact(tr("Lasts"), seconds(duration))]
 
 
 func activate(kart: Kart) -> void:

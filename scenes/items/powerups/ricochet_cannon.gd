@@ -9,9 +9,9 @@ extends PowerUp
 
 func facts() -> Array[PackedStringArray]:
 	return [
-		fact("Shots", str(shots)),
-		fact("Bounces", "+%d" % extra_bounces),
-		fact("Bullet speed", percent(speed_multiplier))
+		fact(tr("Shots"), str(shots)),
+		fact(tr("Bounces"), "+%d" % extra_bounces),
+		fact(tr("Bullet speed"), percent(speed_multiplier))
 	]
 
 

@@ -27,10 +27,11 @@ const FACE := Color(0.07, 0.07, 0.09)
 const FONT_SIZE := 64
 const MARGIN := 0.35
 
-## What the boards say: a headline, the line under it, and the color both are in. Two are
-## drawn at random as the room goes up, GAME.md 8.1, so a run of matches is not the same two
-## posters over and over. Written the way the hoardings in a real hall are: a trade nobody in
-## the room needs, sold in a voice nobody in the room believes.
+# TRANSLATORS: An ad on a hoarding over the crowd, in capitals: a headline, the line under it.
+## What the boards say: a headline, the line under it, and the color both are in, the words shown
+## through tr(). Two are drawn at random as the room goes up, GAME.md 8.1, so a run of matches is
+## not the same two posters over and over. Written the way the hoardings in a real hall are: a
+## trade nobody in the room needs, sold in a voice nobody in the room believes.
 const ADS: Array[Array] = [
 	["JACKPOT", "JUNCTION", Palette.CHIP_GOLD],
 	["NITRO", "DRINK IT FAST", Palette.NEON_CYAN],

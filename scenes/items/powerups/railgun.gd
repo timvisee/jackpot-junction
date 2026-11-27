@@ -14,9 +14,9 @@ extends PowerUp
 
 func facts() -> Array[PackedStringArray]:
 	return [
-		fact("Shots", str(shots)),
-		fact("Pierces", str(pierce)),
-		fact("Speed", percent(speed / 17.0)),
+		fact(tr("Shots"), str(shots)),
+		fact(tr("Pierces"), str(pierce)),
+		fact(tr("Speed"), percent(speed / 17.0)),
 	]
 
 

@@ -9,9 +9,9 @@ extends PowerUp
 
 func facts() -> Array[PackedStringArray]:
 	return [
-		fact("Lasts", seconds(lifetime) + ", or one hit"),
-		fact("Fires", "every " + seconds(fire_interval)),
-		fact("Reach", meters(Turret.RANGE))
+		fact(tr("Lasts"), tr("%s, or one hit") % seconds(lifetime)),
+		fact(tr("Fires"), tr("every %s") % seconds(fire_interval)),
+		fact(tr("Reach"), meters(Turret.RANGE))
 	]
 
 

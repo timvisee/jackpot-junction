@@ -52,7 +52,7 @@ var _boxes: Array[Rect2] = []
 ## Dresses [param for_arena]'s room and returns the holder everything went into.
 static func add_to(for_arena: Arena) -> RoomProps:
 	var props := RoomProps.new()
-	props._stand_in(for_arena, "Props")
+	props._stand_in(for_arena, "Props")  # NO_TRANSLATE
 	props.shell = RoomShell.add_to(for_arena)
 	props._build()
 	return props

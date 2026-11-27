@@ -362,7 +362,7 @@ func fluted() -> StandardMaterial3D:
 
 ## Lit from inside, as the room's neon is, see [Surfaces].
 func neon(color: Color, strength: float) -> StandardMaterial3D:
-	var key := "neon:%s:%.2f" % [color.to_html(false), strength]
+	var key := "neon:%s:%.2f" % [color.to_html(false), strength]  # NO_TRANSLATE
 	if not _materials.has(key):
 		var lit := StandardMaterial3D.new()
 		lit.albedo_color = color

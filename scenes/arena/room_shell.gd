@@ -40,7 +40,7 @@ func _keep(from: Vector3, to: Vector3, width: float) -> void:
 ## Puts an empty shell in [param for_arena]. The room fills it in.
 static func add_to(for_arena: Arena) -> RoomShell:
 	var shell := RoomShell.new()
-	shell._stand_in(for_arena, "Shell")
+	shell._stand_in(for_arena, "Shell")  # NO_TRANSLATE
 	return shell
 
 
