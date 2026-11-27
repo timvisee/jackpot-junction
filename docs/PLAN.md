@@ -5333,6 +5333,103 @@ How it fits together:
 P2 to P5 are one commit each, in that order, so each commit passes on its own: after P4 and before
 P5 CI simply runs without the music, which P2 makes pass. No release is cut between them.
 
+## M26: the third-party notices
+
+Asked for by the user on 2026-11-27, findings 2, 4 and 5 of the asset license audit
+(https://claude.ai/artifact/8p9icUan2C8fmyp5YZ9noW). The About page prints Godot's own MIT text but
+not the notices of the libraries Godot carries inside it, which Godot's guide says are "compatible
+with, but not covered by Godot's MIT license": FreeType asks for its credit line, libvorbis and the
+other BSD code for their copyright, Mbed TLS for the Apache-2.0 text. The texts of the fonts' OFL,
+the Apache-2.0 of two fonts and the tap, and GodotSteam's MIT ride inside the PCK where no player
+reads them. The dedicated server ships the same engine and has no About page at all. And
+THIRD_PARTY.md has no row for Reenie Beanie, which the About page credits, because test_about only
+checks the one way. Worked on master directly.
+
+What was decided, the user's answers the same day:
+- The game's own third-party pieces get their notices too (finding 4), but every list carries only
+  what is in that build: the server's no sound and no GodotSteam, a build without the music no Ovani.
+- On the About page, a fold at its foot, built the first time it is opened.
+- Godot's editor-only and development-only libraries are left out, and so are other platforms'
+  libraries. No file in the repository lists what is left out: each name says why beside it.
+- The dedicated server gets a page of its own on its web page, `/licenses.html`, a quiet link in
+  the footer, rather than a file beside the binary. `--licenses` prints the same and quits, for a
+  server whose page is off and for the game.
+- Finding 5 comes along: the Reenie Beanie row, and test_about checks both ways.
+
+Checked before planning, on Godot 4.7.2:
+- `Engine.get_copyright_info()` names 102 pieces, about 5 KB of copyright lines;
+  `Engine.get_license_info()` holds the 19 license texts they use, about 77 KB together (MPL-2.0 and
+  CC-BY-4.0 the longest). The table holds OFL-1.1, Apache-2.0, Expat and CC0-1.0, every text the
+  game's own pieces need.
+- Not in any shipped game, by 4.7.2's build files: Betsy and Convection Texture Tools (built into
+  export templates only with `betsy_export_templates` and `cvtt_export_templates`, off by default),
+  the lightmapper's JNLM denoiser and xatlas (`lightmapper_rd`, `xatlas_unwrap`: editor builds
+  only), doctest (`tests=yes` only), the editor's fonts DroidSans, Inter, JetBrains Mono, Noto Sans
+  and Vazirmatn (`editor/themes` builds every font in `thirdparty/fonts` but Open Sans, the one
+  `scene/theme` builds into every game), and the Linux AppStream file and the Godot logo
+  (`misc/dist`, `misc/logo`: packaging and artwork, built into nothing). Godot's Inter is the
+  editor's copy; the game's own Inter stays credited.
+- Other platforms' pieces: D3D12 Memory Allocator, DirectX Headers, NVAPI and mingw-std-threads
+  Windows only, ANGLE Windows and macOS, metal-cpp and SPIRV-Cross macOS, the Android Open Source
+  Project, ProcessPhoenix, Swappy and libjingle Android, the three Wayland pieces Linux, SDL,
+  hidapi, GamepadMotionHelpers and AccessKit the desktops. About 80 are left on the Linux server's
+  list. Each is checked against 4.7.2's platform build files as the table is written.
+- The server build (`"res://": "strip"`, `assets/audio/*` and `addons/godotsteam/*` left out) still
+  packs every font and the tap icon; its PCK of 2026-10-20 holds the eleven `.fontdata`.
+- The hall runs without the game's autoloads (GameTree), so a script that names `Audio`, `Game` or a
+  class that does fails to compile there: `Credits.in_this_build` names `Store` and `Audio` today.
+  The server check holds the hall under 160 MB while it holds no game.
+- ServerWeb answers with `put_data`, which blocks until the kernel takes it all. Today's pages are a
+  few KB; a 70 KB page to a client that never reads would hold the hall.
+
+How it fits together:
+- **`Credits`** (`scripts/credits.gd`) stays the one list, and becomes safe for the hall: a row's
+  `steam` is read as `Engine.has_singleton(&"Steam")` (a test holds the name to
+  `Store.SINGLETON`), its `music` through the Audio node where there is one, so the hall, with
+  none, has no music. A new `files` names res:// paths, and a row is in the build when one of them
+  is (`ResourceLoader.exists`): the sounds, the kart sounds, the fonts, the pads, the tap, gdUnit4.
+  So the server's list drops Kenney, Cascadia, Ovani and GodotSteam by itself, and gdUnit4, never
+  exported, leaves every exported About page. Rows whose terms have a text gain `license`, its key
+  in Godot's table (OFL-1.1, Apache-2.0, Expat, CC0-1.0), and `copyright`, the lines from the
+  license files, or from the font itself where the file has none (the two Apache fonts).
+- **`Licenses`** (`scripts/licenses.gd`, new, safe for the hall): `pieces()` is Godot's list without
+  `NOT_SHIPPED` (name and why) and without what `PLATFORMS` (name and the OS names it ships on)
+  keeps elsewhere; `keys(things)` the license keys used by those pieces and by `things`, each once,
+  a key with no text ("public-domain") skipped; `text(things)` all of it as plain text: Godot's MIT
+  text, the game's pieces, Godot's pieces with their copyright lines and license, then each license
+  text once.
+- **The About page**: the Godot Engine license heading becomes Licenses, Godot's MIT text stays
+  under it, then a gold "Show third-party licenses" link that builds the rest the first time it is
+  pressed, and folds it away and back after: the game's pieces with their copyright lines, Godot's
+  pieces, each license under its name. Named for the screen reader, the hand over it, reached by the
+  pad; the right stick scrolls it as the page. Timed while it opens; if it stalls, a license a frame.
+- **`--licenses`**: boot.gd prints `Licenses.text(Credits.in_this_build())` and quits, before any
+  scene, in the game and in the server.
+- **The server's page**: `/licenses.html`, built once as the hall opens the page and kept: the game
+  free under the GPL-3.0 with its source, what the server build is made with, Godot's MIT text, the
+  pieces, each license text in a `<details>`. "Licenses" in the footer of the main page, quiet, and
+  a way back. Answers go out through a queue, a slice a frame each, so a reader that does not read
+  never holds the hall, and one that has not taken it all in a few seconds is dropped; gzipped where
+  the browser says it takes gzip.
+- **Tests and checks**: every name in `NOT_SHIPPED` and `PLATFORMS` is in Godot's list, so an engine
+  upgrade that renames or drops one fails a test; none of `NOT_SHIPPED` is shown; on Linux FreeType,
+  ENet, OggVorbis and Mbed TLS are, and the Windows and Android pieces are not; every key shown has
+  its text; the fold closed holds none of it and open holds all; THIRD_PARTY.md and `Credits` both
+  ways; the page, its footer link, gzip, and a slow reader. The server check fetches
+  `/licenses.html` from the server it runs (the exported one with `SVCHECK_SERVER`): the fonts and
+  FreeType on it, no Kenney, Cascadia, Ovani or GodotSteam.
+- **Words**: GAME.md 8.5 and 9.3a, SERVER.md's web page, one CHANGELOG line.
+
+| Step | What | State |
+|------|------|-------|
+| N1 | The Reenie Beanie row in THIRD_PARTY.md, and test_about checking both ways | |
+| N2 | `Credits` safe for the hall, with `files`, `license` and `copyright` | |
+| N3 | `Licenses`, `--licenses`, their tests | |
+| N4 | The About page's fold, its tests, GAME.md 8.5, the CHANGELOG line | |
+| N5 | The server's answers queued and gzipped, `/licenses.html` and its footer link, their tests, GAME.md 9.3a, SERVER.md | |
+| N6 | The server check fetching the page | |
+| N7 | Checks: every commit's suite, lint and format, an exported game's and server's `--licenses`, the server check on an exported server, the fold timed | |
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
