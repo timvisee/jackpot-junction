@@ -30,6 +30,11 @@ const EDGE := Color(0.0, 0.0, 0.0, 0.5)
 ## shape keeps, so the edge has room. Steam's own fill their box to its edge, and are set in by it.
 const SPREAD := 1.4
 const INSET := 1.5
+## The arrow keys by their names, which the language spoken may translate, see
+## [constant InputActions.KEY_WORDS]. NO_TRANSLATE: their English names, translated where shown.
+const ARROW_KEYS: Dictionary[String, Vector2] = {
+	"Up": Vector2.UP, "Down": Vector2.DOWN, "Left": Vector2.LEFT, "Right": Vector2.RIGHT
+}
 ## How wide an outlined glyph's line is, in units, and the least it comes to on the screen, in
 ## pixels: at a Steam Deck's size the units alone are under a pixel, which smudges rather than
 ## draws.
@@ -339,7 +344,8 @@ static func key(text: String) -> Art:
 	return art
 
 
-## Which way an arrow key points, from its name or the arrow written on it, or none.
+## Which way an arrow key points, from its name, in English or as the language spoken names it, see
+## [constant InputActions.KEY_WORDS], or the arrow written on it; or none.
 static func arrow_of(text: String) -> Vector2:
 	match text:
 		"Up", "↑":  # NO_TRANSLATE
@@ -350,6 +356,9 @@ static func arrow_of(text: String) -> Vector2:
 			return Vector2.LEFT
 		"Right", "→":  # NO_TRANSLATE
 			return Vector2.RIGHT
+	for way: String in ARROW_KEYS:
+		if text == Lang.t(way):
+			return ARROW_KEYS[way]
 	return Vector2.ZERO
 
 

@@ -250,7 +250,8 @@ func test_keys_are_named_as_the_players_keyboard_prints_them() -> void:
 	assert_str(InputActions.event_text(space)).is_equal("Space")
 
 
-## A key whose name is a word is named in the language spoken: the space bar is Spatie in Dutch.
+## A key whose name is a word is named in the language spoken: the space bar is Spatie in Dutch;
+## an arrow key's cap still wears its arrow.
 func test_a_keys_name_is_said_in_the_language_spoken() -> void:
 	var was := Lang.current
 	var space := InputEventKey.new()
@@ -263,6 +264,11 @@ func test_a_keys_name_is_said_in_the_language_spoken() -> void:
 	assert_str(InputActions.event_text(space)).is_equal("Spatie")
 	assert_str(InputActions.event_text(up)).is_equal(Lang.t_in("nl", "Up"))
 	assert_str(InputActions.event_text(tab)).is_equal("Tab")
+	# An arrow key named in the language spoken is still drawn as its arrow on its cap.
+	for locale: String in ["nl", "zh_CN"]:
+		Lang.apply(locale)
+		assert_vector(GlyphArt.arrow_of(InputActions.event_text(up))).is_equal(Vector2.UP)
+	Lang.apply("nl")
 	Lang.apply(Lang.ENGLISH)
 	assert_str(InputActions.event_text(space)).is_equal("Space")
 	assert_str(InputActions.event_text(up)).is_equal("Up")
