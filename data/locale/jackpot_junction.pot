@@ -821,7 +821,7 @@ msgstr ""
 msgid "CLOSE"
 msgstr ""
 
-#: scenes/garage/part_tray.gd scenes/ui/supporter_thanks.gd
+#: scenes/garage/part_tray.gd scenes/ui/supporter_thanks.gd scenes/waiting/host_settings.gd
 msgid "Close"
 msgstr ""
 
@@ -7143,11 +7143,11 @@ msgid "IN THE DECK"
 msgstr ""
 
 #: scenes/ui/table_strip.gd
-msgid "Power-ups and %d of the rest, dealt each map"
+msgid "Press a card to turn it over"
 msgstr ""
 
 #: scenes/ui/table_strip.gd
-msgid "Press a card to turn it over"
+msgid "Power-ups and %d of the rest, dealt each map"
 msgstr ""
 
 #: scenes/ui/table_strip.gd
@@ -7538,6 +7538,24 @@ msgstr ""
 #. Under an emote floating up, for somebody watching the match who has no name.
 #: scenes/ui/watcher_emotes.gd
 msgid "Watcher"
+msgstr ""
+
+#. Under the title of the match settings, for everybody in an online game but the player who chooses the match, {name}; they can look at the settings, not change them.
+#: scenes/waiting/host_settings.gd
+msgid "{name} chooses the match."
+msgstr ""
+
+#. As "{name} chooses the match.", while that player is still choosing it.
+#: scenes/waiting/host_settings.gd
+msgid "{name} is choosing the match."
+msgstr ""
+
+#: scenes/waiting/host_settings.gd
+msgid "The host chooses the match."
+msgstr ""
+
+#: scenes/waiting/host_settings.gd
+msgid "The host is choosing the match."
 msgstr ""
 
 #: scenes/waiting/host_settings.gd

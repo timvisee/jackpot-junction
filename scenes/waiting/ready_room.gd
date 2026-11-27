@@ -876,8 +876,9 @@ func _build_counter() -> void:
 ## What the match settings chose, [param config] with the teams standing as [param sizes], as it is
 ## sent to every machine in the room with [signal Events.match_planned], GAME.md 9.6: what
 ## [method MatchOptions.describe] says it from rather than its words, so that each machine says it
-## in its own language, see [method said_plan].
-static func planned(config: MatchConfig, sizes: Array[int] = []) -> String:
+## in its own language, see [method said_plan]; and with it [param whole], the whole of the match
+## for a look at it, see [method whole_plan]. A game of 0.25.0 skips what it does not know.
+static func planned(config: MatchConfig, sizes: Array[int] = [], whole := {}) -> String:
 	var plan := {
 		"map": String(config.map),
 		"rounds": config.rounds,
@@ -886,7 +887,29 @@ static func planned(config: MatchConfig, sizes: Array[int] = []) -> String:
 		"teams": config.teams,
 		"sizes": sizes,
 	}
+	if not whole.is_empty():
+		plan["whole"] = whole
 	return JSON.stringify(plan)
+
+
+## The whole of the match [param summary] carries, see [method planned], as [method
+## MatchOptions.to_wire] has it, with who chooses it, "by", GAME.md 9.6; from a game that sends
+## only the summary, 0.25.0's, as much of it as the summary says; empty for no summary.
+static func whole_plan(summary: String) -> Dictionary:
+	var said: Variant = JSON.parse_string(summary) if summary.begins_with("{") else null
+	if not said is Dictionary:
+		return {}
+	var plan: Dictionary = said
+	var whole: Variant = plan.get("whole")
+	if whole is Dictionary:
+		return whole
+	var keys := {"map": "map", "rounds": "rounds", "duration": "duration", "target": "target_score"}
+	keys["teams"] = "teams"
+	var known := {}
+	for key: String in keys:
+		if plan.has(key):
+			known[keys[key]] = plan[key]
+	return known
 
 
 ## [param summary], as [method planned] made it at the machine that chose the match, said in the

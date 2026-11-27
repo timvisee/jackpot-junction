@@ -820,7 +820,7 @@ msgstr "星光"
 msgid "CLOSE"
 msgstr "关闭"
 
-#: scenes/garage/part_tray.gd scenes/ui/supporter_thanks.gd
+#: scenes/garage/part_tray.gd scenes/ui/supporter_thanks.gd scenes/waiting/host_settings.gd
 msgid "Close"
 msgstr "关闭"
 
@@ -7085,12 +7085,12 @@ msgid "IN THE DECK"
 msgstr "牌组中"
 
 #: scenes/ui/table_strip.gd
-msgid "Power-ups and %d of the rest, dealt each map"
-msgstr "每张地图发牌：道具，外加其余牌中的 %d 张"
-
-#: scenes/ui/table_strip.gd
 msgid "Press a card to turn it over"
 msgstr "按一张牌即可翻面"
+
+#: scenes/ui/table_strip.gd
+msgid "Power-ups and %d of the rest, dealt each map"
+msgstr "每张地图发牌：道具，外加其余牌中的 %d 张"
 
 #: scenes/ui/table_strip.gd
 msgid "Not open yet: it opens after map %d. Press to open it early."
@@ -7480,6 +7480,24 @@ msgstr "正在编译着色器，请稍候……"
 #: scenes/ui/watcher_emotes.gd
 msgid "Watcher"
 msgstr "观众"
+
+#. Under the title of the match settings, for everybody in an online game but the player who chooses the match, {name}; they can look at the settings, not change them.
+#: scenes/waiting/host_settings.gd
+msgid "{name} chooses the match."
+msgstr "比赛由{name}选择。"
+
+#. As "{name} chooses the match.", while that player is still choosing it.
+#: scenes/waiting/host_settings.gd
+msgid "{name} is choosing the match."
+msgstr "{name}正在选择比赛。"
+
+#: scenes/waiting/host_settings.gd
+msgid "The host chooses the match."
+msgstr "比赛由房主选择。"
+
+#: scenes/waiting/host_settings.gd
+msgid "The host is choosing the match."
+msgstr "房主正在选择比赛。"
 
 #: scenes/waiting/host_settings.gd
 msgid "Anybody else here joins with J or Start while you choose."

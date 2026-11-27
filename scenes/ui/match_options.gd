@@ -329,8 +329,9 @@ func remember(settings: Settings) -> void:
 	table.roulette = table_strip.roulette
 
 
-## Shows [param config] in the rows, as the House sets the table, STORY.md 8.1: a quick match on
-## its map, which the list is given if it does not offer it yet, and the rest as it is set.
+## Shows [param config] in the rows, as the House sets the table, STORY.md 8.1, or as a look at the
+## match has it, GAME.md 9.6: a quick match on its map, which the list is given if it does not offer
+## it yet, or a Grand Prix of its maps, and the rest as it is set.
 func show(config: MatchConfig) -> void:
 	var map := ArenaMaps.id_at(ArenaMaps.index_of(config.map))
 	if map not in _map_ids:
@@ -338,6 +339,10 @@ func show(config: MatchConfig) -> void:
 		map_option.add_item(tr(ArenaMaps.NAMES[ArenaMaps.index_of(map)]))
 	map_option.select(_map_ids.find(map))
 	choose(config.rounds > 0)
+	maps_option.select(maxi(MAPS.find(config.rounds), 0))
+	jokers_option.select(clampi(config.keep_jokers, 0, KEEPS.size() - 1))
+	normal_toggle.button_pressed = config.normal_maps
+	xl_toggle.button_pressed = config.xl_maps
 	minutes_option.select(maxi(match_lengths().find(roundi(config.duration)), 0))
 	target_option.select(maxi(TARGETS.find(config.target_score), 0))
 	_bots_wanted = -1 if config.make_up > 0 else config.bot_count

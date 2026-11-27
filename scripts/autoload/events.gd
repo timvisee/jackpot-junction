@@ -174,7 +174,8 @@ signal player_ready(slot: int, ready: bool)
 ## The host of a waiting room has said what the next match is going to be, in words, or that they
 ## are still choosing it, GAME.md 9.6, and whether it is the House's Final Hand, whose match is
 ## blacked out at every screen, STORY.md 8.1. Said again whenever somebody joins, so nobody who
-## arrives while it is being chosen is left not knowing.
+## arrives while it is being chosen is left not knowing. The summary carries the whole of it too,
+## and who chooses it, for everybody else to look at, see [method ReadyRoom.whole_plan].
 signal match_planned(summary: String, choosing: bool, by_the_house: bool)
 ## And how many bots the host has asked for in it, before the seats left in the arena cap it, and
 ## how many players the room may hold, GAME.md 9.6: the room says how many bots will come in with

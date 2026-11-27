@@ -29,6 +29,9 @@ const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
 const START_NOW := "Start now"
 ## What a Steam game's room says about friends coming in, GAME.md 10.8, shown through tr().
 const STEAM_HINT := "Friends join through Steam: invite them from the menu, or Join game"
+## How often the match being chosen is looked at for a change to show everybody else, in seconds,
+## see [method _show_as_chosen].
+const SHOW_EVERY := 0.2
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, along the back wall on either side of the middle.
 const STALLS := Vector2i(4, 1)
@@ -39,6 +42,9 @@ var config: MatchConfig
 var session: NetSession
 ## The host's choice of match, null on any other machine.
 var host_settings: HostSettings
+## Everybody else's look at it, every row locked, GAME.md 9.6, see [method _look]; null until asked
+## for.
+var looking: HostSettings
 ## Something to knock about while waiting, GAME.md 9.6.
 var ball: RoomBall
 ## Where everybody dresses their kart while they wait, GAME.md 4.4.
@@ -56,6 +62,18 @@ var _menu: PauseMenu
 var _admitted := false
 ## The pause menu's Start now, at the machine that decides where the room goes, GAME.md 9.6.
 var _start_now: Button
+## The pause menu's Match settings, to choose the match or to look at it.
+var _settings_entry: Button
+## The match as whoever chooses it last said it, and whether they were still choosing, for a look at
+## it, see [method _look]; as it was last said to everybody else, at the machine choosing, and how
+## long until it is looked at again, see [method _show_as_chosen]; and at a dedicated server, the
+## match as the client with the say is choosing it, shown but not yet played, see [method
+## _on_planned].
+var _heard := {}
+var _heard_choosing := true
+var _shown := ""
+var _show_left := 0.0
+var _being_chosen := {}
 ## Whether the room is only being passed through, unseen, on the way into the map a new host
 ## carried over, GAME.md 10.8, see [member MatchConfig.into_map]; until the game turns out to be in
 ## its lobby after all, or not to come up, see [method _arrived].
@@ -124,6 +142,7 @@ func _ready() -> void:
 	if config.online != "join":
 		_offer_the_settings(menu)
 	elif session != null:
+		_offer_a_look(menu)
 		_follow_the_say()
 	loaded.emit()
 
@@ -394,6 +413,9 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 	# Back from the Final Hand online, the next match is the room's own again, STORY.md 8.6.
 	if _came_back and config.final_hand:
 		FinalHand.clear_table(config)
+	# Anybody new told what the match is, somebody come to watch as well, who takes no seat.
+	if session != null:
+		session.multiplayer.peer_connected.connect(_on_peer_connected)
 	if config.dedicated:
 		# Nobody here chooses: a player at another machine has the say, see 9.3a, and the room
 		# goes to whatever they last said, and goes when they say so.
@@ -404,7 +426,8 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 		return
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
-	_offer_to_start(menu.add_entry(tr("Match settings"), choose))
+	_settings_entry = menu.add_entry(tr("Match settings"), _open_the_settings)
+	_offer_to_start(_settings_entry)
 	_point_to_the_settings()
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them. Quick Play chose it
@@ -490,8 +513,9 @@ func choose(lobby_first := false) -> void:
 ## Held for as long as a menu is up rather than once when it opens: the room opens the choosing on
 ## the first frame, before the match has finished starting, and a match that starts lets every
 ## kart go.
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	_hold(_menu_up())
+	_show_as_chosen(delta)
 	if _start_now != null:
 		_start_now.visible = session == null or session.host_controls.mine()
 	# The host's lobby may be made smaller or bigger while everybody waits in it, GAME.md 9.6, and
@@ -507,10 +531,13 @@ func _chosen() -> void:
 	_say_the_plan()
 
 
-## At a dedicated server, what the player with the say has chosen, or is choosing, GAME.md 9.3a.
-func _on_planned(plan: Dictionary, _still_choosing: bool) -> void:
-	MatchOptions.from_wire(config, plan)
-	_seat_the_teams()
+## At a dedicated server, what the player with the say has chosen, or is choosing, GAME.md 9.3a:
+## while they choose it, only shown to everybody as it stands, 9.6, and played once they have.
+func _on_planned(plan: Dictionary, still_choosing: bool) -> void:
+	_being_chosen = plan if still_choosing else {}
+	if not still_choosing:
+		MatchOptions.from_wire(config, plan)
+		_seat_the_teams()
 	_say_the_plan()
 
 
@@ -526,6 +553,7 @@ func _seat_the_teams() -> void:
 ## At a dedicated server, the say has passed to somebody else, who is not choosing anything yet;
 ## nor dealt the House's table, which was the last one's.
 func _on_hands_changed(_player: int) -> void:
+	_being_chosen = {}
 	if config.final_hand:
 		FinalHand.clear_table(config)
 	_say_the_plan()
@@ -552,11 +580,14 @@ func _on_granted(mine: bool) -> void:
 ## somebody the say has just passed to, a word that it has, see [method HostSettings.tell_new_host],
 ## and the pause menu for when they want them.
 func _take_the_say(arriving: bool) -> void:
+	if looking != null and looking.is_open():
+		looking.close()
 	if host_settings == null:
 		host_settings = HostSettings.add_to(self, false, session)
 		host_settings.closed.connect(_chosen)
-		_offer_to_start(_menu.add_entry(tr("Match settings"), choose))
-		_point_to_the_settings()
+		# Start now under Match settings, which every client has, to look at the match; here it
+		# chooses it now.
+		_offer_to_start(_settings_entry)
 	if config.creating:
 		# Who may come in starts where its maker last left it, as a host's door does, GAME.md 9.6.
 		config.creating = false
@@ -573,21 +604,59 @@ func _take_the_say(arriving: bool) -> void:
 
 
 ## The ways to the match settings besides the pause menu's, GAME.md 9.6, at the machine that
-## chooses the match: their key, E or a pad's View, said under the plan on the board, and on a touch
-## screen a round button beside the menu button.
+## chooses the match and at everybody else's, to look at it: their key, E or a pad's View, said
+## under the plan on the board, and on a touch screen a round button beside the menu button.
 func _point_to_the_settings() -> void:
 	ready_room.offer_settings()
 	if TouchInput.enabled and match_node.hud != null:
-		TouchSettings.attach(match_node.hud, choose)
+		TouchSettings.attach(match_node.hud, _open_the_settings)
+
+
+## Everybody else in an online game may look at the match, GAME.md 9.6: the match settings with
+## every row locked, showing it as whoever chooses it has it, as they choose it, and who they are,
+## from the pause menu and the same key and button as theirs.
+func _offer_a_look(menu: PauseMenu) -> void:
+	Events.match_planned.connect(_on_match_planned)
+	_settings_entry = menu.add_entry(tr("Match settings"), _open_the_settings)
+	_point_to_the_settings()
+
+
+## The match settings up: to choose the match at the machine that chooses it, see [method choose],
+## and anywhere else to look at it, see [method _look].
+func _open_the_settings() -> void:
+	if host_settings != null and (config.online != "join" or session.host_controls.mine()):
+		choose()
+	elif config.online == "join" and session != null:
+		_look()
+
+
+## The match as whoever chooses it last said it, on the match settings with every row locked,
+## GAME.md 9.6.
+func _look() -> void:
+	_show_the_look()
+	looking.open()
+
+
+## [member looking] showing the match as last heard.
+func _show_the_look() -> void:
+	if looking == null:
+		looking = HostSettings.for_looking(self, session)
+	looking.look_at(_heard, _heard_choosing)
+
+
+## What the next match is, as whoever chooses it has it, heard here for a look at it, see [method
+## _look], and shown at once where it is being looked at.
+func _on_match_planned(summary: String, choosing: bool, _house: bool) -> void:
+	_heard = ReadyRoom.whole_plan(summary)
+	_heard_choosing = choosing
+	if looking != null and looking.is_open():
+		_show_the_look()
 
 
 ## Whether [param event] is the match settings' key, see [constant InputActions.MATCH_SETTINGS],
-## pressed where it opens them: at the machine that chooses the match, with nothing else up.
+## pressed where it opens them, to choose the match or to look at it, with nothing else up.
 func _asks_for_the_settings(event: InputEvent) -> bool:
-	if host_settings == null or host_settings.is_open() or PlayerInput.typing:
-		return false
-	# At a client of a dedicated server, only while the say is still this machine's, GAME.md 9.3a.
-	if config.online == "join" and (session == null or not session.host_controls.mine()):
+	if _settings_entry == null or PlayerInput.typing:
 		return false
 	if not event.is_action_pressed(InputActions.MATCH_SETTINGS) or get_tree().paused:
 		return false
@@ -599,6 +668,8 @@ func _asks_for_the_settings(event: InputEvent) -> bool:
 ## are working it, and a kart that drove off on them, revving, would be a kart nobody was driving.
 func _menu_up() -> bool:
 	if host_settings != null and host_settings.is_open():
+		return true
+	if looking != null and looking.is_open():
 		return true
 	if PauseMenu.is_open_in(get_tree()):
 		return true
@@ -628,17 +699,66 @@ func _on_seat_refused(_seat: int) -> void:
 ## Tells the room what the next match is, or that it is still being chosen. The host's own room
 ## hears it the same way the clients' rooms do.
 func _say_the_plan() -> void:
+	var shown := _plan_now()
+	_shown = str(MatchOptions.to_wire(shown))
 	if config.online == "join":
 		# A client with the say tells the server, and the server tells the room, 9.3a.
 		if session != null:
-			session.host_controls.plan(config, _choosing())
+			session.host_controls.plan(shown, _choosing())
 		return
 	_said_limit = SeatLimit.limit(match_node, session)
 	Events.room_planned.emit(config.bot_count, _said_limit)
 	# What the match is goes as what it is said from, for every machine to say in its own language.
-	Events.match_planned.emit(
-		ReadyRoom.planned(config, _team_sizes()), _choosing(), config.final_hand
-	)
+	var summary := ReadyRoom.planned(config, _team_sizes(), _plan_shown(shown))
+	Events.match_planned.emit(summary, _choosing(), shown.final_hand)
+
+
+## The match as everybody else is shown it, GAME.md 9.6: as chosen, or while it is being chosen, as
+## the rows have it so far, here or at a dedicated server at the client with the say.
+func _plan_now() -> MatchConfig:
+	if host_settings != null and host_settings.is_open() and not config.final_hand:
+		var rows := MatchConfig.new()
+		host_settings.options.apply_to(rows)
+		return rows
+	if not _being_chosen.is_empty():
+		var said := MatchConfig.new()
+		MatchOptions.from_wire(said, _being_chosen)
+		return said
+	return config
+
+
+## [param shown] as it goes to everybody else for a look at it, GAME.md 9.6: the rows' choices,
+## whether it is the House's table, and who chooses it, but not the House's dealer models.
+func _plan_shown(shown: MatchConfig) -> Dictionary:
+	var plan := MatchOptions.to_wire(shown)
+	plan.erase("house")
+	plan["by"] = _chooser()
+	return plan
+
+
+## Who chooses the match, by name: the host's first player, or at a dedicated server the player
+## with the say; empty for nobody.
+func _chooser() -> String:
+	if session != null and session.dedicated:
+		var say := session.host_controls.peer
+		return session.host_controls._seat_name(say) if say != 0 else ""
+	for slot: PlayerSlot in match_node.slots:
+		if slot.is_local_human():
+			return slot.display_name()
+	return ""
+
+
+## The match being chosen here said to everybody else as it changes, a few times a second, GAME.md
+## 9.6, for whoever looks at it to see it chosen.
+func _show_as_chosen(delta: float) -> void:
+	if session == null or host_settings == null or not host_settings.is_open():
+		return
+	_show_left -= delta
+	if _show_left > 0.0:
+		return
+	_show_left = SHOW_EVERY
+	if str(MatchOptions.to_wire(_plan_now())) != _shown:
+		_say_the_plan()
 
 
 ## How the teams will stand, GAME.md 9.6, "2 v 2": everybody here on the team they are on, and the
@@ -671,6 +791,11 @@ func _choosing() -> bool:
 
 ## Somebody arrived. They were not here to hear the plan the first time, so it is said again.
 func _on_player_joined(_slot: int) -> void:
+	_say_the_plan()
+
+
+## Somebody connected, to play or to watch: told the plan as well, see [method _on_player_joined].
+func _on_peer_connected(_peer: int) -> void:
 	_say_the_plan()
 
 
@@ -765,7 +890,7 @@ func _local_addresses() -> PackedStringArray:
 ## _asks_for_the_settings].
 func _input(event: InputEvent) -> void:
 	if _asks_for_the_settings(event):
-		choose()
+		_open_the_settings()
 		get_viewport().set_input_as_handled()
 		return
 	if not event.is_action_pressed(InputActions.JOIN) or get_tree().paused or PlayerInput.typing:

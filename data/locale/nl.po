@@ -823,7 +823,7 @@ msgstr "STERRENLICHT"
 msgid "CLOSE"
 msgstr "SLUITEN"
 
-#: scenes/garage/part_tray.gd scenes/ui/supporter_thanks.gd
+#: scenes/garage/part_tray.gd scenes/ui/supporter_thanks.gd scenes/waiting/host_settings.gd
 msgid "Close"
 msgstr "Sluiten"
 
@@ -7162,12 +7162,12 @@ msgid "IN THE DECK"
 msgstr "IN HET DECK"
 
 #: scenes/ui/table_strip.gd
-msgid "Power-ups and %d of the rest, dealt each map"
-msgstr "Power-ups en %d van de rest, elke map uitgedeeld"
-
-#: scenes/ui/table_strip.gd
 msgid "Press a card to turn it over"
 msgstr "Druk op een kaart om hem om te draaien"
+
+#: scenes/ui/table_strip.gd
+msgid "Power-ups and %d of the rest, dealt each map"
+msgstr "Power-ups en %d van de rest, elke map uitgedeeld"
 
 #: scenes/ui/table_strip.gd
 msgid "Not open yet: it opens after map %d. Press to open it early."
@@ -7558,6 +7558,24 @@ msgstr "Shaders compileren, even geduld..."
 #: scenes/ui/watcher_emotes.gd
 msgid "Watcher"
 msgstr "Kijker"
+
+#. Under the title of the match settings, for everybody in an online game but the player who chooses the match, {name}; they can look at the settings, not change them.
+#: scenes/waiting/host_settings.gd
+msgid "{name} chooses the match."
+msgstr "{name} kiest de match."
+
+#. As "{name} chooses the match.", while that player is still choosing it.
+#: scenes/waiting/host_settings.gd
+msgid "{name} is choosing the match."
+msgstr "{name} is de match aan het kiezen."
+
+#: scenes/waiting/host_settings.gd
+msgid "The host chooses the match."
+msgstr "De host kiest de match."
+
+#: scenes/waiting/host_settings.gd
+msgid "The host is choosing the match."
+msgstr "De host is de match aan het kiezen."
 
 #: scenes/waiting/host_settings.gd
 msgid "Anybody else here joins with J or Start while you choose."

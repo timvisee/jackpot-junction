@@ -327,10 +327,10 @@ func _show() -> void:
 	if _note == null:
 		return
 	_heading.text = tr("IN THE DECK") if roulette else tr("ON THE TABLE")
+	# Nothing to press on a table locked, the House's or one only looked at, GAME.md 9.6.
+	var press := "" if _locked else tr("Press a card to turn it over")
 	_note.text = (
-		tr("Power-ups and %d of the rest, dealt each map") % TableCards.DEAL
-		if roulette
-		else tr("Press a card to turn it over")
+		tr("Power-ups and %d of the rest, dealt each map") % TableCards.DEAL if roulette else press
 	)
 	for each: TableCardButton in _cards:
 		var card := each.card

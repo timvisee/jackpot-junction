@@ -9131,7 +9131,8 @@ running out does and whether a trailing player is helped to catch up, 3.16, in t
 see How the pane is laid out below. They come up over the
 room the moment it is opened, again from the host's pause menu or with their own key, E or a pad's
 View, which nothing in the room is on and which is drawn in front of the plan on the board, "[E]
-Next: ...", at the machine that chooses the match; a touch screen has a round button with three
+Next: ...", at every screen in an online game, where everybody else looks at the match with them,
+see Looking at the match below; a touch screen has a round button with three
 sliders on it beside its menu button instead, the emote button standing on past it. They start on
 whatever the host chose last time. Hosting online they come up one step later: first the lobby's own settings of
 10.3, who may come in, since friends are knocking from the moment the room is open, with Next
@@ -9158,6 +9159,19 @@ rows rather than on Done, and Back is Done, its key or button drawn on it while 
 in hand, so a pad never has to walk down to it. The room does not go while the host is
 choosing, however ready everybody else is: a match that started
 halfway through the menu would be the one that was set before they began.
+
+**Looking at the match.** Everybody else in an online game, a watcher too, has the same pane to
+look at, to know the whole of the match rather than the line on the board: Match settings on
+their pause menu, the same key and the same touch button. It shows the match as whoever chooses
+it has it, every row locked and nothing to change, the line under the title saying who that is,
+"Kit chooses the match.", or while their pane is up "Kit is choosing the match.", and the rows
+following theirs as they change them, a few times a second. Close puts it away, keeping nothing
+as anybody's choice. At a dedicated server it is the player with the say whose match it shows,
+9.3a; while they choose it the server only shows it, and plays it once they are done. The host
+says the whole of the match inside what the line on the board is said from, again to everybody who
+arrives (`Events.match_planned`, `ReadyRoom.whole_plan`, `HostSettings.for_looking`), which a game
+of 0.25.0 skips, so it plays on with 0.25.1; from a 0.25.0 host the look shows what the line says,
+the arena or maps, the length, the target and the teams.
 
 **How the pane is laid out.** Thirteen rows and more down one column ran off a desktop's screen as
 much as a phone's, and a first look at them was a wall of choices for somebody who only wanted to

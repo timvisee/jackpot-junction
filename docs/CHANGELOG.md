@@ -32,6 +32,9 @@ below, and hands the notes to the release workflow.
   bombs, mines and dropped chips lying near it.
 - **Presets on the triggers.** In the match settings, a controller's right and left triggers step
   forward and back through the presets.
+- **Everybody sees the match settings.** In an online game, Match settings on the pause menu, E or
+  View shows everybody the whole match the host is choosing, as they choose it; only they can
+  change it.
 
 ### Changed
 

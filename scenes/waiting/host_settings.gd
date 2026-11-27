@@ -12,6 +12,10 @@ extends CanvasLayer
 ## Hosting a LAN game, the first time it comes up it starts one step earlier, on the lobby's own
 ## settings, who may come in, see [LobbySettings], since friends are knocking from the moment the
 ## room is open: Next goes on from there to the match.
+##
+## Everybody else in an online game sees the same pane, every row locked, showing what whoever
+## chooses the match has chosen, as they choose it, and saying who that is, see [method look_at]:
+## the match settings are nobody's but theirs to change, and everybody's to read.
 
 ## The host has finished choosing. What they chose is in [member options].
 signal closed
@@ -22,11 +26,26 @@ const FIT_EDGE := 12.0
 const LEAST_ROWS := 160.0
 ## How wide Done is.
 const DONE_WIDTH := 460.0
+## What the pane says under its title when it only shows the match, see [method look_at], shown
+## through tr(): who chooses it, by name.
+# TRANSLATORS: Under the title of the match settings, for everybody in an online game but the player
+# who chooses the match, {name}; they can look at the settings, not change them.
+const CHOOSES := "{name} chooses the match."
+## And while that player has the match settings up, choosing it, shown through tr().
+# TRANSLATORS: As "{name} chooses the match.", while that player is still choosing it.
+const CHOOSING := "{name} is choosing the match."
+## The same of a host who gave no name, shown through tr().
+const HOST_CHOOSES := "The host chooses the match."
+## And while that host is choosing it, shown through tr().
+const HOST_CHOOSING := "The host is choosing the match."
 
 var options: MatchOptions
 ## Whether this is a room on one machine rather than an online one, which is only a matter of who
 ## it says can join while the choosing goes on.
 var alone := false
+## Whether it only shows the match somebody else chooses, see [method look_at]: every row locked,
+## and nothing kept as anybody's choice.
+var looking := false
 
 var _panel: Control
 var _middle: CenterContainer
@@ -34,6 +53,8 @@ var _pane: PanelContainer
 var _scroll: ScrollContainer
 var _rows: VBoxContainer
 var _done: Button
+## The line under the title: who may join while the match is chosen, or who chooses it.
+var _line: Label
 ## Whether keys rather than a pad were last in hand, and the mouse or a finger since, for Done's
 ## bind, see [method _show_bind].
 var _keyboard := true
@@ -65,6 +86,52 @@ static func add_to(
 	pane.alone = on_one_machine
 	parent.add_child(pane)
 	return pane
+
+
+## The pane that shows the match to everybody but whoever chooses it, over [param room], in the
+## game [param session] plays, see [method look_at]: every row locked, and Close rather than Done.
+static func for_looking(room: Node, session: NetSession) -> HostSettings:
+	var pane := HostSettings.new()
+	pane._session = session
+	pane.name = "MatchLook"
+	pane.looking = true
+	room.add_child(pane)
+	pane.options.lock()
+	pane._done.text = Lang.t("Close")
+	return pane
+
+
+## Shows [param plan], the match as whoever chooses it has it, see [method
+## MatchOptions.to_wire], [param choosing] it still or not, and who they are, GAME.md 9.6.
+func look_at(plan: Dictionary, choosing: bool) -> void:
+	var shown := MatchConfig.new()
+	MatchOptions.from_wire(shown, plan)
+	var by := PlayerNames.clean(str(plan.get("by", "")))
+	_line.text = tr(CHOOSING if choosing else CHOOSES).format({"name": by})
+	if by.is_empty():
+		_line.text = tr(HOST_CHOOSING if choosing else HOST_CHOOSES)
+	options.show(shown)
+	_show_chosen()
+	if is_open():
+		_fit()
+
+
+## The chosen kind of game, map sizes and preset drawn as chosen though locked, see [method
+## look_at]: a locked button wears its disabled look whether it is pressed or not, which would leave
+## a look at the match unable to say which of them it is.
+func _show_chosen() -> void:
+	var picker := options.mode_picker
+	var pairs: Array[Button] = [
+		picker.button(true), picker.button(false), options.normal_toggle, options.xl_toggle
+	]
+	pairs.append_array(options.presets.buttons())
+	for each: Button in pairs:
+		if each.button_pressed:
+			each.add_theme_stylebox_override(&"disabled", each.get_theme_stylebox(&"pressed"))
+			each.add_theme_color_override(&"font_disabled_color", HouseTheme.FOIL)
+		else:
+			each.remove_theme_stylebox_override(&"disabled")
+			each.remove_theme_color_override(&"font_disabled_color")
 
 
 func _ready() -> void:
@@ -103,7 +170,8 @@ func _ready() -> void:
 		if alone
 		else tr("Friends can join and drive while you choose.")
 	)
-	column.add_child(MenuTheme.subtitle(joining, Type.LABEL))
+	_line = MenuTheme.subtitle(joining, Type.LABEL)
+	column.add_child(_line)
 	column.add_child(MenuTheme.perforation())
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -419,13 +487,14 @@ func set_by_the_house(config: MatchConfig) -> void:
 
 ## Puts the choices away for next time and says the host is done. Closing is the only way out,
 ## so there is no choosing that is not kept: the rows are what the host was looking at. A table
-## the House set is nobody's choice, and the lobby's remembered ones are left as they were.
+## the House set is nobody's choice, and the lobby's remembered ones are left as they were; nor is
+## a match only looked at, see [member looking].
 func close() -> void:
 	if not _panel.visible:
 		return
 	_show_match()
 	_panel.visible = false
-	if not _by_the_house:
+	if not _by_the_house and not looking:
 		options.remember(Game.settings)
 		Game.settings.save_to_disk()
 	closed.emit()

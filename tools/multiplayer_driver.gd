@@ -366,6 +366,8 @@ func _client_joins() -> Node:
 	):
 		return null
 	_room_color = match_node.slots[session.local_slot].color_index
+	if not await _looks_at_the_match(room):
+		return null
 	await _dressed(match_node, "in the room")
 	# The first client drives through the football on the way to the pad, from a little short of
 	# it to a little past it, and the ball this machine draws has to have gone somewhere too. Only
@@ -441,6 +443,26 @@ func _client_joins() -> Node:
 	):
 		return null
 	return await _map(1)
+
+
+## The match settings looked at from here, GAME.md 9.6: the host's Grand Prix of [constant MAPS]
+## maps, every row locked, saying the host chooses it, nothing here to choose it with; put away.
+func _looks_at_the_match(room: Node) -> bool:
+	if not await _until(
+		func() -> bool: return int(room._heard.get("rounds", 0)) == MAPS, 20.0, "told the match"
+	):
+		return false
+	room._open_the_settings()
+	var look: HostSettings = room.looking
+	if not _check(look != null and look.is_open(), "the match settings open to look at"):
+		return false
+	var maps := MatchOptions.MAPS[look.options.maps_option.selected]
+	_check(look.options.is_grand_prix() and maps == MAPS, "the host's Grand Prix of %d maps" % MAPS)
+	_check(look.options.maps_option.disabled, "every row locked")
+	_check(look._line.text == "Host chooses the match.", "saying the host chooses it")
+	_check(room.host_settings == null, "nothing here to choose it with")
+	look.close()
+	return _check(not look.is_open(), "and put away again")
 
 
 ## A second player at this client takes a seat, the way the room tells them to, GAME.md 10.3:
