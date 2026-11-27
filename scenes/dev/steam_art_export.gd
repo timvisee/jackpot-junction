@@ -543,7 +543,8 @@ func _achievement(id: StringName) -> Achievement:
 
 ## [param words] as a heading of the description: the foil on a strip of the stock, its corners
 ## notched as the game's tickets are, a hairline inside its edge, and the suit [param suit] either
-## side, the words set smaller where they would not fit between them.
+## side, the game's own drawing of it, GAME.md 8.3a, in the foil, the words set smaller where they
+## would not fit between them.
 func _heading(words: String, suit: int) -> Image:
 	var size := HEADING * OVER
 	var strip := Panel.new()
@@ -575,7 +576,8 @@ func _heading(words: String, suit: int) -> Image:
 			for way: float in [-1.0, 1.0]:
 				var middle := Vector2(size) / 2.0 + Vector2(way * (wide / 2.0 + side * 1.1), 0.0)
 				var box := Rect2(middle - Vector2.ONE * side / 2.0, Vector2.ONE * side)
-				SuitArt.draw_into(pips, box, suit % 4, HouseTheme.FOIL)
+				var mark := JokerSuits.PICTURES[suit % JokerSuits.PICTURES.size()]
+				IconPress.draw(pips, box, mark, HouseTheme.FOIL, IconPress.Ground.PAPER)
 	)
 	strip.add_child(pips)
 	return await drawn(strip, size)
