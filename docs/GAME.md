@@ -551,7 +551,8 @@ receipt: cream paper torn off the house's printer, the winner's color in the hai
 inside its edge. Each player gets a line of their own rather than a line of text,
 with their place on a chip of their color and their name in it, darkened to read on
 paper, a bot's with the robot's head after it as in the room's standings, and anybody's with a
-license to show, a bot's, 9.4a, or a player's at another machine, with a little license after it,
+license to show, a bot's, 9.4a, a player's at another machine, or the reader's own, theirs as the
+title holds it up, and a linked seat's its profile's, with a little license after it,
 the same for all, in gray and darker under the pointer, which holds up their
 driver license over the slip, 10.8, for the mouse and a finger alone, so the slip's buttons keep the
 cursor; dotted leaders across to what they banked on the right, their kills and

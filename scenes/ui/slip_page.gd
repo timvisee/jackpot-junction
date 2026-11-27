@@ -488,8 +488,8 @@ func _place_chip(slot: PlayerSlot, rank: int) -> Control:
 
 ## A player's name as it is printed on the slip: their own color, darkened until it reads on paper,
 ## and for a bot a robot's head after it, as the standings in the room have, GAME.md 8.3; and for
-## anybody with a license to show, a bot, 9.4a, or a player at another machine, 10.8, a little
-## license after that, the same for all, that holds theirs up.
+## anybody with a license to show, a bot, 9.4a, a player at this machine or another, 10.8, a
+## little license after that, the same for all, that holds theirs up.
 func _name(slot: PlayerSlot) -> Control:
 	var size := _sized(30, COMPACT_NAME)
 	var name_label := _label(slot.display_name(), size, HouseTheme.on_paper(slot.color()))
@@ -518,13 +518,23 @@ func _name(slot: PlayerSlot) -> Control:
 
 
 ## The driver license of whoever plays in [param slot]: a bot's as this screen makes it up, see
-## [BotLicense], GAME.md 9.4a, and a player's at another machine as the host told it, 10.8; empty
-## for a learner, this machine's own players, or a player in a game played alone.
+## [BotLicense], GAME.md 9.4a; a player's at this machine as their profile has it, the first seat's
+## marked "own" so it is held up as the title holds it up, see [LicenseView]; and a player's at
+## another machine as the host told it, 10.8. Empty for a learner, a seat with no profile of its
+## own, and a seat of the demo for a booth, 9.8.
 static func _license_of(slot: PlayerSlot) -> Dictionary:
 	if slot == null:
 		return {}
 	if not slot.is_human():
 		return BotLicense.of(slot)
+	var player := slot.input as PlayerInput
+	if player != null:
+		if player is DemoInput:
+			return {}
+		var mine := LicenseWire.of_seat(player.seat)
+		if player.seat == 0 and not mine.is_empty():
+			mine["own"] = true
+		return mine
 	if Net.session == null:
 		return {}
 	return Net.session.host_controls.license_of(slot.index)

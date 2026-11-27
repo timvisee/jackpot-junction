@@ -20,25 +20,35 @@ const LAP := "LAP %d"
 ## This machine's license, the first seat's, as the card says it, see
 ## [method LicenseCard.from_settings]; empty without one, a learner having none to show.
 static func here() -> Dictionary:
+	return of_seat(0)
+
+
+## The license of this machine's seat [param seat], as the card says it: the first seat's the
+## profile playing's, and another's the profile linked to it, GAME.md 3.8; empty for a seat with no
+## profile of its own, a guest's, and for a learner, who has none to show.
+static func of_seat(seat: int) -> Dictionary:
 	var settings := Game.settings
-	if settings == null or not Story.licensed(settings.profile):
+	if settings == null:
 		return {}
-	var holder := settings.license_holder
+	var profile := settings.profile if seat == 0 else settings.seat_profile(seat)
+	if profile == null or not Story.licensed(profile):
+		return {}
+	var holder := profile.license_holder
 	if holder.is_empty():
-		holder = settings.player_names[0]
-	var stamps := Loyalty.endorsements_of(settings.profile)
-	if settings.profile.loyalty.laps > 0:
-		stamps.append(LAP % settings.profile.loyalty.laps)
+		holder = settings.seat_name(seat)
+	var stamps := Loyalty.endorsements_of(profile)
+	if profile.loyalty.laps > 0:
+		stamps.append(LAP % profile.loyalty.laps)
 	return {
 		"name": holder,
-		"number": settings.license_number,
-		"issued": settings.license_date,
-		"color": maxi(settings.seat_color(0), 0),
-		"style": PackedInt32Array(settings.kart_styles[0]),
-		"earned": settings.license_endorsements,
-		"supporter": settings.supporter_since if Supporter.owned() else "",
+		"number": profile.license_number,
+		"issued": profile.license_date,
+		"color": maxi(settings.seat_color(seat), 0),
+		"style": PackedInt32Array(profile.kart_styles[0]),
+		"earned": profile.license_endorsements,
+		"supporter": settings.supporter_since if seat == 0 and Supporter.owned() else "",
 		"stamps": stamps,
-		"cones": settings.profile.license_cones,
+		"cones": profile.license_cones,
 	}
 
 

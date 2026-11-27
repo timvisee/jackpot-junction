@@ -1,7 +1,10 @@
 extends GdUnitTestSuite
 ## Another player's driver license, GAME.md 10.8: this machine's as it goes over the wire, a
-## learner's none; one that came over it cleaned, whoever sent it; and the card made from it, as
-## its holder's own but the story's marks, which are theirs to know.
+## learner's none, and a linked seat's its own profile's; one that came over it cleaned, whoever
+## sent it; and the card made from it, as its holder's own but the story's marks, which are theirs
+## to know.
+
+const LINKED := "user://test_license_wire.cfg"
 
 var _kept: Profile
 
@@ -84,3 +87,26 @@ func test_the_card_of_somebody_else() -> void:
 	assert_bool(card.scratched).is_false()
 	assert_str(card.approved).is_empty()
 	assert_str(card.examiner).is_equal(LicenseCard.EXAMINER)
+
+
+## Another seat at this machine shows the license of the profile linked to it, GAME.md 3.8; a seat
+## with none, a guest's, has none to show, whatever the first seat holds.
+func test_a_linked_seat_has_its_profiles_own() -> void:
+	var settings_were := Game.settings
+	Game.settings = Settings.new()
+	Game.settings.path = LINKED
+	Game.settings.license_number = "K-1"
+	assert_dict(LicenseWire.of_seat(1)).is_empty()
+	var bob := Game.settings.new_profile()
+	bob.license_number = "K-2"
+	bob.license_holder = "Bob"
+	bob.license_endorsements = PackedStringArray(["KO"])
+	bob.save_to_disk()
+	Game.settings.link_seat(1, bob.id)
+	var his := LicenseWire.of_seat(1)
+	assert_str(str(his["name"])).is_equal("Bob")
+	assert_str(str(his["number"])).is_equal("K-2")
+	assert_array(Array(his["earned"])).contains_exactly(["KO"])
+	assert_str(str(LicenseWire.here()["number"])).is_equal("K-1")
+	Settings.remove_files(LINKED)
+	Game.settings = settings_were

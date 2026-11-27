@@ -344,6 +344,37 @@ func test_a_quick_match_goes_back_to_the_lobby() -> void:
 	assert_object(screen._lobby.get_viewport().gui_get_focus_owner()).is_equal(screen._rematch)
 
 
+## GAME.md 3.8: the player's own line carries the little license too, once they hold one, and it
+## holds up their own card as the title does, the story's marks and all.
+func test_the_slip_holds_up_the_players_own_license() -> void:
+	var kept := Game.settings.profile
+	Game.settings.profile = Profile.new()
+	var match_node := _finished_match()
+	await _runner.simulate_frames(12, 17)
+	(match_node.slots[0].input as PlayerInput).seat = 0
+	match_node.time_left = 0.02
+	await _runner.simulate_frames(10, 17)
+	await _skip_the_pause(match_node)
+	var screen: ResultsScreen = match_node.hud._results
+	var mine := func() -> Button:
+		for button: Node in screen.find_children("License", "Button", true, false):
+			if (button as Button).tooltip_text == "Ada's license":
+				return button
+		return null
+	assert_object(mine.call()).is_null()
+	Game.settings.license_number = "JJ-100001"
+	screen.fill_in()
+	var license: Button = mine.call()
+	assert_object(license).is_not_null()
+	license.pressed.emit()
+	var view := get_tree().root.find_child("LicenseView", true, false) as LicenseView
+	assert_object(view).is_not_null()
+	assert_str(view.card.number).is_equal("JJ-100001")
+	assert_bool(view.card.bot).is_false()
+	view.get_parent().free()
+	Game.settings.profile = kept
+
+
 ## GAME.md 8.9: on a pad the cursor reaches the pins of the nearest bets on the program's page, up
 ## from the ways on under the bill, marked as a button is; up and down go between them, past the
 ## ends back to the ways on, and left too; and accept pins as a click does.

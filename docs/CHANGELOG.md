@@ -28,7 +28,7 @@ below, and hands the notes to the release workflow.
   public game, a player stays out of it, a host's Steam blocks keep people out, and other players'
   names go through Steam's text filter.
 - **Other players' licenses.** License in Players, and a little license after a name on the payout
-  slip, hold up that player's driver license, as yours is on the title.
+  slip, hold up that player's driver license, as yours is on the title; yours is on the slip too.
 - **Bots' licenses.** A little license after a bot's name on the payout slip holds up its own:
   Class B, on gray stock, signed AUTOMATED. Learners still have none.
 - **Quick Play.** First on Play Online's Steam tab: one press joins a public game near you, a
