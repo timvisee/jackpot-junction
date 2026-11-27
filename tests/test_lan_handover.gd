@@ -18,6 +18,15 @@ var _went: Array[MatchConfig] = []
 var _gave_up: Array[String] = []
 
 
+## Stands in for [HostHandover] at Make host: what it was handed down.
+class HandedDown:
+	extends Node
+	var got: Array = []
+
+	func hand_down(line: Array, port: int, plan: String) -> void:
+		got = [line, port, plan]
+
+
 func before_test() -> void:
 	port = FreePorts.take()
 	_host_root = auto_free(Node.new())
@@ -179,6 +188,32 @@ func test_watchers_are_not_told_the_password() -> void:
 	var plan: Dictionary = JSON.parse_string(watcher.host_controls.succession_plan)
 	assert_bool((plan["door"] as Dictionary).has("password")).is_false()
 	assert_int(watcher.host_controls.succession_port).is_equal(port)
+	host.free()
+
+
+## Make host off Steam: the player made host put first in line, everybody told so before the game
+## is handed down to them, from the room as it is, its password with it.
+func test_make_host_hands_it_down() -> void:
+	var host := _a_host()
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.port = port
+	host.door.password = "secret"
+	var client: NetSession = await _a_client("secret")
+	await _until(func() -> bool: return not client.host_controls.succession.is_empty(), 4000)
+	_handover.remove_from_group(HostHandover.GROUP)
+	var stub: HandedDown = auto_free(HandedDown.new())
+	stub.add_to_group(HostHandover.GROUP)
+	add_child(stub)
+	var peer := client.multiplayer.get_unique_id()
+	host.in_arena = false
+	host.host_controls.hand_on(peer)
+	assert_int(stub.got.size()).is_equal(3)
+	assert_int(int((stub.got[0] as Array)[0]["peer"])).is_equal(peer)
+	assert_int(int(stub.got[1])).is_equal(port)
+	var plan: Dictionary = JSON.parse_string(str(stub.got[2]))
+	assert_str(str(plan["door"]["password"])).is_equal("secret")
+	# Told before it was handed down: the order as of now has gone to the client already.
+	assert_str(str(host.host_controls._succession_told.get(peer, ""))).contains(str(peer))
 	host.free()
 
 

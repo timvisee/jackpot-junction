@@ -309,6 +309,8 @@ func hand_on(player: int) -> void:
 		return
 	_order.erase(player)
 	_order.push_front(player)
+	# Everybody told the new order before the host goes, see [method HostHandover.hand_down].
+	_tell_succession()
 	handover.call(&"hand_down", succession_line(), _hosted_port(), _plan_here())
 
 
