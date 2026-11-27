@@ -118,6 +118,19 @@ func test_kick_words() -> void:
 	)
 
 
+## Every row's chip says the seat in the room, as the corner of the screen does: a guest's own too,
+## not the number of their seat at their machine, which is for Kick.
+func test_every_chip_says_the_seat_in_the_room() -> void:
+	var pane: ManagePlayers = auto_free(ManagePlayers.new())
+	add_child(pane)
+	var card := pane._row({"name": "Bo", "color": Color.RED, "seat": 0, "slot": 2, "peer": 9})
+	auto_free(card)
+	assert_str(card._mark).is_equal("3")
+	var mine := pane._row({"name": "Ann", "color": Color.BLUE, "seat": 1, "me": true})
+	auto_free(mine)
+	assert_str(mine._mark).is_equal("2")
+
+
 ## The list is offered to whoever has the say, and to everybody in a game a player hosts, on Steam
 ## or off it; not to a player at a dedicated server's game without the say.
 func test_who_the_list_is_offered_to() -> void:

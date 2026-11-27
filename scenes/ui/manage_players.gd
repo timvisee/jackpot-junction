@@ -168,7 +168,9 @@ func _row(guest: Dictionary) -> SeatCard:
 	if bool(guest.get("host", false)):
 		where = "Host"
 	var says := with_steam_name(where, _steam_name(guest))
-	var mark := str(seat + 1) if plays and seat >= 0 else ""
+	# The seat in the room, as the corner of the screen says it, for everybody alike: the number of
+	# their seat at their own machine is for Kick.
+	var mark := str(int(guest.get("slot", seat)) + 1) if plays and seat >= 0 else ""
 	var card := SeatCard.make(
 		str(guest["name"]), guest.get("color", SeatCard.NO_COLOR), mark, says, me
 	)

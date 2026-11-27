@@ -7950,7 +7950,8 @@ and the cursor on Join; so does Back, or B, which says nothing, since nothing we
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody in the game as a seat card of 8.1a, the host's own
 players first, rimmed in foil, marked Me and with nothing beside them, then each other player by
-the name of their seat, its chip in their color with their seat's number, and each watcher by the
+the name of their seat, its chip in their color with their seat's number in the room, the one the
+corner of their screen says, every row alike, and each watcher by the
 name the host gave them on a gray chip, with Kick beside every one of those. Every player
 has the plate on their kart beside the name, see 4.4, or before a license the learner's L itself
 rather than a plate reading L, so the host can tell two Bobs apart; somebody watching has no kart
