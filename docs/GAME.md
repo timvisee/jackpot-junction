@@ -8122,10 +8122,10 @@ or `JJ_WEB_DESCRIPTION` their text. It also answers `/status.json` with the list
 `/games.html` with the games on their own, and `/health` with `ok`. A quiet Licenses in the footer
 opens `/licenses.html`, the notices the server carries, 8.5: the game's own terms and its source,
 what the server build is made with (no sound, no GodotSteam), Godot's license, the pieces inside it,
-each license's text folded, with a gold arrow back to the server beside its heading and a way back
-at its foot; made once as the page opens and gzipped where the browser takes it, some 80 KB as it
-is. In a container the page's TCP port is published to be reached, see docker/compose.yaml, the
-host's own port 80 usually being taken already.
+each license's text folded, with the game's own chevron in gold beside its heading, back to the
+server, and a way back at its foot; made once as the page opens and gzipped where the browser takes
+it, some 80 KB as it is. In a container the page's TCP port is published to be reached, see
+docker/compose.yaml, the host's own port 80 usually being taken already.
 
 **Idle.** A server nobody plays on is little more than the engine: about 90 MB and next to no
 processor, and no game's process runs until somebody makes a game. The game's own autoloads, its

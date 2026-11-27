@@ -20,6 +20,9 @@ const ITCH := "https://timvisee.itch.io/jackpot-junction"
 const GITHUB := "https://github.com/timvisee/jackpot-junction"
 ## What the link to the source says, on the page and on the licenses page alike.
 const SOURCE := "Source on GitHub"
+## The game's chevron, [method BoardArt.chevron], pointing left in a box of 24: the licenses page's
+## way back.
+const CHEVRON := "16.61,4.32 13.38,4.32 5.78,12 13.38,19.68 16.61,19.68 9,12"
 ## How often the page refreshes itself, in seconds, so a list left open keeps up with the games.
 const REFRESH := 5
 ## The most connections waited on at once, the most bytes a request may run to before it is dropped,
@@ -396,10 +399,14 @@ func _licenses_html() -> String:
 	out.append('<meta name="viewport" content="width=device-width, initial-scale=1">')
 	out.append("<title>Licenses</title>")
 	out.append("<style>%s</style></head><body><main>" % _style())
-	# A way back beside the heading, an arrow as its HTML name, so no odd character has to survive
-	# the source to the page.
+	# A way back beside the heading: the game's own chevron, BoardArt.chevron's stencil pointing left
+	# in a box of 24, drawn in the link's gold.
 	out.append(
-		'<h1><a class="back" href="./" aria-label="Back to the server">&larr;</a>Licenses</h1>'
+		(
+			'<h1 class="with-back"><a class="back" href="./" aria-label="Back to the server">'
+			+ '<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true">'
+			+ '<polygon points="%s" fill="currentColor"/></svg></a>Licenses</h1>' % CHEVRON
+		)
 	)
 	out.append('<p class="sub">Jackpot Junction %s dedicated server</p>' % _escape(_version()))
 	# The terms, and under them the source as the page links it, opening in a tab of its own.
@@ -520,7 +527,9 @@ func _style() -> String:
 					".note-line{color:#f2c14e;margin:10px 0 0}",
 					# Every link in the house's gold, the footer's quieter, below.
 					"a{color:#f2c14e}",
-					".back{text-decoration:none;margin-right:12px;opacity:.75}",
+					# The chevron's tip on the column's edge, its box being wider than it is.
+					".with-back{display:flex;align-items:center}",
+					".back{display:flex;margin:0 2px 0 -7px;opacity:.85}",
 					".back:hover,.back:focus{opacity:1}",
 					".terms{margin:0}",
 					".terms+.links{margin:10px 0 0}",
