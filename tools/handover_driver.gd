@@ -236,6 +236,8 @@ func _carries_on(map: StringName) -> bool:
 	_check(left < played.rules.duration - 2.0, "its clock where it was, %.0f s left" % left)
 	if not _told_it_hosts():
 		return false
+	# While it is told, the players here count as still on their way on every screen.
+	_check(played.loading.x < played.loading.y, "counted as still on its way while it is told")
 	# Held on the grid until the other player is back and has the map up, and the word has gone,
 	# then counted down.
 	var controls := Net.session.host_controls

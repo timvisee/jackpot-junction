@@ -692,9 +692,12 @@ static func being_told(tree: SceneTree) -> bool:
 ## still kept for somebody not back yet.
 func _resume_ready() -> Vector2i:
 	var count := Vector2i.ZERO
+	# The players here count as still on their way while this machine is told it hosts the game
+	# now, which the countdown waits for, so every other screen says somebody is still awaited.
+	var told := being_told(get_tree())
 	for slot: PlayerSlot in session.match_node.slots:
 		if slot.is_local_human():
-			count += Vector2i.ONE
+			count += Vector2i(0 if told else 1, 1)
 	# Connected at all, or still saying hello: a player is given their seats as they knock, before
 	# they count as connected, and one still putting the room up is not counted as playing yet.
 	var connected := session._peers()

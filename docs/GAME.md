@@ -11335,7 +11335,9 @@ now the host" and nothing more, with no bar, nothing to close and no shade: it s
 room goes up, the lobby or the map, and fades a second and a half after its loading screen has
 gone, taking no key, click or cursor meanwhile. A map's countdown and its wait for players stand in
 the middle of the screen as well, so they wait for it to go: first the word, then the countdown,
-never both at once. The host who went is never waited for to come back.
+never both at once. Meanwhile the new host's own players count as still on their way, so every
+other screen's wait says somebody is still awaited rather than nobody. The host who went is never
+waited for to come back.
 
 How it is handed over. The host keeps in its lobby what a new host takes the game on with, the match
 as its settings have it and its door but for a password, whether it is a Quick Play game and who may
