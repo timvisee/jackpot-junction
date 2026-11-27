@@ -44,6 +44,11 @@ const ASK_EVERY := 1.0
 const TOLD_FOR := 1.0
 ## Why the game was given up on when it was this machine's connection that went, not the host.
 const LOST := "The connection to the game was lost"
+## The scenes a game is played in, a room or a map, stopped where they stand under the dialog while
+## the game is handed over: everything in them holds the session that has gone.
+const ROOMS: Array[String] = [
+	"res://scenes/waiting/waiting_room.tscn", "res://scenes/match/match_scene.tscn"
+]
 ## How long the bar takes to ease along, in seconds, and how far it goes.
 const EASE_FOR := 8.0
 const EASE_REACH := 0.9
@@ -226,6 +231,7 @@ func hand_down(line: Array, port: int, plan: String) -> void:
 
 
 func _open(heading: String) -> void:
+	_stop_the_room()
 	_heading = heading
 	_waited = 0.0
 	dialog.set_title(_heading, "Migrating host...")
@@ -236,6 +242,18 @@ func _open(heading: String) -> void:
 	_easing.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	_easing.tween_property(bar, "value", EASE_REACH, EASE_FOR)
 	dialog.open(leave_button)
+
+
+## The room or map stops where it stands, GAME.md 10.8, until the next one takes its place: those
+## of its nodes that run even while the game is paused, the pause menu among them, as well.
+func _stop_the_room() -> void:
+	var scene := get_tree().current_scene
+	if scene == null or scene.scene_file_path not in ROOMS:
+		return
+	scene.process_mode = Node.PROCESS_MODE_DISABLED
+	for node: Node in scene.find_children("*", "", true, false):
+		if node.process_mode == Node.PROCESS_MODE_ALWAYS:
+			node.process_mode = Node.PROCESS_MODE_DISABLED
 
 
 func _process(delta: float) -> void:
