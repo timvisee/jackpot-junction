@@ -3,8 +3,8 @@ extends Node
 ## which is what `make steam-timeline-icons` runs: each of [constant Timeline.OWN_ICONS] white on
 ## nothing, as Steam's own are, at [constant SIZE] pixels and named as the game calls it, into
 ## `build/steam-timeline-icons/`, emptied first, for uploading by hand on Steamworks, docs/STEAM.md.
-## The pictures live in code, the suits of the Royal Flush pads, the slot machine's sevens and the
-## achievements' cards, and this is the one place they become files.
+## The pictures are the game's own drawings of GAME.md 8.3a, the suits, three of the slot machines'
+## sevens and the table card of the suits and hands, and this is the one place they become files.
 ##
 ## Windowed rather than headless: reading a viewport back needs a rendering device.
 
@@ -13,6 +13,9 @@ const SIZE := 256
 ## How far in from the square's edge a picture keeps, and how big each suit of the four is.
 const MARGIN := 0.06
 const SUIT := 0.44
+## The drawings of the three sevens and of a hand of cards, see [method draw_icon].
+const SEVENS := &"timeline_777"
+const HAND := &"table_suits_and_hands"
 
 
 func _ready() -> void:
@@ -47,7 +50,7 @@ func _render(icon: String) -> Image:
 	canvas.draw.connect(
 		func() -> void:
 			var box := Rect2(Vector2.ZERO, canvas.size).grow(-SIZE * MARGIN)
-			draw_icon(canvas, box, icon, Color.WHITE, Color.BLACK)
+			draw_icon(canvas, box, icon, Color.WHITE)
 	)
 	viewport.add_child(canvas)
 	add_child(viewport)
@@ -62,42 +65,21 @@ func _render(icon: String) -> Image:
 	return image
 
 
-## The game's own timeline icon [param icon] into [param box] on [param on], in [param ink] with
-## [param paper] for what is cut out of it: the four suits two by two, three sevens, or a hand of
-## cards.
-static func draw_icon(on: CanvasItem, box: Rect2, icon: String, ink: Color, paper: Color) -> void:
+## The game's own timeline icon [param icon] into [param box] on [param on], in [param ink], each a
+## drawing of GAME.md 8.3a printed flat, its cream left unprinted: the four suits two by two, the
+## game's three sevens, or the table card of the suits and hands, a hand of cards fanned.
+static func draw_icon(on: CanvasItem, box: Rect2, icon: String, ink: Color) -> void:
 	match icon:
 		"jj_royal_flush":
 			var side := box.size * SUIT
-			for suit: int in 4:
+			for suit: int in JokerSuits.PICTURES.size():
 				var at := box.position + Vector2(suit % 2, suit / 2) * (box.size - side)
-				SuitArt.draw_into(on, Rect2(at, side), suit, ink)
+				IconPress.draw(
+					on, Rect2(at, side), JokerSuits.PICTURES[suit], ink, IconPress.Ground.PAPER
+				)
 		"jj_777":
-			var high := box.size.y * 0.62
-			var at := box.position + Vector2(0.0, box.size.y * 0.5 + high * 0.34)
-			var font := Type.display_font()
-			on.draw_string(font, at, "777", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, int(high), ink)
+			IconPress.draw(on, box, SEVENS, ink, IconPress.Ground.PAPER)
 		"jj_cards":
-			_cards(on, box, ink, paper)
+			IconPress.draw(on, box, HAND, ink, IconPress.Ground.PAPER)
 		_:
 			push_error("no picture for the timeline icon %s" % icon)
-
-
-## A hand of three cards fanned, a crown on each, as uploaded to Steam: what Full House's picture
-## was before the achievements were redrawn, kept here so the timeline's icon stays Steam's.
-static func _cards(on: CanvasItem, box: Rect2, ink: Color, paper: Color) -> void:
-	for i: int in 3:
-		var lean := -22.0 + 22.0 * i
-		var foot := Vector2(0.3 + 0.2 * i, 0.9 - (0.04 if i == 1 else 0.0))
-		var corners := PackedVector2Array()
-		for corner: Vector2 in [
-			Vector2(-0.16, 0.0), Vector2(-0.16, -0.5), Vector2(0.16, -0.5), Vector2(0.16, 0.0)
-		]:
-			var at := foot + corner.rotated(deg_to_rad(lean))
-			corners.append(IconShapes.at(box, at.x, at.y))
-		on.draw_colored_polygon(corners, paper)
-		corners.append(corners[0])
-		on.draw_polyline(corners, ink, IconShapes.width(box) * 0.8, true)
-		var middle := foot + Vector2(0.0, -0.3).rotated(deg_to_rad(lean))
-		var crown := Rect2(IconShapes.at(box, middle.x - 0.1, middle.y - 0.08), box.size * 0.2)
-		IconShapes.crown(on, crown, ink)

@@ -45,6 +45,7 @@ const FOLDERS: Array[String] = [
 	"res://assets/icons/hud/",
 	"res://assets/icons/book/",
 	"res://assets/icons/reels/",
+	"res://assets/icons/timeline/",
 ]
 ## The grid the drawings are made on, and the widths every one of them shares, in its units: the
 ## gap a piece cuts round itself, a glint, and the rim of shadow along every inked piece.

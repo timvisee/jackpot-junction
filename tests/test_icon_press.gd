@@ -21,6 +21,7 @@ const FOLDERS := {
 	"res://assets/icons/hud/": "hud",
 	"res://assets/icons/book/": "book",
 	"res://assets/icons/reels/": "reel",
+	"res://assets/icons/timeline/": "timeline",
 }
 
 
@@ -174,6 +175,16 @@ func test_every_figure_of_the_book_has_a_drawing() -> void:
 	)
 	assert_bool(IconPress.has(&"ui_star")).is_true()
 	assert_bool(IconPress.has(&"note_scrap")).is_true()
+
+
+## The Steam timeline's own icons are the game's drawings, GAME.md 10.8: the suits, the three
+## sevens and the table card of the suits and hands, and the sevens are all the timeline's folder
+## holds.
+func test_the_timeline_icons_have_drawings() -> void:
+	var export: GDScript = load("res://scenes/dev/steam_timeline_icon_export.gd")
+	for id: StringName in [export.get("SEVENS"), export.get("HAND")]:
+		assert_bool(IconPress.has(id)).override_failure_message("%s has no drawing" % id).is_true()
+	assert_array(_files("res://assets/icons/timeline/")).contains_exactly([&"timeline_777"])
 
 
 ## Every face of the slot machines' reels has its drawing and every drawing in the reels' folder is

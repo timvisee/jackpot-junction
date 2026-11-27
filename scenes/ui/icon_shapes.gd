@@ -1,8 +1,8 @@
 class_name IconShapes
 extends RefCounted
 ## The shapes the few small pictures still drawn in code are made of: the road signs of the driving
-## school, the Steam timeline's icons, a life on the standings and the like. The icons of GAME.md
-## 8.3a are SVG drawings printed by [IconPress].
+## school, a life on the standings and the like. The icons of GAME.md 8.3a are SVG drawings printed
+## by [IconPress].
 ##
 ## Everything takes the canvas and a box, and everything else is a fraction of that box: (0, 0)
 ## is its top left corner, (1, 1) its bottom right, y downwards, and radii, spans and widths are
@@ -41,26 +41,6 @@ static func bar(
 	style.bg_color = ink
 	style.set_corner_radius_all(roundi(span(box, 0.1)))
 	on.draw_style_box(style, Rect2(at(box, x, y), Vector2(w, h) * box.size))
-
-
-## A crown in [param box], the one the kart with the bounty wears, GAME.md 3.6: three points with a
-## ball on each over a band.
-static func crown(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var points := PackedVector2Array()
-	for corner: Vector2 in [
-		Vector2(0.1, 0.3),
-		Vector2(0.32, 0.54),
-		Vector2(0.5, 0.18),
-		Vector2(0.68, 0.54),
-		Vector2(0.9, 0.3),
-		Vector2(0.86, 0.72),
-		Vector2(0.14, 0.72),
-	]:
-		points.append(at(box, corner.x, corner.y))
-	on.draw_colored_polygon(points, ink)
-	bar(on, box, 0.14, 0.76, 0.72, 0.12, ink)
-	for tip: Vector2 in [Vector2(0.1, 0.27), Vector2(0.5, 0.15), Vector2(0.9, 0.27)]:
-		disc(on, box, tip.x, tip.y, 0.08, ink)
 
 
 ## A driver license in [param box], GAME.md 9.4a, what the payout slip shows somebody's by, 10.8: a

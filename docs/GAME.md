@@ -11239,8 +11239,10 @@ place, with a line "18 points · 1st of 4". Leaving the maps for anywhere else e
 when more than one is playing there; a client hears its seats out of what its host tells it, as the
 achievements do. Somebody only watching gets the match's clock alone. Steam marks achievements by
 itself, above anything a game sets, so the game leaves them alone. A suggested clip is Steam's
-Featured: offered first. The icons named `jj_` are the game's own, drawn by `make
-steam-timeline-icons` and uploaded by hand, docs/STEAM.md; a color after a Steam icon's name is one
+Featured: offered first. The icons named `jj_` are the game's own, its drawings of 8.3a printed
+white, the four suits, three of the slot machines' sevens and the table card of the suits and
+hands, drawn by `make steam-timeline-icons` and uploaded by hand, docs/STEAM.md; a color after a
+Steam icon's name is one
 its client draws, though Valve's documentation does not list them.
 
 | # | Moment | When | Icon | Priority | Clip |

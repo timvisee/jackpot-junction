@@ -276,7 +276,8 @@ with three of its own: `jj_royal_flush`, `jj_777` and `jj_cards`. Draw them with
 https://partner.steamgames.com/apps/timelinemarkers/5652730, each under the name its file has
 without `.png`, which is what the game asks Steam for; without them, Steam draws its plain marker.
 Valve's documentation gives no size or format for these icons, and the 256-pixel PNGs were taken as
-they are. All three were uploaded on 2026-11-23.
+they are. All three were uploaded on 2026-11-23, then redrawn from the game's own drawings, the
+suits, its sevens and the table card of the suits and hands, on 2026-11-27: upload those again.
 
 To see the markers, turn on Steam's game recording, play a map, and open the recording from the
 overlay or from Recordings & Screenshots.
