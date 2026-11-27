@@ -11416,7 +11416,10 @@ the host going is the one thing that starts a handover at a client, and who host
 believed from the host alone: a client asking a player's host for Make host is not heard, and no
 host passes anything from one client on to another (`NetGuard.no_relay`), so no client can tell
 the others that it hosts next. On Steam only the lobby's owner can change who owns it or what it
-says.
+says. Nor can anybody take another player's kart in a map carried over: on Steam a player coming
+back is known by their account, and off Steam by the peer they were, which only a secret the old
+host gave that player alone proves, everybody else told no more than its proof (a SHA-256 of it,
+`MatchResume.vouched`).
 
 **The store page** says in one line how online works.
 

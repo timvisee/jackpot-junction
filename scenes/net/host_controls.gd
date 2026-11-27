@@ -78,20 +78,26 @@ var benched := false
 ## GAME.md 10.8.
 var held := false
 ## On a client of a game hosted at a player's machine off Steam, GAME.md 10.8: who hosts after the
-## host, in order, each as the peer they are, the address the host reaches them at and their name,
-## see [method succession_line]; the port the game is hosted on; what to host it from, see
-## [method MatchResume.plan_of]; what the host is called; and the peer this machine is in it, kept
-## for once the connection has gone. And the peer this machine was in a game handed over, said as
-## it knocks at the new host, see [HostHandover].
+## host, in order, each as the peer they are, the address the host reaches them at, their name and
+## the proof of their secret, see [method succession_line]; the port the game is hosted on; what to
+## host it from, see [method MatchResume.plan_of]; what the host is called; the peer this machine is
+## in it, kept for once the connection has gone; and the secret the host gave this machine alone,
+## which proves it is that peer at the new host. The host's own, as it hands the game on and plays
+## on in it. And the peer this machine was in a game handed over and its secret, said as it knocks
+## at the new host, see [HostHandover].
 var succession: Array = []
 var succession_port := 0
 var succession_plan := ""
 var succession_host := ""
 var succession_me := 0
+var succession_token := ""
 var was_peer := 0
+var was_token := ""
 
 ## At a dedicated server: the players in the order they first sat down, for the say to pass down.
 var _order: Array[int] = []
+## At a host off Steam: the secret each client was given, by peer, see [member succession_token].
+var _tokens: Dictionary[int, String] = {}
 ## What the player with the say was last told about everybody else, and how long until it is
 ## looked at again.
 var _told := ""
@@ -351,8 +357,9 @@ func hand_on(player: int) -> void:
 	var account := ManagePlayers.account_at(session, player) if Store.steam_game() else 0
 	if Store.steam_game() and account == 0:
 		return
-	# Everybody told this machine's players play on, before it goes.
+	# Everybody told this machine's players play on, before it goes, and by what proof.
 	_staying = true
+	succession_token = new_token()
 	_tell_everybody()
 	if Store.steam_game():
 		handover.call(&"hand_to", account)
@@ -378,10 +385,22 @@ func succession_line() -> Array:
 		if each in here:
 			var address := session.guard.address_of(each)
 			var seats: Dictionary = session._peer_slots.held.get(each, {}).duplicate()
-			line.append(
-				{"peer": each, "address": address, "name": _seat_name(each), "seats": seats}
-			)
+			var entry := {"peer": each, "address": address, "name": _seat_name(each)}
+			entry.merge({"seats": seats, "proof": _token_of(each).sha256_text()})
+			line.append(entry)
 	return line
+
+
+## The secret the client [param peer] is given, see [member succession_token]: made for it once.
+func _token_of(peer: int) -> String:
+	if not _tokens.has(peer):
+		_tokens[peer] = new_token()
+	return _tokens[peer]
+
+
+## A secret nobody can guess: sixteen random bytes, in hex.
+static func new_token() -> String:
+	return Crypto.new().generate_random_bytes(16).hex_encode()
 
 
 ## Every client told who hosts after the host here, on which port and from what, whenever that
@@ -401,12 +420,15 @@ func _tell_succession() -> void:
 	for told: int in _succession_told.keys():
 		if told not in peers:
 			_succession_told.erase(told)
+			_tokens.erase(told)
 	for client: int in peers:
 		var plan := plans[int(client in playing)]
-		var said := str([line, port, plan, host])
+		# Its own secret to each, which only the proof of goes to everybody.
+		var token := _token_of(client) if client in playing else ""
+		var said := str([line, port, plan, host, token])
 		if _succession_told.get(client, "") != said:
 			_succession_told[client] = said
-			_succession_is.rpc_id(client, line, port, plan, host)
+			_succession_is.rpc_id(client, line, port, plan, host, token)
 
 
 func _plan_here(with_password := true) -> String:
@@ -419,12 +441,13 @@ func _hosted_port() -> int:
 
 
 @rpc("authority", "call_remote", "reliable")
-func _succession_is(line: Array, port: int, plan: String, host: String) -> void:
+func _succession_is(line: Array, port: int, plan: String, host: String, token: String) -> void:
 	succession = line
 	succession_port = port
 	succession_plan = plan
 	succession_host = PlayerNames.clean(host)
 	succession_me = multiplayer.get_unique_id()
+	succession_token = token
 
 
 ## Who hosts the game after the host here, GAME.md 10.8: the player at another machine who has been
@@ -665,13 +688,18 @@ func room_built(peer: int) -> void:
 
 
 ## A client let in at the host, having said [param words] as it knocked: one coming back to a map
-## carried over is kept its own seats, by its Steam account or the peer it was in the old game,
-## which [method PlayerSlot.bot_seat] finds by their color, GAME.md 10.8.
+## carried over is kept its own seats, by its Steam account or off Steam the peer it was in the old
+## game, which only the secret the old host gave that peer proves, see [method MatchResume.vouched];
+## [method PlayerSlot.bot_seat] finds them by their color, GAME.md 10.8.
 func knocked(player: int, words: Dictionary) -> void:
 	if not session.is_host or _kept_for.is_empty():
 		return
 	var account := ManagePlayers.account_at(session, player)
-	keep_seats_for(player, MatchResume.returning(account, int(words.get("was", 0))))
+	var who := MatchResume.returning(account, int(words.get("was", 0)))
+	var token := str(words.get("token", ""))
+	if account == 0 and not MatchResume.vouched(_kept_for.get(who, {}), token):
+		return
+	keep_seats_for(player, who)
 
 
 ## The seats kept for the player who was [param who], see [method MatchResume.returning], given to
@@ -823,9 +851,10 @@ func everybody() -> Array[Dictionary]:
 				var plate := KartVisuals.plate_worn(slot.kart) if slot.kart != null else ""
 				var each := {"peer": 1, "seat": slot.index, "slot": slot.index, "host": true}
 				if _staying:
-					# Playing on after Make host: the seat it is at this machine.
+					# Playing on after Make host: the seat it is at this machine, and the proof.
 					var player := slot.input as PlayerInput
 					each["stays"] = maxi(player.seat, 0) if player != null else 0
+					each["proof"] = succession_token.sha256_text()
 				each.merge({"name": slot.display_name(), "color": slot.color(), "plate": plate})
 				each["account"] = own
 				if not license.is_empty():

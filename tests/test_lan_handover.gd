@@ -264,10 +264,19 @@ func test_make_host_hands_it_down() -> void:
 	assert_str(str(plan["door"]["password"])).is_equal("secret")
 	# Told before it was handed down: the order as of now has gone to the client already.
 	assert_str(str(host.host_controls._succession_told.get(peer, ""))).contains(str(peer))
+	# With a secret of its own, which only the proof of goes down the line, for the new host to
+	# know it by as it comes back.
+	var secret := client.host_controls.succession_token
+	assert_int(secret.length()).is_equal(32)
+	assert_str(str((stub.got[0] as Array)[0]["proof"])).is_equal(secret.sha256_text())
+	assert_str(str(stub.got)).not_contains(secret)
+	assert_str(host.host_controls.succession_token).is_not_empty()
+	assert_str(host.host_controls.succession_token).is_not_equal(secret)
 	# And that the host's players play on, for their karts to be kept for them.
+	var proof := host.host_controls.succession_token.sha256_text()
 	var stays := func() -> bool:
 		for guest: Dictionary in client.host_controls.guests():
-			if bool(guest.get("host", false)) and guest.has("stays"):
+			if guest.has("stays") and str(guest.get("proof", "")) == proof:
 				return true
 		return false
 	await _until(stays, 4000)
@@ -360,9 +369,10 @@ func test_the_game_taken_on() -> void:
 	# A Steam game's plan says no password.
 	var steam := JSON.parse_string(MatchResume.plan_of(config, door, 1)) as Dictionary
 	assert_bool((steam["door"] as Dictionary).has("password")).is_false()
-	var follow := HostHandover.follow_config("10.0.0.7", 7790, "secret", 4, true)
+	var follow := HostHandover.follow_config("10.0.0.7", 7790, "secret", 4, true, "mine")
 	assert_bool(follow.watching).is_true()
 	assert_int(follow.was_peer).is_equal(4)
+	assert_str(follow.was_token).is_equal("mine")
 
 
 ## Nobody but the host hands the game over, GAME.md 10.8. A client asking a player's host to make it

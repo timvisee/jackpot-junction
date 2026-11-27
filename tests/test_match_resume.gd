@@ -288,6 +288,33 @@ func test_a_player_comes_back_to_their_own_kart() -> void:
 	assert_bool(host.host_controls.holds_for_next_map(77)).is_false()
 
 
+## Off Steam a player coming back is known by the peer they were, which only the secret the old
+## host gave them proves: anybody else saying they were that peer, with no secret or the wrong one,
+## is not kept their kart; the one with it is.
+func test_only_their_secret_gets_a_kart_back() -> void:
+	var host_match := _a_match(_host_root)
+	var host: NetSession = auto_free(NetSession.new())
+	host.name = "Session"
+	host.match_node = host_match
+	host.is_host = true
+	_host_root.add_child(host)
+	var token := HostControls.new_token()
+	var resume := _a_resume(host_match.joker_catalog.printed()[0].id)
+	var bo: Dictionary = resume["slots"][1]
+	bo.erase("account")
+	bo["peer"] = 3
+	bo["proof"] = token.sha256_text()
+	assert_str(str(MatchResume.seats_kept(resume)["p3"][0]["proof"])).is_equal(bo["proof"])
+	MatchResume.start(host_match, resume)
+	host.host_controls.resume_from(resume)
+	host.host_controls.knocked(77, {"was": 3})
+	host.host_controls.knocked(78, {"was": 3, "token": HostControls.new_token()})
+	host.host_controls.knocked(79, {"was": 3, "token": bo["proof"]})
+	assert_dict(host._peer_slots.kept).is_empty()
+	host.host_controls.knocked(80, {"was": 3, "token": token})
+	assert_int(int(host._peer_slots.kept_for(80, 0)["color"])).is_equal(5)
+
+
 ## With nobody to wait for the lamps go at once; with somebody, once they are in or the wait is out.
 func test_the_start_is_held_for_the_players_coming_back() -> void:
 	var host_match := _a_match(_host_root)

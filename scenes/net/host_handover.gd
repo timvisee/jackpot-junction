@@ -87,6 +87,8 @@ var _line: Array = []
 var _port := 0
 var _plan := ""
 var _me := 0
+## The secret this machine was given to prove it is [member _me] at the new host.
+var _token := ""
 var _password := ""
 var _stage := 0
 var _stage_left := STAGE
@@ -207,6 +209,7 @@ func _take_line(session: NetSession, config: MatchConfig) -> void:
 	_port = controls.succession_port
 	_plan = controls.succession_plan
 	_me = controls.succession_me
+	_token = controls.succession_token
 	_password = config.password if config != null else ""
 	_old_address = config.address if config != null else ""
 	_old_port = config.port if config != null else _port
@@ -259,6 +262,7 @@ func hand_down(line: Array, port: int, plan: String) -> void:
 	_port = port
 	_plan = plan
 	_me = 1
+	_token = Net.session.host_controls.succession_token
 	_password = Net.session.door.password
 	_asking_old = false
 	_watching = false
@@ -370,7 +374,8 @@ func _step_line(delta: float) -> void:
 		_ask_left = ASK_EVERY
 	_probe.poll()
 	if _probe.reached:
-		_follow(follow_config(str(next.get("address", "")), _port, _password, _me, _watching))
+		var address := str(next.get("address", ""))
+		_follow(follow_config(address, _port, _password, _me, _watching, _token))
 	elif _stage_left <= 0.0:
 		_stage += 1
 		_stage_left = STAGE
@@ -517,10 +522,11 @@ static func line_config(plan: String, port: int) -> MatchConfig:
 
 
 ## Following the new host off Steam: joining the game at [param address] and [param port] with
-## [param password], as the player who was [param was] in the old one, so a map carried over seats
-## them in their own kart again, or [param watching] it.
+## [param password], as the player who was [param was] in the old one, proved by [param token], the
+## secret the old host gave them alone, so a map carried over seats them in their own kart again, or
+## [param watching] it.
 static func follow_config(
-	address: String, port: int, password: String, was: int, watching: bool
+	address: String, port: int, password: String, was: int, watching: bool, token := ""
 ) -> MatchConfig:
 	var config := MatchConfig.from_settings(Game.settings)
 	config.online = "join"
@@ -529,6 +535,7 @@ static func follow_config(
 	config.port = port
 	config.password = password
 	config.was_peer = was
+	config.was_token = token
 	var named: Array[String] = [PlayerNames.clean(Game.settings.player_names[0])]
 	config.human_names = named
 	return config

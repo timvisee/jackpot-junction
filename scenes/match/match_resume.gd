@@ -99,9 +99,9 @@ static func _kart_of(kart: Kart) -> Dictionary:
 
 
 ## Whose each slot of [param session]'s room is, by its index: the Steam account, or off Steam the
-## peer, and the number of the seat at their machine of everybody playing, this machine's own
-## players marked here. Off Steam the line of who hosts next says it, see
-## [method HostControls.succession_line].
+## peer and the proof of its secret, and the number of the seat at their machine of everybody
+## playing, this machine's own players marked here. Off Steam the line of who hosts next says it,
+## see [method HostControls.succession_line].
 static func owners_of(session: NetSession) -> Dictionary:
 	var owners := {}
 	for entry: Variant in session.host_controls.succession:
@@ -110,6 +110,7 @@ static func owners_of(session: NetSession) -> Dictionary:
 			for number: Variant in seats:
 				var owner := {"account": 0, "peer": int((entry as Dictionary).get("peer", 0))}
 				owner["seat"] = int(number)
+				owner["proof"] = str((entry as Dictionary).get("proof", ""))
 				owners[int(seats[number])] = owner
 	for guest: Dictionary in session.host_controls.guests():
 		# The host who went is not coming back to their karts, and nobody waits on them; one who
@@ -117,9 +118,13 @@ static func owners_of(session: NetSession) -> Dictionary:
 		var host := bool(guest.get("host", false))
 		if not guest.has("slot") or (host and not guest.has("stays")):
 			continue
-		var account := int(guest.get("account", 0))
-		var owner := {"account": account, "peer": int(guest.get("peer", 0))}
+		# What the line said of it kept, its proof among it.
+		var owner: Dictionary = owners.get(int(guest["slot"]), {})
+		owner["account"] = int(guest.get("account", 0))
+		owner["peer"] = int(guest.get("peer", 0))
 		owner["seat"] = int(guest.get("stays" if host else "seat", 0))
+		if guest.has("proof"):
+			owner["proof"] = str(guest["proof"])
 		owners[int(guest["slot"])] = owner
 	var own := Store.steam.account if Store.on() else 0
 	for each: ClientSeat in session.seats:
@@ -284,7 +289,8 @@ static func _restore_floor(match_node: Match, left: Dictionary) -> void:
 
 ## The seats [param resume] keeps for the players coming back, by who they were, see
 ## [method returning]: the number of each seat at their machine and the slot it is, with its
-## color, team and name, see [method PeerSeats.kept_for].
+## color, team and name, see [method PeerSeats.kept_for], and off Steam the proof of the secret
+## that player was given, see [method vouched].
 static func seats_kept(resume: Dictionary) -> Dictionary:
 	var kept := {}
 	var entries: Array = resume.get("slots", [])
@@ -300,8 +306,24 @@ static func seats_kept(resume: Dictionary) -> Dictionary:
 			"team": int(entry.get("team", -1)),
 			"name": str(entry.get("name", "")),
 		}
+		if entry.has("proof"):
+			theirs[int(entry.get("seat", 0))]["proof"] = str(entry["proof"])
 		kept[key] = theirs
 	return kept
+
+
+## Whether [param token] proves a player coming back off Steam is the one [param seats] were kept
+## for, see [method seats_kept], GAME.md 10.8: everybody was told the proof of each one's secret,
+## and only that player the secret itself, so nobody else can say they are them and take their kart.
+static func vouched(seats: Dictionary, token: String) -> bool:
+	if seats.is_empty() or token.is_empty():
+		return false
+	var proof := token.sha256_text()
+	for number: Variant in seats:
+		var seat: Variant = seats[number]
+		if not seat is Dictionary or str((seat as Dictionary).get("proof", "")) != proof:
+			return false
+	return true
 
 
 ## Who a player coming back to a map carried over is: their Steam account, or off Steam the peer

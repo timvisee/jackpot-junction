@@ -22,9 +22,11 @@ func knock(peer: int) -> void:
 	var words := NetDoor.knock(
 		session.version, session.watching, named, session.password, session.server_password
 	)
-	# Coming back to a game handed over off Steam, as the peer this machine was, GAME.md 10.8.
+	# Coming back to a game handed over off Steam, as the peer this machine was, GAME.md 10.8, and
+	# the secret the old host gave it alone, which proves it.
 	if session.host_controls.was_peer != 0:
 		words["was"] = session.host_controls.was_peer
+		words["token"] = session.host_controls.was_token
 	(session.multiplayer as SceneMultiplayer).send_auth(peer, var_to_bytes(words))
 
 
