@@ -7,6 +7,8 @@ extends Control
 
 ## How big the button is, and how far it keeps from the menu button, as the emote button's.
 const RADIUS := TouchEmotes.RADIUS
+## How much of the button the sliders fill, as a share of its radius.
+const GLYPH := 0.6
 const GAP := TouchEmotes.GAP
 
 ## What a tap on it does: opens the match settings.
@@ -63,11 +65,7 @@ func _draw() -> void:
 	var middle := button_center()
 	draw_circle(middle, RADIUS, TouchControls.FILL)
 	draw_arc(middle, RADIUS, 0.0, TAU, 48, TouchInk.rim(), TouchControls.RIM_WIDTH, true)
-	# Three sliders, each a line with its knob somewhere along it, in the menu button's ink.
-	var box := Rect2(middle - Vector2.ONE * RADIUS, Vector2.ONE * RADIUS * 2.0)
-	var ink := TouchControls.INK
-	var knobs: Array[float] = [0.62, 0.36, 0.55]
-	for i: int in knobs.size():
-		var y := 0.34 + 0.16 * i
-		IconShapes.line(self, box, 0.28, y, 0.72, y, ink)
-		IconShapes.disc(self, box, knobs[i], y, 0.07, ink)
+	# Three sliders, each a track with its knob somewhere along it, GAME.md 8.3a, in the menu
+	# button's ink.
+	var box := Rect2(middle - Vector2.ONE * RADIUS * GLYPH, Vector2.ONE * RADIUS * GLYPH * 2.0)
+	IconPress.draw(self, box, &"ui_sliders", TouchControls.INK, IconPress.Ground.PAPER)

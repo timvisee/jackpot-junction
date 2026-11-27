@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Tipped up, a leaf on it</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}.dark>.body{fill:#211f24}</style>
+<g class="icon">
+  <g class="piece dark" data-shade="false">
+    <path class="body" d="M29.28,14.94L35.5,18.5L33.52,12.97A3.5,3.5 0 0 0 31.56,10.91L24.5,8L28.03,13.74A3.5,3.5 0 0 0 29.28,14.94Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M12.32,34.25L9.42,32.45A1,1 0 0 1 8.97,31.35L9.82,28.05A1.6,1.6 0 0 1 9.86,27.91L10.96,24.78A6,6 0 0 1 12.09,22.84L14.46,20.12A8,8 0 0 1 16.64,18.36L18.86,17.14A9,9 0 0 1 20.85,16.33L23.29,15.67A8,8 0 0 1 26.08,15.42L29.67,15.74A6,6 0 0 1 31.84,16.35L34.81,17.83A1.6,1.6 0 0 1 34.93,17.9L37.83,19.69A1,1 0 0 1 38.28,20.79L37.43,24.1A1.6,1.6 0 0 1 37.39,24.24L36.29,27.37A6,6 0 0 1 35.16,29.31L32.79,32.03A8,8 0 0 1 30.61,33.79L28.39,35.01A9,9 0 0 1 26.4,35.81L23.96,36.48A8,8 0 0 1 21.17,36.72L17.58,36.41A6,6 0 0 1 15.41,35.8L12.45,34.31A1.6,1.6 0 0 1 12.32,34.25Z"/>
+    <path class="shade"/>
+    <path class="glint" d="M14,25.5C15.6,21.6 18.8,18.6 22.8,17"/>
+  </g>
+</g>
+</svg>

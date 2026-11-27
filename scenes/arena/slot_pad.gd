@@ -14,6 +14,20 @@ extends Area3D
 
 ## The six faces, in the order the strip has them from its top.
 enum Face { SEVEN, CHERRY, BELL, BAR, LEMON, CHIP }
+## Each face's drawing of GAME.md 8.3a and its ink on the reel's cream, by [enum Face], and how many
+## pixels across a face shows on the table, which it is printed for.
+const FACE_DRAWINGS: Array[StringName] = [
+	&"reel_seven", &"reel_cherry", &"reel_bell", &"reel_bar", &"reel_lemon", &"reel_chip"
+]
+const FACE_INKS: Array[Color] = [
+	Color("#d11a1f"),
+	Color("#d11a1f"),
+	Color("#e9a21b"),
+	Color("#211f24"),
+	Color("#e8be14"),
+	Color("#d11a1f"),
+]
+const FACE_SHOWN := 32
 
 ## How much of a pot's chips a pull bets, a quarter of its first hundred and half of the rest, so a
 ## big pot bets big, the fewest chips a pot needs for it, and how long a kart waits before it may
@@ -73,6 +87,9 @@ const AWAY_BACK := 0.3
 const AWAY_GRAY := Color(0.5, 0.5, 0.53)
 const GROUP := &"slot_pads"
 const LOOK: Shader = preload("res://scenes/arena/slot_reels.gdshader")
+
+## The faces printed so far, by face and size, see [method draw_face].
+static var _face_pictures: Dictionary[String, Texture2D] = {}
 
 ## Which slot machine of the map this is, as the events name it.
 var index := 0
@@ -502,7 +519,7 @@ func _celebrate() -> void:
 		_focused_left = SEVENS_FOCUS
 	var bounds := AABB(global_position - Vector3(1.5, 0.0, 1.5), Vector3(3.0, 1.0, 3.0))
 	Fireworks.celebrate(get_parent(), bounds, Palette.CHIP_GOLD, SEVENS_SHELLS)
-	for color: Color in [Palette.CHIP_GOLD, Strip.RED, Palette.CHIP_WHITE]:
+	for color: Color in [Palette.CHIP_GOLD, FACE_INKS[Face.SEVEN], Palette.CHIP_WHITE]:
 		Burst.spawn(get_parent(), global_position + Vector3.UP * 0.3, color, 1.4, 22)
 	_ring()
 	var rail := get_parent().get_node_or_null("RailMachines") as RailMachines
@@ -591,8 +608,6 @@ class Strip:
 	extends Control
 
 	const CREAM := Color(0.97, 0.94, 0.86)
-	const RED := Color(0.82, 0.1, 0.12)
-	const INK := Color(0.08, 0.07, 0.09)
 
 	func _ready() -> void:
 		size = Vector2(SlotPad.STRIP_PIXELS)
@@ -604,49 +619,25 @@ class Strip:
 			SlotPad.draw_face(self, Rect2(0.0, face * side, side, side), face)
 
 
-## Draws [param face] into [param box] on [param on], on the reel's cream.
+## Draws [param face] into [param box] on [param on], on the reel's cream: its drawing of GAME.md
+## 8.3a in its own ink, the dark its second, printed for the size the table shows it at, so its
+## shadow side is flat rather than a screen of dots that would shimmer as the reels shrink. Each
+## face is printed once a run and kept, for the canvas to have it still when it draws.
 static func draw_face(on: CanvasItem, box: Rect2, face: int) -> void:
-	var red := Strip.RED
-	var ink := Strip.INK
-	match face:
-		Face.SEVEN:
-			var font := Type.display_font()
-			var high := box.size.y * 0.9
-			var at := box.position + Vector2(0.0, box.size.y * 0.5 + high * 0.34)
-			on.draw_string(font, at, "7", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, int(high), red)
-		Face.CHERRY:
-			for x: float in [0.36, 0.64]:
-				IconShapes.disc(on, box, x, 0.66, 0.16, red)
-				IconShapes.disc(on, box, x - 0.05, 0.6, 0.04, Color(1.0, 0.6, 0.6))
-			var green := Color(0.15, 0.5, 0.2)
-			IconShapes.line(on, box, 0.36, 0.52, 0.56, 0.2, green)
-			IconShapes.line(on, box, 0.64, 0.52, 0.56, 0.2, green)
-			IconShapes.disc(on, box, 0.66, 0.2, 0.07, green)
-		Face.BELL:
-			var gold := Color(0.95, 0.68, 0.1)
-			IconShapes.disc(on, box, 0.5, 0.42, 0.22, gold)
-			IconShapes.bar(on, box, 0.28, 0.42, 0.44, 0.26, gold)
-			IconShapes.bar(on, box, 0.2, 0.64, 0.6, 0.08, gold)
-			IconShapes.disc(on, box, 0.5, 0.78, 0.07, ink)
-		Face.BAR:
-			IconShapes.bar(on, box, 0.12, 0.34, 0.76, 0.32, ink)
-			var font := Type.display_font()
-			var high := box.size.y * 0.24
-			var at := box.position + Vector2(0.0, box.size.y * 0.5 + high * 0.36)
-			var cream := Strip.CREAM
-			# The reel's symbol, as every machine prints it, NO_TRANSLATE.
-			on.draw_string(
-				font, at, "BAR", HORIZONTAL_ALIGNMENT_CENTER, box.size.x, int(high), cream
-			)
-		Face.LEMON:
-			var yellow := Color(0.98, 0.84, 0.15)
-			IconShapes.disc(on, box, 0.5, 0.5, 0.26, yellow)
-			IconShapes.disc(on, box, 0.22, 0.5, 0.08, yellow)
-			IconShapes.disc(on, box, 0.78, 0.5, 0.08, yellow)
-		Face.CHIP:
-			IconShapes.disc(on, box, 0.5, 0.5, 0.34, red)
-			for i: int in 6:
-				var angle := TAU * i / 6.0
-				var notch := Vector2(0.5, 0.5) + Vector2.from_angle(angle) * 0.28
-				IconShapes.disc(on, box, notch.x, notch.y, 0.05, Strip.CREAM)
-			IconShapes.ring(on, box, 0.5, 0.5, 0.18, Strip.CREAM)
+	var key := "%d|%d" % [face, roundi(box.size.x)]
+	var picture: Texture2D = _face_pictures.get(key)
+	if picture == null:
+		var image := IconPress.printed(
+			FACE_DRAWINGS[face],
+			FACE_INKS[face],
+			roundi(box.size.x),
+			IconPress.Ground.TWO_INKS,
+			Strip.CREAM,
+			FACE_SHOWN,
+			true
+		)
+		if image == null:
+			return
+		picture = ImageTexture.create_from_image(image)
+		_face_pictures[key] = picture
+	on.draw_texture_rect(picture, box, false)

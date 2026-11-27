@@ -1212,8 +1212,10 @@ pull: a few chips' pull was a gamble worth nothing to make.
 - A pull is worth a little more than it costs, 1.1 bets on average, so it is a gamble worth taking
   now and then rather than a tax. What it pays goes into the pot, chips like any others, at the
   pot's mult when it is banked: a big pot's quarter is a big bet.
-- The faces are the slot machine's own, drawn rather than lettered: a red seven, cherries, a bell,
-  BAR, a lemon and a chip.
+- The faces are the slot machine's own, drawings of 8.3a printed on the reel's cream, each in its
+  own ink with the dark as its second: a red seven on its dark drop, two cherries on dark stems, a
+  gold bell, BAR cut out of a dark plaque, a lemon tipped up with its leaf and a red chip. They
+  are printed for the size the table shows them at, so their shadow side is flat.
 - One bet at a time: a machine with reels turning takes nobody else's until they stop. A kart pulls
   once every ten seconds at most, however long it stays on.
 - The bet goes into the machine as the reels start, and the winnings come out to whoever bet, as
@@ -5136,8 +5138,9 @@ the glyphs the house's buttons wear with the padlock of a sealed table card (`ui
 suits' marks with the wild card's jester (`suits/`, 7.3), the loyalty map's marks, its WON seal
 and stamp, Kit's tick, a keystone's crest and the roundabout's pot, with the House's rubber stamp
 (`marks/`, 8.9), and the HUD's marks, the bounty's crown, a bot's robot, the skull of a kart out of
-a showdown and the mult's die (`hud/`, 8.3), and the driving school's theory book's own figures,
-its junction, pit, die, knock-out and arrow (`book/`, 9.4a), each id named for its family,
+a showdown and the mult's die (`hud/`, 8.3), the driving school's theory book's own figures,
+its junction, pit, die, knock-out and arrow (`book/`, 9.4a), and the slot machines' reels'
+faces (`reels/`, 3.15), each id named for its family,
 `table_jackpot`, `dress_hat`, `landmark_slip_road`, `ui_trash`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,

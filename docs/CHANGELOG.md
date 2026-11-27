@@ -74,6 +74,8 @@ below, and hands the notes to the release workflow.
   mult's die and the House's rubber stamp are redrawn in the same house print.
 - **Speed dial in your color.** The HUD's speed dial fills in the player's own color, amber on
   nitro, with a cream needle out on the ring that no longer crosses the number.
+- **Redrawn slot machine reels.** The seven, cherries, bell, BAR, lemon and chip on the slot
+  machines' reels are redrawn in the same house print, as are the touch emote and settings buttons.
 - **Redrawn loyalty map marks.** The WON seal and stamp, Kit's tick, the keystone crest and the
   roundabout's chip are redrawn in the same house print.
 - **Reprinted joker and power-up cards.** The cards are printed in the house print: a stub torn

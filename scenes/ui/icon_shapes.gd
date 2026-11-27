@@ -1,8 +1,8 @@
 class_name IconShapes
 extends RefCounted
 ## The shapes the few small pictures still drawn in code are made of: the road signs of the driving
-## school, the arena's slot pads, the touch controls' and the like. The icons of GAME.md 8.3a are
-## SVG drawings printed by [IconPress].
+## school, the Steam timeline's icons, a life on the standings and the like. The icons of GAME.md
+## 8.3a are SVG drawings printed by [IconPress].
 ##
 ## Everything takes the canvas and a box, and everything else is a fraction of that box: (0, 0)
 ## is its top left corner, (1, 1) its bottom right, y downwards, and radii, spans and widths are
@@ -31,12 +31,6 @@ static func disc(on: CanvasItem, box: Rect2, x: float, y: float, r: float, ink: 
 
 static func ring(on: CanvasItem, box: Rect2, x: float, y: float, r: float, ink: Color) -> void:
 	on.draw_arc(at(box, x, y), span(box, r), 0.0, TAU, 40, ink, width(box))
-
-
-static func line(
-	on: CanvasItem, box: Rect2, x1: float, y1: float, x2: float, y2: float, ink: Color
-) -> void:
-	on.draw_line(at(box, x1, y1), at(box, x2, y2), ink, width(box))
 
 
 ## A rounded bar, which is how every block, body and panel in the set is drawn.

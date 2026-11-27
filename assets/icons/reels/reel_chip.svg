@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A chip</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M4,24A20,20 0 1 0 44,24A20,20 0 1 0 4,24Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM1.5,21A19.5,19.5 0 1 0 40.5,21A19.5,19.5 0 1 0 1.5,21Z" fill-rule="evenodd"/>
+    <path class="glint" d="M8.21,18.25A16.8,16.8 0 0 1 15.6,9.45"/>
+    <path class="cut" d="M11.5,24A12.5,12.5 0 1 0 36.5,24A12.5,12.5 0 1 0 11.5,24Z" stroke-width="1.5"/>
+    <path class="cut" d="M21.2,8.4L21.2,4.6A0.6,0.6 0 0 1 21.8,4L26.2,4A0.6,0.6 0 0 1 26.8,4.6L26.8,8.4A0.6,0.6 0 0 1 26.2,9L21.8,9A0.6,0.6 0 0 1 21.2,8.4Z"/>
+    <path class="cut" d="M36.11,13.78L39.4,11.88A0.6,0.6 0 0 1 40.22,12.09L42.42,15.91A0.6,0.6 0 0 1 42.2,16.72L38.91,18.62A0.6,0.6 0 0 1 38.09,18.41L35.89,14.59A0.6,0.6 0 0 1 36.11,13.78Z"/>
+    <path class="cut" d="M38.91,29.38L42.2,31.28A0.6,0.6 0 0 1 42.42,32.09L40.22,35.91A0.6,0.6 0 0 1 39.4,36.12L36.11,34.22A0.6,0.6 0 0 1 35.89,33.41L38.09,29.59A0.6,0.6 0 0 1 38.91,29.38Z"/>
+    <path class="cut" d="M26.8,39.6L26.8,43.4A0.6,0.6 0 0 1 26.2,44L21.8,44A0.6,0.6 0 0 1 21.2,43.4L21.2,39.6A0.6,0.6 0 0 1 21.8,39L26.2,39A0.6,0.6 0 0 1 26.8,39.6Z"/>
+    <path class="cut" d="M11.89,34.22L8.6,36.12A0.6,0.6 0 0 1 7.78,35.91L5.58,32.09A0.6,0.6 0 0 1 5.8,31.28L9.09,29.38A0.6,0.6 0 0 1 9.91,29.59L12.11,33.41A0.6,0.6 0 0 1 11.89,34.22Z"/>
+    <path class="cut" d="M9.09,18.62L5.8,16.72A0.6,0.6 0 0 1 5.58,15.91L7.78,12.09A0.6,0.6 0 0 1 8.6,11.88L11.89,13.78A0.6,0.6 0 0 1 12.11,14.59L9.91,18.41A0.6,0.6 0 0 1 9.09,18.62Z"/>
+  </g>
+</g>
+</svg>

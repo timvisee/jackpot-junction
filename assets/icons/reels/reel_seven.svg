@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A seven on its drop</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}.dark>.body{fill:#211f24}</style>
+<g class="icon">
+  <g class="piece dark" data-shade="false">
+    <path class="body" d="M13.52,19.04L13.52,11.22A1.38,1.38 0 0 1 14.9,9.84L37.9,9.84A1.38,1.38 0 0 1 39.28,11.22L39.28,15.62A1.38,1.38 0 0 1 39.22,16.01L31.29,41.98A1.38,1.38 0 0 1 29.98,42.96L25.06,42.96A1.38,1.38 0 0 1 23.73,41.18L30.91,18.06A1.38,1.38 0 0 0 29.58,16.28L20.42,16.28A1.38,1.38 0 0 0 19.04,17.66L19.04,19.04A1.38,1.38 0 0 1 17.66,20.42L14.9,20.42A1.38,1.38 0 0 1 13.52,19.04Z"/>
+  </g>
+  <g class="piece ink" data-seam="false">
+    <path class="body" d="M11.12,16.64L11.12,8.82A1.38,1.38 0 0 1 12.5,7.44L35.5,7.44A1.38,1.38 0 0 1 36.88,8.82L36.88,13.22A1.38,1.38 0 0 1 36.82,13.61L28.89,39.58A1.38,1.38 0 0 1 27.58,40.56L22.66,40.56A1.38,1.38 0 0 1 21.33,38.78L28.51,15.66A1.38,1.38 0 0 0 27.18,13.88L18.02,13.88A1.38,1.38 0 0 0 16.64,15.26L16.64,16.64A1.38,1.38 0 0 1 15.26,18.02L12.5,18.02A1.38,1.38 0 0 1 11.12,16.64Z"/>
+    <path class="glint" d="M11.5,9.6H21"/>
+  </g>
+</g>
+</svg>

@@ -10,6 +10,9 @@ extends Control
 
 ## How big the button is, and how far it keeps from the menu button.
 const RADIUS := 27.0
+## How big the face's drawing is laid over the button, as a share of its radius: its round is cream
+## and the button shows through it, so the eyes and the smile fill the button as today's did.
+const FACE := 1.05
 const GAP := 14.0
 ## How big an emote in the row is, and the room between two of them.
 const SIDE := 58.0
@@ -107,12 +110,9 @@ func _draw() -> void:
 	var fill := TouchInk.fill_down() if open else TouchControls.FILL
 	draw_circle(middle, RADIUS, fill)
 	draw_arc(middle, RADIUS, 0.0, TAU, 48, TouchInk.rim(), TouchControls.RIM_WIDTH, true)
-	# A smile, in the ink the menu button's bars are drawn in.
-	var face := Rect2(middle - Vector2.ONE * RADIUS, Vector2.ONE * RADIUS * 2.0)
-	var ink := TouchControls.INK
-	IconShapes.disc(self, face, 0.38, 0.4, 0.07, ink)
-	IconShapes.disc(self, face, 0.62, 0.4, 0.07, ink)
-	draw_arc(IconShapes.at(face, 0.5, 0.48), RADIUS * 0.42, 0.35, PI - 0.35, 16, ink, 3.5, true)
+	# The happy emote's face, GAME.md 8.3a, in the ink the menu button's bars are drawn in.
+	var face := Rect2(middle - Vector2.ONE * RADIUS * FACE, Vector2.ONE * RADIUS * FACE * 2.0)
+	IconPress.draw(self, face, &"emote_happy", TouchControls.INK, IconPress.Ground.PAPER)
 	if not open:
 		return
 	var slot := _player_slot()

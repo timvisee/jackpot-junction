@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
 ## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing, the table's
 ## cards', the kinds of game's, the ways to drive's, the dress's, the emotes', the loyalty program's
-## landmarks', the buttons' glyphs' and the suits', is an SVG file that IconPress reads and prints,
+## landmarks', the buttons' glyphs', the suits' and the slot machines' reels', is an SVG file that
+## IconPress reads and prints,
 ## and the files are held to the lists the way the lists are held to the catalog.
 
 const FOLDERS := {
@@ -19,6 +20,7 @@ const FOLDERS := {
 	"res://assets/icons/marks/": "marks",
 	"res://assets/icons/hud/": "hud",
 	"res://assets/icons/book/": "book",
+	"res://assets/icons/reels/": "reel",
 }
 
 
@@ -99,7 +101,8 @@ func test_every_glyph_and_suit_has_a_drawing() -> void:
 		&"ui_pin",
 		&"ui_arrow",
 		&"ui_padlock",
-		&"ui_star"
+		&"ui_star",
+		&"ui_sliders"
 	]
 	glyphs.append_array(IconButton.PICTURES)
 	var suits: Array[StringName] = [JokerSuits.JESTER, JokerSuits.JESTER_BAND]
@@ -171,6 +174,31 @@ func test_every_figure_of_the_book_has_a_drawing() -> void:
 	)
 	assert_bool(IconPress.has(&"ui_star")).is_true()
 	assert_bool(IconPress.has(&"note_scrap")).is_true()
+
+
+## Every face of the slot machines' reels has its drawing and every drawing in the reels' folder is
+## a face's; printed for the size the table shows them at, their shadow side is a flat shade, not
+## dots that would shimmer as the reels shrink.
+func test_every_face_of_the_reels_has_a_drawing() -> void:
+	assert_int(SlotPad.FACE_DRAWINGS.size()).is_equal(SlotPad.Face.size())
+	assert_int(SlotPad.FACE_INKS.size()).is_equal(SlotPad.Face.size())
+	var files := _files("res://assets/icons/reels/")
+	assert_int(files.size()).is_equal(SlotPad.Face.size())
+	for id: StringName in SlotPad.FACE_DRAWINGS:
+		assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
+	var red: Color = SlotPad.FACE_INKS[SlotPad.Face.CHERRY]
+	var shade := red.lerp(IconPress.INKY, IconPress.INKY_SHADE)
+	var cherry := IconPress.printed(
+		&"reel_cherry",
+		red,
+		128,
+		IconPress.Ground.TWO_INKS,
+		SlotPad.Strip.CREAM,
+		SlotPad.FACE_SHOWN,
+		true
+	)
+	assert_object(cherry).is_not_null()
+	assert_int(_count_near(cherry, shade)).is_greater(40)
 
 
 ## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,
