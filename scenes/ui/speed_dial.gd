@@ -32,6 +32,10 @@ const TICK_FROM := 0.9
 const TICK_TO := 0.939
 const TICK_LONG := 0.961
 const RIM := 0.986
+## The side the face's ticks and rim are as thick as they are for, a corner block's dial at a UI
+## scale of 1, see [constant HudBlock.DIAL]: a face drawn bigger, at a bigger scale, has them
+## thicker by as much, so it looks the same at every scale.
+const LINES_FOR := 88.0
 const TRACK := Color(0.0, 0.0, 0.0, 0.5)
 const TICK_INK := Color(0.66, 0.65, 0.71, 0.8)
 const FACE := Color(0.06, 0.06, 0.08, 0.55)
@@ -157,6 +161,7 @@ static func _draw_face(on: CanvasItem, across: Vector2, written: String) -> void
 	var middle := across * 0.5
 	var thick := _thick(across)
 	var radius := _radius(across)
+	var line := side / LINES_FOR
 	on.draw_circle(middle, side * 0.5 - 0.5, FACE)
 	# The track, dark up to the kart's own top speed, the foil's past it where only nitro takes it,
 	# and red at the end of that.
@@ -175,11 +180,11 @@ static func _draw_face(on: CanvasItem, across: Vector2, written: String) -> void
 			middle + toward * half * TICK_FROM,
 			middle + toward * half * (TICK_LONG if long else TICK_TO),
 			ink,
-			1.7 if long else 1.1,
+			(1.7 if long else 1.1) * line,
 			true
 		)
 	# The rim, foil, round the whole of it.
-	on.draw_arc(middle, half * RIM, 0.0, TAU, 64, Color(HouseTheme.FOIL, 0.7), 1.2, true)
+	on.draw_arc(middle, half * RIM, 0.0, TAU, 64, Color(HouseTheme.FOIL, 0.7), 1.2 * line, true)
 	var font := Type.STRONG
 	var unit_size := maxi(int(side * 0.11), 8)
 	var wide := font.get_string_size(written, HORIZONTAL_ALIGNMENT_LEFT, -1, unit_size).x
