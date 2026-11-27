@@ -335,8 +335,9 @@ func _write(lines: Array, inside: Rect2, type_size: int, kind: StringName) -> fl
 			var jitter: float = spec[3]
 			y = _wrap(text, font, font_size, ink, x, y, width, jitter, voice == &"hard")
 			if voice == &"hurried":
-				_through(text.get_slice(" ", 0), font, font_size, Vector2(x, top))
-				NoteCharts.underline(self, text.get_slice(" ", 0), font, font_size, Vector2(x, top))
+				var word := first_word(text, font, font_size, width)
+				_through(word, font, font_size, Vector2(x, top))
+				NoteCharts.underline(self, word, font, font_size, Vector2(x, top))
 		if line.size() > 2 and bool(line[2]):
 			NoteCharts.strike(self, Rect2(x - 4.0, top, width + 8.0, y - top))
 		_spans.append(Rect2(x, top, width, y - top))
@@ -578,6 +579,20 @@ func _wrap(
 			)
 		y += line_height
 	return y
+
+
+## The word a hurried line goes over twice and underlines: its first, up to a space, or in Chinese,
+## which has none, up to the first mark, and never past the end of its first row.
+static func first_word(text: String, font: Font, font_size: int, width: float) -> String:
+	var rows := _rows(text, font, font_size, width)
+	var word := (rows[0] if not rows.is_empty() else text).get_slice(" ", 0)
+	if word.is_empty() or not Lang.wide(word.unicode_at(0)):
+		return word
+	var server := TextServerManager.get_primary_interface()
+	for i: int in word.length():
+		if not server.is_valid_letter(word.unicode_at(i)):
+			return word.left(i)
+	return word
 
 
 ## [param text] broken into rows no wider than [param width], see [method Type.rows].

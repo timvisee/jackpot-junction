@@ -90,6 +90,18 @@ func test_a_signature_keeps_its_dash() -> void:
 	assert_array(Array(Type.rows("Not this time. —K.", Type.TEXT, SAMPLE, 1.0))).contains(["—K."])
 
 
+## A hurried line goes over its first word, and in Chinese, which has no spaces, over the words up
+## to the first mark, not over the whole line, GAME.md 10.9.
+func test_a_hurried_line_goes_over_its_first_word() -> void:
+	var font := NotePage.HAND
+	assert_str(NotePage.first_word("Don't stamp it! Not this time.", font, 20, 400.0)).is_equal(
+		"Don't"
+	)
+	var chinese := "别盖章！别接受他们的条款。这次不行。—K."  # NO_TRANSLATE
+	assert_str(NotePage.first_word(chinese, font, 20, 400.0)).is_equal("别盖章")  # NO_TRANSLATE
+	assert_str(NotePage.first_word(chinese, font, 20, 30.0)).is_equal("别")  # NO_TRANSLATE
+
+
 ## Every face the game is set in has its Chinese partner behind it, GAME.md 10.9, and behind every
 ## partner but its own the text face's, which holds every character a name may have.
 func test_every_face_has_its_chinese_partner_behind_it() -> void:
