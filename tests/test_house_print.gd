@@ -225,11 +225,15 @@ func test_a_corner_block_is_a_strip_in_its_players_color() -> void:
 	tank.start_at = 0.2
 	tank.value = 10.0
 	assert_object(tank.fill()).is_equal(NitroBottle.LOW)
+	# And blinking, so it reads by more than its red.
+	assert_bool(tank.is_processing()).is_true()
 	tank.value = 30.0
 	assert_object(tank.fill()).is_equal(Color.BLUE)
+	assert_bool(tank.is_processing()).is_false()
 	tank.value = 10.0
 	tank.lit = true
 	assert_object(tank.fill()).is_equal(SpeedDial.NITRO)
+	assert_bool(tank.is_processing()).is_false()
 	assert_object(block["speed_dial"]).is_instanceof(SpeedDial)
 	# The bottle lies under the dial, so the dial's rim takes the inner edge of its collar.
 	var bottle := (block["nitro"] as Control).get_index()

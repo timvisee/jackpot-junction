@@ -7,8 +7,9 @@ extends Range
 ## it; it narrows over its shoulder into a neck, and a gas cylinder's valve stands straight off
 ## that, its red hand wheel across its end and its outlet piped into the dial's rim through a
 ## collar laid against the rim's edge, curved as the rim is. Amber while the bottle burns, as the
-## dial's fill is, see [SpeedDial]; and red while what is left is too little to start it again, so
-## a player sees the last drop will not light before they press for it.
+## dial's fill is, see [SpeedDial]; and red while what is left is too little to start it again,
+## blinking slowly, so a player sees the last drop will not light before they press for it, a red
+## player and one who cannot tell the red apart too.
 ##
 ## Laid in the dial's box under the dial, whose rim takes the collar's inner edge, and drawn past
 ## its foot, into the room the block leaves under it, see [HudBlock]. Its shapes are worked out
@@ -33,8 +34,12 @@ const CUT := Color(0.0, 0.0, 0.0, 0.6)
 ## How much darker the shadow side of the fill is, and of the valve's foil and its wheel's red.
 const SHADE := 0.72
 const WHEEL := Color(0.8, 0.17, 0.14)
-## The fill while too little is left to start the nitro, see [member start_at].
+## The fill while too little is left to start the nitro, see [member start_at]; how long it takes
+## to blink once, in seconds, and how far toward the glass's dark it goes, so it reads by more than
+## its color.
 const LOW := HouseTheme.STAMP_RED
+const BLINK := 0.9
+const BLINK_DARK := 0.75
 ## The size the valve is drawn at, the dial's own pixels for a dial [constant SIZE] across.
 const SIZE := 88.0
 ## Along the valve, as [method _draw_valve] has it: the outlet, from the valve's block up to the
@@ -69,7 +74,13 @@ func _init() -> void:
 	min_value = 0.0
 	max_value = 100.0
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	value_changed.connect(func(_to: float) -> void: queue_redraw())
+	set_process(false)
+	value_changed.connect(func(_to: float) -> void: _changed())
+
+
+## Only while the last drop blinks: drawn again each frame for it.
+func _process(_delta: float) -> void:
+	queue_redraw()
 
 
 func _draw() -> void:
@@ -86,6 +97,9 @@ func _draw() -> void:
 	draw_colored_polygon(_glass, EMPTY)
 	var share := _share()
 	var base := fill()
+	if is_processing():
+		var beat := Time.get_ticks_msec() * 0.001 * TAU / BLINK
+		base = base.lerp(Color(base * 0.25, base.a), BLINK_DARK * (0.5 - 0.5 * cos(beat)))
 	if share > 0.004:
 		var to := lerpf(FOOT, NECK, share)
 		var reach := _band(middle, half * INNER - 3.0, half * OUTER + 3.0, FOOT + 6.0, to)
@@ -219,13 +233,19 @@ func _set_lit(value: bool) -> void:
 	if value == lit:
 		return
 	lit = value
-	queue_redraw()
+	_changed()
 
 
 func _set_start_at(value: float) -> void:
 	if value == start_at:
 		return
 	start_at = value
+	_changed()
+
+
+## Drawn again, and blinking only while too little is left to start the nitro.
+func _changed() -> void:
+	set_process(not lit and _share() > 0.0 and _share() < start_at)
 	queue_redraw()
 
 
