@@ -5431,6 +5431,26 @@ How it fits together:
 | N6 | The server check fetching the page | Done: 7f7f44c2, and a061fbcd (FreeType's line read from the engine in the tests) |
 | N7 | Checks: every commit's suite, lint and format, an exported game's and server's `--licenses`, the server check on an exported server, the fold timed | Done 2026-11-27: every commit's suite (2611 to 2629 cases, none failing), lint, format, changelog, smoke; exported Linux game and server: `--licenses` 78 pieces and 17 texts each, the game with its sounds and music and no gdUnit4 or GodotSteam, the server with neither sound nor music; the server check on the editor build and the exported server (idle 125 and 90 MB); the fold's first frame 16 ms here, all in within 19 frames |
 
+## M27: languages
+
+Asked for by the user on 2026-11-26: every word a player reads made translatable, everywhere,
+notes and billboards included (GAME.md 10.9); Dutch first, Simplified Chinese once a native
+speaker can read it over (M24 L6), Steam's own words after the game's. The translations are
+gettext files, for community tools such as Weblate and Poedit. Built in worktree
+`.claude/worktrees/localization`, branch `localization`, from master at 63a069cf.
+
+| Step | What | State |
+|------|------|-------|
+| G1 | `Lang`, `make strings`, Dutch's empty file loaded, the Language row on the Accessibility page | Done |
+| G2 | Every word in the code marked, by area: story, settings, menus, online, match, arena, jokers, garage | Open |
+| G3 | `make check` and CI fail on a word not marked, a file behind the code, or a broken placeholder | Open |
+| G4 | Words baked into pictures (the Workbench chalkboard, the House rail's microprint) drawn per language and swapped in by the engine's remaps | Open |
+| G5 | Dutch, informal ("je"), played through by the user | Open |
+| G6 | A guide for translators, `docs/TRANSLATING.md` | Open |
+| G7 | Simplified Chinese: a typeface with Chinese for each of the game's, line breaking in exports, a human translator | Open |
+| G8 | Steam: the store page, the achievements' names, the presence and the controller actions translated on Steamworks | Open |
+| G9 | Left in English for now, to translate later if wanted (the user, 2026-11-26): a dedicated server's web page and console, a debug build's story page, the tools in `scenes/dev` | Open |
+
 ## Pending
 
 Known bugs parked for later. Each one is described well enough to pick up cold.
