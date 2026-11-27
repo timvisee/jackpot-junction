@@ -57,6 +57,14 @@ func test_the_outline_is_bitten_at_the_stub() -> void:
 	assert_bool(Geometry2D.is_point_in_polygon(Vector2(3.0, 60.0), shape)).is_true()
 
 
+## A card's picture stands in the middle of the rosette printed round it, and clear of the gems
+## of its rarity over the tear.
+func test_the_picture_stands_in_the_rosette() -> void:
+	assert_object(JokerCard.PICTURE_AT.get_center()).is_equal(CardPrint.ROSETTE)
+	var gems := CardPrint.STUB - JokerCard.GEM_ABOVE - JokerCard.GEM.y
+	assert_float(JokerCard.PICTURE_AT.end.y).is_less(gems)
+
+
 ## A card's shadow, and its glow when it is lit, has the card's own shape: the nearest of its layers
 ## leaves the bite out of the card's side, as a box's shadow would not, and covers the card.
 func test_the_shadow_has_the_bites() -> void:

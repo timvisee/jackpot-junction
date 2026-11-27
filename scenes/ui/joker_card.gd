@@ -60,8 +60,9 @@ const INDEX_AT := Vector2(10.0, 10.0)
 ## How wide the outline round the corner's suit and kind is, in the card's own dark, so they read
 ## over the screen without a hole cut in it.
 const INDEX_OUTLINE := 4
-## Where the picture stands on the card, and the stub its name is set on, in its units.
-const PICTURE_AT := Rect2(28.0, 34.0, 64.0, 64.0)
+## Where the picture stands on the card, in the middle of the rosette printed round it, see
+## [constant CardPrint.ROSETTE], and the stub its name is set on, in its units.
+const PICTURE_AT := Rect2(CardPrint.ROSETTE - Vector2(32.0, 32.0), Vector2(64.0, 64.0))
 const NAME_ON := Rect2(6.0, 126.0, 108.0, 36.0)
 ## A card baking its face, see [member bakes]: the group it waits in for its picture, the step its
 ## pixels go up by, and how many frames its size has to hold before it is drawn again for it.
