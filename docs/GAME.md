@@ -4660,13 +4660,25 @@ lane beside it is as wide as it was.
   to see it is still working without counting in their head.
 - **Joker hand**: the held jokers as a row of overlapping cards along the bottom
   of the screen, one hand per local player, each card framed in its kind's
-  color with the joker's own picture and its name, and one, two or three round
-  pips under the name for how rare it is: steel for common, cyan for uncommon,
-  magenta for rare. The kind's color is engraved on the card too, 8.1a: a hairline
-  inside the frame, rings round the picture and waves across the foot.
-  Count and color say it twice on purpose, since the card already spends its
-  color on saying what kind of joker it is and color alone is not something
-  every player can read. Three or more cards fan out, the
+  color, its suit and kind in its top left corner, the joker's own picture in its
+  middle and its name alone on the stub along its foot, a stub torn off along a
+  perforation with a bite out of either side. Over the stub, on the card itself,
+  stand one, two or three gems for how rare it is: steel for common, cyan for
+  uncommon, magenta for rare. Count and color say it twice on purpose, since the
+  card already spends its color on saying what kind of joker it is and color alone
+  is not something every player can read. The House prints its fine print on the
+  card in the kind's color (`CardPrint`): a halftone screen along the top whose
+  lower edge is an arch, high in the middle and deep at the sides, with the corner's
+  suit and kind outlined in the card's dark over it rather than a hole cut in it;
+  a guilloche rosette round the picture, as a banknote is engraved; a shade of the
+  color on the stub, waves across it and the perforation's holes; a hairline
+  inside the frame. A rare joker's screen drifts from its color into magenta and
+  on into cyan across the card, a split fountain, and a cursed one's has a crimson
+  plate slipped under it, out of register. Kit's cards keep his painted-over face
+  and graph squares. A card shown small sheds the fine print in steps: under 100
+  pixels across the rosette and the waves go and the screen gets coarser, and under
+  64 the screen is one flat shape of the same arch, the holes go and the gems grow,
+  so a hand tucked into a phone's edge still reads by its colors. Three or more cards fan out, the
   middle riding higher and the ends tipping away, like a hand held in a fist.
   While the joker menu is open the selected card lifts straight up out of the
   fan with a bright frame, its name, description and the menu controls float
@@ -6417,8 +6429,10 @@ power-ups', from the hands' page from the start, showing every suit where the on
 card out. A debug build fills the catalog of the profile playing with
 `++ --catalog-all`, every stack held at its biggest, as the README says.
 
-**Power-ups.** The same for the items, each a card of its own the size of a joker's, its picture of
-8.3a framed in its color and its name under it, a color too dark to be told from the card lightened,
+**Power-ups.** The same for the items, each a card of its own the size and shape of a joker's, framed
+in its color, ITEM in its corner, its picture of 8.3a in its middle; its stub is the label of the
+crate it comes out of, solid in its color with the name printed out of it in small capitals and the
+screen rising from it in a small arch, clear of the rosette; a color too dark to be told from the card lightened,
 the first set and then the later set as the sets list them; one never used is not printed yet, as a
 joker is. Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
 how many shots, how far it reaches, its fuse, and which set it is in, the later one switched on in
@@ -10890,8 +10904,8 @@ stays won. New code is held to these, and a pull that breaks one says why:
   this the title drew its seal's 48 smoothed rings again every frame and ran at
   about 200 frames a second on the desktop; drawn once, it runs at about 1350, at
   0.2 ms of the renderer's time a frame.
-- The cards of a hand and of a respawn pick, 8.3, show their face, its engraving,
-  index, art, name and pips, from a picture of it, drawn for the size the card
+- The cards of a hand and of a respawn pick, 8.3, show their face, its print,
+  index, art, name and gems, from a picture of it, drawn for the size the card
   holds still at, once it has held it a few frames; sliding or growing, a card
   shows the picture it has, stretched for the moment. Its frame, the glow and the
   gold of a card lifted or going off, and what is laid over the face, a Copy Cat's

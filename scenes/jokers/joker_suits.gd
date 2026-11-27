@@ -28,6 +28,9 @@ const RED := Color("#F0524F")
 const PICTURES: Array[StringName] = [&"suit_spade", &"suit_heart", &"suit_diamond", &"suit_club"]
 const JESTER := &"suit_jester"
 const JESTER_BAND := &"suit_jester_band"
+## How far a mark's outline reaches, in pixels, and in how many steps round it is drawn.
+const HALO := 1.4
+const HALO_STEPS := 8
 
 
 ## A suit drawn into a control: a card's corner, the pane's line, the hand's Suited sign.
@@ -36,6 +39,9 @@ class Mark:
 
 	var suit := Joker.Suit.WILD
 	var paper := false
+	## An outline of this round the mark, for one set over a screen, as a card's corner is; none
+	## while clear.
+	var halo := Color(0.0, 0.0, 0.0, 0.0)
 
 	func _init(of_suit: int = Joker.Suit.WILD, on_paper := false) -> void:
 		suit = of_suit as Joker.Suit
@@ -43,7 +49,12 @@ class Mark:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	func _draw() -> void:
-		JokerSuits.draw_mark(self, Rect2(Vector2.ZERO, size), suit, paper)
+		var box := Rect2(Vector2.ZERO, size)
+		if halo.a > 0.0:
+			for step: int in HALO_STEPS:
+				var out := Vector2.from_angle(TAU * step / HALO_STEPS) * HALO
+				JokerSuits.draw_shadow(self, Rect2(box.position + out, box.size), suit, halo)
+		JokerSuits.draw_mark(self, box, suit, paper)
 
 
 static func name_of(suit: int) -> String:
@@ -67,6 +78,16 @@ static func draw_mark(on: CanvasItem, box: Rect2, suit: int, paper := false) -> 
 		draw_jester(on, box, paper)
 		return
 	IconPress.draw(on, box, PICTURES[suit], color_of(suit, paper), IconPress.Ground.PAPER)
+
+
+## [param suit]'s mark in [param ink] alone, its shape without its colors: what its outline is drawn
+## of, see [member Mark.halo].
+static func draw_shadow(on: CanvasItem, box: Rect2, suit: int, ink: Color) -> void:
+	if suit < 0 or suit >= PICTURES.size():
+		IconPress.draw(on, box, JESTER, ink, IconPress.Ground.PAPER, ink)
+		IconPress.draw(on, box, JESTER_BAND, ink, IconPress.Ground.PAPER, ink)
+		return
+	IconPress.draw(on, box, PICTURES[suit], ink, IconPress.Ground.PAPER)
 
 
 ## A jester's hat, the wild card's mark, GAME.md 7.3, the Jokers table card's: two points in red
