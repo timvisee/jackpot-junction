@@ -18,6 +18,8 @@ func before_test() -> void:
 	_words.add_message(", ", ", ", &"list")
 	_words.add_message("{some} and {last}", "{some} en {last}")
 	_words.add_plural_message("%d chip", PackedStringArray(["%d fiche", "%d fiches"]))
+	for english: String in ["%dST", "%dND", "%dRD", "%dTH"]:
+		_words.add_message(english, "%dE", &"ordinal")
 	TranslationServer.add_translation(_words)
 
 
@@ -84,3 +86,19 @@ func test_a_word_for_later_is_kept_in_english() -> void:
 func test_a_scripts_run_speaks_english() -> void:
 	Game.speak()
 	assert_str(Lang.current).is_equal(Lang.ENGLISH)
+
+
+## A place as the House prints it, by the rule of the language spoken.
+func test_a_place_is_written_as_the_language_writes_it() -> void:
+	Lang.apply(Lang.ENGLISH)
+	var english: Array[String] = []
+	for place: int in [1, 2, 3, 4, 11, 12, 13, 21, 22, 101, 111]:
+		english.append(Lang.ordinal(place))
+	assert_array(english).is_equal(
+		["1ST", "2ND", "3RD", "4TH", "11TH", "12TH", "13TH", "21ST", "22ND", "101ST", "111TH"]
+	)
+	assert_str(Timeline.ordinal(2)).is_equal("2nd")
+	Lang.apply(DUTCH)
+	assert_str(Lang.ordinal(1)).is_equal("1E")
+	assert_str(Lang.ordinal(12)).is_equal("12E")
+	assert_str(Timeline.ordinal(3)).is_equal("3e")

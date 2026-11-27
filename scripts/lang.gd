@@ -128,6 +128,22 @@ static func decimal(value: float, places := 1) -> String:
 	return (("%." + str(places) + "f") % value).replace(".", Lang.t(".", &"decimal"))
 
 
+## [param place] as a place is written, in capitals as the House prints it: 1ST, 2ND, 3RD, 4TH,
+## 11TH in English, 1E and 2E in Dutch. Lower it for a place in a sentence.
+static func ordinal(place: int) -> String:
+	# TRANSLATORS: A place at a table, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH; lowered in a sentence.
+	var forms: Array[String] = [
+		Lang.t("%dTH", &"ordinal"),
+		Lang.t("%dST", &"ordinal"),
+		Lang.t("%dND", &"ordinal"),
+		Lang.t("%dRD", &"ordinal"),
+	]
+	var form := 0
+	if (place % 100 < 11 or place % 100 > 13) and place % 10 <= 3:
+		form = place % 10
+	return forms[form] % place
+
+
 ## [param items] as a list in a sentence: "a", "a and b", "a, b and c".
 static func listed(items: Array) -> String:
 	if items.is_empty():

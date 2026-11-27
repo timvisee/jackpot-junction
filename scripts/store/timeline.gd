@@ -172,14 +172,4 @@ static func phase() -> String:
 
 ## A place in words, in the language spoken: 1st, 2nd, 3rd, 4th and on.
 static func ordinal(place: int) -> String:
-	# TRANSLATORS: A place in a race, 4th, and so for every number but those ending 1st, 2nd, 3rd.
-	var words := Lang.t("%dth")
-	if place % 100 < 11 or place % 100 > 13:
-		match place % 10:
-			1:
-				words = Lang.t("%dst")
-			2:
-				words = Lang.t("%dnd")
-			3:
-				words = Lang.t("%drd")
-	return words % place
+	return Lang.ordinal(place).to_lower()

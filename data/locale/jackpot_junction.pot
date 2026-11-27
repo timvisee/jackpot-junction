@@ -7800,6 +7800,30 @@ msgctxt "thousands"
 msgid ","
 msgstr ""
 
+#. A place at a table, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH; lowered in a sentence.
+#: scripts/lang.gd
+msgctxt "ordinal"
+msgid "%dTH"
+msgstr ""
+
+#. A place at a table, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH; lowered in a sentence.
+#: scripts/lang.gd
+msgctxt "ordinal"
+msgid "%dST"
+msgstr ""
+
+#. A place at a table, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH; lowered in a sentence.
+#: scripts/lang.gd
+msgctxt "ordinal"
+msgid "%dND"
+msgstr ""
+
+#. A place at a table, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH; lowered in a sentence.
+#: scripts/lang.gd
+msgctxt "ordinal"
+msgid "%dRD"
+msgstr ""
+
 #: scripts/lang.gd
 msgid "{some} and {last}"
 msgstr ""
@@ -8826,49 +8850,8 @@ msgstr ""
 msgid "{score} · {place} of {sides}"
 msgstr ""
 
-#. A place in a race, 4th, and so for every number but those ending 1st, 2nd, 3rd.
-#: scripts/store/timeline.gd
-msgid "%dth"
-msgstr ""
-
-#: scripts/store/timeline.gd
-msgid "%dst"
-msgstr ""
-
-#: scripts/store/timeline.gd
-msgid "%dnd"
-msgstr ""
-
-#: scripts/store/timeline.gd
-msgid "%drd"
-msgstr ""
-
 #: scripts/story/story_fill.gd
 msgid "LEARNER"
-msgstr ""
-
-#. A place at a table as the House prints it, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH.
-#: scripts/story/story_fill.gd
-msgctxt "ordinal"
-msgid "%dTH"
-msgstr ""
-
-#. A place at a table as the House prints it, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH.
-#: scripts/story/story_fill.gd
-msgctxt "ordinal"
-msgid "%dST"
-msgstr ""
-
-#. A place at a table as the House prints it, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH.
-#: scripts/story/story_fill.gd
-msgctxt "ordinal"
-msgid "%dND"
-msgstr ""
-
-#. A place at a table as the House prints it, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH.
-#: scripts/story/story_fill.gd
-msgctxt "ordinal"
-msgid "%dRD"
 msgstr ""
 
 #. A billboard of the House's: a headline, and a smaller line under it that finishes it.
