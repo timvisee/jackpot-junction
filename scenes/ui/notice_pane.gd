@@ -75,7 +75,9 @@ func _say(title: String, message: String) -> void:
 
 
 func _process(delta: float) -> void:
-	if not visible:
+	# Put away once, as its time runs out: put away again every frame after, its fall started
+	# afresh each time and never ended, and the notice stayed up for good, OK and all.
+	if not visible or _left <= 0.0:
 		return
 	_left -= delta
 	if _left <= 0.0:
@@ -83,6 +85,7 @@ func _process(delta: float) -> void:
 
 
 func close() -> void:
+	_left = 0.0
 	MenuTheme.put_away(_pane, _gone)
 
 
