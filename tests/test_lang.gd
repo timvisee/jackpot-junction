@@ -64,6 +64,25 @@ func test_english_is_spoken_first_and_each_translation_after() -> void:
 	assert_array(Lang.spoken()).contains_exactly([Lang.ENGLISH, DUTCH])
 
 
+## Steam is handed words in every language the game speaks, each in its own whatever is spoken.
+func test_words_for_steam_are_in_the_language_asked() -> void:
+	assert_dict(Lang.on_steam()).is_equal({"english": Lang.ENGLISH, "dutch": DUTCH})
+	# A language of the test's own, so the game's Dutch file is not asked.
+	var own := Translation.new()
+	own.locale = "eo"
+	own.add_message("Steer", "Stiri")
+	own.add_message("Steer", "Direkti", &"boat")
+	TranslationServer.add_translation(own)
+	Lang.apply(Lang.ENGLISH)
+	assert_str(Lang.t_in("eo", "Steer")).is_equal("Stiri")
+	assert_str(Lang.t_in("eo", "Steer", &"boat")).is_equal("Direkti")
+	assert_str(Lang.t_in("eo", "Brake")).is_equal("Brake")
+	assert_str(Lang.t_in("fr", "Steer")).is_equal("Steer")
+	assert_str(Lang.t_in(Lang.ENGLISH, "Steer")).is_equal("Steer")
+	assert_str(Lang.t("Steer")).is_equal("Steer")
+	TranslationServer.remove_translation(own)
+
+
 func test_numbers_and_lists_are_written_as_the_language_writes_them() -> void:
 	Lang.apply(Lang.ENGLISH)
 	assert_str(Lang.number(1204388)).is_equal("1,204,388")

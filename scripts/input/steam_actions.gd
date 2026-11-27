@@ -12,26 +12,29 @@ extends RefCounted
 ## the menus' own `ui_up` to `ui_right`. So are the four ways to aim, which are the aim stick.
 
 ## The one action set: everything is in it, as everything is on a pad, since the game's menus and
-## its driving share a screen too often to tell Steam which is up. NO_TRANSLATE: Steam's words, as
-## every word of this class is, which Steam shows and Steamworks translates, GAME.md 10.9.
+## its driving share a screen too often to tell Steam which is up. NO_TRANSLATE: its name to Steam.
 const SET := "Play"
+## What Steam calls the set. The words Steam shows are written in every language the game speaks,
+## each language's own shown through tr() as the files are written, see [method _words].
 const SET_TITLE := "Play"
-## The sticks, Steam's joysticks, by Steam's name: what Steam calls it, and the actions its right
-## and its down are, the stick of the game's whose axes it moves, see [SteamPads]. NO_TRANSLATE
+## The sticks, Steam's joysticks, by Steam's name: what Steam calls it, shown through tr() as the
+## set's words are, and the actions its right and its down are, the stick of the game's whose axes
+## it moves, see [SteamPads].
 const STICKS: Dictionary[String, Array] = {
 	"steer_stick": ["Steer", InputActions.STEER_RIGHT, InputActions.DRIVE_DOWN],
 	"aim_stick": ["Aim and emote", InputActions.AIM_RIGHT, InputActions.AIM_DOWN],
 }
-## The triggers, Steam's analog triggers: what Steam calls each, and the action it is.
-## NO_TRANSLATE
+## The triggers, Steam's analog triggers: what Steam calls each, shown through tr() as the set's
+## words are, and the action it is.
 const TRIGGERS: Dictionary[String, Array] = {
 	"throttle_trigger": ["Gas", InputActions.THROTTLE],
 	"brake_trigger": ["Brake", InputActions.BRAKE],
 }
 ## Every button action, by the game's name, which is Steam's too, in the order Steam lists them,
 ## with what Steam calls it: driving, the jokers, the emotes, the room, and the menus. In the fewest
-## words that say it, those of the game's own picture of a pad, see [PadLeaflet]; a button's Gas
-## and Brake are the triggers' words too, Steam offering each only where it fits. NO_TRANSLATE
+## words that say it, those of the game's own picture of a pad, see [PadLeaflet], and shown through
+## tr() as the set's words are; a button's Gas and Brake are the triggers' words too, Steam offering
+## each only where it fits.
 const BUTTONS: Dictionary[StringName, String] = {
 	InputActions.FIRE: "Fire",
 	InputActions.USE_ITEM: "Use item",
@@ -171,8 +174,9 @@ const LAYOUT_TITLE := "Default"
 const LAYOUT_SAYS := "Every button does what it does on a gamepad in the game."
 const BACK_SAYS := " The buttons behind repeat A, B, X and Y."
 ## The layouts' revision, raised whenever one changes, for Steam to take the new one up in place of
-## what it has kept: 1 for the title in plain words, 2 for the actions' shorter words.
-const LAYOUT_REVISION := 2
+## what it has kept: 1 for the title in plain words, 2 for the actions' shorter words, 3 for the
+## words in every language the game speaks.
+const LAYOUT_REVISION := 3
 ## The manifest's file, and where Steam's files are kept in the project.
 const MANIFEST := "action_manifest.vdf"
 const FOLDER := "res://data/steam/input"
@@ -259,7 +263,7 @@ static func manifest() -> String:
 				[
 					["configurations", configurations],
 					["actions", _actions(false)],
-					["localization", [["english", _words()]]],
+					["localization", _localization()],
 				]
 			]
 		]
@@ -310,7 +314,7 @@ static func layout(controller: String) -> String:
 		["major_revision", "0"],
 		["minor_revision", str(LAYOUT_REVISION)],
 		["actions", _actions(true)],
-		["localization", [["english", _words()]]],
+		["localization", _localization()],
 	]
 	body.append_array(groups)
 	body.append(["preset", [["id", "0"], ["name", SET], ["group_source_bindings", sources]]])
@@ -384,21 +388,31 @@ static func _actions(in_layout: bool) -> Array:
 	return [[SET, play]]
 
 
-## The words in English: the set's and every action's.
-static func _words() -> Array:
-	var words: Array = [["Set_" + SET, SET_TITLE]]
+## The words in every language the game speaks, by the name Steam gives it, which Steam picks its
+## player's from, falling back on English's.
+static func _localization() -> Array:
+	var languages: Array = []
+	var steam := Lang.on_steam()
+	for language: String in steam:
+		languages.append([language, _words(steam[language])])
+	return languages
+
+
+## The words in [param locale]: the set's and every action's.
+static func _words(locale: String) -> Array:
+	var words: Array = [["Set_" + SET, Lang.t_in(locale, SET_TITLE)]]
 	for stick: String in STICKS:
-		words.append(["Action_" + stick, STICKS[stick][0]])
+		words.append(["Action_" + stick, Lang.t_in(locale, STICKS[stick][0])])
 	for trigger: String in TRIGGERS:
-		words.append(["Action_" + trigger, TRIGGERS[trigger][0]])
+		words.append(["Action_" + trigger, Lang.t_in(locale, TRIGGERS[trigger][0])])
 	for action: StringName in BUTTONS:
-		words.append(["Action_" + action, BUTTONS[action]])
+		words.append(["Action_" + action, Lang.t_in(locale, BUTTONS[action])])
 	return words
 
 
 ## [param pairs], each a key and either its words or the pairs inside it, in Valve's KeyValues
-## text as Steam writes it: tabs, every key and value quoted, a key free to come more than once.
-## Nothing here has a quote or a backslash in it to escape.
+## text as Steam writes it: tabs, every key and value quoted, a key free to come more than once, and
+## a quote or a backslash in a translation's words escaped.
 static func vdf(pairs: Array, depth := 0) -> String:
 	var lines := ""
 	var indent := "\t".repeat(depth)
@@ -409,5 +423,6 @@ static func vdf(pairs: Array, depth := 0) -> String:
 			lines += vdf(value, depth + 1)
 			lines += "%s}\n" % indent
 		else:
-			lines += '%s"%s"\t\t"%s"\n' % [indent, pair[0], value]
+			var words := str(value).replace("\\", "\\\\").replace('"', '\\"')
+			lines += '%s"%s"\t\t"%s"\n' % [indent, pair[0], words]
 	return lines

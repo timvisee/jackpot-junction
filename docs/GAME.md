@@ -11528,7 +11528,7 @@ stand in for the right stick and the D-pad it lacks. The buttons behind a contro
 ones, so a thumb stays on its stick: on the Deck and the 2026 Steam Controller the upper right one
 is A, the lower right X, the upper left Y and the lower left B, and on the 2015 one the right grip
 is A and the left X (`SteamActions.BACK_BUTTONS`). The action manifest, naming the set, its actions, their
-English words and the layouts, and the layouts themselves are in `data/steam/input/`, written by
+words in every language the game speaks and the layouts, and the layouts themselves are in `data/steam/input/`, written by
 `make steam-input` from `SteamActions`, and a test fails while they are behind the code.
 `make steam-export` puts them beside the game as `steam_input/`, which Steamworks names,
 docs/STEAM.md. The game hands Steam the manifest itself too as Steam Input starts, the one beside
@@ -11818,9 +11818,12 @@ engine's translation remaps: a picture loaded once in one language stays in its 
 
 Left in English: the tools in `scenes/dev` for the store's pictures and trailers, debug builds' own
 pages, the log, and a dedicated server's console and web page; whatever a server sends a player goes
-as words for another machine. Steam's own words, the store page, the achievements' names on Steam,
-the presence and the controller actions in `data/steam`, are translated on Steamworks, after the
-game's.
+as words for another machine. Steam's own words come from the game's translations where the game
+hands them to Steam: the controller actions' names in `data/steam/input/` are written in English and
+every language the game speaks, each under the name Steam gives it (`Lang.on_steam()`, the words
+looked up with `Lang.t_in()` whatever is spoken), by `make steam-input`, a test failing until they
+are. The store page, the achievements' names on Steam and the presence are translated on
+Steamworks.
 
 ## 11. Roadmap
 

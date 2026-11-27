@@ -167,7 +167,7 @@ msgstr "Het Clubhuis"
 msgid "The story"
 msgstr "Het verhaal"
 
-#: scenes/achievements/achievements_dialog.gd scenes/garage/kart_dialog.gd scenes/loyalty/loyalty_dialog.gd scenes/match/pause_menu.gd scenes/ui/catalog_dialog.gd scenes/ui/drive_switches.gd scenes/ui/joker_picker.gd scenes/ui/lobby_settings.gd scenes/ui/manage_players.gd scenes/ui/pad_leaflet.gd scenes/ui/pad_sheets.gd scenes/ui/password_pane.gd scenes/ui/play_online.gd scenes/ui/server_games.gd scenes/ui/settings_screen.gd scenes/ui/steam_invites.gd scenes/ui/title.gd
+#: scenes/achievements/achievements_dialog.gd scenes/garage/kart_dialog.gd scenes/loyalty/loyalty_dialog.gd scenes/match/pause_menu.gd scenes/ui/catalog_dialog.gd scenes/ui/drive_switches.gd scenes/ui/joker_picker.gd scenes/ui/lobby_settings.gd scenes/ui/manage_players.gd scenes/ui/pad_leaflet.gd scenes/ui/pad_sheets.gd scenes/ui/password_pane.gd scenes/ui/play_online.gd scenes/ui/server_games.gd scenes/ui/settings_screen.gd scenes/ui/steam_invites.gd scenes/ui/title.gd scripts/input/steam_actions.gd
 msgid "Back"
 msgstr "Terug"
 
@@ -3924,7 +3924,7 @@ msgstr "Bots rijden als bots. Vat het niet persoonlijk op."
 msgid "A bot that says gg means it, more or less."
 msgstr "Een bot die gg zegt, meent het, min of meer."
 
-#: scenes/tutorial/school/theory_text.gd scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd
+#: scenes/tutorial/school/theory_text.gd scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Emotes"
 msgstr "Emotes"
 
@@ -4831,7 +4831,7 @@ msgstr "nog {count} {suit}"
 msgid "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 msgstr "PLAATS %d · JACKPOT JUNCTION · AFD. KARTS · "
 
-#: scenes/ui/hud_block.gd scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd
+#: scenes/ui/hud_block.gd scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Nitro"
 msgstr "Nitro"
 
@@ -5130,7 +5130,7 @@ msgstr "Adres"
 msgid "Port"
 msgstr "Poort"
 
-#: scenes/ui/lan_page.gd scenes/ui/pad_sheets.gd scenes/ui/password_pane.gd scenes/ui/settings_screen.gd scripts/store/steam_joins.gd
+#: scenes/ui/lan_page.gd scenes/ui/pad_sheets.gd scenes/ui/password_pane.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd scripts/store/steam_joins.gd
 msgid "Join"
 msgstr "Meedoen"
 
@@ -5836,7 +5836,7 @@ msgstr "LAN"
 msgid "THIS NETWORK"
 msgstr "DIT NETWERK"
 
-#: scenes/ui/next_new.gd scenes/ui/pad_sheets.gd
+#: scenes/ui/next_new.gd scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Next new"
 msgstr "Volgende nieuwe"
 
@@ -5970,7 +5970,7 @@ msgstr "%s, zoals jij het in Steam hebt ingesteld"
 msgid "%s, as you have it bound"
 msgstr "%s, zoals jij het hebt ingesteld"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Gas"
 msgstr "Gas"
 
@@ -5978,7 +5978,7 @@ msgstr "Gas"
 msgid "squeeze, don't stab"
 msgstr "knijpen, niet rammen"
 
-#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd
+#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Brake"
 msgstr "Remmen"
 
@@ -5986,27 +5986,27 @@ msgstr "Remmen"
 msgid "Drive"
 msgstr "Rijden"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Steer"
 msgstr "Sturen"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Drift"
 msgstr "Driften"
 
-#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd
+#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Fire"
 msgstr "Schieten"
 
-#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd
+#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Use item"
 msgstr "Item gebruiken"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Joker hand"
 msgstr "Jokerhand"
 
-#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd
+#: scenes/ui/pad_sheets.gd scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Pause"
 msgstr "Pauze"
 
@@ -6050,7 +6050,7 @@ msgstr "Opnieuw delen"
 msgid "Move"
 msgstr "Navigeren"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Choose"
 msgstr "Kiezen"
 
@@ -6058,11 +6058,11 @@ msgstr "Kiezen"
 msgid "always a way out"
 msgstr "er is altijd een uitweg"
 
-#: scenes/ui/pad_sheets.gd scenes/ui/results_pager.gd
+#: scenes/ui/pad_sheets.gd scenes/ui/results_pager.gd scripts/input/steam_actions.gd
 msgid "Previous page"
 msgstr "Vorige pagina"
 
-#: scenes/ui/pad_sheets.gd scenes/ui/results_pager.gd
+#: scenes/ui/pad_sheets.gd scenes/ui/results_pager.gd scripts/input/steam_actions.gd
 msgid "Next page"
 msgstr "Volgende pagina"
 
@@ -6070,19 +6070,19 @@ msgstr "Volgende pagina"
 msgid "Change the view"
 msgstr "Weergave wisselen"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Option"
 msgstr "Optie"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Filter"
 msgstr "Filter"
 
-#: scenes/ui/pad_sheets.gd
+#: scenes/ui/pad_sheets.gd scripts/input/steam_actions.gd
 msgid "Sort"
 msgstr "Sorteren"
 
-#: scenes/ui/pad_sheets.gd scenes/waiting/host_settings.gd scenes/waiting/waiting_room.gd
+#: scenes/ui/pad_sheets.gd scenes/waiting/host_settings.gd scenes/waiting/waiting_room.gd scripts/input/steam_actions.gd
 msgid "Match settings"
 msgstr "Matchinstellingen"
 
@@ -6570,19 +6570,19 @@ msgstr "Controllers"
 msgid "Throttle"
 msgstr "Gas geven"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Steer left"
 msgstr "Links sturen"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Steer right"
 msgstr "Rechts sturen"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Drive up"
 msgstr "Omhoog rijden"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Drive down"
 msgstr "Omlaag rijden"
 
@@ -6590,7 +6590,7 @@ msgstr "Omlaag rijden"
 msgid "Handbrake"
 msgstr "Handrem"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Mute music"
 msgstr "Muziek dempen"
 
@@ -6598,35 +6598,35 @@ msgstr "Muziek dempen"
 msgid "Joker menu"
 msgstr "Jokermenu"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Previous joker"
 msgstr "Vorige joker"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Next joker"
 msgstr "Volgende joker"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Destroy joker"
 msgstr "Joker vernietigen"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Joker details"
 msgstr "Jokerdetails"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Emote 1"
 msgstr "Emote 1"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Emote 2"
 msgstr "Emote 2"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Emote 3"
 msgstr "Emote 3"
 
-#: scenes/ui/settings_screen.gd
+#: scenes/ui/settings_screen.gd scripts/input/steam_actions.gd
 msgid "Emote 4"
 msgstr "Emote 4"
 
@@ -7101,7 +7101,7 @@ msgstr "Niemand rijdt zonder op de Junction. Haal je eigen rijbewijs op de rijsc
 msgid "Collect chips. Build your mult. Cash out before they get you."
 msgstr "Verzamel fiches. Bouw je mult op. Verzilver voordat ze je pakken."
 
-#: scenes/ui/title.gd
+#: scenes/ui/title.gd scripts/input/steam_actions.gd
 msgid "Play"
 msgstr "Spelen"
 
@@ -8669,6 +8669,58 @@ msgstr "Handheld"
 #: scripts/autoload/game.gd
 msgid "%s (demo)"
 msgstr "%s (demo)"
+
+#: scripts/input/steam_actions.gd
+msgid "Aim and emote"
+msgstr "Richten en emoten"
+
+#: scripts/input/steam_actions.gd
+msgid "Drop joker"
+msgstr "Joker laten vallen"
+
+#: scripts/input/steam_actions.gd
+msgid "Joker 1"
+msgstr "Joker 1"
+
+#: scripts/input/steam_actions.gd
+msgid "Joker 2"
+msgstr "Joker 2"
+
+#: scripts/input/steam_actions.gd
+msgid "Joker 3"
+msgstr "Joker 3"
+
+#: scripts/input/steam_actions.gd
+msgid "Joker 4"
+msgstr "Joker 4"
+
+#: scripts/input/steam_actions.gd
+msgid "Joker 5"
+msgstr "Joker 5"
+
+#: scripts/input/steam_actions.gd
+msgid "Menu up"
+msgstr "Menu omhoog"
+
+#: scripts/input/steam_actions.gd
+msgid "Menu down"
+msgstr "Menu omlaag"
+
+#: scripts/input/steam_actions.gd
+msgid "Menu left"
+msgstr "Menu links"
+
+#: scripts/input/steam_actions.gd
+msgid "Menu right"
+msgstr "Menu rechts"
+
+#: scripts/input/steam_actions.gd
+msgid "Change view"
+msgstr "Weergave wisselen"
+
+#: scripts/input/steam_actions.gd
+msgid "Help"
+msgstr "Hulp"
 
 #. bet
 #: scripts/loyalty/loyalty.gd data/loyalty/map.tres

@@ -279,7 +279,9 @@ A Steam build reads its controllers through Steam Input, GAME.md 10.8, with ever
 action of the game's named in Steam's controller settings. The action manifest and
 the layout each kind of controller starts on are in `data/steam/input/`, written by
 `make steam-input`, and `make steam-export` puts them in both depots as
-`steam_input/`, beside the game.
+`steam_input/`, beside the game. The actions' names are in every language the game speaks,
+from its translations, and Steam shows each player their own: run `make steam-input` after
+`make strings` whenever their words change.
 
 1. **The template** (App Admin > Application > Steam Input): "Custom Configuration
    (Bundled with Game)", with the path `steam_input/action_manifest.vdf`, the same

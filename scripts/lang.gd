@@ -107,6 +107,27 @@ static func t(text: String, context := &"") -> String:
 	return TranslationServer.translate(text, context)
 
 
+## [param text] in [param locale], whatever language is spoken: for words the game hands Steam,
+## which shows each player their own; English where [param locale] has no words for it.
+static func t_in(locale: String, text: String, context := &"") -> String:
+	var translation := TranslationServer.get_translation_object(locale)
+	if locale == ENGLISH or translation == null or translation.locale != locale:
+		return text
+	var words := String(translation.get_message(text, context))
+	return text if words.is_empty() else words
+
+
+## Every language Steam is handed words in, by the name Steam gives it, with its locale: English
+## and each other the game speaks, in the order of [constant STEAM_NAMES].
+static func on_steam() -> Dictionary[String, String]:
+	var known := spoken()
+	var found: Dictionary[String, String] = {}
+	for steam: String in STEAM_NAMES:
+		if STEAM_NAMES[steam] in known:
+			found[steam] = STEAM_NAMES[steam]
+	return found
+
+
 ## [param one] or [param many] in the language spoken, as [param count] asks, for a static
 ## function, which has no [method Object.tr_n].
 static func tn(one: String, many: String, count: int, context := &"") -> String:

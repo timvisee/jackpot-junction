@@ -55,6 +55,21 @@ func test_the_manifest_names_every_action_and_its_words() -> void:
 		assert_str(manifest).contains('"path"\t\t"%s.vdf"' % controller)
 
 
+## The words are in every language the game speaks, under the name Steam gives it, each its own.
+func test_the_words_are_in_every_language_the_game_speaks() -> void:
+	var manifest := SteamActions.manifest()
+	var xbox := SteamActions.layout("controller_xboxone")
+	for steam: String in Lang.on_steam():
+		assert_str(manifest).contains('\t\t"%s"\n\t\t{\n\t\t\t"Set_Play"' % steam)
+		assert_str(xbox).contains('\t\t"%s"\n\t\t{\n\t\t\t"Set_Play"' % steam)
+	var dutch := manifest.substr(manifest.find('"dutch"'))
+	assert_str(dutch).contains('"Action_handbrake"\t\t"%s"' % Lang.t_in("nl", "Drift"))
+	assert_str(dutch).contains('"Action_brake"\t\t"Remmen"')
+	assert_str(dutch).not_contains('"Brake"')
+	# A quote or a backslash in a translation is escaped as Steam reads one.
+	assert_str(SteamActions.vdf([["Say", 'a "b" \\ c']])).is_equal('"Say"\t\t"a \\"b\\" \\\\ c"\n')
+
+
 func test_a_layout_binds_a_controller_as_the_games_own_pad() -> void:
 	var xbox := SteamActions.layout("controller_xboxone")
 	assert_str(xbox).contains('"controller_type"\t\t"controller_xboxone"')

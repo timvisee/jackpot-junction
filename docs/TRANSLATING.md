@@ -81,6 +81,10 @@ too. After translating them, run `python3 tools/make_house_prints.py` and
 `python3 tools/make_workbench_prints.py` to draw that language's pictures (they need Pillow and
 numpy).
 
+Some words are Steam's: the names Steam shows for the game's controls in its controller settings.
+They are in the template as the rest are, and `make steam-input` writes them into Steam's files in
+every language that translates them.
+
 ## Notes per language
 
 ### Dutch (`nl`)
