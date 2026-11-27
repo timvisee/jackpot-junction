@@ -68,6 +68,8 @@ below, and hands the notes to the release workflow.
 - **Redrawn button icons and suits.** The icons on buttons, the map pins, the padlock on a sealed
   table card, the suits and the wild card's jester are redrawn in the same house print.
 - **Redrawn Kit's cards.** Kit's five cards are redrawn in the same house print, in his pencil.
+- **Redrawn theory book figures.** The driving school's theory book and the loyalty program's
+  rewards use the same house print; the book's pit is a barrier before a hole.
 - **Redrawn HUD marks and stamps.** The lives, the bounty's crown, a bot's robot, the skull, the
   mult's die and the House's rubber stamp are redrawn in the same house print.
 - **Redrawn loyalty map marks.** The WON seal and stamp, Kit's tick, the keystone crest and the

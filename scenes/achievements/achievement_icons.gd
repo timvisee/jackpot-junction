@@ -19,7 +19,7 @@ static func draw_into(
 	paper := Color.TRANSPARENT
 ) -> void:
 	if not IconPress.draw(on, box, id, ink, ground, paper):
-		IconShapes.star(on, box, 0.5, 0.5, 0.3, ink)
+		IconPress.draw(on, box.grow(-box.size.x * 0.2), &"ui_star", ink, ground, paper)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the list.

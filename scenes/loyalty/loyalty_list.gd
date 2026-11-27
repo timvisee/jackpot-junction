@@ -87,7 +87,8 @@ class Row:
 			var middle := picture.get_center()
 			draw_arc(middle, side * 0.46, 0.0, TAU, 40, HouseTheme.FOIL, 3.0, true)
 			draw_arc(middle, side * 0.32, 0.0, TAU, 32, Color(HouseTheme.FOIL, 0.5), 1.5, true)
-			IconShapes.star(self, picture, 0.5, 0.5, 0.42, HouseTheme.FOIL)
+			var star := Rect2(middle - Vector2.ONE * side * 0.42, Vector2.ONE * side * 0.84)
+			IconPress.draw(self, star, &"ui_star", HouseTheme.FOIL)
 			if owed > 0:
 				# Calling, as on the map, an edition owed.
 				var gone := LoyaltyBeacon.gone()

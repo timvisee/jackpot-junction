@@ -18,6 +18,7 @@ const FOLDERS := {
 	"res://assets/icons/suits/": "suits",
 	"res://assets/icons/marks/": "marks",
 	"res://assets/icons/hud/": "hud",
+	"res://assets/icons/book/": "book",
 }
 
 
@@ -92,7 +93,13 @@ func test_every_glyph_and_suit_has_a_drawing() -> void:
 	assert_int(IconButton.PICTURES.size()).is_equal(IconButton.Kind.size())
 	assert_int(JokerSuits.PICTURES.size()).is_equal(Joker.Suit.WILD)
 	var glyphs: Array[StringName] = [
-		&"ui_magnifier", &"ui_cross", &"ui_turning", &"ui_pin", &"ui_arrow", &"ui_padlock"
+		&"ui_magnifier",
+		&"ui_cross",
+		&"ui_turning",
+		&"ui_pin",
+		&"ui_arrow",
+		&"ui_padlock",
+		&"ui_star"
 	]
 	glyphs.append_array(IconButton.PICTURES)
 	var suits: Array[StringName] = [JokerSuits.JESTER, JokerSuits.JESTER_BAND]
@@ -121,6 +128,7 @@ func test_every_mark_of_the_map_has_a_drawing() -> void:
 		&"tick_print",
 		&"crest_disc",
 		&"pot_chip",
+		&"note_scrap",
 	]
 	var files := _files("res://assets/icons/marks/")
 	assert_int(files.size()).is_equal(marks.size())
@@ -145,6 +153,24 @@ func test_the_hud_marks_have_drawings_and_a_life_is_the_decks_heart() -> void:
 	assert_float(low.x).is_equal_approx(0.0, 0.01)
 	assert_float(high.x).is_equal_approx(1.0, 0.01)
 	assert_vector(heart[0]).is_equal_approx(Vector2(0.5, 0.96), Vector2(0.01, 0.01))
+
+
+## Every figure of the theory book has its drawing, the game's own where it has one, and every
+## drawing in the book's folder is one of its figures; the House's star and a note's scrap too.
+func test_every_figure_of_the_book_has_a_drawing() -> void:
+	var book := _files("res://assets/icons/book/")
+	var used := 0
+	for kind: SchoolFigure.Kind in SchoolFigure.FIGURES:
+		var id: StringName = SchoolFigure.FIGURES[kind]
+		assert_bool(IconPress.has(id)).override_failure_message("%s has no drawing" % id).is_true()
+		if id in book:
+			used += 1
+	assert_int(used).is_equal(book.size())
+	assert_int(SchoolFigure.FIGURES.size() + SchoolFigure.SIGNS.size()).is_equal(
+		SchoolFigure.Kind.size()
+	)
+	assert_bool(IconPress.has(&"ui_star")).is_true()
+	assert_bool(IconPress.has(&"note_scrap")).is_true()
 
 
 ## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,

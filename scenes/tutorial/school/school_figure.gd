@@ -1,12 +1,11 @@
 class_name SchoolFigure
 extends Control
 ## The pictures of the driving school, GAME.md 9.4a: the figures in the theory book, the faces of
-## the road signs standing about the driving test, the endorsements on the license. Drawn out of
-## the palette, as every picture in the game is, 8.3a, so they come out sharp at any size: a sign
-## face in the room, a figure in the book and a chip on the card are one recipe each.
-##
-## A sign wears its own colors, the red ring and the blue disc a road knows; a figure of the book
-## is drawn in [member ink] alone on the page, and an endorsement in whatever the card hands it.
+## the road signs standing about the driving test, the endorsements on the license. A sign is drawn
+## in code, in its own colors, the red ring and the blue disc a road knows, sharp at any size as a
+## face in the room; a figure of the book is a drawing of GAME.md 8.3a printed flat in [member ink]
+## alone on the page, the game's own drawing of the thing where it has one, and an endorsement in
+## whatever the card hands it.
 
 enum Kind {
 	SPEED,
@@ -34,6 +33,20 @@ const SIGN_WHITE := Color("#F6F3EC")
 const SIGN_INK := Color("#17171A")
 ## What a figure of the book is drawn in, the ink of a printed page.
 const BOOK_INK := Color(0.16, 0.15, 0.14)
+## Each figure's drawing of GAME.md 8.3a: the game's own drawing of the thing where it has one,
+## so the book and the game show one jackpot, one flush, one target, the book's own otherwise.
+const FIGURES: Dictionary[Kind, StringName] = {
+	Kind.JACKPOT: &"table_jackpot",
+	Kind.JUNCTION: &"book_junction",
+	Kind.DRIFT: &"tailslide",
+	Kind.PIT: &"book_pit",
+	Kind.FLUSH: &"table_royal_flush",
+	Kind.DIE: &"book_die",
+	Kind.CARD: &"dress_card_back",
+	Kind.KO: &"book_ko",
+	Kind.TARGET: &"landmark_marksman",
+	Kind.ARROW: &"book_arrow",
+}
 ## The signs, as against the figures: the ones with their own colors.
 const SIGNS: Array[Kind] = [
 	Kind.SPEED, Kind.WARNING, Kind.ROUNDABOUT, Kind.NO_ENTRY, Kind.PARKING, Kind.LEARNER
@@ -73,26 +86,8 @@ static func draw_into(on: CanvasItem, box: Rect2, of: Kind, ink: Color) -> void:
 			_square(on, box, SIGN_BLUE, "P", SIGN_WHITE)
 		Kind.LEARNER:
 			_square(on, box, SIGN_WHITE, "L", SIGN_RED, SIGN_INK)
-		Kind.JACKPOT:
-			_jackpot(on, box, ink)
-		Kind.JUNCTION:
-			_junction(on, box, ink)
-		Kind.DRIFT:
-			_drift(on, box, ink)
-		Kind.PIT:
-			_pit(on, box, ink)
-		Kind.FLUSH:
-			_flush(on, box, ink)
-		Kind.DIE:
-			_die(on, box, ink)
-		Kind.CARD:
-			_card(on, box, ink)
-		Kind.KO:
-			IconShapes.burst(on, box, 0.5, 0.5, 0.9, ink)
-		Kind.TARGET:
-			_target(on, box, ink)
-		Kind.ARROW:
-			_arrow(on, box, ink)
+		_:
+			IconPress.draw(on, box, FIGURES[of], ink, IconPress.Ground.PAPER)
 
 
 ## The speed limit: a white disc with a thick red ring and the number in the middle.
@@ -159,126 +154,6 @@ static func _square(
 		style.border_color = edge
 	on.draw_style_box(style, Rect2(IconShapes.at(box, 0.04, 0.04), box.size * 0.92))
 	_word(on, box, letter, 0.62, letter_ink)
-
-
-## The Jackpot: a pad with a pile of coins on it, three deep.
-static func _jackpot(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var faint := IconShapes.behind(ink)
-	IconShapes.bar(on, box, 0.1, 0.68, 0.8, 0.14, faint)
-	for coin: Array in [[0.36, 0.56], [0.62, 0.56], [0.49, 0.42]]:
-		IconShapes.disc(on, box, coin[0], coin[1], 0.15, ink)
-		IconShapes.disc(on, box, coin[0], coin[1], 0.1, faint)
-	IconShapes.star(on, box, 0.8, 0.28, 0.18, ink)
-	IconShapes.star(on, box, 0.2, 0.3, 0.12, ink)
-
-
-## The Junction: a disc with the crossroads through it, the game's own mark in one ink.
-static func _junction(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	IconShapes.ring(on, box, 0.5, 0.5, 0.44, ink)
-	IconShapes.bar(on, box, 0.1, 0.42, 0.8, 0.16, ink)
-	IconShapes.bar(on, box, 0.42, 0.1, 0.16, 0.8, ink)
-	IconShapes.disc(on, box, 0.5, 0.5, 0.11, IconShapes.behind(ink))
-
-
-## A drift: a curved arrow with two skid marks under it.
-static func _drift(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var middle := IconShapes.at(box, 0.5, 0.62)
-	var radius := IconShapes.span(box, 0.34)
-	var width := IconShapes.width(box) * 1.6
-	on.draw_arc(middle, radius, PI, PI * 1.78, 24, ink, width, true)
-	var tip := PI * 1.78
-	var at := middle + Vector2(cos(tip), sin(tip)) * radius
-	var head := PackedVector2Array()
-	head.append(at + Vector2(width * 2.4, width * 1.4))
-	head.append(at + Vector2(-width * 1.6, -width * 1.2))
-	head.append(at + Vector2(-width * 0.6, width * 2.4))
-	on.draw_colored_polygon(head, ink)
-	var faint := IconShapes.behind(ink)
-	on.draw_arc(
-		middle + Vector2(0.0, width * 2.4),
-		radius * 0.78,
-		PI * 1.08,
-		PI * 1.6,
-		16,
-		faint,
-		width * 0.8,
-		true
-	)
-	on.draw_arc(
-		middle + Vector2(0.0, width * 4.2),
-		radius * 0.62,
-		PI * 1.12,
-		PI * 1.55,
-		16,
-		faint,
-		width * 0.8,
-		true
-	)
-
-
-## The pit: a grate, a rounded square with bars down it.
-static func _pit(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var style := StyleBoxFlat.new()
-	style.draw_center = false
-	style.set_border_width_all(maxi(roundi(IconShapes.width(box) * 1.4), 2))
-	style.border_color = ink
-	style.set_corner_radius_all(roundi(IconShapes.span(box, 0.1)))
-	on.draw_style_box(style, Rect2(IconShapes.at(box, 0.1, 0.1), box.size * 0.8))
-	for i: int in 4:
-		IconShapes.bar(on, box, 0.22 + 0.15 * float(i), 0.2, 0.07, 0.6, ink)
-
-
-## The Royal Flush: the four suits in a square.
-static func _flush(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var half := box.size * 0.46
-	for suit: int in 4:
-		var corner := IconShapes.at(
-			box, 0.04 + 0.46 * float(suit % 2), 0.04 + 0.46 * floorf(suit * 0.5)
-		)
-		SuitArt.draw_into(on, Rect2(corner, half), suit, ink)
-
-
-## A mult die: a rounded square with five pips.
-static func _die(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var style := StyleBoxFlat.new()
-	style.bg_color = ink
-	style.set_corner_radius_all(roundi(IconShapes.span(box, 0.14)))
-	on.draw_style_box(style, Rect2(IconShapes.at(box, 0.1, 0.1), box.size * 0.8))
-	var hole := IconShapes.behind(ink)
-	hole.a = 1.0
-	hole = hole.lerp(Color.WHITE, 0.8)
-	for pip: Vector2 in [
-		Vector2(0.3, 0.3),
-		Vector2(0.7, 0.3),
-		Vector2(0.5, 0.5),
-		Vector2(0.3, 0.7),
-		Vector2(0.7, 0.7)
-	]:
-		IconShapes.disc(on, box, pip.x, pip.y, 0.07, hole)
-
-
-## A joker card: a card with a star on it.
-static func _card(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var style := StyleBoxFlat.new()
-	style.draw_center = false
-	style.set_border_width_all(maxi(roundi(IconShapes.width(box) * 1.4), 2))
-	style.border_color = ink
-	style.set_corner_radius_all(roundi(IconShapes.span(box, 0.08)))
-	on.draw_style_box(style, Rect2(IconShapes.at(box, 0.2, 0.06), box.size * Vector2(0.6, 0.88)))
-	IconShapes.star(on, box, 0.5, 0.5, 0.42, ink)
-
-
-## A target: rings round a bull.
-static func _target(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	IconShapes.ring(on, box, 0.5, 0.5, 0.44, ink)
-	IconShapes.ring(on, box, 0.5, 0.5, 0.28, ink)
-	IconShapes.disc(on, box, 0.5, 0.5, 0.12, ink)
-
-
-## An arrow pointing right, for a direction plate.
-static func _arrow(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	IconShapes.bar(on, box, 0.1, 0.42, 0.5, 0.16, ink)
-	IconShapes.tri(on, box, 0.7, 0.5, 0.6, 90.0, ink)
 
 
 ## [param text] in the middle of [param box], [param share] of its height tall.

@@ -1,24 +1,16 @@
 class_name IconShapes
 extends RefCounted
-## The shapes the small pictures still drawn in code are made of: the HUD's, the driving school's,
-## the loyalty program's rewards and the rest. The icons of GAME.md 8.3a are SVG drawings printed by
-## [IconPress].
+## The shapes the few small pictures still drawn in code are made of: the road signs of the driving
+## school, the arena's slot pads, the touch controls' and the like. The icons of GAME.md 8.3a are
+## SVG drawings printed by [IconPress].
 ##
 ## Everything takes the canvas and a box, and everything else is a fraction of that box: (0, 0)
 ## is its top left corner, (1, 1) its bottom right, y downwards, and radii, spans and widths are
 ## fractions of its shorter side. Nothing is in pixels, which is what lets one recipe serve a
 ## card in the hand, a bigger one in the respawn pick and a slot in the HUD.
 
-## How thick a drawn line is, as a fraction of the box, and the faintness of the detail that sits
-## behind the subject of a picture.
+## How thick a drawn line is, as a fraction of the box.
 const STROKE := 0.055
-const FAINT := 0.4
-
-
-## The dimmer of the two colors a picture is drawn in: whatever the subject sits on, in or
-## behind.
-static func behind(ink: Color) -> Color:
-	return Color(ink.r, ink.g, ink.b, ink.a * FAINT)
 
 
 static func at(box: Rect2, x: float, y: float) -> Vector2:
@@ -108,35 +100,3 @@ static func heart(on: CanvasItem, box: Rect2, x: float, y: float, span: float, i
 	for point: Vector2 in Heart.unit_shape():
 		points.append(corner + point * side)
 	on.draw_colored_polygon(points, ink)
-
-
-## A jagged burst, for the pictures that are about something going off.
-static func burst(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
-	spiked(on, box, x, y, span, 10, 0.52, ink)
-
-
-## A five-pointed star, the house's own mark.
-static func star(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
-	spiked(on, box, x, y, span, 5, 0.46, ink)
-
-
-## A ring of [param points] spikes reaching [param span] with the valleys between them at
-## [param inner] of that, which is a star at five and a burst at ten.
-static func spiked(
-	on: CanvasItem,
-	box: Rect2,
-	x: float,
-	y: float,
-	span: float,
-	points: int,
-	inner: float,
-	ink: Color
-) -> void:
-	var center := at(box, x, y)
-	var reach := span(box, span)
-	var shape := PackedVector2Array()
-	for i: int in points * 2:
-		var angle := TAU * i / float(points * 2) - PI * 0.5
-		var out := reach if i % 2 == 0 else reach * inner
-		shape.append(center + Vector2(cos(angle), sin(angle)) * out)
-	on.draw_colored_polygon(shape, ink)

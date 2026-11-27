@@ -200,7 +200,10 @@ static func _chip(
 	var rim := maxf(radius * INLAY_RIM, 1.0)
 	on.draw_arc(middle, inlay, 0.0, TAU, 48, face.darkened(0.35), rim, true)
 	if back:
-		IconShapes.star(on, _box(middle, inlay), 0.5, 0.5, 0.3, Color(face, 0.5))
+		var star := _box(middle, inlay)
+		IconPress.draw(
+			on, star.grow(-star.size.x * 0.2), &"ui_star", Color(face, 0.5), IconPress.Ground.PAPER
+		)
 		return
 	var box := _box(middle, inlay)
 	if locked:

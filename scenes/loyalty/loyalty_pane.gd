@@ -627,7 +627,7 @@ func show_roundabout(profile: Profile) -> void:
 	_come.visible = _bar.visible
 	_come.text = tr(RING_COME).format({"won": met, "count": state.ring.size()})
 	var star := HouseTheme.FOIL if _planned else HouseTheme.on_paper(HouseTheme.FOIL)
-	_pays.add_child(_paid_row(tr(RING_PAYS), IconShapes.star.bind(0.5, 0.5, 0.6, star)))
+	_pays.add_child(_paid_row(tr(RING_PAYS), LoyaltyArt.house_star.bind(star)))
 	_edition.visible = state.owed > 0
 	_edition.text = tr(EDITION) % state.owed
 	_show_pin(profile)

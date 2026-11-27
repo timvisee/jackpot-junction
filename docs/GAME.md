@@ -5134,7 +5134,8 @@ the glyphs the house's buttons wear with the padlock of a sealed table card (`ui
 suits' marks with the wild card's jester (`suits/`, 7.3), the loyalty map's marks, its WON seal
 and stamp, Kit's tick, a keystone's crest and the roundabout's pot, with the House's rubber stamp
 (`marks/`, 8.9), and the HUD's marks, the bounty's crown, a bot's robot, the skull of a kart out of
-a showdown and the mult's die (`hud/`, 8.3), each id named for its family,
+a showdown and the mult's die (`hud/`, 8.3), and the driving school's theory book's own figures,
+its junction, pit, die, knock-out and arrow (`book/`, 9.4a), each id named for its family,
 `table_jackpot`, `dress_hat`, `landmark_slip_road`, `ui_trash`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,

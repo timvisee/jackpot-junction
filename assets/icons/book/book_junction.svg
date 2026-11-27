@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The junction</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M21.5,4H26.5A1.5,1.5 0 0 1 28,5.5V42.5A1.5,1.5 0 0 1 26.5,44H21.5A1.5,1.5 0 0 1 20,42.5V5.5A1.5,1.5 0 0 1 21.5,4ZM5.5,20H42.5A1.5,1.5 0 0 1 44,21.5V26.5A1.5,1.5 0 0 1 42.5,28H5.5A1.5,1.5 0 0 1 4,26.5V21.5A1.5,1.5 0 0 1 5.5,20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M9,24A15,15 0 1 0 39,24A15,15 0 1 0 9,24ZM13.5,24A10.5,10.5 0 1 0 34.5,24A10.5,10.5 0 1 0 13.5,24Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM5.5,21A15.5,15.5 0 1 0 36.5,21A15.5,15.5 0 1 0 5.5,21Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M17.5,24A6.5,6.5 0 1 0 30.5,24A6.5,6.5 0 1 0 17.5,24Z"/>
+    <path class="cut" d="M20.2,24A3.8,3.8 0 1 0 27.8,24A3.8,3.8 0 1 0 20.2,24Z" stroke-width="1.2"/>
+  </g>
+</g>
+</svg>

@@ -436,32 +436,22 @@ static func _rounded(
 	on.draw_polyline(points, ink, width, true)
 
 
-## The Showroom's roller door: its frame, the slats of the door, and the gap under it.
+## The Showroom's roller door, what its bet pays: the Showroom's own drawing, the door rolled down
+## under its sign, see [LandmarkIcons].
 static func roller_door(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	IconShapes.bar(on, box, 0.1, 0.12, 0.8, 0.1, ink)
-	IconShapes.bar(on, box, 0.1, 0.12, 0.1, 0.8, ink)
-	IconShapes.bar(on, box, 0.8, 0.12, 0.1, 0.8, ink)
-	for y: float in [0.3, 0.44, 0.58]:
-		IconShapes.bar(on, box, 0.24, y, 0.52, 0.08, IconShapes.behind(ink))
+	IconPress.draw(on, box, &"landmark_showroom", ink, IconPress.Ground.PAPER)
 
 
-## A loose note: a scrap of paper torn at its foot, lines of writing on it.
+## The House's star, a drawing of GAME.md 8.3a, filling [param box]: the roundabout's, where the
+## loyalty program says what a lap of it pays.
+static func house_star(on: CanvasItem, box: Rect2, ink: Color) -> void:
+	IconPress.draw(on, box, &"ui_star", ink, IconPress.Ground.PAPER)
+
+
+## A note's scrap, what a bet pays when it pays one of Kit's notes: a scrap of paper torn along its
+## foot with lines written on it, a drawing of GAME.md 8.3a.
 static func scrap(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var points := PackedVector2Array(
-		[
-			IconShapes.at(box, 0.2, 0.12),
-			IconShapes.at(box, 0.8, 0.16),
-			IconShapes.at(box, 0.78, 0.8),
-			IconShapes.at(box, 0.62, 0.86),
-			IconShapes.at(box, 0.48, 0.79),
-			IconShapes.at(box, 0.34, 0.88),
-			IconShapes.at(box, 0.22, 0.82),
-		]
-	)
-	points.append(points[0])
-	on.draw_polyline(points, ink, maxf(IconShapes.width(box), 1.0), true)
-	for y: float in [0.34, 0.48, 0.62]:
-		IconShapes.line(on, box, 0.32, y, 0.68, y + 0.01, IconShapes.behind(ink))
+	IconPress.draw(on, box, &"note_scrap", ink, IconPress.Ground.PAPER)
 
 
 ## [param text] in [param font] at [param size] broken into lines no wider than [param wide], at

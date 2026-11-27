@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>An arrow</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M6,26L6,22A1.5,1.5 0 0 1 7.5,20.5L26.4,20.5A0.6,0.6 0 0 0 27,19.9L27,13.1A1,1 0 0 1 28.63,12.32L42.24,23.38A0.8,0.8 0 0 1 42.24,24.62L28.63,35.68A1,1 0 0 1 27,34.9L27,28.1A0.6,0.6 0 0 0 26.4,27.5L7.5,27.5A1.5,1.5 0 0 1 6,26Z"/>
+    <path class="shade" d="M-20,26H70V70H-20Z"/>
+  </g>
+</g>
+</svg>
