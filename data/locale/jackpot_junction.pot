@@ -1769,7 +1769,7 @@ msgstr ""
 msgid "No."
 msgstr ""
 
-#: scenes/loyalty/loyalty_card.gd scenes/loyalty/loyalty_pane.gd
+#: scenes/loyalty/loyalty_card.gd scenes/loyalty/loyalty_pane.gd scripts/license_wire.gd
 msgid "LAP %d"
 msgstr ""
 

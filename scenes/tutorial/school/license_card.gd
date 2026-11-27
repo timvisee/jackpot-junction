@@ -217,7 +217,7 @@ static func from_wire(said: Dictionary) -> LicenseCard:
 	)
 	card.stamped = true
 	card.supporter_since = str(given.get("supporter", ""))
-	card.program_stamps = given.get("stamps", PackedStringArray())
+	card.program_stamps = LicenseWire.stamps_said(given.get("stamps", PackedStringArray()))
 	card.cones = int(given.get("cones", 0))
 	card.scratched = false
 	card.examiner = EXAMINER

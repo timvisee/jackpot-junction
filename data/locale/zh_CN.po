@@ -1750,7 +1750,7 @@ msgstr "会员"
 msgid "No."
 msgstr "编号"
 
-#: scenes/loyalty/loyalty_card.gd scenes/loyalty/loyalty_pane.gd
+#: scenes/loyalty/loyalty_card.gd scenes/loyalty/loyalty_pane.gd scripts/license_wire.gd
 msgid "LAP %d"
 msgstr "第 %d 圈"
 

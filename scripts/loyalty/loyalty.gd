@@ -431,12 +431,12 @@ static func showroom_open(profile: Profile) -> bool:
 
 
 ## The endorsements [param profile]'s program has stamped on its license, GAME.md 8.9, in the map's
-## order, in the language spoken.
-static func endorsements_of(profile: Profile) -> PackedStringArray:
+## order, in the language spoken, or unless [param said] in English, for another machine to say.
+static func endorsements_of(profile: Profile, said := true) -> PackedStringArray:
 	var stamped := PackedStringArray()
 	for each: LoyaltyLandmark in map().landmarks:
 		if not each.endorsement.is_empty() and profile.loyalty.has_won(each.id):
-			stamped.append(Lang.t(each.endorsement))
+			stamped.append(Lang.t(each.endorsement) if said else each.endorsement)
 	return stamped
 
 

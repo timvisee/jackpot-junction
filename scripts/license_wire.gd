@@ -13,8 +13,9 @@ const WORD := 24
 const MOST := 16
 const MOST_CONES := 99
 ## The stamp for laps of the roundabout, as [constant LoyaltyCard.LAP] words it: the card's scene
-## kept out of here, which a dedicated server loads with the host's controls.
-const LAP := "LAP %d"  # NO_TRANSLATE
+## kept out of here, which a dedicated server loads with the host's controls. In English, as every
+## stamp sent is, and shown through tr() by the machine shown it, see [method stamps_said].
+const LAP := "LAP %d"
 
 
 ## This machine's license, the first seat's, as the card says it, see
@@ -36,7 +37,7 @@ static func of_seat(seat: int) -> Dictionary:
 	var holder := profile.license_holder
 	if holder.is_empty():
 		holder = settings.seat_name(seat)
-	var stamps := Loyalty.endorsements_of(profile)
+	var stamps := Loyalty.endorsements_of(profile, false)
 	if profile.loyalty.laps > 0:
 		stamps.append(LAP % profile.loyalty.laps)
 	return {
@@ -70,6 +71,19 @@ static func clean(said: Variant) -> Dictionary:
 		"stamps": _words(given.get("stamps", [])),
 		"cones": clampi(int(given.get("cones", 0)), 0, MOST_CONES),
 	}
+
+
+## The loyalty stamps [param stamps] of a license sent in English, in the language spoken here.
+static func stamps_said(stamps: PackedStringArray) -> PackedStringArray:
+	var said := PackedStringArray()
+	var lap := LAP.trim_suffix("%d")
+	for stamp: String in stamps:
+		var laps := stamp.trim_prefix(lap)
+		if stamp.begins_with(lap) and laps.is_valid_int():
+			said.append(Lang.t(LAP) % int(laps))
+		else:
+			said.append(Lang.t(stamp))
+	return said
 
 
 static func _words(said: Variant) -> PackedStringArray:

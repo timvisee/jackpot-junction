@@ -110,3 +110,17 @@ func test_a_linked_seat_has_its_profiles_own() -> void:
 	assert_str(str(LicenseWire.here()["number"])).is_equal("K-1")
 	Settings.remove_files(LINKED)
 	Game.settings = settings_were
+
+
+## A license's loyalty stamps go over the wire in English, and the machine shown them says them
+## in its own language, GAME.md 10.9, laps of the roundabout with their count.
+func test_stamps_go_in_english_and_are_said_where_shown() -> void:
+	Game.settings.profile.loyalty.laps = 3
+	Game.settings.license_number = "K-1234"
+	var was := Lang.current
+	Lang.apply("nl")
+	var sent := PackedStringArray(LicenseWire.here().get("stamps", []))
+	var said := LicenseWire.stamps_said(PackedStringArray(["CLEAN RECORD", "LAP 3"]))
+	Lang.apply(was)
+	assert_array(Array(sent)).contains_exactly(["LAP 3"])
+	assert_array(Array(said)).contains_exactly(["SCHOON BLAZOEN", "RONDE 3"])
