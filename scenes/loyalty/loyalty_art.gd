@@ -33,6 +33,13 @@ const MOTORWAY := Color("#1e6b45")
 const PENCIL := NotePage.PENCIL
 ## A map pin's red, for what is pinned, GAME.md 8.9.
 const PIN_RED := Color(0.86, 0.2, 0.18)
+## The pin's drawing: how big its box is for its height, and where in that box its needle's point
+## and its head's middle are and how big the head is, as shares of the box; the needle's steel.
+const PIN_BOX := 1.34
+const PIN_TIP := Vector2(0.302, 0.885)
+const PIN_HEAD := Vector2(0.604, 0.354)
+const PIN_HEAD_SIZE := 0.229
+const PIN_STEEL := Color(0.55, 0.56, 0.6)
 const HAND := NotePage.HAND
 const HAND_SCALE := 1.45
 ## How much of the paper shows through a closed landmark, printed pale.
@@ -515,14 +522,15 @@ static func _dot() -> Texture2D:
 	return _dot_made
 
 
-## A map pin stuck in at [param at], [param tall] high: a needle up from its point and a red head on
-## it, a glint on the head; what is pinned wears it, GAME.md 8.9.
+## A map pin stuck in at [param at], [param tall] high, the Pin button's drawing, see
+## [method HouseArt.pin]: a steel needle up from its point and a red head on it, the head's shadow
+## on the paper; what is pinned wears it, GAME.md 8.9.
 static func draw_pin(on: CanvasItem, at: Vector2, tall: float) -> void:
-	var head := at + Vector2(tall * 0.3, -tall * 0.72)
-	on.draw_line(at, head, Color(0.55, 0.56, 0.6), maxf(tall * 0.07, 1.0), true)
-	on.draw_circle(head + Vector2(1.5, 2.0), tall * 0.3, Color(0.0, 0.0, 0.0, 0.3))
-	on.draw_circle(head, tall * 0.3, PIN_RED)
-	on.draw_circle(head - Vector2(tall * 0.09, tall * 0.09), tall * 0.09, Color(1.0, 1.0, 1.0, 0.7))
+	var side := tall * PIN_BOX
+	var box := Rect2(at - PIN_TIP * side, Vector2(side, side))
+	var head := box.position + PIN_HEAD * side
+	on.draw_circle(head + Vector2(1.5, 2.0), PIN_HEAD_SIZE * side, Color(0.0, 0.0, 0.0, 0.3))
+	IconPress.draw(on, box, &"ui_pin", PIN_RED, IconPress.Ground.PAPER, PIN_STEEL)
 
 
 ## The cursor's mark round the sign at [param rect] the cursor is at, GAME.md 8.9: the sign lifted

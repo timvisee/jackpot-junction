@@ -4023,7 +4023,8 @@ The shapes are StyleBoxes drawn in code:
 `TicketStyle` for the ticket, with its notches, perforations, frames, engraving,
 chevron and shadow, worked out once for a size and kept; `TabStyle` for an index
 tab and `LaneStyle` for a slider's lane. `HouseArt` draws the small pictures, the
-switch, the list mark, the box's arrow and the slider's knob, finely and once.
+switch, the list mark and the slider's knob, finely and once, and keeps the box's arrow and the
+buttons' icons printed from their drawings of 8.3a.
 `Backdrop` is the engraved stock behind every menu screen, and `MenuTheme` keeps
 the helpers that make a screen, a pane, a title or a row out of them. Anything that
 draws itself, the HUD and the license among them, uses `Engraving` and the shapes
@@ -5116,15 +5117,18 @@ its own, `assets/icons/jokers/<id>.svg` and `assets/icons/powerups/<id>.svg`, as
 achievement's, `assets/icons/achievements/<id>.svg`, 8.10, and the pictures of the
 table's cards (`table/`, 3.17), the two kinds of game (`modes/`, 9.7), the ways to
 drive and the touch layouts (`drive/`, 4.2), the parts of the dress (`dress/`, 4.4),
-the emotes (`emotes/`, 3.8) and the landmarks of the loyalty program's map (`landmarks/`, 8.9),
-each id named for its family, `table_jackpot`, `dress_hat`, `landmark_slip_road`. All are
+the emotes (`emotes/`, 3.8), the landmarks of the loyalty program's map (`landmarks/`, 8.9),
+the glyphs the house's buttons wear with the padlock of a sealed table card (`ui/`, 8.1a) and the
+suits' marks with the wild card's jester (`suits/`, 7.3), each id named for its family,
+`table_jackpot`, `dress_hat`, `landmark_slip_road`, `ui_trash`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,
-`GameModeArt`, `DriveArt`, `DressArt`, `EmoteArt` and `LandmarkIcons` are what the rest of the game
+`GameModeArt`, `DriveArt`, `DressArt`, `EmoteArt`, `LandmarkIcons`, `HouseArt`, `IconButton` and
+`JokerSuits` are what the rest of the game
 calls; they hand an id and a color to the press. Kit's five cards keep his
 pencil, STORY.md 6.3, drawn by `KitArt` as before.
 
-The set was redrawn on 2026-11-26 over five rounds of review, from five
+The set was redrawn on 2026-11-26 over six rounds of review, from five
 directions (flat cut, enamel pin, engraved, two-ink print, struck relief) down
 to a mix of the first and the fourth: the house printing its own pictures. Every
 icon was marked keep, tweak or redo, and the uncertain ones were picked from
@@ -5157,7 +5161,16 @@ their stock, each card in an ink of its own so the row reads at a glance. A pict
 a kind of game, a way to drive, a part of the dress, prints flat in one ink on bare paper: its
 cream is left unprinted, cut out of whatever is under it, so the button shows through and the
 picture follows the button's gold or gray as it is chosen. A landmark's prints the same way on its
-sign, in the marquee's gold, the road sign's white or Kit's pencil, and in gold on the list. The emotes print in the House's ink
+sign, in the marquee's gold, the road sign's white or Kit's pencil, and in gold on the list. A
+glyph on a button prints flat in the button's ink the same way, so it lights and grays with the
+button: the magnifying glass, the cross, the arrows turning, the trash can, the eye, the pencil,
+the grip, the arrow up and down and the two arrows trading places; the map pin keeps its red head,
+its needle cream on a button and steel on the map, whose pins are the same drawing, and the arrow
+of a box that opens a list its gold. The padlock of a sealed table card is in the House's ink, its
+keyhole cut through to the card. The suits print flat as type, cream and red on a card and the
+House's inks on paper; the wild card's jester, the Jokers card's hat, is two drawings printed one
+over the other, its points in red with the middle one cream, then its band and bells in gold. The
+arena's pads and stickers keep their own outlined suits, `SuitArt`. The emotes print in the House's ink
 on their chip's inlay, the heart in the table's red in two inks. Below 40 pixels a picture drops its
 shading and its glints, which would only blur it, and the halftone turns flat.
 An ink nearly as dark as the card, Oil Stain's purple, is lifted toward white

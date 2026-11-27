@@ -1,8 +1,8 @@
 extends GdUnitTestSuite
-## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing, the
-## table's cards', the kinds of game's, the ways to drive's, the dress's, the emotes' and the
-## loyalty program's landmarks', is an SVG file that IconPress reads and prints, and the files are
-## held to the lists the way the lists are held to the catalog.
+## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing, the table's
+## cards', the kinds of game's, the ways to drive's, the dress's, the emotes', the loyalty program's
+## landmarks', the buttons' glyphs' and the suits', is an SVG file that IconPress reads and prints,
+## and the files are held to the lists the way the lists are held to the catalog.
 
 const FOLDERS := {
 	"res://assets/icons/jokers/": "jokers",
@@ -14,6 +14,8 @@ const FOLDERS := {
 	"res://assets/icons/dress/": "dress",
 	"res://assets/icons/emotes/": "emotes",
 	"res://assets/icons/landmarks/": "landmarks",
+	"res://assets/icons/ui/": "ui",
+	"res://assets/icons/suits/": "suits",
 }
 
 
@@ -83,6 +85,30 @@ func test_every_landmark_has_a_drawing_and_every_drawing_a_landmark() -> void:
 		)
 	for id: StringName in files:
 		assert_bool(id in ids).override_failure_message("%s is no landmark" % id).is_true()
+
+
+## Every glyph a button wears and the padlock of a sealed card, and every suit's mark with the
+## jester's two drawings, have their drawings, and nothing else is in their folders.
+func test_every_glyph_and_suit_has_a_drawing() -> void:
+	assert_int(IconButton.PICTURES.size()).is_equal(IconButton.Kind.size())
+	assert_int(JokerSuits.PICTURES.size()).is_equal(Joker.Suit.WILD)
+	var glyphs: Array[StringName] = [
+		&"ui_magnifier", &"ui_cross", &"ui_turning", &"ui_pin", &"ui_arrow", &"ui_padlock"
+	]
+	glyphs.append_array(IconButton.PICTURES)
+	var suits: Array[StringName] = [JokerSuits.JESTER, JokerSuits.JESTER_BAND]
+	suits.append_array(JokerSuits.PICTURES)
+	var lists := {"res://assets/icons/ui/": glyphs, "res://assets/icons/suits/": suits}
+	for folder: String in lists:
+		var files := _files(folder)
+		var wanted: Array = lists[folder]
+		assert_int(files.size()).override_failure_message(folder).is_equal(wanted.size())
+		for id: StringName in wanted:
+			assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
+	for texture: Texture2D in [
+		HouseArt.magnifier(), HouseArt.cross(), HouseArt.turning(), HouseArt.pin(), HouseArt.arrow()
+	]:
+		assert_object(texture).is_not_null()
 
 
 ## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,

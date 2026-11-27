@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Look closer</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M27.15,27.85L27.85,27.15A3,3 -45 0 1 32.1,27.15L41.29,36.34A3,3 -45 0 1 41.29,40.58L40.58,41.29A3,3 -45 0 1 36.34,41.29L27.15,32.1A3,3 -45 0 1 27.15,27.85Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M9.5,20A10.5,10.5 0 1 0 30.5,20A10.5,10.5 0 1 0 9.5,20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M4.5,20A15.5,15.5 0 1 0 35.5,20A15.5,15.5 0 1 0 4.5,20ZM9.5,20A10.5,10.5 0 1 0 30.5,20A10.5,10.5 0 1 0 9.5,20Z" fill-rule="evenodd"/>
+  </g>
+</g>
+</svg>

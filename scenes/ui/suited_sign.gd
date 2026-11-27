@@ -156,7 +156,7 @@ func _draw_cards(suits: Array[int], by: Vector2, alpha: float, face_down: bool) 
 		draw_style_box(face, card)
 		if showing:
 			var box := Rect2(-Vector2.ONE * SUIT * 0.5, Vector2.ONE * SUIT)
-			SuitArt.draw_into(self, box, suit, JokerSuits.color_of(suit, true))
+			JokerSuits.draw_mark(self, box, suit, true)
 	draw_set_transform(Vector2.ZERO)
 
 

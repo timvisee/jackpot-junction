@@ -4,8 +4,8 @@ extends RefCounted
 ## row of a list over and over: Remove as a trash can, Watch as an eye, Edit as a pencil, Switch as
 ## two arrows trading places, and the grip a row is moved by as six dots, which turn into an arrow
 ## up and down while it is picked up.
-## The word is its tooltip, for a mouse that hovers to ask. Drawn rather than loaded, like every
-## other picture of the menus.
+## The word is its tooltip, for a mouse that hovers to ask. Each picture is a drawing of GAME.md
+## 8.3a printed flat in the button's ink, its light parts left bare so the button shows through.
 
 enum Kind { TRASH, EYE, PENCIL, GRIP, MOVE, SWAP }
 
@@ -14,8 +14,10 @@ const SIZE := Vector2(64.0, 52.0)
 const GRIP_WIDE := 44.0
 const PICTURE := 0.56
 const INK := Color(0.92, 0.92, 0.95)
-## What is cut out of the picture, a can's ribs and an eye's iris: the button's own dark.
-const CUT := MenuTheme.BUTTON_BG
+## Each kind's drawing, in [enum Kind] order.
+const PICTURES: Array[StringName] = [
+	&"ui_trash", &"ui_eye", &"ui_pencil", &"ui_grip", &"ui_move", &"ui_swap"
+]
 
 
 ## The picture on a button, drawn in the button's ink, faded while it cannot be pressed.
@@ -38,19 +40,7 @@ class Picture:
 			ink = Color(INK, 0.3)
 		var side := size.y * PICTURE
 		var box := Rect2(size * 0.5 - Vector2(side, side) * 0.5, Vector2(side, side))
-		match kind:
-			Kind.EYE:
-				IconButton.eye(self, box, ink)
-			Kind.PENCIL:
-				IconButton.pencil(self, box, ink)
-			Kind.GRIP:
-				IconButton.grip(self, box, ink)
-			Kind.MOVE:
-				IconButton.both_ways(self, box, ink)
-			Kind.SWAP:
-				IconButton.swap(self, box, ink)
-			_:
-				IconButton.trash(self, box, ink)
+		IconPress.draw(self, box, PICTURES[kind], ink, IconPress.Ground.PAPER)
 
 
 ## A button wearing the picture of [param kind], with [param word] for its tooltip.
@@ -67,112 +57,3 @@ static func of(kind: Kind, word: String) -> Button:
 	picture.kind = kind
 	button.add_child(picture)
 	return button
-
-
-## A trash can in [param box]: the lid with its handle, and the body tapering to its foot with
-## three ribs down it.
-static func trash(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	IconShapes.bar(on, box, 0.38, 0.02, 0.24, 0.1, ink)
-	IconShapes.bar(on, box, 0.1, 0.12, 0.8, 0.12, ink)
-	var body := PackedVector2Array(
-		[
-			IconShapes.at(box, 0.18, 0.3),
-			IconShapes.at(box, 0.82, 0.3),
-			IconShapes.at(box, 0.74, 0.98),
-			IconShapes.at(box, 0.26, 0.98),
-		]
-	)
-	on.draw_colored_polygon(body, ink)
-	var rib := Color(CUT, 1.0)
-	for x: float in [0.36, 0.5, 0.64]:
-		on.draw_line(
-			IconShapes.at(box, x, 0.42),
-			IconShapes.at(box, x, 0.86),
-			rib,
-			IconShapes.width(box),
-			true
-		)
-
-
-## An eye in [param box]: the almond of its lids and the iris in the middle with a glint in it.
-static func eye(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var lids := PackedVector2Array()
-	var steps := 16
-	for i: int in steps + 1:
-		var t := float(i) / steps
-		lids.append(IconShapes.at(box, t, 0.5 - 0.34 * sin(t * PI)))
-	for i: int in range(steps - 1, 0, -1):
-		var t := float(i) / steps
-		lids.append(IconShapes.at(box, t, 0.5 + 0.34 * sin(t * PI)))
-	on.draw_colored_polygon(lids, ink)
-	IconShapes.disc(on, box, 0.5, 0.5, 0.22, Color(CUT, 1.0))
-	IconShapes.disc(on, box, 0.5, 0.5, 0.12, ink)
-	IconShapes.disc(on, box, 0.56, 0.44, 0.04, Color(CUT, 1.0))
-
-
-## A pencil in [param box], lying from the bottom left up to the top right: its point, its body,
-## and the eraser at its end, with a band between them cut out.
-static func pencil(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	var along := (IconShapes.at(box, 0.86, 0.14) - IconShapes.at(box, 0.14, 0.86)).normalized()
-	var side := Vector2(-along.y, along.x) * IconShapes.span(box, 0.13)
-	var tip := IconShapes.at(box, 0.1, 0.9)
-	var wood := tip + along * IconShapes.span(box, 0.26)
-	var end := IconShapes.at(box, 0.88, 0.12)
-	on.draw_colored_polygon(PackedVector2Array([tip, wood + side, wood - side]), ink)
-	on.draw_colored_polygon(
-		PackedVector2Array([wood + side, end + side, end - side, wood - side]), ink
-	)
-	var band := end - along * IconShapes.span(box, 0.2)
-	on.draw_line(band + side, band - side, Color(CUT, 1.0), IconShapes.width(box), true)
-
-
-## A grip in [param box]: six dots, two by three, the mark of something to take hold of and drag.
-static func grip(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	for x: float in [0.32, 0.68]:
-		for y: float in [0.16, 0.5, 0.84]:
-			IconShapes.disc(on, box, x, y, 0.1, ink)
-
-
-## Two arrows trading places in [param box], one over the other: the top one going right and the
-## bottom one going left, for taking somebody else's place.
-static func swap(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	for top: bool in [true, false]:
-		var y := 0.3 if top else 0.7
-		var tip := 0.92 if top else 0.08
-		var root := 0.62 if top else 0.38
-		var tail := 0.1 if top else 0.9
-		IconShapes.bar(on, box, minf(tail, root), y - 0.065, absf(root - tail), 0.13, ink)
-		(
-			on
-			. draw_colored_polygon(
-				PackedVector2Array(
-					[
-						IconShapes.at(box, tip, y),
-						IconShapes.at(box, root, y - 0.2),
-						IconShapes.at(box, root, y + 0.2),
-					]
-				),
-				ink
-			)
-		)
-
-
-## An arrow up and down in [param box]: a head at each end of one shaft, for a row picked up to be
-## moved either way.
-static func both_ways(on: CanvasItem, box: Rect2, ink: Color) -> void:
-	for up: bool in [true, false]:
-		var flip := func(y: float) -> float: return y if up else 1.0 - y
-		(
-			on
-			. draw_colored_polygon(
-				PackedVector2Array(
-					[
-						IconShapes.at(box, 0.5, flip.call(0.0)),
-						IconShapes.at(box, 0.86, flip.call(0.36)),
-						IconShapes.at(box, 0.14, flip.call(0.36)),
-					]
-				),
-				ink
-			)
-		)
-	IconShapes.bar(on, box, 0.4, 0.34, 0.2, 0.32, ink)

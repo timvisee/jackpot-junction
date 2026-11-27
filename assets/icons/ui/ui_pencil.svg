@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Edit</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M9.83,35.89L12.69,28.78A0.5,0.5 -40 0 1 13.54,28.64L17.61,33.5A0.5,0.5 -40 0 1 17.33,34.31L9.83,35.89Z"/>
+  </g>
+  <g class="piece ink" data-seam="false">
+    <path class="body" d="M9.83,35.89L10.92,33.2A0.3,0.3 -40 0 1 11.42,33.12L12.83,34.81A0.3,0.3 -40 0 1 12.66,35.29L9.83,35.89Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14.53,26.72L29.09,14.51A1,1 -40 0 1 30.5,14.63L34.35,19.23A1,1 -40 0 1 34.23,20.64L19.68,32.85A1,1 -40 0 1 18.27,32.73L14.41,28.13A1,1 -40 0 1 14.53,26.72Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M31,12.9L32.54,11.62A0.5,0.5 -40 0 1 33.24,11.68L37.74,17.04A0.5,0.5 -40 0 1 37.68,17.74L36.15,19.03A0.5,0.5 -40 0 1 35.44,18.97L30.94,13.61A0.5,0.5 -40 0 1 31,12.9Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M35.22,9.37L35.22,9.37A2,2 -40 0 1 38.04,9.61L40.61,12.68A2,2 -40 0 1 40.36,15.49L40.36,15.49A2,2 -40 0 1 37.54,15.25L34.97,12.18A2,2 -40 0 1 35.22,9.37Z"/>
+  </g>
+</g>
+</svg>

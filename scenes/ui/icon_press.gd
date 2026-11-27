@@ -1,11 +1,12 @@
 class_name IconPress
 extends RefCounted
 ## Prints the pictures of GAME.md 8.3a: every joker's, power-up's and achievement's icon, the
-## table's cards, the kinds of game, the ways to drive, the dress, the emotes and the loyalty
-## program's landmarks are SVG files in assets/icons, drawn on a 48-unit grid with what each shape
-## is written in its class, and printed here the way the house prints: in the ink it is handed, its
-## tint, cream for whatever is light, and the shadow side as a halftone screen, at the size it is
-## shown. Each picture is rasterized once for an ink and a size and kept.
+## table's cards, the kinds of game, the ways to drive, the dress, the emotes, the loyalty program's
+## landmarks, the glyphs on the buttons and the suits' marks are SVG files in assets/icons, drawn on
+## a 48-unit grid with what each shape is written in its class, and printed here the way the house
+## prints: in the ink it is handed, its tint, cream for whatever is light, and the shadow side as a
+## halftone screen, at the size it is shown. Each picture is rasterized once for an ink and a size
+## and kept.
 ##
 ## The files are plain SVG and open in any editor or browser. A [code]piece[/code] group of
 ## [code]ink[/code], [code]tint[/code], [code]cream[/code] or [code]dark[/code] (the black of a
@@ -38,6 +39,8 @@ const FOLDERS: Array[String] = [
 	"res://assets/icons/dress/",
 	"res://assets/icons/emotes/",
 	"res://assets/icons/landmarks/",
+	"res://assets/icons/ui/",
+	"res://assets/icons/suits/",
 ]
 ## The grid the drawings are made on, and the widths every one of them shares, in its units: the
 ## gap a piece cuts round itself, a glint, and the rim of shadow along every inked piece.
@@ -156,6 +159,17 @@ static func texture(
 		_pictures.erase(_pictures.keys()[0])
 	_pictures[key] = picture
 	return picture
+
+
+## [param id] printed in [param ink], [param side] pixels a side, on [param ground], for a picture
+## that is kept elsewhere, as the house's buttons keep theirs; null if there is no drawing.
+static func printed(
+	id: StringName, ink: Color, side: int, ground := Ground.CARD, paper := Color.TRANSPARENT
+) -> Image:
+	var drawing := _drawing(id)
+	if drawing.is_empty():
+		return null
+	return image(drawing, ink, side, ground, paper)
 
 
 ## The size of the steps that [param pixels] is rasterized at.

@@ -19,7 +19,7 @@ static func card(
 	on.draw_style_box(face, Rect2(-size * 0.5, size))
 	var side := size.x * 0.66
 	var box := Rect2(-Vector2.ONE * side * 0.5, Vector2.ONE * side)
-	SuitArt.draw_into(on, box, suit, JokerSuits.color_of(suit, true))
+	JokerSuits.draw_mark(on, box, suit, true)
 	on.draw_set_transform_matrix(base)
 
 

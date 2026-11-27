@@ -4,6 +4,7 @@ extends RefCounted
 ## of a list, the arrow on a box that opens one, the knob of a slider, and the icons on buttons
 ## that say what they do without words: a magnifying glass, a cross, two arrows turning. Anything
 ## round is a chip, with notches round its rim, and a track is a lane with its center line dashed.
+## The arrow and the icons are drawings of GAME.md 8.3a, printed by [IconPress].
 ##
 ## Each is drawn once, the first time it is asked for, [constant DETAIL] times bigger than it is
 ## shown and with soft edges, so a screen that scales the menu up has something to scale up: a
@@ -100,172 +101,31 @@ static func mark(on: bool) -> ImageTexture:
 
 ## The arrow on a box that opens a list: a chevron pointing down, in foil.
 static func arrow() -> ImageTexture:
-	if _drawn.has("arrow"):
-		return _drawn["arrow"]
-	var side := ARROW * DETAIL
-	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var s := float(side)
-	var stroke := [Vector2(0.18, 0.36) * s, Vector2(0.5, 0.66) * s, Vector2(0.82, 0.36) * s]
-	var half := 0.075 * s
-	for y: int in side:
-		for x: int in side:
-			var at := Vector2(x, y) + Vector2.ONE * 0.5
-			var near := minf(
-				at.distance_to(Geometry2D.get_closest_point_to_segment(at, stroke[0], stroke[1])),
-				at.distance_to(Geometry2D.get_closest_point_to_segment(at, stroke[1], stroke[2]))
-			)
-			var covered := clampf(half - near + 0.5, 0.0, 1.0)
-			if covered > 0.0:
-				image.set_pixel(x, y, Color(HouseTheme.FOIL, covered))
-	return _keep("arrow", image, Vector2i(ARROW, ARROW))
+	return _printed(&"ui_arrow", ARROW, HouseTheme.FOIL)
 
 
-## A magnifying glass, for a button that looks closer: a ring for its lens, a faint glint in it,
+## A magnifying glass, for a button that looks closer: its lens of fainter glass in a heavy rim,
 ## and its handle down to the right. White, for the button to tint as it tints its words.
 static func magnifier() -> ImageTexture:
-	if _drawn.has("magnifier"):
-		return _drawn["magnifier"]
-	var side := MAGNIFIER * DETAIL
-	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var s := float(side)
-	var lens := Vector2(0.42, 0.42) * s
-	var radius := 0.27 * s
-	var rim := 0.055 * s
-	var handle := [lens + Vector2.ONE * (radius + rim) * 0.7, Vector2(0.88, 0.88) * s]
-	var grip := 0.085 * s
-	for y: int in side:
-		for x: int in side:
-			var at := Vector2(x, y) + Vector2.ONE * 0.5
-			var from_lens := at.distance_to(lens)
-			var ring := clampf(rim - absf(from_lens - radius) + 0.5, 0.0, 1.0)
-			var near := at.distance_to(
-				Geometry2D.get_closest_point_to_segment(at, handle[0], handle[1])
-			)
-			var held := clampf(grip - near + 0.5, 0.0, 1.0)
-			# The glint: a short bright arc inside the lens, up on the left.
-			var glint := 0.0
-			var way := (at - lens).angle()
-			if way > -PI * 0.92 and way < -PI * 0.62:
-				glint = clampf(0.03 * s - absf(from_lens - radius * 0.68) + 0.5, 0.0, 1.0) * 0.7
-			var covered := maxf(maxf(ring, held), glint)
-			if covered > 0.0:
-				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
-	return _keep("magnifier", image, Vector2i(MAGNIFIER, MAGNIFIER))
+	return _printed(&"ui_magnifier", MAGNIFIER, Color.WHITE)
 
 
 ## A cross, for a button that puts something away. White, for the button to tint.
 static func cross() -> ImageTexture:
-	if _drawn.has("cross"):
-		return _drawn["cross"]
-	var side := ICON * DETAIL
-	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var s := float(side)
-	var strokes := [
-		[Vector2(0.24, 0.24) * s, Vector2(0.76, 0.76) * s],
-		[Vector2(0.76, 0.24) * s, Vector2(0.24, 0.76) * s],
-	]
-	var half := 0.07 * s
-	for y: int in side:
-		for x: int in side:
-			var at := Vector2(x, y) + Vector2.ONE * 0.5
-			var near := INF
-			for stroke: Array in strokes:
-				var on := Geometry2D.get_closest_point_to_segment(at, stroke[0], stroke[1])
-				near = minf(near, at.distance_to(on))
-			var covered := clampf(half - near + 0.5, 0.0, 1.0)
-			if covered > 0.0:
-				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
-	return _keep("cross", image, Vector2i(ICON, ICON))
+	return _printed(&"ui_cross", ICON, Color.WHITE)
 
 
 ## A map pin standing a little aslant, for the button that pins a bet of the loyalty program,
-## GAME.md 8.9: a steel needle under a red head with a gleam on it, as the map's own pins are drawn,
-## see [method LoyaltyArt.draw_pin]. In its own colors, which the house's white icon tint leaves be.
+## GAME.md 8.9: a cream needle under a red head, the map's own pin, see
+## [method LoyaltyArt.draw_pin]. In its own colors, which the house's white icon tint leaves be.
 static func pin() -> ImageTexture:
-	if _drawn.has("pin"):
-		return _drawn["pin"]
-	var side := ICON * DETAIL
-	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var s := float(side)
-	var tip := Vector2(0.34, 0.9) * s
-	var head := Vector2(0.6, 0.34) * s
-	var radius := 0.24 * s
-	var needle := 0.045 * s
-	var gleam := head - Vector2(0.08, 0.08) * s
-	var steel := Color(0.72, 0.73, 0.78)
-	for y: int in side:
-		for x: int in side:
-			var at := Vector2(x, y) + Vector2.ONE * 0.5
-			var on := Geometry2D.get_closest_point_to_segment(at, tip, head)
-			var ink := Color(steel, clampf(needle - at.distance_to(on) + 0.5, 0.0, 1.0))
-			var disc := clampf(radius - at.distance_to(head) + 0.5, 0.0, 1.0)
-			if disc > 0.0:
-				var red := PIN_RED
-				var shine := clampf(0.07 * s - at.distance_to(gleam) + 0.5, 0.0, 1.0)
-				red = red.lerp(Color(1.0, 0.85, 0.82), shine * 0.8)
-				ink = Color(red.lerp(ink, ink.a * (1.0 - disc)), maxf(ink.a, disc))
-			if ink.a > 0.0:
-				image.set_pixel(x, y, ink)
-	return _keep("pin", image, Vector2i(ICON, ICON))
+	return _printed(&"ui_pin", ICON, PIN_RED, IconPress.CREAM)
 
 
 ## Two arrows chasing each other round a circle, for a button that turns something over. White, for
 ## the button to tint.
 static func turning() -> ImageTexture:
-	if _drawn.has("turning"):
-		return _drawn["turning"]
-	var side := ICON * DETAIL
-	var image := Image.create(side, side, false, Image.FORMAT_RGBA8)
-	image.fill(Color(0.0, 0.0, 0.0, 0.0))
-	var s := float(side)
-	var middle := Vector2.ONE * s * 0.5
-	var radius := 0.3 * s
-	var half := 0.055 * s
-	# Each arrow: an arc over the top or under the bottom, clockwise, its head at the end.
-	var arcs := [[deg_to_rad(-165.0), deg_to_rad(-30.0)], [deg_to_rad(15.0), deg_to_rad(150.0)]]
-	var heads: Array[PackedVector2Array] = []
-	for arc: Array in arcs:
-		var end: float = arc[1]
-		var at := middle + Vector2.from_angle(end) * radius
-		var along := Vector2.from_angle(end + PI * 0.5)
-		var out := Vector2.from_angle(end)
-		heads.append(
-			PackedVector2Array(
-				[at + along * 0.16 * s, at + out * 0.13 * s, at - out * 0.13 * s - along * 0.01 * s]
-			)
-		)
-	for y: int in side:
-		for x: int in side:
-			var at := Vector2(x, y) + Vector2.ONE * 0.5
-			var covered := 0.0
-			var way := (at - middle).angle()
-			for arc: Array in arcs:
-				if way >= arc[0] and way <= arc[1]:
-					var off := absf(at.distance_to(middle) - radius)
-					covered = maxf(covered, clampf(half - off + 0.5, 0.0, 1.0))
-			for head: PackedVector2Array in heads:
-				covered = maxf(covered, _inside(at, head))
-			if covered > 0.0:
-				image.set_pixel(x, y, Color(1.0, 1.0, 1.0, covered))
-	return _keep("turning", image, Vector2i(ICON, ICON))
-
-
-## How much of the pixel at [param at] a triangle covers, soft over its last pixel: the least of how
-## far inside each of its edges it is.
-static func _inside(at: Vector2, triangle: PackedVector2Array) -> float:
-	var clockwise := (triangle[1] - triangle[0]).cross(triangle[2] - triangle[0]) > 0.0
-	var least := INF
-	for i: int in 3:
-		var from := triangle[i]
-		var to := triangle[(i + 1) % 3]
-		var edge := (to - from).normalized()
-		var inward := Vector2(-edge.y, edge.x) if clockwise else Vector2(edge.y, -edge.x)
-		least = minf(least, (at - from).dot(inward))
-	return clampf(least + 0.5, 0.0, 1.0)
+	return _printed(&"ui_turning", ICON, Color.WHITE)
 
 
 ## The knob of a slider: a gold chip, a shade lighter under the cursor.
@@ -307,6 +167,20 @@ static func _chip(image: Image, middle: Vector2, radius: float, face: Color, not
 				ink = ink.lerp(NOTCHES, clampf(radius * 0.15 - off + 0.5, 0.0, 1.0))
 			var under := image.get_pixel(x, y)
 			image.set_pixel(x, y, under.blend(Color(ink, covered)))
+
+
+## The glyph [param id] of GAME.md 8.3a printed flat in [param ink], [constant DETAIL] times bigger
+## than its [param shown] side, what is light in it in [param light] or left bare so the button
+## shows through, see [IconPress].
+static func _printed(
+	id: StringName, shown: int, ink: Color, light := Color.TRANSPARENT
+) -> ImageTexture:
+	var key := String(id)
+	if _drawn.has(key):
+		return _drawn[key]
+	var side := shown * DETAIL
+	var image := IconPress.printed(id, ink, side, IconPress.Ground.PAPER, light)
+	return _keep(key, image, Vector2i(shown, shown))
 
 
 static func _keep(key: String, image: Image, shown: Vector2i) -> ImageTexture:

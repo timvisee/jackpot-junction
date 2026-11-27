@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Move</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M13,10A4,4 0 1 0 21,10A4,4 0 1 0 13,10ZM27,10A4,4 0 1 0 35,10A4,4 0 1 0 27,10ZM13,24A4,4 0 1 0 21,24A4,4 0 1 0 13,24ZM27,24A4,4 0 1 0 35,24A4,4 0 1 0 27,24ZM13,38A4,4 0 1 0 21,38A4,4 0 1 0 13,38ZM27,38A4,4 0 1 0 35,38A4,4 0 1 0 27,38Z"/>
+  </g>
+</g>
+</svg>

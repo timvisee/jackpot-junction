@@ -93,9 +93,7 @@ static func sealed(on: CanvasItem, box: Rect2, card: int) -> void:
 	var lock := Rect2(
 		Vector2(box.get_center().x - side * 0.5, art_middle - side * 0.5), Vector2.ONE * side
 	)
-	IconShapes.arc(on, lock, 0.5, 0.42, 0.26, 180.0, 360.0, HouseTheme.INK)
-	IconShapes.bar(on, lock, 0.14, 0.4, 0.72, 0.56, HouseTheme.INK)
-	IconShapes.disc(on, lock, 0.5, 0.64, 0.08, Palette.CHIP_GOLD)
+	IconPress.draw(on, lock, &"ui_padlock", HouseTheme.INK, IconPress.Ground.PAPER)
 	var band := band_of(box)
 	for piece: PackedVector2Array in band_shape(box):
 		on.draw_colored_polygon(piece, Palette.CHIP_GOLD)

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Wild</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M15,34C15,29 13.5,25.5 10.5,24.5C8.5,24 7,25.5 6.5,28C5.5,21 9,16 14,16C19,16 22.5,21 23.5,27L24,34Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M33,34C33,29 34.5,25.5 37.5,24.5C39.5,24 41,25.5 41.5,28C42.5,21 39,16 34,16C29,16 25.5,21 24.5,27L24,34Z"/>
+    <path class="shade" d="M31,-20H70V70H31Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M17,34C18.5,24 21,15 24,8.5C27,15 29.5,24 31,34Z"/>
+  </g>
+  <g class="cut-all">
+    <path class="cut" d="M13.5,31.5H34.5A4,4 0 0 1 38.5,35.5V38A4,4 0 0 1 34.5,42H13.5A4,4 0 0 1 9.5,38V35.5A4,4 0 0 1 13.5,31.5Z"/>
+    <path class="cut" d="M2.7,31A4.1,4.1 0 1 0 10.9,31A4.1,4.1 0 1 0 2.7,31Z"/>
+    <path class="cut" d="M37.1,31A4.1,4.1 0 1 0 45.3,31A4.1,4.1 0 1 0 37.1,31Z"/>
+    <path class="cut" d="M19.9,7A4.1,4.1 0 1 0 28.1,7A4.1,4.1 0 1 0 19.9,7Z"/>
+  </g>
+</g>
+</svg>

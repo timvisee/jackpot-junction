@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Put away</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M34.78,10.74L37.26,13.22A1.5,1.5 0 0 1 37.26,15.34L29.02,23.58A0.6,0.6 0 0 0 29.02,24.42L37.26,32.66A1.5,1.5 0 0 1 37.26,34.78L34.78,37.26A1.5,1.5 0 0 1 32.66,37.26L24.42,29.02A0.6,0.6 0 0 0 23.58,29.02L15.34,37.26A1.5,1.5 0 0 1 13.22,37.26L10.74,34.78A1.5,1.5 0 0 1 10.74,32.66L18.98,24.42A0.6,0.6 0 0 0 18.98,23.58L10.74,15.34A1.5,1.5 0 0 1 10.74,13.22L13.22,10.74A1.5,1.5 0 0 1 15.34,10.74L23.58,18.98A0.6,0.6 0 0 0 24.42,18.98L32.66,10.74A1.5,1.5 0 0 1 34.78,10.74Z"/>
+  </g>
+</g>
+</svg>
