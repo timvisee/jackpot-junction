@@ -4,7 +4,10 @@ extends RefCounted
 ## hand is Suited in, and what being Suited in each pays. The suits are the four of the Royal Flush
 ## pads and of the teams, in cream for Spades and Clubs and red for Hearts and Diamonds as a deck
 ## has them; a wild card wears a jester's hat, the joker's own. As marks they are drawings of
-## GAME.md 8.3a, printed flat like type, on the arena's pads and its pinball table's prints too.
+## GAME.md 8.3a, printed flat like type, wherever a suit is shown: on a card, on the arena's pads
+## and its pinball table, under the clock, for a team. What needs a suit as a shape rather than a
+## picture, a kart's sticker, a team's pennant, a suit with a ring round it, takes the outline
+## traced off the same drawing, see [method outline].
 
 ## How many cards of a suit make a hand Suited in it, GAME.md 7.3, unless a joker says otherwise.
 const SUITED := 3
@@ -33,6 +36,23 @@ const HALO := 1.4
 const HALO_STEPS := 8
 ## How much bigger than its room a suit on the table is printed, see [method filled].
 const FILLED := 1.16
+## The dark of the ring round an outlined suit, see [method draw_outlined], and of a pad's.
+const OUTLINE := Color(0.05, 0.05, 0.06)
+## How many pixels a side a drawing is traced at for its outline, and how far off it the outline
+## may stray, in those pixels: a five-hundredth of the suit, under a pixel anywhere it is shown.
+const TRACED := 512
+const TRACE_EPSILON := 1.0
+## How big a unit square is made while a suit is grown into its ring: the corners are rounded only
+## to a quarter of a unit, which in a unit square is no rounding at all.
+const WORK_SCALE := 100.0
+## How wide the line that softens an outlined suit's edges is, in pixels.
+const SOFT_EDGE := 1.0
+
+## Each suit's outline, traced the first time it is asked for, and its grown outline and ring for
+## each width it has been drawn at.
+static var _outlines: Dictionary[int, PackedVector2Array] = {}
+static var _grown: Dictionary[Vector2i, PackedVector2Array] = {}
+static var _rings: Dictionary[Vector2i, Array] = {}
 
 
 ## A suit drawn into a control: a card's corner, the pane's line, the hand's Suited sign.
@@ -63,6 +83,129 @@ class Mark:
 ## as a suit on a pad or a card on the table does: the drawings keep their grid's margin round them.
 static func filled(box: Rect2) -> Rect2:
 	return box.grow(minf(box.size.x, box.size.y) * (FILLED - 1.0) * 0.5)
+
+
+## Prints [param suit] flat in [param ink] into [param box] on [param on], filling it as a suit on
+## the table does, see [method filled]. Any number is a suit: the fifth is a spade again.
+static func draw_filled(on: CanvasItem, box: Rect2, suit: int, ink: Color) -> void:
+	var picture := PICTURES[posmod(suit, PICTURES.size())]
+	IconPress.draw(on, filled(box), picture, ink, IconPress.Ground.PAPER)
+
+
+## Draws [param suit] into [param box] on [param on] in [param ink], filling it as [method
+## draw_filled] does, with a ring of [constant OUTLINE] [param edge] pixels wide round it, for a
+## suit that has to read on any ground, a team's or one under the clock. The ring is a shape of its
+## own round the suit, its outline grown, round at the corners, with the suit taken out of it: a
+## see-through ink shows what is under the suit rather than the ring, and a line along the edge
+## would stand out in a spike past every sharp point.
+static func draw_outlined(on: CanvasItem, box: Rect2, suit: int, ink: Color, edge: float) -> void:
+	suit = posmod(suit, PICTURES.size())
+	var shape := _placed(outline(suit), box)
+	on.draw_colored_polygon(shape, ink)
+	if edge <= 0.0:
+		return
+	var width := edge / box.size.x
+	for piece: PackedVector2Array in ring(suit, width):
+		on.draw_colored_polygon(_placed(piece, box), OUTLINE)
+	# A filled polygon has a hard, stepped edge, which at the size of a suit under the clock is
+	# most of what there is to see of it: a thin line down both edges of the ring softens them.
+	for edge_line: PackedVector2Array in [shape, _placed(grown(suit, width), box)]:
+		var closed := edge_line.duplicate()
+		closed.append(edge_line[0])
+		on.draw_polyline(closed, OUTLINE, SOFT_EDGE, true)
+
+
+## [param suit]'s outline in a unit square, the suit filling it as [method draw_filled] prints it:
+## traced off its drawing the first time it is asked for, its largest shape, the suits having no
+## holes. Any number is a suit.
+static func outline(suit: int) -> PackedVector2Array:
+	suit = posmod(suit, PICTURES.size())
+	if _outlines.has(suit):
+		return _outlines[suit]
+	var image := IconPress.printed(PICTURES[suit], Color.WHITE, TRACED, IconPress.Ground.PAPER)
+	var bits := BitMap.new()
+	bits.create_from_image_alpha(image, 0.5)
+	var traced := _largest(
+		bits.opaque_to_polygons(Rect2i(Vector2i.ZERO, image.get_size()), TRACE_EPSILON)
+	)
+	var shape := PackedVector2Array()
+	for point: Vector2 in traced:
+		shape.append((point / float(TRACED) - Vector2.ONE * 0.5) * FILLED + Vector2.ONE * 0.5)
+	_outlines[suit] = shape
+	return shape
+
+
+## [param suit]'s outline grown outward by [param width] of a unit square, round at the corners.
+static func grown(suit: int, width: float) -> PackedVector2Array:
+	suit = posmod(suit, PICTURES.size())
+	var key := Vector2i(suit, roundi(width * 100000.0))
+	if not _grown.has(key):
+		var work := _scaled(outline(suit), WORK_SCALE)
+		var out := Geometry2D.offset_polygon(
+			work, width * WORK_SCALE, Geometry2D.PolyJoinType.JOIN_ROUND
+		)
+		_grown[key] = _scaled(_largest(out), 1.0 / WORK_SCALE)
+	return _grown[key]
+
+
+## The ring round [param suit], [param width] of a unit square wide, as the pieces it is drawn in:
+## cut down the middle, so that each half, with the suit taken out of it, has no hole in it,
+## which is all a polygon can be drawn as.
+static func ring(suit: int, width: float) -> Array:
+	suit = posmod(suit, PICTURES.size())
+	var key := Vector2i(suit, roundi(width * 100000.0))
+	if _rings.has(key):
+		return _rings[key]
+	var inner := _scaled(outline(suit), WORK_SCALE)
+	var outer := _scaled(grown(suit, width), WORK_SCALE)
+	var middle := WORK_SCALE * 0.5
+	var far := WORK_SCALE * 2.0
+	var pieces: Array[PackedVector2Array] = []
+	for half: Rect2 in [
+		Rect2(-far, -far, middle + far, far * 2.0 + WORK_SCALE),
+		Rect2(middle, -far, middle + far, far * 2.0 + WORK_SCALE),
+	]:
+		var cut := PackedVector2Array(
+			[
+				half.position,
+				Vector2(half.end.x, half.position.y),
+				half.end,
+				Vector2(half.position.x, half.end.y)
+			]
+		)
+		for part: PackedVector2Array in Geometry2D.intersect_polygons(outer, cut):
+			for piece: PackedVector2Array in Geometry2D.clip_polygons(part, inner):
+				pieces.append(_scaled(piece, 1.0 / WORK_SCALE))
+	_rings[key] = pieces
+	return pieces
+
+
+## The biggest of [param polygons] by its area.
+static func _largest(polygons: Array[PackedVector2Array]) -> PackedVector2Array:
+	var best := PackedVector2Array()
+	var most := -1.0
+	for polygon: PackedVector2Array in polygons:
+		var area := 0.0
+		for i: int in polygon.size():
+			area += polygon[i].cross(polygon[(i + 1) % polygon.size()])
+		if absf(area) > most:
+			most = absf(area)
+			best = polygon
+	return best
+
+
+static func _scaled(polygon: PackedVector2Array, by: float) -> PackedVector2Array:
+	var scaled := PackedVector2Array()
+	for point: Vector2 in polygon:
+		scaled.append(point * by)
+	return scaled
+
+
+static func _placed(polygon: PackedVector2Array, box: Rect2) -> PackedVector2Array:
+	var placed := PackedVector2Array()
+	for point: Vector2 in polygon:
+		placed.append(box.position + point * box.size)
+	return placed
 
 
 static func name_of(suit: int) -> String:

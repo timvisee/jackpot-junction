@@ -6,8 +6,9 @@ extends Resource
 
 enum Rarity { COMMON, UNCOMMON, RARE }
 enum Kind { STAT, RULE, CURSED }
-## What it feeds, GAME.md 7.3, Suits, in the order of [enum SuitArt.Suit]: Spades shooting, Hearts
-## staying alive, Diamonds chips and banking, Clubs driving and mult, and wild for any of them.
+## What it feeds, GAME.md 7.3, Suits, in the order of [constant JokerSuits.PICTURES]: Spades
+## shooting, Hearts staying alive, Diamonds chips and banking, Clubs driving and mult, and wild for
+## any of them.
 enum Suit { SPADES, HEARTS, DIAMONDS, CLUBS, WILD }
 
 ## How many times as much, as the cards say it, see [method times], each shown through tr().

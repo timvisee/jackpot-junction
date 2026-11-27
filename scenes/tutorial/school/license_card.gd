@@ -720,7 +720,7 @@ func _draw_paper() -> void:
 	var watermark := Color(INK, 0.05)
 	for suit: int in 4:
 		var at := Vector2(COLUMN + 40.0 + float(suit) * 80.0, 150.0)
-		SuitArt.draw_into(self, Rect2(at, Vector2(60.0, 60.0)), suit, watermark)
+		JokerSuits.draw_filled(self, Rect2(at, Vector2(60.0, 60.0)), suit, watermark)
 
 
 ## The band along the top: the agency over the title, with the class on the right.

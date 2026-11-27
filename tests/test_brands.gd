@@ -46,23 +46,23 @@ func test_each_flush_pad_wears_a_suit_of_its_own() -> void:
 		pad.claim(-1, FlushPad.NEUTRAL)
 		assert_object(ink.albedo_color).is_equal(FlushPad.NEUTRAL)
 	assert_array(suits).is_equal(
-		[SuitArt.Suit.SPADE, SuitArt.Suit.HEART, SuitArt.Suit.DIAMOND, SuitArt.Suit.CLUB]
+		[Joker.Suit.SPADES, Joker.Suit.HEARTS, Joker.Suit.DIAMONDS, Joker.Suit.CLUBS]
 	)
 
 
-## Each suit is one shape, its pieces merged, so one drawn see-through, as a suit nobody holds is
-## under the clock, shows no piece's edge through another, GAME.md 8.3.
+## Each suit's outline, traced off its drawing, is one shape, so one drawn see-through, as a suit
+## nobody holds is under the clock, shows no piece's edge through another, GAME.md 8.3.
 func test_every_suit_is_one_shape() -> void:
-	for suit: int in SuitArt.Suit.size():
-		var outline := SuitArt.outline(suit)
+	for suit: int in JokerSuits.PICTURES.size():
+		var outline := JokerSuits.outline(suit)
 		assert_int(outline.size()).is_greater(3)
 		assert_array(Geometry2D.triangulate_polygon(outline)).is_not_empty()
 		for point: Vector2 in outline:
 			assert_bool(Rect2(0.0, 0.0, 1.0, 1.0).has_point(point)).is_true()
 		# The ring round it lies all outside it: none of it is drawn over a see-through fill.
-		var ring := SuitArt.ring(suit, 0.07)
+		var ring := JokerSuits.ring(suit, 0.07)
 		assert_array(ring).is_not_empty()
-		var grown := SuitArt.grown(suit, 0.07)
+		var grown := JokerSuits.grown(suit, 0.07)
 		for piece: PackedVector2Array in ring:
 			assert_array(Geometry2D.triangulate_polygon(piece)).is_not_empty()
 			assert_array(Geometry2D.intersect_polygons(_shrunk(piece), outline)).is_empty()

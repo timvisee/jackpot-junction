@@ -327,5 +327,5 @@ class Mark:
 			for step: int in STEPS:
 				var out := Vector2.from_angle(TAU * step / STEPS) * size.x * EDGE * reach
 				var under := Rect2(box.position + out, box.size)
-				IconPress.draw(self, under, id, SuitArt.OUTLINE, IconPress.Ground.PAPER)
+				IconPress.draw(self, under, id, JokerSuits.OUTLINE, IconPress.Ground.PAPER)
 		IconPress.draw(self, box, id, Color.WHITE, IconPress.Ground.PAPER)

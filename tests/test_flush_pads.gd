@@ -278,7 +278,7 @@ func test_the_pads_held_are_counted_under_the_clock() -> void:
 	assert_int(tally.pads).is_equal(4)
 	assert_array(tally.held).is_equal([mine, theirs, theirs])
 	assert_array(tally.suits).is_equal(
-		[SuitArt.Suit.HEART, SuitArt.Suit.SPADE, SuitArt.Suit.DIAMOND, SuitArt.Suit.CLUB]
+		[Joker.Suit.HEARTS, Joker.Suit.SPADES, Joker.Suit.DIAMONDS, Joker.Suit.CLUBS]
 	)
 	# Let go of, it goes again.
 	pads[1].claim(-1, FlushPad.NEUTRAL)

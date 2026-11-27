@@ -5199,8 +5199,11 @@ keyhole cut through to the card. The suits print flat as type, cream and red on 
 House's inks on paper; the wild card's jester, the Jokers card's hat, is two drawings printed one
 over the other, its points in red with the middle one cream, then its band and bells in gold. The
 arena's Royal Flush pads print the same suits, white in a dark ring of their own shape so they read
-on a pad lit pale, as do the pinball table's plastics and drop targets; the stickers keep their own
-outlined suits, `SuitArt`. The emotes print in the House's ink
+on a pad lit pale, as do the pinball table's plastics and drop targets, the call banner's cards, the
+catalog's stamps and the license's watermark. Where a suit is needed as a shape rather than a
+picture, a kart's sticker, a team's pennant, a team's suit or one under the clock with a ring round
+it, its outline is traced off the same drawing, so every suit in the game is the one drawing. The
+emotes print in the House's ink
 on their chip's inlay, the heart in the table's red in two inks. Below 40 pixels a picture drops its
 shading and its glints, which would only blur it, and the halftone turns flat; the map pin alone,
 so small wherever it is stuck, keeps its shadow side there as a flat darker red.

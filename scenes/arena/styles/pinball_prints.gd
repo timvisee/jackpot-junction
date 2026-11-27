@@ -55,11 +55,7 @@ const PLASTICS_PIXELS := Vector2i(PLASTIC_CELL * 6, PLASTIC_CELL * 3)
 const TARGETS := 5
 const RANKS: Array[String] = ["A", "K", "Q", "J", "10"]
 const RANK_SUITS: Array[int] = [
-	SuitArt.Suit.SPADE,
-	SuitArt.Suit.HEART,
-	SuitArt.Suit.CLUB,
-	SuitArt.Suit.DIAMOND,
-	SuitArt.Suit.SPADE
+	Joker.Suit.SPADES, Joker.Suit.HEARTS, Joker.Suit.CLUBS, Joker.Suit.DIAMONDS, Joker.Suit.SPADES
 ]
 ## How many pixels a meter of a piece of playfield past the rail is laid out at, and how many
 ## times as many a side it is drawn at, as fine as the field itself, before the screen asks for
@@ -276,7 +272,7 @@ func _target(rect: Rect2, rank: int) -> void:
 	draw_rect(face, INK)
 	draw_rect(face.grow(-5.0), CARD)
 	var suit := RANK_SUITS[rank]
-	var red := suit == SuitArt.Suit.HEART or suit == SuitArt.Suit.DIAMOND
+	var red := suit == Joker.Suit.HEARTS or suit == Joker.Suit.DIAMONDS
 	var ink := PIP_RED if red else INK
 	var text: String = RANKS[rank]
 	var font_size := int(rect.size.y * 0.78)
@@ -289,9 +285,7 @@ func _target(rect: Rect2, rank: int) -> void:
 	var glyph := Rect2(
 		Vector2(left + width + gap, rect.get_center().y - pip * 0.5), Vector2.ONE * pip
 	)
-	IconPress.draw(
-		self, JokerSuits.filled(glyph), JokerSuits.PICTURES[suit], ink, IconPress.Ground.PAPER
-	)
+	JokerSuits.draw_filled(self, glyph, suit, ink)
 
 
 ## A plastic over [param rect] of the sheet: the teal of the field under a cream border keylined in
@@ -327,14 +321,11 @@ func _fan(at: Vector2, high: float) -> void:
 		var box := Rect2(Vector2(-card.x * 0.5, -high * 1.2), card)
 		draw_rect(box.grow(2.0), INK)
 		draw_rect(box, CARD)
-		var suit: int = SuitArt.Suit.SPADE if i % 2 == 0 else SuitArt.Suit.HEART
+		var suit: int = Joker.Suit.SPADES if i % 2 == 0 else Joker.Suit.HEARTS
 		var glyph := Rect2(
 			box.get_center() - Vector2.ONE * card.x * 0.25, Vector2.ONE * card.x * 0.5
 		)
-		var ink := INK if i % 2 == 0 else PIP_RED
-		IconPress.draw(
-			self, JokerSuits.filled(glyph), JokerSuits.PICTURES[suit], ink, IconPress.Ground.PAPER
-		)
+		JokerSuits.draw_filled(self, glyph, suit, INK if i % 2 == 0 else PIP_RED)
 	draw_set_transform(Vector2.ZERO)
 
 

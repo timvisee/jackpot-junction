@@ -209,10 +209,10 @@ func test_the_suits_are_three_stickers() -> void:
 ## A sticker's picture: its suit in the middle in the card's red or black, cream round it, an ink
 ## rim, and nothing past the disc.
 func test_a_sticker_is_a_suit_on_a_cream_disc() -> void:
-	for suit: int in [SuitArt.Suit.SPADE, SuitArt.Suit.HEART]:
+	for suit: int in [Joker.Suit.SPADES, Joker.Suit.HEARTS]:
 		var image := KartStickers.printed(suit).get_image()
 		var side := image.get_width()
-		var ink := KartStickers.BLACK if suit == SuitArt.Suit.SPADE else KartStickers.RED
+		var ink := KartStickers.BLACK if suit == Joker.Suit.SPADES else KartStickers.RED
 		assert_bool(_near(image.get_pixel(side / 2, side / 2), ink)).is_true()
 		var cream := image.get_pixel(side / 2, int(side * 0.1))
 		assert_bool(_near(cream, KartStickers.CREAM)).is_true()

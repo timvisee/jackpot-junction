@@ -754,7 +754,7 @@ static func filter_stamp(on: CanvasItem, suit: int, words: String, base: Transfo
 	if suit == Joker.Suit.WILD:
 		JokerSuits.draw_mark(on, at, suit, true)
 	else:
-		SuitArt.draw_into(on, at, suit, ink)
+		JokerSuits.draw_filled(on, at, suit, ink)
 	var baseline := Vector2(at.end.x + 8.0, STAMP_SIZE * 0.36)
 	on.draw_string(font, baseline, words, HORIZONTAL_ALIGNMENT_LEFT, -1, STAMP_SIZE, ink)
 	on.draw_set_transform_matrix(base)

@@ -68,7 +68,7 @@ func _process(delta: float) -> void:
 static func mesh_of(suit: int) -> ArrayMesh:
 	if _meshes.has(suit):
 		return _meshes[suit]
-	var outline := SuitArt.outline(suit)
+	var outline := JokerSuits.outline(suit)
 	var points := PackedVector3Array()
 	for point: Vector2 in outline:
 		points.append(Vector3(point.x - 0.5, 0.5 - point.y, 0.0))

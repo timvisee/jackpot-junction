@@ -417,5 +417,5 @@ func _draw_cards() -> void:
 			ink = HouseTheme.INK if i % 2 == 0 else STAMP_RED
 			var font := Type.display_font()
 			_behind.draw_string(font, -CARD * 0.5 + Vector2(6.0, 22.0), PAIR_RANK, 0, -1, 20, ink)
-		SuitArt.draw_into(_behind, box, i % 4, ink, 0.0)
+		JokerSuits.draw_filled(_behind, box, i % 4, ink)
 	_behind.draw_set_transform(Vector2.ZERO)

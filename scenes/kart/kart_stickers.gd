@@ -23,21 +23,21 @@ const PLACES: Array[Array] = [
 		Vector3(0.0, 0.6, 0.8),
 		Vector3(0.0, 0.8, -0.6),
 		0.22,
-		SuitArt.Suit.SPADE,
+		Joker.Suit.SPADES,
 	],
 	[
 		Vector3(0.425, 0.27, -0.01),
 		Vector3(0.84, 0.54, 0.0),
 		Vector3(-0.54, 0.84, 0.0),
 		0.17,
-		SuitArt.Suit.HEART,
+		Joker.Suit.HEARTS,
 	],
 	[
 		Vector3(-0.425, 0.27, -0.01),
 		Vector3(-0.84, 0.54, 0.0),
 		Vector3(0.54, 0.84, 0.0),
 		0.17,
-		SuitArt.Suit.DIAMOND,
+		Joker.Suit.DIAMONDS,
 	],
 ]
 ## How far in front of or behind a sticker's middle a face can be and still take it, and how
@@ -194,12 +194,12 @@ static func _skin(suit: int) -> StandardMaterial3D:
 	return skin
 
 
-## The picture of a sticker of [param suit], one of [enum SuitArt.Suit]: the suit in its card's
+## The picture of a sticker of [param suit], one of [enum Joker.Suit]: the suit in its card's
 ## red or black on a cream disc with an ink rim, see-through round it. Each pixel is four points
 ## of it, so an edge is clean rather than a staircase.
 static func printed(suit: int) -> Texture2D:
 	var image := Image.create_empty(SIDE, SIDE, true, Image.FORMAT_RGBA8)
-	var ink := RED if suit == SuitArt.Suit.HEART or suit == SuitArt.Suit.DIAMOND else BLACK
+	var ink := RED if suit == Joker.Suit.HEARTS or suit == Joker.Suit.DIAMONDS else BLACK
 	var points: Array[Vector2] = [
 		Vector2(0.25, 0.25), Vector2(0.75, 0.25), Vector2(0.25, 0.75), Vector2(0.75, 0.75)
 	]
@@ -224,8 +224,9 @@ static func _at(suit: int, ink: Color, at: Vector2) -> Color:
 	return ink if in_suit(suit, (at - Vector2.ONE * 0.5) / SUIT + Vector2.ONE * 0.5) else CREAM
 
 
-## Whether [param at], across and down a unit square, is inside [param suit] drawn in it.
+## Whether [param at], across and down a unit square, is inside [param suit] drawn in it, its
+## outline traced off its drawing, see [method JokerSuits.outline].
 static func in_suit(suit: int, at: Vector2) -> bool:
 	if at.x < 0.0 or at.y < 0.0 or at.x > 1.0 or at.y > 1.0:
 		return false
-	return Geometry2D.is_point_in_polygon(at, SuitArt.outline(suit))
+	return Geometry2D.is_point_in_polygon(at, JokerSuits.outline(suit))

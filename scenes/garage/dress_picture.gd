@@ -42,9 +42,9 @@ const MARK := Color(0.08, 0.08, 0.09, 0.9)
 ## Where the card suits' stickers sit on a patch of the paint, by the suit, as shares of it: the
 ## spade up in its middle, as on the kart's nose, the heart and the diamond under it either side.
 const STICKER_PLACES: Dictionary[int, Vector2] = {
-	SuitArt.Suit.SPADE: Vector2(0.5, 0.32),
-	SuitArt.Suit.HEART: Vector2(0.27, 0.68),
-	SuitArt.Suit.DIAMOND: Vector2(0.73, 0.68),
+	Joker.Suit.SPADES: Vector2(0.5, 0.32),
+	Joker.Suit.HEARTS: Vector2(0.27, 0.68),
+	Joker.Suit.DIAMONDS: Vector2(0.73, 0.68),
 }
 const CHALK := Color(0.95, 0.95, 0.92, 0.75)
 ## How many pieces are filmed for the first time in one frame at the most: each small world costs
@@ -294,9 +294,9 @@ static func sticker(on: CanvasItem, at: Vector2, reach: float, suit: int) -> voi
 	on.draw_circle(at, reach, KartStickers.CREAM)
 	var rim := reach * KartStickers.RIM / KartStickers.DISC
 	on.draw_arc(at, reach - rim * 0.5, 0.0, TAU, 32, KartStickers.BLACK, rim, true)
-	var red := suit == SuitArt.Suit.HEART or suit == SuitArt.Suit.DIAMOND
+	var red := suit == Joker.Suit.HEARTS or suit == Joker.Suit.DIAMONDS
 	var side := reach * KartStickers.SUIT / KartStickers.DISC
-	SuitArt.draw_into(
+	JokerSuits.draw_filled(
 		on,
 		Rect2(at - Vector2.ONE * side * 0.5, Vector2.ONE * side),
 		suit,

@@ -248,9 +248,9 @@ func _draw() -> void:
 		var shown := (CARD.y - TUCK) * 0.5 + TUCK - CARD.y * 0.5
 		var box := Rect2(Vector2(-SUIT * 0.5, shown - SUIT * 0.5), Vector2(SUIT, SUIT))
 		if free:
-			SuitArt.draw_into(self, box, suits[i], EMPTY, OUTLINE)
+			JokerSuits.draw_outlined(self, box, suits[i], EMPTY, OUTLINE)
 		else:
-			SuitArt.draw_into(self, box, suits[i], held[i], OUTLINE)
+			JokerSuits.draw_outlined(self, box, suits[i], held[i], OUTLINE)
 	draw_set_transform(Vector2.ZERO)
 	if threat >= 0:
 		_draw_warning()

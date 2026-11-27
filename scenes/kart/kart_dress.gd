@@ -787,7 +787,7 @@ static func _ace_texture() -> Texture2D:
 			var other := (Vector2(x, y) - Vector2(wide - 22.0, tall - 26.0)) / 22.0
 			var inked := false
 			for at: Vector2 in [big, small, other]:
-				inked = inked or KartStickers.in_suit(SuitArt.Suit.SPADE, at + Vector2.ONE * 0.5)
+				inked = inked or KartStickers.in_suit(Joker.Suit.SPADES, at + Vector2.ONE * 0.5)
 			image.set_pixel(x, y, spade if inked else card)
 	image.generate_mipmaps()
 	_ace_face = ImageTexture.create_from_image(image)
