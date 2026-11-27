@@ -11234,8 +11234,10 @@ color for each player, a gray chip for each bot and a ring for each free seat, s
 for people is seen at a glance. Then the ping, as four bars and its number, and the eye beside the
 row, to watch. Each host writes its Steam ping location into its lobby, so the ping is Steam's
 estimate from here, made without connecting. Over 200 ms it is one red bar, and the game can still
-be joined. There is no count of players online and no language on a row: the game has no chat, so
-players of different languages have nothing to say to each other that emotes do not say.
+be joined. There is no language on a row: the game has no chat, so players of different languages
+have nothing to say to each other that emotes do not say. Over the list, how many people are
+playing the game on Steam right now, "1,240 playing now", but only once it is past a threshold
+still to be settled: a small number would advertise an empty game.
 
 **Empty and full.** With no game listed, the box holds its link alone, "Start a game with bots:
 anybody can join it", as every list's does; a drawing of an empty table may come later. A full
@@ -11250,8 +11252,9 @@ the podium: then the newcomer watches, told they take a seat on the next map, an
 **Quick Play.** First on Play Online, in a Steam build. It asks Steam for public games near this
 player: Steam's default distance first, their region and those next to it, then far, never
 worldwide. A game it may join is public and on this version. It has a seat for every player at this
-machine, nobody in it whom the player has blocked on Steam, and a ping under Quick Play's cap. Of
-those it takes a friend's first, then the one with the most people, then one in its lobby before one
+machine, nobody in it whom the player has blocked on Steam, and a ping of 100 ms at most; under
+50 ms is preferred, both numbers one constant each, to tune in the Playtest. Of those it takes a
+friend's first, then the one with the most people, then one in its lobby before one
 playing a map, then the lowest ping. While it looks, a dialog in the look of Connecting says
 "Finding a game near you..." with its bar and Cancel. With nothing found in about three seconds it
 waits a moment, 0 to 2 s at random, and asks once more, so two players pressing at once do not both
@@ -11260,10 +11263,11 @@ take their seats as they come, and two seconds later the player is in a map agai
 empty lobby.
 
 The game Quick Play hosts is public and called "Ann's game": a quick match, one map with its arena
-dealt, the host's Standard preset, normal bots and a player limit of 8. Bots make up four karts.
-Each person who joins takes a bot's kart; between maps the bots are dealt again, so people and bots
-are four, and past four people there are none, up to eight. A host who changes the Bots row in the
-match settings is played by that instead. In its lobby the match starts when everybody is on the
+dealt, the host's Standard preset, normal bots and a player limit of 8. Bots make up four karts:
+the Bots row of the match settings has a new first choice, Make up 4, which a Quick Play game
+starts on. Each person who joins takes a bot's kart; between maps the bots are dealt again, so
+people and bots are four, and past four people there are none, up to eight. A number picked in
+the Bots row instead is played as it is today, that many bots on top of the people. In its lobby the match starts when everybody is on the
 pad, or 30 s after half of the room is, counted down over the pad; the host keeps Start now.
 Otherwise it is the host's game like any other: their rules, their kicks, their invites.
 
@@ -11285,10 +11289,18 @@ public match a kart with no input for 60 s is driven by a bot, and any press tak
 itself when its owner goes, to the title, for good or with a lost connection. That player's machine
 opens a lobby with the game's rules as it was last sent them, and everybody else follows it there
 within a few seconds. The map being played is lost, since every kart, bot and joker of it ran at the
-old host, but the room and its people are kept. A host leaving on purpose, from the pause menu, the
-podium or the title, with anybody else in the game, is asked first and hands the game on before
-going, which is still open in its details. LAN games still end when the host goes, and a dedicated
-server's games keep Make host, 9.3a.
+old host, but the room and its people are kept. Carrying the map itself over to the new host is
+still open. Who takes over: on a planned leave, the player who has been in the game longest, as at
+a dedicated server; on a crash or a lost connection, whoever Steam makes the lobby's owner; never
+somebody only watching. LAN games still end when the host goes, and a dedicated server's games keep
+Make host, 9.3a.
+
+A host leaving on purpose with anybody else in the game, by Leave, Back to title or Quit, is asked
+first: "Leave the game? Bob hosts it after you.", with Leave and Stay, and the game is handed on
+before they go. There is no Leave after this map: a host who wants the map finished leaves once it
+is. Manage players in
+a Steam game has Make host on everybody else's row, as a dedicated server's has: the game is handed
+to that player at once in the lobby and on the podium, and at the podium when pressed during a map.
 
 **The store page** says in one line how online works.
 
