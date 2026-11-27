@@ -62,6 +62,9 @@ jobs:
       - name: Lint and format
         run: make lint format-check
 
+      - name: Words for translators
+        run: make strings-check
+
       - name: Changelog
         run: make changelog
 

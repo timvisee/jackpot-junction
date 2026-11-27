@@ -232,7 +232,7 @@ server-check: | $(CACHE)
 changelog:
 	tools/changelog
 
-check: import lint format-check changelog test smoke multiplayer multiplayer-lag server-check
+check: import lint format-check strings-check changelog test smoke multiplayer multiplayer-lag server-check
 
 # The three desktop builds, and the dedicated server's for Linux, GAME.md 9.3a: the game exported as
 # a server, headless and serving by itself, its visual data stripped and its sound left out.
