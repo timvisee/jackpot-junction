@@ -563,11 +563,15 @@ func _ask_picture() -> void:
 		PICTURES,
 		&"_on_picture_ready"
 	)
-	if drawn == null:
-		return
+	if drawn != null:
+		_show_face(drawn)
+
+
+## Shows [param drawn], the face as a picture, in place of the face itself.
+func _show_face(drawn: Texture2D) -> void:
 	_face_picture = drawn
 	if _face_shown == null:
-		# Over the frame and under whatever is laid over the face. Drawn onto nothing, its faint
+		# Over the body and under whatever is laid over the face. Drawn onto nothing, its faint
 		# lines and smoothed edges are already as faint as they are dark, so it is laid on
 		# premultiplied, as the backdrop's curtains are, or they would be faint twice over.
 		_face_shown = TextureRect.new()
@@ -580,7 +584,7 @@ func _ask_picture() -> void:
 		premultiplied.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
 		_face_shown.material = premultiplied
 		add_child(_face_shown)
-		move_child(_face_shown, 0)
+		move_child(_face_shown, _body.get_index() + 1)
 	_face_shown.texture = drawn
 	for part: Control in _content:
 		part.visible = false

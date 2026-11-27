@@ -302,6 +302,18 @@ func test_every_power_up_has_a_picture_and_every_picture_has_a_power_up() -> voi
 		)
 
 
+## A card in a hand shows its face as a picture once it holds still, GAME.md 10.7: laid over the
+## card's body, never under it, where the body's dark stock hid the hand's and the pick's faces.
+func test_a_baked_face_lies_over_the_card_s_body() -> void:
+	var card: JokerCard = auto_free(JokerCard.create(load("res://data/jokers/backfire.tres")))
+	add_child(card)
+	var image := Image.create(8, 11, false, Image.FORMAT_RGBA8)
+	card._show_face(ImageTexture.create_from_image(image))
+	var face := card.get_node("FacePicture")
+	assert_int(face.get_index()).is_greater(card._body.get_index())
+	assert_bool(card._content.any(func(part: Control) -> bool: return part.visible)).is_false()
+
+
 ## And the card puts it on: one picture node in the middle of every card, drawn in the kind's
 ## color, rather than the initials that used to be there.
 func test_a_card_carries_its_joker_s_picture() -> void:
