@@ -472,20 +472,7 @@ static func scrap(on: CanvasItem, box: Rect2, ink: Color) -> void:
 static func lines_of(
 	font: Font, text: String, size: int, wide: float, most: int
 ) -> PackedStringArray:
-	var lines := PackedStringArray()
-	var line := ""
-	for word: String in text.split(" ", false):
-		var tried := word if line.is_empty() else line + " " + word
-		if (
-			line.is_empty()
-			or font.get_string_size(tried, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x <= wide
-		):
-			line = tried
-		else:
-			lines.append(line)
-			line = word
-	if not line.is_empty():
-		lines.append(line)
+	var lines := Type.rows(text, font, size, wide)
 	if lines.size() > most:
 		var kept := lines.slice(0, most)
 		kept[most - 1] = kept[most - 1] + "…"

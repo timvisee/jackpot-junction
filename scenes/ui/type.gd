@@ -170,3 +170,39 @@ static func fitting(text: String, font: Font, wanted: int, widest: float) -> int
 static func wrapping(text: String, font: Font, wanted: int, smaller: int, across: float) -> int:
 	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, wanted).x
 	return wanted if wide <= across else smaller
+
+
+## [param text] in [param font] at [param size] broken into rows no wider than [param width], at
+## the places the text server says a line may break, GAME.md 10.9: after a space in English,
+## between any two characters of Chinese, which has none, but never before a closing mark. Each
+## row takes as many of the pieces between those places as fit, the spaces at its ends not
+## counted and a run of them taken for one; a piece wider than [param width] keeps a row of its
+## own rather than being cut.
+static func rows(text: String, font: Font, size: int, width: float) -> PackedStringArray:
+	# A run of spaces is one, as it always was on these rows.
+	while text.contains("  "):
+		text = text.replace("  ", " ")
+	# Laid out one piece to a line: a paragraph too narrow for anything breaks at every place it
+	# may.
+	var pieces := TextParagraph.new()
+	pieces.break_flags = TextServer.BREAK_MANDATORY | TextServer.BREAK_WORD_BOUND
+	pieces.width = 1.0
+	pieces.add_string(text, font, size)
+	var found := PackedStringArray()
+	var row := ""
+	for i: int in pieces.get_line_count():
+		var span := pieces.get_line_range(i)
+		var piece := text.substr(span.x, span.y - span.x)
+		var tried := (row + piece).strip_edges()
+		var wide := font.get_string_size(tried, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		if not row.strip_edges().is_empty() and wide > width:
+			found.append(row.strip_edges())
+			row = piece
+		else:
+			row += piece
+		if piece.contains("\n"):
+			found.append(row.strip_edges())
+			row = ""
+	if not row.strip_edges().is_empty():
+		found.append(row.strip_edges())
+	return found

@@ -11817,7 +11817,9 @@ Chinese is written without spaces, so a line of it may break between any two cha
 never before a closing mark nor after an opening one. The engine finds those places with its text
 server's data, which the editor carries built in and an exported game takes along only with the
 project's `internationalization/locale/include_text_server_data` on, 4.8 MB of it: without it a
-line breaks at its spaces alone.
+line breaks at its spaces alone. What the game draws a row at a time itself, a note's lines and
+the loyalty map's titles, it breaks where the text server says a line may, `Type.rows()`, never
+at its spaces.
 
 Words drawn into a picture by the art tools, the House rail's microprint and Kit's chalkboard, are
 marked with `_()` in the tool as gettext's tools mark them, and `make strings` reads them with the

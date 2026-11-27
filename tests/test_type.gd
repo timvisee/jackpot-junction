@@ -58,3 +58,22 @@ func test_a_name_too_long_for_one_line_is_set_smaller() -> void:
 	assert_int(JokerCard.title_size("Onder de toonbank")).is_equal(JokerCard.TITLE_WRAPPED)
 	assert_int(Type.wrapping("Paid", Type.STRONG, 20, 10, 10.0)).is_equal(10)
 	assert_int(Type.wrapping("Paid", Type.STRONG, 20, 10, 400.0)).is_equal(20)
+
+
+## English breaks into rows at its spaces, GAME.md 10.9.
+func test_english_breaks_at_its_spaces() -> void:
+	var wide := Type.TEXT.get_string_size("ab ab", HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
+	var rows := Type.rows("ab ab ab ab", Type.TEXT, SAMPLE, wide + 1.0)
+	assert_array(Array(rows)).is_equal(["ab ab", "ab ab"])
+
+
+## Chinese has no spaces and breaks between any two characters, but never before a closing mark:
+## a full stop is not left to start a row, GAME.md 10.9.
+func test_chinese_breaks_between_its_characters() -> void:
+	var text := "他们留我当顾问。从那以后，没人问过我任何事。"  # NO_TRANSLATE
+	var wide := Type.TEXT.get_string_size("我当顾问", HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
+	var rows := Type.rows(text, Type.TEXT, SAMPLE, wide + 1.0)
+	assert_int(rows.size()).is_greater(3)
+	assert_str("".join(rows)).is_equal(text)
+	for row: String in rows:
+		assert_bool(row.begins_with("。") or row.begins_with("，")).is_false()

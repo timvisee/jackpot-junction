@@ -580,21 +580,9 @@ func _wrap(
 	return y
 
 
-## [param text] broken into rows no wider than [param width].
+## [param text] broken into rows no wider than [param width], see [method Type.rows].
 static func _rows(text: String, font: Font, font_size: int, width: float) -> PackedStringArray:
-	var rows := PackedStringArray()
-	var row := ""
-	for word: String in text.split(" ", false):
-		var tried := word if row.is_empty() else row + " " + word
-		if font.get_string_size(tried, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x > width:
-			if not row.is_empty():
-				rows.append(row)
-			row = word
-		else:
-			row = tried
-	if not row.is_empty():
-		rows.append(row)
-	return rows
+	return Type.rows(text, font, font_size, width)
 
 
 ## Handwriting: each letter drawn on its own, a little off the line, the more so the shakier the
