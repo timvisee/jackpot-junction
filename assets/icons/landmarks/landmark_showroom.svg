@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Showroom</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M6,5H42A2,2 0 0 1 44,7V11A2,2 0 0 1 42,13H6A2,2 0 0 1 4,11V7A2,2 0 0 1 6,5Z"/>
+    <path class="shade" d="M-20,10H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M6,13H8A1,1 0 0 1 9,14V42A1,1 0 0 1 8,43H6A1,1 0 0 1 5,42V14A1,1 0 0 1 6,13ZM40,13H42A1,1 0 0 1 43,14V42A1,1 0 0 1 42,43H40A1,1 0 0 1 39,42V14A1,1 0 0 1 40,13Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M12,14.5H36A1,1 0 0 1 37,15.5V42A1,1 0 0 1 36,43H12A1,1 0 0 1 11,42V15.5A1,1 0 0 1 12,14.5Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="cut" d="M10,19.5H38" stroke-width="1.5"/>
+    <path class="cut" d="M10,25H38" stroke-width="1.5"/>
+    <path class="cut" d="M10,30.5H38" stroke-width="1.5"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M21.25,36H26.75A1.25,1.25 0 0 1 28,37.25V37.25A1.25,1.25 0 0 1 26.75,38.5H21.25A1.25,1.25 0 0 1 20,37.25V37.25A1.25,1.25 0 0 1 21.25,36Z"/>
+  </g>
+</g>
+</svg>

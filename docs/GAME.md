@@ -5115,16 +5115,16 @@ and one per power-up, beside its name in the HUD block. Each is an SVG file of
 its own, `assets/icons/jokers/<id>.svg` and `assets/icons/powerups/<id>.svg`, as is every
 achievement's, `assets/icons/achievements/<id>.svg`, 8.10, and the pictures of the
 table's cards (`table/`, 3.17), the two kinds of game (`modes/`, 9.7), the ways to
-drive and the touch layouts (`drive/`, 4.2), the parts of the dress (`dress/`, 4.4)
-and the emotes (`emotes/`, 3.8), each id named for its family, `table_jackpot`,
-`dress_hat`. All are
+drive and the touch layouts (`drive/`, 4.2), the parts of the dress (`dress/`, 4.4),
+the emotes (`emotes/`, 3.8) and the landmarks of the loyalty program's map (`landmarks/`, 8.9),
+each id named for its family, `table_jackpot`, `dress_hat`, `landmark_slip_road`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,
-`GameModeArt`, `DriveArt`, `DressArt` and `EmoteArt` are what the rest of the game
+`GameModeArt`, `DriveArt`, `DressArt`, `EmoteArt` and `LandmarkIcons` are what the rest of the game
 calls; they hand an id and a color to the press. Kit's five cards keep his
 pencil, STORY.md 6.3, drawn by `KitArt` as before.
 
-The set was redrawn on 2026-11-26 over four rounds of review, from five
+The set was redrawn on 2026-11-26 over five rounds of review, from five
 directions (flat cut, enamel pin, engraved, two-ink print, struck relief) down
 to a mix of the first and the fourth: the house printing its own pictures. Every
 icon was marked keep, tweak or redo, and the uncertain ones were picked from
@@ -5156,7 +5156,8 @@ chip's color with its shadow side screened in a dark one, 8.10, and so do the ta
 their stock, each card in an ink of its own so the row reads at a glance. A picture on a button,
 a kind of game, a way to drive, a part of the dress, prints flat in one ink on bare paper: its
 cream is left unprinted, cut out of whatever is under it, so the button shows through and the
-picture follows the button's gold or gray as it is chosen. The emotes print in the House's ink
+picture follows the button's gold or gray as it is chosen. A landmark's prints the same way on its
+sign, in the marquee's gold, the road sign's white or Kit's pencil, and in gold on the list. The emotes print in the House's ink
 on their chip's inlay, the heart in the table's red in two inks. Below 40 pixels a picture drops its
 shading and its glints, which would only blur it, and the halftone turns flat.
 An ink nearly as dark as the card, Oil Stain's purple, is lifted toward white
@@ -6594,7 +6595,7 @@ mouse or a finger drags it, as far as a little past its edge. Every profile star
 under the districts, and the roads run up from there through the districts to the roundabout over
 them, on its island, round a pot marked JACKPOT. The house's roads are printed in its ink, and each bet is a landmark beside them, a sign the
 shape of its district's with a picture of its own on it, what the place is: a teller's cage, a
-cocktail glass, a target, a pencil, no two alike.
+cocktail glass, a target, a pencil, no two alike, each a house print of 8.3a in the sign's own ink.
 
 - **The Strip**, the left of the map, is the house's own: bets of the tables, chips, cash-outs, cards
   and wins, and the casino's rewards, the cards and items of the deck among them. Its signs are the

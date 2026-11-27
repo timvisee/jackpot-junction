@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>walk away</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M15.11,20.1C18.28,19.65 20.48,22.37 21.1,26.83C21.66,30.79 20.59,33.26 20.31,35.52L14.36,36.36C13.46,34.26 11.69,31.69 11.2,28.22C10.57,23.76 11.94,20.54 15.11,20.1ZM14.27,38.59L21.01,37.65C21.4,40.42 20.23,42.2 18.25,42.48C16.27,42.76 14.66,41.37 14.27,38.59Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M32.55,7.05C35.73,7.39 37.2,10.56 36.73,15.04C36.32,19.01 34.68,21.16 33.86,23.28L27.89,22.65C27.52,20.4 26.42,17.47 26.79,13.99C27.26,9.52 29.36,6.72 32.55,7.05ZM27.26,24.8L34.02,25.51C33.73,28.3 32.17,29.74 30.18,29.53C28.19,29.32 26.97,27.58 27.26,24.8Z"/>
+  </g>
+</g>
+</svg>

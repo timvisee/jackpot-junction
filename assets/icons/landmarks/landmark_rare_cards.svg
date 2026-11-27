@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Card Room</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M13.23,35.81L7.42,19.83A2.5,2.5 0 0 1 8.91,16.63L19.25,12.87A2.5,2.5 0 0 1 22.45,14.36L28.27,30.34A2.5,2.5 0 0 1 26.77,33.54L16.44,37.3A2.5,2.5 0 0 1 13.23,35.81Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M16,32.5L16,15.5A2.5,2.5 0 0 1 18.5,13L29.5,13A2.5,2.5 0 0 1 32,15.5L32,32.5A2.5,2.5 0 0 1 29.5,35L18.5,35A2.5,2.5 0 0 1 16,32.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M19.73,30.34L25.55,14.36A2.5,2.5 0 0 1 28.75,12.87L39.09,16.63A2.5,2.5 0 0 1 40.58,19.83L34.77,35.81A2.5,2.5 0 0 1 31.56,37.3L21.23,33.54A2.5,2.5 0 0 1 19.73,30.34Z"/>
+    <path class="shade" d="M37,-20H70V70H37Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M31.7,20.86C33.49,23.81 34.63,25.95 34.08,27.47C33.58,28.82 32.26,29.3 30.99,28.84C30.23,28.56 29.76,28.01 29.64,27.29L29.46,29.62L27.77,29.01L29.13,27.11C28.58,27.58 27.86,27.7 27.1,27.42C25.83,26.96 25.13,25.75 25.62,24.39C26.17,22.87 28.42,21.96 31.7,20.86Z"/>
+  </g>
+</g>
+</svg>

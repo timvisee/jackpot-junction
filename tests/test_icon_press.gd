@@ -1,8 +1,8 @@
 extends GdUnitTestSuite
 ## The house print of GAME.md 8.3a: every joker's, power-up's and achievement's drawing, the
-## table's cards', the kinds of game's, the ways to drive's, the dress's and the emotes', is an SVG
-## file that IconPress reads and prints, and the files are held to the lists the way the lists are
-## held to the catalog.
+## table's cards', the kinds of game's, the ways to drive's, the dress's, the emotes' and the
+## loyalty program's landmarks', is an SVG file that IconPress reads and prints, and the files are
+## held to the lists the way the lists are held to the catalog.
 
 const FOLDERS := {
 	"res://assets/icons/jokers/": "jokers",
@@ -13,6 +13,7 @@ const FOLDERS := {
 	"res://assets/icons/drive/": "drive",
 	"res://assets/icons/dress/": "dress",
 	"res://assets/icons/emotes/": "emotes",
+	"res://assets/icons/landmarks/": "landmarks",
 }
 
 
@@ -66,6 +67,22 @@ func test_every_achievement_has_a_drawing_and_every_drawing_an_achievement() -> 
 		)
 	for id: StringName in files:
 		assert_bool(id in ids).override_failure_message("%s is no achievement" % id).is_true()
+
+
+## And every landmark of the loyalty program's map, GAME.md 8.9.
+func test_every_landmark_has_a_drawing_and_every_drawing_a_landmark() -> void:
+	var files := _files("res://assets/icons/landmarks/")
+	var ids: Array[StringName] = []
+	for each: LoyaltyLandmark in Loyalty.map().landmarks:
+		var drawing := LandmarkIcons.drawing_of(each)
+		ids.append(drawing)
+		(
+			assert_bool(drawing in files)
+			. override_failure_message("%s has no drawing" % each.id)
+			. is_true()
+		)
+	for id: StringName in files:
+		assert_bool(id in ids).override_failure_message("%s is no landmark" % id).is_true()
 
 
 ## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,

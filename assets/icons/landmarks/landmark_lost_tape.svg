@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Lost Property, the Workbench</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M11,11H28A5,5 0 0 1 33,16V33A5,5 0 0 1 28,38H11A5,5 0 0 1 6,33V16A5,5 0 0 1 11,11Z"/>
+    <path class="shade" d="M27,-20H70V70H27Z"/>
+    <path class="cut" d="M13.5,24.5A6,6 0 1 0 25.5,24.5A6,6 0 1 0 13.5,24.5Z" stroke-width="1.5"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M16.7,24.5A2.8,2.8 0 1 0 22.3,24.5A2.8,2.8 0 1 0 16.7,24.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M31,32H43A1,1 0 0 1 44,33V37A1,1 0 0 1 43,38H31A1,1 0 0 1 30,37V33A1,1 0 0 1 31,32Z"/>
+    <path class="cut" d="M33.5,31V34.5" stroke-width="1.2"/>
+    <path class="cut" d="M37,31V34.5" stroke-width="1.2"/>
+    <path class="cut" d="M40.5,31V34.5" stroke-width="1.2"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Last Call Bar</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M23,10H25A1,1 0 0 1 26,11V15A1,1 0 0 1 25,16H23A1,1 0 0 1 22,15V11A1,1 0 0 1 23,10Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M21,8.5A3,3 0 1 0 27,8.5A3,3 0 1 0 21,8.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8,34C8,24 15,17.5 24,17.5C33,17.5 40,24 40,34Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM4.5,31A16.5,16.5 0 1 0 37.5,31A16.5,16.5 0 1 0 4.5,31Z" fill-rule="evenodd"/>
+    <path class="glint" d="M12.67,28.72A12.5,12.5 0 0 1 17.75,23.17"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M7.75,35H40.25A2.75,2.75 0 0 1 43,37.75V37.75A2.75,2.75 0 0 1 40.25,40.5H7.75A2.75,2.75 0 0 1 5,37.75V37.75A2.75,2.75 0 0 1 7.75,35Z"/>
+    <path class="shade" d="M-20,38H70V70H-20Z"/>
+  </g>
+</g>
+</svg>

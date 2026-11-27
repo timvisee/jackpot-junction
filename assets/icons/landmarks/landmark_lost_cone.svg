@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Lost Property, the School</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M35.36,38.5L12.64,38.5A0.5,0.5 0 0 1 12.15,37.88L19.72,7.14A1.5,1.5 0 0 1 21.18,6L26.82,6A1.5,1.5 0 0 1 28.28,7.14L35.85,37.88A0.5,0.5 0 0 1 35.36,38.5Z"/>
+    <path class="shade" d="M26,-20H70V70H26Z"/>
+    <path class="cut" d="M10,16.5H38" stroke-width="3"/>
+    <path class="cut" d="M10,27.5H38" stroke-width="3"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8,38H40A2,2 0 0 1 42,40V41A2,2 0 0 1 40,43H8A2,2 0 0 1 6,41V40A2,2 0 0 1 8,38Z"/>
+  </g>
+</g>
+</svg>

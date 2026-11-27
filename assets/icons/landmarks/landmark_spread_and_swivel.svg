@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Prize Counter</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M14.5,9.5A4.5,4.5 0 1 0 23.5,9.5A4.5,4.5 0 1 0 14.5,9.5ZM17,9.5A2,2 0 1 0 21,9.5A2,2 0 1 0 17,9.5ZM24.5,9.5A4.5,4.5 0 1 0 33.5,9.5A4.5,4.5 0 1 0 24.5,9.5ZM27,9.5A2,2 0 1 0 31,9.5A2,2 0 1 0 27,9.5Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8,14H40A2,2 0 0 1 42,16V19A2,2 0 0 1 40,21H8A2,2 0 0 1 6,19V16A2,2 0 0 1 8,14Z"/>
+    <path class="shade" d="M37,-20H70V70H37Z"/>
+    <path class="cut" d="M22.5,13H25.5A0,0 0 0 1 25.5,13V22A0,0 0 0 1 25.5,22H22.5A0,0 0 0 1 22.5,22V13A0,0 0 0 1 22.5,13Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M11,22.5H37A2,2 0 0 1 39,24.5V40.5A2,2 0 0 1 37,42.5H11A2,2 0 0 1 9,40.5V24.5A2,2 0 0 1 11,22.5Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="cut" d="M22.5,21.5H25.5A0,0 0 0 1 25.5,21.5V43.5A0,0 0 0 1 25.5,43.5H22.5A0,0 0 0 1 22.5,43.5V21.5A0,0 0 0 1 22.5,21.5Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Nitro Pumps</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M29,18H34C36.5,18 37.5,19.5 37.5,22V33C37.5,35.5 38.5,36.5 41,36.5" stroke-width="2.5" stroke-linecap="butt"/>
+  <g class="piece ink">
+    <path class="body" d="M38.5,10H41.5A1.5,1.5 0 0 1 43,11.5V17.5A1.5,1.5 0 0 1 41.5,19H38.5A1.5,1.5 0 0 1 37,17.5V11.5A1.5,1.5 0 0 1 38.5,10Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M10.5,6H27.5A2.5,2.5 0 0 1 30,8.5V38.5A2.5,2.5 0 0 1 27.5,41H10.5A2.5,2.5 0 0 1 8,38.5V8.5A2.5,2.5 0 0 1 10.5,6Z"/>
+    <path class="shade" d="M25,-20H70V70H25Z"/>
+    <path class="cut" d="M13,10H25A1,1 0 0 1 26,11V18A1,1 0 0 1 25,19H13A1,1 0 0 1 12,18V11A1,1 0 0 1 13,10Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M19.34,23.2C19.85,25.24 21.89,26.6 22.74,28.64C23.59,30.68 23.42,33.06 22.23,34.76C21.55,35.78 20.36,36.63 19,36.63C16.79,36.63 15.09,34.93 15.09,32.72C15.09,31.02 15.94,29.83 16.79,28.98C16.79,30.17 17.3,31.02 18.15,31.36C17.47,28.98 17.98,25.92 19.34,23.2Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M7,40H31A2,2 0 0 1 33,42V42A2,2 0 0 1 31,44H7A2,2 0 0 1 5,42V42A2,2 0 0 1 7,40Z"/>
+  </g>
+</g>
+</svg>

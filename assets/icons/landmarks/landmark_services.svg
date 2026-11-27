@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Crazy Eights</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M14,5H34A3,3 0 0 1 37,8V40A3,3 0 0 1 34,43H14A3,3 0 0 1 11,40V8A3,3 0 0 1 14,5Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+  </g>
+  <path class="line cream" d="M19.2,17A4.8,4.8 0 1 0 28.8,17A4.8,4.8 0 1 0 19.2,17ZM17.8,30A6.2,6.2 0 1 0 30.2,30A6.2,6.2 0 1 0 17.8,30Z" stroke-width="3" data-seam="false"/>
+</g>
+</svg>

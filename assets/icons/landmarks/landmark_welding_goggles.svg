@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>empty handed</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M13.87,36.11L8.4,21.07A2.5,2.5 0 0 1 9.9,17.87L19.29,14.45A2.5,2.5 0 0 1 22.5,15.94L27.97,30.98A2.5,2.5 0 0 1 26.48,34.18L17.08,37.6A2.5,2.5 0 0 1 13.87,36.11Z" stroke-width="2" stroke-dasharray="3.2 2.2" stroke-linecap="butt" data-seam="false"/>
+  <path class="line ink" d="M16.5,33L16.5,17A2.5,2.5 0 0 1 19,14.5L29,14.5A2.5,2.5 0 0 1 31.5,17L31.5,33A2.5,2.5 0 0 1 29,35.5L19,35.5A2.5,2.5 0 0 1 16.5,33Z" stroke-width="2" stroke-dasharray="3.2 2.2" stroke-linecap="butt" data-seam="false"/>
+  <path class="line ink" d="M20.03,30.98L25.5,15.94A2.5,2.5 0 0 1 28.71,14.45L38.1,17.87A2.5,2.5 0 0 1 39.6,21.07L34.13,36.11A2.5,2.5 0 0 1 30.92,37.6L21.52,34.18A2.5,2.5 0 0 1 20.03,30.98Z" stroke-width="2" stroke-dasharray="3.2 2.2" stroke-linecap="butt" data-seam="false"/>
+</g>
+</svg>

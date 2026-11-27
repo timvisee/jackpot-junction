@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Turbo Lane</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M14.32,23.72L5.54,10.55A1,1 0 0 1 6.37,9L12.23,9A0.5,0.5 0 0 1 12.65,9.22L22.13,23.45A1,1 0 0 1 22.13,24.55L12.65,38.78A0.5,0.5 0 0 1 12.23,39L6.37,39A1,1 0 0 1 5.54,37.45L14.32,24.28A0.5,0.5 0 0 0 14.32,23.72Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M24.32,23.72L15.54,10.55A1,1 0 0 1 16.37,9L22.23,9A0.5,0.5 0 0 1 22.65,9.22L32.13,23.45A1,1 0 0 1 32.13,24.55L22.65,38.78A0.5,0.5 0 0 1 22.23,39L16.37,39A1,1 0 0 1 15.54,37.45L24.32,24.28A0.5,0.5 0 0 0 24.32,23.72Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M34.32,23.72L25.54,10.55A1,1 0 0 1 26.37,9L32.23,9A0.5,0.5 0 0 1 32.65,9.22L42.13,23.45A1,1 0 0 1 42.13,24.55L32.65,38.78A0.5,0.5 0 0 1 32.23,39L26.37,39A1,1 0 0 1 25.54,37.45L34.32,24.28A0.5,0.5 0 0 0 34.32,23.72Z"/>
+    <path class="shade" d="M36,-20H70V70H36Z"/>
+  </g>
+</g>
+</svg>

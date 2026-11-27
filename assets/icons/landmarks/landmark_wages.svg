@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Winners’ Circle</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M20.25,41.04A15.5,15.5 0 0 1 15.33,13.15M32.67,13.15A15.5,15.5 0 0 1 27.75,41.04" stroke-width="2" stroke-linecap="butt"/>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M12.13,39.85A4.6,2.2 -2 1 0 21.32,39.53A4.6,2.2 -2 1 0 12.13,39.85ZM7.02,32.65A4.6,2.2 26 1 0 15.28,36.68A4.6,2.2 26 1 0 7.02,32.65ZM5.88,23.9A4.6,2.2 54 1 0 11.29,31.34A4.6,2.2 54 1 0 5.88,23.9ZM8.99,15.64A4.6,2.2 82 1 0 10.27,24.75A4.6,2.2 82 1 0 8.99,15.64ZM15.61,9.8A4.6,2.2 110 1 0 12.46,18.45A4.6,2.2 110 1 0 15.61,9.8Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M35.87,39.85A4.6,2.2 182 1 0 26.68,39.53A4.6,2.2 182 1 0 35.87,39.85ZM40.98,32.65A4.6,2.2 154 1 0 32.72,36.68A4.6,2.2 154 1 0 40.98,32.65ZM42.12,23.9A4.6,2.2 126 1 0 36.71,31.34A4.6,2.2 126 1 0 42.12,23.9ZM39.01,15.64A4.6,2.2 98 1 0 37.73,24.75A4.6,2.2 98 1 0 39.01,15.64ZM32.39,9.8A4.6,2.2 70 1 0 35.54,18.45A4.6,2.2 70 1 0 32.39,9.8Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22.02,21.72L23.44,17.98A0.6,0.6 0 0 1 24.56,17.98L25.98,21.72A0.6,0.6 0 0 0 26.51,22.11L30.5,22.3A0.6,0.6 0 0 1 30.85,23.36L27.73,25.87A0.6,0.6 0 0 0 27.53,26.49L28.58,30.35A0.6,0.6 0 0 1 27.67,31.01L24.33,28.82A0.6,0.6 0 0 0 23.67,28.82L20.33,31.01A0.6,0.6 0 0 1 19.42,30.35L20.47,26.49A0.6,0.6 0 0 0 20.27,25.87L17.15,23.36A0.6,0.6 0 0 1 17.5,22.3L21.49,22.11A0.6,0.6 0 0 0 22.02,21.72Z"/>
+    <path class="shade" d="M26,-20H70V70H26Z"/>
+  </g>
+</g>
+</svg>

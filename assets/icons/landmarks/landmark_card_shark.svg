@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Grand Salon</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M24,4V10" stroke-width="2"/>
+  <g class="piece ink">
+    <path class="body" d="M24,9.5H24A2.5,2.5 0 0 1 26.5,12V25A2.5,2.5 0 0 1 24,27.5H24A2.5,2.5 0 0 1 21.5,25V12A2.5,2.5 0 0 1 24,9.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M6,19C6,28 13.5,33 24,33C34.5,33 42,28 42,19H37C37,24.5 31.5,28 24,28C16.5,28 11,24.5 11,19Z"/>
+    <path class="shade" d="M-20,30H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M7.5,12H9.5A1,1 0 0 1 10.5,13V17.5A1,1 0 0 1 9.5,18.5H7.5A1,1 0 0 1 6.5,17.5V13A1,1 0 0 1 7.5,12ZM38.5,12H40.5A1,1 0 0 1 41.5,13V17.5A1,1 0 0 1 40.5,18.5H38.5A1,1 0 0 1 37.5,17.5V13A1,1 0 0 1 38.5,12Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M8.5,10.5C6.7,8.5 7.5,6.5 8.5,4.5C9.5,6.5 10.3,8.5 8.5,10.5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M39.5,10.5C37.7,8.5 38.5,6.5 39.5,4.5C40.5,6.5 41.3,8.5 39.5,10.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,35.5C26,38 26.5,39.5 26.5,40.5C26.5,42 25.4,43 24,43C22.6,43 21.5,42 21.5,40.5C21.5,39.5 22,38 24,35.5Z"/>
+  </g>
+</g>
+</svg>

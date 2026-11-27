@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Lost Property, After Hours</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M13,7H35A6,6 0 0 1 41,13V35A6,6 0 0 1 35,41H13A6,6 0 0 1 7,35V13A6,6 0 0 1 13,7Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="glint" d="M11.5,20V14.5C11.5,13 12.8,11.5 14.5,11.5H20"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M12.8,16A3.2,3.2 0 1 0 19.2,16A3.2,3.2 0 1 0 12.8,16ZM28.8,16A3.2,3.2 0 1 0 35.2,16A3.2,3.2 0 1 0 28.8,16ZM20.8,24A3.2,3.2 0 1 0 27.2,24A3.2,3.2 0 1 0 20.8,24ZM12.8,32A3.2,3.2 0 1 0 19.2,32A3.2,3.2 0 1 0 12.8,32ZM28.8,32A3.2,3.2 0 1 0 35.2,32A3.2,3.2 0 1 0 28.8,32Z"/>
+  </g>
+</g>
+</svg>

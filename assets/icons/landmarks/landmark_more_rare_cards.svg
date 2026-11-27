@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Shuffle Room</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M13.89,39.45L3.37,31.81A1.5,1.5 0 0 1 3.04,29.72L7.74,23.24A1.5,1.5 0 0 1 9.84,22.91L20.36,30.55A1.5,1.5 0 0 1 20.69,32.65L15.99,39.12A1.5,1.5 0 0 1 13.89,39.45Z"/>
+  </g>
+  <g class="piece tint" data-shade="false">
+    <path class="body" d="M14.55,36.36L6.91,25.84A1.5,1.5 0 0 1 7.24,23.74L13.72,19.04A1.5,1.5 0 0 1 15.81,19.37L23.45,29.89A1.5,1.5 0 0 1 23.12,31.99L16.65,36.69A1.5,1.5 0 0 1 14.55,36.36Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M16.14,33.62L12.13,21.25A1.5,1.5 0 0 1 13.09,19.36L20.7,16.89A1.5,1.5 0 0 1 22.59,17.85L26.6,30.22A1.5,1.5 0 0 1 25.64,32.11L18.03,34.58A1.5,1.5 0 0 1 16.14,33.62Z"/>
+  </g>
+  <g class="piece tint" data-shade="false">
+    <path class="body" d="M18.5,31.5L18.5,18.5A1.5,1.5 0 0 1 20,17L28,17A1.5,1.5 0 0 1 29.5,18.5L29.5,31.5A1.5,1.5 0 0 1 28,33L20,33A1.5,1.5 0 0 1 18.5,31.5Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M21.4,30.22L25.41,17.85A1.5,1.5 0 0 1 27.3,16.89L34.91,19.36A1.5,1.5 0 0 1 35.87,21.25L31.86,33.62A1.5,1.5 0 0 1 29.97,34.58L22.36,32.11A1.5,1.5 0 0 1 21.4,30.22Z"/>
+  </g>
+  <g class="piece tint" data-shade="false">
+    <path class="body" d="M24.55,29.89L32.19,19.37A1.5,1.5 0 0 1 34.28,19.04L40.76,23.74A1.5,1.5 0 0 1 41.09,25.84L33.45,36.36A1.5,1.5 0 0 1 31.35,36.69L24.88,31.99A1.5,1.5 0 0 1 24.55,29.89Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M27.64,30.55L38.16,22.91A1.5,1.5 0 0 1 40.26,23.24L44.96,29.72A1.5,1.5 0 0 1 44.63,31.81L34.11,39.45A1.5,1.5 0 0 1 32.01,39.12L27.31,32.65A1.5,1.5 0 0 1 27.64,30.55Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M38.56,28.42C38.46,30.72 38.29,32.33 37.41,32.96C36.64,33.53 35.73,33.3 35.2,32.57C34.88,32.13 34.83,31.65 35.03,31.21L34.06,32.43L33.36,31.46L34.82,30.92C34.34,30.97 33.89,30.77 33.58,30.34C33.05,29.61 33.11,28.67 33.89,28.11C34.76,27.47 36.34,27.81 38.56,28.42Z"/>
+  </g>
+</g>
+</svg>

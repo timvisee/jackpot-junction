@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Records Office</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M12.5,4H35.5A2.5,2.5 0 0 1 38,6.5V39.5A2.5,2.5 0 0 1 35.5,42H12.5A2.5,2.5 0 0 1 10,39.5V6.5A2.5,2.5 0 0 1 12.5,4Z"/>
+    <path class="shade" d="M33,-20H70V70H33Z"/>
+    <path class="cut" d="M9,16.5H39" stroke-width="1.5"/>
+    <path class="cut" d="M9,29.5H39" stroke-width="1.5"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M21,9H27A1.5,1.5 0 0 1 28.5,10.5V10.5A1.5,1.5 0 0 1 27,12H21A1.5,1.5 0 0 1 19.5,10.5V10.5A1.5,1.5 0 0 1 21,9Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M21,22H27A1.5,1.5 0 0 1 28.5,23.5V23.5A1.5,1.5 0 0 1 27,25H21A1.5,1.5 0 0 1 19.5,23.5V23.5A1.5,1.5 0 0 1 21,22Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M21,35H27A1.5,1.5 0 0 1 28.5,36.5V36.5A1.5,1.5 0 0 1 27,38H21A1.5,1.5 0 0 1 19.5,36.5V36.5A1.5,1.5 0 0 1 21,35Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13,42H16A1,1 0 0 1 17,43V43A1,1 0 0 1 16,44H13A1,1 0 0 1 12,43V43A1,1 0 0 1 13,42ZM32,42H35A1,1 0 0 1 36,43V43A1,1 0 0 1 35,44H32A1,1 0 0 1 31,43V43A1,1 0 0 1 32,42Z"/>
+  </g>
+</g>
+</svg>

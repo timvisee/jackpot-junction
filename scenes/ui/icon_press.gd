@@ -1,11 +1,11 @@
 class_name IconPress
 extends RefCounted
 ## Prints the pictures of GAME.md 8.3a: every joker's, power-up's and achievement's icon, the
-## table's cards, the kinds of game, the ways to drive, the dress and the emotes are SVG files in
-## assets/icons, drawn on a 48-unit grid with what each shape is written in its class, and printed
-## here the way the house prints: in the ink it is handed, its tint, cream for whatever is light,
-## and the shadow side as a halftone screen, at the size it is shown. Each picture is rasterized
-## once for an ink and a size and kept.
+## table's cards, the kinds of game, the ways to drive, the dress, the emotes and the loyalty
+## program's landmarks are SVG files in assets/icons, drawn on a 48-unit grid with what each shape
+## is written in its class, and printed here the way the house prints: in the ink it is handed, its
+## tint, cream for whatever is light, and the shadow side as a halftone screen, at the size it is
+## shown. Each picture is rasterized once for an ink and a size and kept.
 ##
 ## The files are plain SVG and open in any editor or browser. A [code]piece[/code] group of
 ## [code]ink[/code], [code]tint[/code], [code]cream[/code] or [code]dark[/code] (the black of a
@@ -37,6 +37,7 @@ const FOLDERS: Array[String] = [
 	"res://assets/icons/drive/",
 	"res://assets/icons/dress/",
 	"res://assets/icons/emotes/",
+	"res://assets/icons/landmarks/",
 ]
 ## The grid the drawings are made on, and the widths every one of them shares, in its units: the
 ## gap a piece cuts round itself, a glint, and the rim of shadow along every inked piece.

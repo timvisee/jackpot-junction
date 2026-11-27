@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Slip Road</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M13,44C13,33 18,27 28,22" stroke-width="6" stroke-linecap="butt"/>
+  <g class="piece ink">
+    <path class="body" d="M33,44L27,44A1,1 0 0 1 26,43L26,16L21.74,16A0.6,0.6 0 0 1 21.27,15.03L30,4L38.73,15.03A0.6,0.6 0 0 1 38.26,16L34,16L34,43A1,1 0 0 1 33,44Z"/>
+    <path class="shade" d="M31,-20H70V70H31Z"/>
+  </g>
+</g>
+</svg>

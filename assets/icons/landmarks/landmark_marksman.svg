@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>The Firing Range</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M4,24A20,20 0 1 0 44,24A20,20 0 1 0 4,24ZM8.5,24A15.5,15.5 0 1 0 39.5,24A15.5,15.5 0 1 0 8.5,24Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM0.5,21A20.5,20.5 0 1 0 41.5,21A20.5,20.5 0 1 0 0.5,21Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M11.5,24A12.5,12.5 0 1 0 36.5,24A12.5,12.5 0 1 0 11.5,24ZM16,24A8,8 0 1 0 32,24A8,8 0 1 0 16,24Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M19,24A5,5 0 1 0 29,24A5,5 0 1 0 19,24Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM17,22.5A5.5,5.5 0 1 0 28,22.5A5.5,5.5 0 1 0 17,22.5Z" fill-rule="evenodd"/>
+  </g>
+</g>
+</svg>

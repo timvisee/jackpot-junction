@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Milestone 2.5</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M10,40V18C10,10 16,5 24,5C32,5 38,10 38,18V40Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+    <path class="cut" d="M10,15.5H38" stroke-width="1.5"/>
+    <path class="cut" d="M16,24H32" stroke-width="2.5"/>
+    <path class="cut" d="M18.5,30.5H29.5" stroke-width="2.5"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M8,39.5H40A2,2 0 0 1 42,41.5V42A2,2 0 0 1 40,44H8A2,2 0 0 1 6,42V41.5A2,2 0 0 1 8,39.5Z"/>
+  </g>
+</g>
+</svg>

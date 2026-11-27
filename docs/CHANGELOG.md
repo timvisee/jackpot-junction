@@ -63,6 +63,8 @@ below, and hands the notes to the release workflow.
   chip in the chip's own color with a halftone shadow side, and on the House's pins in gold.
 - **Redrawn table cards, buttons and emotes.** The table's cards, the game mode and drive pictures,
   the dress and the emotes are redrawn in the same house print, each table card in its own ink.
+- **Redrawn loyalty landmarks.** Every landmark on the loyalty map is redrawn in the same house
+  print, in its sign's gold, white or pencil.
 
 ### Fixed
 

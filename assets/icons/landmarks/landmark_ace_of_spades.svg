@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Flush Row</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M4,40L4,24A2,2 0 0 1 6,22L16,22A2,2 0 0 1 18,24L18,40A2,2 0 0 1 16,42L6,42A2,2 0 0 1 4,40Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M10,35.5L10,19.5A2,2 0 0 1 12,17.5L22,17.5A2,2 0 0 1 24,19.5L24,35.5A2,2 0 0 1 22,37.5L12,37.5A2,2 0 0 1 10,35.5Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M16,31L16,15A2,2 0 0 1 18,13L28,13A2,2 0 0 1 30,15L30,31A2,2 0 0 1 28,33L18,33A2,2 0 0 1 16,31Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M22,26.5L22,10.5A2,2 0 0 1 24,8.5L34,8.5A2,2 0 0 1 36,10.5L36,26.5A2,2 0 0 1 34,28.5L24,28.5A2,2 0 0 1 22,26.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M28,22L28,6A2,2 0 0 1 30,4L40,4A2,2 0 0 1 42,6L42,22A2,2 0 0 1 40,24L30,24A2,2 0 0 1 28,22Z"/>
+    <path class="shade" d="M38,-20H70V70H38Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M35,10C37.4,11.92 39,13.36 39,14.8C39,16.08 38.04,16.88 36.84,16.88C36.12,16.88 35.56,16.56 35.24,16L35.8,18L34.2,18L34.76,16C34.44,16.56 33.88,16.88 33.16,16.88C31.96,16.88 31,16.08 31,14.8C31,13.36 32.6,11.92 35,10Z"/>
+  </g>
+</g>
+</svg>

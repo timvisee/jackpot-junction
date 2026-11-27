@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>house money</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M4.5,24A19.5,19.5 0 1 0 43.5,24A19.5,19.5 0 1 0 4.5,24Z"/>
+    <path class="cut" d="M12.3,24A11.7,11.7 0 1 0 35.7,24A11.7,11.7 0 1 0 12.3,24Z" stroke-width="1.2"/>
+    <path class="cut" d="M21.66,9.56L21.66,6.85A0.4,0.4 0 0 1 22.06,6.45L25.94,6.45A0.4,0.4 0 0 1 26.34,6.85L26.34,9.56A0.4,0.4 0 0 1 25.94,9.96L22.06,9.96A0.4,0.4 0 0 1 21.66,9.56Z"/>
+    <path class="cut" d="M35.34,14.75L37.68,13.4A0.4,0.4 0 0 1 38.23,13.54L40.17,16.91A0.4,0.4 0 0 1 40.02,17.45L37.68,18.81A0.4,0.4 0 0 1 37.13,18.66L35.19,15.3A0.4,0.4 0 0 1 35.34,14.75Z"/>
+    <path class="cut" d="M37.68,29.19L40.02,30.55A0.4,0.4 0 0 1 40.17,31.09L38.23,34.46A0.4,0.4 0 0 1 37.68,34.6L35.34,33.25A0.4,0.4 0 0 1 35.19,32.7L37.13,29.34A0.4,0.4 0 0 1 37.68,29.19Z"/>
+    <path class="cut" d="M26.34,38.44L26.34,41.15A0.4,0.4 0 0 1 25.94,41.55L22.06,41.55A0.4,0.4 0 0 1 21.66,41.15L21.66,38.44A0.4,0.4 0 0 1 22.06,38.04L25.94,38.04A0.4,0.4 0 0 1 26.34,38.44Z"/>
+    <path class="cut" d="M12.66,33.25L10.32,34.6A0.4,0.4 0 0 1 9.77,34.46L7.83,31.09A0.4,0.4 0 0 1 7.98,30.55L10.32,29.19A0.4,0.4 0 0 1 10.87,29.34L12.81,32.7A0.4,0.4 0 0 1 12.66,33.25Z"/>
+    <path class="cut" d="M10.32,18.81L7.98,17.45A0.4,0.4 0 0 1 7.83,16.91L9.77,13.54A0.4,0.4 0 0 1 10.32,13.4L12.66,14.75A0.4,0.4 0 0 1 12.81,15.3L10.87,18.66A0.4,0.4 0 0 1 10.32,18.81Z"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M17.17,21.35L23.35,16.06A1,1 0 0 1 24.65,16.06L30.83,21.35A0.5,0.5 0 0 1 31,21.73L31,29.5A1,1 0 0 1 30,30.5L18,30.5A1,1 0 0 1 17,29.5L17,21.73A0.5,0.5 0 0 1 17.17,21.35Z"/>
+  </g>
+</g>
+</svg>
