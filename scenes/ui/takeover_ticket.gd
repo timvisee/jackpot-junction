@@ -69,11 +69,13 @@ func show_for(from: String, banked: int, coins: int, jokers: int) -> void:
 
 ## The ticket's title: whose kart it was.
 static func words(from: String) -> String:
-	return "You took over %s's kart" % from if not from.is_empty() else "You took over a kart"
+	if from.is_empty():
+		return Lang.t("You took over a kart")
+	return Lang.t("You took over %s's kart") % from
 
 
 ## The line under it: what came with the kart.
 static func came_with(banked: int, coins: int, jokers: int) -> String:
-	var parts: PackedStringArray = ["%d banked" % banked, "%d in the pot" % coins]
-	parts.append("%d joker%s" % [jokers, "" if jokers == 1 else "s"])
+	var parts: PackedStringArray = [Lang.t("%d banked") % banked, Lang.t("%d in the pot") % coins]
+	parts.append(Lang.tn("%d joker", "%d jokers", jokers) % jokers)
 	return " · ".join(parts)

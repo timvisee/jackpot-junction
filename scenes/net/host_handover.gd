@@ -43,7 +43,8 @@ const ASK_EVERY := 1.0
 ## off Steam, the new order, in seconds, for it to reach them before the connection goes, which
 ## drops whatever has not.
 const TOLD_FOR := 1.0
-## Why the game was given up on when it was this machine's connection that went, not the host.
+## Why the game was given up on when it was this machine's connection that went, not the host,
+## shown through tr().
 const LOST := "The connection to the game was lost"
 ## The scenes a game is played in, a room or a map, stopped where they stand under the dialog while
 ## the game is handed over: everything in them holds the session that has gone.
@@ -51,7 +52,8 @@ const ROOMS: Array[String] = [
 	"res://scenes/waiting/waiting_room.tscn", "res://scenes/match/match_scene.tscn"
 ]
 ## What the new host is told, see [method _now_the_host]; how long it is shown once the room is
-## up, and how long it fades for; and how long the room is waited for at most, in seconds.
+## up, and how long it fades for; and how long the room is waited for at most, in seconds. Its
+## words shown through tr().
 const NOW_THE_HOST := "You are now the host"
 const SHOWN_FOR := 1.5
 const FADE_FOR := 0.4
@@ -127,7 +129,7 @@ func _ready() -> void:
 	dialog = FormDialog.add_to(screen, "", "")
 	dialog.name = "Handover"
 	bar = dialog.add_bar()
-	leave_button = dialog.add_button("Leave")
+	leave_button = dialog.add_button(tr("Leave"))
 	leave_button.pressed.connect(give_up)
 	banner = _banner()
 	screen.add_child(banner)
@@ -149,7 +151,7 @@ func _banner() -> Control:
 	column.add_theme_constant_override("separation", 12)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pane.add_child(column)
-	var title := MenuTheme.title(NOW_THE_HOST, 44)
+	var title := MenuTheme.title(tr(NOW_THE_HOST), 44)
 	title.name = "Title"
 	column.add_child(title)
 	return middle
@@ -185,7 +187,7 @@ func take(session: NetSession) -> bool:
 	_watching = session.watching
 	# Taken before the session closes and the room with it, in case this machine hosts next.
 	_resume = MatchResume.capture(session)
-	_open("%s left" % _left_name)
+	_open(tr("%s left") % _left_name)
 	Net.close.call_deferred()
 	return true
 
@@ -222,12 +224,13 @@ func _take_line(session: NetSession, config: MatchConfig) -> void:
 	_probe = null
 
 
-## What the host of [param session]'s game was called, as everybody else was told, or "The host".
+## What the host of [param session]'s game was called, as everybody else was told, or "The host"
+## in the language spoken.
 static func _host_name_in(session: NetSession) -> String:
 	for guest: Dictionary in session.host_controls.guests():
 		if bool(guest.get("host", false)) and not str(guest.get("name", "")).is_empty():
 			return str(guest["name"])
-	return "The host"
+	return Lang.t("The host")
 
 
 ## Hands the Steam game hosted here to the player at the account [param account], GAME.md 10.8:
@@ -246,7 +249,7 @@ func hand_to(account: int) -> void:
 	lobbies.hand_to(account)
 	lobbies.hosting = false
 	lobbies.handing_over = true
-	_open("Handing over")
+	_open(tr("Handing over"))
 	_close_soon()
 
 
@@ -267,11 +270,12 @@ func hand_down(line: Array, port: int, plan: String) -> void:
 	_asking_old = false
 	_watching = false
 	_resume = {}
-	_left_name = "You"
+	# This machine's own, see [method give_up].
+	_left_name = ""
 	_stage = 0
 	_stage_left = STAGE
 	_probe = null
-	_open("Handing over")
+	_open(tr("Handing over"))
 	_close_soon()
 
 
@@ -289,7 +293,7 @@ func _open(heading: String) -> void:
 	_stop_the_room()
 	_heading = heading
 	_waited = 0.0
-	dialog.set_title(_heading, "Migrating host...")
+	dialog.set_title(_heading, tr("Migrating host..."))
 	bar.value = 0.0
 	if _easing != null:
 		_easing.kill()
@@ -330,13 +334,13 @@ func _step_steam(delta: float) -> void:
 		return
 	var named := Store.steam.persona_of(owner)
 	if named.is_empty():
-		named = "the next host"
+		named = tr("the next host")
 	if owner == Store.steam.account:
 		var config := rehost_config(api, _lobby)
 		Store.steam.lobbies.take_over(config.lobby_who)
 		_host_it(config)
 		return
-	dialog.set_title(_heading, "Migrating host to %s..." % named)
+	dialog.set_title(_heading, tr("Migrating host to %s...") % named)
 	if str(api.call(&"getLobbyData", _lobby, SteamLobby.HOSTED_KEY)) == str(owner):
 		Store.steam.lobbies.host_account = owner
 		_follow(SteamJoins.join_config(_lobby, owner, named, _watching))
@@ -357,16 +361,16 @@ func _step_line(delta: float) -> void:
 		_ask_old_host()
 		return
 	if _stage >= _line.size():
-		give_up("Nobody could take the game on, so it is over.")
+		give_up(tr("Nobody could take the game on, so it is over."))
 		return
 	var next: Dictionary = _line[_stage]
 	if int(next.get("peer", 0)) == _me:
 		_host_it(line_config(_plan, _port))
 		return
 	var named := str(next.get("name", ""))
-	dialog.set_title(
-		_heading, "Migrating host to %s..." % (named if not named.is_empty() else "the next host")
-	)
+	if named.is_empty():
+		named = tr("the next host")
+	dialog.set_title(_heading, tr("Migrating host to %s...") % named)
 	_stage_left -= delta
 	_ask_left -= delta
 	if _probe == null or (_probe.failed and _ask_left <= 0.0):
@@ -390,7 +394,7 @@ func _ask_old_host() -> void:
 		_probe = HostProbe.new(_old_address, _old_port)
 	_probe.poll()
 	if _probe.reached:
-		give_up(LOST)
+		give_up(tr(LOST))
 	elif _probe.failed:
 		_asking_old = false
 		_probe = null
@@ -474,12 +478,14 @@ func _let_go() -> void:
 func give_up(why := "") -> void:
 	if _kind == Kind.NONE:
 		return
-	if why.is_empty():
-		why = "%s left, so the game is over." % _left_name
+	if why.is_empty() and _left_name.is_empty():
+		why = tr("You left, so the game is over.")
+	elif why.is_empty():
+		why = tr("%s left, so the game is over.") % _left_name
 	if _kind == Kind.STEAM and Store.on():
 		# The host still in the lobby: it was this machine's connection that went, not the host.
 		if Store.steam.lobbies.has_member(_lobby, _old_host):
-			why = LOST
+			why = tr(LOST)
 		Store.steam.lobbies.handing_over = false
 		Store.steam.lobbies.leave()
 	_done()

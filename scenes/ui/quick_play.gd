@@ -29,7 +29,7 @@ const STARTING_FOR := 2.0
 ## How long the bar takes to ease along while it looks, in seconds, and how far it goes.
 const LOOK_FOR := 3.0
 const LOOK_REACH := 0.9
-## What the dialog says while it looks, and once it starts a game.
+## What the dialog says while it looks, and once it starts a game, shown through tr().
 const LOOKING := "Finding a game near you..."
 const STARTING := "No games near you yet. Starting one with bots: people join as they come."
 
@@ -58,10 +58,10 @@ static func add_to(screen: Control) -> QuickPlay:
 	var made := QuickPlay.new()
 	made.name = "QuickPlay"
 	screen.add_child(made)
-	made.dialog = FormDialog.add_to(screen, "Quick Play", LOOKING)
+	made.dialog = FormDialog.add_to(screen, Lang.t("Quick Play"), Lang.t(LOOKING))
 	made.dialog.name = "QuickPlayDialog"
 	made.bar = made.dialog.add_bar()
-	made.cancel_button = made.dialog.add_button("Cancel")
+	made.cancel_button = made.dialog.add_button(Lang.t("Cancel"))
 	made.cancel_button.pressed.connect(made.stop)
 	return made
 
@@ -75,7 +75,7 @@ func start() -> void:
 	if not lobbies.entered.is_connected(_on_entered):
 		lobbies.entered.connect(_on_entered)
 		lobbies.failed.connect(_on_failed)
-	dialog.set_title("Quick Play", LOOKING)
+	dialog.set_title(tr("Quick Play"), tr(LOOKING))
 	bar.value = 0.0
 	if _easing != null:
 		_easing.kill()
@@ -170,7 +170,7 @@ func _on_failed(_why: String) -> void:
 ## Nothing to join: the dialog says a game is being started, and a moment later it is.
 func _start_one() -> void:
 	step = Step.STARTING
-	dialog.set_title("Quick Play", STARTING)
+	dialog.set_title(tr("Quick Play"), tr(STARTING))
 	if _easing != null:
 		_easing.kill()
 	bar.value = 1.0

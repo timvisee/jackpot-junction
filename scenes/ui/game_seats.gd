@@ -90,4 +90,4 @@ func _draw() -> void:
 		return
 	var font := Type.TEXT
 	var at := Vector2(x + 6.0, middle + Type.SMALL * 0.35)
-	draw_string(font, at, "%d ms" % ping, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.SMALL, NUMBER_INK)
+	draw_string(font, at, tr("%d ms") % ping, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.SMALL, NUMBER_INK)

@@ -92,7 +92,7 @@ them the host's say."""
 
 func _process(_delta: float) -> void:
 	if button != null:
-		button.text = "Manage players" if _says() else "Players"
+		button.text = tr("Manage players") if _says() else tr("Players")
 	if visible:
 		_redraw()
 
@@ -261,7 +261,7 @@ func _row(guest: Dictionary) -> SeatCard:
 ## Mute, hiding [param guest]'s emotes on this screen, or Unmute once it has, GAME.md 10.8.
 func _mute_button(guest: Dictionary) -> Button:
 	var muted := Muted.is_muted(guest)
-	var mute := MenuTheme.button("Unmute" if muted else "Mute", Type.BODY)
+	var mute := MenuTheme.button(tr("Unmute") if muted else tr("Mute"), Type.BODY)
 	mute.name = "Mute"
 	mute.custom_minimum_size = MUTE_SIZE
 	mute.pressed.connect(func() -> void: Muted.mute(guest, not Muted.is_muted(guest)))
@@ -294,9 +294,9 @@ static func hand_words(named: String) -> Array[String]:
 ## it from then on, and the host here plays on in it.
 static func hand_on_words(named: String) -> Array[String]:
 	return [
-		"Make %s the host?" % named,
-		"%s hosts the game from then on, and you play on in it." % named,
-		"Make host"
+		Lang.t("Make %s the host?") % named,
+		Lang.t("%s hosts the game from then on, and you play on in it.") % named,
+		Lang.t("Make host")
 	]
 
 
@@ -317,10 +317,10 @@ static func with_steam_name(says: String, steam_name: String) -> String:
 ## it came over the wire, see [LicenseWire], over everything, GAME.md 10.8; the cursor back on it
 ## once it is put away.
 func _license_button(license: Dictionary, named: String) -> Button:
-	var button := MenuTheme.button("License", Type.BODY)
+	var button := MenuTheme.button(tr("License"), Type.BODY)
 	button.name = "License"
 	button.custom_minimum_size = LICENSE_SIZE
-	ScreenReader.label(button, "%s's license" % named)
+	ScreenReader.label(button, tr("%s's license") % named)
 	button.pressed.connect(
 		func() -> void:
 			var view := LicenseView.open_theirs(self, license, Game.last_input_keyboard)

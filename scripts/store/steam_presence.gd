@@ -149,14 +149,15 @@ static func lobby_says(scene: Node, session: NetSession, config: MatchConfig) ->
 
 
 ## How the game [param config] sets up is played, in a few words for the lists of games: "Grand
-## Prix", "Single map, 5 min", with "Teams" after it for a game of teams.
+## Prix", "Single map, 5 min", with "Teams" after it for a game of teams. In English, since it goes
+## to other machines, which say it in their own language, see [method GameList.mode_words].
 static func mode_of(config: MatchConfig) -> String:
 	if config == null:
 		return ""
-	var mode := "Final Hand" if config.final_hand else "Grand Prix"
+	var mode := Lang.later("Final Hand") if config.final_hand else Lang.later("Grand Prix")
 	if not config.final_hand and config.rounds <= 0:
-		mode = "Single map, %d min" % roundi(config.duration / 60.0)
-	return mode + (" · Teams" if config.teams > 0 else "")
+		mode = Lang.later("Single map, %d min") % roundi(config.duration / 60.0)
+	return mode + (" · " + Lang.later("Teams") if config.teams > 0 else "")
 
 
 ## Steam's keys for [param place], GAME.md 10.8's table: the token and what fills it in.

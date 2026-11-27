@@ -556,7 +556,7 @@ func _license_button(slot: PlayerSlot, license: Dictionary, size: int) -> Button
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	button.custom_minimum_size = Vector2(size * 1.1, size * 0.8)
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	button.tooltip_text = "%s's license" % slot.display_name()
+	button.tooltip_text = tr("%s's license") % slot.display_name()
 	ScreenReader.label(button, button.tooltip_text)
 	button.draw.connect(
 		func() -> void:

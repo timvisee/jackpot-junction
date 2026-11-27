@@ -13,12 +13,13 @@ extends VBoxContainer
 ## How often friends' games are read again, in seconds.
 const FRIENDS_EVERY := 2.0
 ## What the box's link says, at the end of the rows and alone in an empty box: Quick Play's way,
-## GAME.md 10.8.
+## GAME.md 10.8; shown through tr(), as the rest of these words are.
 const START_ONE := "Start a game with bots: anybody can join it"
-## What the line over the box says, and what it starts with once enough are playing.
+## What the line over the box says, and what it says once enough are playing, shown through tr().
 const LINE := "Join anybody's game on Steam, or host one."
-const PLAYING := "%s playing now. "
-## What each way of being open to players is called on the button that picks one.
+const PLAYING := "%s playing now. Join anybody's game on Steam, or host one."
+## What each way of being open to players is called on the button that picks one, shown through
+## tr().
 const WHO_WORDS: Array[String] = ["Anyone can join", "Friends can join", "Invite only"]
 
 ## Quick Play, its button pinned at the top of the box, and what it does, see [QuickPlay], given
@@ -45,32 +46,33 @@ func _init() -> void:
 	add_theme_constant_override("separation", 16)
 	# A line over the box as the servers' page has, so the two are one height and turning between
 	# them moves nothing.
-	line = ListBox.fit(MenuTheme.subtitle(LINE))
+	line = ListBox.fit(MenuTheme.subtitle(tr(LINE)))
 	line.name = "Line"
 	add_child(line)
 	games = GameList.new()
 	games.chosen.connect(_join)
-	box = ListBox.of("Steam games", games, START_ONE)
+	box = ListBox.of(tr("Steam games"), games, tr(START_ONE))
 	box.link.pressed.connect(quick_play)
 	add_child(box)
 	# The way on from here, in foil, GAME.md 8.1a: first in the box, over the games, so the box
 	# stands where every page's does and turning between them moves nothing.
-	quick_button = MenuTheme.primary(MenuTheme.button("Quick Play", Type.BODY))
+	quick_button = MenuTheme.primary(MenuTheme.button(tr("Quick Play"), Type.BODY))
 	quick_button.name = "QuickPlay"
 	quick_button.custom_minimum_size = Vector2(0.0, MenuTheme.button_size().y)
 	quick_button.pressed.connect(quick_play)
 	box.pin(quick_button)
 	var ways := ListBox.button_row()
 	add_child(ways)
-	host_button = ListBox.add_row_button(ways, "Host a game")
+	host_button = ListBox.add_row_button(ways, tr("Host a game"))
 	host_button.name = "HostAGame"
 	host_button.pressed.connect(host)
 	# Who may join a game hosted from here, as Lobby settings has it too, GAME.md 10.8.
-	who_button = MenuTheme.option(WHO_WORDS, Game.settings.lobby_who)
+	var who_words := WHO_WORDS.map(func(who: String) -> String: return tr(who))
+	who_button = MenuTheme.option(who_words, Game.settings.lobby_who)
 	who_button.name = "WhoCanJoin"
 	who_button.custom_minimum_size = Vector2(0.0, MenuTheme.button_size().y)
 	who_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	ScreenReader.label(who_button, "Who can join")
+	ScreenReader.label(who_button, tr("Who can join"))
 	who_button.item_selected.connect(
 		func(who: int) -> void:
 			Game.settings.lobby_who = who
@@ -82,7 +84,9 @@ func _init() -> void:
 		quick_button.disabled = true
 		host_button.disabled = true
 		who_button.disabled = true
-		games.add_child(ListBox.fit(MenuTheme.subtitle(Store.missing, Type.BODY)))
+		# Why, kept in English from before there was a language to say it in, see [member
+		# Store.missing].
+		games.add_child(ListBox.fit(MenuTheme.subtitle(tr(Store.missing), Type.BODY)))
 
 
 func _process(delta: float) -> void:
@@ -115,7 +119,7 @@ func _on_listed(found: Array[Dictionary]) -> void:
 
 
 func _on_counted(players: int) -> void:
-	line.text = ((PLAYING % players) if players >= SteamPublic.COUNT_FROM else "") + LINE
+	line.text = tr(PLAYING) % players if players >= SteamPublic.COUNT_FROM else tr(LINE)
 
 
 ## Friends' games and the public ones on the list together, see [method merged].

@@ -61,7 +61,7 @@ func _ready() -> void:
 				session.door.password = ""
 			var error := session.host_steam() if config.steam else session.host(config.port)
 			if error != OK:
-				_fail("Could not host the game: %s" % error_string(error))
+				_fail(Lang.t("Could not host the game: %s") % error_string(error))
 			else:
 				if config.steam:
 					Store.steam.lobbies.hosted_here()

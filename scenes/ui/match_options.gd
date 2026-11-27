@@ -34,8 +34,9 @@ const TARGETS: Array[int] = [0, 1500, 2000, 3000, 5000]
 ## seats for beside one player, see [method fit_seats].
 const BOTS: Array[int] = [0, 1, 2, 3, 4, 5, 6, 7]
 ## The Bots row's last choice, after the numbers: bots making up four karts with the people,
-## GAME.md 10.8.
+## GAME.md 10.8, shown through tr().
 const MAKE_UP_WORDS := "Make up 4"
+## The difficulties and item sets, as the settings keep them.
 const DIFFICULTIES: Array[String] = ["easy", "normal", "hard"]
 const ITEM_SETS: Array[String] = ["first", "all"]
 ## Index order of the own-bullets option: off first, so it is the default.
@@ -478,7 +479,7 @@ func fit_seats(seats: int) -> void:
 		bots_option.clear()
 		for count: int in BOTS.slice(0, most + 1):
 			bots_option.add_item(str(count))
-		bots_option.add_item(MAKE_UP_WORDS)
+		bots_option.add_item(tr(MAKE_UP_WORDS))
 	_bots_shown = _bots_wanted if _bots_wanted < 0 else mini(_bots_wanted, most)
 	bots_option.select(_bots_index(_bots_shown))
 	# Whether a small map is too small is a question only a room of more than four asks.
@@ -529,7 +530,7 @@ func _build(column: Container, settings: Settings) -> void:
 	_bots_shown = _bots_wanted
 	var bot_choices: Array = []
 	bot_choices.assign(BOTS)
-	bot_choices.append(MAKE_UP_WORDS)
+	bot_choices.append(tr(MAKE_UP_WORDS))
 	bots_option = MenuTheme.option(bot_choices, _bots_wanted)
 	if _bots_wanted < 0:
 		bots_option.select(BOTS.size())

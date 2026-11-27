@@ -2199,6 +2199,10 @@ msgid "COPIED"
 msgstr ""
 
 #: scenes/match/match_scene.gd
+msgid "Could not host the game: %s"
+msgstr ""
+
+#: scenes/match/match_scene.gd
 msgid "Could not host on port {port}: {error}"
 msgstr ""
 
@@ -2214,7 +2218,7 @@ msgstr ""
 msgid "The host disconnected"
 msgstr ""
 
-#: scenes/match/match_scene.gd scenes/waiting/waiting_room.gd
+#: scenes/match/match_scene.gd scenes/net/host_handover.gd scenes/waiting/waiting_room.gd
 msgid "The connection to the game was lost"
 msgstr ""
 
@@ -2263,10 +2267,6 @@ msgid "You leave the room, the others play on without you, and the host's say pa
 msgstr ""
 
 #: scenes/match/pause_menu.gd
-msgid "Everybody who has joined will be disconnected."
-msgstr ""
-
-#: scenes/match/pause_menu.gd
 msgid "Resume"
 msgstr ""
 
@@ -2282,7 +2282,7 @@ msgstr ""
 msgid "Invite friends"
 msgstr ""
 
-#: scenes/match/pause_menu.gd
+#: scenes/match/pause_menu.gd scenes/ui/manage_players.gd
 msgid "Manage players"
 msgstr ""
 
@@ -2318,7 +2318,7 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: scenes/match/pause_menu.gd scenes/ui/confirm_pane.gd scripts/store/steam_joins.gd
+#: scenes/match/pause_menu.gd scenes/net/host_controls.gd scenes/ui/confirm_pane.gd scripts/store/steam_joins.gd
 msgid "Stay"
 msgstr ""
 
@@ -2342,23 +2342,19 @@ msgstr ""
 msgid "Back to the lobby?"
 msgstr ""
 
-#: scenes/match/pause_menu.gd
-msgid "Disconnect everybody"
-msgstr ""
-
-#: scenes/match/pause_menu.gd scenes/ui/drive_switches.gd
-msgid "Leave"
-msgstr ""
-
-#: scenes/match/pause_menu.gd
+#: scenes/match/pause_menu.gd scenes/net/host_controls.gd
 msgid "Back to the title?"
+msgstr ""
+
+#: scenes/match/pause_menu.gd scenes/net/host_controls.gd scenes/net/host_handover.gd scenes/ui/drive_switches.gd
+msgid "Leave"
 msgstr ""
 
 #: scenes/match/pause_menu.gd scenes/ui/catalog_dialog.gd scenes/ui/license_tab.gd scenes/ui/title.gd
 msgid "Catalog"
 msgstr ""
 
-#: scenes/match/pause_menu.gd scenes/match/timeline_record.gd scenes/ui/game_mode_picker.gd scenes/ui/results_screen.gd
+#: scenes/match/pause_menu.gd scenes/match/timeline_record.gd scenes/ui/game_mode_picker.gd scenes/ui/results_screen.gd scripts/store/steam_presence.gd
 msgid "Grand Prix"
 msgstr ""
 
@@ -2766,7 +2762,7 @@ msgstr ""
 msgid "Showdown"
 msgstr ""
 
-#: scenes/match/timeline_record.gd
+#: scenes/match/timeline_record.gd scripts/store/steam_presence.gd
 msgid "Final Hand"
 msgstr ""
 
@@ -2790,7 +2786,7 @@ msgstr ""
 msgid "Single map"
 msgstr ""
 
-#: scenes/match/timeline_record.gd scenes/ui/match_options.gd
+#: scenes/match/timeline_record.gd scenes/ui/match_options.gd scripts/store/steam_presence.gd
 msgid "Teams"
 msgstr ""
 
@@ -2957,6 +2953,62 @@ msgstr ""
 msgid "The host removed you from the game"
 msgstr ""
 
+#: scenes/net/host_controls.gd
+msgid "%s hosts it after you."
+msgstr ""
+
+#: scenes/net/host_controls.gd
+msgid "Leave the game?"
+msgstr ""
+
+#: scenes/net/host_controls.gd
+msgid "Everybody who has joined will be disconnected."
+msgstr ""
+
+#: scenes/net/host_controls.gd
+msgid "Disconnect everybody"
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "You are now the host"
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "%s left"
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "The host"
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "Handing over"
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "Migrating host..."
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "the next host"
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "Migrating host to %s..."
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "Nobody could take the game on, so it is over."
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "You left, so the game is over."
+msgstr ""
+
+#: scenes/net/host_handover.gd
+msgid "%s left, so the game is over."
+msgstr ""
+
 #: scenes/net/net_conduct.gd
 msgid "%s was kicked: abnormal behavior detected"
 msgstr ""
@@ -2971,6 +3023,10 @@ msgstr ""
 
 #: scenes/net/net_door.gd
 msgid "This server has a password: join its games from Play Online"
+msgstr ""
+
+#: scenes/net/net_door.gd
+msgid "You can't join this game"
 msgstr ""
 
 #: scenes/net/net_door.gd
@@ -3090,7 +3146,7 @@ msgid "WK %s"
 msgstr ""
 
 #. A billboard of the House's: a headline, and a smaller line under it that finishes it.
-#: scenes/story/note_charts.gd scripts/story/story_lines.gd
+#: scenes/story/note_charts.gd scenes/tutorial/school/license_card.gd scripts/story/story_lines.gd
 msgid "AUTOMATED"
 msgstr ""
 
@@ -3529,6 +3585,28 @@ msgstr ""
 
 #: scenes/tutorial/school/license_card.gd scenes/tutorial/school/theory_text.gd
 msgid "The Examiner"
+msgstr ""
+
+#: scenes/tutorial/school/license_card.gd
+msgid "CLASS B"
+msgstr ""
+
+#: scenes/tutorial/school/license_card.gd
+msgid "B  ·  Bot"
+msgstr ""
+
+#: scenes/tutorial/school/license_card.gd
+msgid "NOT A PERSON  ·  NOT VALID AS ID  ·  DO NOT FEED"
+msgstr ""
+
+#: scenes/tutorial/school/license_card.gd
+msgid "WAIVED"
+msgstr ""
+
+#: scenes/tutorial/school/license_card.gd
+msgid ""
+"Valid for Class B karts only. Not transferable, not edible,\n"
+"not a coaster. Keep away from pits, turrets and plumbers."
 msgstr ""
 
 #: scenes/tutorial/school/license_card.gd
@@ -4443,6 +4521,14 @@ msgstr ""
 msgid "Reset"
 msgstr ""
 
+#: scenes/ui/benched_line.gd
+msgid "A bot drives your kart. Press any button to drive again."
+msgstr ""
+
+#: scenes/ui/benched_line.gd
+msgid "You take a seat on the next map."
+msgstr ""
+
 #: scenes/ui/blueprint_art.gd
 msgid "20 CM"
 msgstr ""
@@ -4724,6 +4810,10 @@ msgstr ""
 msgid "%d fps"
 msgstr ""
 
+#: scenes/ui/game_list.gd scripts/store/steam_presence.gd
+msgid "Single map, %d min"
+msgstr ""
+
 #. A game in a list of games, named after its host, who has no name.
 #: scenes/ui/game_list.gd
 msgid "Host's game"
@@ -4767,6 +4857,17 @@ msgstr ""
 msgid "{map}, map {leg} of {legs}"
 msgstr ""
 
+#. A tag after a game's name in a list of games: every seat in it is taken.
+#: scenes/ui/game_list.gd
+msgctxt "game"
+msgid "Full"
+msgstr ""
+
+#. A tag after a game's name in a list of games: a Steam friend is in it.
+#: scenes/ui/game_list.gd
+msgid "Friend"
+msgstr ""
+
 #: scenes/ui/game_list.gd
 msgid "Host: %s"
 msgstr ""
@@ -4781,6 +4882,23 @@ msgstr ""
 
 #: scenes/ui/game_list.gd
 msgid "Not open to watchers"
+msgstr ""
+
+#: scenes/ui/game_list.gd
+msgid "{people} of {most} player"
+msgid_plural "{people} of {most} players"
+msgstr[0] ""
+msgstr[1] ""
+
+#: scenes/ui/game_list.gd
+msgid "%d bot"
+msgid_plural "%d bots"
+msgstr[0] ""
+msgstr[1] ""
+
+#. Milliseconds there and back, small, beside a player's name on the HUD.
+#: scenes/ui/game_list.gd scenes/ui/game_seats.gd scenes/ui/lag_warning.gd
+msgid "%d ms"
 msgstr ""
 
 #: scenes/ui/game_mode_picker.gd
@@ -5100,11 +5218,6 @@ msgstr ""
 msgid "{killer}'s turret shot {victim}"
 msgstr ""
 
-#. Milliseconds there and back, small, beside a player's name on the HUD.
-#: scenes/ui/lag_warning.gd
-msgid "%d ms"
-msgstr ""
-
 #: scenes/ui/lan_page.gd
 msgid "Games on your network show up here by themselves. Host one, or join a host."
 msgstr ""
@@ -5113,7 +5226,7 @@ msgstr ""
 msgid "Games on your network"
 msgstr ""
 
-#: scenes/ui/lan_page.gd
+#: scenes/ui/lan_page.gd scenes/ui/steam_page.gd
 msgid "Host a game"
 msgstr ""
 
@@ -5137,7 +5250,7 @@ msgstr ""
 msgid "Join"
 msgstr ""
 
-#: scenes/ui/lan_page.gd scenes/ui/name_dialog.gd scenes/ui/play_online.gd scenes/ui/profiles_tab.gd scenes/ui/settings_screen.gd scenes/ui/steam_input_row.gd
+#: scenes/ui/lan_page.gd scenes/ui/name_dialog.gd scenes/ui/play_online.gd scenes/ui/profiles_tab.gd scenes/ui/quick_play.gd scenes/ui/settings_screen.gd scenes/ui/steam_input_row.gd
 msgid "Cancel"
 msgstr ""
 
@@ -5281,7 +5394,7 @@ msgstr ""
 msgid "See the Supporter Pack"
 msgstr ""
 
-#: scenes/ui/license_tab.gd
+#: scenes/ui/license_tab.gd scenes/ui/manage_players.gd
 msgid "License"
 msgstr ""
 
@@ -5383,8 +5496,8 @@ msgstr ""
 msgid "Watch without password"
 msgstr ""
 
-#: scenes/ui/lobby_settings.gd scenes/ui/play_online.gd
-msgid "Invite only"
+#: scenes/ui/lobby_settings.gd scenes/ui/steam_page.gd
+msgid "Who can join"
 msgstr ""
 
 #: scenes/ui/lobby_settings.gd
@@ -5397,11 +5510,23 @@ msgid "JACKPOT JUNCTION  ·  DEPT. OF KARTS  ·  LICENSED ON EVERY TABLE  ·  "
 msgstr ""
 
 #: scenes/ui/manage_players.gd
+msgid "Only the host can kick players or make someone else the host."
+msgstr ""
+
+#: scenes/ui/manage_players.gd
 msgid "Players"
 msgstr ""
 
 #: scenes/ui/manage_players.gd
 msgid "Somebody kicked goes back to the title, and can join again."
+msgstr ""
+
+#: scenes/ui/manage_players.gd
+msgid "Somebody kicked goes back to the title, and can't join this game again."
+msgstr ""
+
+#: scenes/ui/manage_players.gd
+msgid "Mute hides somebody's emotes on your screen. Report is on their Steam profile."
 msgstr ""
 
 #: scenes/ui/manage_players.gd
@@ -5413,6 +5538,10 @@ msgid "Nobody else is here."
 msgstr ""
 
 #: scenes/ui/manage_players.gd
+msgid "Host"
+msgstr ""
+
+#: scenes/ui/manage_players.gd
 msgid "Make host"
 msgstr ""
 
@@ -5421,7 +5550,19 @@ msgid "Kick"
 msgstr ""
 
 #: scenes/ui/manage_players.gd
+msgid "Unmute"
+msgstr ""
+
+#: scenes/ui/manage_players.gd
+msgid "Mute"
+msgstr ""
+
+#: scenes/ui/manage_players.gd
 msgid "%s goes back to the title, and can join again."
+msgstr ""
+
+#: scenes/ui/manage_players.gd
+msgid "%s goes back to the title, and can't join this game again."
 msgstr ""
 
 #: scenes/ui/manage_players.gd
@@ -5441,7 +5582,15 @@ msgid "The host's say passes to %s: the match, the lobby and who is in it."
 msgstr ""
 
 #: scenes/ui/manage_players.gd
+msgid "%s hosts the game from then on, and you play on in it."
+msgstr ""
+
+#: scenes/ui/manage_players.gd
 msgid "{says} · {name} on Steam"
+msgstr ""
+
+#: scenes/ui/manage_players.gd scenes/ui/slip_page.gd
+msgid "%s's license"
 msgstr ""
 
 #: scenes/ui/match_hud.gd
@@ -5519,6 +5668,10 @@ msgstr ""
 
 #: scenes/ui/match_hud.gd
 msgid "bot, free for a player to take"
+msgstr ""
+
+#: scenes/ui/match_options.gd
+msgid "Make up 4"
 msgstr ""
 
 #: scenes/ui/match_options.gd
@@ -5644,7 +5797,7 @@ msgstr ""
 msgid "Target score"
 msgstr ""
 
-#: scenes/ui/match_options.gd
+#: scenes/ui/match_options.gd scenes/ui/takeover_ticket.gd
 msgid "%d joker"
 msgid_plural "%d jokers"
 msgstr[0] ""
@@ -5723,6 +5876,10 @@ msgid "{count} bot, {difficulty}"
 msgid_plural "{count} bots, {difficulty}"
 msgstr[0] ""
 msgstr[1] ""
+
+#: scenes/ui/match_options.gd
+msgid "Bots make up 4, {difficulty}"
+msgstr ""
 
 #: scenes/ui/match_options.gd
 msgid "%d team, friendly fire"
@@ -6094,7 +6251,7 @@ msgid "This game needs a password."
 msgstr ""
 
 #: scenes/ui/play_online.gd
-msgid "Steam friends"
+msgid "Steam"
 msgstr ""
 
 #: scenes/ui/play_online.gd
@@ -6115,14 +6272,6 @@ msgstr ""
 
 #: scenes/ui/play_online.gd
 msgid "Add a server"
-msgstr ""
-
-#: scenes/ui/play_online.gd
-msgid "Join a Steam friend's game, or host one for your friends."
-msgstr ""
-
-#: scenes/ui/play_online.gd
-msgid "Host for friends"
 msgstr ""
 
 #: scenes/ui/play_online.gd
@@ -6429,6 +6578,18 @@ msgstr ""
 
 #: scenes/ui/quality_presets.gd scripts/settings.gd
 msgid "Ultra"
+msgstr ""
+
+#: scenes/ui/quick_play.gd
+msgid "Finding a game near you..."
+msgstr ""
+
+#: scenes/ui/quick_play.gd
+msgid "No games near you yet. Starting one with bots: people join as they come."
+msgstr ""
+
+#: scenes/ui/quick_play.gd scenes/ui/steam_page.gd
+msgid "Quick Play"
 msgstr ""
 
 #: scenes/ui/results_screen.gd scripts/story/story_lines.gd
@@ -6905,6 +7066,34 @@ msgstr ""
 msgid "Nobody online is called that"
 msgstr ""
 
+#: scenes/ui/steam_page.gd
+msgid "Start a game with bots: anybody can join it"
+msgstr ""
+
+#: scenes/ui/steam_page.gd
+msgid "Join anybody's game on Steam, or host one."
+msgstr ""
+
+#: scenes/ui/steam_page.gd
+msgid "%s playing now. Join anybody's game on Steam, or host one."
+msgstr ""
+
+#: scenes/ui/steam_page.gd
+msgid "Anyone can join"
+msgstr ""
+
+#: scenes/ui/steam_page.gd
+msgid "Friends can join"
+msgstr ""
+
+#: scenes/ui/steam_page.gd scripts/store/steam_lobby.gd
+msgid "Invite only"
+msgstr ""
+
+#: scenes/ui/steam_page.gd
+msgid "Steam games"
+msgstr ""
+
 #: scenes/ui/suit_filter.gd
 msgid "All"
 msgstr ""
@@ -6972,6 +7161,22 @@ msgstr ""
 #. A card of the table to a screen reader: whether it is on, and what it does.
 #: scenes/ui/table_strip.gd
 msgid "{state}. {line}"
+msgstr ""
+
+#: scenes/ui/takeover_ticket.gd
+msgid "You took over a kart"
+msgstr ""
+
+#: scenes/ui/takeover_ticket.gd
+msgid "You took over %s's kart"
+msgstr ""
+
+#: scenes/ui/takeover_ticket.gd
+msgid "%d banked"
+msgstr ""
+
+#: scenes/ui/takeover_ticket.gd
+msgid "%d in the pot"
 msgstr ""
 
 #. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
@@ -7375,6 +7580,11 @@ msgstr ""
 
 #: scenes/waiting/ready_room.gd
 msgid "PLAYERS READY"
+msgstr ""
+
+#. After PLAYERS READY on the waiting room's count: the seconds till it starts.
+#: scenes/waiting/ready_room.gd
+msgid "STARTS IN %d"
 msgstr ""
 
 #: scenes/waiting/ready_room.gd
@@ -8948,11 +9158,23 @@ msgid "Steam asked to join their game."
 msgstr ""
 
 #: scripts/store/steam_lobby.gd
+msgid "Anyone"
+msgstr ""
+
+#: scripts/store/steam_lobby.gd
+msgid "Friends"
+msgstr ""
+
+#: scripts/store/steam_lobby.gd
 msgid "Steam could not make the game: %d"
 msgstr ""
 
 #: scripts/store/steam_lobby.gd
 msgid "Could not get into the game on Steam"
+msgstr ""
+
+#: scripts/store/steam_lobby.gd
+msgid "That game can't be joined"
 msgstr ""
 
 #: scripts/store/steam_lobby.gd
@@ -10443,6 +10665,10 @@ msgstr ""
 
 #: scripts/story/story_lines.gd
 msgid "CANDIDATE"
+msgstr ""
+
+#: scripts/story/story_lines.gd
+msgid "MODEL  ·  AVERAGED FROM %s PARTICIPANTS"
 msgstr ""
 
 #: scripts/story/story_lines.gd

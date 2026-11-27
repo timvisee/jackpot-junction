@@ -35,14 +35,14 @@ static func of(slot: PlayerSlot) -> Dictionary:
 	rng.seed = hash(named)
 	var earned := PackedStringArray()
 	if slot.bot_trait != null:
-		earned.append(slot.bot_trait.display_name.to_upper())
+		earned.append(Lang.t(slot.bot_trait.display_name).to_upper())
 	var number := NUMBER % [rng.randi_range(0, 9999), rng.randi_range(0, 9999)]
 	var year := rng.randi_range(FIRST_YEAR, LAST_YEAR)
 	var issued := "%04d-%02d-%02d" % [year, rng.randi_range(1, 12), rng.randi_range(1, 28)]
 	var averaged := rng.randi_range(AVERAGED_LEAST, AVERAGED_MOST)
 	var stamps := PackedStringArray()
 	if mirror_read():
-		stamps.append(StoryLines.BOT_MODEL % Loyalty.thousands(averaged))
+		stamps.append(Lang.t(StoryLines.BOT_MODEL) % Loyalty.thousands(averaged))
 	return {
 		"bot": true,
 		"name": named,

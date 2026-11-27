@@ -7,8 +7,9 @@ extends Label
 
 ## How far over the foot of the screen the line stands.
 const FROM_FOOT := 140.0
+## What it says, shown through tr().
 const WORDS := "A bot drives your kart. Press any button to drive again."
-## Or, come in too late in a map, GAME.md 10.8.
+## Or, come in too late in a map, GAME.md 10.8, shown through tr().
 const HELD := "You take a seat on the next map."
 
 
@@ -18,7 +19,7 @@ static func add_to(room: Node, session: NetSession) -> BenchedLine:
 		return null
 	var line := BenchedLine.new()
 	line.name = "BenchedLine"
-	line.text = WORDS
+	line.text = Lang.t(WORDS)
 	line.visible = false
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -41,10 +42,10 @@ static func add_to(room: Node, session: NetSession) -> BenchedLine:
 
 
 func _on_benched(on: bool) -> void:
-	text = WORDS
+	text = tr(WORDS)
 	visible = on
 
 
 func _on_held(on: bool) -> void:
-	text = HELD
+	text = tr(HELD)
 	visible = on

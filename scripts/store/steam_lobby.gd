@@ -28,7 +28,7 @@ const FRIENDS_ONLY := 1
 const PUBLIC := 2
 ## Steam's lobby type for each [enum Who].
 const TYPES: Array[int] = [PUBLIC, FRIENDS_ONLY, INVITE_ONLY]
-## What each [enum Who] is called, for the choices that pick one.
+## What each [enum Who] is called, for the choices that pick one, shown through tr().
 const WHO_NAMES: Array[String] = ["Anyone", "Friends", "Invite only"]
 ## Steam's word for a lobby made, for one entered, and for somebody coming into one.
 const RESULT_OK := 1
@@ -184,7 +184,7 @@ func _on_lobby_joined(lobby: int, _permissions: int, _locked: bool, response: in
 	var owner := int(api.call(&"getLobbyOwner", lobby))
 	# A host the player has blocked on Steam is somebody they are not to play with, GAME.md 10.8.
 	if why.is_empty() and blocked(owner):
-		why = "That game can't be joined"
+		why = Lang.t("That game can't be joined")
 	if not why.is_empty():
 		api.call(&"leaveLobby", lobby)
 		failed.emit(why)

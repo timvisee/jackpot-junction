@@ -17,7 +17,7 @@ static var _slots: Dictionary[int, String] = {}
 static func key_of(guest: Dictionary) -> String:
 	if guest.has("color"):
 		return "%d:%d" % [int(guest.get("peer", 0)), int(guest.get("seat", 0))]
-	return "watcher:%s" % str(guest.get("name", ""))
+	return "watcher:%s" % str(guest.get("name", ""))  # NO_TRANSLATE
 
 
 ## [param guest] muted, or heard again, [param on].
@@ -48,7 +48,7 @@ static func slot(index: int) -> bool:
 
 ## Whether the watcher called [param named] is muted.
 static func watcher(named: String) -> bool:
-	return _keys.has("watcher:%s" % named)
+	return _keys.has("watcher:%s" % named)  # NO_TRANSLATE
 
 
 ## Who is muted, in words that change whenever it does, for a list to tell it has to be drawn again.

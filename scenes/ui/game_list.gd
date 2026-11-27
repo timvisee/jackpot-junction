@@ -20,6 +20,12 @@ const MAP_LENGTH := 48
 ## The Friend and Full tags: their ink, the gold's, and a full game's gray.
 const FRIEND_FILL := Palette.CHIP_GOLD
 const FULL_FILL := Color(0.36, 0.35, 0.4)
+## The tags, by what their labels are named; what each says is [method tag_words]'s. NO_TRANSLATE
+const FRIEND_TAG := "Friend"
+const FULL_TAG := "Full"
+## How a Steam game is played on a single map, as [method SteamPresence.mode_of] says it, shown
+## through tr().
+const SINGLE_MAP := "Single map, %d min"
 
 
 func _init() -> void:
@@ -77,7 +83,7 @@ static func describe(game: Dictionary) -> String:
 		where = Lang.t("Playing %s") % map if not map.is_empty() else Lang.t("Playing")
 	var parts: PackedStringArray = [where]
 	if bool(game.get("chips", false)):
-		var mode := PlayerNames.clean(str(game.get("mode", "")), MAP_LENGTH)
+		var mode := mode_words(PlayerNames.clean(str(game.get("mode", "")), MAP_LENGTH))
 		if not mode.is_empty():
 			parts.append(mode)
 	else:
@@ -103,6 +109,30 @@ static func map_words(said: String) -> String:
 		return Lang.t(said)
 	var words := Lang.t("{map}, map {leg} of {legs}")
 	return words.format({"map": Lang.t(parts[0]), "leg": int(leg[0]), "legs": int(leg[1])})
+
+
+## What the tag [param tag] says, in the language spoken.
+static func tag_words(tag: String) -> String:
+	if tag == FULL_TAG:
+		# TRANSLATORS: A tag after a game's name in a list of games: every seat in it is taken.
+		return Lang.t("Full", &"game")
+	# TRANSLATORS: A tag after a game's name in a list of games: a Steam friend is in it.
+	return Lang.t("Friend")
+
+
+## How a Steam game is played, as its host said it in English, see [method SteamPresence.mode_of],
+## in the language spoken: "Single map, 5 min · Teams" a part at a time.
+static func mode_words(said: String) -> String:
+	var parts := PackedStringArray()
+	var before := SINGLE_MAP.get_slice("%d", 0)
+	var after := SINGLE_MAP.get_slice("%d", 1)
+	for part: String in said.split(" · ", false):
+		var minutes := part.trim_prefix(before).trim_suffix(after)
+		if part.begins_with(before) and part.ends_with(after) and minutes.is_valid_int():
+			parts.append(Lang.t(SINGLE_MAP) % int(minutes))
+		else:
+			parts.append(Lang.t(part))
+	return " · ".join(parts)
 
 
 ## Where [param game] is hosted, for its tooltip: the host's address and port, for a game found on
@@ -162,9 +192,9 @@ func _seats_on(join: Button, game: Dictionary, full: bool) -> void:
 		(line as Label).horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	var tags: Array[String] = []
 	if bool(game.get("friend", false)):
-		tags.append("Friend")
+		tags.append(FRIEND_TAG)
 	if full:
-		tags.append("Full")
+		tags.append(FULL_TAG)
 	if not tags.is_empty():
 		var named := words.get_node("Name") as Label
 		var row := HBoxContainer.new()
@@ -178,30 +208,37 @@ func _seats_on(join: Button, game: Dictionary, full: bool) -> void:
 		# As wide as its words beside the tags, where trimming would shrink it to nothing.
 		named.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 		for tag: String in tags:
-			row.add_child(_tag(tag, FULL_FILL if tag == "Full" else FRIEND_FILL))
+			row.add_child(_tag(tag, FULL_FILL if tag == FULL_TAG else FRIEND_FILL))
 	var seats := GameSeats.of(game)
 	seats.set_anchors_and_offsets_preset(Control.PRESET_RIGHT_WIDE)
 	seats.offset_left = -(GameSeats.WIDTH + 18.0)
 	seats.offset_right = -18.0
 	join.add_child(seats)
-	var people := int(game.get("players", 0))
-	var standing := "%d of %d players" % [people, int(game.get("most", 0))]
+	var most := int(game.get("most", 0))
+	var seated := tr_n("{people} of {most} player", "{people} of {most} players", most)
+	var standing: PackedStringArray = [
+		seated.format({"people": int(game.get("players", 0)), "most": most})
+	]
 	var bots := int(game.get("bots", 0))
 	if bots > 0:
-		standing += ", %d bot%s" % [bots, "" if bots == 1 else "s"]
+		standing.append(tr_n("%d bot", "%d bots", bots) % bots)
 	if seats.ping >= 0:
-		standing += ", %d ms" % seats.ping
-	var parts: PackedStringArray = [describe(game), standing]
+		standing.append(tr("%d ms") % seats.ping)
+	var parts: PackedStringArray = [describe(game), ", ".join(standing)]
 	if not tags.is_empty():
-		parts.append(", ".join(PackedStringArray(tags)))
+		parts.append(
+			", ".join(
+				PackedStringArray(tags.map(func(tag: String) -> String: return tag_words(tag)))
+			)
+		)
 	ScreenReader.name(join, title_of(game), " · ".join(parts))
 
 
 ## A tag after a game's name, its word in small capitals on [param fill].
 static func _tag(word: String, fill: Color) -> Label:
 	var tag := Label.new()
-	tag.name = word + "Tag"
-	tag.text = word.to_upper()
+	tag.name = word + "Tag"  # NO_TRANSLATE
+	tag.text = tag_words(word).to_upper()
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	tag.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	Type.set_font(tag, Type.STRONG, Type.SMALL - 2)

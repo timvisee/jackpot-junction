@@ -475,11 +475,12 @@ static func host_leave_words() -> Array[String]:
 	var session := Net.session
 	if session != null and not session.dedicated and session.host_controls.successor() != 0:
 		var next := session.host_controls.successor_name()
-		return ["Leave the game?", "%s hosts it after you." % next, "Leave", "Stay"]
+		var after := Lang.t("%s hosts it after you.") % next
+		return [Lang.t("Leave the game?"), after, Lang.t("Leave"), Lang.t("Stay")]
 	return [
-		"Back to the title?",
-		"Everybody who has joined will be disconnected.",
-		"Disconnect everybody"
+		Lang.t("Back to the title?"),
+		Lang.t("Everybody who has joined will be disconnected."),
+		Lang.t("Disconnect everybody")
 	]
 
 

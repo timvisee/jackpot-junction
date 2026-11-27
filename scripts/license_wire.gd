@@ -14,7 +14,7 @@ const MOST := 16
 const MOST_CONES := 99
 ## The stamp for laps of the roundabout, as [constant LoyaltyCard.LAP] words it: the card's scene
 ## kept out of here, which a dedicated server loads with the host's controls.
-const LAP := "LAP %d"
+const LAP := "LAP %d"  # NO_TRANSLATE
 
 
 ## This machine's license, the first seat's, as the card says it, see
