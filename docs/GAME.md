@@ -11742,7 +11742,11 @@ project's translations so the engine loads it at start. `make strings` reads eve
 the code and every word the data resources hold into the template, `data/locale/jackpot_junction.pot`,
 and brings each language's file up to it, keeping every translation already made and setting aside
 those whose English is gone. `make check` fails when either is behind the code, or when a string
-that looks like text is not marked. A word with no translation is said in English. Dutch is the
+that looks like text is not marked, or when a translation's placeholders, `%` codes or markup
+differ from its English, which the game would fill wrongly. The files are plain gettext, for any
+translation tool, Weblate or Poedit: `make strings` keeps whatever such a tool adds, its header
+fields and the translators' comments, and the check reads the entries, not the bytes, so a tool's
+wrapping is no change. A word with no translation is said in English, and so is one marked fuzzy. Dutch is the
 first translation; Simplified Chinese is planned once a native speaker can read it over, and needs
 a typeface with Chinese in it for each of the game's, none of which has any.
 

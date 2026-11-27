@@ -27,7 +27,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCES = ("scenes", "scripts")
 # Tools for making the store's pictures and trailers, never shown to a player, stay English.
-LEFT_OUT = ("scenes/dev/",)
+# Nor a debug build's own page for moving the story along, nor a dedicated server's web page.
+LEFT_OUT = ("scenes/dev/", "scenes/ui/story_debug_tab.gd", "scenes/server/server_web.gd")
 DATA = "data"
 LOCALE = os.path.join("data", "locale")
 TEMPLATE = os.path.join(LOCALE, "jackpot_junction.pot")
@@ -425,31 +426,56 @@ def quoted(text):
     return "\n".join(pieces)
 
 
-def header(locale):
-    lines = [
-        "Project-Id-Version: Jackpot Junction",
-        "MIME-Version: 1.0",
-        "Content-Type: text/plain; charset=UTF-8",
-        "Content-Transfer-Encoding: 8bit",
-        "Language: %s" % locale,
-        "Plural-Forms: %s" % PLURAL_FORMS.get(locale, "nplurals=2; plural=(n != 1);"),
+# The header fields the template sets; any other a translator's tool adds is kept as it is.
+OWN_HEADER = (
+    "Project-Id-Version",
+    "MIME-Version",
+    "Content-Type",
+    "Content-Transfer-Encoding",
+    "Language",
+    "Plural-Forms",
+)
+PLACEHOLDER = re.compile(r"\{[A-Za-z_][A-Za-z0-9_]*\}")
+FORMAT = re.compile(r"%[-+ 0#]*\d*(?:\.\d+)?[sdifxXcv]")
+TAG = re.compile(r"\[(/?[a-z_]+)(?:[= ][^\]]*)?\]")
+
+
+def header(locale, kept=None):
+    """A file's header: the template's own fields, then whatever else [kept] had."""
+    kept = dict(kept or {})
+    plural = kept.get("Plural-Forms") or PLURAL_FORMS.get(locale, "nplurals=2; plural=(n != 1);")
+    fields = [
+        ("Project-Id-Version", "Jackpot Junction"),
+        ("MIME-Version", "1.0"),
+        ("Content-Type", "text/plain; charset=UTF-8"),
+        ("Content-Transfer-Encoding", "8bit"),
+        ("Language", locale),
+        ("Plural-Forms", plural),
     ]
+    fields += [(name, value) for name, value in kept.items() if name not in OWN_HEADER]
     out = ['msgid ""', 'msgstr ""']
-    out += ['"%s\\n"' % line for line in lines]
+    out += [quoted("%s: %s\n" % field).split("\n")[-1] for field in fields]
     return "\n".join(out)
 
 
 def write_entry(out, key, entry, strings, obsolete=False):
+    """One entry as gettext orders its parts: the translator's comments, the notes for them, where
+    the words are, the flags, then the words."""
     context, word = key
     lead = "#~ " if obsolete else ""
     block = []
+    for comment in entry.get("comments", []):
+        block.append(("# " + comment).rstrip())
     if not obsolete:
         for note in entry.get("notes", []):
             block.append("#. " + note)
         if entry.get("files"):
             block.append("#: " + " ".join(entry["files"]))
-    if entry.get("fuzzy"):
-        block.append("#, fuzzy")
+    flags = list(entry.get("flags", []))
+    if entry.get("fuzzy") and "fuzzy" not in flags:
+        flags.insert(0, "fuzzy")
+    if flags:
+        block.append("#, " + ", ".join(flags))
     body = []
     if context:
         body.append("msgctxt " + quoted(context))
@@ -473,23 +499,38 @@ def template(entries):
     return "\n\n".join(out) + "\n"
 
 
-def read_po(path):
-    """A .po file's translations, by (context, word), with the ones no longer in the game."""
-    with open(path, encoding="utf-8") as f:
-        text = f.read()
+def parse_po(text):
+    """A .po or .pot file read as gettext reads it, however a tool wrapped or ordered it: its
+    header's fields, and each entry by (context, word) with its translations, notes, references,
+    flags and the translator's own comments, and whether it is set aside."""
     found = {}
+    head = {}
     for block in re.split(r"\n\s*\n", text.strip()):
-        lines = block.split("\n")
-        obsolete = all(line.startswith("#~") for line in lines if not line.startswith("#."))
+        lines = [line for line in block.split("\n") if line.strip()]
+        if not lines:
+            continue
+        obsolete = all(line.startswith("#") for line in lines) and any(
+            line.startswith("#~") for line in lines
+        )
         fields = {}
         current = None
-        fuzzy = False
+        entry = {"comments": [], "notes": [], "files": [], "flags": []}
         for line in lines:
             if line.startswith("#~"):
                 line = line[2:].lstrip()
+            elif line.startswith("#."):
+                entry["notes"].append(line[2:].strip())
+                continue
+            elif line.startswith("#:"):
+                entry["files"] += line[2:].split()
+                continue
+            elif line.startswith("#,"):
+                entry["flags"] += [f.strip() for f in line[2:].split(",") if f.strip()]
+                continue
+            elif line.startswith("#|"):
+                continue
             elif line.startswith("#"):
-                if line.startswith("#,") and "fuzzy" in line:
-                    fuzzy = True
+                entry["comments"].append(line[1:].strip())
                 continue
             m = re.match(r"(msgctxt|msgid_plural|msgid|msgstr(?:\[\d+\])?)\s+(\".*\")$", line)
             if m:
@@ -497,13 +538,36 @@ def read_po(path):
                 fields[current] = _unquote(m.group(2))
             elif line.startswith('"') and current:
                 fields[current] += _unquote(line)
-        if "msgid" not in fields or fields["msgid"] == "":
+        if "msgid" not in fields:
             continue
-        strings = [fields[k] for k in sorted(k for k in fields if k.startswith("msgstr"))]
+        if fields["msgid"] == "" and "msgctxt" not in fields:
+            for line in fields.get("msgstr", "").split("\n"):
+                if ":" in line:
+                    name, value = line.split(":", 1)
+                    head[name.strip()] = value.strip()
+            continue
+        names = sorted(
+            (k for k in fields if k.startswith("msgstr")),
+            key=lambda k: int(k[7:-1]) if "[" in k else 0,
+        )
         key = (fields.get("msgctxt", ""), fields["msgid"])
-        found[key] = {"strings": strings, "fuzzy": fuzzy, "obsolete": obsolete,
-                      "plural": fields.get("msgid_plural")}
-    return found
+        entry.update(
+            {
+                "strings": [fields[k] for k in names],
+                "fuzzy": "fuzzy" in entry["flags"],
+                "obsolete": obsolete,
+                "plural": fields.get("msgid_plural"),
+            }
+        )
+        entry["flags"] = [f for f in entry["flags"] if f != "fuzzy"]
+        found[key] = entry
+    return head, found
+
+
+def read_po(path):
+    """A .po file's translations, by (context, word), with the ones no longer in the game."""
+    with open(path, encoding="utf-8") as f:
+        return parse_po(f.read())[1]
 
 
 def _unquote(text):
@@ -511,23 +575,35 @@ def _unquote(text):
     return unescape(body, False)
 
 
-def merged_po(locale, entries, old):
-    out = [header(locale)]
-    plurals = 1 if "nplurals=1" in PLURAL_FORMS.get(locale, "") else 2
+def plural_count(forms):
+    m = re.search(r"nplurals\s*=\s*(\d+)", forms or "")
+    return int(m.group(1)) if m else 2
+
+
+def merged_po(locale, entries, old, kept_header=None):
+    out = [header(locale, kept_header)]
+    forms = (kept_header or {}).get("Plural-Forms") or PLURAL_FORMS.get(locale, "")
+    plurals = plural_count(forms)
     for key, entry in entries:
         kept = old.get(key)
+        if kept and kept["obsolete"]:
+            # Words back in the game have their old translation back, to be looked over.
+            kept = dict(kept, fuzzy=any(kept["strings"]))
         strings = kept["strings"] if kept else None
         if entry["plural"]:
             strings = (strings or []) + [""] * plurals
             strings = strings[:plurals]
         shown = dict(entry)
         shown["fuzzy"] = bool(kept and kept["fuzzy"])
+        shown["comments"] = kept["comments"] if kept else []
+        shown["flags"] = kept["flags"] if kept else []
         write_entry(out, key, shown, strings)
     live = {key for key, _ in entries}
     for key, kept in old.items():
         if key in live or not any(s for s in kept["strings"]):
             continue
-        write_entry(out, key, {"plural": kept["plural"]}, kept["strings"], obsolete=True)
+        gone = {"plural": kept["plural"], "comments": kept["comments"]}
+        write_entry(out, key, gone, kept["strings"], obsolete=True)
     return "\n\n".join(out) + "\n"
 
 
@@ -543,9 +619,91 @@ def wanted_files():
     files = {TEMPLATE: template(entries)}
     for locale in languages():
         path = os.path.join(LOCALE, locale + ".po")
-        old = read_po(os.path.join(ROOT, path))
-        files[path] = merged_po(locale, entries, old)
+        with open(os.path.join(ROOT, path), encoding="utf-8") as f:
+            head, old = parse_po(f.read())
+        files[path] = merged_po(locale, entries, old, head)
     return files, entries
+
+
+def same_po(a, b):
+    """Whether two .po files say the same, however each is wrapped or ordered."""
+    head_a, entries_a = parse_po(a)
+    head_b, entries_b = parse_po(b)
+    for name in ("Language", "Plural-Forms"):
+        if head_a.get(name, "") != head_b.get(name, ""):
+            return False
+    if entries_a.keys() != entries_b.keys():
+        return False
+    for key, entry in entries_a.items():
+        other = entries_b[key]
+        for part in ("strings", "plural", "fuzzy", "obsolete", "notes", "comments"):
+            if entry[part] != other[part]:
+                return False
+        if sorted(entry["files"]) != sorted(other["files"]):
+            return False
+    return True
+
+
+def broken_translations(locale, path):
+    """Translations whose placeholders, format codes or markup differ from their English, which
+    the game would show wrongly or fail to fill: (word, what is wrong)."""
+    with open(path, encoding="utf-8") as f:
+        _, entries = parse_po(f.read())
+    found = []
+    for (context, word), entry in entries.items():
+        if entry["obsolete"] or entry["fuzzy"]:
+            continue
+        for i, text in enumerate(entry["strings"]):
+            if not text:
+                continue
+            english = word
+            if entry["plural"] and (i > 0 or len(entry["strings"]) == 1):
+                english = entry["plural"]
+            if sorted(PLACEHOLDER.findall(text)) != sorted(PLACEHOLDER.findall(english)):
+                found.append((word, "the {placeholders} differ from the English"))
+            elif FORMAT.findall(text.replace("%%", "")) != FORMAT.findall(
+                english.replace("%%", "")
+            ):
+                found.append((word, "the % codes differ from the English, or their order"))
+            elif sorted(TAG.findall(text)) != sorted(TAG.findall(english)):
+                found.append((word, "the [tags] differ from the English"))
+    return found
+
+
+def registered():
+    """The translations the project loads, from project.godot."""
+    with open(os.path.join(ROOT, "project.godot"), encoding="utf-8") as f:
+        m = re.search(r"^locale/translations=PackedStringArray\((.*)\)$", f.read(), re.M)
+    return re.findall(r'"res://([^"]+)"', m.group(1)) if m else []
+
+
+def register(locale):
+    """Lists [locale]'s file among the project's translations, so the engine loads it."""
+    path = os.path.join(ROOT, "project.godot")
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    files = registered()
+    wanted = "%s/%s.po" % (LOCALE, locale)
+    if wanted in files:
+        return
+    files = sorted(files + [wanted])
+    line = "locale/translations=PackedStringArray(%s)" % ", ".join(
+        '"res://%s"' % name for name in files
+    )
+    if re.search(r"^locale/translations=", text, re.M):
+        text = re.sub(r"^locale/translations=.*$", line, text, flags=re.M)
+    elif "[internationalization]" in text:
+        text = text.replace("[internationalization]\n", "[internationalization]\n\n" + line + "\n", 1)
+    else:
+        text = text.rstrip("\n") + "\n\n[internationalization]\n\n" + line + "\n"
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+
+def named_in_game(locale):
+    """Whether scripts/lang.gd names [locale], as the settings list it."""
+    with open(os.path.join(ROOT, "scripts", "lang.gd"), encoding="utf-8") as f:
+        return re.search(r'^\s*"%s": "' % re.escape(locale), f.read(), re.M) is not None
 
 
 def loose_in(paths):
@@ -582,11 +740,15 @@ def main(args):
         print("%d strings, %d languages" % (len(entries), len(languages())))
         return 0
     if command == "add":
-        path = os.path.join(ROOT, LOCALE, args[1] + ".po")
+        locale = args[1]
+        path = os.path.join(ROOT, LOCALE, locale + ".po")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         if not os.path.exists(path):
             with open(path, "w", encoding="utf-8") as f:
-                f.write(header(args[1]) + "\n")
+                f.write(header(locale) + "\n")
+        register(locale)
+        if not named_in_game(locale):
+            print("Name %s in Lang.NAMES (and Lang.STEAM_NAMES) in scripts/lang.gd" % locale)
         return main(["update"])
     if command == "loose":
         found = loose_in(args[1:])
@@ -607,8 +769,19 @@ def main(args):
         for path, text in files.items():
             full = os.path.join(ROOT, path)
             have = open(full, encoding="utf-8").read() if os.path.exists(full) else None
-            if have != text:
+            if have is None or not same_po(have, text):
                 print("%s is behind the code: run make strings" % path)
+                failed = True
+        for locale in languages():
+            path = os.path.join(LOCALE, locale + ".po")
+            if path not in registered():
+                print("%s is not among the project's translations: tools/strings.py add" % path)
+                failed = True
+            if not named_in_game(locale):
+                print("%s is not named in Lang.NAMES in scripts/lang.gd" % locale)
+                failed = True
+            for word, wrong in broken_translations(locale, os.path.join(ROOT, path)):
+                print("%s: %s: %s" % (path, word[:60].replace("\n", "\\n"), wrong))
                 failed = True
         found = loose_in([])
         for rel, lit in found:
