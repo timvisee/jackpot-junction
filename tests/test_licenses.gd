@@ -68,6 +68,7 @@ func test_every_license_shown_has_its_text() -> void:
 	assert_bool(keys.has("public-domain")).is_false()
 	assert_str(Licenses.title("Expat")).is_equal("MIT (Expat)")
 	assert_str(Licenses.title("FTL")).is_equal("FTL")
+	assert_str(Licenses.title("Apache-2.0 or Expat")).is_equal("Apache-2.0 or MIT (Expat)")
 
 
 ## The text `--licenses` prints carries every notice: the game's own terms and source, Godot's

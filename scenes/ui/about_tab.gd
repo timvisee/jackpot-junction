@@ -2,9 +2,11 @@ class_name AboutTab
 extends ScrollContainer
 ## The About page of the settings, GAME.md 8.5: the mark, the name and the version, that the game
 ## is an experiment made by AI and by which models, everything in it somebody else made, and the
-## way to the game's page to play it from and to its source. Godot's own license closes it, which
-## the engine's license asks every game made with it to carry. Where the Steam supporter pack is
-## offered and not owned, a quiet word on it under the game's links, see [method _supporter].
+## way to the game's page to play it from and to its source. The licenses close it: Godot's own,
+## which the engine's license asks every game made with it to carry, and under a link at the foot,
+## built the first time it is opened, every other notice the build carries, see [Licenses]. Where
+## the Steam supporter pack is offered and not owned, a quiet word on it under the game's links, see
+## [method _supporter].
 
 const WIDTH := 900.0
 const INK := Color(0.86, 0.86, 0.9)
@@ -20,10 +22,31 @@ const SUPPORTER_LINE := (
 )
 const SUPPORTER_LINK := "Get the Supporter Pack on Steam"
 const SUPPORTER_PIN := 24.0
+## The link at the foot that opens the third-party notices under it, and folds them away again.
+const SHOW_LICENSES := "Show third-party licenses"
+const HIDE_LICENSES := "Hide third-party licenses"
+## How many characters of the notices go in a frame once they open, how long a piece of a
+## license's text runs before its next paragraph starts another, and how many pieces of Godot one
+## list holds: all at once they held the page some 100 ms on a desktop, longer on a Deck or a
+## phone, so they come in top first, a little a frame, the whole in a fraction of a second.
+const NOTICE_BUDGET := 3000
+const NOTICE_PIECE := 2000
+const LIST_PIECE := 20
+## The room over and under a heading among the notices, and between two pieces in a list, a list
+## cut in two included, so that where a text or a list was cut reads as no cut at all.
+const SUBHEADING_ROOM := Vector2(24.0, 8.0)
+const LIST_GAP := 5
 
-## The supporter pack's link and the line over it, while the pack is offered and not owned.
+## The supporter pack's link, and the line over it below, while the pack is offered and not owned.
 var supporter_link: LinkButton
+## The link that opens the notices, and the notices, null until it first does: the page is built
+## each time the settings open, and the notices run to some 70,000 characters.
+var licenses_link: LinkButton
+var notices: VBoxContainer
+## The line over [member supporter_link].
 var _supporter_line: Label
+## The notices still to go in, in order, see [method _fill].
+var _unfilled: Array[Control] = []
 
 
 func _init() -> void:
@@ -73,10 +96,95 @@ func _ready() -> void:
 	column.add_child(_heading("Made with"))
 	for thing: Dictionary in Credits.in_this_build():
 		column.add_child(_credit(thing))
-	column.add_child(_heading("Godot Engine license"))
-	var license := _paragraph(Engine.get_license_text(), Type.LABEL, FAINT)
-	license.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	column.add_child(license)
+	column.add_child(_heading("Licenses"))
+	column.add_child(_subheading("Godot Engine"))
+	column.add_child(_notice(Engine.get_license_text()))
+	licenses_link = _link("")
+	licenses_link.name = "LicensesLink"
+	licenses_link.text = SHOW_LICENSES
+	licenses_link.pressed.connect(toggle_licenses)
+	column.add_child(licenses_link)
+
+
+## Opens the notices under their link, building them the first time, or folds them away again.
+func toggle_licenses() -> void:
+	if notices == null:
+		notices = VBoxContainer.new()
+		notices.name = "Notices"
+		# Every gap is the notices' own, see SUBHEADING_ROOM.
+		notices.add_theme_constant_override("separation", 0)
+		licenses_link.get_parent().add_child(notices)
+		_unfilled = _notices()
+		_fill()
+	else:
+		notices.visible = not notices.visible
+	licenses_link.text = HIDE_LICENSES if notices.visible else SHOW_LICENSES
+
+
+## Whether the notices are still coming in, see [method _fill].
+func filling() -> bool:
+	return not _unfilled.is_empty()
+
+
+## Puts the next of the notices in, up to [constant NOTICE_BUDGET] characters of them and at least
+## one: a label lays its text out as it goes in, and that is where the time goes.
+func _fill() -> void:
+	var spent := 0
+	while not _unfilled.is_empty() and spent < NOTICE_BUDGET:
+		var next: Control = _unfilled.pop_front()
+		spent += _words(next).length()
+		notices.add_child(next)
+
+
+## The notices, see [Licenses], in order, none of them in the tree yet: the game's own third-party
+## pieces whose terms have a text, whose they are and on what terms, the pieces inside Godot the
+## same way, then each license's text, in pieces of about [constant NOTICE_PIECE] characters.
+static func _notices() -> Array[Control]:
+	var box: Array[Control] = []
+	var things := Credits.in_this_build()
+	var of := Licenses.pieces()
+	var ours: Array[PackedStringArray] = []
+	for thing: Dictionary in things:
+		if thing.has("license"):
+			var terms := Licenses.copyright(thing.get("copyright", []))
+			terms.append(Licenses.title(thing["license"]))
+			ours.append(PackedStringArray([thing["what"], ", ".join(terms)]))
+	box.append(_subheading("In the game", true))
+	box.append(_list(ours))
+	var godots: Array[PackedStringArray] = []
+	for piece: Dictionary in of:
+		var parts := PackedStringArray()
+		for part: Dictionary in piece["parts"]:
+			var terms := Licenses.copyright(part["copyright"])
+			terms.append(Licenses.title(part["license"]))
+			parts.append(", ".join(terms))
+		godots.append(PackedStringArray([piece["name"], "; ".join(parts)]))
+	box.append(_subheading("Inside Godot Engine", true))
+	for start: int in range(0, godots.size(), LIST_PIECE):
+		box.append(_list(godots.slice(start, start + LIST_PIECE)))
+	var texts := Engine.get_license_info()
+	for key: String in Licenses.keys(things, of):
+		box.append(_subheading(Licenses.title(key), true))
+		var pieces := _pieces(texts[key])
+		for i: int in pieces.size():
+			# A piece after the first starts on the blank line its paragraph had.
+			box.append(_notice(pieces[i] if i == 0 else "\n" + pieces[i]))
+	return box
+
+
+## [param text] cut at its paragraphs into pieces of about [constant NOTICE_PIECE] characters, a
+## paragraph longer than that a piece of its own.
+static func _pieces(text: String) -> PackedStringArray:
+	var out := PackedStringArray()
+	var piece := ""
+	for paragraph: String in text.strip_edges().split("\n\n"):
+		if not piece.is_empty() and piece.length() + paragraph.length() > NOTICE_PIECE:
+			out.append(piece)
+			piece = ""
+		piece = paragraph if piece.is_empty() else piece + "\n\n" + paragraph
+	if not piece.is_empty():
+		out.append(piece)
+	return out
 
 
 ## The supporter pack's word under the game's links, where it is offered and not owned: a faint
@@ -106,8 +214,19 @@ func _supporter(column: VBoxContainer) -> void:
 	column.add_child(row)
 
 
-## Bought while the page is up, the supporter pack's word goes, the cursor on the link before it.
+## Notices not yet in go with the page, as they are not in the tree to go with it.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE:
+		for left: Control in _unfilled:
+			left.free()
+		_unfilled.clear()
+
+
+## The notices come in, a little a frame, once opened, see [method _fill]. And bought while the
+## page is up, the supporter pack's word goes, the cursor on the link before it.
 func _process(_delta: float) -> void:
+	if not _unfilled.is_empty():
+		_fill()
 	if supporter_link == null or not Supporter.owned():
 		return
 	var had := supporter_link.has_focus()
@@ -160,6 +279,53 @@ static func _heading(text: String) -> Label:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.strong(label, Type.HEADING, Palette.CHIP_GOLD)
 	return label
+
+
+## A heading inside the licenses, smaller than the page's own; among the notices, which have no gaps
+## of their own, with [param room] over and under it.
+static func _subheading(text: String, room := false) -> Label:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	Type.strong(label, Type.BODY, INK)
+	if room:
+		var box := StyleBoxEmpty.new()
+		box.content_margin_top = SUBHEADING_ROOM.x
+		box.content_margin_bottom = SUBHEADING_ROOM.y
+		label.add_theme_stylebox_override("normal", box)
+	return label
+
+
+## A license's text, small and faint, set from the left as it was written.
+static func _notice(text: String) -> Label:
+	var label := _paragraph(text, Type.LABEL, FAINT)
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+	return label
+
+
+## Pieces one to a line, [param entries] each a name and what to say of it: the name in bold, then
+## whose it is and on what terms, faint. Written through the label's own calls rather than BBCode,
+## so a bracket in a name is a bracket.
+static func _list(entries: Array[PackedStringArray]) -> RichTextLabel:
+	var list := RichTextLabel.new()
+	list.fit_content = true
+	list.scroll_active = false
+	list.custom_minimum_size = Vector2(WIDTH, 0.0)
+	list.add_theme_font_size_override("normal_font_size", Type.LABEL)
+	list.add_theme_font_size_override("bold_font_size", Type.LABEL)
+	list.add_theme_font_override("bold_font", Type.STRONG)
+	list.add_theme_color_override("default_color", FAINT)
+	list.add_theme_constant_override("paragraph_separation", LIST_GAP)
+	for i: int in entries.size():
+		if i > 0:
+			list.newline()
+		list.push_color(INK)
+		list.push_bold()
+		list.add_text(entries[i][0])
+		list.pop()
+		list.pop()
+		list.add_text("  " + entries[i][1])
+	return list
 
 
 static func _paragraph(text: String, size := Type.BODY, ink := INK) -> Label:

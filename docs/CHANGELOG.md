@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Third-party licenses on the About page.** Show third-party licenses, under Godot's own license,
+  lists everything inside the game and the engine that was made by others, and their licenses.
+
 ### Fixed
 
 - **The cursor stays on the About page when you buy the Supporter Pack.** Bought from its link on a

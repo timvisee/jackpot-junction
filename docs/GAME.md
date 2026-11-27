@@ -5944,16 +5944,22 @@ from a section's button low in its box was the one beside it.
   in a Steam build, so a dedicated server's notices, 9.3a, name no sound, and gdUnit4,
   never exported, is in no build a player gets. A test holds them to
   THIRD_PARTY.md, links to the game's pages on Steam and itch.io to get it from and one to
-  its source on GitHub, and Godot's own license, which a game made with it has to carry.
-  The notices, [Licenses]: Godot's MIT text, then every piece Godot carries inside it, as
-  the engine's own table names them, which are "compatible with, but not covered by" that
-  text and some of which ask for their own notice in every copy (FreeType's credit line,
-  the BSD lines of libvorbis, Mbed TLS's Apache-2.0), and the game's own third-party
-  pieces with their copyright lines, then each license's text once. Left out: what no
-  build of the game carries, Godot's editor-only and development-only pieces (its editor's
-  fonts, the lightmapper's, its unit tests; each named with why), and other platforms'
-  (Wayland only on Linux, D3D12 only on Windows, Swappy only on Android). `--licenses`
-  prints them and quits, in the game and in a dedicated server.
+  its source on GitHub, and Godot's own license, which a game made with it has to carry,
+  under the heading Licenses. Under that, a gold "Show third-party licenses" at the foot
+  opens the rest of the notices and folds them away again; built only the first time it
+  is pressed, the page being built each time the settings open, they come in a little a
+  frame, top first (3000 characters a frame, a license's text cut at its paragraphs into
+  pieces of about 2000, Godot's pieces 20 to a list), which all at once held the page
+  some 100 ms. The notices, [Licenses]: Godot's MIT text, then every piece Godot carries
+  inside it, as the engine's own table names them, which are "compatible with, but not
+  covered by" that text and some of which ask for their own notice in every copy
+  (FreeType's credit line, the BSD lines of libvorbis, Mbed TLS's Apache-2.0), and the
+  game's own third-party pieces with their copyright lines, then each license's text
+  once. Left out: what no build of the game carries, Godot's editor-only and
+  development-only pieces (its editor's fonts, the lightmapper's, its unit tests; each
+  named with why), and other platforms' (Wayland only on Linux, D3D12 only on Windows,
+  Swappy only on Android). `--licenses` prints them and quits, in the game and in a
+  dedicated server.
 - **Story**, in a debug build only, last: where the profile playing is in the story of 8.7,
   its stage, its clock and when the next stage begins, the notes found and read, the next
   note and when it is due, whether the Final Hand is due or played, and its shifts; and

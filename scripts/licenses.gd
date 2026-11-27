@@ -102,9 +102,10 @@ static func keys_in(license: String) -> PackedStringArray:
 	return out
 
 
-## What a license is called where it is shown: its key, but Expat as the MIT license it is.
-static func title(key: String) -> String:
-	return "MIT (Expat)" if key == "Expat" else key
+## What a license is called where it is shown, a key or the engine's words for a piece's: as it is,
+## but Expat said as the MIT license it is.
+static func title(license: String) -> String:
+	return license.replace("Expat", "MIT (Expat)")
 
 
 ## [param lines] of copyright as the engine and [Credits] keep them, without the word, each with it.
@@ -144,7 +145,7 @@ static func text(things: Array[Dictionary]) -> String:
 		for part: Dictionary in piece["parts"]:
 			for line: String in copyright(part["copyright"]):
 				out.append("  " + line)
-			out.append("  License: %s" % part["license"])
+			out.append("  License: %s" % title(part["license"]))
 	var texts := Engine.get_license_info()
 	for key: String in keys(things, of):
 		out.append("")

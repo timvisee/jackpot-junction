@@ -21,17 +21,101 @@ func test_the_about_page_says_what_it_is_and_who_made_it() -> void:
 		assert_str(said).contains(model)
 	for thing: Dictionary in Credits.in_this_build():
 		assert_str(said).contains(thing["what"])
-	var links := about.find_children("*", "LinkButton", true, false)
-	assert_int(links.size()).is_equal(3)
+	# The links that go somewhere: the game's pages and its source. The one that opens the
+	# licenses opens them on the page.
 	var uris: Array[String] = []
-	for link: Node in links:
-		uris.append((link as LinkButton).uri)
+	for link: Node in about.find_children("*", "LinkButton", true, false):
+		if not (link as LinkButton).uri.is_empty():
+			uris.append((link as LinkButton).uri)
+	assert_int(uris.size()).is_equal(3)
 	assert_bool(uris.has(Credits.STEAM)).is_true()
 	assert_bool(uris.has(Credits.ITCH)).is_true()
 	assert_bool(uris.has(Credits.REPOSITORY)).is_true()
 	assert_str(Credits.REPOSITORY).contains("github.com/timvisee/jackpot-junction")
 	assert_str(Credits.STEAM).contains("store.steampowered.com/app/5652730")
 	assert_str(Credits.ITCH).contains("timvisee.itch.io/jackpot-junction")
+
+
+## The licenses close the page: Godot's own, then under a link every other notice the build
+## carries, see [Licenses], built only once the link is pressed, the page being built each time
+## the settings open; pressed again they fold away, and back, the same ones.
+func test_the_licenses_open_under_their_link() -> void:
+	var about: AboutTab = auto_free(AboutTab.new())
+	add_child(about)
+	var said := about.said()
+	assert_str(said).contains(Engine.get_license_text())
+	assert_str(said).contains(AboutTab.SHOW_LICENSES)
+	assert_object(about.notices).is_null()
+	assert_str(said).not_contains("The FreeType Project")
+	assert_int(about.licenses_link.focus_mode).is_equal(Control.FOCUS_ALL)
+	about.licenses_link.pressed.emit()
+	assert_object(about.notices).is_not_null()
+	assert_str(about.licenses_link.text).is_equal(AboutTab.HIDE_LICENSES)
+	# They come in a little a frame, the first of them at once.
+	assert_int(about.notices.get_child_count()).is_greater(0)
+	assert_bool(about.filling()).is_true()
+	for frame: int in 120:
+		if not about.filling():
+			break
+		await get_tree().process_frame
+	assert_bool(about.filling()).is_false()
+	said = about.said()
+	var things := Credits.in_this_build()
+	var of := Licenses.pieces()
+	for piece: Dictionary in of:
+		assert_str(said).contains(piece["name"])
+	assert_str(said).contains("Copyright 1996-2025, David Turner")
+	for thing: Dictionary in things:
+		if thing.has("license"):
+			assert_str(said).contains(thing["what"])
+			for line: String in Licenses.copyright(thing.get("copyright", [])):
+				assert_str(said).contains(line)
+	var texts := Engine.get_license_info()
+	for key: String in Licenses.keys(things, of):
+		assert_str(said).contains(Licenses.title(key))
+		for piece: String in AboutTab._pieces(texts[key]):
+			assert_str(said).contains(piece)
+	var opened := about.notices
+	about.licenses_link.pressed.emit()
+	assert_bool(opened.visible).is_false()
+	assert_str(about.licenses_link.text).is_equal(AboutTab.SHOW_LICENSES)
+	about.licenses_link.pressed.emit()
+	assert_bool(opened.visible).is_true()
+	assert_object(about.notices).is_same(opened)
+
+
+## The pad reaches the licenses' link, down from the last of the page's links, the source's.
+func test_the_pad_reaches_the_licenses() -> void:
+	var screen: SettingsScreen = auto_free(SETTINGS_SCENE.instantiate())
+	add_child(screen)
+	var about: AboutTab = screen.tabs.get_node("About")
+	screen.tabs.current_tab = about.get_index()
+	for frame: int in 3:
+		await get_tree().process_frame
+	var source: LinkButton
+	for link: Node in about.find_children("*", "LinkButton", true, false):
+		if (link as LinkButton).uri == Credits.REPOSITORY:
+			source = link
+	assert_object(source.find_valid_focus_neighbor(SIDE_BOTTOM)).is_same(about.licenses_link)
+
+
+## A license's text is cut at its paragraphs into pieces that each go in in a frame, all of it kept.
+func test_a_license_comes_in_pieces() -> void:
+	var text: String = Engine.get_license_info()["MPL-2.0"]
+	var pieces := AboutTab._pieces(text)
+	assert_int(pieces.size()).is_greater(4)
+	for piece: String in pieces:
+		assert_int(piece.length()).is_less_equal(AboutTab.NOTICE_PIECE * 2)
+	assert_str("\n\n".join(pieces)).is_equal(text.strip_edges())
+
+
+## Closed before the notices are all in, the page takes the rest with it.
+func test_the_notices_not_yet_in_go_with_the_page() -> void:
+	var about: AboutTab = AboutTab.new()
+	add_child(about)
+	about.toggle_licenses()
+	assert_bool(about.filling()).is_true()
+	about.free()
 
 
 ## Everybody THIRD_PARTY.md says has work in the repository is credited on the page, so the two
