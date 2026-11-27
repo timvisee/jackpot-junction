@@ -122,7 +122,25 @@ Informal: *je* and *jij*, never *u*, the House included. Common English game wor
 
 ### Simplified Chinese (`zh_CN`)
 
-Not translated yet. What the game already expects:
+Not translated yet, but for the cards the store page's pictures show. The store page
+([store_schinese.md](steam/store_schinese.md)) set these terms, which the game's words keep:
+
+| English | Simplified Chinese |
+|---|---|
+| the House | 庄家 |
+| chip(s) / pot / mult | 筹码 / 彩池 / 倍率 |
+| cash out | 兑现 |
+| the Junction / the Jackpot | 路口 / 头奖 |
+| joker / power-up | 小丑牌 / 道具 |
+| table (an arena) / kart | 赌桌 / 卡丁车 |
+| pit | 坑洞 |
+| license / driving school | 驾照 / 驾校 |
+| loyalty program / loyalty rewards | 会员计划 / 会员奖励 |
+| Grand Prix / Showdown / bounty | 大奖赛 / 摊牌对决 / 悬赏 |
+| card back / endorsement | 牌背 / 签注 |
+| Supporter Pack | 支持者礼包 |
+
+What the game already expects:
 
 - **Punctuation** is full-width: ，。：；！？、（）“”, …… for an ellipsis and —— for a dash. Figures,
   Latin letters and placeholders stay half-width.

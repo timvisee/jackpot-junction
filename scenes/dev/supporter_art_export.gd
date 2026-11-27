@@ -67,6 +67,11 @@ const PACK_HEADINGS_IN: Dictionary[String, Dictionary] = {
 		"heading_supporter_thanks": "Een bedankje om te dragen",
 		"heading_supporter_pieces": "Alles in het pakket",
 	},
+	"zh_CN":
+	{
+		"heading_supporter_thanks": "穿在身上的谢意",
+		"heading_supporter_pieces": "礼包内容一览",
+	},
 }
 
 ## The store page's screenshots of the table, at the size Steam takes, drawn as the capsules are

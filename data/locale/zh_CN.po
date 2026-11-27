@@ -4798,31 +4798,31 @@ msgstr ""
 
 #: scenes/ui/item_card.gd
 msgid "Item"
-msgstr ""
+msgstr "道具"
 
 #: scenes/ui/joker_card.gd
 msgid "Stat"
-msgstr ""
+msgstr "数值"
 
 #: scenes/ui/joker_card.gd
 msgid "Rule"
-msgstr ""
+msgstr "规则"
 
 #: scenes/ui/joker_card.gd
 msgid "Cursed"
-msgstr ""
+msgstr "诅咒"
 
 #: scenes/ui/joker_card.gd
 msgid "Common"
-msgstr ""
+msgstr "普通"
 
 #: scenes/ui/joker_card.gd
 msgid "Uncommon"
-msgstr ""
+msgstr "罕见"
 
 #: scenes/ui/joker_card.gd
 msgid "Rare"
-msgstr ""
+msgstr "稀有"
 
 #: scenes/ui/joker_card.gd
 msgid "One of Kit's cards"
@@ -12282,7 +12282,7 @@ msgstr ""
 #. display name
 #: data/jokers/curve_ball.tres
 msgid "Curve Ball"
-msgstr ""
+msgstr "弧线球"
 
 #. description
 #: data/jokers/curve_ball.tres
@@ -12392,7 +12392,7 @@ msgstr ""
 #. display name
 #: data/jokers/guardian_angel.tres
 msgid "Guardian Angel"
-msgstr ""
+msgstr "守护天使"
 
 #. description
 #: data/jokers/guardian_angel.tres
@@ -12452,7 +12452,7 @@ msgstr ""
 #. display name
 #: data/jokers/loaded_dice.tres
 msgid "Loaded Dice"
-msgstr ""
+msgstr "灌铅骰子"
 
 #. description
 #: data/jokers/loaded_dice.tres
@@ -12567,7 +12567,7 @@ msgstr ""
 #. display name
 #: data/jokers/pickpocket.tres
 msgid "Pickpocket"
-msgstr ""
+msgstr "扒手"
 
 #. description
 #: data/jokers/pickpocket.tres
@@ -12737,7 +12737,7 @@ msgstr ""
 #. display name
 #: data/jokers/wild_card.tres
 msgid "Wild Card"
-msgstr ""
+msgstr "百搭牌"
 
 #. description
 #: data/jokers/wild_card.tres
@@ -13092,7 +13092,7 @@ msgstr ""
 #. display name
 #: data/powerups/bomb.tres
 msgid "Bomb"
-msgstr ""
+msgstr "炸弹"
 
 #. description
 #: data/powerups/bomb.tres
@@ -13152,7 +13152,7 @@ msgstr ""
 #. display name
 #: data/powerups/decoy_kart.tres
 msgid "Decoy Kart"
-msgstr ""
+msgstr "诱饵卡丁车"
 
 #. description
 #: data/powerups/decoy_kart.tres
@@ -13222,7 +13222,7 @@ msgstr ""
 #. display name
 #: data/powerups/rocket.tres
 msgid "Rocket"
-msgstr ""
+msgstr "火箭"
 
 #. description
 #: data/powerups/rocket.tres
@@ -13242,7 +13242,7 @@ msgstr ""
 #. display name
 #: data/powerups/shield.tres
 msgid "Shield"
-msgstr ""
+msgstr "护盾"
 
 #. description
 #: data/powerups/shield.tres
@@ -13282,7 +13282,7 @@ msgstr ""
 #. display name
 #: data/powerups/turret.tres
 msgid "Turret"
-msgstr ""
+msgstr "炮塔"
 
 #. description
 #: data/powerups/turret.tres

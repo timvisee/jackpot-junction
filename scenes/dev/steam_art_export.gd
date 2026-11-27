@@ -200,6 +200,13 @@ const HEADINGS_IN: Dictionary[String, Dictionary] = {
 		"heading_never_play_alone": "Je speelt nooit alleen kaart. Of toch?",
 		"heading_your_ride": "Jouw kart, jouw stijl",
 	},
+	"zh_CN":
+	{
+		"heading_how_the_cards_roll": "牌局怎么走",
+		"heading_whats_in_the_deck": "想知道牌组里有什么？",
+		"heading_never_play_alone": "打牌从不孤单。真的吗？",
+		"heading_your_ride": "你的车，你做主",
+	},
 }
 const PICTURE := 616
 ## How tall a hand of cards is, and how much of it a card is.
