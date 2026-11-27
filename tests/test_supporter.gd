@@ -847,11 +847,16 @@ func test_the_about_page_offers_the_pack() -> void:
 	assert_int(row.get_child_count()).is_equal(2)
 	tab.supporter_link.pressed.emit()
 	assert_int(Supporter.store_asked).is_equal(1)
+	# Bought with the cursor on its link, the cursor goes to the link before, the source's.
+	tab.supporter_link.grab_focus()
 	Supporter.set_owned(true)
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert_object(tab.supporter_link).is_null()
 	assert_str(tab.said()).not_contains(AboutTab.SUPPORTER_LINK)
+	var focused := tab.get_viewport().gui_get_focus_owner() as LinkButton
+	assert_object(focused).is_not_null()
+	assert_str(focused.uri).is_equal(Credits.REPOSITORY)
 	remove_child(tab)
 
 

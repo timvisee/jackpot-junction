@@ -111,7 +111,7 @@ func _process(_delta: float) -> void:
 	if supporter_link == null or not Supporter.owned():
 		return
 	var had := supporter_link.has_focus()
-	var before := supporter_link.get_parent().get_child(_supporter_line.get_index() - 1) as Control
+	var before := _supporter_line.get_parent().get_child(_supporter_line.get_index() - 1) as Control
 	for gone: Control in [_supporter_line, supporter_link.get_parent() as Control]:
 		gone.get_parent().remove_child(gone)
 		gone.queue_free()

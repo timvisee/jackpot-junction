@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **The cursor stays on the About page when you buy the Supporter Pack.** Bought from its link on a
+  controller, the cursor moves to the link above it rather than getting lost.
+
 ## [0.24.1] - 2026-11-26
 
 Button hints are drawn the way Steam draws them, the right stick scrolls every pane, and a die at
