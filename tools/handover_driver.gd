@@ -1,17 +1,19 @@
 extends "res://tools/multiplayer_driver.gd"
-## Development harness: a LAN game handed to a new host as its host goes, GAME.md 10.8, through
-## the real scenes, a process for each machine. The host opens a room, two clients sit down in it,
-## the first before the second, and the host goes: the first in line hosts the game next and the
-## second follows them in. With --in-a-map the host sends the room to a map first and goes during
-## it: the new host carries the map on, the same map with its clock where it was, and the second
-## sits down in it again. Otherwise the host goes from the lobby, and the new host opens a lobby,
-## never a map. With --make-host the host hands the game to the second in line by Make host
-## instead, from the lobby or with --in-a-map during the map, and follows them in with the first,
-## back in its own kart with its score in a map. With --killed, and --in-a-map, the host's process
-## is killed during the map, as a crash goes, saying nothing to anybody: the others find it gone
-## once its line goes quiet, and the game is handed down the line they were told before, each back
-## in its own kart by its secret. Started by tools/multiplayer_check.gd with --handover, and says
-## what it saw the way tools/multiplayer_driver.gd does, a line starting MPCHECK for every step.
+## Development harness: a LAN game handed to a new host as its host goes, GAME.md 10.8, through the
+## real scenes, a process for each machine. The host opens a room, two clients sit down in it, the
+## first before the second as a rule, though either may come first with many machines starting at
+## once, so each goes by the place in line the host tells it; and the host goes: the first in line
+## hosts the game next and the second follows them in. With --in-a-map the host sends the room to a
+## map first and goes during it: the new host carries the map on, the same map with its clock where
+## it was, and the second sits down in it again. Otherwise the host goes from the lobby, and the new
+## host opens a lobby, never a map. With --make-host the host hands the game to the second in line
+## by Make host instead, from the lobby or with --in-a-map during the map, and follows them in with
+## the first, back in its own kart with its score in a map. With --killed, and --in-a-map, the
+## host's process is killed during the map, as a crash goes, saying nothing to anybody: the others
+## find it gone once its line goes quiet, and the game is handed down the line they were told
+## before, each back in its own kart by its secret. Started by tools/multiplayer_check.gd with
+## --handover, and says what it saw the way tools/multiplayer_driver.gd does, a line starting
+## MPCHECK for every step.
 ##
 ##   godot --headless --path . -s tools/multiplayer_check.gd -- --handover --role=host --port=7855
 ##   ... --role=first, then --role=second, each with the same port and the same --in-a-map,
@@ -50,11 +52,13 @@ func _run() -> void:
 		"host":
 			await _host_goes()
 		"first", "second":
-			var place := 0 if _role == "first" else 1
+			await _frames(60 + 180 * int(_role == "second"))
+			var room := await _joined()
+			var place := await _place_in_line(room.session) if room != null else -1
 			if place == next:
-				await _takes_it_on(place)
-			else:
-				await _follows(place)
+				await _takes_it_on()
+			elif place >= 0:
+				await _follows(room)
 		_:
 			_fail("no --role=host, first or second")
 	if not _failed and not _finished:
@@ -145,13 +149,9 @@ func _makes_host(session: NetSession, played: Match) -> void:
 	_finished = true
 
 
-## Joins as [param place] in line and hosts the game next: as the host goes, a lobby from a lobby
-## or the map carried on from a map; as it is made host, a lobby. The others sit down with it.
-func _takes_it_on(place: int) -> void:
-	await _frames(60 + 180 * place)
-	var room := await _joined()
-	if room == null or not await _in_line(room.session, place, "told its place in line"):
-		return
+## Hosts the game next, the one in line told so: as the host goes, a lobby from a lobby or the map
+## carried on from a map; as it is made host, a lobby. The others sit down with it.
+func _takes_it_on() -> void:
 	var map := &""
 	if _in_a_map:
 		map = await _the_map_played(true)
@@ -172,13 +172,9 @@ func _takes_it_on(place: int) -> void:
 	_finished = true
 
 
-## Joins as [param place] in line and follows whoever hosts next into the game they host: their
-## lobby, or the map carried on, sat down in it again.
-func _follows(place: int) -> void:
-	await _frames(60 + 180 * place)
-	var room := await _joined()
-	if room == null or not await _in_line(room.session, place, "told its place in line"):
-		return
+## Follows whoever hosts next from [param room] into the game they host: their lobby, or the map
+## carried on, sat down in it again.
+func _follows(room: Node) -> void:
 	# By its id: a lambda holding the session itself would hold it freed once the host goes.
 	var old := (room.session as NetSession).get_instance_id()
 	var map := &""
@@ -211,17 +207,31 @@ func _sat_down_away_from(old: int) -> bool:
 	)
 
 
-## Whether [param session] has been told this machine is [param place] in the line of two who host
-## after the host, saying [param what].
-func _in_line(session: NetSession, place: int, what: String) -> bool:
+## This machine's place in the line of two who host after the host, 0 or 1, once [param session]
+## has been told it, or -1, failed, if it never is. The session by its id, as it is freed once the
+## host goes, which before the line was told is a failure of its own.
+func _place_in_line(session: NetSession) -> int:
 	var me := multiplayer.get_unique_id()
-	return await _until(
+	var id := session.get_instance_id()
+	var place := [-1]
+	var told := await _until(
 		func() -> bool:
-			var line := session.host_controls.succession
-			return line.size() == 2 and int(line[place]["peer"]) == me,
+			var held := instance_from_id(id) as NetSession
+			if held == null:
+				_fail("the host went before telling this machine its place in line")
+				return false
+			var line := held.host_controls.succession
+			for k: int in line.size():
+				if line.size() == 2 and int(line[k]["peer"]) == me:
+					place[0] = k
+			return place[0] >= 0,
 		20.0,
-		what
+		"told its place in line"
 	)
+	if not told:
+		return -1
+	_say("%s in line" % ["first", "second"][place[0]])
+	return place[0]
 
 
 ## The map the host sent the room to, once it is up here, and once its lamps went with
