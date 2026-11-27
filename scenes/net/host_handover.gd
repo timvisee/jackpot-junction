@@ -291,6 +291,11 @@ func _step_steam(delta: float) -> void:
 ## until a game answers there, which is followed in, or until the next in line takes it on.
 func _step_line(delta: float) -> void:
 	_waited += delta
+	# Make host: nobody is asked while this machine still hosts, for everybody to hear the new
+	# order first, see [constant TOLD_FOR]. On one machine the address asked is its own, where the
+	# game it is handing over still answers.
+	if Net.hosting():
+		return
 	if _asking_old:
 		_ask_old_host()
 		return
@@ -338,6 +343,7 @@ func _ask_old_host() -> void:
 func _host_it(config: MatchConfig) -> void:
 	var resume := _resume
 	_done()
+	_let_go()
 	if resume.is_empty():
 		go_on.call(config)
 		return
@@ -349,7 +355,15 @@ func _host_it(config: MatchConfig) -> void:
 ## Another player is the new host and its game is up: in after them, as the others do.
 func _follow(config: MatchConfig) -> void:
 	_done()
+	_let_go()
 	go_on.call(config)
+
+
+## The old game's session closed if it is still open, before the next room opens: one still open
+## is taken for the connection the room came back on, and the room is left with nobody in it.
+func _let_go() -> void:
+	if Net.session != null:
+		Net.close()
 
 
 ## Given up, or Leave: a Steam game's lobby left, and back to Play Online saying [param why], or
