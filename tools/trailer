@@ -328,7 +328,12 @@ def _starts(shots: list[tuple]) -> list[float]:
 SHOTS_IN_ORDER = placed(SHOTS_IN_ORDER)
 # How long each shot goes on past its end, room for a transition out of it.
 TAIL = 0.5
-SETTINGS = """[video]
+# The settings each shot plays with: English whatever the machine speaks, as the captions are.
+SETTINGS = """[game]
+
+language="en"
+
+[video]
 
 window_size=Vector2i(%d, %d)
 vsync=false
@@ -345,8 +350,8 @@ control_hints=false
 
 def render(scratch: pathlib.Path, shot: tuple, mode: dict) -> str | None:
     """Plays and records [shot] in a user directory of its own, so the player's settings and
-    profiles are never touched: no music, which the trailer lays under itself, no control hints,
-    and frames not held to a display. Returns why it failed, or None."""
+    profiles are never touched: in English, no music, which the trailer lays under itself, no
+    control hints, and frames not held to a display. Returns why it failed, or None."""
     name, length, scene, args, _ = shot
     user = scratch / name / "godot/app_userdata/Jackpot Junction"
     user.mkdir(parents=True, exist_ok=True)
