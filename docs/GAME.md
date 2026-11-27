@@ -11327,9 +11327,10 @@ ready meanwhile; then the start's countdown of 3.8 runs again, and the map plays
 player coming back in Last Call sits down all the same. It is not hidden, since it should seldom
 happen: a few seconds and a countdown. A showdown and the story's Final Hand are not carried over;
 there, and from the lobby or the podium, the new host opens the same room with the game's rules,
-and everybody follows. The new host is told so once their room is up, the lobby or the map, its
-loading screen gone, on the notice of 9.3a: "You are the host", over "You host the game now, in
-place of Kit. You choose the match and who may join."
+and everybody follows. The new host is told so on the dialog's own pane as it goes, "You are
+now the host" over a full bar, with nothing to close and no shade: it stays while their room goes
+up, the lobby or the map, and fades a second and a half after its loading screen has gone, taking
+no key, click or cursor meanwhile.
 
 How it is handed over. The host keeps in its lobby what a new host takes the game on with, the match
 as its settings have it and its door but for a password, whether it is a Quick Play game and who may

@@ -215,7 +215,7 @@ func _opens_the_lobby(others: int) -> bool:
 		return false
 	_check(lobby.host_settings != null, "the new host has the match settings")
 	_check(Net.session.match_node == lobby.match_node, "a lobby, not a map")
-	if not await _told_it_hosts(lobby):
+	if not await _told_it_hosts():
 		return false
 	return await _until(
 		func() -> bool: return _remote(lobby.match_node) == others,
@@ -234,7 +234,7 @@ func _carries_on(map: StringName) -> bool:
 	_check(played.rules.map == map, "the same map carried on")
 	var left := played.time_left
 	_check(left < played.rules.duration - 2.0, "its clock where it was, %.0f s left" % left)
-	if not await _told_it_hosts(carried):
+	if not await _told_it_hosts():
 		return false
 	# Held on the grid until the other player is back and has the map up, then counted down.
 	var controls := Net.session.host_controls
@@ -252,14 +252,14 @@ func _carries_on(map: StringName) -> bool:
 	)
 
 
-## Whether this machine, the game's new host, was told so over [param scene].
-func _told_it_hosts(scene: Node) -> bool:
+## Whether this machine, the game's new host, was told so over its room, and the word went by
+## itself, nothing to close.
+func _told_it_hosts() -> bool:
+	var handover := get_tree().get_first_node_in_group(&"host_handover") as HostHandover
+	if not _check(handover != null and handover.banner.visible, "told it is the host now"):
+		return false
 	return await _until(
-		func() -> bool:
-			var notice := scene.get_node_or_null("Notice") as NoticePane
-			return notice != null and notice.visible,
-		20.0,
-		"told it is the host now"
+		func() -> bool: return not handover.banner.visible, 10.0, "and the word went by itself"
 	)
 
 

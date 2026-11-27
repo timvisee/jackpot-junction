@@ -49,8 +49,11 @@ const LOST := "The connection to the game was lost"
 const ROOMS: Array[String] = [
 	"res://scenes/waiting/waiting_room.tscn", "res://scenes/match/match_scene.tscn"
 ]
-## How long this machine, having taken the game on, waits at most for its room to be up to be told
-## so, in seconds, see [method _tell_the_new_host].
+## What the new host is told, see [method _now_the_host]; how long it is shown once the room is
+## up, and how long it fades for; and how long the room is waited for at most, in seconds.
+const NOW_THE_HOST := "You are now the host"
+const SHOWN_FOR := 1.5
+const FADE_FOR := 0.4
 const TELL_WITHIN := 30.0
 ## How long the bar takes to ease along, in seconds, and how far it goes.
 const EASE_FOR := 8.0
@@ -60,6 +63,9 @@ const EASE_REACH := 0.9
 var dialog: FormDialog
 var bar: ProgressBar
 var leave_button: Button
+## Over the room of the game this machine took on, as the dialog goes, see [method _now_the_host]:
+## the dialog's look, its title and its bar full, but taking nothing.
+var banner: Control
 ## Where the room goes once the game has a new host: there, as host or as a player, unless a test
 ## says otherwise.
 var go_on: Callable = Game.go_to_waiting
@@ -98,10 +104,12 @@ var _watching := false
 var _waited := 0.0
 var _resume := {}
 var _easing: Tween
-## What this machine is told once the room of the game it took on is up, and how much longer that
-## is waited for.
-var _new_host_words := ""
+## How much longer the new host's room is waited for, see [method _now_the_host], whether it is
+## up, how much longer the word is shown since, and its fading.
 var _tell_left := 0.0
+var _up := false
+var _shown_left := 0.0
+var _fading: Tween
 
 
 func _ready() -> void:
@@ -118,6 +126,34 @@ func _ready() -> void:
 	bar = dialog.add_bar()
 	leave_button = dialog.add_button("Leave")
 	leave_button.pressed.connect(give_up)
+	banner = _banner()
+	screen.add_child(banner)
+
+
+## The new host's word: a pane the dialog's own, saying [constant NOW_THE_HOST] over a full bar,
+## with no button and no shade, which takes no click, key or cursor, so the room goes on under it.
+func _banner() -> Control:
+	var middle := CenterContainer.new()
+	middle.name = "NowTheHost"
+	middle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	middle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	middle.visible = false
+	var pane := MenuTheme.pane()
+	pane.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	middle.add_child(pane)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 12)
+	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	pane.add_child(column)
+	var title := MenuTheme.title(NOW_THE_HOST, 44)
+	title.name = "Title"
+	column.add_child(title)
+	var full := LoadingScreen.bar()
+	full.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	full.value = full.max_value
+	full.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	column.add_child(full)
+	return middle
 
 
 ## Whether the game is being handed over now.
@@ -264,8 +300,8 @@ func _stop_the_room() -> void:
 
 
 func _process(delta: float) -> void:
-	if not _new_host_words.is_empty():
-		_tell_the_new_host(delta)
+	if banner.visible:
+		_step_banner(delta)
 	if _kind == Kind.STEAM and Store.on():
 		_step_steam(delta)
 	elif _kind == Kind.LAN:
@@ -351,15 +387,8 @@ func _ask_old_host() -> void:
 ## map being played if there was one, as this machine last saw it, or else into a waiting room.
 func _host_it(config: MatchConfig) -> void:
 	var resume := _resume
-	var named := _left_name if _left_name != "You" else ""
-	_new_host_words = (
-		("You host the game now, in place of %s." % named)
-		if not named.is_empty()
-		else "You host the game now."
-	)
-	_new_host_words += " You choose the match and who may join."
-	_tell_left = TELL_WITHIN
 	_done()
+	_now_the_host()
 	_let_go()
 	if resume.is_empty():
 		go_on.call(config)
@@ -376,23 +405,48 @@ func _follow(config: MatchConfig) -> void:
 	go_on.call(config)
 
 
-## This machine took the game on, GAME.md 10.8: told so over its room, the lobby or the map carried
-## on, once that is up and its loading screen gone, the way the host's say coming to somebody at a
-## dedicated server is, 9.3a. Never in another room, should the game not come up.
-func _tell_the_new_host(delta: float) -> void:
-	_tell_left -= delta
-	if _tell_left <= 0.0:
-		_new_host_words = ""
+## This machine took the game on, GAME.md 10.8: as the dialog goes, the same pane says
+## [constant NOW_THE_HOST] over a full bar, taking nothing, and stays while the room goes up, under
+## its loading screen, and [constant SHOWN_FOR] seconds once it is, then fades. Nothing to close.
+func _now_the_host() -> void:
+	if _fading != null:
+		_fading.kill()
+	_fading = null
+	banner.modulate.a = 1.0
+	banner.visible = true
+	_tell_left = TELL_WITHIN
+	_up = false
+
+
+## The new host's word put away a moment after its room is up, the lobby or the map carried on, its
+## loading screen gone; or should the game not come up, after [constant TELL_WITHIN] seconds.
+func _step_banner(delta: float) -> void:
+	if _fading != null:
 		return
+	_tell_left -= delta
+	if not _up and _room_up():
+		_up = true
+		_shown_left = SHOWN_FOR
+	if _up:
+		_shown_left -= delta
+	if _tell_left > 0.0 and not (_up and _shown_left <= 0.0):
+		return
+	_fading = create_tween()
+	_fading.tween_property(banner, "modulate:a", 0.0, FADE_FOR)
+	_fading.tween_callback(
+		func() -> void:
+			banner.visible = false
+			_fading = null
+	)
+
+
+## Whether the room this machine now hosts is up: a room or a map, running, hosted here, with no
+## loading screen over it.
+func _room_up() -> bool:
 	var scene := get_tree().current_scene
 	if scene == null or scene.scene_file_path not in ROOMS or not scene.can_process():
-		return
-	if not get_tree().get_nodes_in_group(LoadingScreen.GROUP).is_empty():
-		return
-	if not Net.hosting():
-		return
-	NoticePane.tell(scene, "You are the host", _new_host_words)
-	_new_host_words = ""
+		return false
+	return Net.hosting() and get_tree().get_nodes_in_group(LoadingScreen.GROUP).is_empty()
 
 
 ## The old game's session closed if it is still open, before the next room opens: one still open
