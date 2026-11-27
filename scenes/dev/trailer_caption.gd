@@ -75,6 +75,33 @@ const WORDS_IN: Dictionary[String, Dictionary] = {
 		"PLAY FREE ON STEAM": "SPEEL GRATIS OP STEAM",
 		"Up to 4 on one screen  ·  8 online": "Tot 4 op één scherm  ·  8 online",
 	},
+	"zh_CN":
+	{
+		"Drift. Shoot.": "漂移。射击。",
+		"Knock them out.": "把他们撞出局。",
+		"Scoop the chips.": "捞走筹码。",
+		"Cash out before they cash you in.": "趁还没被收割，先把筹码兑现。",
+		"Bend the rules.": "改写规则。",
+		"4 on one screen · 8 online": "同屏 4 人 · 联机 8 人",
+		"7 tables": "7 张赌桌",
+		"48 jokers": "48 张小丑牌",
+		"21 power-ups": "21 种道具",
+		"Teams": "组队",
+		"Slot machines": "老虎机",
+		"Grand Prix": "大奖赛",
+		"Showdowns": "摊牌对决",
+		"Bounties": "悬赏",
+		"Driving school": "驾校",
+		"Loyalty rewards": "会员奖励",
+		"Any controller": "任意手柄",
+		"Open source": "开源",
+		"And": "还有",
+		"much": "更多",
+		"more": "精彩",
+		"fun": "乐趣",
+		"PLAY FREE ON STEAM": "STEAM 免费畅玩",
+		"Up to 4 on one screen  ·  8 online": "同屏最多 4 人  ·  联机最多 8 人",
+	},
 }
 const BIG := Vector2(0.5, 0.5)
 const BIG_SIZE := 1.6
