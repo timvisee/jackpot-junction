@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Seal</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M12.85,43.54L17.75,23.06A1,1 0 0 1 19.04,22.35L24.62,24.21A1,1 0 0 1 25.27,25.4L20.29,44.87A0.6,0.6 0 0 1 19.25,45.11L17.03,42.47A0.4,0.4 0 0 0 16.5,42.39L13.76,44.18A0.6,0.6 0 0 1 12.85,43.54Z"/>
+    <path class="shade" d="M20,-20H70V70H20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M35.15,43.54L30.25,23.06A1,1 0 0 0 28.96,22.35L23.38,24.21A1,1 0 0 0 22.73,25.4L27.71,44.87A0.6,0.6 0 0 0 28.75,45.11L30.97,42.47A0.4,0.4 0 0 1 31.5,42.39L34.24,44.18A0.6,0.6 0 0 0 35.15,43.54Z"/>
+    <path class="shade" d="M31,-20H70V70H31Z"/>
+  </g>
+  <g class="cut-all">
+    <path class="cut" d="M7.5,16A16.5,16.5 0 1 0 40.5,16A16.5,16.5 0 1 0 7.5,16Z"/>
+  </g>
+</g>
+</svg>

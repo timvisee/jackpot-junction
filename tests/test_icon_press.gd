@@ -16,6 +16,7 @@ const FOLDERS := {
 	"res://assets/icons/landmarks/": "landmarks",
 	"res://assets/icons/ui/": "ui",
 	"res://assets/icons/suits/": "suits",
+	"res://assets/icons/marks/": "marks",
 }
 
 
@@ -106,6 +107,18 @@ func test_every_glyph_and_suit_has_a_drawing() -> void:
 		HouseArt.magnifier(), HouseArt.cross(), HouseArt.turning(), HouseArt.pin(), HouseArt.arrow()
 	]:
 		assert_object(texture).is_not_null()
+
+
+## The loyalty map's marks have their drawings: the seal in two, the stamp, Kit's tick, a
+## keystone's crest and the roundabout's pot, and nothing else is in their folder.
+func test_every_mark_of_the_map_has_a_drawing() -> void:
+	var marks: Array[StringName] = [
+		&"medal_seal", &"medal_seal_red", &"stamp_ring", &"tick_print", &"crest_disc", &"pot_chip"
+	]
+	var files := _files("res://assets/icons/marks/")
+	assert_int(files.size()).is_equal(marks.size())
+	for id: StringName in marks:
+		assert_bool(id in files).override_failure_message("%s has no drawing" % id).is_true()
 
 
 ## Every card of the table, kind of game, way to drive, part of the dress and emote has its drawing,

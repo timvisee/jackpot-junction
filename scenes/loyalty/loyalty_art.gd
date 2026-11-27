@@ -58,11 +58,21 @@ const CHASE_GAP := 3
 const STAMP := 24.0
 const STAMP_WORD := "WON"
 const STAMP_TURN := -0.32
-## The Strip's seal on a won landmark: how big round, how many points its edge is cut in, how far it
-## is turned, and its ribbons' red.
+## The stamp's ring in its drawing, in the drawing's 48 units, and the word's size for its radius.
+const STAMP_RING := 20.0
+const STAMP_WORD_SIZE := 0.5
+## A keystone's crest: its disc's radius at zoom 1, and in its drawing's 48 units.
+const CREST := 9.5
+const CREST_DISC := 19.0
+## Kit's tick: its lowest point in its drawing's 48 units, and how wide it is there.
+const TICK_FOOT := Vector2(20.0, 38.5)
+const TICK_WIDE := 36.0
+## The Strip's seal on a won landmark: how big round, how far it is turned, and its ribbons' red;
+## where its disc is in its drawing, and its radius there, in the drawing's 48 units.
 const SEAL := 21.0
-const SEAL_POINTS := 22
 const SEAL_TURN := 0.18
+const SEAL_MIDDLE := Vector2(24.0, 16.0)
+const SEAL_DISC := 15.0
 const RIBBON := Color(0.72, 0.13, 0.12)
 ## How far a lit marquee's glow reaches onto the paper round it.
 const GLOW := 13.0
@@ -105,8 +115,9 @@ static func draw_sign(
 		draw_won(on, rect, landmark, zoom)
 
 
-## A keystone's crest over the middle of its sign's top: a star in a disc of its district's color,
-## gone [param pale] of the way to the paper, as a closed sign's pale leaves it.
+## A keystone's crest over the middle of its sign's top, a drawing of GAME.md 8.3a: a disc of its
+## district's color with a ring cut inside it and a star on it, gone [param pale] of the way to the
+## paper, as a closed sign's pale leaves it.
 static func _crest(
 	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float, pale := 0.0
 ) -> void:
@@ -117,14 +128,13 @@ static func _crest(
 		if kit
 		else (HouseTheme.FOIL if landmark.district == LoyaltyLandmark.District.STRIP else SIGN_BLUE)
 	)
-	var face := HouseTheme.ON_FOIL if disc == HouseTheme.FOIL else SIGN_WHITE
+	var face := IconPress.CREAM if disc == HouseTheme.FOIL else SIGN_WHITE
 	on.draw_circle(at, 11.0 * zoom, Color(HouseTheme.PAPER, 1.0))
-	on.draw_circle(at, 9.5 * zoom, disc.lerp(Color(HouseTheme.PAPER, 1.0), pale))
-	var star := PackedVector2Array()
-	for i: int in 10:
-		var reach := (7.0 if i % 2 == 0 else 3.0) * zoom
-		star.append(at + Vector2.from_angle(-PI * 0.5 + TAU * i / 10.0) * reach)
-	on.draw_colored_polygon(star, face.lerp(Color(HouseTheme.PAPER, 1.0), pale))
+	# The printed disc, its star cream on it, faded toward the paper as far as the sign is.
+	var side := CREST * zoom * 48.0 / CREST_DISC
+	var box := Rect2(at - Vector2.ONE * side * 0.5, Vector2.ONE * side)
+	var ink := Color(disc, 1.0 - pale)
+	IconPress.draw(on, box, &"crest_disc", ink, IconPress.Ground.TWO_INKS, face, true)
 
 
 ## The gold NEW tag over [param rect]'s top left corner, at [param zoom], clear of the stamp.
@@ -324,42 +334,18 @@ static func draw_won(
 			stamp(on, at, STAMP * zoom * grow, HouseTheme.STAMP_RED)
 
 
-## The Strip's seal, [param radius] round [param at]: two ribbons of red hanging under it, cut to
-## a swallowtail; a disc of gold foil its edge cut in points, a rosette's, on a shadow and edged in
-## the foil's dark; and the word in that dark inside a fainter ring.
+## The Strip's seal, [param radius] round [param at], a drawing of GAME.md 8.3a printed in two
+## inks: two red ribbons cut to a swallowtail hanging under a disc of gold, its edge cut in points
+## and a ring cut inside it, its shadow side screened; and the word in the gold's dark over it.
+## Under [param base], the transform it is drawn under, a little turned.
 static func seal(on: CanvasItem, at: Vector2, radius: float, base := Transform2D.IDENTITY) -> void:
 	on.draw_set_transform_matrix(base * Transform2D(SEAL_TURN, at))
-	var edge := Color(HouseTheme.ON_FOIL, 0.8)
-	var thin := maxf(radius * 0.06, 0.8)
-	for side: float in [-1.0, 1.0]:
-		var ribbon := PackedVector2Array()
-		for corner: Vector2 in [
-			Vector2(0.05, 0.4),
-			Vector2(0.52, 0.32),
-			Vector2(0.78, 1.5),
-			Vector2(0.56, 1.3),
-			Vector2(0.36, 1.56)
-		]:
-			ribbon.append(Vector2(corner.x * side, corner.y) * radius)
-		on.draw_colored_polygon(ribbon, RIBBON)
-		ribbon.append(ribbon[0])
-		on.draw_polyline(ribbon, edge, thin, true)
-	var rim := PackedVector2Array()
-	for i: int in SEAL_POINTS * 2:
-		var reach := radius * (1.0 if i % 2 == 0 else 0.88)
-		rim.append(Vector2.from_angle(TAU * i / (SEAL_POINTS * 2.0)) * reach)
-	var shadow := PackedVector2Array()
-	for point: Vector2 in rim:
-		shadow.append(point + Vector2(0.06, 0.1) * radius)
-	on.draw_colored_polygon(shadow, Color(0.0, 0.0, 0.0, 0.3))
-	on.draw_colored_polygon(rim, HouseTheme.FOIL)
-	rim.append(rim[0])
-	on.draw_polyline(rim, edge, thin * 1.4, true)
-	on.draw_circle(Vector2.ZERO, radius * 0.7, HouseTheme.FOIL_HIGH)
-	on.draw_arc(Vector2.ZERO, radius * 0.7, 0.0, TAU, 32, edge, thin, true)
-	on.draw_arc(
-		Vector2.ZERO, radius * 0.6, 0.0, TAU, 32, Color(HouseTheme.ON_FOIL, 0.35), thin, true
-	)
+	# The drawing's disc is SEAL_DISC across its 48 units, its middle at SEAL_MIDDLE.
+	var unit := radius / SEAL_DISC
+	var box := Rect2(-SEAL_MIDDLE * unit, Vector2.ONE * 48.0 * unit)
+	var two := IconPress.Ground.TWO_INKS
+	IconPress.draw(on, box, &"medal_seal_red", RIBBON, two, IconPress.CREAM, true)
+	IconPress.draw(on, box, &"medal_seal", HouseTheme.FOIL, two, IconPress.CREAM, true)
 	var font := Type.display_font()
 	var size := maxi(roundi(radius * 0.62), 1)
 	var word_at := Vector2(-radius, font.get_ascent(size) * 0.5 - size * 0.12)
@@ -376,8 +362,8 @@ static func seal(on: CanvasItem, at: Vector2, radius: float, base := Transform2D
 
 
 ## A landmark won off the books, as Kit marks one done: a loop drawn round its sign by hand, running
-## on past where it started, and a big tick over its top right corner, each gone over twice, the
-## tick [param grow] times as big.
+## on past where it started, gone over twice, and a big tick over its top right corner, a drawing of
+## GAME.md 8.3a in his pencil, [param grow] times as big.
 static func _ticked(
 	on: CanvasItem, rect: Rect2, landmark: LoyaltyLandmark, zoom: float, grow := 1.0
 ) -> void:
@@ -397,31 +383,29 @@ static func _ticked(
 			loop, Color(PENCIL, 0.7 - pass_at * 0.35), (1.6 - pass_at * 0.5) * zoom, true
 		)
 	var at := Vector2(rect.end.x - 2.0 * zoom, rect.position.y + 2.0 * zoom)
-	var tick := PackedVector2Array(
-		[at + Vector2(-0.7, -0.05), at + Vector2(-0.2, 0.55), at + Vector2(0.9, -0.95)]
-	)
-	for i: int in tick.size():
-		tick[i] = at + (tick[i] - at) * TICK * zoom * grow
-	on.draw_polyline(tick, PENCIL, 3.4 * zoom, true)
-	var again := PackedVector2Array()
-	for point: Vector2 in tick:
-		again.append(point + Vector2(1.1, -0.6) * zoom)
-	on.draw_polyline(again, Color(PENCIL, 0.45), 1.6 * zoom, true)
+	# The printed tick, its foot where the drawn one's was, as wide as it was.
+	var tick := TICK * zoom * grow
+	var unit := tick * 1.6 / TICK_WIDE
+	var foot := at + Vector2(-0.2, 0.55) * tick
+	var box := Rect2(foot - TICK_FOOT * unit, Vector2.ONE * 48.0 * unit)
+	IconPress.draw(on, box, &"tick_print", PENCIL, IconPress.Ground.PAPER)
 
 
-## The program's stamp, [param radius] round [param at]: a closed ring and the word across it, a
-## little askew and its inner ring fainter, the way ink is. Its outer ring once stopped short of
-## closing for the same reason, and read as a stamp drawn wrong rather than one pressed unevenly.
+## The program's stamp, [param radius] round [param at], a drawing of GAME.md 8.3a pressed in
+## [param ink]: a heavy ring, a fine one inside it, a star over the word and one under it, the word
+## across the middle, a little askew. Its outer ring once stopped short of closing, and read as a
+## stamp drawn wrong rather than one pressed unevenly.
 ## Under [param base], the transform it is drawn under, as the seal is.
 static func stamp(
 	on: CanvasItem, at: Vector2, radius: float, ink: Color, base := Transform2D.IDENTITY
 ) -> void:
 	on.draw_set_transform_matrix(base * Transform2D(STAMP_TURN, at))
 	on.draw_circle(Vector2.ZERO, radius, Color(HouseTheme.PAPER, 0.55))
-	on.draw_arc(Vector2.ZERO, radius, 0.0, TAU, 40, ink, radius * 0.14, true)
-	on.draw_arc(Vector2.ZERO, radius * 0.74, 0.0, TAU, 32, Color(ink, 0.6), radius * 0.05, true)
+	var unit := radius / STAMP_RING
+	var box := Rect2(-Vector2.ONE * 24.0 * unit, Vector2.ONE * 48.0 * unit)
+	IconPress.draw(on, box, &"stamp_ring", ink, IconPress.Ground.PAPER)
 	var font := Type.display_font()
-	var size := maxi(roundi(radius * 0.72), 1)
+	var size := maxi(roundi(radius * STAMP_WORD_SIZE), 1)
 	var wide := radius * 2.0
 	var word_at := Vector2(-radius, font.get_ascent(size) * 0.5 - size * 0.12)
 	var word := Lang.t(STAMP_WORD)

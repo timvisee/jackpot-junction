@@ -7,6 +7,8 @@ extends RefCounted
 ## map has in its empty places. Drawn in the paper's own measures, under the transform the view sets
 ## for its zoom, so each is sharp at every zoom. See [LoyaltyArt] for the signs.
 
+## The roundabout's pot: its chip's radius in its drawing's 48 units, see [method roundabout].
+const POT_CHIP := 21.0
 ## The House's roads: the casing and the gold lane inside it once open.
 const ROAD := 12.0
 const ROAD_INSIDE := 8.0
@@ -514,19 +516,12 @@ static func roundabout(on: CanvasItem, middle: Vector2, radius: float, open: boo
 		var at := middle + Vector2.from_angle(TAU * (i + 0.5) / 20.0) * radius * 0.71
 		on.draw_circle(at, 2.2, HouseTheme.FOIL_HIGH, true, -1.0, true)
 		on.draw_arc(at, 2.2, 0.0, TAU, 12, Color(HouseTheme.ON_FOIL, 0.35), 0.6, true)
-	var chip := radius * 0.52
-	on.draw_circle(middle + Vector2(1.5, 2.5), chip, Color(0, 0, 0, 0.18))
-	on.draw_circle(middle, chip, HouseTheme.FOIL_LOW)
-	for i: int in 8:
-		var angle := TAU * i / 8.0
-		var notch := PackedVector2Array()
-		for corner: Vector2 in [
-			Vector2(-0.12, 0.84), Vector2(0.12, 0.84), Vector2(0.12, 1.0), Vector2(-0.12, 1.0)
-		]:
-			notch.append(middle + (Vector2(corner.x, -corner.y) * chip).rotated(angle))
-		on.draw_colored_polygon(notch, Color(HouseTheme.PAPER, 0.85))
-	on.draw_circle(middle, chip * 0.8, HouseTheme.FOIL)
-	on.draw_arc(middle, chip * 0.72, 0.0, TAU, 48, Color(HouseTheme.ON_FOIL, 0.45), 1.0, true)
+	# The pot, a gold chip printed as the pictures of GAME.md 8.3a are, its edge spotted.
+	var side := radius * 0.52 * 48.0 / POT_CHIP
+	var box := Rect2(middle - Vector2.ONE * side * 0.5, Vector2.ONE * side)
+	IconPress.draw(
+		on, box, &"pot_chip", HouseTheme.FOIL, IconPress.Ground.TWO_INKS, IconPress.CREAM
+	)
 	# Shut, printed pale as a closed landmark's sign is, see [method LoyaltyArt.draw_sign].
 	if not open:
 		on.draw_circle(middle, radius * 0.82, Color(HouseTheme.PAPER, LoyaltyArt.PALE))

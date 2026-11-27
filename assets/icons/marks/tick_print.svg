@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A printed tick</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M18.78,37.49L7.43,28.17A1.5,1.5 0 0 1 7.44,25.84L9.95,23.84A1.5,1.5 0 0 1 11.95,23.95L18.11,30.11A0.5,0.5 0 0 0 18.85,30.08L38.07,7.02A0.8,0.8 0 0 1 39.08,6.83L41.22,8.06A0.8,0.8 0 0 1 41.47,9.22L20.94,37.22A1.5,1.5 0 0 1 18.78,37.49Z"/>
+  </g>
+</g>
+</svg>

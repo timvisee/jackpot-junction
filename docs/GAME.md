@@ -5130,8 +5130,10 @@ achievement's, `assets/icons/achievements/<id>.svg`, 8.10, and the pictures of t
 table's cards (`table/`, 3.17), the two kinds of game (`modes/`, 9.7), the ways to
 drive and the touch layouts (`drive/`, 4.2), the parts of the dress (`dress/`, 4.4),
 the emotes (`emotes/`, 3.8), the landmarks of the loyalty program's map (`landmarks/`, 8.9),
-the glyphs the house's buttons wear with the padlock of a sealed table card (`ui/`, 8.1a) and the
-suits' marks with the wild card's jester (`suits/`, 7.3), each id named for its family,
+the glyphs the house's buttons wear with the padlock of a sealed table card (`ui/`, 8.1a), the
+suits' marks with the wild card's jester (`suits/`, 7.3) and the loyalty map's marks, its WON seal
+and stamp, Kit's tick, a keystone's crest and the roundabout's pot (`marks/`, 8.9), each id named
+for its family,
 `table_jackpot`, `dress_hat`, `landmark_slip_road`, `ui_trash`. All are
 printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
 the size it is shown. `JokerArt`, `PowerUpArt`, `AchievementIcons`, `TableCardArt`,
@@ -6690,7 +6692,8 @@ water down the valley between the districts, through a lake in the middle of the
 on it, and on under the slip road's bridge, or where there is no such valley across the sheet where it has most
 room; it never runs through a landmark, wanders, widens on its way and has a lake of its own, reeds
 by its lakes. The biggest places are named as a map names them, in a slanted hand, The River, Bluff
-Lake, Lucky Pines and Full House Farm among them. The roundabout's island is a burst of gold round the pot printed as a chip marked JACKPOT; the
+Lake, Lucky Pines and Full House Farm among them. The roundabout's island is a burst of gold round the pot printed as a gold chip marked JACKPOT,
+its edge spotted, a drawing of 8.3a; the
 legend is in the foot's left corner with the compass beside it, and the house's title block in its
 right, the program's name, ROAD MAP · NOT TO SCALE, and Printed by the House for its members. The
 paper is grained, folded in three across and two down with a shade either side of each crease, worn
@@ -6701,13 +6704,16 @@ foot, lit once won and throwing a glow on the paper round it, and chasing round 
 bright, while the cursor is at it and it is not closed; a Department sign a road sign, white
 on its blue; the slip road's a motorway sign in green; and off the books a box drawn twice over by
 hand, its name in Kit's hand. Each is as wide as its name, its own picture at its left, a keystone's
-with a star over it, as pale as the sign while it is closed, and an open one has its bet on a ticket hung from under it, a little narrower
+with a crest over it, a disc of its district's color with a cream star on it, printed as the
+pictures of 8.3a are, as pale as the sign while it is closed, and an open one has its bet on a ticket hung from under it, a little narrower
 than the sign: the House's a stub of cream card edged in its district's color and notched at its
 foot, its count under a perforation along a little road filling in gold as the pinned bet's does,
 Kit's a scrap torn along its foot, shaded in pencil. Won, it is marked off its top right corner, on
-the Strip a seal of gold foil, its edge cut in points, with two red ribbons under it, in the
-Department the red stamp, a closed ring round the word with a fainter one inside it, a little
-askew, and off the books Kit's big tick, gone over twice, and a loop round the sign; the NEW tag
+the Strip a seal of gold, its edge cut in points and a ring cut inside it, its shadow side screened,
+with two red swallowtailed ribbons under it, in the Department the red stamp, a heavy ring round
+the word with a fine one inside it and a star over the word and under it, a little askew, and off
+the books Kit's big tick, heavy where his pencil came down, and a loop round the sign, gone over
+twice; each mark a drawing of 8.3a, the word set over it; the NEW tag
 hangs over its top left. The lines are drawn at the zoom and the words printed at its own size, so
 both are sharp at every zoom. All of it is drawn once into a picture of the sheet at the zoom the map
 rests at, and again a moment after the zoom has come to rest elsewhere; only the kart, the landmark

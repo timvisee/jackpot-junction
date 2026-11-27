@@ -68,6 +68,8 @@ below, and hands the notes to the release workflow.
 - **Redrawn button icons and suits.** The icons on buttons, the map pins, the padlock on a sealed
   table card, the suits and the wild card's jester are redrawn in the same house print.
 - **Redrawn Kit's cards.** Kit's five cards are redrawn in the same house print, in his pencil.
+- **Redrawn loyalty map marks.** The WON seal and stamp, Kit's tick, the keystone crest and the
+  roundabout's chip are redrawn in the same house print.
 - **Reprinted joker and power-up cards.** The cards are printed in the house print: a stub torn
   along a perforation, a halftone screen along the top, gems for rarity, rare and cursed cards
   each printed their own way, and less detail when a card is shown small.

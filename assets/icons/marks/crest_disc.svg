@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A disc</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M5,24A19,19 0 1 0 43,24A19,19 0 1 0 5,24Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM2.5,21A18.5,18.5 0 1 0 39.5,21A18.5,18.5 0 1 0 2.5,21Z" fill-rule="evenodd"/>
+    <path class="cut" d="M9,24A15,15 0 1 0 39,24A15,15 0 1 0 9,24Z" stroke-width="1.2"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M21.48,20.85L23.72,14.85A0.3,0.3 0 0 1 24.28,14.85L26.52,20.85A0.3,0.3 0 0 0 26.79,21.04L33.18,21.32A0.3,0.3 0 0 1 33.36,21.85L28.35,25.84A0.3,0.3 0 0 0 28.25,26.15L29.96,32.32A0.3,0.3 0 0 1 29.5,32.65L24.17,29.12A0.3,0.3 0 0 0 23.83,29.12L18.5,32.65A0.3,0.3 0 0 1 18.04,32.32L19.75,26.15A0.3,0.3 0 0 0 19.65,25.84L14.64,21.85A0.3,0.3 0 0 1 14.82,21.32L21.21,21.04A0.3,0.3 0 0 0 21.48,20.85Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>A ring and two stars</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M4,24A20,20 0 1 0 44,24A20,20 0 1 0 4,24ZM7.2,24A16.8,16.8 0 1 0 40.8,24A16.8,16.8 0 1 0 7.2,24Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M10,24A14,14 0 1 0 38,24A14,14 0 1 0 10,24ZM11,24A13,13 0 1 0 37,24A13,13 0 1 0 11,24Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M23.43,14.53L23.72,13.75A0.3,0.3 0 0 1 24.28,13.75L24.57,14.53A0.3,0.3 0 0 0 24.84,14.73L25.67,14.76A0.3,0.3 0 0 1 25.84,15.3L25.19,15.81A0.3,0.3 0 0 0 25.09,16.13L25.31,16.93A0.3,0.3 0 0 1 24.86,17.26L24.17,16.8A0.3,0.3 0 0 0 23.83,16.8L23.14,17.26A0.3,0.3 0 0 1 22.69,16.93L22.91,16.13A0.3,0.3 0 0 0 22.81,15.81L22.16,15.3A0.3,0.3 0 0 1 22.33,14.76L23.16,14.73A0.3,0.3 0 0 0 23.43,14.53ZM23.43,31.33L23.72,30.55A0.3,0.3 0 0 1 24.28,30.55L24.57,31.33A0.3,0.3 0 0 0 24.84,31.53L25.67,31.56A0.3,0.3 0 0 1 25.84,32.1L25.19,32.61A0.3,0.3 0 0 0 25.09,32.93L25.31,33.73A0.3,0.3 0 0 1 24.86,34.06L24.17,33.6A0.3,0.3 0 0 0 23.83,33.6L23.14,34.06A0.3,0.3 0 0 1 22.69,33.73L22.91,32.93A0.3,0.3 0 0 0 22.81,32.61L22.16,32.1A0.3,0.3 0 0 1 22.33,31.56L23.16,31.53A0.3,0.3 0 0 0 23.43,31.33Z"/>
+  </g>
+</g>
+</svg>
