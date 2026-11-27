@@ -5,11 +5,14 @@ extends "res://tools/multiplayer_driver.gd"
 ## second follows them in. With --in-a-map the host sends the room to a map first and goes during
 ## it: the new host carries the map on, the same map with its clock where it was, and the second
 ## sits down in it again. Otherwise the host goes from the lobby, and the new host opens a lobby,
-## never a map. Started by tools/multiplayer_check.gd with --handover, and says what it saw the
-## way tools/multiplayer_driver.gd does, a line starting MPCHECK for every step.
+## never a map. With --make-host the host hands the game from the lobby to the second in line by
+## Make host instead, and follows them in with the first. Started by tools/multiplayer_check.gd
+## with --handover, and says what it saw the way tools/multiplayer_driver.gd does, a line starting
+## MPCHECK for every step.
 ##
 ##   godot --headless --path . -s tools/multiplayer_check.gd -- --handover --role=host --port=7855
-##   ... --role=first, then --role=second, each with the same port and --in-a-map or not
+##   ... --role=first, then --role=second, each with the same port and the same --in-a-map or
+##   --make-host
 
 ## The map played with --in-a-map, chosen for a few minutes: long enough to be left in the middle
 ## of.
@@ -17,25 +20,31 @@ const MAP := &"lucky_crossing"
 const MINUTES := 3
 
 var _in_a_map := false
+var _made := false
 
 
 func _run() -> void:
-	_in_a_map = "--in-a-map" in OS.get_cmdline_user_args()
+	var args := OS.get_cmdline_user_args()
+	_in_a_map = "--in-a-map" in args
+	_made = "--make-host" in args
 	multiplayer.server_disconnected.connect(func() -> void: _say("the host hung up"))
 	# Settings of its own, by process, since three run at once.
 	Game.settings = Settings.new()
 	Game.settings.profile.stats[&"maps"] = float(TableCards.Card.size())
 	Game.settings.path = "user://handover_check_%s_%d.cfg" % [_role, OS.get_process_id()]
 	# What hands the game on, which a run from a script under tools/ is not given by Game.
-	if _role != "host":
-		Game.add_child(load("res://scenes/net/host_handover.gd").new())
+	Game.add_child(load("res://scenes/net/host_handover.gd").new())
+	# Who hosts next: the first in line as the host goes, the second as it is made host.
+	var next := 1 if _made else 0
 	match _role:
 		"host":
 			await _host_goes()
-		"first":
-			await _first_takes_it_on()
-		"second":
-			await _second_follows()
+		"first", "second":
+			var place := 0 if _role == "first" else 1
+			if place == next:
+				await _takes_it_on(place)
+			else:
+				await _follows(place)
 		_:
 			_fail("no --role=host, first or second")
 	if not _failed and not _finished:
@@ -47,7 +56,8 @@ func _run() -> void:
 
 
 ## Opens a room, waits for both clients and for them to have been told who hosts next, sends the
-## room to a map with --in-a-map and plays a little of it, and goes.
+## room to a map with --in-a-map and plays a little of it, and goes; with --make-host hands the
+## game to the second in line from Manage players instead, and follows them in.
 func _host_goes() -> void:
 	var config := MatchConfig.from_settings(Game.settings)
 	config.online = "host"
@@ -71,6 +81,9 @@ func _host_goes() -> void:
 		return
 	# Told who hosts after it, and knocked on a few times, as a host long in a room has.
 	await _seconds(2.0)
+	if _made:
+		await _makes_host(room)
+		return
 	if _in_a_map:
 		room.ready_room.go_now()
 		var arena := await _up_in_a_map(true)
@@ -87,12 +100,26 @@ func _host_goes() -> void:
 	await _seconds(1.0)
 
 
-## Joins first, so it is first in line; once the host goes, hosts the game: a lobby from a lobby,
-## the map carried on from a map, and the second player sits down with it.
-func _first_takes_it_on() -> void:
-	await _frames(60)
+## Make host from the lobby, to the second in line, as Manage players does it: this machine then
+## follows them in as everybody else does, sat down in their lobby.
+func _makes_host(room: Node) -> void:
+	var controls: HostControls = room.session.host_controls
+	var old := (room.session as NetSession).get_instance_id()
+	var to := int(controls.succession_line()[1]["peer"])
+	_say("making the second in line host")
+	controls.hand_on(to)
+	if not await _sat_down_away_from(old) or not await _in_the_lobby():
+		return
+	await _seconds(2.0)
+	_finished = true
+
+
+## Joins as [param place] in line and hosts the game next: as the host goes, a lobby from a lobby
+## or the map carried on from a map; as it is made host, a lobby. The others sit down with it.
+func _takes_it_on(place: int) -> void:
+	await _frames(60 + 180 * place)
 	var room := await _joined()
-	if room == null or not await _in_line(room.session, 0, "told it hosts next"):
+	if room == null or not await _in_line(room.session, place, "told its place in line"):
 		return
 	var map := &""
 	if _in_a_map:
@@ -102,32 +129,42 @@ func _first_takes_it_on() -> void:
 	var hosting := await _until(
 		func() -> bool: return Net.session != null and Net.session.is_host,
 		30.0,
-		"the host went and this machine hosts the game now"
+		"the game came to this machine and it hosts it now"
 	)
 	if not hosting:
 		return
-	var on := await _carries_on(map) if _in_a_map else await _opens_the_lobby()
+	var others := 2 if _made else 1
+	var on := await _carries_on(map) if _in_a_map else await _opens_the_lobby(others)
 	if not on:
 		return
-	await _until(func() -> bool: return multiplayer_peers() == 0, 30.0, "the other player finished")
+	await _until(func() -> bool: return multiplayer_peers() == 0, 30.0, "the others finished")
 	_finished = true
 
 
-## Joins second, so it is second in line; once the host goes, follows the first in line into the
-## game they host: their lobby, or the map carried on, sat down in it again.
-func _second_follows() -> void:
-	await _frames(240)
+## Joins as [param place] in line and follows whoever hosts next into the game they host: their
+## lobby, or the map carried on, sat down in it again.
+func _follows(place: int) -> void:
+	await _frames(60 + 180 * place)
 	var room := await _joined()
-	if room == null or not await _in_line(room.session, 1, "told it is second in line"):
+	if room == null or not await _in_line(room.session, place, "told its place in line"):
 		return
 	# By its id: a lambda holding the session itself would hold it freed once the host goes.
 	var old := (room.session as NetSession).get_instance_id()
 	var map := &""
 	if _in_a_map:
 		map = await _the_map_played(false)
-	if _failed:
+	if _failed or not await _sat_down_away_from(old):
 		return
-	var following := await _until(
+	var back := await _back_in_the_map(map) if _in_a_map else await _in_the_lobby()
+	if not back:
+		return
+	await _seconds(2.0)
+	_finished = true
+
+
+## Whether this machine sat down at the game's new host, in another session than [param old].
+func _sat_down_away_from(old: int) -> bool:
+	return await _until(
 		func() -> bool:
 			return (
 				Net.session != null
@@ -136,15 +173,8 @@ func _second_follows() -> void:
 				and Net.session.local_slot >= 0
 			),
 		40.0,
-		"the host went and this machine sat down at the new host"
+		"the game changed hands and this machine sat down at the new host"
 	)
-	if not following:
-		return
-	var back := await _back_in_the_map(map) if _in_a_map else await _in_the_lobby()
-	if not back:
-		return
-	await _seconds(2.0)
-	_finished = true
 
 
 ## Whether [param session] has been told this machine is [param place] in the line of two who host
@@ -175,17 +205,17 @@ func _the_map_played(lamps: bool) -> StringName:
 	return played.rules.map
 
 
-## The new host's lobby: its match settings, a lobby and not a map, the other player in it.
-func _opens_the_lobby() -> bool:
+## The new host's lobby: its match settings, a lobby and not a map, the [param others] in it.
+func _opens_the_lobby(others: int) -> bool:
 	var lobby := await _room()
 	if lobby == null:
 		return false
 	_check(lobby.host_settings != null, "the new host has the match settings")
 	_check(Net.session.match_node == lobby.match_node, "a lobby, not a map")
 	return await _until(
-		func() -> bool: return _remote(lobby.match_node) == 1,
+		func() -> bool: return _remote(lobby.match_node) == others,
 		40.0,
-		"the other player followed into the lobby"
+		"the others followed into the lobby"
 	)
 
 

@@ -10322,7 +10322,8 @@ every machine seeing the eight start on spots of their own and a podium with a r
 whistle as soon as the lamps have gone. Once the rest is through it hands a game on twice, 10.8,
 three machines each: the host goes from the lobby, and from a map a few seconds into it, and the
 first of two clients hosts the game next, a lobby with the match settings or the same map with its
-clock where it was, and the second sits down at it again. There every player at
+clock where it was, and the second sits down at it again; and once by Make host from the lobby,
+to the second, which the old host and the first follow in. There every player at
 a client drives over a chip the host leaves in front of them and onto a pad of
 their own on the first map, each taken at once and then agreed to by the host,
 with nothing put back. A chip taken by somebody else flies into their kart on a

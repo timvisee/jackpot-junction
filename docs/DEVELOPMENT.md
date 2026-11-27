@@ -332,7 +332,8 @@ From this checkout only. `tools/godot` finds Godot through `$GODOT` first.
   `--role`, `--port`, `--clients`, `--locals`, `--jokers`, `--password`,
   `--wrong-first` and `--nameless`. With `--handover` it starts
   `tools/handover_driver.gd` instead, `--role` `host`, `first` or `second`, and
-  `--in-a-map` for the host to go during a map rather than from the lobby.
+  `--in-a-map` for the host to go during a map rather than from the lobby, or
+  `--make-host` for it to hand the game to the second client by Make host.
 - `tools/server_check` takes none. `SVCHECK_PORT` picks the server's port, a free
   block otherwise, and
   `SVCHECK_LOGS=<dir>` keeps every process's whole log there, the server's among

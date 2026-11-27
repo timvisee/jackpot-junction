@@ -19,8 +19,10 @@
 #             through, see tools/house_driver.gd
 #   handover: a game handed to a new host as its host goes, GAME.md 10.8, once from the lobby and
 #             once from a map: the first of two clients hosts it next, a lobby or the same map
-#             with its clock, and the second follows them in, see tools/handover_driver.gd. Run
-#             once the others are through, so they are not slowed by it
+#             with its clock, and the second follows them in; and once by Make host from the
+#             lobby, to the second, which the old host and the first follow in, see
+#             tools/handover_driver.gd. Run once the others are through, so they are not slowed
+#             by it
 #
 # Usage: tools/multiplayer_check          (about a minute and a half)
 #
@@ -150,13 +152,16 @@ host_h_status=$?
 wait "$client_h"
 client_h_status=$?
 
-# A handover from the lobby and one from a map, three machines each.
-for where in lobby map; do
+# A handover from the lobby, one from a map and one by Make host, three machines each.
+for where in lobby map made; do
 	extra=()
 	offset=4
 	if [[ $where == map ]]; then
 		extra=(--in-a-map)
 		offset=5
+	elif [[ $where == made ]]; then
+		extra=(--make-host)
+		offset=6
 	fi
 	for role in host first second; do
 		run "${role}_o_$where" --handover --role="$role" --port="$((port + offset))" \
@@ -164,7 +169,7 @@ for where in lobby map; do
 		eval "pid_${role}_$where=\$!"
 	done
 done
-for where in lobby map; do
+for where in lobby map made; do
 	for role in host first second; do
 		eval "wait \$pid_${role}_$where"
 		eval "status_${role}_$where=\$?"
@@ -184,7 +189,7 @@ report client_82 "$client_82_status"
 report client_83 "$client_83_status"
 report host_h "$host_h_status"
 report client_h "$client_h_status"
-for where in lobby map; do
+for where in lobby map made; do
 	for role in host first second; do
 		eval "report ${role}_o_$where \"\$status_${role}_$where\""
 	done
