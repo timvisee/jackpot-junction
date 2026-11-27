@@ -440,7 +440,7 @@ func _name_box(column: VBoxContainer, each: Dictionary) -> LineEdit:
 	var slot: PlayerSlot = each["slot"]
 	var player: PlayerInput = each["player"]
 	var box := LineEdit.new()
-	box.max_length = PlayerNames.MAX_LENGTH
+	PlayerNames.hold(box, PlayerNames.MAX_LENGTH)
 	box.custom_minimum_size = Vector2(WIDTH, 48.0)
 	box.select_all_on_focus = true
 	var kept := Game.settings.seat_name(player.seat)

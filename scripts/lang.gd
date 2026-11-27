@@ -260,9 +260,14 @@ static func picture(path: String) -> Texture2D:
 static func sentences(first: String, second: String) -> String:
 	if first.is_empty() or second.is_empty():
 		return first + second
-	# From the CJK radicals on, a script whose sentences run on without a space.
-	var wide := first.unicode_at(first.length() - 1) >= 0x2E80
-	return first + ("" if wide else " ") + second
+	return first + ("" if wide(first.unicode_at(first.length() - 1)) else " ") + second
+
+
+## Whether [param character] is written wide, as Chinese, Japanese and Korean are, from the CJK
+## radicals on: about twice as wide as a letter, and in sentences that run on without a space,
+## GAME.md 10.9.
+static func wide(character: int) -> bool:
+	return character >= 0x2E80
 
 
 ## [param items] as a list in a sentence: "a", "a and b", "a, b and c".

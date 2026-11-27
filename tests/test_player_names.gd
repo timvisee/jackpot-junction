@@ -1,5 +1,5 @@
 extends GdUnitTestSuite
-## Player names, GAME.md 3.8: everybody may set one of 1 to 16 characters, anybody who does not
+## Player names, GAME.md 3.8: everybody may set one of 1 to 16 letters, anybody who does not
 ## is handed a funny one, and whatever they end up with is what every screen calls them.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
@@ -41,6 +41,32 @@ func test_every_name_on_the_list_fits_the_limit() -> void:
 	for name: String in PlayerNames.NAMES + PlayerNames.WATCHER_NAMES:
 		assert_int(name.length()).is_between(1, PlayerNames.MAX_LENGTH)
 		assert_str(PlayerNames.clean(name)).is_equal(name)
+		# And in every language the game speaks, as it is handed out.
+		for locale: String in Lang.spoken():
+			var said := Lang.t_in(locale, name)
+			assert_str(PlayerNames.clean(said)).override_failure_message(said).is_equal(said)
+
+
+## A Chinese character is about twice as wide as a letter and counts as two, so a name of them fills
+## its plate no wider than sixteen letters, GAME.md 10.9.
+func test_a_chinese_character_counts_as_two_letters() -> void:
+	assert_int(PlayerNames.width("Ada")).is_equal(3)
+	assert_int(PlayerNames.width("林小雨")).is_equal(6)  # NO_TRANSLATE
+	assert_str(PlayerNames.clean("一二三四五六七八九十")).is_equal("一二三四五六七八")  # NO_TRANSLATE
+	assert_str(PlayerNames.cut("Ada 林小雨", 7)).is_equal("Ada 林")  # NO_TRANSLATE
+	assert_str(PlayerNames.cut("Ada", 7)).is_equal("Ada")
+
+
+## A name box takes no more than fits: a Chinese character past the sixteen letters is not taken.
+func test_a_name_box_takes_no_more_than_fits() -> void:
+	var box: LineEdit = auto_free(MenuTheme.field("", "", PlayerNames.MAX_LENGTH))
+	add_child(box)
+	box.text = "一二三四五六七八九十"  # NO_TRANSLATE
+	box.text_changed.emit(box.text)
+	assert_str(box.text).is_equal("一二三四五六七八")  # NO_TRANSLATE
+	box.text = "Bartholomew Wint"
+	box.text_changed.emit(box.text)
+	assert_str(box.text).is_equal("Bartholomew Wint")
 
 
 ## The two lists are apart: a name says whether it is somebody driving or somebody watching, and

@@ -482,7 +482,7 @@ The joker catalog is in section 7.3.
 | Countdown       | 3 s before the karts can move                             |
 | Players         | 1 to 4 humans at one machine and up to 8 online, see 9.3, with as many bots as the match settings ask for that there are seats for |
 | Tie-break       | Most kills, then fewest deaths                            |
-| Names           | 1 to 16 characters each, or one off the funny list for anybody who does not set one |
+| Names           | 1 to 16 letters each, a Chinese character two, or one off the funny list for anybody who does not set one |
 | Driving         | Simple or advanced per player, see 4.2                    |
 
 Flow: Title screen, Lobby, Countdown, Playing, Last Call, Overtime, Results. At the
@@ -667,8 +667,9 @@ gets a line here, and a line here is counted the same on every machine in the
 match. A statistic that only adds up on the host is a wrong number on somebody
 else's results screen, see 10.3.
 
-- **Names.** Every seat at a machine may set one, 1 to 16 characters, in a box of
-  its own on the Seats tab of the settings, 8.5, remembered between sessions,
+- **Names.** Every seat at a machine may set one, 1 to 16 letters, a Chinese,
+  Japanese or Korean character counting as two since it is drawn twice as wide,
+  10.9, in a box of its own on the Seats tab of the settings, 8.5, remembered between sessions,
   or in the lobby and the Garage from its switch in the pause menu, 4.2 and 4.4,
   which keeps it in the same place.
   A seat that never sets one is handed a name off a

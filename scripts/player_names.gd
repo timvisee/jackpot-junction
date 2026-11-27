@@ -1,6 +1,7 @@
 class_name PlayerNames
 extends RefCounted
-## What the players are called, GAME.md 3.8. Everybody may set a name of 1 to 16 characters, and
+## What the players are called, GAME.md 3.8. Everybody may set a name of 1 to 16 letters, a Chinese
+## character, twice as wide, counting as two, see [method width], and
 ## anybody who does not is handed one off the list below, which is the whole reason the list is
 ## funny: a room of P1, P2, P3 and P4 says nothing about anybody, and the results screen at the
 ## end of a match is a list of names.
@@ -18,7 +19,8 @@ const FORBIDDEN := ["[", "]", "\n", "\t", "\r"]
 ## Handed out to anybody who never gave a name, in the order they are drawn. Deliberately silly:
 ## the alternative a player is being spared is being called P3 for five minutes. Each is shown
 ## through tr() as it is handed out, see [method pick], and is that player's name from then on.
-# TRANSLATORS: A silly name handed to a player who gave none; at most 16 characters.
+# TRANSLATORS: A silly name handed to a player who gave none; at most 16 letters, a Chinese
+# character counting as two.
 const NAMES: Array[String] = [
 	"Turbo Trout",
 	"Sir Crashalot",
@@ -62,7 +64,8 @@ const NAMES: Array[String] = [
 ## Handed out to the bots and to nobody else, GAME.md 3.8: what a kart full of gears gets called,
 ## robot slang and worse, so a bot is told from a player at a glance down the standings. Each is
 ## shown through tr() as it is handed out, as [constant NAMES] are.
-# TRANSLATORS: A bot's name, robot slang; at most 16 characters.
+# TRANSLATORS: A bot's name, robot slang; at most 16 letters, a Chinese character
+# counting as two.
 const BOT_NAMES: Array[String] = [
 	"Clanker",
 	"Rusty",
@@ -93,7 +96,8 @@ const BOT_NAMES: Array[String] = [
 ## from the furniture they are sat on and the seat they have in the stands, so a name under an
 ## emote floating up the screen says it is from somebody watching before anybody reads the rim.
 ## Each is shown through tr() as it is handed out, as [constant NAMES] are.
-# TRANSLATORS: The name of somebody watching, from what they sit on; at most 16 characters.
+# TRANSLATORS: The name of somebody watching, from what they sit on; at most 16 letters, a
+# Chinese character counting as two.
 const WATCHER_NAMES: Array[String] = [
 	"Couch Potato",
 	"Couch Critic",
@@ -135,14 +139,48 @@ const WATCHER_NAMES: Array[String] = [
 static var held_elsewhere: Array[String] = []
 
 
-## A name as it will be shown: trimmed, on one line, no markup, and no longer than [param longest].
-## Returns an empty string for anything that was only whitespace, which counts as no name given.
+## A name as it will be shown: trimmed, on one line, no markup, and no wider than [param longest]
+## letters, see [method width]. Returns an empty string for anything that was only whitespace,
+## which counts as no name given.
 static func clean(text: String, longest := MAX_LENGTH) -> String:
 	var kept := ""
 	for character: String in text:
 		if character not in FORBIDDEN:
 			kept += character
-	return kept.substr(0, longest).strip_edges()
+	return cut(kept, longest).strip_edges()
+
+
+## How many letters wide [param text] is: a Chinese, Japanese or Korean character is about twice
+## as wide as a letter and counts as two, so a name of them fills its plate no wider than one of
+## letters, GAME.md 10.9.
+static func width(text: String) -> int:
+	var wide := 0
+	for i: int in text.length():
+		wide += 2 if Lang.wide(text.unicode_at(i)) else 1
+	return wide
+
+
+## [param text] up to [param longest] letters wide, see [method width], and no further.
+static func cut(text: String, longest: int) -> String:
+	var wide := 0
+	for i: int in text.length():
+		wide += 2 if Lang.wide(text.unicode_at(i)) else 1
+		if wide > longest:
+			return text.left(i)
+	return text
+
+
+## Keeps [param box] to [param longest] letters, see [method width]: a character typed past them is
+## not taken, as one past its length is not.
+static func hold(box: LineEdit, longest: int) -> void:
+	box.max_length = longest
+	box.text_changed.connect(
+		func(typed: String) -> void:
+			if width(typed) > longest:
+				var caret := box.caret_column
+				box.text = cut(typed, longest)
+				box.caret_column = mini(caret, box.text.length())
+	)
 
 
 ## One off the list that nobody in [param taken] is already using, drawn with [param rng] so a

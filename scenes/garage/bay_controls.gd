@@ -32,7 +32,7 @@ static func name_box() -> LineEdit:
 	box.accessibility_name = ScreenReader.spoken(Lang.t(BayArt.NAME_WORD))
 	box.position = BayArt.NAME_TAPE.position
 	box.size = BayArt.NAME_TAPE.size
-	box.max_length = PlayerNames.MAX_LENGTH
+	PlayerNames.hold(box, PlayerNames.MAX_LENGTH)
 	box.select_all_on_focus = true
 	box.add_theme_font_override("font", BayArt.marker_font())
 	box.add_theme_font_size_override("font_size", 28)

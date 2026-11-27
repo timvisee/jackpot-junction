@@ -290,12 +290,13 @@ static func tabs(container: Control) -> void:
 		container.add_theme_stylebox_override(state, looks[state])
 
 
-## A box to type something short into, sized like the option buttons beside it.
+## A box to type something short into, sized like the option buttons beside it, no more than
+## [param max_length] letters long as a name counts them, see [method PlayerNames.width].
 static func field(text: String, hint: String, max_length: int) -> LineEdit:
 	var control := LineEdit.new()
 	control.text = text
 	control.placeholder_text = hint
-	control.max_length = max_length
+	PlayerNames.hold(control, max_length)
 	control.custom_minimum_size = Vector2(240.0, box_height())
 	Type.set_font(control, Type.TEXT, Type.BODY)
 	return control

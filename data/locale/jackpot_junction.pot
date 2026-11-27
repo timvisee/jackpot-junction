@@ -8174,478 +8174,478 @@ msgstr ""
 msgid "Violet"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Turbo Trout"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Sir Crashalot"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Nitro Noodle"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Bumper Betty"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Drift Muffin"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Skid Marky"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Chip Chomper"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Wheelie Wanda"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Double Down Dan"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Lucky Lug Nut"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Grease Monkey"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Pot Roast"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Full Tilt Fern"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Cash Splash"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Jackpot Jerry"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Slot Machine"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Handbrake Hal"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Chip Gremlin"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Mult Muncher"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Oil Slick Rick"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Bank Run Bob"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Spin Cycle"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Ricochet Rita"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Tire Fire"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Curb Feeler"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Wager Wendy"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Ante Up Annie"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Pit Stop Pip"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Hot Streak Hank"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Snake Eyes Sam"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #. display name
 #: scripts/player_names.gd data/jokers/loose_change.tres
 msgid "Loose Change"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Roulette Ron"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Fender Bender"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Gear Grinder"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Rusty Bucket"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Tail Light Tim"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Donut Duchess"
 msgstr ""
 
-#. A silly name handed to a player who gave none; at most 16 characters.
+#. A silly name handed to a player who gave none; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Penny Pincher"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Clanker"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Rusty"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Tin Can"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Droid"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Rust Bucket"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Bolt Bucket"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Scrap Heap"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Chrome Dome"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Sprocket"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Clunker"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Clank Sinatra"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Tin Can Tony"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Rusty Bolts"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Droid Rage"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Servo Steve"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Gearbox Gary"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Circuit Breaker"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Beep Boop"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Toaster"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Unit 404"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Wind-Up Wendy"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Cog Blimey"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Robo Rita"
 msgstr ""
 
-#. A bot's name, robot slang; at most 16 characters.
+#. A bot's name, robot slang; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Nuts N Bolts"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Couch Potato"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Couch Critic"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Couch Surfer"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Sofa So Good"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Sofa Sofia"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Cushion Carl"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Armchair Ace"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Recliner Rita"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Beanbag Barry"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Ottoman Otto"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Loveseat Lou"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Futon Fred"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Settee Betty"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Chaise Chase"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Deckchair Dee"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Lawn Chair Lars"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Hammock Hank"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Stool Pigeon"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Barstool Bill"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Stool Stu"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Bench Warmer"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Bleacher Bob"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Seat Filler"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Front Row Fran"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Nosebleed Ned"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Back Seat Betty"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Box Seat Boris"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Cheap Seats Chad"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Ringside Rosa"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Popcorn Pam"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Snack Stacker"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Remote Hogger"
 msgstr ""
 
-#. The name of somebody watching, from what they sit on; at most 16 characters.
+#. The name of somebody watching, from what they sit on; at most 16 letters, a Chinese character counting as two.
 #: scripts/player_names.gd
 msgid "Pillow Fort Phil"
 msgstr ""

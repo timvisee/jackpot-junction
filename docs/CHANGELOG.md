@@ -51,6 +51,8 @@ below, and hands the notes to the release workflow.
 
 - **Resetting your bindings asks first.** Reset bindings to defaults on the Controls page asks
   before it throws away the keys and buttons you set.
+- **A Chinese name fits where a name goes.** A Chinese, Japanese or Korean character counts as
+  two of a name's 16 letters, as it is drawn about twice as wide.
 
 ### Fixed
 
