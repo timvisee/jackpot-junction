@@ -5,6 +5,7 @@ extends GdUnitTestSuite
 ## their own karts; the start let go once they are in; and the handover going into the map rather
 ## than a lobby. Over ENet on this machine with [FakeSteam] for Steam where a session is needed.
 
+const WAITING_ROOM_SCRIPT := preload("res://scenes/waiting/waiting_room.gd")
 const FreePorts := preload("res://tests/free_ports.gd")
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const BO := 76561197960287932
@@ -104,6 +105,14 @@ func test_a_client_takes_the_map_as_its_host_goes() -> void:
 	assert_bool(slots[1]["human"]).is_true()
 	# Nothing to carry over from a lobby.
 	client_match.state = Match.State.LOBBY
+	assert_dict(MatchResume.capture(client)).is_empty()
+	# Nor from the waiting room, whose room is a match being played as well: its new host opens
+	# the lobby afresh rather than starting a map from it.
+	client_match.state = Match.State.PLAYING
+	assert_dict(MatchResume.capture(client)).is_not_empty()
+	var waiting_room: ArenaLayout = WAITING_ROOM_SCRIPT.LAYOUT
+	client_match.arena_layout = waiting_room
+	assert_str(waiting_room.resource_path).is_equal(MatchResume.WAITING_ROOM)
 	assert_dict(MatchResume.capture(client)).is_empty()
 
 

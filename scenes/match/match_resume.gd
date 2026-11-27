@@ -1,8 +1,8 @@
 class_name MatchResume
 extends RefCounted
-## A map in play carried over to a new host, GAME.md 10.8. When a Steam game's host goes during a
-## map, the player who hosts it next takes what their own screen last showed of it, read off the
-## puppet match it was drawing, see [method capture], and starts the match afresh from that, see
+## A map in play carried over to a new host, GAME.md 10.8. When a game's host goes during a map,
+## the player who hosts it next takes what their own screen last showed of it, read off the puppet
+## match it was drawing, see [method capture], and starts the match afresh from that, see
 ## [method start] and [method restore]: every kart where it stood, every banked score, kill and
 ## death, pot, held item, joker hand, life and respawn, the clock, the bounty, the Jackpot's pile,
 ## and the chips, items and jokers lying dropped on the floor. Every slot is where it was, so each
@@ -11,12 +11,16 @@ extends RefCounted
 ## What a screen never sees starts afresh: the bots' plans, the order of the deck, the counters some
 ## jokers keep, when the pads restock, the random numbers. Shots, turrets, bombs and oil in flight
 ## go, and so does an open joker pick, the kart coming back once its wait is out. A showdown and the
-## story's Final Hand are not carried over: their new host opens its lobby instead.
+## story's Final Hand are not carried over: their new host opens its lobby instead. Nor is the
+## waiting room, which plays in a match of its own: its new host opens the lobby afresh.
 
 ## The states a map is being played in, which are the ones carried over.
 const PLAYING: Array[int] = [
 	Match.State.COUNTDOWN, Match.State.PLAYING, Match.State.LAST_CALL, Match.State.OVERTIME
 ]
+## The waiting room's own room, the layout its scene builds its match in, by its path, so a match
+## in it is known for the lobby it is without this naming the waiting room's scene.
+const WAITING_ROOM := "res://data/maps/waiting_room.tres"
 
 
 ## What a new host takes the game on with, GAME.md 10.8, in words: the match [param config] sets
@@ -33,11 +37,15 @@ static func plan_of(config: MatchConfig, door: NetDoor, who: int, with_password 
 	return JSON.stringify({"match": chosen, "door": opened, "quick": quick, "who": who})
 
 
-## What [param session], a client of a Steam game whose host has gone, last saw of the map being
-## played, to carry it over; empty for anything else: no map in play, a showdown, the Final Hand.
+## What [param session], a client of a game whose host has gone, last saw of the map being played,
+## to carry it over; empty for anything else: no map in play, the waiting room, whose room is a
+## match too, a showdown, the Final Hand.
 static func capture(session: NetSession) -> Dictionary:
 	var match_node := session.match_node if session != null else null
 	if match_node == null or not match_node.puppet or match_node.state not in PLAYING:
+		return {}
+	var layout := match_node.arena_layout
+	if layout != null and layout.resource_path == WAITING_ROOM:
 		return {}
 	if match_node.rules.showdown() or match_node.rules.final_hand:
 		return {}
