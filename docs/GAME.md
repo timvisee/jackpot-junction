@@ -11795,6 +11795,12 @@ How a word is marked, so the template finds it and the language spoken shows it 
 - **Pictures drawn once.** A picture with words in it kept from one scene to the next is kept by
   `Lang.current` as well, so another language draws it again.
 
+Words drawn into a picture by the art tools, the House rail's microprint and Kit's chalkboard, are
+marked with `_()` in the tool as gettext's tools mark them, and `make strings` reads them with the
+rest. The tool draws its picture again as `<name>.<locale>.png` for every language that translates
+its words, the chalk and noise the same as the English, and lists it in the project's translation
+remaps, so the engine loads that picture in that language (`tools/baked_words.py`).
+
 Left in English: the tools in `scenes/dev` for the store's pictures and trailers, debug builds' own
 pages, the log, and a dedicated server's console and web page; whatever a server sends a player goes
 as words for another machine. Steam's own words, the store page, the achievements' names on Steam,

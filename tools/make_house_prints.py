@@ -8,12 +8,15 @@
                   the middle, as the corner blocks of the HUD carry it (8.1a). The microprint
                   comes round exactly once in the run, its spacing measured to fit, so where one
                   run of the print meets the next along a rail the line carries on rather than
-                  breaking off in the middle of a word.
+                  breaking off in the middle of a word. Drawn again as rail_print.<locale>.png
+                  for every language that translates its words, see baked_words.py.
 """
 
 import pathlib
 
 from PIL import Image, ImageDraw, ImageFont
+
+from baked_words import _, languages, remap, translates_any, translator
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
@@ -25,14 +28,14 @@ FOIL = (242, 193, 78)
 FOIL_DEEP = (181, 134, 42)
 MICROPRINT = (
     "JACKPOT JUNCTION",
-    "LICENSED ON EVERY TABLE",
-    "THE HOUSE",
-    "DEPT. OF KARTS",
-    "NOT VALID AS CURRENCY",
+    _("LICENSED ON EVERY TABLE"),
+    _("THE HOUSE"),
+    _("DEPT. OF KARTS"),
+    _("NOT VALID AS CURRENCY"),
 )
 
 
-def rail():
+def rail(tr=lambda text: text, name="rail_print.png"):
     w, h = 2048, 256
     img = Image.new("RGB", (w, h), STOCK)
     d = ImageDraw.Draw(img)
@@ -50,16 +53,22 @@ def rail():
     # so the round is the run's width exactly, starting half a gap in so the seam falls in a gap.
     items = []
     for phrase in MICROPRINT:
-        items += [phrase, "\u00b7"]
+        items += [tr(phrase), "\u00b7"]
     widths = [d.textlength(item, font=font) for item in items]
     gap = (w - sum(widths)) / len(items)
     x = gap / 2
     for item, width in zip(items, widths):
         d.text((x, h / 2), item, font=font, fill=ink, anchor="lm")
         x += width + gap
-    img.save(OUT / "rail_print.png")
+    img.save(OUT / name)
 
 
 if __name__ == "__main__":
     rail()
+    spoken = {}
+    for locale in languages():
+        if translates_any(locale, MICROPRINT):
+            spoken[locale] = OUT / ("rail_print.%s.png" % locale)
+            rail(translator(locale), spoken[locale].name)
+    remap(OUT / "rail_print.png", spoken)
     print("prints in", OUT)

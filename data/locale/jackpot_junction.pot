@@ -3043,7 +3043,8 @@ msgstr ""
 
 #. A rubber stamp: COMP, as a casino comps a regular, over THE HOUSE and NO EXPIRY.
 #. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
-#: scenes/story/house_letter.gd scenes/ui/coupon_page.gd scripts/story/story_lines.gd scripts/story/story_notes.gd
+#. Drawn into a picture by tools/make_house_prints.py.
+#: scenes/story/house_letter.gd scenes/ui/coupon_page.gd scripts/story/story_lines.gd scripts/story/story_notes.gd tools/make_house_prints.py
 msgid "THE HOUSE"
 msgstr ""
 
@@ -3157,7 +3158,8 @@ msgid "THE ECONOMY"
 msgstr ""
 
 #. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
-#: scenes/story/note_paper.gd scenes/tutorial/tutorial_list.gd scenes/tutorial/school/license_card.gd scenes/tutorial/school/license_plate.gd scenes/ui/slip_page.gd scripts/story/story_notes.gd
+#. Drawn into a picture by tools/make_house_prints.py.
+#: scenes/story/note_paper.gd scenes/tutorial/tutorial_list.gd scenes/tutorial/school/license_card.gd scenes/tutorial/school/license_plate.gd scenes/ui/slip_page.gd scripts/story/story_notes.gd tools/make_house_prints.py
 msgid "DEPT. OF KARTS"
 msgstr ""
 
@@ -13222,4 +13224,44 @@ msgstr ""
 #. display name
 #: data/rooms/workbench.tres
 msgid "The Workbench"
+msgstr ""
+
+#. Drawn into a picture by tools/make_house_prints.py.
+#: tools/make_house_prints.py
+msgid "LICENSED ON EVERY TABLE"
+msgstr ""
+
+#. Drawn into a picture by tools/make_house_prints.py.
+#: tools/make_house_prints.py
+msgid "NOT VALID AS CURRENCY"
+msgstr ""
+
+#. Drawn into a picture by tools/make_workbench_prints.py.
+#: tools/make_workbench_prints.py
+msgid "TABLE No. 1"
+msgstr ""
+
+#. Drawn into a picture by tools/make_workbench_prints.py.
+#: tools/make_workbench_prints.py
+msgid "pot x mult = bank"
+msgstr ""
+
+#. Drawn into a picture by tools/make_workbench_prints.py.
+#: tools/make_workbench_prints.py
+msgid "pits: %d"
+msgstr ""
+
+#. Drawn into a picture by tools/make_workbench_prints.py.
+#: tools/make_workbench_prints.py
+msgid "pads: %d"
+msgstr ""
+
+#. Drawn into a picture by tools/make_workbench_prints.py.
+#: tools/make_workbench_prints.py
+msgid "jackpots: %d"
+msgstr ""
+
+#. Drawn into a picture by tools/make_workbench_prints.py.
+#: tools/make_workbench_prints.py
+msgid "check the wheel!"
 msgstr ""

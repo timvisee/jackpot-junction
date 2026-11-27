@@ -12,7 +12,9 @@ assets/textures/:
   kit_mark.png        Kit's mark, a K in a ring, as the burn it leaves: white where the wood is
                       untouched, so it is multiplied over the maple top of a box.
   kit_chalkboard.png  the slate on the board behind the bench: Kit's plan of table one in chalk,
-                      drawn from Lucky Crossing's own grid, with the sums beside it.
+                      drawn from Lucky Crossing's own grid, with the sums beside it; drawn again
+                      as kit_chalkboard.<locale>.png for every language that translates its words,
+                      in the same chalk, see baked_words.py.
   kit_calculator.png  the face of Kit's pocket calculator, switched on and reading 0.
 """
 
@@ -21,6 +23,8 @@ import re
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
+
+from baked_words import _, languages, remap, translates_any, translator
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
@@ -122,7 +126,18 @@ def chalk_line(d, points, width=5):
     d.line(points, fill=255, width=width, joint="curve")
 
 
-def chalkboard():
+# The words in chalk on the slate.
+SLATE_WORDS = (
+    _("TABLE No. 1"),
+    _("pot x mult = bank"),
+    _("pits: %d"),
+    _("pads: %d"),
+    _("jackpots: %d"),
+    _("check the wheel!"),
+)
+
+
+def chalkboard(tr=lambda text: text, name="kit_chalkboard.png"):
     width, height = 1536, 768
     face = np.array(SLATE, np.float32)[None, None, :] * (
         0.92 + noise(width, height, 90.0)[..., None] * 0.1
@@ -132,7 +147,7 @@ def chalkboard():
     d = ImageDraw.Draw(ink)
     hand = font("Kalam-Regular.ttf", 64)
     small = font("Kalam-Regular.ttf", 40)
-    d.text((70, 60), "TABLE No. 1", font=hand, fill=255)
+    d.text((70, 60), tr("TABLE No. 1"), font=hand, fill=255)
     # Kit's plan of the table, from its own grid: the walls in outline, the Junction a ring.
     rows = lucky_crossing()
     cell = 26
@@ -160,12 +175,12 @@ def chalkboard():
     # The sums, on the right.
     count = "".join(rows).count
     sums = [
-        "pot x mult = bank",
-        "pits: %d" % (count("X") // 4),
-        "pads: %d" % count("C"),
-        "jackpots: %d" % (count("K") // 4),
+        tr("pot x mult = bank"),
+        tr("pits: %d") % (count("X") // 4),
+        tr("pads: %d") % count("C"),
+        tr("jackpots: %d") % (count("K") // 4),
         "",
-        "check the wheel!",
+        tr("check the wheel!"),
     ]
     for i, line in enumerate(sums):
         d.text((1010, 210 + i * 66), line, font=small, fill=235)
@@ -178,7 +193,7 @@ def chalkboard():
     cover = np.clip(lines * (0.55 + 0.45 * tooth) * 0.92 + smudge * 0.12, 0.0, 1.0)[..., None]
     rgb = np.asarray(board).astype(np.float32)
     rgb = rgb * (1.0 - cover) + np.array(CHALK, np.float32) * cover
-    Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8), "RGB").save(OUT / "kit_chalkboard.png")
+    Image.fromarray(np.clip(rgb, 0, 255).astype(np.uint8), "RGB").save(OUT / name)
 
 
 def calculator():
@@ -205,6 +220,17 @@ if __name__ == "__main__":
     maple()
     rule()
     mark()
+    # Each language's slate in the same chalk as the English: the noise drawn from the same state.
+    chalk = RNG.bit_generator.state
     chalkboard()
+    after = RNG.bit_generator.state
+    spoken = {}
+    for locale in languages():
+        if translates_any(locale, SLATE_WORDS):
+            spoken[locale] = OUT / ("kit_chalkboard.%s.png" % locale)
+            RNG.bit_generator.state = chalk
+            chalkboard(translator(locale), spoken[locale].name)
+    RNG.bit_generator.state = after
+    remap(OUT / "kit_chalkboard.png", spoken)
     calculator()
     print("prints in", OUT)

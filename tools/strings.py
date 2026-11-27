@@ -421,6 +421,24 @@ def data_entries():
     return found
 
 
+def tool_entries():
+    """The words the art tools draw into pictures, marked with _() as gettext's tools mark them,
+    see baked_words.py."""
+    found = []
+    pattern = re.compile(r'\b_\(\s*"((?:[^"\\]|\\.)*)"\s*\)')
+    folder = os.path.join(ROOT, "tools")
+    for name in sorted(os.listdir(folder)):
+        if not (name.startswith("make_") and name.endswith(".py")):
+            continue
+        rel = os.path.join("tools", name)
+        with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
+            text = f.read()
+        for m in pattern.finditer(text):
+            note = "Drawn into a picture by %s." % rel
+            found.append(("", unescape(m.group(1), False), None, note, rel))
+    return found
+
+
 def sources():
     for top in SOURCES:
         for folder, dirs, files in os.walk(os.path.join(ROOT, top)):
@@ -443,6 +461,7 @@ def collect():
     for path, rel in sources():
         raw.extend(entries_of(path, rel))
     raw.extend(data_entries())
+    raw.extend(tool_entries())
     for context, word, plural, note, rel in raw:
         key = (context, word)
         if key not in merged:
