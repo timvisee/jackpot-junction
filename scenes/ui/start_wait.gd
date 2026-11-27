@@ -53,6 +53,8 @@ func _process(_delta: float) -> void:
 	# choosing has the pick on the screen instead, which says it better.
 	var keeping := JokerKeep.pending(match_node)
 	visible = (count.y > 0 or keeping) and not JokerKeep.choosing_here(match_node)
+	# Not over the new host's word, which stands where this does, GAME.md 10.8.
+	visible = visible and not HostControls.being_told(get_tree())
 	if not visible:
 		return
 	_bar.visible = count.y > 0

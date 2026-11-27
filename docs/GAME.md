@@ -11328,9 +11328,11 @@ player coming back in Last Call sits down all the same. It is not hidden, since 
 happen: a few seconds and a countdown. A showdown and the story's Final Hand are not carried over;
 there, and from the lobby or the podium, the new host opens the same room with the game's rules,
 and everybody follows. The new host is told so on the dialog's own pane as it goes, "You are
-now the host" over a full bar, with nothing to close and no shade: it stays while their room goes
-up, the lobby or the map, and fades a second and a half after its loading screen has gone, taking
-no key, click or cursor meanwhile.
+now the host" and nothing more, with no bar, nothing to close and no shade: it stays while their
+room goes up, the lobby or the map, and fades a second and a half after its loading screen has
+gone, taking no key, click or cursor meanwhile. A map's countdown and its wait for players stand in
+the middle of the screen as well, so they wait for it to go: first the word, then the countdown,
+never both at once. The host who went is never waited for to come back.
 
 How it is handed over. The host keeps in its lobby what a new host takes the game on with, the match
 as its settings have it and its door but for a password, whether it is a Quick Play game and who may

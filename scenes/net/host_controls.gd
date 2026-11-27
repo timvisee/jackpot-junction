@@ -671,9 +671,19 @@ func _hold_the_resume(delta: float) -> void:
 		_loading_left -= delta
 		if _loading_left > 0.0:
 			return
+	# The new host told it hosts first, and only then the countdown: never both at once.
+	if being_told(get_tree()):
+		return
 	_resuming = false
 	match_node.loading = Vector2i.ZERO
 	match_node.begin_from_lobby()
+
+
+## Whether this machine is being told it hosts the game now, GAME.md 10.8, see [HostHandover]:
+## the countdown and the wait for players stand in the middle of the screen too, so they wait.
+static func being_told(tree: SceneTree) -> bool:
+	var handover := tree.get_first_node_in_group(&"host_handover") if tree != null else null
+	return handover != null and bool(handover.call(&"telling"))
 
 
 ## How many players of a map carried over have the room up, out of how many are playing it or on

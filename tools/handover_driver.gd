@@ -215,7 +215,7 @@ func _opens_the_lobby(others: int) -> bool:
 		return false
 	_check(lobby.host_settings != null, "the new host has the match settings")
 	_check(Net.session.match_node == lobby.match_node, "a lobby, not a map")
-	if not await _told_it_hosts():
+	if not _told_it_hosts() or not await _word_gone():
 		return false
 	return await _until(
 		func() -> bool: return _remote(lobby.match_node) == others,
@@ -234,9 +234,10 @@ func _carries_on(map: StringName) -> bool:
 	_check(played.rules.map == map, "the same map carried on")
 	var left := played.time_left
 	_check(left < played.rules.duration - 2.0, "its clock where it was, %.0f s left" % left)
-	if not await _told_it_hosts():
+	if not _told_it_hosts():
 		return false
-	# Held on the grid until the other player is back and has the map up, then counted down.
+	# Held on the grid until the other player is back and has the map up, and the word has gone,
+	# then counted down.
 	var controls := Net.session.host_controls
 	if not await _until(
 		func() -> bool: return played.state != Match.State.LOBBY, 40.0, "the countdown starts"
@@ -247,19 +248,23 @@ func _carries_on(map: StringName) -> bool:
 		not back.is_empty() and back.all(func(peer: int) -> bool: return controls._built.has(peer)),
 		"only once the other player was back with the map up"
 	)
+	_check(not HostControls.being_told(get_tree()), "and once the word had gone, never over it")
 	return await _until(
 		func() -> bool: return played.is_running(), 40.0, "and it plays on after a countdown"
 	)
 
 
-## Whether this machine, the game's new host, was told so over its room, and the word went by
-## itself, nothing to close.
+## Whether this machine, the game's new host, is being told so, on the handover's own pane.
 func _told_it_hosts() -> bool:
-	var handover := get_tree().get_first_node_in_group(&"host_handover") as HostHandover
-	if not _check(handover != null and handover.banner.visible, "told it is the host now"):
-		return false
+	return _check(HostControls.being_told(get_tree()), "told it is the host now")
+
+
+## Whether the new host's word went by itself, nothing to close.
+func _word_gone() -> bool:
 	return await _until(
-		func() -> bool: return not handover.banner.visible, 10.0, "and the word went by itself"
+		func() -> bool: return not HostControls.being_told(get_tree()),
+		10.0,
+		"and the word went by itself"
 	)
 
 

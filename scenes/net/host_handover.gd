@@ -64,7 +64,7 @@ var dialog: FormDialog
 var bar: ProgressBar
 var leave_button: Button
 ## Over the room of the game this machine took on, as the dialog goes, see [method _now_the_host]:
-## the dialog's look, its title and its bar full, but taking nothing.
+## the dialog's look and its title alone, taking nothing.
 var banner: Control
 ## Where the room goes once the game has a new host: there, as host or as a player, unless a test
 ## says otherwise.
@@ -130,8 +130,9 @@ func _ready() -> void:
 	screen.add_child(banner)
 
 
-## The new host's word: a pane the dialog's own, saying [constant NOW_THE_HOST] over a full bar,
-## with no button and no shade, which takes no click, key or cursor, so the room goes on under it.
+## The new host's word: a pane the dialog's own, saying [constant NOW_THE_HOST] and nothing else,
+## with no bar, no button and no shade, which takes no click, key or cursor, so the room goes on
+## under it.
 func _banner() -> Control:
 	var middle := CenterContainer.new()
 	middle.name = "NowTheHost"
@@ -148,12 +149,13 @@ func _banner() -> Control:
 	var title := MenuTheme.title(NOW_THE_HOST, 44)
 	title.name = "Title"
 	column.add_child(title)
-	var full := LoadingScreen.bar()
-	full.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	full.value = full.max_value
-	full.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	column.add_child(full)
 	return middle
+
+
+## Whether this machine is being told it hosts the game now, see [method _now_the_host]: a map
+## carried over holds its countdown until it has been, see [method HostControls.being_told].
+func telling() -> bool:
+	return banner.visible
 
 
 ## Whether the game is being handed over now.
@@ -406,7 +408,7 @@ func _follow(config: MatchConfig) -> void:
 
 
 ## This machine took the game on, GAME.md 10.8: as the dialog goes, the same pane says
-## [constant NOW_THE_HOST] over a full bar, taking nothing, and stays while the room goes up, under
+## [constant NOW_THE_HOST] alone, taking nothing, and stays while the room goes up, under
 ## its loading screen, and [constant SHOWN_FOR] seconds once it is, then fades. Nothing to close.
 func _now_the_host() -> void:
 	if _fading != null:
