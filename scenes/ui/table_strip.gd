@@ -33,7 +33,8 @@ const FELT := Color("#1f4434")
 const FELT_EDGE := Color("#14301f")
 const ROOM := 12.0
 ## The die at the row's end, the one the kart dialog rolls a name with, [NameDie]: how big it
-## stands, a share of a card's width, and what its hint and a screen reader say of it.
+## stands, a share of a card's width, and what its hint and a screen reader say of it, shown
+## through tr().
 const DIE_SIZE := 0.55
 const DIE_NAME := "Random table"
 const DIE_LINE := "Every card face up or down, as the die falls."
@@ -92,7 +93,7 @@ func _build() -> void:
 	head.add_theme_constant_override("separation", 12)
 	inside.add_child(head)
 	_heading = Label.new()
-	_heading.text = "ON THE TABLE"
+	_heading.text = tr("ON THE TABLE")
 	_heading.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	Type.display(_heading, Type.LABEL, HouseTheme.FOIL)
 	head.add_child(_heading)
@@ -123,7 +124,7 @@ func _build() -> void:
 	die.name = "Die"
 	die.custom_minimum_size = Vector2.ONE * CARD.x * DIE_SIZE
 	die.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	die.tooltip_text = DIE_LINE
+	die.tooltip_text = tr(DIE_LINE)
 	die.pressed.connect(roll)
 	var after := _cards.size()
 	die.mouse_entered.connect(func() -> void: _point(after, true, true))
@@ -248,8 +249,8 @@ func _show_tip() -> void:
 	var bound := _binds and over == _focused and _hovered < 0 and not TouchInput.enabled
 	if over >= _cards.size():
 		_tip_under = die
-		_tip.show_words(DIE_NAME, DIE_LINE)
-		_tip.show_bind(_keyboard, DIE_WORD if bound else "")
+		_tip.show_words(tr(DIE_NAME), tr(DIE_LINE))
+		_tip.show_bind(_keyboard, tr(DIE_WORD) if bound else "")
 		_tip.visible = true
 		_place_tip.call_deferred()
 		return
@@ -261,7 +262,8 @@ func _show_tip() -> void:
 	elif each.fresh:
 		chip = TableTag.Chip.NEW
 	_tip.show_card(over, chip)
-	_tip.show_bind(_keyboard, ("Open early" if each.sealed else "Turn over") if bound else "")
+	var how := tr("Open early") if each.sealed else tr("Turn over")
+	_tip.show_bind(_keyboard, how if bound else "")
 	_tip.visible = true
 	_place_tip.call_deferred()
 
@@ -324,11 +326,11 @@ func _on_pressed(card: int) -> void:
 func _show() -> void:
 	if _note == null:
 		return
-	_heading.text = "IN THE DECK" if roulette else "ON THE TABLE"
+	_heading.text = tr("IN THE DECK") if roulette else tr("ON THE TABLE")
 	_note.text = (
-		"Power-ups and %d of the rest, dealt each map" % TableCards.DEAL
+		tr("Power-ups and %d of the rest, dealt each map") % TableCards.DEAL
 		if roulette
-		else "Press a card to turn it over"
+		else tr("Press a card to turn it over")
 	)
 	for each: TableCardButton in _cards:
 		var card := each.card
@@ -336,23 +338,25 @@ func _show() -> void:
 		each.up = TableCards.has(table, card)
 		each.fresh = TableCards.has(fresh, card) and not each.sealed
 		each.queue_redraw()
-		ScreenReader.name(each, TableCards.NAMES[card], _said(each))
+		ScreenReader.name(each, tr(TableCards.NAMES[card]), _said(each))
 	# The die once the House has opened every card, and never on a table the House has set; the
 	# cursor goes on to it from the last card while it is there.
 	die.visible = opened == TableCards.ALL and not _locked
 	var last := _cards[-1]
 	last.focus_neighbor_right = last.get_path_to(die) if die.visible else NodePath(".")
-	ScreenReader.name(die, DIE_NAME, DIE_LINE)
+	ScreenReader.name(die, tr(DIE_NAME), tr(DIE_LINE))
 
 
 func _said(each: TableCardButton) -> String:
 	if each.sealed:
 		return (
-			"Not open yet: it opens after map %d. Press to open it early."
+			tr("Not open yet: it opens after map %d. Press to open it early.")
 			% (TableCards.opens_after(each.card))
 		)
-	var state := "In the deck" if roulette and each.up else ("On" if each.up else "Off")
-	return "%s. %s" % [state, TableCards.LINES[each.card]]
+	var state := tr("In the deck") if roulette and each.up else (tr("On") if each.up else tr("Off"))
+	var line := tr(TableCards.LINES[each.card])
+	# TRANSLATORS: A card of the table to a screen reader: whether it is on, and what it does.
+	return tr("{state}. {line}").format({"state": state, "line": line})
 
 
 ## One card of the strip: its face where it is on the table, its back where it is not, sealed where
@@ -437,7 +441,7 @@ class TableCardButton:
 			var size_drawn := box.size
 			picture = KeptPictures.of(
 				self,
-				"table_card|%d|%d" % [card, state],
+				"table_card|%d|%d" % [card, state],  # NO_TRANSLATE
 				pixels,
 				func() -> Control: return _Face.new(drawn, state, size_drawn, pixels),
 				GROUP
@@ -474,7 +478,7 @@ class TableCardButton:
 			draw_string(
 				Type.display_font(),
 				tag.position + Vector2(0, 13.5),
-				"NEW",
+				tr("NEW"),
 				HORIZONTAL_ALIGNMENT_CENTER,
 				tag.size.x,
 				13,

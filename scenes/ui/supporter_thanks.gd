@@ -44,6 +44,7 @@ const DARKNESS := OpeningInvitation.DARKNESS
 const WALKS := OpeningInvitation.WALKS
 ## Of those, the ones that walk the cursor between its two buttons once they are up.
 const STEPS: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
+## Its two buttons, shown through tr().
 const TRY_ON := "Try them on"
 const CLOSE := "Close"
 ## The layer the thanks for a pack just bought come up on, see [method over_all]: over the kart
@@ -169,10 +170,10 @@ func _ready() -> void:
 	_pool.position = _at
 	_pool.draw.connect(func() -> void: OpeningInvitation.draw_pool(_pool))
 	_stage.add_child(_pool)
-	try_on = MenuTheme.primary(MenuTheme.button(TRY_ON))
+	try_on = MenuTheme.primary(MenuTheme.button(tr(TRY_ON)))
 	try_on.name = "TryOn"
 	try_on.pressed.connect(_close.bind(true))
-	closing = MenuTheme.button(CLOSE)
+	closing = MenuTheme.button(tr(CLOSE))
 	closing.name = "Close"
 	closing.pressed.connect(_close.bind(false))
 	var left := (STAGE.x - BUTTON_WIDE * 2.0 - BUTTON_GAP) * 0.5
@@ -205,7 +206,7 @@ func _notification(what: int) -> void:
 ## Comes on: the lamp, the envelope, the card out of it and the buttons, see [constant LENGTH].
 func start() -> void:
 	_started = true
-	ScreenReader.say(self, ScreenReader.line([ThankYouCard.HEADING, ThankYouCard.NOTE]))
+	ScreenReader.say(self, ScreenReader.line([tr(ThankYouCard.HEADING), tr(ThankYouCard.NOTE)]))
 
 
 func _fit() -> void:

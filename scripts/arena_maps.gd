@@ -19,6 +19,7 @@ const IDS: Array[StringName] = [
 	&"house_rules",
 	&"showdown",
 ]
+## What each is called, in the order of [constant IDS], shown through tr().
 const NAMES: Array[String] = [
 	"Lucky Crossing",
 	"The Vault",

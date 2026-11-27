@@ -6,7 +6,7 @@ extends HBoxContainer
 
 signal chosen(grand_prix: bool)
 
-## What each is called, and the line under that says what it is.
+## What each is called, and the line under that says what it is, shown through tr().
 const WORDS: Array[String] = ["Grand Prix", "Quick match"]
 const LINES: Array[String] = ["Several maps, one trophy", "One map"]
 const ICON := 48.0
@@ -53,7 +53,7 @@ func _add(for_grand_prix: bool) -> void:
 	pressable.toggle_mode = true
 	pressable.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pressable.custom_minimum_size = Vector2(300.0, HEIGHT)
-	ScreenReader.name(pressable, WORDS[which], LINES[which])
+	ScreenReader.name(pressable, tr(WORDS[which]), tr(LINES[which]))
 	# The picture beside the words rather than over them, so the two are no taller than a pair of
 	# lines: under them are the columns, which are what the screen is for, GAME.md 9.6.
 	var inside := HBoxContainer.new()
@@ -70,12 +70,12 @@ func _add(for_grand_prix: bool) -> void:
 	words.add_theme_constant_override("separation", 0)
 	inside.add_child(words)
 	var word := Label.new()
-	word.text = WORDS[which]
+	word.text = tr(WORDS[which])
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(word, Type.STRONG, Type.LARGE)
 	words.add_child(word)
 	var line := Label.new()
-	line.text = LINES[which]
+	line.text = tr(LINES[which])
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.add_theme_color_override("font_color", LINE_INK)
 	Type.set_font(line, Type.TEXT, Type.LABEL)

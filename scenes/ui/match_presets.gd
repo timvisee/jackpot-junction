@@ -5,11 +5,12 @@ extends RefCounted
 ## table, 3.17, and leaves The floor alone. Nothing here is kept: which one is lit is read off the
 ## rows, see [method matching].
 
-## What each preset is called, the line under its name, the face of its chip, and the rows it
-## sets: how long a map runs in seconds, the target, the joker slots, whether all items rather than
-## the basic set, whether a kart's own bullets hurt it, whether the clock running out plays on, and
-## whether a trailing player is helped to catch up, which Cutthroat alone turns off; and the table,
-## 3.17: the cards it turns face down of those opened, and whether each map deals its own.
+## What each preset is called and the line under its name, shown through tr(), the face of its
+## chip, and the rows it sets: how long a map runs in seconds, the target, the joker slots, whether
+## all items rather than the basic set, whether a kart's own bullets hurt it, whether the clock
+## running out plays on, and whether a trailing player is helped to catch up, which Cutthroat alone
+## turns off; and the table, 3.17: the cards it turns face down of those opened, and whether each
+## map deals its own.
 const PRESETS: Array[Dictionary] = [
 	{
 		"name": "Penny table",
@@ -83,7 +84,7 @@ const PRESETS: Array[Dictionary] = [
 	},
 ]
 ## The fifth chip, lit where the rows are set to none of them: steel, the way a switch that is off
-## is.
+## is. Its name and its line are shown through tr().
 const CUSTOM := {"name": "Custom", "line": "Set them yourself", "face": Color(0.37, 0.36, 0.42)}
 
 

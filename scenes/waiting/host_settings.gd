@@ -95,11 +95,11 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	pane.add_child(column)
-	column.add_child(MenuTheme.title("Match settings", 44))
+	column.add_child(MenuTheme.title(tr("Match settings"), 44))
 	var joining := (
-		"Anybody else here joins with J or Start while you choose."
+		tr("Anybody else here joins with J or Start while you choose.")
 		if alone
-		else "Friends can join and drive while you choose."
+		else tr("Friends can join and drive while you choose.")
 	)
 	column.add_child(MenuTheme.subtitle(joining, Type.LABEL))
 	column.add_child(MenuTheme.perforation())
@@ -121,7 +121,7 @@ func _ready() -> void:
 	ButtonBinds.mark(options.mode_picker.button(false), InputActions.MENU_PAGE_NEXT)
 	options.settle_widths()
 	_rows.minimum_size_changed.connect(_fit)
-	_done = MenuTheme.primary(MenuTheme.button("Done"))
+	_done = MenuTheme.primary(MenuTheme.button(tr("Done")))
 	# As wide as a button is, in the middle: across the whole of a pane this wide, a bar of gold.
 	_done.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_done.custom_minimum_size.x = DONE_WIDTH
@@ -139,8 +139,10 @@ func is_open() -> bool:
 ## just come to them, GAME.md 9.3a: handed over [param by] somebody, or the host having left, and
 ## the choosing is theirs now.
 static func tell_new_host(room: Node, by := "") -> void:
-	var how := "%s made you the host." % by if not by.is_empty() else "The host left."
-	NoticePane.tell(room, "You are the host", how + " You choose the match and who may join now.")
+	var how := Lang.t("The host left. You choose the match and who may join now.")
+	if not by.is_empty():
+		how = Lang.t("%s made you the host. You choose the match and who may join now.") % by
+	NoticePane.tell(room, Lang.t("You are the host"), how)
 
 
 ## The pane at its own size where the screen has room for it, GAME.md 9.6. Its two columns stand
@@ -208,22 +210,23 @@ func _ask_open(card: int) -> void:
 		_confirm.answered.connect(_on_open_answered)
 		_middle.add_child(_confirm)
 	_asking = card
-	var named := TableCards.NAMES[card]
+	var named := tr(TableCards.NAMES[card])
 	var opened := options.table_strip.opened
+	# TRANSLATORS: {line} is what the card does, a sentence or two of its own.
+	var said := tr("The House opens it after map {map} by itself. {line} Opened, it stays open.")
 	# Suits & hands come with Jokers, GAME.md 3.17, opened with them where they are not yet.
-	var with_jokers := (
-		" Jokers open with it."
-		if card == TableCards.Card.SUITS and not TableCards.has(opened, TableCards.Card.JOKERS)
-		else ""
-	)
+	if card == TableCards.Card.SUITS and not TableCards.has(opened, TableCards.Card.JOKERS):
+		# TRANSLATORS: {line} is what the card does, a sentence or two of its own.
+		said = tr(
+			"""The House opens it after map {map} by itself. {line} Jokers open with it. Opened, \
+it stays open."""
+		)
+	var line := tr(TableCards.LINES[card])
 	_confirm.ask(
-		"Open %s early?" % named,
-		(
-			"The House opens it after map %d by itself. %s%s Opened, it stays open."
-			% [TableCards.opens_after(card), TableCards.LINES[card], with_jokers]
-		),
-		"Open it",
-		"Not now",
+		tr("Open %s early?") % named,
+		said.format({"map": TableCards.opens_after(card), "line": line}),
+		tr("Open it"),
+		tr("Not now"),
 		RoadSign.Kind.QUESTION
 	)
 

@@ -40,7 +40,7 @@ static func add_to(arena: Arena) -> Node3D:
 	spots[0].z += arena.grid.cell_size * WHEELS_DOWN
 	_wheels(holder, surfaces, spots[0])
 	_drum(holder, surfaces, spots[1])
-	var cone := SchoolCone.stand(arena, spots[2], "Cone", holder, false)
+	var cone := SchoolCone.stand(arena, spots[2], "Cone", holder, false)  # NO_TRANSLATE
 	cone.rights_after = CONE_UP_AFTER
 	return holder
 
@@ -49,7 +49,7 @@ static func add_to(arena: Arena) -> Node3D:
 static func _wheels(into: Node3D, surfaces: Surfaces, at: Vector3) -> void:
 	var rubber := surfaces.painted(Color(0.1, 0.1, 0.11))
 	var hub := surfaces.metal(Color(0.62, 0.64, 0.68))
-	var body := _standing(into, "Wheels", at, WHEEL_RADIUS, 1.25)
+	var body := _standing(into, "Wheels", at, WHEEL_RADIUS, 1.25)  # NO_TRANSLATE
 	for i: int in 3:
 		_cylinder(body, WHEEL_RADIUS, 0.42, rubber, Vector3(0.0, 0.22 + float(i) * 0.4, 0.0))
 	_cylinder(body, WHEEL_RADIUS * 0.44, 0.44, hub, Vector3(0.0, 1.02, 0.0))
@@ -59,7 +59,7 @@ static func _wheels(into: Node3D, surfaces: Surfaces, at: Vector3) -> void:
 static func _drum(into: Node3D, surfaces: Surfaces, at: Vector3) -> void:
 	var paint := surfaces.painted(Color(0.22, 0.35, 0.44))
 	var steel := surfaces.metal(Color(0.66, 0.68, 0.72))
-	var body := _standing(into, "Drum", at, DRUM_RADIUS, 1.6)
+	var body := _standing(into, "Drum", at, DRUM_RADIUS, 1.6)  # NO_TRANSLATE
 	_cylinder(body, DRUM_RADIUS, 1.55, paint, Vector3(0.0, 0.78, 0.0))
 	for height: float in [0.5, 1.1]:
 		_cylinder(body, DRUM_RADIUS * 1.06, 0.12, steel, Vector3(0.0, height, 0.0))

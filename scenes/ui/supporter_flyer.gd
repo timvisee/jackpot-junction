@@ -6,6 +6,7 @@ extends Control
 ## letters and a line in red pen under it. Drawn at the card's size, [constant ThankYouCard.SIZE].
 
 const SIZE := ThankYouCard.SIZE
+## The pack's name and the line under it, shown through tr().
 const NAME := "SUPPORTER PACK"
 const LINE := "Chip in, wear your thanks"
 const RED := Color("#b8402f")
@@ -27,8 +28,8 @@ func _draw() -> void:
 	draw_rect(box, ThankYouCard.CARD)
 	draw_rect(box.grow(-16.0), PartTray.SUPPORTER_TAPE, false, 6.0)
 	PartTray.draw_star(self, STAR_AT, STAR)
-	_centered(Type.display_font(), NAME, 300.0, NAME_SIZE, PartTray.SUPPORTER_TAPE)
-	_centered(BayArt.hand_font(), LINE, 372.0, LINE_SIZE, RED)
+	_centered(Type.display_font(), tr(NAME), 300.0, NAME_SIZE, PartTray.SUPPORTER_TAPE)
+	_centered(BayArt.hand_font(), tr(LINE), 372.0, LINE_SIZE, RED)
 
 
 ## [param words] in [param font] at [param tall], across the middle with their foot at [param y].

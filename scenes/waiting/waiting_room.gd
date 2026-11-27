@@ -24,9 +24,10 @@ const LAYOUT: ArenaLayout = preload("res://data/maps/waiting_room.tres")
 ## and of the pad and its ring grown for a room of eight, see [LobbyPad].
 const BALL_SPOT := Vector3(0.0, 0.0, 6.0)
 const RULES: MatchRules = preload("res://data/match/waiting_room.tres")
-## What the pause menu's way to go without waiting is called, see [method _offer_to_start].
+## What the pause menu's way to go without waiting is called, see [method _offer_to_start], shown
+## through tr().
 const START_NOW := "Start now"
-## What a Steam game's room says about friends coming in, GAME.md 10.8.
+## What a Steam game's room says about friends coming in, GAME.md 10.8, shown through tr().
 const STEAM_HINT := "Friends join through Steam: invite them from the menu, or Join game"
 ## Where the stalls for dressing the kart start, GAME.md 4.4: the top left cell of the first of
 ## them, along the back wall on either side of the middle.
@@ -76,7 +77,7 @@ func _ready() -> void:
 	add_child(match_node)
 	# Put up behind a loading screen, the way a map is, whoever is hosting.
 	# Called the Lobby on the screen, GAME.md 9.6.
-	await LoadingScreen.put_up(self, match_node, "Lobby")
+	await LoadingScreen.put_up(self, match_node, tr("Lobby"))
 	match config.online:
 		"host":
 			_take_seats()
@@ -159,8 +160,12 @@ func _host() -> void:
 		session.door.server_password = config.server_password
 		var error := session.host_steam() if config.steam else session.host(config.port)
 		if error != OK:
-			var on := "on Steam" if config.steam else "on port %d" % config.port
-			ready_room_hint("Could not host %s: %s" % [on, error_string(error)])
+			var why := error_string(error)
+			var failed := tr("Could not host on Steam: %s") % why
+			if not config.steam:
+				failed = tr("Could not host on port {port}: {why}")
+				failed = failed.format({"port": config.port, "why": why})
+			ready_room_hint(failed)
 			return
 		if config.steam and config.rehost:
 			# The lobby is the old host's, kept: the game is said to be up for the others to follow.
@@ -168,11 +173,10 @@ func _host() -> void:
 		elif config.steam:
 			_open_the_lobby()
 	if config.steam:
-		ready_room_hint(STEAM_HINT)
+		ready_room_hint(tr(STEAM_HINT))
 	elif not config.dedicated:
-		ready_room_hint(
-			"Friends join on port %d at %s" % [config.port, ", ".join(_local_addresses())]
-		)
+		var where := {"port": config.port, "addresses": ", ".join(_local_addresses())}
+		ready_room_hint(tr("Friends join on port {port} at {addresses}").format(where))
 
 
 ## A Steam game's lobby, the way Steam friends come in, GAME.md 10.8: made with the room, and gone
@@ -187,14 +191,22 @@ func _on_lobby_failed(why: String) -> void:
 	ready_room_hint(why)
 
 
-## Where this game is, for the words while connecting: the host's on Steam, or an address.
-func _where() -> String:
-	if config.steam:
-		var whose := (
-			"%s's game" % config.steam_name if not config.steam_name.is_empty() else "the game"
-		)
-		return "%s on Steam" % whose
-	return "%s:%d" % [config.address, config.port]
+## What is said of this game while connecting, [param connecting], or once that failed: the host's
+## on Steam, or an address.
+func _where(connecting: bool) -> String:
+	var address := "%s:%d" % [config.address, config.port]
+	var named := {"name": config.steam_name}
+	if connecting and not config.steam:
+		return tr("Connecting to %s...") % address
+	if connecting and config.steam_name.is_empty():
+		return tr("Connecting to the game on Steam...")
+	if connecting:
+		return tr("Connecting to {name}'s game on Steam...").format(named)
+	if not config.steam:
+		return tr("Could not connect to %s") % address
+	if config.steam_name.is_empty():
+		return tr("Could not connect to the game on Steam")
+	return tr("Could not connect to {name}'s game on Steam").format(named)
 
 
 func _join() -> void:
@@ -219,15 +231,14 @@ func _join() -> void:
 	session.seat_refused.connect(_on_seat_refused)
 	# After the signal rather than inside it: going to the title hangs the session up, and a session
 	# cannot be freed while it is in the middle of saying something.
-	session.disconnected.connect(
-		func() -> void: Game.back_to_the_menu.call_deferred("The connection to the game was lost")
-	)
+	var lost := tr("The connection to the game was lost")
+	session.disconnected.connect(func() -> void: Game.back_to_the_menu.call_deferred(lost))
 	# A host that never answers is said so, rather than left for the player to work out alone in
 	# an empty room, and so is one that answers with a version this game cannot play, GAME.md
 	# 10.3. The reason is up long enough to be read.
 	session.refused.connect(_fail)
 	session.locked.connect(_ask_password)
-	session.connection_failed.connect(func() -> void: _fail("Could not connect to %s" % _where()))
+	session.connection_failed.connect(func() -> void: _fail(_where(false)))
 	if not back:
 		var error := (
 			session.join_steam(config.steam_host)
@@ -240,22 +251,26 @@ func _join() -> void:
 		# Said while it is being tried, and put away once the host has answered: a room with
 		# nobody in it yet is not a room to be looking at without knowing why.
 		_connecting = StatusPane.add_to(self)
-		_connecting.say("Connecting to %s..." % _where())
+		_connecting.say(_where(true))
 		session.rules_applied.connect(_connected, CONNECT_ONE_SHOT)
 	match_node.start_puppet()
 	if session.watching:
 		# Nobody here takes a seat, so the line that says how to has nothing to say.
 		session.watching_started.connect(
 			func() -> void:
-				ready_room_hint("You are watching")
+				ready_room_hint(tr("You are watching"))
 				if ready_room != null:
 					ready_room.hide_how_to_sit_down()
 		)
 	elif not config.server.is_empty():
 		# Anybody in a game of a dedicated server can tell a friend where it is, GAME.md 9.3a: on
 		# the server called what it calls itself, if anything, at its address.
-		var on := "" if config.server_name.is_empty() else "on %s " % config.server_name
-		ready_room_hint("Friends find this game in Play Online, %sat %s" % [on, config.server])
+		var found := tr("Friends find this game in Play Online, at %s") % config.server
+		if not config.server_name.is_empty():
+			found = tr("Friends find this game in Play Online, on {name} at {address}").format(
+				{"name": config.server_name, "address": config.server}
+			)
+		ready_room_hint(found)
 	if back:
 		# Asked for rather than waited for: the host seats whoever asks once its room is up, and
 		# this room is now up at this end to hear the answer.
@@ -286,7 +301,7 @@ func _ask_password(wrong: bool) -> void:
 	if wrong:
 		# After the session has finished saying so: going hangs it up, and a session cannot be
 		# freed in the middle of saying something.
-		found_on.call_deferred("Wrong password")
+		found_on.call_deferred(tr("Wrong password"))
 		return
 	var pane := PasswordPane.add_to(self)
 	pane.left.connect(func() -> void: found_on.call())
@@ -301,6 +316,7 @@ func _ask_password(wrong: bool) -> void:
 	)
 
 
+## Why the room is left before it was ever joined, [param message], already in the language spoken.
 func _fail(message: String) -> void:
 	if _connecting != null:
 		_connecting.queue_free()
@@ -365,7 +381,7 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 		return
 	host_settings = HostSettings.add_to(self, config.online == "", session)
 	host_settings.closed.connect(_chosen)
-	_offer_to_start(menu.add_entry("Match settings", choose))
+	_offer_to_start(menu.add_entry(tr("Match settings"), choose))
 	_point_to_the_settings()
 	# Hosting, who may come in first, then what the match is, GAME.md 9.6. Back from a match only
 	# the match: the lobby's are on the pause menu for a host who wants them. Quick Play chose it
@@ -380,7 +396,7 @@ func _offer_the_settings(menu: PauseMenu) -> void:
 ## whoever is not on the pad, everybody in it playing, once whoever decides where it goes says yes.
 ## For the player who has wandered off, or the friend who cannot find the pad.
 func _offer_to_start(under: Button) -> void:
-	_start_now = MenuTheme.button(START_NOW)
+	_start_now = MenuTheme.button(tr(START_NOW))
 	_start_now.pressed.connect(
 		func() -> void: _menu.ask(start_words(ready_room), _start, _start_now)
 	)
@@ -388,16 +404,18 @@ func _offer_to_start(under: Button) -> void:
 
 
 ## What Start now asks first: the question, the line under it, the button that goes and the one that
-## stays, saying how many in [param room] are not ready.
+## stays, saying how many in [param room] are not ready, in the language spoken.
 static func start_words(room: ReadyRoom) -> Array[String]:
 	var waiting := room.player_count() - room.ready_count()
-	var line := "Everybody is ready."
-	if waiting > 0:
-		line = (
-			"%d of %d players %s not ready. Everybody in the lobby plays, ready or not."
-			% [waiting, room.player_count(), "is" if waiting == 1 else "are"]
-		)
-	return ["Start the match now?", line, START_NOW, "Wait"]
+	var line := Lang.tn(
+		"{waiting} of {all} players is not ready. Everybody in the lobby plays, ready or not.",
+		"{waiting} of {all} players are not ready. Everybody in the lobby plays, ready or not.",
+		waiting
+	)
+	line = line.format({"waiting": waiting, "all": room.player_count()})
+	if waiting <= 0:
+		line = Lang.t("Everybody is ready.")
+	return [Lang.t("Start the match now?"), line, Lang.t(START_NOW), Lang.t("Wait")]
 
 
 ## Start now said yes to: through to the arena, or at a client with the say, the server asked to go
@@ -514,7 +532,7 @@ func _take_the_say(arriving: bool) -> void:
 	if host_settings == null:
 		host_settings = HostSettings.add_to(self, false, session)
 		host_settings.closed.connect(_chosen)
-		_offer_to_start(_menu.add_entry("Match settings", choose))
+		_offer_to_start(_menu.add_entry(tr("Match settings"), choose))
 		_point_to_the_settings()
 	if config.creating:
 		# Who may come in starts where its maker last left it, as a host's door does, GAME.md 9.6.
@@ -594,8 +612,9 @@ func _say_the_plan() -> void:
 		return
 	_said_limit = SeatLimit.limit(match_node, session)
 	Events.room_planned.emit(config.bot_count, _said_limit)
+	# What the match is goes as what it is said from, for every machine to say in its own language.
 	Events.match_planned.emit(
-		MatchOptions.describe(config, _team_sizes()), _choosing(), config.final_hand
+		ReadyRoom.planned(config, _team_sizes()), _choosing(), config.final_hand
 	)
 
 

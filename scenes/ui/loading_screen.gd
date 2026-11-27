@@ -68,6 +68,9 @@ var table := -1
 var dealt := false
 
 var room_name := ""
+## What the room's table number is taken from, the same in every language: its map and its room,
+## or its name where it has none, see [method _table_number].
+var room_key := ""
 ## A line under the room's name, the room itself when the heading is the Final Hand's,
 ## STORY.md 6.5.
 var room_under := ""
@@ -101,28 +104,34 @@ var _sliding := -1.0
 
 
 ## Puts [param match_node]'s room up a phase at a time with a loading screen over [param parent]
-## saying [param named], and comes back once it is up. Every room is put up this way, the maps and
-## the rooms between them alike: the Garage, the test track and the waiting room, GAME.md 8.6.
+## saying [param named], in the language spoken, and comes back once it is up. Every room is put up
+## this way, the maps and the rooms between them alike: the Garage, the test track and the waiting
+## room, GAME.md 8.6.
 ## With [param a_match] the hand is the table's cards, 3.17, turned up as the room goes up.
 static func put_up(parent: Node, match_node: Match, named: String, a_match := false) -> void:
 	var arena := match_node.prepare_arena(true)
 	# The Final Hand is headed as the House heads it, the room's name under it, STORY.md 6.5.
-	var heading := StoryLines.FINAL_HAND if arena.final_hand else named
+	var heading := Lang.t(StoryLines.FINAL_HAND) if arena.final_hand else named
 	var screen := LoadingScreen.new()
 	if a_match and not arena.final_hand:
 		screen.table = match_node.rules.table
 		screen.dealt = match_node.rules.dealt
+	screen.room_key = "%s/%s" % [match_node.rules.map, match_node.rules.room]
 	screen = add_to(parent, heading, RoomEmblem.of(arena), screen)
 	if arena.final_hand:
 		screen.room_under = named
 	await screen.run(arena.build_steps(), building(arena.final_hand))
 
 
-## The line under the bar: what is being built and, as the story goes, who for, STORY.md 6.5.
+## The line under the bar: what is being built and, as the story goes, who for, STORY.md 6.5, in
+## the language spoken.
 static func building(final_hand := false) -> String:
 	if final_hand:
-		return StoryLines.LOADING_FINAL_HAND
-	return str(StoryLines.at(StoryLines.LOADING, Story.stage_here(), "Building the room"))
+		return Lang.t(StoryLines.LOADING_FINAL_HAND)
+	var line: Variant = StoryLines.at(
+		StoryLines.LOADING, Story.stage_here(), Lang.later("Building the room")
+	)
+	return Lang.t(str(line))
 
 
 ## Puts a loading screen up over [param parent] for the room called [param room], with
@@ -154,7 +163,7 @@ func _ready() -> void:
 	add_child(column)
 	if table >= 0:
 		var tonight := Label.new()
-		tonight.text = "TONIGHT'S DEAL" if dealt else "TONIGHT'S TABLE"
+		tonight.text = tr("TONIGHT'S DEAL") if dealt else tr("TONIGHT'S TABLE")
 		tonight.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		Type.display(tonight, Type.LABEL, HouseTheme.FOIL)
 		column.add_child(tonight)
@@ -164,7 +173,7 @@ func _ready() -> void:
 	column.add_child(MenuTheme.title(room_name, Type.TITLE))
 	var table := _table_number()
 	if not table.is_empty():
-		column.add_child(MenuTheme.title("No. " + table, Type.BODY))
+		column.add_child(MenuTheme.title(tr("No. %s") % table, Type.BODY))
 	if not room_under.is_empty():
 		column.add_child(MenuTheme.subtitle(room_under, Type.BODY))
 	_bar = bar()
@@ -187,18 +196,13 @@ func _table_number() -> String:
 		return ""
 	if not Game.settings.profile.story.has_note(StoryNotes.TABLE_DIRECTORY):
 		return ""
-	return _grouped(absi(hash(room_name)) % 99_000_000 + 1_000_000)
+	var key := room_key if not room_key.is_empty() else room_name
+	return _grouped(absi(hash(key)) % 99_000_000 + 1_000_000)
 
 
-## [param number] with a comma every three digits, the way the House prints its big ones.
+## [param number] with its thousands set apart, the way the House prints its big ones.
 static func _grouped(number: int) -> String:
-	var digits := str(number)
-	var out := ""
-	for i: int in digits.length():
-		if i > 0 and (digits.length() - i) % 3 == 0:
-			out += ","
-		out += digits[i]
-	return out
+	return Lang.number(number)
 
 
 ## Runs [param steps] one to a frame with the bar following them, and takes the screen down after
@@ -280,7 +284,7 @@ func _deal() -> Control:
 		room.add_child(card)
 		_cards.append(card)
 		_rests.append(rest)
-		backs.append(_side(card, "Back"))
+		backs.append(_side(card, "Back"))  # NO_TRANSLATE
 	CardBack.picture(
 		CardBack.worn(),
 		self,
@@ -398,7 +402,8 @@ func _tag_of(card: int) -> Control:
 	tag.show_card(card, TableTag.Chip.NEW)
 	# In its place from the start, so nothing moves as it fades up once the room is.
 	tag.modulate.a = 0.0
-	ScreenReader.name(tag, "New: %s" % TableCards.NAMES[card], TableCards.LINES[card])
+	var named := tr("New: %s") % tr(TableCards.NAMES[card])
+	ScreenReader.name(tag, named, tr(TableCards.LINES[card]))
 	return tag
 
 

@@ -9,7 +9,8 @@ const REPOSITORY := "https://github.com/timvisee/jackpot-junction"
 ## The game's pages to get it from: its store page on Steam, see STEAM.md, and itch.io's, ITCH.md.
 const STEAM := "https://store.steampowered.com/app/5652730"
 const ITCH := "https://timvisee.itch.io/jackpot-junction"
-## The models that made it, in the order they worked on it, all of them Anthropic's.
+## The models that made it, in the order they worked on it, all of them Anthropic's. NO_TRANSLATE:
+## their names.
 const MODELS: Array[String] = ["Claude Fable 5.1", "Claude Opus 5", "Claude Opus 5.5"]
 ## What the game is built with and from: what it is, who made it, on what terms, and where. And so
 ## a build lists only what it holds, see [method in_this_build]: `files`, the res:// paths of it,
@@ -18,7 +19,9 @@ const MODELS: Array[String] = ["Claude Fable 5.1", "Claude Opus 5", "Claude Opus
 ## [constant Audio.TRACKS]. Without any of the three it is in every build. And for the notices,
 ## see [Licenses]: `license`, the key in [method Engine.get_license_info] of the terms' text, and
 ## `copyright`, the lines of it, as the license files beside the files give them, without the
-## word Copyright.
+## word Copyright. What it is and its terms are shown through tr() where they are more than a
+## name; the names of people, things and places are left as they are, and so are the notices'
+## keys and lines, which are the license files' own.
 const THINGS: Array[Dictionary] = [
 	{
 		"what": "Godot Engine",
@@ -38,7 +41,7 @@ const THINGS: Array[Dictionary] = [
 			"res://assets/audio/sfx/click_001.ogg",
 			"res://assets/audio/sfx/bookOpen.ogg",
 		],
-		"license": "CC0-1.0",
+		"license": "CC0-1.0",  # NO_TRANSLATE
 	},
 	{
 		"what": "Electronic Music Pack Vol. 8",
@@ -66,7 +69,7 @@ const THINGS: Array[Dictionary] = [
 			"res://assets/fonts/BarlowCondensed-ExtraBold.ttf",
 			"res://assets/fonts/BarlowSemiCondensed-SemiBold.ttf",
 		],
-		"license": "OFL-1.1",
+		"license": "OFL-1.1",  # NO_TRANSLATE
 		"copyright": ["2017 The Barlow Project Authors (https://github.com/jpt/barlow)"],
 	},
 	{
@@ -75,7 +78,7 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "rsms.me/inter",
 		"files": ["res://assets/fonts/Inter-Regular.ttf"],
-		"license": "OFL-1.1",
+		"license": "OFL-1.1",  # NO_TRANSLATE
 		"copyright": ["2020 The Inter Project Authors (https://github.com/rsms/inter)"],
 	},
 	{
@@ -84,9 +87,9 @@ const THINGS: Array[Dictionary] = [
 		"terms": "Apache License 2.0",
 		"where": "fonts.google.com/specimen/Homemade+Apple",
 		"files": ["res://assets/fonts/HomemadeApple-Regular.ttf"],
-		"license": "Apache-2.0",
+		"license": "Apache-2.0",  # NO_TRANSLATE
 		# Its license file is the license alone; the line is the font's own, from its name table.
-		"copyright": ["2010 Font Diner, Inc."],
+		"copyright": ["2010 Font Diner, Inc."],  # NO_TRANSLATE
 	},
 	{
 		"what": "Caveat typeface, for notes in pencil",
@@ -94,7 +97,7 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "github.com/googlefonts/caveat",
 		"files": ["res://assets/fonts/Caveat-Variable.ttf"],
-		"license": "OFL-1.1",
+		"license": "OFL-1.1",  # NO_TRANSLATE
 		"copyright": ["2014 The Caveat Project Authors (https://github.com/googlefonts/caveat)"],
 	},
 	{
@@ -103,8 +106,8 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "fonts.google.com/specimen/Kalam",
 		"files": ["res://assets/fonts/Kalam-Regular.ttf"],
-		"license": "OFL-1.1",
-		"copyright": ["2014, Indian Type Foundry (info@indiantypefoundry.com)"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright": ["2014, Indian Type Foundry (info@indiantypefoundry.com)"],  # NO_TRANSLATE
 	},
 	{
 		"what": "Patrick Hand typeface, for a third hand",
@@ -112,8 +115,8 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "fonts.google.com/specimen/Patrick+Hand",
 		"files": ["res://assets/fonts/PatrickHand-Regular.ttf"],
-		"license": "OFL-1.1",
-		"copyright": ["2010-2012 Patrick Wagesreiter (mail@patrickwagesreiter.at)"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright": ["2010-2012 Patrick Wagesreiter (mail@patrickwagesreiter.at)"],  # NO_TRANSLATE
 	},
 	{
 		"what": "Reenie Beanie typeface, for a line scratched with a point",
@@ -121,8 +124,8 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "fonts.google.com/specimen/Reenie+Beanie",
 		"files": ["res://assets/fonts/ReenieBeanie-Regular.ttf"],
-		"license": "OFL-1.1",
-		"copyright": ["2010, James Grieshaber (james@typeco.com)"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright": ["2010, James Grieshaber (james@typeco.com)"],  # NO_TRANSLATE
 	},
 	{
 		"what": "Permanent Marker typeface, for a marker pen",
@@ -130,9 +133,9 @@ const THINGS: Array[Dictionary] = [
 		"terms": "Apache License 2.0",
 		"where": "fonts.google.com/specimen/Permanent+Marker",
 		"files": ["res://assets/fonts/PermanentMarker-Regular.ttf"],
-		"license": "Apache-2.0",
+		"license": "Apache-2.0",  # NO_TRANSLATE
 		# As Homemade Apple's: the font's own line, from its name table.
-		"copyright": ["2010 Font Diner, Inc."],
+		"copyright": ["2010 Font Diner, Inc."],  # NO_TRANSLATE
 	},
 	{
 		"what": "Courier Prime typeface, for everything typed",
@@ -140,11 +143,11 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "github.com/quoteunquoteapps/CourierPrime",
 		"files": ["res://assets/fonts/CourierPrime-Regular.ttf"],
-		"license": "OFL-1.1",
+		"license": "OFL-1.1",  # NO_TRANSLATE
 		"copyright":
 		[
 			(
-				"2015 The Courier Prime Project Authors"
+				"2015 The Courier Prime Project Authors"  # NO_TRANSLATE
 				+ " (https://github.com/quoteunquoteapps/CourierPrime)"
 			),
 		],
@@ -155,8 +158,8 @@ const THINGS: Array[Dictionary] = [
 		"terms": "SIL Open Font License 1.1",
 		"where": "iginomarini.com/fell",
 		"files": ["res://assets/fonts/IMFellEnglish-Regular.ttf"],
-		"license": "OFL-1.1",
-		"copyright": ["2010, Igino Marini (mail@iginomarini.com)"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright": ["2010, Igino Marini (mail@iginomarini.com)"],  # NO_TRANSLATE
 	},
 	{
 		"what": "Free Controller Prompts, the pads on How to hold the wheel",
@@ -169,7 +172,7 @@ const THINGS: Array[Dictionary] = [
 			"res://assets/controllers/playstation_5.png",
 			"res://assets/controllers/playstation_4.png",
 		],
-		"license": "CC0-1.0",
+		"license": "CC0-1.0",  # NO_TRANSLATE
 	},
 	{
 		"what": "The Steam Deck's drawings, on How to hold the wheel",
@@ -184,9 +187,9 @@ const THINGS: Array[Dictionary] = [
 		"who": "Google",
 		"terms": "Apache License 2.0",
 		"where": "fonts.google.com/icons",
-		"license": "Apache-2.0",
+		"license": "Apache-2.0",  # NO_TRANSLATE
 		# Google publishes them under the license alone, with no line of whose they are.
-		"copyright": [],
+		"copyright": [],  # NO_TRANSLATE
 	},
 	{
 		"what": "gdUnit4, the tests' framework",
@@ -195,8 +198,8 @@ const THINGS: Array[Dictionary] = [
 		"where": "github.com/MikeSchulze/gdUnit4",
 		# Never exported, so only a game run from the project credits it.
 		"files": ["res://addons/gdUnit4/plugin.gd"],
-		"license": "Expat",
-		"copyright": ["2023 Mike Schulze"],
+		"license": "Expat",  # NO_TRANSLATE
+		"copyright": ["2023 Mike Schulze"],  # NO_TRANSLATE
 	},
 	{
 		"what": "GodotSteam, the way to Steam",
@@ -204,8 +207,8 @@ const THINGS: Array[Dictionary] = [
 		"terms": "MIT license",
 		"where": "godotsteam.com",
 		"steam": true,
-		"license": "Expat",
-		"copyright": ["2015-Current, GP Garcia, Chris Ridenour, and Contributors"],
+		"license": "Expat",  # NO_TRANSLATE
+		"copyright": ["2015-Current, GP Garcia, Chris Ridenour, and Contributors"],  # NO_TRANSLATE
 	},
 	{
 		"what": "Steamworks SDK",
@@ -247,8 +250,6 @@ static func holds(path: String) -> bool:
 	return ResourceLoader.exists(path) or FileAccess.file_exists(path)
 
 
-## The models, written out as a list in a sentence: "A, B and C".
+## The models, written out as a list in a sentence in the language spoken: "A, B and C".
 static func models_in_words() -> String:
-	if MODELS.size() == 1:
-		return MODELS[0]
-	return "%s and %s" % [", ".join(MODELS.slice(0, MODELS.size() - 1)), MODELS[-1]]
+	return Lang.listed(MODELS)

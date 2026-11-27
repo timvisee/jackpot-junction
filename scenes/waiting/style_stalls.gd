@@ -14,11 +14,12 @@ extends Node3D
 ## settings; a client keeps its own, and says it again when it is seated in the next room.
 
 ## The parts a pad each, in [constant KartStyle.CHOICES] order and the card back last, and what
-## each is called. The plate, the tire marks and the card back are the loyalty program's, GAME.md
-## 8.9: until one of a kind is won, its pad has only the plain one. The plate's waits for a license:
-## a kart wearing the learner's L has no plate to frame, so the fire button puts nothing on there
-## and the card says so, as the kart dialog's hook does, 4.4a. The body has no pad: built over at
-## every press, a kart is picked in the kart dialog instead.
+## each is called, which no pad says, each showing a picture instead. NO_TRANSLATE: the names are
+## never shown. The plate, the tire marks and the card back are the loyalty program's, GAME.md 8.9:
+## until one of a kind is won, its pad has only the plain one. The plate's waits for a license: a
+## kart wearing the learner's L has no plate to frame, so the fire button puts nothing on there and
+## the card says so, as the kart dialog's hook does, 4.4a. The body has no pad: built over at every
+## press, a kart is picked in the kart dialog instead.
 const PARTS: Array[int] = [0, 1, 2, 3, 4, 5, CARD_BACK]
 const WORDS: Array[String] = ["PAINT", "HAT", "FLAG", "TRAIL", "PLATE", "TIRE MARKS", "CARD BACK"]
 ## The card back's part, past the kart's own as [constant KartDialog.CARD_BACK] is: this machine's
@@ -38,7 +39,7 @@ const NAME_SCALE := 1.5
 const POP := 1.12
 const POP_TIME := 0.14
 ## What the card says under the name on a pad with nothing else to put on yet, and what it calls
-## a part's choice of nothing, which the choices call None.
+## a part's choice of nothing, which the choices call None, shown through tr().
 const ONLY_ONE := "The only one so far"
 const NOTHING: Array[String] = ["", "No hat", "No flag", "No trail", "Plain plate", "", ""]
 ## How long the cannon is held for, in seconds, each tick a kart is on a pad: past the next tick.
@@ -186,7 +187,7 @@ static func next_back(profile: Profile) -> int:
 	var back := profile.loyalty.card_back
 	for i: int in CardBack.STYLES.size():
 		back = (back + 1) % CardBack.STYLES.size()
-		if back == 0 or "card_back:%s" % CardBack.STYLES[back] in dress:
+		if back == 0 or "card_back:%s" % CardBack.STYLES[back] in dress:  # NO_TRANSLATE
 			break
 	return back
 
@@ -342,7 +343,7 @@ func _card(slot: PlayerSlot, pad: int, says: PackedStringArray, player: PlayerIn
 	column.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_theme_constant_override("separation", 2)
 	var name_line := Label.new()
-	name_line.text = says[0]
+	name_line.text = tr(says[0])
 	name_line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.strong(name_line, roundi(size * NAME_SCALE), slot.color().lightened(0.15))
 	column.add_child(name_line)
@@ -352,7 +353,7 @@ func _card(slot: PlayerSlot, pad: int, says: PackedStringArray, player: PlayerIn
 		# Nothing else to put on here yet: no button to press, and said so.
 		var only := Label.new()
 		var waits := pad == KartStyle.FRAME and is_learner(slot)
-		only.text = KartStyle.NO_LICENSE if waits else ONLY_ONE
+		only.text = tr(KartStyle.NO_LICENSE) if waits else tr(ONLY_ONE)
 		only.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		Type.text(only, size, Color(ink, 0.7))
 		column.add_child(only)
@@ -364,7 +365,9 @@ func _card(slot: PlayerSlot, pad: int, says: PackedStringArray, player: PlayerIn
 		if _on_touch(player)
 		else InputHint.glyph(InputActions.FIRE, keyboard, ink, size)
 	)
-	var row := InputHint.row("%%s next: %s" % says[1], [button], ink, size)
+	# TRANSLATORS: Over a kart at the lobby's stalls: %s is the button, {name} what it puts on next.
+	var next := tr("%s next: {name}").format({"name": tr(says[1])})
+	var row := InputHint.row(next, [button], ink, size)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(row)
 	return column

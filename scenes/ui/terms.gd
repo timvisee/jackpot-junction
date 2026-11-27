@@ -29,6 +29,30 @@ const COLORS: Dictionary[String, Color] = {
 	"junction": PLACE,
 	"royal flush": PLACE,
 }
+## The same words, shown through tr(), for a lesson's line in another language, which marks its own
+## words with braces: a word is found by its English and then by these, see [method color_of].
+# TRANSLATORS: One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+# say: the word the lessons' translations put in braces, for it to be drawn in its color.
+const WORDS: Array[String] = [
+	"chip",
+	"chips",
+	"mult",
+	"pot",
+	"pots",
+	"bank",
+	"banked",
+	"nitro",
+	"life",
+	"lives",
+	"jackpot",
+	"jackpots",
+	"junction",
+	"royal flush",
+]
+
+## [constant WORDS] in the language they were last looked up in, to their colors.
+static var _spoken: Dictionary[String, Color] = {}
+static var _spoken_in := ""
 
 
 ## [param text] with its marks taken out, for anything that shows it as it is.
@@ -49,7 +73,7 @@ static func bbcode(text: String, lit := true, on_paper := false) -> String:
 			break
 		said += rest.left(open)
 		var word := rest.substr(open + 1, close - open - 1)
-		var color: Color = COLORS.get(word.to_lower(), Color.TRANSPARENT)
+		var color := color_of(word)
 		if on_paper and color.a > 0.0:
 			color = HouseTheme.on_paper(color)
 		if lit and color.a > 0.0:
@@ -58,6 +82,19 @@ static func bbcode(text: String, lit := true, on_paper := false) -> String:
 			said += "[b]%s[/b]" % word if lit else word
 		rest = rest.substr(close + 1)
 	return said + rest
+
+
+## The color of [param word], one of the game's own in English or in the language spoken, or none.
+static func color_of(word: String) -> Color:
+	var lower := word.to_lower()
+	if COLORS.has(lower):
+		return COLORS[lower]
+	if _spoken_in != Lang.current:
+		_spoken_in = Lang.current
+		_spoken.clear()
+		for each: String in WORDS:
+			_spoken[Lang.t(each).to_lower()] = COLORS[each]
+	return _spoken.get(lower, Color.TRANSPARENT)
 
 
 ## [param text] drawn in [param ink] at [param size]: a plain label when nothing in it is marked,

@@ -16,7 +16,7 @@ extends RefCounted
 const FLAG := "--licenses"
 ## The pieces of Godot that are in no build of a game, by name, each with why: Godot 4.7.2's build
 ## files leave them out of export templates. A test holds each name to the engine's list, so an
-## upgrade that renames or drops one says so.
+## upgrade that renames or drops one says so. NO_TRANSLATE: the engine's names and notes for us.
 const NOT_SHIPPED := {
 	"Linux AppStream Metadata File": "the editor's Linux package metadata, built into nothing",
 	"Godot Engine logo": "the logo's artwork in Godot's source tree, built into nothing",
@@ -35,6 +35,7 @@ const NOT_SHIPPED := {
 }
 ## The pieces of Godot that only some platforms' builds carry, by name, with the names
 ## [method OS.get_name] gives those platforms, as Godot 4.7.2's platform build files have them.
+## NO_TRANSLATE: names.
 const PLATFORMS := {
 	"AccessKit": ["Windows", "macOS", "Linux"],
 	"SDL": ["Windows", "macOS", "Linux", "iOS", "visionOS"],
@@ -112,45 +113,48 @@ static func title(license: String) -> String:
 static func copyright(lines: Array) -> PackedStringArray:
 	var out := PackedStringArray()
 	for line: String in lines:
-		out.append("Copyright %s" % line)
+		out.append("Copyright %s" % line)  # NO_TRANSLATE
 	return out
 
 
 ## Every notice as plain text, for `--licenses`: the game's own terms and where its source is, what
-## of [param things] carries terms, Godot's license, its pieces, and each license's text once.
+## of [param things] carries terms, Godot's license, its pieces, and each license's text once. In
+## English, as the console is, GAME.md 10.9; "Copyright" and the licenses' names are the notices'
+## own in every language.
 static func text(things: Array[Dictionary]) -> String:
 	var of := pieces()
 	var out := PackedStringArray()
-	out.append("Jackpot Junction %s, licenses" % GameVersion.current())
+	out.append("Jackpot Junction %s, licenses" % GameVersion.current())  # NO_TRANSLATE
 	out.append("")
 	out.append(own_terms())
-	out.append("Source: %s" % Credits.REPOSITORY)
+	out.append("Source: %s" % Credits.REPOSITORY)  # NO_TRANSLATE
 	out.append("")
-	out.append("== Made with ==")
+	out.append("== Made with ==")  # NO_TRANSLATE
 	for thing: Dictionary in things:
-		if thing["what"] == "Godot Engine":
+		if thing["what"] == "Godot Engine":  # NO_TRANSLATE
 			continue
+		# NO_TRANSLATE
 		out.append(
 			"%s, by %s, %s, %s" % [thing["what"], thing["who"], thing["terms"], thing["where"]]
 		)
 		for line: String in copyright(thing.get("copyright", [])):
 			out.append("  " + line)
 		if thing.has("license"):
-			out.append("  License: %s" % title(thing["license"]))
+			out.append("  License: %s" % title(thing["license"]))  # NO_TRANSLATE
 	out.append("")
-	out.append("== Godot Engine ==")
+	out.append("== Godot Engine ==")  # NO_TRANSLATE
 	out.append(Engine.get_license_text())
-	out.append("== Inside Godot Engine ==")
+	out.append("== Inside Godot Engine ==")  # NO_TRANSLATE
 	for piece: Dictionary in of:
 		out.append(piece["name"])
 		for part: Dictionary in piece["parts"]:
 			for line: String in copyright(part["copyright"]):
 				out.append("  " + line)
-			out.append("  License: %s" % title(part["license"]))
+			out.append("  License: %s" % title(part["license"]))  # NO_TRANSLATE
 	var texts := Engine.get_license_info()
 	for key: String in keys(things, of):
 		out.append("")
-		out.append("== License: %s ==" % title(key))
+		out.append("== License: %s ==" % title(key))  # NO_TRANSLATE
 		out.append(texts[key])
 	return "\n".join(out)
 
@@ -158,6 +162,7 @@ static func text(things: Array[Dictionary]) -> String:
 ## The game's own terms in a sentence; where its source is, [constant Credits.REPOSITORY], goes on
 ## a line of its own.
 static func own_terms() -> String:
+	# NO_TRANSLATE: the console's and a dedicated server's page's, which are English, GAME.md 10.9.
 	return (
 		"Jackpot Junction is free software under the GNU General Public License 3.0, and the assets"
 		+ " made for it are under CC-BY-4.0."

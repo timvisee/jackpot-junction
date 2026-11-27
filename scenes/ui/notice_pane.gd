@@ -51,7 +51,7 @@ func _ready() -> void:
 	_message.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message.custom_minimum_size = Vector2(WIDTH, 0.0)
 	column.add_child(_message)
-	_ok = MenuTheme.primary(MenuTheme.button("OK"))
+	_ok = MenuTheme.primary(MenuTheme.button(tr("OK")))
 	# Pressed with the mouse or a finger only: the keys and the pads are driving.
 	_ok.focus_mode = Control.FOCUS_NONE
 	_ok.pressed.connect(close)

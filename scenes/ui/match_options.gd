@@ -51,7 +51,7 @@ const JOKER_SLOTS: Array[int] = [3, 4, 5, 6, 7, 8]
 ## How many maps a Grand Prix can run, GAME.md 9.7.
 const MAPS: Array[int] = [2, 3, 4, 5, 6]
 ## What of their jokers players take from one map of a Grand Prix to the next, in the order of
-## [enum GrandPrix.Keep].
+## [enum GrandPrix.Keep], shown through tr().
 const KEEPS: Array[String] = ["Discard all", "Pick one to keep", "Keep one at random", "Keep all"]
 
 ## How long after the settings come up the first value is blacked out, and how long between one
@@ -146,10 +146,11 @@ static func match_lengths() -> Array[int]:
 	return with_short
 
 
-## A length said the way the row says it: seconds under a minute, minutes from there.
+## A length said the way the row says it, in the language spoken: seconds under a minute, minutes
+## from there.
 static func length_words(seconds: float) -> String:
 	var whole := roundi(seconds)
-	return "%d s" % whole if whole < 60 else "%d min" % roundi(whole / 60.0)
+	return Lang.t("%d s") % whole if whole < 60 else Lang.t("%d min") % roundi(whole / 60.0)
 
 
 ## One line saying what a match is going to be: where, how long and to how many points. What
@@ -157,25 +158,28 @@ static func length_words(seconds: float) -> String:
 ## maps rather than which, since which is not dealt until it starts. The bots are the ready count's
 ## to say, GAME.md 9.6: how many come in depends on who is in the room, which this line cannot know.
 ## In team play the room says how the teams stand, [param sizes], GAME.md 3.14, "2 v 2", and the
-## target is the team's.
+## target is the team's. In the language spoken.
 static func describe(config: MatchConfig, sizes: Array[int] = []) -> String:
 	var length := length_words(config.duration)
 	var target := config.target_score
 	if config.teams > 0 and not sizes.is_empty():
 		target *= maxi(sizes.max(), 1)
+	var rounds := config.rounds
 	var parts: PackedStringArray = [
 		(
-			"Grand Prix of %d maps" % config.rounds
-			if config.rounds > 0
-			else ArenaMaps.NAMES[ArenaMaps.index_of(config.map)]
+			Lang.tn("Grand Prix of %d map", "Grand Prix of %d maps", rounds) % rounds
+			if rounds > 0
+			else Lang.t(ArenaMaps.NAMES[ArenaMaps.index_of(config.map)])
 		),
-		"%s each" % length if config.rounds > 0 else length,
-		"first to %d" % target if config.target_score > 0 else "no target",
+		Lang.t("%s each") % length if rounds > 0 else length,
+		Lang.t("first to %d") % target if config.target_score > 0 else Lang.t("no target"),
 	]
 	if config.teams > 0 and not sizes.is_empty():
-		parts.append(" v ".join(sizes.map(func(size: int) -> String: return str(size))))
+		# TRANSLATORS: Between the sizes of the teams, as in 2 v 2.
+		var versus := Lang.t(" v ")
+		parts.append(versus.join(sizes.map(func(size: int) -> String: return str(size))))
 	elif config.teams > 0:
-		parts.append("%d teams" % config.teams)
+		parts.append(Lang.tn("%d team", "%d teams", config.teams) % config.teams)
 	return " \u00b7 ".join(parts)
 
 
@@ -330,7 +334,7 @@ func show(config: MatchConfig) -> void:
 	var map := ArenaMaps.id_at(ArenaMaps.index_of(config.map))
 	if map not in _map_ids:
 		_map_ids.append(map)
-		map_option.add_item(ArenaMaps.NAMES[ArenaMaps.index_of(map)])
+		map_option.add_item(tr(ArenaMaps.NAMES[ArenaMaps.index_of(map)]))
 	map_option.select(_map_ids.find(map))
 	choose(config.rounds > 0)
 	minutes_option.select(maxi(match_lengths().find(roundi(config.duration)), 0))
@@ -530,18 +534,21 @@ func _build(column: Container, settings: Settings) -> void:
 	if _bots_wanted < 0:
 		bots_option.select(BOTS.size())
 	difficulty_option = MenuTheme.option(
-		["Easy", "Normal", "Hard"], DIFFICULTIES.find(settings.difficulty)
+		[tr("Easy"), tr("Normal"), tr("Hard")], DIFFICULTIES.find(settings.difficulty)
 	)
-	items_option = MenuTheme.option(["Basic items", "All items"], ITEM_SETS.find(settings.item_set))
+	items_option = MenuTheme.option(
+		[tr("Basic items"), tr("All items")], ITEM_SETS.find(settings.item_set)
+	)
 	# House Rules only for a profile that has played the Final Hand, STORY.md 10, and the Showdown
 	# only in a debug build, GAME.md 6.3.
 	_map_ids = ArenaMaps.offered(Game.settings.profile)
 	var offered: Array = []
 	for id: StringName in _map_ids:
-		offered.append(ArenaMaps.NAMES[ArenaMaps.index_of(id)])
+		offered.append(tr(ArenaMaps.NAMES[ArenaMaps.index_of(id)]))
 	map_option = MenuTheme.option(offered, maxi(_map_ids.find(StringName(settings.map)), 0))
+	var maps := func(count: int) -> String: return tr_n("%d map", "%d maps", count) % count
 	maps_option = MenuTheme.option(
-		_labels(MAPS, "%d maps"), maxi(MAPS.find(settings.grand_prix_maps), 0)
+		_labels(MAPS, maps), maxi(MAPS.find(settings.grand_prix_maps), 0)
 	)
 	mode_picker = GameModePicker.make(settings.grand_prix)
 	mode_picker.chosen.connect(_on_mode)
@@ -565,12 +572,12 @@ func _build(column: Container, settings: Settings) -> void:
 	columns.name = "Columns"
 	columns.add_theme_constant_override("separation", 12)
 	column.add_child(columns)
-	floor_fold = SettingsFold.make("The floor", settings.floor_open)
+	floor_fold = SettingsFold.make(tr("The floor"), settings.floor_open)
 	floor_fold.name = "Floor"
 	columns.add_child(floor_fold)
 	_tear = ColumnTear.new()
 	columns.add_child(_tear)
-	rules_fold = SettingsFold.make("House rules", settings.rules_open)
+	rules_fold = SettingsFold.make(tr("House rules"), settings.rules_open)
 	rules_fold.name = "Rules"
 	columns.add_child(rules_fold)
 	for fold: SettingsFold in [floor_fold, rules_fold]:
@@ -592,11 +599,12 @@ func _build(column: Container, settings: Settings) -> void:
 ## The floor's rows, GAME.md 9.6: the arena or the maps a Grand Prix deals, who plays and in
 ## teams or not.
 func _build_floor(body: Container, settings: Settings) -> void:
-	_maps_row = MenuTheme.row("Maps", maps_option)
+	_maps_row = MenuTheme.row(tr("Maps"), maps_option)
 	body.add_child(_maps_row)
 	# Which sizes of map a Grand Prix deals from, two chips lit or not, one always lit, GAME.md 9.7.
-	normal_toggle = _size_chip("Normal", settings.grand_prix_normal or not settings.grand_prix_xl)
-	xl_toggle = _size_chip("XL", settings.grand_prix_xl)
+	var normal := settings.grand_prix_normal or not settings.grand_prix_xl
+	normal_toggle = _size_chip(tr("Normal", &"map size"), normal)
+	xl_toggle = _size_chip(tr("XL"), settings.grand_prix_xl)
 	for pair: Array in [[normal_toggle, xl_toggle], [xl_toggle, normal_toggle]]:
 		var this: Button = pair[0]
 		var other: Button = pair[1]
@@ -609,13 +617,13 @@ func _build_floor(body: Container, settings: Settings) -> void:
 	sizes.add_theme_constant_override("separation", 10)
 	sizes.add_child(normal_toggle)
 	sizes.add_child(xl_toggle)
-	_sizes_row = MenuTheme.row("Map sizes", sizes)
+	_sizes_row = MenuTheme.row(tr("Map sizes"), sizes)
 	body.add_child(_sizes_row)
 	tie_toggle = MenuTheme.toggle(settings.grand_prix_tie_breaker)
-	_tie_row = MenuTheme.row("Tie-breaker", tie_toggle)
+	_tie_row = MenuTheme.row(tr("Tie-breaker"), tie_toggle)
 	body.add_child(_tie_row)
 	var arena := VBoxContainer.new()
-	arena.add_child(MenuTheme.row("Arena", map_option))
+	arena.add_child(MenuTheme.row(tr("Arena"), map_option))
 	# Which room that map is played in, GAME.md 8.1: three of them, a map and its XL in the same
 	# one, and a player picking a map is picking a place as much as a floor plan.
 	_room_label = MenuTheme.subtitle("", Type.LABEL)
@@ -627,55 +635,58 @@ func _build_floor(body: Container, settings: Settings) -> void:
 	_arena_row = arena
 	body.add_child(_arena_row)
 	small_maps_toggle = MenuTheme.toggle(settings.small_maps)
-	_small_maps_row = MenuTheme.row("Small maps for 5+ karts", small_maps_toggle)
+	_small_maps_row = MenuTheme.row(tr("Small maps for 5+ karts"), small_maps_toggle)
 	body.add_child(_small_maps_row)
 	map_option.item_selected.connect(func(_index: int) -> void: _show_room())
 	small_maps_toggle.toggled.connect(func(_on: bool) -> void: _show_room())
-	body.add_child(MenuTheme.row("Bots", bots_option))
-	body.add_child(MenuTheme.row("Bot difficulty", difficulty_option))
+	body.add_child(MenuTheme.row(tr("Bots"), bots_option))
+	body.add_child(MenuTheme.row(tr("Bot difficulty"), difficulty_option))
 	# Teams, and under them whether teammates can hurt each other, GAME.md 3.14.
-	var team_names: Array = ["Off"]
-	team_names.append_array(_labels(Teams.COUNTS.slice(1), "%d teams"))
+	var team_names: Array = [tr("Off")]
+	var teams := func(count: int) -> String: return tr_n("%d team", "%d teams", count) % count
+	team_names.append_array(_labels(Teams.COUNTS.slice(1), teams))
 	teams_option = MenuTheme.option(team_names, maxi(Teams.COUNTS.find(settings.teams), 0))
 	teams_option.item_selected.connect(func(_index: int) -> void: _show_teams())
-	body.add_child(MenuTheme.row("Teams", teams_option))
+	body.add_child(MenuTheme.row(tr("Teams"), teams_option))
 	friendly_fire_option = MenuTheme.option(
-		["Off", "On"], FRIENDLY_FIRE.find(settings.friendly_fire)
+		[tr("Off"), tr("On")], FRIENDLY_FIRE.find(settings.friendly_fire)
 	)
-	_friendly_fire_row = MenuTheme.row("Friendly fire", friendly_fire_option)
+	_friendly_fire_row = MenuTheme.row(tr("Friendly fire"), friendly_fire_option)
 	body.add_child(_friendly_fire_row)
 	_show_teams()
 
 
 ## House rules' rows, GAME.md 9.6: how a match plays, which the presets set.
 func _build_rules(body: Container, settings: Settings) -> void:
-	var length := MenuTheme.row("Match length", minutes_option)
+	var length := MenuTheme.row(tr("Match length"), minutes_option)
 	_length_label = length.get_child(0) as Label
 	body.add_child(length)
-	body.add_child(MenuTheme.row("Target score", target_option))
+	body.add_child(MenuTheme.row(tr("Target score"), target_option))
+	var held := func(count: int) -> String: return tr_n("%d joker", "%d jokers", count) % count
 	slots_option = MenuTheme.option(
-		_labels(JOKER_SLOTS, "%d jokers"), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
+		_labels(JOKER_SLOTS, held), maxi(JOKER_SLOTS.find(settings.joker_slots), 0)
 	)
-	_slots_row = MenuTheme.row("Joker slots", slots_option)
+	_slots_row = MenuTheme.row(tr("Joker slots"), slots_option)
 	body.add_child(_slots_row)
 	# The later set is the loyalty program's to add, GAME.md 8.9: no choice until it has added one.
-	_items_row = MenuTheme.row("Items", items_option)
+	_items_row = MenuTheme.row(tr("Items"), items_option)
 	if not _later_items():
 		items_option.select(0)
 	body.add_child(_items_row)
 	own_bullets_option = MenuTheme.option(
-		["Harmless", "Deadly"], OWN_BULLETS.find(settings.own_bullets_hurt)
+		[tr("Harmless"), tr("Deadly")], OWN_BULLETS.find(settings.own_bullets_hurt)
 	)
-	body.add_child(MenuTheme.row("Your own bullets", own_bullets_option))
+	body.add_child(MenuTheme.row(tr("Your own bullets"), own_bullets_option))
 	overtime_option = MenuTheme.option(
-		["Last one standing", "Match ends"], OVERTIME.find(settings.overtime)
+		[tr("Last one standing"), tr("Match ends")], OVERTIME.find(settings.overtime)
 	)
-	body.add_child(MenuTheme.row("Out of time", overtime_option))
-	catch_up_option = MenuTheme.option(["On", "Off"], CATCH_UP.find(settings.catch_up))
-	body.add_child(MenuTheme.row("Catch up", catch_up_option))
+	body.add_child(MenuTheme.row(tr("Out of time"), overtime_option))
+	catch_up_option = MenuTheme.option([tr("On"), tr("Off")], CATCH_UP.find(settings.catch_up))
+	body.add_child(MenuTheme.row(tr("Catch up"), catch_up_option))
 	# Only a Grand Prix has a next map to take anything on to.
-	jokers_option = MenuTheme.option(KEEPS, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
-	_jokers_row = MenuTheme.row("Jokers between maps", jokers_option)
+	var keeps := KEEPS.map(func(keep: String) -> String: return tr(keep))
+	jokers_option = MenuTheme.option(keeps, clampi(settings.grand_prix_jokers, 0, KEEPS.size() - 1))
+	_jokers_row = MenuTheme.row(tr("Jokers between maps"), jokers_option)
 	body.add_child(_jokers_row)
 
 
@@ -701,7 +712,7 @@ func _show_mode() -> void:
 	_jokers_row.visible = several and _jokers_dealt()
 	_tie_row.visible = several
 	_sizes_row.visible = several
-	_length_label.text = "Time per map" if several else "Match length"
+	_length_label.text = tr("Time per map") if several else tr("Match length")
 	_refresh()
 
 
@@ -717,10 +728,10 @@ func _show_room() -> void:
 	var id := _map_id()
 	var layout := ArenaMaps.layout(id)
 	var room := layout.room if layout.room != null else RoomLook.fallback()
-	_room_label.text = "Played in %s" % room.display_name
+	_room_label.text = tr("Played in %s") % tr(room.display_name)
 	var xl := ArenaMaps.xl_of(id)
-	var named := ArenaMaps.NAMES[ArenaMaps.index_of(xl)]
-	_xl_label.text = "With 5+ karts it plays as %s" % named
+	var named := tr(ArenaMaps.NAMES[ArenaMaps.index_of(xl)])
+	_xl_label.text = tr("With 5+ karts it plays as %s") % named
 	_xl_label.visible = (
 		_seats > SeatLimit.SEATS and not small_maps_toggle.button_pressed and xl != id
 	)
@@ -893,61 +904,64 @@ func _refresh() -> void:
 	_jokers_row.visible = is_grand_prix() and jokers
 	_items_row.visible = _later_items() and TableCards.has(table_strip.table, TableCards.Card.ITEMS)
 	var several := is_grand_prix()
-	var where := ""
+	var where: PackedStringArray = []
 	if several:
-		var sizes := "Normal and XL"
+		var maps: int = MAPS[maps_option.selected]
+		where.append(tr_n("%d map", "%d maps", maps) % maps)
+		var sizes := tr("Normal and XL")
 		if not xl_toggle.button_pressed:
-			sizes = "Normal maps"
+			sizes = tr("Normal maps")
 		elif not normal_toggle.button_pressed:
-			sizes = "XL maps"
-		where = "%d maps · %s" % [MAPS[maps_option.selected], sizes]
+			sizes = tr("XL maps")
+		where.append(sizes)
 		if tie_toggle.button_pressed:
-			where += " · tie-breaker"
+			where.append(tr("tie-breaker"))
 	else:
-		where = map_option.get_item_text(map_option.selected)
+		where.append(map_option.get_item_text(map_option.selected))
 		if _xl_label.visible:
-			where += " · XL with 5+"
+			where.append(tr("XL with 5+"))
 	var bots := bots_count()
-	var who := (
-		"No bots"
-		if bots == 0
-		else (
-			"%d bot%s, %s"
-			% [bots, "" if bots == 1 else "s", DIFFICULTIES[difficulty_option.selected]]
+	var how_hard := difficulty_option.get_item_text(difficulty_option.selected).to_lower()
+	var who: PackedStringArray = [
+		(
+			tr("No bots")
+			if bots == 0
+			else tr_n("{count} bot, {difficulty}", "{count} bots, {difficulty}", bots).format(
+				{"count": bots, "difficulty": how_hard}
+			)
 		)
-	)
+	]
 	if bots < 0:
-		who = "Bots make up 4, %s" % DIFFICULTIES[difficulty_option.selected]
-	if teams_option.selected > 0:
-		who += " · %d teams" % Teams.COUNTS[teams_option.selected]
-		if friendly_fire_option.selected > 0:
-			who += ", friendly fire"
+		who[0] = tr("Bots make up 4, {difficulty}").format({"difficulty": how_hard})
+	var teams: int = Teams.COUNTS[teams_option.selected]
+	if teams > 0 and friendly_fire_option.selected > 0:
+		who.append(tr_n("%d team, friendly fire", "%d teams, friendly fire", teams) % teams)
+	elif teams > 0:
+		who.append(tr_n("%d team", "%d teams", teams) % teams)
 	else:
-		who += " · no teams"
-	floor_fold.summarize(where, who)
+		who.append(tr("no teams"))
+	floor_fold.summarize(" · ".join(where), " · ".join(who))
 	var length := length_words(float(match_lengths()[maxi(minutes_option.selected, 0)]))
 	var target := TARGETS[maxi(target_option.selected, 0)]
-	var pace := (
-		"%s%s · %s"
-		% [
-			length,
-			" each" if several else "",
-			"first to %d" % target if target > 0 else "no target"
-		]
-	)
+	var pace: PackedStringArray = [
+		tr("%s each") % length if several else length,
+		tr("first to %d") % target if target > 0 else tr("no target"),
+	]
 	if jokers:
-		pace += " · %d jokers" % JOKER_SLOTS[maxi(slots_option.selected, 0)]
+		var held: int = JOKER_SLOTS[maxi(slots_option.selected, 0)]
+		pace.append(tr_n("%d joker", "%d jokers", held) % held)
 	var rules: PackedStringArray = []
 	if _items_row.visible:
-		rules.append("all items" if items_option.selected > 0 else "basic items")
-	rules.append("own bullets %s" % ("deadly" if own_bullets_option.selected > 0 else "harmless"))
-	rules.append("match ends" if overtime_option.selected > 0 else "last one standing")
+		rules.append(tr("all items") if items_option.selected > 0 else tr("basic items"))
+	var deadly := own_bullets_option.selected > 0
+	rules.append(tr("own bullets deadly") if deadly else tr("own bullets harmless"))
+	rules.append(tr("match ends") if overtime_option.selected > 0 else tr("last one standing"))
 	# Catch up is on by default, so only its absence is worth a word in the fine print.
 	if catch_up_option.selected > 0:
-		rules.append("no catch-up")
+		rules.append(tr("no catch-up"))
 	if several and jokers:
-		rules.append(KEEPS[jokers_option.selected].to_lower())
-	rules_fold.summarize(pace, " · ".join(rules))
+		rules.append(tr(KEEPS[jokers_option.selected]).to_lower())
+	rules_fold.summarize(" · ".join(pace), " · ".join(rules))
 
 
 ## Whether Jokers can be on the table these rows set: face up, or in a Roulette's deck.
@@ -965,15 +979,16 @@ func _map_id() -> StringName:
 	return _map_ids[clampi(map_option.selected, 0, _map_ids.size() - 1)]
 
 
-func _labels(values: Array[int], format: String) -> Array:
+## [param values] each said as [param say] says a number.
+func _labels(values: Array[int], say: Callable) -> Array:
 	var result: Array = []
 	for value: int in values:
-		result.append(format % value)
+		result.append(say.call(value))
 	return result
 
 
 func _target_labels() -> Array:
-	var result: Array = ["Off"]
+	var result: Array = [tr("Off")]
 	for value: int in TARGETS.slice(1):
 		result.append(str(value))
 	return result

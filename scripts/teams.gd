@@ -7,7 +7,7 @@ extends RefCounted
 ## A team is a number, its place in the suits' order; -1 is every kart for itself, which is how a
 ## match without teams plays and how anything owned by nobody, a pad no kart holds, stands.
 
-## The suits in the order teams are dealt: two teams are Hearts and Spades.
+## The suits in the order teams are dealt, shown through tr(): two teams are Hearts and Spades.
 const NAMES: Array[String] = ["Hearts", "Spades", "Diamonds", "Clubs"]
 ## Each suit's slot in the palette, GAME.md 8.1: Hearts red, Spades purple, Diamonds blue and Clubs
 ## green. Slots rather than colors, so a palette for color blindness, 8.5, changes them too.
@@ -25,8 +25,9 @@ static func color(team: int) -> Color:
 	return Palette.player_color(color_index(team))
 
 
+## What [param team] is called, in the language spoken.
 static func name_of(team: int) -> String:
-	return NAMES[posmod(team, NAMES.size())]
+	return Lang.t(NAMES[posmod(team, NAMES.size())])
 
 
 ## Whether [param a] and [param b] are one team. -1 is on nobody's side, its own included.
@@ -191,8 +192,8 @@ static func grouped(ranked: Array[PlayerSlot]) -> Array[PlayerSlot]:
 	return result
 
 
-## What [param slot] is called where a winner is named: its team in team play, GAME.md 3.14, and
-## the player otherwise.
+## What [param slot] is called where a winner is named: its team in team play, GAME.md 3.14, in the
+## language spoken, and the player otherwise.
 static func called(slot: PlayerSlot) -> String:
 	return name_of(slot.team) if slot.team >= 0 else slot.display_name()
 

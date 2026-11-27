@@ -10,7 +10,7 @@ extends RefCounted
 ## How long a device may sit quiet before its seat goes back to its bot, in seconds.
 const IDLE := 60.0
 ## What the call under the middle of the screen says as somebody sits down, and as the seat goes
-## back to its bot, and how long it holds.
+## back to its bot, shown through tr(), and how long it holds.
 const TAKEN := "YOU'RE IN"
 const GIVEN_BACK := "BACK TO THE BOT"
 const SAID_FOR := 3.0
@@ -148,7 +148,8 @@ static func _say(match_node: Match, slot: PlayerSlot, taken: bool) -> void:
 		var call := match_node.hud.get_node_or_null("Call") as CallBanner
 		if call != null:
 			var said := TAKEN if taken else GIVEN_BACK
-			call.show_call(slot.display_name(), said, slot.color(), false, SAID_FOR)
+			var named := slot.display_name()
+			call.show_call(named, said, slot.color(), false, SAID_FOR, Lang.t(said))
 	if not match_node.is_inside_tree():
 		return
 	for i: int in FLARES if taken else 1:

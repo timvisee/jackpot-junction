@@ -59,7 +59,12 @@ func _process(_delta: float) -> void:
 		return
 	_bar.visible = count.y > 0
 	if count.y > 0:
-		_label.text = "Waiting on %d out of %d players" % [count.y - count.x, count.y]
+		var waiting := tr_n(
+			"Waiting on {left} out of {all} players",
+			"Waiting on {left} out of {all} players",
+			count.y
+		)
+		_label.text = waiting.format({"left": count.y - count.x, "all": count.y})
 		_bar.value = float(count.x) / float(count.y)
 	else:
-		_label.text = "Waiting for everybody to keep a joker"
+		_label.text = tr("Waiting for everybody to keep a joker")

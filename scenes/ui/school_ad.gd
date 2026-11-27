@@ -16,6 +16,7 @@ const NUDGE := 8.0
 const NUDGE_EVERY := 1.6
 const BLINK := 0.55
 const HOVER := 1.04
+## What it says, shown through tr(): the headline, the line under it and the small print.
 const HEADLINE := "NOW ENROLLING"
 const LINE := "Earn your very own license here."
 const SMALL := "No experience required."
@@ -35,9 +36,9 @@ var pointing := true:
 	set = _set_pointing
 ## What it says and what it is printed on: the school's, unless a flyer of another kind sets its
 ## own in [method _dress], as [HouseAd] does.
-var headline_words := HEADLINE
-var line_words := LINE
-var small_words := SMALL
+var headline_words := tr(HEADLINE)
+var line_words := tr(LINE)
+var small_words := tr(SMALL)
 var fill := FILL
 var edge := EDGE
 var headline_ink := EDGE

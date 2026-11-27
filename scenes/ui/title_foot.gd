@@ -11,7 +11,7 @@ const INK := Color(0.6, 0.6, 0.65)
 ## The supporter pack's line's words under the mouse, lit as something a click acts on.
 const INK_LIT := Color(0.88, 0.88, 0.92)
 ## How far in from the screen's sides and its foot the two stand, and the supporter pack's line:
-## its words and how big its star is.
+## its words, shown through tr(), and how big its star is.
 const SIDE := 16.0
 const FOOT := 12.0
 const SUPPORTER := "Supporter Pack"
@@ -65,7 +65,7 @@ static func _supporter_line() -> HBoxContainer:
 	line.add_child(pin)
 	var words := Label.new()
 	words.name = "Words"
-	words.text = SUPPORTER
+	words.text = Lang.t(SUPPORTER)
 	words.add_theme_color_override("font_color", INK)
 	line.add_child(words)
 	for lit: bool in [true, false]:

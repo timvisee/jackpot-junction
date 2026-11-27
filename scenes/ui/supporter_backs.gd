@@ -8,7 +8,7 @@ extends RefCounted
 ## under a few stars. Each drawn in a card's own measures, [constant JokerCard.SIZE].
 
 ## The backs in [constant CardBack.STYLES] order, from where the pack's begin.
-const NAMES: Array[String] = ["Beacon", "Constellation", "Aurora"]
+const NAMES: Array[String] = ["Beacon", "Constellation", "Aurora"]  # NO_TRANSLATE
 ## The cream the engraving and the stars are in, the starlight of the chart, the lamp's warm light,
 ## the lighthouse's red, its rock and its iron, and the aurora's two colors.
 const CREAM := Color(0.95, 0.9, 0.78)

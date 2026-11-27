@@ -18,7 +18,7 @@ enum Card { ITEMS, JACKPOT, JOKERS, FLUSH, TRICKS, SLOTS, BOUNTY, SUITS }
 const ALL := (1 << 8) - 1
 ## The table of a profile that has played nothing yet, and of the Penny table preset.
 const FIRST := 1 << Card.ITEMS
-## What each card is called, on its face and wherever it is named.
+## What each card is called, on its face and wherever it is named, shown through tr().
 const NAMES: Array[String] = [
 	"Power-ups",
 	"Jackpot",
@@ -30,7 +30,7 @@ const NAMES: Array[String] = [
 	"Suits & hands",
 ]
 ## The one line each card says of itself, in the words the game prints wherever the card is shown
-## new: on the payout slip's coupon and on the loading screen, 8.6.
+## new: on the payout slip's coupon and on the loading screen, 8.6; shown through tr().
 const LINES: Array[String] = [
 	"Grab a box, then press the item button to use what was in it.",
 	"A pile of chips grows on the Jackpot. Park on it alone to scoop it up.",
@@ -43,7 +43,7 @@ const LINES: Array[String] = [
 ]
 ## The map glyphs, GAME.md 6.3, each card takes off the floor while it is off: they become floor.
 ## The laser tripwires go with either of theirs, being a room's trick that calls a bounty.
-const GLYPHS: Array[String] = ["P", "K", "", "F", "@E=MNWL", "$", "L", ""]
+const GLYPHS: Array[String] = ["P", "K", "", "F", "@E=MNWL", "$", "L", ""]  # NO_TRANSLATE
 ## The cards Roulette deals from, 3.17: power-ups are always on the table, and Suits & hands come
 ## with Jokers rather than on their own.
 const DEALT: Array[int] = [
@@ -148,9 +148,9 @@ static func deal(deck: int, rng: RandomNumberGenerator) -> int:
 	return table
 
 
-## The cards of [param table] by name, in order, joined for fine print.
+## The cards of [param table] by name in the language spoken, in order, joined for fine print.
 static func names_of(table: int, joiner := " · ") -> String:
 	var names: PackedStringArray = []
 	for card: int in cards_of(table):
-		names.append(NAMES[card])
+		names.append(Lang.t(NAMES[card]))
 	return joiner.join(names)

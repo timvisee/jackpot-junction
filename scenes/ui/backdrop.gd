@@ -81,7 +81,7 @@ func _draw() -> void:
 	if not live:
 		var pixels := KeptPictures.scale_of(self) * size
 		var step := Vector2i(KeptPictures.step_up(pixels.x, 64), KeptPictures.step_up(pixels.y, 64))
-		var key := "backdrop|%d|%s" % [int(_finish[0]), str(_finish[1])]
+		var key := "backdrop|%d|%s" % [int(_finish[0]), str(_finish[1])]  # NO_TRANSLATE
 		if not is_in_group(KEPT):
 			add_to_group(KEPT)
 		var picture := KeptPictures.of(self, key, step, _picture.bind(step), KEPT)

@@ -9,6 +9,7 @@ extends PanelContainer
 ## the one thing a visitor walking past has to read; only the dark between the demo and the full
 ## game and the loading screen go over it.
 
+## What it says, shown through tr(), the key or the button drawn where the %s is.
 const WORDS := "Press %s to play"
 ## How long a breath takes, in seconds, and how faint it is at its faintest.
 const BREATH := 3.2
@@ -83,7 +84,7 @@ func _say() -> void:
 	# Smaller on a touch screen, where the foot of the screen is narrow, so the line fits its ticket.
 	var size := Type.LARGE if TouchInput.enabled else Type.HEADING
 	var key := InputHint.glyph(InputActions.PAUSE, keyboard, HouseTheme.FOIL, size)
-	var words := InputHint.row(WORDS, [key], HouseTheme.FOIL, size)
+	var words := InputHint.row(tr(WORDS), [key], HouseTheme.FOIL, size)
 	words.name = "Words"
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	for part: Node in words.get_children():
@@ -100,7 +101,7 @@ func see_through(share: float) -> void:
 
 
 func said() -> String:
-	return WORDS % InputActions.short_binding_text(InputActions.PAUSE, keyboard)
+	return tr(WORDS) % InputActions.short_binding_text(InputActions.PAUSE, keyboard)
 
 
 func _process(delta: float) -> void:

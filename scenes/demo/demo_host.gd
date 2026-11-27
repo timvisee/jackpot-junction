@@ -17,8 +17,11 @@ const POINTER_REST := 3.0
 const PUSHED := 0.3
 ## What [method device_of] says for something that is no seat's device: the mouse, or a touch.
 const NO_DEVICE := -100
-## What the title's Quit asks away from the demo in the full game, see [method ask_to_quit].
+## What the title's Quit asks away from the demo in the full game, and the line under it, shown
+## through tr(), see [method ask_to_quit].
 const QUIT_QUESTION := "Quit the game?"
+const QUIT_LINE := """Or go back to the demo, which plays on by itself until somebody picks up a \
+pad. This profile goes either way."""
 ## Leaving the demo for the full game, GAME.md 9.8, a beat between the two: how long the screen
 ## takes to go dark, how long it stays dark before the full game's title, and how long the dark
 ## takes to lift off it and the invitation coming up there.
@@ -29,10 +32,6 @@ const DARK_OUT := 0.6
 ## how long after the title is asked for they come back up, the map's own gone by then.
 const DARK_SOUNDS_DB := -60.0
 const SOUNDS_BACK := 0.15
-const QUIT_LINE := (
-	"Or go back to the demo, which plays on by itself until somebody picks up a pad. "
-	+ "This profile goes either way."
-)
 
 var rng := RandomNumberGenerator.new()
 ## Which presses keep somebody sitting down, see [DemoPresses].
@@ -311,7 +310,8 @@ static func ask_to_quit(tree: SceneTree, ask: Callable) -> bool:
 			host.come_back()
 	var pane := ask.call("DemoQuit", answered) as ConfirmPane
 	if pane != null:
-		pane.ask(QUIT_QUESTION, QUIT_LINE, "Quit the game", "Back to the demo")
+		var asked := Lang.t(QUIT_QUESTION)
+		pane.ask(asked, Lang.t(QUIT_LINE), Lang.t("Quit the game"), Lang.t("Back to the demo"))
 	return true
 
 

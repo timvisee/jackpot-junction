@@ -93,11 +93,14 @@ const SEAT_INNER := HudBlock.SLANT + 14.0
 const TICKET_ROOM := 13.0
 ## How big the Final Hand's tiny golden ticket beside the next match is drawn.
 const TICKET := Vector2(54.0, 24.0)
-## What the next match is said after, left to be read under the marker the rest is blacked out
-## with at the Final Hand, and how long after the ticket the marker comes down.
+## What the next match is said after, shown through tr(), left to be read under the marker the rest
+## is blacked out with at the Final Hand, and how long after the ticket the marker comes down.
+# TRANSLATORS: Before what the next match is, as in "Next: The Vault · 5 min"; the space after it
+# is kept.
 const NEXT := "Next: "
 const REDACT_AFTER := 0.35
-## What the line under the count says once nobody else may sit down, GAME.md 9.6.
+## What the line under the count says once nobody else may sit down, GAME.md 9.6, shown through
+## tr().
 const FULL := "Maximum number of players reached"
 
 var match_node: Match
@@ -378,9 +381,10 @@ func all_green() -> bool:
 ## only when the count changes -- a board refits its lettering to the words, which is not work for
 ## every frame of a room where nothing is happening.
 func _say_the_count() -> void:
-	var counted := "PLAYERS READY" + bot_words()
+	var counted := tr("PLAYERS READY") + bot_words()
 	if starting_in >= 0.0:
-		counted += " · STARTS IN %d" % ceili(starting_in)
+		# TRANSLATORS: After PLAYERS READY on the waiting room's count: the seconds till it starts.
+		counted += " · " + tr("STARTS IN %d") % ceili(starting_in)
 	var words := "%d / %d %s" % [ready_count(), player_count(), counted]
 	if words == _said:
 		return
@@ -403,7 +407,7 @@ func _show_the_way_in() -> void:
 	var here := not full and SeatLimit.full_here(match_node, Net.session)
 	_seat_hint.visible = not full and not here and _seat_within_reach()
 	_full_hint.visible = full or here
-	_full_hint.text = SeatLimit.HERE_FULL.trim_suffix(".") if here else FULL
+	_full_hint.text = tr(SeatLimit.HERE_FULL).trim_suffix(".") if here else tr(FULL)
 	_place_the_seat()
 	_fit_the_way_in()
 
@@ -428,7 +432,7 @@ func _place_the_seat() -> void:
 		return
 	var hud := match_node.hud if match_node != null else null
 	var corner := hud.next_corner() if hud != null else 0
-	_seat_number.text = "SEAT %d" % (player_count() + 1)
+	_seat_number.text = tr("SEAT %d") % (player_count() + 1)
 	if corner == _seat_corner:
 		return
 	_seat_corner = corner
@@ -465,7 +469,8 @@ func bot_words() -> String:
 	var bots := bots_joining()
 	if bots <= 0:
 		return ""
-	return " + %d BOT%s" % [bots, "" if bots == 1 else "S"]
+	# TRANSLATORS: After PLAYERS READY on the waiting room's count: the bots coming in with them.
+	return tr_n(" + %d BOT", " + %d BOTS", bots) % bots
 
 
 ## A tiny golden ticket beside the next match while the seat at the Final Hand is taken, STORY.md
@@ -506,10 +511,10 @@ func black_out_the_plan(on: bool) -> void:
 func _redact_plan() -> void:
 	if _plan_redacted == null:
 		return
-	_plan_redacted.visible = _plan.visible and _plan.text.begins_with(NEXT)
+	_plan_redacted.visible = _plan.visible and _plan.text.begins_with(tr(NEXT))
 	var font := _plan.get_theme_font(&"font")
 	var points := _plan.get_theme_font_size(&"font_size")
-	var said := font.get_string_size(NEXT, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+	var said := font.get_string_size(tr(NEXT), HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
 	_plan_redacted.offset_left = said - RedactionBar.OVER.x
 
 
@@ -548,12 +553,15 @@ func _show_the_settings_key() -> void:
 
 ## The host has said what the next match is, or that they are still choosing. Either way it goes
 ## under the count, because what is about to be played is the other thing a room of people
-## waiting to play it wants to know.
+## waiting to play it wants to know. [param summary] is what [method planned] made of the match at
+## the machine that chose it, said here in the language spoken here.
 func _on_match_planned(summary: String, choosing: bool, by_the_house := false) -> void:
 	held = choosing
 	black_out_the_plan(by_the_house)
-	var who := "The host is" if Net.online() else "Still"
-	_plan.text = "%s choosing the match" % who if choosing else NEXT + summary
+	var who := (
+		tr("The host is choosing the match") if Net.online() else tr("Still choosing the match")
+	)
+	_plan.text = who if choosing else tr(NEXT) + said_plan(summary)
 	_plan.visible = true
 	_plan_tear.visible = true
 	_redact_plan()
@@ -831,7 +839,7 @@ func _build_counter() -> void:
 		if button != null:
 			ways.append(button)
 	var seat := InputHint.row(
-		"%s or %s to take a seat" if ways.size() > 1 else "%s to take a seat",
+		tr("%s or %s to take a seat") if ways.size() > 1 else tr("%s to take a seat"),
 		ways,
 		HINT_INK,
 		Type.LABEL
@@ -840,7 +848,7 @@ func _build_counter() -> void:
 	_seat.get_child(0).add_child(seat)
 	_seat_hint = seat
 	_full_hint = Label.new()
-	_full_hint.text = FULL
+	_full_hint.text = tr(FULL)
 	_full_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_full_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_full_hint.visible = false
@@ -863,6 +871,41 @@ func _build_counter() -> void:
 	Type.text(_online_hint, Type.LABEL, HINT_INK)
 	line.add_child(_online_hint)
 	_fit_the_way_in()
+
+
+## What the match settings chose, [param config] with the teams standing as [param sizes], as it is
+## sent to every machine in the room with [signal Events.match_planned], GAME.md 9.6: what
+## [method MatchOptions.describe] says it from rather than its words, so that each machine says it
+## in its own language, see [method said_plan].
+static func planned(config: MatchConfig, sizes: Array[int] = []) -> String:
+	var plan := {
+		"map": String(config.map),
+		"rounds": config.rounds,
+		"duration": config.duration,
+		"target": config.target_score,
+		"teams": config.teams,
+		"sizes": sizes,
+	}
+	return JSON.stringify(plan)
+
+
+## [param summary], as [method planned] made it at the machine that chose the match, said in the
+## language spoken here; anything else is said as it is.
+static func said_plan(summary: String) -> String:
+	var json := JSON.new()
+	if not summary.begins_with("{") or json.parse(summary) != OK or not json.data is Dictionary:
+		return summary
+	var plan: Dictionary = json.data
+	var config := MatchConfig.new()
+	config.map = StringName(str(plan.get("map", "")))
+	config.rounds = int(plan.get("rounds", 0))
+	config.duration = float(plan.get("duration", config.duration))
+	config.target_score = int(plan.get("target", 0))
+	config.teams = int(plan.get("teams", 0))
+	var sizes: Array[int] = []
+	for size: Variant in plan.get("sizes", []):
+		sizes.append(int(size))
+	return MatchOptions.describe(config, sizes)
 
 
 ## The empty seat, built in the top left corner and moved to the corner a newcomer would take, see

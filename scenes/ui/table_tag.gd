@@ -70,15 +70,15 @@ static func make() -> TableTag:
 ## Says [param card_in], with the chip [param chip], one of [enum Chip].
 func show_card(card_in: int, chip: int) -> void:
 	card = card_in
-	_name.text = TableCards.NAMES[card].to_upper()
-	_line.text = TableCards.LINES[card]
+	_name.text = tr(TableCards.NAMES[card]).to_upper()
+	_line.text = tr(TableCards.LINES[card])
 	_chip.visible = chip != Chip.NONE
 	if chip == Chip.NEW:
-		_chip.text = " NEW "
+		_chip.text = " %s " % tr("NEW")
 		_chip_look.bg_color = NEW_INK
 		Type.display(_chip, Type.LABEL, Color.WHITE)
 	elif chip == Chip.SEALED:
-		_chip.text = " AFTER MAP %d " % TableCards.opens_after(card)
+		_chip.text = " %s " % (tr("AFTER MAP %d") % TableCards.opens_after(card))
 		_chip_look.bg_color = SEALED_INK
 		Type.display(_chip, Type.LABEL, HouseTheme.ON_FOIL)
 	reset_size()

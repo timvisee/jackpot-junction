@@ -31,7 +31,7 @@ static var _drawn: Dictionary[String, ImageTexture] = {}
 ## A switch: a lane with a chip in it, at the near end and steel when it is off, at the far end and
 ## gold, in a lane lit gold, when it is on.
 static func switch(on: bool) -> ImageTexture:
-	var key := "switch_%s" % on
+	var key := "switch_%s" % on  # NO_TRANSLATE
 	if _drawn.has(key):
 		return _drawn[key]
 	var wide := SWITCH.x * DETAIL
@@ -76,7 +76,7 @@ static func switch(on: bool) -> ImageTexture:
 ## The mark beside an entry of a list: a gold chip on the one picked, a faint ring round each of
 ## the others so the list reads as a choice of one.
 static func mark(on: bool) -> ImageTexture:
-	var key := "mark_%s" % on
+	var key := "mark_%s" % on  # NO_TRANSLATE
 	if _drawn.has(key):
 		return _drawn[key]
 	var side := MARK * DETAIL
@@ -270,7 +270,7 @@ static func _inside(at: Vector2, triangle: PackedVector2Array) -> float:
 
 ## The knob of a slider: a gold chip, a shade lighter under the cursor.
 static func knob(lit: bool) -> ImageTexture:
-	var key := "knob_%s" % lit
+	var key := "knob_%s" % lit  # NO_TRANSLATE
 	if _drawn.has(key):
 		return _drawn[key]
 	var side := KNOB * DETAIL

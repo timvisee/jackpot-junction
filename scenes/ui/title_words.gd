@@ -21,7 +21,7 @@ static func status_line() -> HBoxContainer:
 	row.add_theme_constant_override("separation", 4)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var said := Label.new()
-	said.text = StoryFill.fill(StoryLines.STATUS_LINE, Game.settings.profile)
+	said.text = StoryFill.fill(Lang.t(StoryLines.STATUS_LINE), Game.settings.profile)
 	said.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(said, NotePage.TYPED, STATUS_SIZE)
 	said.add_theme_color_override("font_color", green)

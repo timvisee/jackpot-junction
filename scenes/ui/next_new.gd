@@ -20,10 +20,12 @@ extends HBoxContainer
 ## Pressed, or its bind: the dialog takes the cursor to its next new thing.
 signal asked
 
+## What it is called, to a screen reader, shown through tr().
 const WORDS := "Next new"
 ## How much wider than its face the button is, for the dialog's own edge round it.
 const FACE_ROOM := 36.0
-## How many are left, said to a screen reader after its words.
+## How many are left, said to a screen reader after its words: the English, NO_TRANSLATE, which
+## [method show_left] says in the language spoken.
 const LEFT := "%d left"
 const ACTION := InputActions.MENU_NEXT_NEW
 
@@ -108,7 +110,7 @@ func show_left(left: int) -> void:
 	_left = left
 	visible = left > 0
 	count.text = str(left)
-	ScreenReader.name(button, WORDS, LEFT % left)
+	ScreenReader.name(button, tr(WORDS), tr_n("%d left", "%d left", left) % left)
 
 
 ## How many it says are left.

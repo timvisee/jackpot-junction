@@ -38,7 +38,7 @@ static func face(on: CanvasItem, box: Rect2, card: int, dim := false) -> void:
 	picture(on, art, card)
 	var font := Type.display_font()
 	var size := mini(roundi(box.size.x * NAME), NAME_MOST)
-	var named := TableCards.NAMES[card].to_upper()
+	var named := Lang.t(TableCards.NAMES[card]).to_upper()
 	var top := art.end.y + box.size.y * 0.04
 	var lines := PackedStringArray([named])
 	if font.get_string_size(named, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > box.size.x * 0.9:
@@ -80,7 +80,7 @@ static func sealed(on: CanvasItem, box: Rect2, card: int) -> void:
 	on.draw_string(
 		Type.display_font(),
 		Vector2(band.position.x, band.get_center().y + size * Type.CAP_HEIGHT * 0.5),
-		"AFTER MAP %d" % TableCards.opens_after(card),
+		Lang.t("AFTER MAP %d") % TableCards.opens_after(card),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		band.size.x,
 		size,

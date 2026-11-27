@@ -44,7 +44,7 @@ static func picture(grand_prix: bool, ink: Color, side: float) -> Picture:
 ## again once it is.
 static func kept(on: CanvasItem, box: Rect2, grand_prix: bool, ink: Color) -> void:
 	var side := KeptPictures.step_up(box.size.x * KeptPictures.scale_of(on), 4)
-	var key := "game_mode|%s|%s" % [grand_prix, ink.to_html()]
+	var key := "game_mode|%s|%s" % [grand_prix, ink.to_html()]  # NO_TRANSLATE
 	if not on.is_in_group(KEPT):
 		on.add_to_group(KEPT)
 	var make := _picture.bind(side, grand_prix, ink)

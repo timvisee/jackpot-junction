@@ -11,13 +11,14 @@ extends Control
 ## Room kept under the buttons, clear of the bottom edge of the screen. Who made the music, the
 ## models and the sounds is said in Settings, About, see [AboutTab], rather than along it.
 const BOTTOM_ROOM := 24.0
-## The microprint under the name, GAME.md 8.1a, between two rules of foil, see [TitleWords].
+## The microprint under the name, GAME.md 8.1a, between two rules of foil, see [TitleWords],
+## shown through tr() as the story has it by then.
 const MICROPRINT := "Dept. of Karts  ·  licensed on every table"
-## What is asked before driving without a license, GAME.md 9.4a.
+## What is asked before driving without a license, GAME.md 9.4a, and the line under it, shown
+## through tr().
 const LICENSE_QUESTION := "Missing license"
-const LICENSE_LINE := (
-	"Nobody drives the Junction without one. " + "Earn your very own license at the driving school."
-)
+const LICENSE_LINE := """Nobody drives the Junction without one. Earn your very own license at the \
+driving school."""
 ## The license earned, GAME.md 9.4a, peeking in from the right edge the way a card in a hand
 ## does: how big, how much of it shows, how far it leans, where it sits over the version line,
 ## and how far in it comes under the cursor.
@@ -134,7 +135,7 @@ func _ready() -> void:
 	mark.kept = true
 	mark.custom_minimum_size = Vector2(132.0, 132.0)
 	if operator:
-		mark.fine_print = StoryLines.SEAL_AFTER
+		mark.fine_print = tr(StoryLines.SEAL_AFTER)
 	var centered := CenterContainer.new()
 	centered.add_child(mark)
 	column.add_child(centered)
@@ -143,26 +144,26 @@ func _ready() -> void:
 	_column = column
 	_mark = centered
 	# The name is a mark rather than a heading: the condensed Black, over a line of microprint.
-	var named := MenuTheme.title("Jackpot Junction", Type.HERO)
+	var named := MenuTheme.title("Jackpot Junction", Type.HERO)  # NO_TRANSLATE
 	Type.set_font(named, Type.mark_font(), Type.HERO)
 	column.add_child(named)
 	# The microprint under the name moves with the story, STORY.md 6.4.
 	var printed := TitleWords.microprint(
-		str(StoryLines.at(StoryLines.MICRO_TITLE, Story.stage_here(), MICROPRINT))
+		tr(str(StoryLines.at(StoryLines.MICRO_TITLE, Story.stage_here(), MICROPRINT)))
 	)
 	column.add_child(printed)
 	# After the ending the House's green line has the tagline's place, STORY.md 8.6.
 	var line: Control = (
 		TitleWords.status_line()
 		if operator
-		else MenuTheme.subtitle("Collect chips. Build your mult. Cash out before they get you.")
+		else MenuTheme.subtitle(tr("Collect chips. Build your mult. Cash out before they get you."))
 	)
 	column.add_child(line)
 	var spacer := Control.new()
 	spacer.custom_minimum_size = Vector2(0.0, 32.0)
 	column.add_child(spacer)
 	_spare = [centered, spacer, printed, line]
-	play_button = MenuTheme.button(StoryLines.CLOCK_IN if operator else "Play")
+	play_button = MenuTheme.button(tr(StoryLines.CLOCK_IN) if operator else tr("Play"))
 	# One way in to playing. Whether it is a Grand Prix or a quick match is the lobby's first
 	# question, GAME.md 9.7, asked with the rest rather than a screen early.
 	# Asked first, the first time, how to drive, GAME.md 4.2, whichever way in to driving it is,
@@ -173,13 +174,15 @@ func _ready() -> void:
 	column.add_child(play_button)
 	# The games on dedicated servers, GAME.md 9.3a, and through them the games on the network, 9.3:
 	# one way in to playing with other machines rather than one for each kind of host.
-	var server := MenuTheme.button(StoryLines.CLOCK_IN_ONLINE if operator else "Play Online")
+	var server := MenuTheme.button(
+		tr(StoryLines.CLOCK_IN_ONLINE) if operator else tr("Play Online")
+	)
 	server.pressed.connect(
 		func() -> void:
 			offer_license(func() -> void: DriveChoice.first(self, Game.go_to_play_online))
 	)
 	column.add_child(server)
-	var tutorial := MenuTheme.button("Driving School")
+	var tutorial := MenuTheme.button(tr("Driving School"))
 	tutorial.name = "DrivingSchool"
 	tutorial.pressed.connect(Game.go_to_tutorial)
 	# A way in to the license until it is earned; then a lesson to go back over, from the license
@@ -193,14 +196,14 @@ func _ready() -> void:
 	# What is not a way in to a match goes behind one button, so the column stays short enough
 	# for a phone: the Catalog and the Garage, and whatever joins them later. The Operator's is
 	# the staff's, STORY.md 8.6.
-	_clubhouse_button = MenuTheme.button(StoryLines.STAFF_ROOM if operator else "Clubhouse")
+	_clubhouse_button = MenuTheme.button(tr(StoryLines.STAFF_ROOM) if operator else tr("Clubhouse"))
 	_clubhouse_button.name = "Clubhouse"
 	_clubhouse_button.pressed.connect(show_clubhouse.bind(true))
 	column.add_child(_clubhouse_button)
-	var settings := MenuTheme.button("Settings")
+	var settings := MenuTheme.button(tr("Settings"))
 	settings.pressed.connect(func() -> void: Game.go_to_settings(Game.TITLE_SCENE))
 	column.add_child(settings)
-	var quit := MenuTheme.button("Quit")
+	var quit := MenuTheme.button(tr("Quit"))
 	quit.pressed.connect(_on_quit)
 	column.add_child(quit)
 	_main = [play_button, server]
@@ -210,20 +213,20 @@ func _ready() -> void:
 	_clubhouse = []
 	if Game.settings.profile.loyalty.welcomed:
 		_clubhouse.append(_make_loyalty_button())
-	var garage := MenuTheme.button("Garage")
+	var garage := MenuTheme.button(tr("Garage"))
 	garage.name = "Garage"
 	garage.pressed.connect(
 		func() -> void: offer_license(func() -> void: DriveChoice.first(self, Game.go_to_garage))
 	)
-	var catalog := MenuTheme.button("Catalog")
+	var catalog := MenuTheme.button(tr("Catalog"))
 	catalog.name = "Catalog"
 	catalog.pressed.connect(show_catalog)
 	_catalog_button = catalog
-	var achievements := MenuTheme.button("Achievements")
+	var achievements := MenuTheme.button(tr("Achievements"))
 	achievements.name = "Achievements"
 	achievements.pressed.connect(show_achievements)
 	_achievements_button = achievements
-	var back := MenuTheme.button("Back")
+	var back := MenuTheme.button(tr("Back"))
 	back.name = "ClubhouseBack"
 	back.pressed.connect(show_clubhouse.bind(false))
 	# Once licensed the school is a lesson to go back over, reached from the license peeking in,
@@ -722,7 +725,7 @@ func _on_welcomed(dialog: LoyaltyDialog) -> void:
 
 ## The program's button, the first of the Clubhouse's, GAME.md 8.9.
 func _make_loyalty_button() -> Button:
-	_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
+	_loyalty_button = MenuTheme.button(tr(LoyaltyDialog.program_name(Game.settings.profile)))
 	_loyalty_button.name = "Loyalty"
 	_loyalty_button.pressed.connect(show_loyalty)
 	return _loyalty_button
@@ -908,7 +911,13 @@ func offer_license(then: Callable) -> void:
 	)
 	if pane == null:
 		return
-	pane.ask(LICENSE_QUESTION, LICENSE_LINE, "Earn it now", "Drive anyway", RoadSign.Kind.QUESTION)
+	pane.ask(
+		tr(LICENSE_QUESTION),
+		tr(LICENSE_LINE),
+		tr("Earn it now"),
+		tr("Drive anyway"),
+		RoadSign.Kind.QUESTION
+	)
 	# The cursor starts on the school: it is the thing the question is for.
 	pane.yes_button().grab_focus()
 
@@ -956,4 +965,4 @@ func _ask(named: String, answered: Callable) -> ConfirmPane:
 ## What the corner says the game is: its version, and in a Steam build, [param steam], that it is
 ## that, GAME.md 10.8.
 static func version_words(steam: bool) -> String:
-	return "v%s%s" % [Game.version(), " · Steam" if steam else ""]
+	return "v%s%s" % [Game.version(), " · Steam" if steam else ""]  # NO_TRANSLATE

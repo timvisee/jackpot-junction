@@ -6,9 +6,6 @@ extends Label
 ## Prix starts in 7 seconds", or after the full game "The demo starts in 7 seconds". Kept up to
 ## date by [DemoHost].
 
-const NEXT_RUN := "The next Grand Prix starts in %s"
-const BACK := "The demo starts in %s"
-
 
 ## A wait on [param title], over its Play, which the demo hides, or the one it has already; or null
 ## for a title without one.
@@ -34,6 +31,12 @@ static func on(title: Node) -> DemoWait:
 ## up, so it never says nothing is left while something is.
 func say(left: float, back: bool) -> void:
 	var seconds := maxi(ceili(left), 1)
-	var counted := "1 second" if seconds == 1 else "%d seconds" % seconds
-	text = (BACK if back else NEXT_RUN) % counted
+	var said := tr_n("The demo starts in %d second", "The demo starts in %d seconds", seconds)
+	if not back:
+		said = tr_n(
+			"The next Grand Prix starts in %d second",
+			"The next Grand Prix starts in %d seconds",
+			seconds
+		)
+	text = said % seconds
 	visible = true

@@ -17,7 +17,8 @@ const MUSIC_DIR := "res://assets/audio/music/"
 ## About page credits only while their music is in the build. Measured off the loop rather than
 ## guessed: each is an exact number of bars long, so the tempo is the beat count over the length.
 ## Licensed music is not in the public repository, but in a private one that tools/private_assets
-## links in: a checkout without it plays no music, and nothing else changes.
+## links in: a checkout without it plays no music, and nothing else changes. NO_TRANSLATE: the
+## maker is a name, matched against the credits'.
 const TRACKS: Array[Dictionary] = [
 	{"id": "deceased_rodent", "bpm": 120.0, "by": "Ovani Sound"},
 	{"id": "ginger_bread", "bpm": 128.0, "by": "Ovani Sound"},

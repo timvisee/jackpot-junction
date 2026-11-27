@@ -22,7 +22,8 @@ const SCALLOPS := 40
 const BAND := 0.83
 const BAND_WIDE := 0.14
 const SEAL_CHIP := 0.65
-## What runs round the ring of ink, and how big, against the seal's radius.
+## What runs round the ring of ink, shown through tr(), and how big, against the seal's radius.
+# TRANSLATORS: Engraved round the game's seal in capitals, as a banknote's fine print is.
 const FINE_PRINT := "JACKPOT JUNCTION  ·  DEPT. OF KARTS  ·  LICENSED ON EVERY TABLE  ·  "
 const FINE_SIZE := 0.095
 ## The foil chip, as shares of its radius: the roads, the notches round its rim, three to each
@@ -52,7 +53,7 @@ const ON_PLATE := 0.72
 var kept := false
 ## The words round the seal: the Department's, or what the title's says after the story's ending,
 ## STORY.md 8.6. The icon, the splash and every other mark keep the Department's.
-var fine_print := FINE_PRINT
+var fine_print := tr(FINE_PRINT)
 
 ## The engraving, worked out for a size, and the size it was worked out for.
 var _lines: Array[PackedVector2Array] = []
@@ -85,7 +86,7 @@ func _draw() -> void:
 func _draw_kept() -> bool:
 	var pixels := KeptPictures.scale_of(self) * size
 	var step := Vector2i(KeptPictures.step_up(pixels.x, 8), KeptPictures.step_up(pixels.y, 8))
-	var key := "logo|%s|%s|%s|%s" % [plate, chip_only, mono, fine_print]
+	var key := "logo|%s|%s|%s|%s" % [plate, chip_only, mono, fine_print]  # NO_TRANSLATE
 	if not is_in_group(KEPT):
 		add_to_group(KEPT)
 	var picture := KeptPictures.of(self, key, step, _picture.bind(step), KEPT)

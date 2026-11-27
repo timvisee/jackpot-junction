@@ -90,7 +90,7 @@ func _add(preset: Dictionary) -> void:
 	pressable.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	pressable.custom_minimum_size = Vector2(0.0, HEIGHT)
 	pressable.name = String(preset["name"]).replace(" ", "")
-	ScreenReader.name(pressable, preset["name"], preset["line"])
+	ScreenReader.name(pressable, tr(preset["name"]), tr(preset["line"]))
 	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -111,12 +111,12 @@ func _add(preset: Dictionary) -> void:
 	words.add_theme_constant_override("separation", 0)
 	inside.add_child(words)
 	var named := Label.new()
-	named.text = preset["name"]
+	named.text = tr(preset["name"])
 	named.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(named, Type.STRONG, Type.BODY)
 	words.add_child(named)
 	var line := Label.new()
-	line.text = preset["line"]
+	line.text = tr(preset["line"])
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.add_theme_color_override("font_color", LINE_INK)
 	Type.set_font(line, Type.TEXT, Type.SMALL)
