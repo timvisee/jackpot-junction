@@ -128,7 +128,7 @@ const LISTENING_PAD := "Press a button"
 ## The question Reset bindings to defaults asks first, as what was bound cannot come back: its words
 ## and its two answers.
 const RESET_SURE := "Reset all bindings?"
-const RESET_LINE := "Every key and button goes back to the game's own. The ones you set are lost."
+const RESET_LINE := "All keys and buttons go back to their default. The ones you set are lost."
 const RESET_YES := "Reset"
 const RESET_NO := "Cancel"
 ## How the page keys that step through the tabs are drawn beside them, GAME.md 8.5, see
