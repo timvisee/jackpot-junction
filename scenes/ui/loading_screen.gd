@@ -299,7 +299,7 @@ func _deal() -> Control:
 	var drawn := randi() % FAN
 	_card = _cards[drawn]
 	_back = backs[drawn]
-	_face = _side(_card, "Face")
+	_face = _side(_card, "Face")  # NO_TRANSLATE
 	_face.visible = false
 	if _house_face != null:
 		_face.texture = _house_face

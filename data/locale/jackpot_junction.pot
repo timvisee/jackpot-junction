@@ -5753,19 +5753,11 @@ msgid "3 min · power-ups only"
 msgstr ""
 
 #: scenes/ui/match_presets.gd
-msgid "#B8733A"
-msgstr ""
-
-#: scenes/ui/match_presets.gd
 msgid "Standard"
 msgstr ""
 
 #: scenes/ui/match_presets.gd
 msgid "5 min · first to 3000"
-msgstr ""
-
-#: scenes/ui/match_presets.gd
-msgid "#F2C14E"
 msgstr ""
 
 #: scenes/ui/match_presets.gd
@@ -5777,10 +5769,6 @@ msgid "3 cards dealt a map"
 msgstr ""
 
 #: scenes/ui/match_presets.gd
-msgid "#3E9B5B"
-msgstr ""
-
-#: scenes/ui/match_presets.gd
 msgid "High roller"
 msgstr ""
 
@@ -5789,19 +5777,11 @@ msgid "8 min · every card"
 msgstr ""
 
 #: scenes/ui/match_presets.gd
-msgid "#7A4FC4"
-msgstr ""
-
-#: scenes/ui/match_presets.gd
 msgid "Cutthroat"
 msgstr ""
 
 #: scenes/ui/match_presets.gd
 msgid "No target · bullets bite"
-msgstr ""
-
-#: scenes/ui/match_presets.gd
-msgid "#C4453C"
 msgstr ""
 
 #: scenes/ui/match_presets.gd scenes/ui/quality_presets.gd
@@ -6921,10 +6901,6 @@ msgstr ""
 
 #: scenes/ui/supporter_flyer.gd
 msgid "Chip in, wear your thanks"
-msgstr ""
-
-#: scenes/ui/supporter_flyer.gd
-msgid "#b8402f"
 msgstr ""
 
 #: scenes/ui/supporter_thanks.gd
