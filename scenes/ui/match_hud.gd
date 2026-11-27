@@ -553,9 +553,9 @@ func _update_blocks() -> void:
 		HudBlock.show_stats(block, slot)
 		HudBlock.show_catch(block, kart, waiting)
 		HudBlock.show_lives(block, slot)
-		var nitro: NitroCells = block["nitro"]
+		var nitro: NitroBottle = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
-		nitro.modulate = Color(1.0, 0.75, 0.3) if kart.nitro_active else Color(0.85, 0.85, 0.9)
+		nitro.lit = kart.nitro_active
 		HudBlock.follow(block, slot)
 		HudBlock.place_bot(block, slot)
 		_update_speed(block, kart)

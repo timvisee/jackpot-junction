@@ -1,9 +1,9 @@
 class_name NitroCells
 extends Range
-## The nitro tank of a corner block, GAME.md 8.3 and 8.1a: a row of slanted cells in the player's
-## color, lit as far as the tank is full, the last one lit only as far as it has got, like the
-## segments of a gauge on a dashboard. The block lights the whole row the nitro's color by its
-## modulate while the bottle burns.
+## A gauge for what fills up over the HUD, GAME.md 8.1a, a lesson's task or the driving test's last
+## boss, see [method HudBlock.bar]: a row of slanted cells in an ink, lit as far as it has got, the
+## last one lit only as far as it has got, like the segments of a gauge on a dashboard. The nitro
+## tank it once was is a bottle round the speed dial now, see [NitroBottle].
 
 ## How many cells, how far each leans over its height, and the gap between two of them.
 const CELLS := 10

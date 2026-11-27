@@ -218,7 +218,7 @@ func test_a_corner_block_is_a_strip_in_its_players_color() -> void:
 	match_node.kart_of(0).pot.mult = 24.5
 	await runner.simulate_frames(4, 17)
 	assert_float(card.size.x).is_equal_approx(MatchHud.BLOCK_WIDTH, 0.5)
-	assert_object(block["nitro"]).is_instanceof(NitroCells)
+	assert_object(block["nitro"]).is_instanceof(NitroBottle)
 	assert_object(block["speed_dial"]).is_instanceof(SpeedDial)
 
 

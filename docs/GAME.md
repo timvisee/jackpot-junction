@@ -3922,7 +3922,7 @@ Amber and red belong to the boards and the warnings.
   end slanted and striped in the player's color, engraved with waves and a seal,
   with microprint along its foot. The pot is two chip-ended pills, a blue chip for
   the coins and a die for the mult, with the value after them in gold. Speed is a
-  small dial with the number in it, nitro ten slanted cells in the player's color.
+  small dial with the number in it, nitro a bottle bent round its foot in the player's color.
   The clock is amber seven-segment digits on a board hung from the top edge, and
   while one of Kit's notes lies in the map a small scrap of its paper hangs off the
   right of the board under a magnifying glass, ticked off in red pen once a player here takes it,
@@ -4786,10 +4786,14 @@ lane beside it is as wide as it was.
   cards and the title over it. With three or four players it
   keeps to its owner's corner, as the hand does: above a bottom player's hand, and
   under a top player's, stacking down from it with the pane under the cards.
-- **Nitro tank** as ten slanted cells in the player's color, lit as far as the
-  tank is full, like the segments of a gauge on a dashboard, and lit the nitro
-  color while burning.
-- **Speedometer** over it: a small dial, three quarters of a ring open at the
+- **Nitro tank** as the nitro bottle bent round the foot of the speedometer, so
+  the two read as one gauge, as a car's fuel gauge sits under its speedometer:
+  dark glass rounded at its foot, filling from the left in the player's color as
+  far as the tank is full, with its shadow side and a glint, marked off in
+  tenths, narrowing into a neck with a gas cylinder's valve standing straight off
+  it, its outlet turned to the dial as if it fed it and its red hand wheel across
+  its end. Amber while it burns, as the dial's fill is (`NitroBottle`).
+- **Speedometer** in it: a small dial, three quarters of a ring open at the
   foot, with the number in km/h in its middle and the unit written in the gap,
   the number and the ring's fill turning the nitro's amber while the bottle is lit. The dial is full at a kart flat out on
   nitro, so the needle still has somewhere to go when it lights. The number is the
@@ -8570,7 +8574,7 @@ screen's edges where the corner leaves them no room. The kill feed, which hangs 
 A tick box is printed in ink, notched at its corners like the house's tickets, and ticked in the
 examiner's red pen once done, the tick running past the box as a quick hand's does; a bar is the
 dashboard's own, a row of slanted cells filled in red pen as far as the task has got, as the nitro
-tank is. A task that is done is ticked and grayed with a short chime; the one being done is bright,
+tank once was. A task that is done is ticked and grayed with a short chime; the one being done is bright,
 with a bar under it where it is a matter of how far, and a count's box stays empty until the count
 is complete; tasks not yet reached are not shown, so the list grows as the lesson goes, and a task
 that comes up while the lesson goes on is written in at the corner as the one before is ticked,

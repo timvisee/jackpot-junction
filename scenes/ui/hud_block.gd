@@ -15,9 +15,10 @@ const OUTER := 20.0
 const INNER := SLANT + STRIPE + 12.0
 const ABOVE := 12.0
 const BELOW := 18.0
-## How big the speed dial is, and the nitro cells under it.
+## How big the speed dial is, and the room under it the nitro bottle bends round into, as wide
+## as the row of cells the tank was, so the block keeps its width, see [NitroBottle].
 const DIAL := 88.0
-const CELLS := Vector2(118.0, 12.0)
+const UNDER := Vector2(118.0, 6.0)
 ## How much of the name's row the kills and deaths keep for themselves.
 const STATS_WIDTH := 92.0
 ## The catch-up badge in a player's own corner, GAME.md 3.16: its gold, and the least multiplier it
@@ -176,6 +177,12 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	speed_dial.tooltip_text = Lang.t("Speed")
 	speed_dial.ink = slot.color()
 	dial_box.add_child(speed_dial)
+	var nitro := NitroBottle.new()
+	nitro.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	nitro.ink = slot.color()
+	nitro.value = 100.0
+	nitro.tooltip_text = Lang.t("Nitro")
+	dial_box.add_child(nitro)
 	var speed := Label.new()
 	speed.text = "0"
 	Type.set_font(speed, Type.numbers_font(), Type.HEADING)
@@ -187,13 +194,10 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	speed.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	dial_box.add_child(speed)
 	gauge.add_child(dial_box)
-	var nitro := NitroCells.new()
-	nitro.custom_minimum_size = CELLS
-	nitro.ink = slot.color()
-	nitro.value = 100.0
-	nitro.tooltip_text = Lang.t("Nitro")
-	nitro.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	gauge.add_child(nitro)
+	var under := Control.new()
+	under.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	under.custom_minimum_size = UNDER
+	gauge.add_child(under)
 	for part: Control in [gauge, counts] if right else [counts, gauge]:
 		middle.add_child(part)
 	# The pot goes under the banked score, GAME.md 8.3, on a line of its own the width of the strip:
@@ -309,7 +313,7 @@ static func follow(block: Dictionary, slot: PlayerSlot) -> void:
 	var name_label: Label = block["name"]
 	name_label.text = slot.display_name()
 	name_label.add_theme_color_override("font_color", slot.color())
-	(block["nitro"] as NitroCells).ink = slot.color()
+	(block["nitro"] as NitroBottle).ink = slot.color()
 	(block["speed_dial"] as SpeedDial).ink = slot.color()
 	InputGlyph.seat_under(block["hints"], slot.color())
 	var card: Control = block["box"]
