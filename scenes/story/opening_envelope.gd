@@ -134,7 +134,12 @@ func _draw_sign() -> void:
 	draw_string(words, Vector2(23.0, 70.0), exit, 0, -1, 17, Color.WHITE)
 	_draw_arrow(Vector2(w - 42.0, 52.0), 18.0)
 	var joke := _spaced(words, 1.5)
-	draw_string(joke, Vector2(23.0, 91.0), tr(StoryLines.OPENING_SIGN_JOKE), 0, -1, 12, Color.WHITE)
+	# No wider than the English, under the folded corner.
+	var room := joke.get_string_size(StoryLines.OPENING_SIGN_JOKE, 0, -1, 12).x
+	var said := tr(StoryLines.OPENING_SIGN_JOKE)
+	draw_string(
+		joke, Vector2(23.0, 91.0), said, 0, -1, Type.fitting(said, joke, 12, room), Color.WHITE
+	)
 	# The corner, folded back over the fold onto the face, its own shadow on the face under it.
 	var corner := Geometry2D.intersect_polygons(whole, _cutter(fold_from, fold_to, 0.0))
 	if not corner.is_empty():

@@ -154,3 +154,11 @@ static func text(label: Label, size: int, ink: Color = Color.WHITE) -> Label:
 	set_font(label, TEXT, size)
 	label.add_theme_color_override("font_color", ink)
 	return label
+
+
+## The size to set [param text] at in [param font]: [param wanted], or smaller to be no wider than
+## [param widest]. A translation drawn where only the English was measured is given the English's
+## width, so a longer one shrinks to it rather than running off what it is drawn on, GAME.md 10.9.
+static func fitting(text: String, font: Font, wanted: int, widest: float) -> int:
+	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, wanted).x
+	return wanted if wide <= widest else maxi(floori(wanted * widest / wide), 1)

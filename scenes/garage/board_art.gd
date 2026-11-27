@@ -419,7 +419,11 @@ static func _shuffle(on: CanvasItem) -> void:
 	var shuffle := Lang.t(SHUFFLE_WORD)
 	BayArt.left(on, Vector2(from, push.y - 14.0), shuffle, 32, PAINT, Type.mark_font())
 	var says := Lang.t(SHUFFLE_SAYS)
-	BayArt.left(on, Vector2(from, push.y + 20.0), says, 12, Color(BayArt.ENAMEL, 0.85), Type.STRONG)
+	var room := BayArt.wide_of(SHUFFLE_SAYS, 12, Type.STRONG)
+	var small := Type.fitting(says, Type.STRONG, 12, room)
+	BayArt.left(
+		on, Vector2(from, push.y + 20.0), says, small, Color(BayArt.ENAMEL, 0.85), Type.STRONG
+	)
 
 
 ## The shuffle's push button on [param on], its middle at [param at]: a red cap with a die's
