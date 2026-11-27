@@ -79,6 +79,17 @@ func test_chinese_breaks_between_its_characters() -> void:
 		assert_bool(row.begins_with("。") or row.begins_with("，")).is_false()
 
 
+## Kit's signature stays whole: a row may end before its dash but not after, GAME.md 10.9.
+func test_a_signature_keeps_its_dash() -> void:
+	var text := "说明他们给你印了一张。—K."  # NO_TRANSLATE
+	var before := "说明他们给你印了一张。—"  # NO_TRANSLATE
+	var wide := Type.TEXT.get_string_size(before, HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
+	var rows := Type.rows(text, Type.TEXT, SAMPLE, wide + 1.0)
+	assert_str("".join(rows)).is_equal(text)
+	assert_str(rows[rows.size() - 1]).ends_with("—K.")
+	assert_array(Array(Type.rows("Not this time. —K.", Type.TEXT, SAMPLE, 1.0))).contains(["—K."])
+
+
 ## Every face the game is set in has its Chinese partner behind it, GAME.md 10.9, and behind every
 ## partner but its own the text face's, which holds every character a name may have.
 func test_every_face_has_its_chinese_partner_behind_it() -> void:

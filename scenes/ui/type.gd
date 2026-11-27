@@ -219,10 +219,11 @@ static func wrapping(text: String, font: Font, wanted: int, smaller: int, across
 
 ## [param text] in [param font] at [param size] broken into rows no wider than [param width], at
 ## the places the text server says a line may break, GAME.md 10.9: after a space in English,
-## between any two characters of Chinese, which has none, but never before a closing mark. Each
-## row takes as many of the pieces between those places as fit, the spaces at its ends not
-## counted and a run of them taken for one; a piece wider than [param width] keeps a row of its
-## own rather than being cut.
+## between any two characters of Chinese, which has none, but never before a closing mark, nor
+## after a dash that leads into a word, so a signature, —K., stays whole. Each row takes as many
+## of the pieces between those places as fit, the spaces at its ends not counted and a run of
+## them taken for one; a piece wider than [param width] keeps a row of its own rather than being
+## cut.
 static func rows(text: String, font: Font, size: int, width: float) -> PackedStringArray:
 	# A run of spaces is one, as it always was on these rows.
 	while text.contains("  "):
@@ -235,9 +236,14 @@ static func rows(text: String, font: Font, size: int, width: float) -> PackedStr
 	pieces.add_string(text, font, size)
 	var found := PackedStringArray()
 	var row := ""
+	var led := ""
 	for i: int in pieces.get_line_count():
 		var span := pieces.get_line_range(i)
-		var piece := text.substr(span.x, span.y - span.x)
+		var piece := led + text.substr(span.x, span.y - span.x)
+		led = ""
+		if piece.ends_with("—") and i < pieces.get_line_count() - 1:
+			led = piece
+			continue
 		var tried := (row + piece).strip_edges()
 		var wide := font.get_string_size(tried, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 		if not row.strip_edges().is_empty() and wide > width:
