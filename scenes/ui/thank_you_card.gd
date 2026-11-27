@@ -13,14 +13,12 @@ const EDGE := Color(0.82, 0.76, 0.64)
 const INK := Color(0.16, 0.2, 0.36)
 const PENCIL := Color(0.35, 0.34, 0.36, 0.8)
 const SILVER := Color(0.56, 0.6, 0.72)
-## The words, the maker's own: a draft, to be rewritten in the maker's voice.
+## The words, the maker's own: a draft, to be rewritten in the maker's voice. Shown through tr().
 const HEADING := "Thank you!"
-const NOTE := (
-	"You picked up the Supporter Pack, and that means a lot. Jackpot Junction stays free "
-	+ "for everyone because people like you chip in. The pieces in the garage are yours "
-	+ "now. Wear them proudly, and have fun at the tables."
-)
-## The hand the maker signs in.
+const NOTE := """You picked up the Supporter Pack, and that means a lot. Jackpot Junction stays \
+free for everyone because people like you chip in. The pieces in the garage are yours now. Wear \
+them proudly, and have fun at the tables."""
+## The hand the maker signs in, the name signed, and what is written under it, shown through tr().
 const SIGNATURE := preload("res://assets/fonts/HomemadeApple-Regular.ttf")
 const SIGNED := "timvisee"
 const SIGNED_LINE := "made Jackpot Junction"
@@ -52,10 +50,10 @@ func _draw() -> void:
 	# A postcard's line down its right, where the address would go, left empty.
 	draw_line(Vector2(458.0, 40.0), Vector2(458.0, SIZE.y - 40.0), Color(EDGE, 0.8), 1.5, true)
 	var hand := BayArt.hand_font()
-	draw_string(hand, Vector2(40.0, 92.0), HEADING, HORIZONTAL_ALIGNMENT_LEFT, -1, 64, INK)
+	draw_string(hand, Vector2(40.0, 92.0), tr(HEADING), HORIZONTAL_ALIGNMENT_LEFT, -1, 64, INK)
 	var note := TextParagraph.new()
 	note.width = WORDS_WIDE
-	note.add_string(NOTE, hand, 25)
+	note.add_string(tr(NOTE), hand, 25)
 	note.draw(get_canvas_item(), WORDS_AT, INK)
 	draw_string(
 		SIGNATURE, Vector2(44.0, SIZE.y - 58.0), SIGNED, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, INK
@@ -63,7 +61,7 @@ func _draw() -> void:
 	draw_string(
 		hand,
 		Vector2(44.0, SIZE.y - 26.0),
-		SIGNED_LINE,
+		tr(SIGNED_LINE),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		20,

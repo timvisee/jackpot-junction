@@ -43,7 +43,7 @@ func _ready() -> void:
 	flat = true
 	for state: String in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
 		add_theme_stylebox_override(state, StyleBoxEmpty.new())
-	ScreenReader.name(self, StoryLines.TEAR_OFF)
+	ScreenReader.name(self, tr(StoryLines.TEAR_OFF))
 	_keyboard = Game.last_input_keyboard
 	_show_glyph()
 

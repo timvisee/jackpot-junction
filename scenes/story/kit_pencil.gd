@@ -41,7 +41,7 @@ func _draw() -> void:
 	if not points_to.is_finite():
 		return
 	var font := NotePage.HAND
-	var said := StoryLines.KIT_TEAR
+	var said := tr(StoryLines.KIT_TEAR)
 	var wide := font.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
 	var at := Vector2(right_end - wide, TALL * 0.72)
 	draw_set_transform(at, TILT, Vector2.ONE)

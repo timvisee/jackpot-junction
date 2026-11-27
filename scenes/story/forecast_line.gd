@@ -82,18 +82,18 @@ var _clock := 0.0
 func _ready() -> void:
 	_mesh = ImmediateMesh.new()
 	_band_light = _light(PROJECTION)
-	_band = _part("Line", _mesh, _band_light)
+	_band = _part("Line", _mesh, _band_light)  # NO_TRANSLATE
 	_trail_mesh = ImmediateMesh.new()
 	# The line back is a plain line, the projector's bars kept for the forecast.
 	_trail_light = _light(PROJECTION)
 	_trail_light.set_shader_parameter(&"wash_share", 1.0)
 	_trail_light.set_shader_parameter(&"bar_share", 0.0)
-	_trail = _part("Trail", _trail_mesh, _trail_light)
+	_trail = _part("Trail", _trail_mesh, _trail_light)  # NO_TRANSLATE
 	var floor_plane := PlaneMesh.new()
 	floor_plane.size = GHOST
 	_ghost_light = _light(OUTLINE)
 	_ghost_light.set_shader_parameter(&"extent", GHOST)
-	_ghost = _part("Ghost", floor_plane, _ghost_light)
+	_ghost = _part("Ghost", floor_plane, _ghost_light)  # NO_TRANSLATE
 	var cone := CylinderMesh.new()
 	cone.height = 1.0
 	cone.top_radius = BEAM_FROM
@@ -103,7 +103,7 @@ func _ready() -> void:
 	cone.radial_segments = 16
 	cone.rings = 1
 	_beam_light = _light(BEAM)
-	_beam = _part("Beam", cone, _beam_light)
+	_beam = _part("Beam", cone, _beam_light)  # NO_TRANSLATE
 	_words = Label3D.new()
 	_words.name = "Predicting"
 	_words.font = Type.display_font()
@@ -286,7 +286,7 @@ static func _across(line: PackedVector3Array, i: int) -> Vector3:
 ## and on its far side where it is not; RECALCULATING for a moment after a snap.
 func _lay_words(end: Vector3, heading: Vector3) -> void:
 	var recalculating := _since_snap < RECALCULATING_FOR
-	_words.text = StoryLines.RECALCULATING if recalculating else StoryLines.PREDICTING
+	_words.text = tr(StoryLines.RECALCULATING if recalculating else StoryLines.PREDICTING)
 	var wide := _words.font.get_string_size(_words.text, HORIZONTAL_ALIGNMENT_LEFT, -1, WORDS_SIZE)
 	var half := wide.x * _words.pixel_size * 0.5
 	var reading := heading

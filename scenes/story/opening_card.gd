@@ -179,25 +179,25 @@ func _draw_back(shine := false) -> void:
 	draw_rect(plate, Color.BLACK if shine else Color(VELVET.darkened(0.25), 0.94))
 	draw_rect(plate.grow(-6.0), Color.WHITE if shine else Color(GOLD, 0.5), false, 1.5)
 	var y := plate.position.y + 30.0
-	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_TITLE, 24, gold, middle, y, 6.0)
+	_spaced(Type.DISPLAY, tr(StoryLines.OPENING_BACK_TITLE), 24, gold, middle, y, 6.0)
 	y += 58.0
 	if not shine:
 		for line: String in StoryLines.OPENING_BACK:
-			_centered(Type.TEXT, line, 19, CREAM, middle, y)
+			_centered(Type.TEXT, tr(line), 19, CREAM, middle, y)
 			y += 36.0
 	else:
 		y += 36.0 * StoryLines.OPENING_BACK.size()
 	y += 18.0
-	_centered(Type.mark_font(), StoryLines.OPENING_BACK_CHEER, 30, gold, middle, y)
+	_centered(Type.mark_font(), tr(StoryLines.OPENING_BACK_CHEER), 30, gold, middle, y)
 	y += 64.0
 	var licensed := Color.WHITE if shine else LINE_GOLD
-	_spaced(Type.DISPLAY, StoryLines.OPENING_BACK_LICENSED, 14, licensed, middle, y, 3.0)
+	_spaced(Type.DISPLAY, tr(StoryLines.OPENING_BACK_LICENSED), 14, licensed, middle, y, 3.0)
 	if shine:
 		return
-	_centered(Type.TEXT, StoryLines.OPENING_BACK_DETACH, 13, CREAM_SOFT, middle, y + 26.0)
+	_centered(Type.TEXT, tr(StoryLines.OPENING_BACK_DETACH), 13, CREAM_SOFT, middle, y + 26.0)
 	_centered(
 		NotePage.TYPED,
-		StoryLines.OPENING_BACK_RUN,
+		tr(StoryLines.OPENING_BACK_RUN),
 		11,
 		Color(CREAM_SOFT, 0.7),
 		middle,
@@ -277,18 +277,17 @@ func _draw_stub() -> void:
 	draw_string(
 		mark,
 		Vector2(left, top + mark.get_ascent(54)),
-		StoryLines.OPENING_ADMIT,
+		tr(StoryLines.OPENING_ADMIT),
 		0,
 		-1,
 		54,
 		STUB_INK
 	)
-	draw_string(
-		Type.TEXT, Vector2(left, top + 76.0), StoryLines.OPENING_NO_EXPERIENCE, 0, -1, 21, STUB_INK
-	)
+	var lesson := tr(StoryLines.OPENING_NO_EXPERIENCE)
+	draw_string(Type.TEXT, Vector2(left, top + 76.0), lesson, 0, -1, 21, STUB_INK)
 	var right := SIZE.x - EDGE - 30.0
 	for i: int in 2:
-		var said := StoryLines.OPENING_NUMBER if i == 0 else number
+		var said := tr(StoryLines.OPENING_NUMBER) if i == 0 else number
 		var wide := NotePage.TYPED.get_string_size(said, 0, -1, 21).x
 		draw_string(
 			NotePage.TYPED, Vector2(right - wide, top + 34.0 + 26.0 * i), said, 0, -1, 21, STUB_INK
@@ -296,7 +295,7 @@ func _draw_stub() -> void:
 	draw_string(
 		Type.TEXT,
 		Vector2(left, SIZE.y - EDGE - 22.0),
-		StoryLines.OPENING_SMALL_PRINT,
+		tr(StoryLines.OPENING_SMALL_PRINT),
 		0,
 		-1,
 		14,
@@ -348,16 +347,16 @@ func _draw_words(shine := false) -> void:
 	var middle := SIZE.x * 0.5
 	# GRAND OPENING between two stars, and TONIGHT under it, all gold.
 	var gold := Color.WHITE if shine else GOLD
-	var event_wide := _spaced(Type.DISPLAY, StoryLines.OPENING_EVENT, 28, gold, middle, y, 9.0)
+	var event_wide := _spaced(Type.DISPLAY, tr(StoryLines.OPENING_EVENT), 28, gold, middle, y, 9.0)
 	for side: float in [-1.0, 1.0]:
 		_draw_star(Vector2(middle + side * (event_wide * 0.5 + 24.0), y + 15.0), 11.0, gold)
 	var tonight := Color.WHITE if shine else LINE_GOLD
-	_spaced(Type.STRONG, StoryLines.OPENING_WHEN, 19, tonight, middle, y + 36.0, 9.0)
+	_spaced(Type.STRONG, tr(StoryLines.OPENING_WHEN), 19, tonight, middle, y + 36.0, 9.0)
 	y += groups[0] + gap
 	# The name, gold, with its shadow under it.
 	var mark := Type.mark_font()
 	for i: int in StoryLines.OPENING_NAME.size():
-		var line := StoryLines.OPENING_NAME[i]
+		var line := tr(StoryLines.OPENING_NAME[i])
 		var at := y + 105.6 * i - 6.0
 		if not shine:
 			_centered(mark, line, 120, GOLD_SHADOW, middle, at + 4.5)
@@ -372,13 +371,13 @@ func _draw_words(shine := false) -> void:
 	y += groups[2] + gap
 	if not shine:
 		# What the place is.
-		_centered(Type.STRONG, StoryLines.OPENING_WHAT, 33, CREAM, middle, y)
-		_centered(Type.TEXT, StoryLines.OPENING_WHERE, 22, CREAM_SOFT, middle, y + 43.0)
+		_centered(Type.STRONG, tr(StoryLines.OPENING_WHAT), 33, CREAM, middle, y)
+		_centered(Type.TEXT, tr(StoryLines.OPENING_WHERE), 22, CREAM_SOFT, middle, y + 43.0)
 	y += groups[3] + gap
 	# The list, gold, and that the player will come.
-	_spaced(Type.STRONG, StoryLines.OPENING_LIST, 36, gold, middle, y, 6.0)
+	_spaced(Type.STRONG, tr(StoryLines.OPENING_LIST), 36, gold, middle, y, 6.0)
 	if not shine:
-		_centered(Type.TEXT, StoryLines.OPENING_RSVP, 24, HouseTheme.PAPER, middle, y + 50.0)
+		_centered(Type.TEXT, tr(StoryLines.OPENING_RSVP), 24, HouseTheme.PAPER, middle, y + 50.0)
 
 
 ## The star of a sticker on the corner, FREE CHIPS FOR NEW DRIVERS* on it; or, for where it
@@ -399,7 +398,8 @@ func _draw_sticker(shine := false) -> void:
 	var lines := StoryLines.OPENING_STICKER
 	var y := -float(lines.size()) * STICKER_STEP * 0.5 - 2.0
 	for line: String in lines:
-		_centered(Type.MARK, line, STICKER_WORDS, Color.BLACK if shine else STICKER_INK, 0.0, y)
+		var ink := Color.BLACK if shine else STICKER_INK
+		_centered(Type.MARK, tr(line), STICKER_WORDS, ink, 0.0, y)
 		y += STICKER_STEP
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 

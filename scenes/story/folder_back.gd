@@ -266,7 +266,7 @@ static func _slip(page: NotePage, kept: Dictionary, date: String) -> void:
 	var x := rect.position.x + 16.0
 	var width := rect.size.x - 32.0
 	var y := rect.position.y + 24.0
-	var title := StoryLines.EVALUATION_TITLE
+	var title := Lang.t(StoryLines.EVALUATION_TITLE)
 	var wide := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE + 1).x
 	page.draw_string(
 		font,
@@ -280,12 +280,12 @@ static func _slip(page: NotePage, kept: Dictionary, date: String) -> void:
 	y += 12.0
 	var status := Vector2.ZERO
 	for line: Array in kept.get("lines", []):
-		var label := str(line[0])
-		var value := str(line[1])
-		if label == "STATUS":
+		# Kept in English, and shown in the language spoken, see [method FinalHand.shown].
+		var said := FinalHand.shown(line)
+		if str(line[0]) == "STATUS":
 			status = Vector2(x + width * 0.62, y + 8.0)
 		y = page.leader_line(
-			label, value if not value.is_empty() else " ", font, SIZE, ink, x, y, width
+			said[0], said[1] if not said[1].is_empty() else " ", font, SIZE, ink, x, y, width
 		)
 	if status != Vector2.ZERO:
 		ApprovedStamp.draw_on(page, status, 30.0, date, ApprovedStamp.TILT)
@@ -301,16 +301,17 @@ static func _strip(page: NotePage) -> void:
 	var x := rect.position.x + 16.0
 	var width := rect.size.x - 32.0
 	var y := rect.position.y + 20.0
-	page.leader_line("STATUS", " ", font, SIZE + 1, HouseTheme.INK, x, y, width * 0.55)
+	page.leader_line(Lang.t("STATUS"), " ", font, SIZE + 1, HouseTheme.INK, x, y, width * 0.55)
 	var blank := Vector2(x + width * 0.58, y + 12.0)
 	page.draw_line(blank, blank + Vector2(width * 0.42, 0.0), HouseTheme.INK, 1.2)
-	var how := LicenseScreen.STAMP_LINE % "Click"
+	# The House's line on how to stamp it, as it was printed for a mouse, see [HouseEvaluation].
+	var how := Lang.t("Click the stamp to make it official")
 	var wide := font.get_string_size(how, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE).x
 	var faint := HouseTheme.INK_FAINT
 	var how_at := Vector2(x + width - wide, y + 40.0)
 	page.draw_string(font, how_at, how, HORIZONTAL_ALIGNMENT_LEFT, -1, SIZE, faint)
 	var hand := NotePage.HAND
-	var said := StoryLines.KIT_TEAR
+	var said := Lang.t(StoryLines.KIT_TEAR)
 	var long := hand.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, 17).x
 	page.draw_set_transform(Vector2(x + width - long, y + 64.0), KitPencil.TILT, Vector2.ONE)
 	page.draw_string(hand, Vector2.ZERO, said, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, KitCards.PENCIL)
@@ -328,7 +329,7 @@ static func _card(page: NotePage, date: String) -> void:
 	page.draw_style_box(paper, rect)
 	ApprovedStamp.draw_on(page, rect.get_center() + Vector2(0.0, -14.0), 62.0, "", -0.12)
 	var font := Type.display_font()
-	var words := StoryLines.TERMS_ACCEPTED_CARD
+	var words := Lang.t(StoryLines.TERMS_ACCEPTED_CARD)
 	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, 26).x
 	var at := Vector2(rect.get_center().x - wide * 0.5, rect.end.y - 30.0)
 	page.draw_string(font, at, words, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, HouseTheme.INK)

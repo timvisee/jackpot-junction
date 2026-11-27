@@ -573,7 +573,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	canvas.draw_string(
 		font,
 		Vector2(o.x + 12.0, top + lane * 4.0 + 14.0),
-		"THE ECONOMY",
+		Lang.t("THE ECONOMY"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		12,
@@ -582,8 +582,8 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	# The two districts, a block of plots each, either side of the middle, under the roundabout.
 	var strip := Rect2(o + Vector2(w * 0.05, h * 0.29), Vector2(w * 0.32, h * 0.17))
 	var karts := Rect2(o + Vector2(w * 0.63, h * 0.29), Vector2(w * 0.32, h * 0.17))
-	_district(canvas, strip, "THE STRIP", ink, faint)
-	_district(canvas, karts, "DEPT. OF KARTS", ink, faint, true)
+	_district(canvas, strip, Lang.t("THE STRIP"), ink, faint)
+	_district(canvas, karts, Lang.t("DEPT. OF KARTS"), ink, faint, true)
 	# The roundabout over them, and the water round its island.
 	var ring := Vector2(o.x + w * 0.5, o.y + h * 0.175)
 	var outer := 36.0
@@ -616,7 +616,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	canvas.draw_string(
 		font,
 		Vector2(junction.x + SLIP_HALF + 6.0, (junction.y + top) * 0.5 + 3.0),
-		"PEOPLE NO LONGER REQUIRED",
+		Lang.t("PEOPLE NO LONGER REQUIRED"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		9,
@@ -643,9 +643,10 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	for bet: float in BLUEPRINT_BETS:
 		var at := ring + Vector2.from_angle(deg_to_rad(bet)) * (outer + 11.0)
 		canvas.draw_arc(at, 4.0, 0.0, TAU, 12, ink, 1.1, true)
-	var pot := font.get_string_size("JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
+	var jackpot := Lang.t("JACKPOT")
+	var pot := font.get_string_size(jackpot, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
 	canvas.draw_string(
-		font, ring + Vector2(-pot * 0.5, 3.0), "JACKPOT", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, ink
+		font, ring + Vector2(-pot * 0.5, 3.0), jackpot, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, ink
 	)
 	# The callout up and to the left of the roundabout: no exit.
 	var from_ring := ring + Vector2.from_angle(deg_to_rad(-135.0)) * outer
@@ -656,7 +657,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	canvas.draw_string(
 		font,
 		callout.position + Vector2(6.0, 14.0),
-		"NO EXIT",
+		Lang.t("NO EXIT"),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		11,
@@ -689,8 +690,10 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 		),
 		Color(ink, 0.8)
 	)
+	# TRANSLATORS: North, by the arrow of a map's compass.
+	var north_said := Lang.t("N", &"compass")
 	canvas.draw_string(
-		font, north + Vector2(-4.0, -17.0), "N", HORIZONTAL_ALIGNMENT_LEFT, -1, 10, ink
+		font, north + Vector2(-4.0, -17.0), north_said, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, ink
 	)
 	# The title block, its signature in ink over APPROVED and the Department's stamp beside it.
 	var block := blueprint_block(rect)
@@ -705,7 +708,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	# small beneath.
 	var signed := Vector2(block.position.x + block.size.x * 0.4, block.end.y - 12.0)
 	var drawing: Dictionary = StoryNotes.NOTES.get(StoryNotes.number_of(&"the_blueprint"), {})
-	var who := str(drawing.get("signed", ""))
+	var who := Lang.t(str(drawing.get("signed", "")))
 	var ink_blue := Color(0.04, 0.07, 0.24)
 	var hand := LicenseCard.SIGNATURE_FONT
 	canvas.draw_set_transform(signed + Vector2(4.0, -2.0), -0.06, Vector2.ONE)
@@ -720,7 +723,7 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	canvas.draw_string(
 		font,
 		Vector2(signed.x + 6.0, block.end.y - 2.0),
-		str(drawing.get("signed_as", "")),
+		Lang.t(str(drawing.get("signed_as", ""))),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		7,
@@ -729,11 +732,13 @@ static func draw_blueprint(canvas: CanvasItem, rect: Rect2, margin := "") -> voi
 	var stamp := Vector2(block.end.x - 30.0, block.end.y - 22.0)
 	canvas.draw_arc(stamp, 20.0, 0.0, TAU, 32, NotePage.STAMP_INK, 2.0, true)
 	canvas.draw_arc(stamp, 14.0, 0.0, TAU, 32, NotePage.STAMP_INK, 1.0, true)
-	var dept := font.get_string_size("D.O.K.", HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
+	# TRANSLATORS: The Dept. of Karts' initials, in its stamp.
+	var initials := Lang.t("D.O.K.")
+	var dept := font.get_string_size(initials, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
 	canvas.draw_string(
 		font,
 		stamp + Vector2(-dept * 0.5, 3.0),
-		"D.O.K.",
+		initials,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		9,

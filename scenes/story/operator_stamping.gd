@@ -103,9 +103,9 @@ func _ink_the_class() -> void:
 	card.rewritten = 0.0
 	card.operator_shown = true
 	var said: Array[String] = [
-		StoryLines.STAMP_WORD,
-		"Class " + StoryLines.CLASS_AFTER,
-		"Expires " + StoryLines.EXPIRES_AFTER,
+		tr(StoryLines.STAMP_WORD),
+		tr("Class %s") % tr(StoryLines.CLASS_AFTER),
+		tr("Expires %s") % tr(StoryLines.EXPIRES_AFTER),
 	]
 	ScreenReader.say(view, ScreenReader.line(said))
 

@@ -233,7 +233,7 @@ func _ready() -> void:
 	_pool.position = CARD_AT
 	_pool.draw.connect(_draw_pool)
 	_stage.add_child(_pool)
-	accept = MenuTheme.button(StoryLines.OPENING_ACCEPT)
+	accept = MenuTheme.button(tr(StoryLines.OPENING_ACCEPT))
 	accept.name = "Accept"
 	accept.custom_minimum_size.x = BUTTON_WIDE
 	accept.position = Vector2((STAGE.x - BUTTON_WIDE) * 0.5, BUTTON_TOP)

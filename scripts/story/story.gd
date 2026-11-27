@@ -8,6 +8,7 @@ extends RefCounted
 ## The stages, each named for what the House calls the player in it, STORY.md 5.1.
 enum Stage { CUSTOMER, PLAYER, PARTICIPANT, NUMBER, CANDIDATE, OPERATOR }
 
+## Each stage's name, for debug builds' own pages and the log, left in English. NO_TRANSLATE
 const NAMES: Array[String] = [
 	"Customer", "Player", "Participant", "Number", "Candidate", "Operator"
 ]
@@ -272,10 +273,11 @@ static func hand_folder(settings: Settings) -> void:
 		cards.append(String(id))
 	story.kit_cards = cards
 	var date := LicenseCard.today()
+	# Made up for the review, as the House would have filled it in. NO_TRANSLATE
 	var table := {
-		"place": "1st",
+		"place": "1ST",
 		"deviation": "0",
-		"trait": "BALANCED",
+		"trait": StorySlip.BALANCED,
 		"models": "7",
 		"raised": "0",
 		"beaten": "0",
@@ -292,24 +294,25 @@ static func hand_folder(settings: Settings) -> void:
 	settings.save_to_disk()
 
 
-## The story in a line for the F3 overlay of the profile playing.
+## The story in a line for the F3 overlay of the profile playing, a debug build's, in English.
 static func debug_text() -> String:
 	var profile := Game.settings.profile
 	var stage := stage_here()
+	# NO_TRANSLATE
 	var line := (
 		"story %s (%d) %d min, %d notes"
 		% [NAMES[stage], stage, minutes(profile), profile.story.notes.size()]
 	)
 	if not profile.story.on:
-		line += ", off"
+		line += ", off"  # NO_TRANSLATE
 	var next := StoryNotes.next_of(profile.story)
 	if next == 1:
-		line += ", next note 1 in map %d" % FIRST_NOTE_MAP
+		line += ", next note 1 in map %d" % FIRST_NOTE_MAP  # NO_TRANSLATE
 	elif next > 0:
 		var due := StoryNotes.due_at(next, profile.story) / 60.0
-		line += ", next note %d at %d min" % [next, floori(due)]
+		line += ", next note %d at %d min" % [next, floori(due)]  # NO_TRANSLATE
 	if final_hand_due(profile):
-		line += ", Final Hand due"
+		line += ", Final Hand due"  # NO_TRANSLATE
 	return line
 
 

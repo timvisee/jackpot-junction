@@ -105,13 +105,13 @@ func _ready() -> void:
 	_ways.add_theme_constant_override("separation", 12)
 	_ways.modulate.a = 0.0
 	add_child(_ways)
-	take = MenuTheme.primary(MenuTheme.button(StoryLines.TAKE_SEAT))
+	take = MenuTheme.primary(MenuTheme.button(tr(StoryLines.TAKE_SEAT)))
 	take.name = "TakeSeat"
 	take.custom_minimum_size.x = TAKE_WIDTH
 	take.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	take.pressed.connect(_answer.bind(true))
 	_ways.add_child(take)
-	not_now = MenuTheme.button(StoryLines.NOT_NOW, Type.LABEL)
+	not_now = MenuTheme.button(tr(StoryLines.NOT_NOW), Type.LABEL)
 	not_now.name = "NotNow"
 	not_now.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	not_now.pressed.connect(_answer.bind(false))

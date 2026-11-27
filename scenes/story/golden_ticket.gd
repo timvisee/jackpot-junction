@@ -256,7 +256,8 @@ func _draw_back() -> void:
 		draw_arc(middle + Vector2(-1.0, -1.0), ring, 0.0, TAU, 64, Color(GOLD_HIGH, 0.6), 2.0, true)
 		draw_arc(middle + Vector2(1.0, 1.0), ring, 0.0, TAU, 64, Color(INK, 0.35), 2.0, true)
 	var y := SIZE.y * 0.38 + 84.0
-	for line: String in StoryLines.TICKET_BACK:
+	for printed: String in StoryLines.TICKET_BACK:
+		var line := tr(printed)
 		var line_wide := NotePage.TYPED.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 		draw_string(
 			NotePage.TYPED,
@@ -280,13 +281,13 @@ func _draw_stub_on(canvas: Control, ragged: bool) -> void:
 	var inner := Rect2(x + 4.0, BORDER, STUB - BORDER - 4.0, SIZE.y - BORDER * 2.0)
 	canvas.draw_rect(inner, Color(INK, 0.5), false, 1.4, true)
 	var mark := Type.mark_font()
-	var admit := StoryLines.ADMIT_ONE
+	var admit := tr(StoryLines.ADMIT_ONE)
 	canvas.draw_set_transform(Vector2(x + STUB * 0.5 + 10.0, SIZE.y * 0.5), -PI * 0.5, Vector2.ONE)
 	var wide := mark.get_string_size(admit, HORIZONTAL_ALIGNMENT_LEFT, -1, 40).x
 	canvas.draw_string(
 		mark, Vector2(-wide * 0.5, 0.0), admit, HORIZONTAL_ALIGNMENT_LEFT, -1, 40, INK
 	)
-	var number := StoryLines.TICKET_NUMBER % serial
+	var number := tr(StoryLines.TICKET_NUMBER) % serial
 	var number_wide := NotePage.TYPED.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, 14).x
 	canvas.draw_string(
 		NotePage.TYPED,
@@ -440,12 +441,12 @@ func _draw_seal(middle: Vector2) -> void:
 ## Who it is from and what for, whose it is on a dotted line, and the table.
 func _draw_words() -> void:
 	var x := 210.0
-	var from := " ".join(StoryLines.TICKET_FROM.split(""))
+	var from := " ".join(tr(StoryLines.TICKET_FROM).split(""))
 	draw_string(NotePage.OLD, Vector2(x, 78.0), from, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, INK)
 	draw_string(
 		Type.mark_font(),
 		Vector2(x - 2.0, 170.0),
-		StoryLines.FINAL_HAND,
+		tr(StoryLines.FINAL_HAND),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		92,
@@ -459,7 +460,7 @@ func _draw_words() -> void:
 		NotePage.TYPED, Vector2(x, 222.0), holder.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 26, INK
 	)
 	# The table, as small as it takes to stay short of the perforation.
-	var table := StoryLines.TICKET_TABLE
+	var table := tr(StoryLines.TICKET_TABLE)
 	var room := SIZE.x - STUB - 24.0 - x
 	var table_size := 14
 	while (

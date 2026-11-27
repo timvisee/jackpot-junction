@@ -48,7 +48,7 @@ class Coupon:
 		draw_string(
 			Type.STRONG,
 			Vector2(left, room + 22.0),
-			"NOW OPEN AT YOUR TABLE",
+			tr("NOW OPEN AT YOUR TABLE"),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			wide,
 			16,
@@ -57,7 +57,7 @@ class Coupon:
 		draw_string(
 			Type.display_font(),
 			Vector2(left, room + 74.0),
-			TableCards.NAMES[card].to_upper(),
+			tr(TableCards.NAMES[card]).to_upper(),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			wide,
 			52,
@@ -66,7 +66,7 @@ class Coupon:
 		draw_multiline_string(
 			Type.TEXT,
 			Vector2(left, room + 108.0),
-			TableCards.LINES[card],
+			tr(TableCards.LINES[card]),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			wide,
 			19,
@@ -76,20 +76,21 @@ class Coupon:
 		draw_string(
 			Type.micro_font(),
 			Vector2(left, face.end.y - 2.0),
-			"VALID FROM YOUR NEXT MAP",
+			tr("VALID FROM YOUR NEXT MAP"),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			wide,
 			12,
 			CouponPage.FAINT
 		)
 		# Last, the stamp turning the canvas it is put down on.
+		# TRANSLATORS: A rubber stamp: COMP, as a casino comps a regular, over THE HOUSE and NO EXPIRY.
 		StampArt.stamp(
 			self,
 			Vector2(size.x - CouponPage.STAMP - 24.0, size.y * 0.5),
 			CouponPage.STAMP,
-			"COMP",
-			"THE HOUSE",
-			"NO EXPIRY",
+			tr("COMP"),
+			tr("THE HOUSE"),
+			tr("NO EXPIRY"),
 			CouponPage.STAMP_TURN,
 			Color(CouponPage.CUT, 0.8)
 		)
@@ -104,7 +105,7 @@ static func create() -> CouponPage:
 func _build() -> void:
 	name = "CouponPage"
 	add_theme_constant_override("separation", 14)
-	heading = MenuTheme.title("Compliments of the House", Type.TITLE)
+	heading = MenuTheme.title(tr("Compliments of the House"), Type.TITLE)
 	heading.name = "Heading"
 	heading.add_theme_color_override("font_color", INK)
 	heading.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.0))
@@ -129,10 +130,10 @@ func fill(opened: int) -> bool:
 		rows.remove_child(child)
 		child.free()
 	var cards := TableCards.cards_of(opened)
-	caption.text = (
-		"A new feature for your table, as a thank-you for playing"
-		if cards.size() == 1
-		else "New features for your table, as a thank-you for playing"
+	caption.text = tr_n(
+		"A new feature for your table, as a thank-you for playing",
+		"New features for your table, as a thank-you for playing",
+		cards.size()
 	)
 	var said: PackedStringArray = []
 	for card: int in cards:
@@ -140,6 +141,6 @@ func fill(opened: int) -> bool:
 		coupon.card = card
 		coupon.name = "Coupon%d" % card
 		rows.add_child(coupon)
-		said.append("%s: %s" % [TableCards.NAMES[card], TableCards.LINES[card]])
+		said.append("%s: %s" % [tr(TableCards.NAMES[card]), tr(TableCards.LINES[card])])
 	ScreenReader.name(self, heading.text, " ".join(said))
 	return not cards.is_empty()

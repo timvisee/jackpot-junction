@@ -11,7 +11,6 @@ extends VBoxContainer
 ## team has a line of its own, its suit and name across to its bank, the winning team's stamped,
 ## and its players' lines under it with what each banked and no place of their own.
 
-const PLACES: Array[String] = ["1st", "2nd", "3rd", "4th", "5th", "6th"]
 ## The ink the slip is printed in: the dark of a line, and the quieter ink of what goes with it.
 const INK := HouseTheme.INK
 const FAINT := HouseTheme.INK_FAINT
@@ -24,10 +23,11 @@ const TEAM_MINE := Color(HouseTheme.FOIL, 0.13)
 const TEAM_BELOW := 10.0
 const TEAM_GAP := 5.0
 const DASH := Color(HouseTheme.INK, 0.22)
-## The photo finish's frame: the license's dark back with a gold edge, and what it is captioned.
+## The photo finish's frame: the license's dark back with a gold edge, and what it is captioned,
+## shown through tr().
 const PHOTO_BACK := Color(0.18, 0.2, 0.26)
 const PHOTO_WORDS := "PHOTO FINISH"
-## The stamp on the winner's line, in the driving test's red.
+## The stamp on the winner's line, in the driving test's red, its word shown through tr().
 const STAMP := "WINNER"
 const STAMP_INK := Color(0.8, 0.17, 0.14, 0.82)
 const STAMP_RADIUS := 44.0
@@ -218,7 +218,7 @@ func _photo() -> Control:
 	backdrop.podium = podium
 	holder.add_child(frame)
 	var words := Label.new()
-	words.text = PHOTO_WORDS
+	words.text = tr(PHOTO_WORDS)
 	Type.strong(words, 11, FAINT)
 	words.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	holder.add_child(words)
@@ -291,7 +291,7 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix, team: Array = []) -
 	line.add_child(_team_name(team) if not team.is_empty() else _name(slot))
 	line.add_child(_leader())
 	var won := run.wins(slot.index)
-	var wins := "%d %s" % [won, "win" if won == 1 else "wins"]
+	var wins := tr_n("%d win", "%d wins", won) % won
 	line.add_child(_label(wins, _sized(18, COMPACT_SMALL), FAINT))
 	var paid: Array = run.points.get(slot.index, [])
 	if not paid.is_empty():
@@ -300,7 +300,9 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix, team: Array = []) -
 		gained.name = "Gained"
 		line.add_child(gained)
 	var points := _sized(34, COMPACT_SCORE)
-	var total := _label("%d pts" % run.total(slot.index), points, INK)
+	var scored := run.total(slot.index)
+	# TRANSLATORS: Points over a whole Grand Prix, short for points.
+	var total := _label(tr_n("%d pt", "%d pts", scored) % scored, points, INK)
 	Type.set_font(total, Type.numbers_font(), points)
 	total.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	total.custom_minimum_size = Vector2(150.0, 0.0)
@@ -312,9 +314,8 @@ func _run_entry(slot: PlayerSlot, rank: int, run: GrandPrix, team: Array = []) -
 	maps.add_theme_constant_override("separation", 8)
 	var places: Array = run.places.get(slot.index, [])
 	for i: int in mini(places.size(), run.playlist.size()):
-		var named := ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])]
-		var place: int = places[i]
-		var ordinal := PLACES[place - 1] if place <= PLACES.size() else "%dth" % place
+		var named := tr(ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])])
+		var ordinal := TieWords.ordinal(int(places[i]))
 		maps.add_child(_chip(named, "%s · %d" % [ordinal, paid[i]]))
 	# Level on points with another row, where its showdown put it or what else did, GAME.md 9.7a.
 	var tied := TieWords.of_run(slot.index, run, match_node.slots)
@@ -354,8 +355,10 @@ func _team_entry(side: Array, rank: int) -> PanelContainer:
 	line.add_child(_place_chip(first, rank))
 	line.add_child(_team_name(side))
 	line.add_child(_leader())
-	line.add_child(_label("%d kills" % kills, _sized(18, COMPACT_SMALL), FAINT))
-	line.add_child(_label("%d deaths" % deaths, _sized(18, COMPACT_SMALL), FAINT))
+	var killed := tr_n("%d kill", "%d kills", kills) % kills
+	var died := tr_n("%d death", "%d deaths", deaths) % deaths
+	line.add_child(_label(killed, _sized(18, COMPACT_SMALL), FAINT))
+	line.add_child(_label(died, _sized(18, COMPACT_SMALL), FAINT))
 	var figures := _sized(34, COMPACT_SCORE)
 	var score := _label(str(bank), figures, INK)
 	Type.set_font(score, Type.numbers_font(), figures)
@@ -410,7 +413,7 @@ func _team_name(side: Array) -> Control:
 		func() -> void: TeamArt.draw_suit(suit, Rect2(Vector2.ZERO, suit.size), team, ink)
 	)
 	named.add_child(suit)
-	var name_label := _label(Teams.name_of(team), size, ink)
+	var name_label := _label(tr(Teams.name_of(team)), size, ink)
 	name_label.name = "Name"
 	Type.set_font(name_label, Type.STRONG, size)
 	named.add_child(name_label)
@@ -452,8 +455,10 @@ func _headline(slot: PlayerSlot, rank: int) -> HBoxContainer:
 	line.add_child(_place_chip(slot, rank))
 	line.add_child(_name(slot))
 	line.add_child(_leader())
-	line.add_child(_label("%d kills" % slot.kills, _sized(18, COMPACT_SMALL), FAINT))
-	line.add_child(_label("%d deaths" % slot.deaths, _sized(18, COMPACT_SMALL), FAINT))
+	var kills := tr_n("%d kill", "%d kills", slot.kills) % slot.kills
+	var deaths := tr_n("%d death", "%d deaths", slot.deaths) % slot.deaths
+	line.add_child(_label(kills, _sized(18, COMPACT_SMALL), FAINT))
+	line.add_child(_label(deaths, _sized(18, COMPACT_SMALL), FAINT))
 	# A player's share of a team's bank, GAME.md 3.14, smaller and in gray, so the team's own bank
 	# over it is the score that reads as the one that counts.
 	var share := rank <= 0
@@ -606,7 +611,9 @@ func _stamp_onto(score: Label) -> void:
 				score.size.x - figures - STAMP_RADIUS - STAMP_CLEAR,
 				score.size.y * 0.5 - STAMP_RADIUS * 0.1
 			)
-			StampArt.stamp(stamp, at, STAMP_RADIUS, STAMP, "DEPT. OF KARTS", day, -0.24, STAMP_INK)
+			var word := tr(STAMP)
+			var dept := tr("DEPT. OF KARTS")
+			StampArt.stamp(stamp, at, STAMP_RADIUS, word, dept, day, -0.24, STAMP_INK)
 	)
 	score.add_child(stamp)
 

@@ -236,7 +236,7 @@ func _slip(at: Vector3) -> void:
 		var row := Vector3(0.0, 0.0042, -0.055 + float(i) * 0.026)
 		ToyParts.box(holder, Vector3(0.1, 0.001, 0.003), ruled, row)
 	_mark = Label3D.new()
-	_mark.text = "APPROVED"
+	_mark.text = tr("APPROVED")
 	_mark.font = Type.STRONG
 	_mark.font_size = 40
 	_mark.pixel_size = 0.0007
@@ -281,7 +281,8 @@ func _button(at: Vector3) -> void:
 	ToyParts.cylinder(self, 0.064, 0.01, ring, at + Vector3(0.0, 0.032, 0.0), 24)
 	_button_dome = ToyParts.dome(self, 0.056, 0.036, red, at + Vector3(0.0, 0.03, 0.0), 22)
 	var label := Label3D.new()
-	label.text = "APPROVE"
+	# TRANSLATORS: Under the big red button on the desk that approves the House's decisions.
+	label.text = tr("APPROVE")
 	label.font = Type.STRONG
 	label.font_size = 26
 	label.pixel_size = 0.00034
@@ -387,7 +388,7 @@ func _digit(at: Vector3, ch: String) -> Label3D:
 ## HUMAN OVERSIGHT across the housing's face, small, lit from the start with the counter's own glow.
 func _caption(at: Vector3) -> Label3D:
 	var label := Label3D.new()
-	label.text = StoryLines.OVERSIGHT_BOARD
+	label.text = tr(StoryLines.OVERSIGHT_BOARD)
 	label.font = Type.STRONG
 	label.font_size = 28
 	label.pixel_size = 0.0007
@@ -419,7 +420,7 @@ func _printer() -> void:
 ## what was approved, each a thin dark bar as a glance at a page of them reads.
 func _sheet_text(paper: Node3D) -> void:
 	var heading := Label3D.new()
-	heading.text = "APPROVED"
+	heading.text = tr("APPROVED")
 	heading.font = Type.STRONG
 	heading.font_size = 48
 	heading.pixel_size = 0.00092

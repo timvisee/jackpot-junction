@@ -122,12 +122,12 @@ func _draw_front() -> void:
 	_draw_seal(SEAL_AT, false)
 	var middle := SIZE.x * 0.5
 	var y := WORDS_TOP
-	y = _centered(StoryLines.INVITE_FROM, NotePage.OLD, 24, FOIL, y, 6.0)
+	y = _centered(tr(StoryLines.INVITE_FROM), NotePage.OLD, 24, FOIL, y, 6.0)
 	y += 6.0
-	for row: String in NotePage._rows(StoryLines.INVITE_LINE, NotePage.OLD, 27, WORDS_WIDE):
+	for row: String in NotePage._rows(tr(StoryLines.INVITE_LINE), NotePage.OLD, 27, WORDS_WIDE):
 		y = _centered(row, NotePage.OLD, 27, CREAM, y)
 	y += 4.0
-	var title := StoryLines.FINAL_HAND
+	var title := tr(StoryLines.FINAL_HAND)
 	var font := Type.mark_font()
 	var wide := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 66).x
 	var baseline := y + font.get_ascent(66)
@@ -162,7 +162,8 @@ func _draw_front() -> void:
 		CREAM
 	)
 	y = line_y + 30.0
-	for row: String in NotePage._rows(StoryLines.INVITE_TABLE, NotePage.TYPED, 13, WORDS_WIDE):
+	var table := tr(StoryLines.INVITE_TABLE)
+	for row: String in NotePage._rows(table, NotePage.TYPED, 13, WORDS_WIDE):
 		y = _centered(row, NotePage.TYPED, 13, FOIL_FAINT, y)
 	# R.S.V.P. at the foot, under a short rule with a diamond on it, as an invitation has.
 	var foot := SIZE.y - ANSWER_UP
@@ -170,7 +171,7 @@ func _draw_front() -> void:
 		Vector2(middle - 60.0, foot - 22.0), Vector2(middle + 60.0, foot - 22.0), FOIL_FAINT, 1.0
 	)
 	_diamond(Vector2(middle, foot - 22.0), 4.0, FOIL)
-	_centered(StoryLines.INVITE_ANSWER, NotePage.OLD, 20, FOIL, foot - 8.0, 4.0)
+	_centered(tr(StoryLines.INVITE_ANSWER), NotePage.OLD, 20, FOIL, foot - 8.0, 4.0)
 	if again:
 		_draw_duplicate()
 
@@ -179,7 +180,7 @@ func _draw_front() -> void:
 ## as a stamp comes out.
 func _draw_duplicate() -> void:
 	var font := Type.display_font()
-	var words := StoryLines.DUPLICATE
+	var words := tr(StoryLines.DUPLICATE)
 	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, DUPLICATE_SIZE).x
 	var box := Vector2(wide + 30.0, DUPLICATE_SIZE + 16.0)
 	var ink := Color(HouseTheme.STAMP_RED, 0.86)

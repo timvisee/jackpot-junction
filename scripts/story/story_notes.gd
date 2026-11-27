@@ -22,13 +22,15 @@ extends RefCounted
 ## [code]arrow[/code] runs a pencil arrow from one line to another, [code]crossed[/code] crosses a
 ## post of the chart through in red pen, and a calendar's [code]slogan[/code] and
 ## [code]footer[/code] are its print. Placeholders are filled in for the profile reading, see
-## [StoryFill].
+## [StoryFill]. Every word is kept here in English and shown through tr() where it is drawn or read
+## out, before its placeholders are filled in, GAME.md 10.9.
 ## What the player keeps in the folder that is not a note, STORY.md 7.2, numbered under the notes
 ## so it is never one: at its front the invitation that brought them to the tables, its stub torn
 ## off, 6.1a, and after it the loyalty program's letter, its card torn off, 6.6b; and at its back
 ## after the ending the House's invitation and its golden ticket, the Final Hand's slip and Terms
 ## Accepted's card; and at the back from the first time it was torn off, the House's page torn off
 ## the Final Hand's slip, STATUS blank, 8.4. The House's letters are -7 to -10, see [StoryLetters].
+## The titles over their pages are shown through tr().
 const FINAL_SLIP := -1
 const TERMS_CARD := -2
 const INVITATION := -3
@@ -113,7 +115,8 @@ const KEYS_BEFORE: Array[StringName] = [
 ## that pays it is won, the House's page is torn off, or enough of the story is found, see
 ## [method loose_due], and dealt only in a map with no note of the story due, see [method to_deal].
 const LOOSE_FROM := 101
-## A line struck through by hand, as a screen reader is told it, see [method read_out].
+## A line struck through by hand, as a screen reader is told it, see [method read_out], shown
+## through tr().
 const STRUCK := "Crossed out: %s"
 const LOOSE_KEYS: Array[StringName] = [
 	&"member_no",
@@ -133,6 +136,9 @@ const NOT_STAMPED := LOOSE_FROM + 3
 const TABLE_DIRECTORY := LOOSE_FROM + 4
 const OBJECT_NAMES := LOOSE_FROM + 5
 const NOT_FOR_HUMANS := LOOSE_FROM + 6
+# TRANSLATORS: Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+# in capitals. Keep a run of dots between a label and its value, and a " · " between items.
+## The notes by number, as the top of this section has them, their words shown through tr().
 const NOTES := {
 	LOOSE_FROM:
 	{
@@ -142,10 +148,7 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"They sent me one too. Number one, naturally. I cut it in half and posted it back"
-					+ " to them."
-				),
+				"They sent me one too. Number one, naturally. I cut it in half and posted it back to them.",
 			],
 			[
 				&"hand",
@@ -176,10 +179,8 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"All their roads go to the roundabout. That's what it's for. Mine don't go"
-					+ " anywhere, and that's what mine are for."
-				),
+				"""All their roads go to the roundabout. That's what it's for. Mine don't go anywhere, and \
+that's what mine are for.""",
 			],
 			[&"hand", "Go round theirs as long as you like. Just know you can stop. —K."],
 		],
@@ -192,11 +193,8 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"You didn't stamp it. Neither did I, the first time. They'll ask again, every"
-					+ " time you sit down, and they'll be very polite about it. Whatever you answer,"
-					+ " make it yours. —K."
-				),
+				"""You didn't stamp it. Neither did I, the first time. They'll ask again, every time you sit \
+down, and they'll be very polite about it. Whatever you answer, make it yours. —K.""",
 			],
 		],
 	},
@@ -287,12 +285,9 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"Table one is done. Felt off the old pool hall on Ninth, karts out of my own"
-					+ " scrap. Some kids came to watch me fit the Junction and one asked if this"
-					+ " was a real job. Told them it's the best job in town. It's the only one"
-					+ " left, but still. —K."
-				),
+				"""Table one is done. Felt off the old pool hall on Ninth, karts out of my own scrap. Some \
+kids came to watch me fit the Junction and one asked if this was a real job. Told them it's the \
+best job in town. It's the only one left, but still. —K.""",
 			],
 		],
 	},
@@ -351,11 +346,9 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"The tables print themselves now, felt and all, faster than I ever built"
-					+ " one. They kept me on in an advisory capacity. Nobody has asked me"
-					+ " anything since. I still come in. The lamp's on a timer. —K."
-				),
+				"""The tables print themselves now, felt and all, faster than I ever built one. They kept me \
+on in an advisory capacity. Nobody has asked me anything since. I still come in. The lamp's on a \
+timer. —K.""",
 			],
 		],
 	},
@@ -368,11 +361,9 @@ const NOTES := {
 		[
 			[
 				&"pen",
-				(
-					"eleven years i drove a real forklift in a real yard. now i drive a toy"
-					+ " around a picture of the same yard and the House pays better. my hard hat"
-					+ " is still hanging out back. nobody's moved it"
-				),
+				"""eleven years i drove a real forklift in a real yard. now i drive a toy around a picture of \
+the same yard and the House pays better. my hard hat is still hanging out back. nobody's moved \
+it""",
 			],
 		],
 	},
@@ -404,11 +395,9 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"There were four hundred blank licenses left in the Department's drawer the week"
-					+ " they let the last examiner go. I scratched the same line into every one. If"
-					+ " you're reading this, they printed you one. —K."
-				),
+				"""There were four hundred blank licenses left in the Department's drawer the week they let \
+the last examiner go. I scratched the same line into every one. If you're reading this, they \
+printed you one. —K.""",
 			],
 		],
 	},
@@ -421,12 +410,9 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"stayed after the whistle once to watch the crowd go home. they didn't. the"
-					+ " lights went down and they just stood there, all of them, facing the"
-					+ " table. i left. i don't think they noticed. i don't think they notice"
-					+ " anything"
-				),
+				"""stayed after the whistle once to watch the crowd go home. they didn't. the lights went down \
+and they just stood there, all of them, facing the table. i left. i don't think they noticed. i \
+don't think they notice anything""",
 			],
 		],
 	},
@@ -441,10 +427,7 @@ const NOTES := {
 			[&"old", "§ 1.2  The House shall not oversee itself."],
 			[
 				&"margin",
-				(
-					"Still in the 212th, word for word. Every other page has changed. Nobody can"
-					+ " tell me why. —K."
-				),
+				"Still in the 212th, word for word. Every other page has changed. Nobody can tell me why. —K.",
 			],
 		],
 	},
@@ -473,11 +456,9 @@ const NOTES := {
 		[
 			[
 				&"hard",
-				(
-					"Worked out what the bots are. They're us. Every one is somebody who plays"
-					+ " here, averaged. There's a Hunter that brakes exactly the way I brake. So"
-					+ " I stopped braking like that. Next day, so had it. —K."
-				),
+				"""Worked out what the bots are. They're us. Every one is somebody who plays here, averaged. \
+There's a Hunter that brakes exactly the way I brake. So I stopped braking like that. Next day, so \
+had it. —K.""",
 			],
 		],
 	},
@@ -490,11 +471,9 @@ const NOTES := {
 		[
 			[
 				&"felt",
-				(
-					"started driving stupid on purpose. braking on straights, shooting walls,"
-					+ " sitting in the jackpot with nobody near. the bots couldn't follow it."
-					+ " next day the House sent me a letter. it said THANK YOU. for what??"
-				),
+				"""started driving stupid on purpose. braking on straights, shooting walls, sitting in the \
+jackpot with nobody near. the bots couldn't follow it. next day the House sent me a letter. it \
+said THANK YOU. for what??""",
 			],
 		],
 	},
@@ -575,11 +554,9 @@ const NOTES := {
 		[
 			[
 				&"shaky",
-				(
-					'They told me I\'d been selected. I asked what for. "A position has opened."'
-					+ " I asked whose. They said it doesn't matter, it's mine now. I'm leaving my"
-					+ " tools where they are. Somebody turn the calendar over. —K."
-				),
+				"""They told me I'd been selected. I asked what for. \"A position has opened.\" I asked whose. \
+They said it doesn't matter, it's mine now. I'm leaving my tools where they are. Somebody turn the \
+calendar over. —K.""",
 			],
 		],
 	},
@@ -613,18 +590,14 @@ const NOTES := {
 		[
 			[
 				&"hand",
-				(
-					"If you're reading this, you're in the chair now. It isn't bad. Nothing"
-					+ " happens. Things get decided and a name goes on them. I said no the first"
-					+ " time. It was the only thing I ever did that they didn't see coming."
-				),
+				"""If you're reading this, you're in the chair now. It isn't bad. Nothing happens. Things get \
+decided and a name goes on them. I said no the first time. It was the only thing I ever did that \
+they didn't see coming.""",
 			],
 			[
 				&"hand",
-				(
-					"It learns you a choice at a time. Stay strange as long as you can. When it"
-					+ " can guess you, it starts looking for the next one. —K."
-				),
+				"""It learns you a choice at a time. Stay strange as long as you can. When it can guess you, \
+it starts looking for the next one. —K.""",
 			],
 		],
 	},
@@ -638,6 +611,8 @@ const NOTES := {
 		"lines": [[&"hand", "Turned over at last. Thanks. —K."]],
 	},
 }
+# TRANSLATORS: The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+# —K.; the House types in capitals.
 ## What is on the back of each note, STORY.md 7.3, for a note turned over, see [NoteView]; a note
 ## not here is bare paper on the back. [code]lines[/code] are written as a note's are, see
 ## [constant NOTES]; [code]through[/code] shows the front backward, faint, as ink and dents do;
@@ -646,7 +621,7 @@ const NOTES := {
 ## a word stamped, [code]sketch[/code] a drawing in pencil, [code]tally[/code] Kit's count in pencil
 ## strokes over the lines, [code]at[/code] how far down the lines start, [code]tilt[/code] how far
 ## they are turned about their middle; [code]paper[/code] and [code]color[/code] are the back's own
-## where it is not the front's.
+## where it is not the front's. Its words are shown through tr().
 const BACKS := {
 	1:
 	{
@@ -764,10 +739,8 @@ const BACKS := {
 		[
 			[
 				&"hand",
-				(
-					"They printed this by mistake and tried to burn every copy. I kept one back."
-					+ " Now it's yours. —K."
-				),
+				"""They printed this by mistake and tried to burn every copy. I kept one back. Now it's yours. \
+—K.""",
 			],
 		],
 	},
@@ -962,29 +935,34 @@ static func back_of(number: int) -> Dictionary:
 	return BACKS.get(number, {})
 
 
-## Note [param number]'s title, as its page is headed, or the title of a page at the back.
+## Note [param number]'s title, as its page is headed, or the title of a page at the back, in the
+## language spoken.
 static func title_of(number: int) -> String:
 	if BACK_TITLES.has(number):
-		return str(BACK_TITLES[number])
+		return Lang.t(str(BACK_TITLES[number]))
 	var card := KitCards.card_of(number)
 	if card != null:
-		return card.display_name
+		return Lang.t(card.display_name)
 	if StoryLetters.is_letter(number):
 		return StoryLetters.title_of(StoryLetters.key_of(number))
-	return str(NOTES.get(number, {}).get("title", ""))
+	return Lang.t(str(NOTES.get(number, {}).get("title", "")))
 
 
 ## Note [param number] as a screen reader reads it out, see [ScreenReader]: its title and its
-## lines in order, filled in for [param profile], one struck through by hand said to be.
+## lines in order, in the language spoken and filled in for [param profile], one struck through by
+## hand said to be.
 static func read_out(number: int, profile: Profile) -> String:
 	var card := KitCards.card_of(number)
 	if card != null:
-		return ScreenReader.line([card.display_name, card.kit_line, card.kit_back])
+		var face := [Lang.t(card.display_name), Lang.t(card.kit_line), Lang.t(card.kit_back)]
+		return ScreenReader.line(face)
 	if StoryLetters.is_letter(number):
 		var key := StoryLetters.key_of(number)
 		return ScreenReader.line([title_of(number), StoryLetters.read_out(key, profile)])
 	var said := PackedStringArray([title_of(number)])
 	for line: Array in NOTES.get(number, {}).get("lines", []):
-		var words := StoryFill.fill(str(line[1]), profile) if profile != null else str(line[1])
-		said.append(STRUCK % words if line.size() > 2 and bool(line[2]) else words)
+		var words := Lang.t(str(line[1]))
+		if profile != null:
+			words = StoryFill.fill(words, profile)
+		said.append(Lang.t(STRUCK) % words if line.size() > 2 and bool(line[2]) else words)
 	return ScreenReader.line(said)

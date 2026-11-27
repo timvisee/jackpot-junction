@@ -73,14 +73,16 @@ static func add_to(screen: ResultsScreen, in_match: Match) -> HouseEvaluation:
 
 func _build() -> void:
 	add_theme_constant_override("separation", 4)
-	var title := _text(StoryLines.EVALUATION_TITLE, Type.STRONG, INK)
+	var title := _text(tr(StoryLines.EVALUATION_TITLE), Type.STRONG, INK)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(title)
 	for line: Array in lines:
 		var label := str(line[0])
+		# Kept in English, and shown in the language spoken, see [method FinalHand.shown].
+		var said := FinalHand.shown(line)
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
-		row.add_child(_text(label, Type.numbers_text_font(), INK))
+		row.add_child(_text(said[0], Type.numbers_text_font(), INK))
 		var leader := Control.new()
 		leader.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		leader.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -109,7 +111,7 @@ func _build() -> void:
 			hangs.add_child(stamp)
 			row.add_child(hangs)
 		else:
-			var value := _text(str(line[1]), Type.numbers_text_font(), INK)
+			var value := _text(said[1], Type.numbers_text_font(), INK)
 			if label == "PREDICTED":
 				_predicted = value
 			row.add_child(value)
@@ -136,7 +138,7 @@ func _build() -> void:
 	ways = VBoxContainer.new()
 	ways.name = "HouseWays"
 	ways.alignment = BoxContainer.ALIGNMENT_CENTER
-	go_on = MenuTheme.button(StoryLines.CONTINUE, 26)
+	go_on = MenuTheme.button(tr(StoryLines.CONTINUE), 26)
 	go_on.name = "Continue"
 	go_on.theme_type_variation = HouseTheme.PRIMARY
 	go_on.custom_minimum_size.x = ResultsScreen.WAY_WIDTH
@@ -257,7 +259,19 @@ func _on_turned(page: int) -> void:
 
 func _say_how() -> void:
 	if hint != null and stamp != null:
-		hint.text = LicenseScreen.STAMP_LINE % stamp.press_word()
+		hint.text = how_to_stamp(stamp.device)
+
+
+## The House's line on how to bring the stamp down, a whole sentence in the language spoken, as it
+## was last reached for: by [param device], see [member RubberStamp.device]. The license's stamp
+## says the same, see [LicenseScreen].
+static func how_to_stamp(device: RubberStamp.Device) -> String:
+	match device:
+		RubberStamp.Device.TOUCH:
+			return Lang.t("Tap the stamp to make it official")
+		RubberStamp.Device.MOUSE:
+			return Lang.t("Click the stamp to make it official")
+	return Lang.t("Press the stamp to make it official")
 
 
 ## The stamp down: the House's APPROVED over STATUS, its verdict on its own forecast at the end of
@@ -270,7 +284,7 @@ func _on_stamped() -> void:
 	tab = null
 	var verdict := FinalHand.verdict(Game.settings.profile)
 	if _predicted != null:
-		_predicted.text = verdict
+		_predicted.text = FinalHand.shown(["PREDICTED", verdict])[1]  # NO_TRANSLATE
 	for line: Array in lines:
 		if str(line[0]) == "PREDICTED":
 			line[1] = verdict
@@ -321,5 +335,5 @@ func wait_for_the_others() -> void:
 	if go_on != null:
 		go_on.visible = false
 	if hint != null:
-		hint.text = StoryLines.STILL_WITH_THE_HOUSE
+		hint.text = tr(StoryLines.STILL_WITH_THE_HOUSE)
 		hint.modulate.a = 1.0

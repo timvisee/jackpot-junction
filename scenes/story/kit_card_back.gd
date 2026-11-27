@@ -39,7 +39,7 @@ func _draw() -> void:
 	if card == null:
 		return
 	var font := NotePage.HAND
-	var rows := LoyaltyArt.lines_of(font, card.kit_back, TYPE, size.x - ROOM * 2.0, 12)
+	var rows := LoyaltyArt.lines_of(font, tr(card.kit_back), TYPE, size.x - ROOM * 2.0, 12)
 	var line := float(TYPE) * 1.05
 	var top := (size.y - line * float(rows.size())) * 0.5 + float(TYPE) * 0.8
 	for i: int in rows.size():

@@ -3,11 +3,14 @@ extends RefCounted
 ## Every line the story prints, STORY.md 6 and 8, in one place so it can be read and changed as a
 ## story rather than hunted for through the game. A table is keyed by stage, see [Story.Stage], and
 ## a line given for a stage holds until a later stage changes it, see [method at]. The notes' own
-## words are in [StoryNotes]. Placeholders in braces are filled in by [StoryFill].
+## words are in [StoryNotes]. Placeholders in braces are filled in by [StoryFill]. Every line is
+## kept here in English and shown through tr() where it is shown, GAME.md 10.9: a line read from a
+## table is translated by whatever shows it, before its placeholders are filled in.
 
+# TRANSLATORS: A billboard of the House's: a headline, and a smaller line under it that finishes it.
 ## The House's advertising added at each stage, STORY.md 6.1, on top of the sixteen of
 ## [constant Billboard.ADS], which are the first stage's: a headline, the line under it, and the
-## color both are drawn in.
+## color both are drawn in, the words shown through tr().
 const ADS := {
 	Story.Stage.PLAYER:
 	[
@@ -61,12 +64,15 @@ const ADS := {
 		["JACKPOT JUNCTION", "GO ROUND AGAIN", Palette.NEON_MAGENTA],
 	],
 }
-## The Final Hand's two boards, both the House's, STORY.md 6.1.
+# TRANSLATORS: A billboard of the House's: a headline, and a smaller line under it that finishes it.
+## The Final Hand's two boards, both the House's, STORY.md 6.1, shown through tr().
 const FINAL_HAND_ADS: Array[Array] = [
 	["FINAL HAND", "GOOD LUCK, CANDIDATE", Palette.CHIP_GOLD],
 	["NOW HIRING", "ONE POSITION", Palette.NEON_MAGENTA],
 ]
-## The poster on each room's back wall, a big line and a small one, STORY.md 6.1.
+# TRANSLATORS: A poster of the House's: a big line, and a small line under it that finishes it.
+## The poster on each room's back wall, a big line and a small one, STORY.md 6.1, shown through
+## tr().
 const POSTERS := {
 	Story.Stage.CUSTOMER: ["PLAY RESPONSIBLY", "THE HOUSE CARES"],
 	Story.Stage.PLAYER: ["LOOKING FOR WORK?", "YOU FOUND IT"],
@@ -75,9 +81,9 @@ const POSTERS := {
 	Story.Stage.CANDIDATE: ["WANTED", "ONE (1) HUMAN"],
 	Story.Stage.OPERATOR: ["THIS ROOM IS UNDER", "HUMAN OVERSIGHT"],
 }
-## The Count Room's poster, a monitor on a rack, STORY.md 8.2.
+## The Count Room's poster, a monitor on a rack, STORY.md 8.2, shown through tr().
 const MONITOR := "HUMAN OVERSIGHT: 0"
-## The word painted in a box on the road, STORY.md 6.1.
+## The word painted in a box on the road, STORY.md 6.1, shown through tr().
 const ROAD := {
 	Story.Stage.CUSTOMER: "KEEP CLEAR",
 	Story.Stage.PARTICIPANT: "KEEP PLAYING",
@@ -85,7 +91,7 @@ const ROAD := {
 	Story.Stage.OPERATOR: "STAFF ONLY",
 }
 
-## The payout slip's small print by its barcode, STORY.md 6.2.
+## The payout slip's small print by its barcode, STORY.md 6.2, shown through tr().
 const SMALL_PRINT := {
 	Story.Stage.CUSTOMER: "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP",
 	Story.Stage.PLAYER: "PAID IN CHIPS, NOT WAGES  ·  NO REFUNDS ON A BAD LAP",
@@ -95,8 +101,8 @@ const SMALL_PRINT := {
 	Story.Stage.CANDIDATE: "SETTLED IN FULL  ·  EVALUATION IN PROGRESS  ·  HUMAN OVERSIGHT: 0",
 	Story.Stage.OPERATOR: "SHIFT COMPLETE  ·  {since} APPROVED IN YOUR NAME SINCE YOUR LAST SHIFT",
 }
-## The bulletin under it, one drawn per slip from the stage reached's own, STORY.md 6.2. A line with
-## {trait} in it is only drawn when a bot of that trait sat at the table.
+## The bulletin under it, one drawn per slip from the stage reached's own, STORY.md 6.2, shown
+## through tr(). A line with {trait} in it is only drawn when a bot of that trait sat at the table.
 const BULLETINS := {
 	Story.Stage.PARTICIPANT:
 	[
@@ -125,15 +131,16 @@ const BULLETINS := {
 		"STAY UNPREDICTABLE. THE HOUSE IS COUNTING ON IT.",
 	],
 }
-## Under the line of every player at this machine on the slip, from the third stage, STORY.md 6.2.
+## Under the line of every player at this machine on the slip, from the third stage, STORY.md 6.2,
+## shown through tr().
 const CLASSIFIED := "CLASSIFIED: {trait}  ·  PROFILE UPDATED"
 const CLASSIFIED_FROM := Story.Stage.NUMBER
-## The slip's heading, and what it reads after the ending.
+## The slip's heading, and what it reads after the ending, shown through tr().
 const SLIP := "Payout slip"
 const PAYSLIP := "Payslip"
 
 ## Under the cards of the respawn pick, STORY.md 6.3, and what it says as a card is taken from the
-## second stage on.
+## second stage on, shown through tr().
 const PICK := {
 	Story.Stage.PLAYER: "NEW TERMS AVAILABLE",
 	Story.Stage.PARTICIPANT: "NEW TERMS AVAILABLE  ·  ALL TERMS ARE KEPT ON FILE",
@@ -144,7 +151,8 @@ const PICK := {
 const PICK_FINAL_HAND := "CANDIDATE TERMS"
 const TERMS_ACCEPTED := "TERMS ACCEPTED"
 const TERMS_ACCEPTED_FROM := Story.Stage.PLAYER
-## The term every joker is, under its effect from the second stage, STORY.md 6.3, by its id.
+## The term every joker is, under its effect from the second stage, STORY.md 6.3, by its id, shown
+## through tr().
 const TERMS_FROM := Story.Stage.PARTICIPANT
 const TERMS := {
 	&"hair_trigger": "Reaction time is a performance indicator.",
@@ -197,7 +205,9 @@ const TERMS := {
 	&"pit_crew": "Servicing is included. Wages are not.",
 }
 
-## The microprint along the foot of each HUD corner block, STORY.md 6.4, its seat's number in it.
+# TRANSLATORS: Microprint run again and again along the foot of a player's corner of the screen.
+## The microprint along the foot of each HUD corner block, STORY.md 6.4, its seat's number in it,
+## shown through tr().
 const MICRO_HUD := {
 	Story.Stage.CUSTOMER: "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · ",
 	Story.Stage.PARTICIPANT: "SEAT %d · PARTICIPANT · PLAY RECORDED · ",
@@ -205,14 +215,14 @@ const MICRO_HUD := {
 	Story.Stage.CANDIDATE: "SEAT %d · CANDIDATE · HUMAN OVERSIGHT 0 · ",
 	Story.Stage.OPERATOR: "SEAT %d · OPERATOR · APPROVED · ",
 }
-## The microprint under the title's name, STORY.md 6.4.
+## The microprint under the title's name, STORY.md 6.4, shown through tr().
 const MICRO_TITLE := {
 	Story.Stage.CUSTOMER: "Dept. of Karts  ·  licensed on every table",
 	Story.Stage.NUMBER: "Dept. of Karts  ·  a service of the House",
 	Story.Stage.CANDIDATE: "Dept. of Karts  ·  the House",
 	Story.Stage.OPERATOR: "The House  ·  under human oversight",
 }
-## The line under the loading screen's bar, STORY.md 6.5.
+## The line under the loading screen's bar, STORY.md 6.5, shown through tr().
 const LOADING := {
 	Story.Stage.CUSTOMER: "Building the room",
 	Story.Stage.NUMBER: "Building your room",
@@ -221,7 +231,8 @@ const LOADING := {
 }
 const LOADING_FINAL_HAND := "Setting the final table"
 const FINAL_HAND := "FINAL HAND"
-## The line under the Statistics page's title, STORY.md 6.6, and the row it gains after the ending.
+## The line under the Statistics page's title, STORY.md 6.6, and the row it gains after the ending,
+## shown through tr().
 const STATS_LINE := {
 	Story.Stage.PARTICIPANT: "Kept by the House.",
 	Story.Stage.NUMBER: "Kept by the House, and used.",
@@ -231,7 +242,7 @@ const STATS_LINE := {
 const SHIFTS := "Shifts"
 ## The loyalty program's name by stage, STORY.md 6.6b: on the title's button, over its map, on its
 ## card and on the payout slip's page; and the line under it in the House's capitals. With the story
-## off, the first stage's.
+## off, the first stage's. Shown through tr().
 const PROGRAM := {
 	Story.Stage.CUSTOMER: "Loyalty Program",
 	Story.Stage.PARTICIPANT: "Participation Program",
@@ -247,7 +258,8 @@ const PROGRAM_LINE := {
 	Story.Stage.CANDIDATE: "ELIGIBILITY UNDER REVIEW · PLEASE KEEP PLAYING",
 	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR · BENEFITS DO NOT EXPIRE",
 }
-## The atlas's name, stamped in the foot of the loyalty program's cover, STORY.md 6.6b.
+## The atlas's name, stamped in the foot of the loyalty program's cover, STORY.md 6.6b, shown
+## through tr().
 const ATLAS := {
 	Story.Stage.CUSTOMER: "ROAD ATLAS  ·  MEMBERS' EDITION",
 	Story.Stage.PLAYER: "ROAD ATLAS  ·  MEMBERS RETURN",
@@ -258,7 +270,7 @@ const ATLAS := {
 }
 ## The motto printed on the felt of the card table the achievements are laid out on, STORY.md
 ## 6.6c: the House's table, whose payout it trims, as a casino's does once it has a player's
-## measure.
+## measure. Shown through tr().
 const TABLE_MOTTO := {
 	Story.Stage.CUSTOMER: "BRAGGING RIGHTS PAY 3 TO 2",
 	Story.Stage.PARTICIPANT: "BRAGGING RIGHTS PAY 3 TO 2  ·  EVERY HAND IS RECORDED",
@@ -268,7 +280,8 @@ const TABLE_MOTTO := {
 }
 
 ## What a reward of the loyalty program says as it is paid, STORY.md 6.6b, on the BET WON slip and
-## the slip's page: dress, cards added to the deck, and items added to the tables.
+## the slip's page: dress, cards added to the deck, and items added to the tables. Shown through
+## tr().
 const BET_WON := "BET WON"
 const REWARD_DRESS := {
 	Story.Stage.CUSTOMER: "REWARD ISSUED",
@@ -284,13 +297,15 @@ const REWARD_ITEMS := {
 	Story.Stage.NUMBER: "NEW TERMS AUTHORIZED · ELIGIBILITY UPDATED",
 	Story.Stage.OPERATOR: "CLEARANCE: OPERATOR",
 }
-## The program's page of the payout slip: who it is for, and the bets come nearest to.
+## The program's page of the payout slip: who it is for, and the bets come nearest to, shown
+## through tr().
 const SLIP_WON := "Bets won"
 const SLIP_NEAREST := "Nearest"
 const SLIP_LAP := "LAP %d  ·  AN EDITION TO CHOOSE"
 
 ## The Department's tag for a thing of Lost Property, STORY.md 6.6b: FOUND, the room and what it
-## is, UNCLAIMED, and from stage 2 a line under it, one for each; CLAIMED once it is taken.
+## is, UNCLAIMED, and from stage 2 a line under it, one for each; CLAIMED once it is taken. Shown
+## through tr().
 const LOST_FOUND := "FOUND"
 const LOST_UNCLAIMED := "UNCLAIMED"
 const LOST_CLAIMED := "CLAIMED"
@@ -308,13 +323,11 @@ const LOST_LINES := {
 }
 
 ## The loyalty program's welcome, STORY.md 6.6b: the House's form letter, the same to everybody
-## bar the name, its paragraphs; who signs it; and its one button.
+## bar the name, its paragraphs; who signs it; and its one button. Shown through tr().
 const WELCOME_LETTER: Array[String] = [
 	"Dear {name},",
-	(
-		"Thank you for playing at Jackpot Junction. Your play has been recorded, and it qualifies you"
-		+ " for membership of the {program}. Your card is attached."
-	),
+	"""Thank you for playing at Jackpot Junction. Your play has been recorded, and it qualifies you \
+for membership of the {program}. Your card is attached.""",
 	"Every map you play is counted. Rewards are issued as you go.",
 	"We look forward to your return. Members return.",
 ]
@@ -323,7 +336,7 @@ const WELCOME_SIGNED := "THE HOUSE"
 ## folder, the stage that brings it, whether it is a card the size of a license rather than a
 ## letter, its heading, and its lines, each a label and a value printed with dots run between
 ## them, or one line alone, an empty one a gap. The class's line is the class the profile's record
-## comes closest to, see [constant CLASS_LINES].
+## comes closest to, see [constant CLASS_LINES]. The words are shown through tr().
 const HOUSE_LETTERS := {
 	&"statement":
 	{
@@ -394,7 +407,7 @@ const HOUSE_LETTERS := {
 }
 ## Each class's line, STORY.md 6.11: on the House's profile notice for the class a profile's record
 ## comes closest to, and among the slip's bulletins from the third stage for a match of the
-## player's own class, 6.2. True of anybody in the class, never a lie.
+## player's own class, 6.2. True of anybody in the class, never a lie. Shown through tr().
 const CLASS_LINES := {
 	"HUNTER": "YOU GO AFTER WHOEVER CARRIES THE MOST. SO DOES THE HOUSE.",
 	"GREEDY": "YOU KNOW WHEN TO WALK AWAY. YOU RARELY DO.",
@@ -403,12 +416,12 @@ const CLASS_LINES := {
 	"GRAZER": "YOU COME CLOSE. THE HOUSE MEASURES HOW CLOSE.",
 	"BALANCED": "NOTHING ABOUT YOU STANDS OUT. THE HOUSE FINDS THAT INTERESTING.",
 }
-## Under a letter of the House's at the title, the one way on, STORY.md 6.11.
+## Under a letter of the House's at the title, the one way on, STORY.md 6.11, shown through tr().
 const MAIL_PUT_AWAY := "Put it away"
 const WELCOME_ACTIVATE := "Activate card"
 
 ## The catalog's motto, printed in the foot margin of its sheet, STORY.md 6.6a: the House's proof of
-## the deck, and from the story's second stage its proof of the terms it keeps.
+## the deck, and from the story's second stage its proof of the terms it keeps. Shown through tr().
 const PROOF := {
 	Story.Stage.CUSTOMER: "PRESS PROOF  ·  PRINTED BY THE HOUSE",
 	Story.Stage.PARTICIPANT: "PROOF OF TERMS  ·  KEPT ON FILE",
@@ -416,7 +429,7 @@ const PROOF := {
 	Story.Stage.CANDIDATE: "PROOF OF TERMS  ·  FOR YOUR EVALUATION",
 	Story.Stage.OPERATOR: "PROOF OF TERMS  ·  APPROVED BY YOU",
 }
-## The line under the catalog's title, STORY.md 6.6a.
+## The line under the catalog's title, STORY.md 6.6a, shown through tr().
 const CATALOG_LINE := {
 	Story.Stage.PARTICIPANT: "All terms are kept on file.",
 	Story.Stage.NUMBER: "Kept on file, and used.",
@@ -426,8 +439,10 @@ const CATALOG_LINE := {
 
 ## The driving school, STORY.md 6.7: under Enroll, always; the Highway Code's edition by stage; and
 ## the lines it revises, each its line as it is now, the stage it changes at and what it becomes.
+## Each shown through tr().
 const ENROLL := "Enrolling accepts the terms of the Dept. of Karts."
 ## Over it while the story is told, a box that ticks itself in the House's gold: its first forecast.
+## Shown through tr().
 const COME_BACK := "I will come back after I lose."
 const ANSWERED_FOR_YOU := "Answered for you."
 const EDITION := {
@@ -477,7 +492,7 @@ const CODE_LINES: Array[Array] = [
 ]
 
 ## The lit sign over the Yard's warehouse doors, STORY.md 6.8, and the plate of the Employee of the
-## Month.
+## Month, shown through tr().
 const YARD_SIGN := {
 	Story.Stage.CUSTOMER: "LOADING BAY 4",
 	Story.Stage.PARTICIPANT: "AUTOMATED LOADING",
@@ -486,16 +501,16 @@ const YARD_SIGN := {
 }
 const EMPLOYEE := "EMPLOYEE OF THE MONTH"
 
-## A note taken, on the scrap in the player's corner, STORY.md 7.1.
+## A note taken, on the scrap in the player's corner, STORY.md 7.1, shown through tr().
 const NOTE_COLLECTED := "NOTE COLLECTED"
-## Across the front of Kit's folder in black marker, STORY.md 7.2.
+## Across the front of Kit's folder in black marker, STORY.md 7.2, shown through tr().
 const FOLDER_FRONT := "OFF THE BOOKS"
 
 ## The Final Hand, STORY.md 8: the flyer at Play, the House's invitation, the name the House
-## prints for the candidate, and the models' names after the profile.
+## prints for the candidate, and the models' names after the profile, shown through tr().
 const FLYER := "YOUR TABLE IS READY"
 ## The flyer once the House's page has been torn off, and what the invitation dealt again is
-## stamped, STORY.md 8.1.
+## stamped, STORY.md 8.1, shown through tr().
 const FLYER_AGAIN := "YOUR TABLE IS STILL READY"
 const DUPLICATE := "DUPLICATE"
 const FLYER_LINES: Array[String] = [
@@ -505,7 +520,7 @@ const FLYER_LINES: Array[String] = [
 ## The invitation that brought the player to the tables, STORY.md 6.1a, see [OpeningInvitation]:
 ## the envelope it came in, addressed to nobody in particular, the road sign stuck on it, the card
 ## out of it, and the one stub to tear off; the House's mail to everybody, as the Final Hand's is to
-## one player.
+## one player. Shown through tr().
 const OPENING_FROM := "THE HOUSE"
 const OPENING_FROM_PLACE := "Jackpot Junction"
 const OPENING_POSTAGE: Array[String] = ["PRESORTED", "POSTAGE PAID", "THE HOUSE"]
@@ -525,12 +540,11 @@ const OPENING_STICKER: Array[String] = ["FREE CHIPS", "FOR NEW", "DRIVERS*"]
 const OPENING_ADMIT := "ADMIT ONE DRIVER"
 const OPENING_NO_EXPERIENCE := "No experience required. Free lesson included."
 const OPENING_NUMBER := "No."
-const OPENING_SMALL_PRINT := (
-	"*Paid in chips. Offer open to all occupants." + " All occupants are eligible."
-)
+const OPENING_SMALL_PRINT := """*Paid in chips. Offer open to all occupants. All occupants are \
+eligible."""
 const OPENING_ACCEPT := "Accept the invitation"
 ## The invitation's back, kept in Kit's folder, STORY.md 6.1a: its terms, the House's cheer, where
-## the stub was to be shown, and in the smallest print how many were sent.
+## the stub was to be shown, and in the smallest print how many were sent. Shown through tr().
 const OPENING_BACK_TITLE := "TERMS OF ADMISSION"
 const OPENING_BACK: Array[String] = [
 	"Good for one (1) driver, at any table, on any night.",
@@ -543,13 +557,13 @@ const OPENING_BACK_LICENSED := "LICENSED ON EVERY TABLE · DEPT. OF KARTS"
 const OPENING_BACK_DETACH := "DETACH THE STUB AND PRESENT IT AT ANY JUNCTION"
 const OPENING_BACK_RUN := "PRINT RUN 8,104,551,302 · ONE PER OCCUPANT"
 ## The invitation the House deals in the lobby, STORY.md 8.1: who it is from, what it asks, and the
-## table under the player's name.
+## table under the player's name, shown through tr().
 const INVITE_FROM := "THE HOUSE"
 const INVITE_LINE := "requests the pleasure of your company at the"
 const INVITE_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MINUTES  ·  THREE SEATS ALREADY TAKEN"
 const INVITE_ANSWER := "R.S.V.P."
 const TAKE_SEAT := "Take your seat"
-## The golden ticket that comes with the seat, see [GoldenTicket].
+## The golden ticket that comes with the seat, see [GoldenTicket], shown through tr().
 const TICKET_FROM := "THE HOUSE REQUESTS YOUR COMPANY"
 const TICKET_TABLE := "HOUSE RULES  ·  THE COUNT ROOM  ·  5 MIN  ·  3 SEATS TAKEN"
 const ADMIT_ONE := "ADMIT ONE"
@@ -564,9 +578,10 @@ const CANDIDATE := "CANDIDATE"
 ## A model is named for the player as they wrote their name, and its seat at the table.
 const MODEL := "%s %d"
 ## The House's stamp on the back of a bot's license once the player has read what the bots are,
-## STORY.md 3.6: how many participants its model is averaged from.
+## STORY.md 3.6: how many participants its model is averaged from, shown through tr().
 const BOT_MODEL := "MODEL  ·  AVERAGED FROM %s PARTICIPANTS"
-## The evaluation under the slip's lines, STORY.md 8.4: each line its label and its value.
+## The evaluation under the slip's lines, STORY.md 8.4: each line its label and its value, shown
+## through tr().
 const EVALUATION_TITLE := "HOUSE EVALUATION  ·  FINAL HAND"
 const EVALUATION: Array[Array] = [
 	["CANDIDATE", "{name}"],
@@ -590,19 +605,22 @@ const EVALUATION: Array[Array] = [
 ]
 ## The House's forecast of the stamp, on the evaluation over STATUS, STORY.md 8.4: the first time,
 ## and once the page has been torn off, each with how sure the House is, in percent; and its verdict
-## on it as the stamp lands, at the end of the line.
+## on it as the stamp lands, at the end of the line. Shown through tr().
 const PREDICT_STAMP := "WILL STAMP  ·  %s%%"
 const PREDICT_NOT := "WILL NOT STAMP  ·  %s%%  ·  REVISED"
 const PREDICTED_RIGHT := "WILL STAMP  ·  %s%%  ·  CORRECT"
 const PREDICTED_WRONG := "WILL NOT STAMP  ·  INCORRECT  ·  MODEL UPDATED"
-## Under the slip once the House's page has been torn off it, in the slip's ink, STORY.md 8.4.
+# TRANSLATORS: A rubber stamp in two parts, a big word and the small print after "  ·  ".
+## Under the slip once the House's page has been torn off it, in the slip's ink, STORY.md 8.4, shown
+## through tr().
 const EVALUATION_DECLINED := "EVALUATION DECLINED  ·  NOTED. THE HOUSE WILL ASK AGAIN."
 ## The tab the House's page is torn off by, as a screen reader is told it; and Kit's pencil under
-## the House's line on how to stamp it, pointing at the tab.
+## the House's line on how to stamp it, pointing at the tab. Shown through tr().
 const TEAR_OFF := "Tear the page off"
 const KIT_TEAR := "or say no and tear it off.  —K."
 ## The Final Hand's amendments, STORY.md 8.2: each act announced over the HUD, its number over its
 ## line and the line under it; and what the Junction stamps over every cash-out from the first.
+## Shown through tr().
 const AMENDMENT := "AMENDMENT %d"
 const AMENDMENTS: Array[String] = [
 	"THE HOUSE WILL NOW MODEL HOW YOU PLAY",
@@ -611,22 +629,23 @@ const AMENDMENTS: Array[String] = [
 ]
 const AMENDMENT_UNDER := "PLAYING ON ACCEPTS THE CHANGE."
 ## Along the House's forecast thrown on the floor ahead of the candidate, STORY.md 8.2; and for a
-## moment after the candidate surprised it.
+## moment after the candidate surprised it. Shown through tr().
 const PREDICTING := "PREDICTING"
 const RECALCULATING := "RECALCULATING"
 const JUNCTION_APPROVED := "APPROVED  ·  %s"
-## The House's stamp: the word between its rings and what is printed over it.
+## The House's stamp: the word between its rings and what is printed over it, shown through tr().
 const STAMP_WORD := "APPROVED"
 const STAMP_OVER := "THE HOUSE"
 const CONTINUE := "Continue"
-## Online, on the slip of somebody through the Final Hand while others are not yet, STORY.md 8.6.
+## Online, on the slip of somebody through the Final Hand while others are not yet, STORY.md 8.6,
+## shown through tr().
 const STILL_WITH_THE_HOUSE := "The others are still with the House."
-## The last lines, STORY.md 8.5.
+## The last lines, STORY.md 8.5, shown through tr().
 const OVERSIGHT_BOARD := "HUMAN OVERSIGHT"
 const OPERATIONS := "OPERATIONS: NORMAL"
 const LAST_LINE := "THE HOUSE DOESN'T NEED YOUR DECISIONS. IT NEEDS YOUR NAME ON THEM."
 ## The House's approval record after it, fed up off its roll, STORY.md 8.5: its head and its lines,
-## {approved} counting from the stamp.
+## {approved} counting from the stamp. Shown through tr().
 const APPROVAL_TITLE := "HOUSE OPERATIONS  ·  APPROVAL RECORD"
 const APPROVAL_RECORD: Array[Array] = [
 	["OPERATOR", "{license}"],
@@ -636,22 +655,21 @@ const APPROVAL_RECORD: Array[Array] = [
 	["AVERAGE TIME PER APPROVAL", "0.0000 S"],
 	["STATUS", "NORMAL"],
 ]
-## The achievement, STORY.md 8.7, as its card in the folder says it.
+## The achievement, STORY.md 8.7, as its card in the folder says it, shown through tr().
 const TERMS_ACCEPTED_CARD := "TERMS ACCEPTED"
 
 ## The license after the ending, STORY.md 8.6, and the title's, the seal's fine print round the
-## title's mark and the line in green along its foot.
+## title's mark and the line in green along its foot. Shown through tr().
 const CLASS_AFTER := "K  ·  Operator"
 const EXPIRES_AFTER := "NEVER"
 const PROPERTY_AFTER := "PROPERTY OF THE HOUSE"
-const BACK_MICRO_AFTER := (
-	"VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  "
-	+ "ISSUED BY A BOT, REVIEWED BY {name}.  ·  HUMAN OVERSIGHT: 1"
-)
+const BACK_MICRO_AFTER := """VOID WHERE PROHIBITED. ESPECIALLY THERE.  ·  ISSUED BY A BOT, \
+REVIEWED BY {name}.  ·  HUMAN OVERSIGHT: 1"""
 ## The end of the license's fine print from the first, while the story is on, STORY.md 6.7: what
-## the Highway Code's first rule says can never be.
+## the Highway Code's first rule says can never be. Shown through tr().
 const BACK_MICRO_OVERSIGHT := "  ·  HUMAN OVERSIGHT: 0"
-## Scratched into the license's stripe by somebody signing K., STORY.md 6.7 and 3.10.
+## Scratched into the license's stripe by somebody signing K., STORY.md 6.7 and 3.10, shown through
+## tr().
 const LICENSE_SCRATCH := "They're watching how you drive. Stay strange. —K."
 const CLOCK_IN := "Clock in"
 const CLOCK_IN_ONLINE := "Clock in online"
@@ -659,11 +677,9 @@ const STAFF_ROOM := "Staff Room"
 const STATUS_LINE := "OPERATOR {license} · SHIFT {shifts} · PROFILE {profile}% · STATUS NORMAL"
 const SEAL_AFTER := "JACKPOT JUNCTION  ·  THE HOUSE  ·  UNDER HUMAN OVERSIGHT  ·  "
 
-## About's last sentence, for everybody, STORY.md 3.11.
-const ABOUT := (
-	"A human oversaw it: played it as it grew, made the calls no model would have made, and put"
-	+ " their name on it."
-)
+## About's last sentence, for everybody, STORY.md 3.11, shown through tr().
+const ABOUT := """A human oversaw it: played it as it grew, made the calls no model would have \
+made, and put their name on it."""
 
 
 ## The line of [param table] for [param stage]: the entry of the highest stage at or under it, or
@@ -678,11 +694,11 @@ static func at(table: Dictionary, stage: int, otherwise: Variant = "") -> Varian
 	return found
 
 
-## [param text] with every line of the Highway Code that the story has revised by [param stage]
-## revised, STORY.md 6.7.
+## [param text], in the language spoken, with every line of the Highway Code that the story has
+## revised by [param stage] revised, STORY.md 6.7, each line looked for and put in as it is spoken.
 static func revise_code(text: String, stage: int) -> String:
 	var revised := text
 	for line: Array in CODE_LINES:
 		if stage >= int(line[1]):
-			revised = revised.replace(str(line[0]), str(line[2]))
+			revised = revised.replace(Lang.t(str(line[0])), Lang.t(str(line[2])))
 	return revised

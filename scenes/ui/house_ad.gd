@@ -28,9 +28,9 @@ func _ready() -> void:
 
 func _dress() -> void:
 	var asked := Game.settings != null and Game.settings.profile.story.tears > 0
-	headline_words = StoryLines.FLYER_AGAIN if asked else StoryLines.FLYER
-	line_words = StoryLines.FLYER_LINES[0]
-	small_words = StoryLines.FLYER_LINES[1]
+	headline_words = tr(StoryLines.FLYER_AGAIN if asked else StoryLines.FLYER)
+	line_words = tr(StoryLines.FLYER_LINES[0])
+	small_words = tr(StoryLines.FLYER_LINES[1])
 	fill = HouseTheme.STOCK_RAISED
 	edge = HouseTheme.FOIL
 	headline_ink = HouseTheme.FOIL_HIGH

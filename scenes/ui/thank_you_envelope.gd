@@ -12,6 +12,7 @@ const INK := Color(0.16, 0.18, 0.3)
 const STAMP_PAPER := Color(0.97, 0.95, 0.9)
 const STAMP_FIELD := Color(0.22, 0.32, 0.55)
 const POSTMARK := Color(0.2, 0.2, 0.25, 0.65)
+## The address written on it, and the postmark's words, shown through tr().
 const TO := "TO: YOU"
 const WHERE := "Jackpot Junction, table one"
 const STAMP := Rect2(560.0, 36.0, 120.0, 144.0)
@@ -57,12 +58,14 @@ func _draw() -> void:
 func _draw_address() -> void:
 	var hand := BayArt.hand_font()
 	var middle := SIZE.x * 0.5
-	var to_wide := hand.get_string_size(TO, HORIZONTAL_ALIGNMENT_LEFT, -1, TO_SIZE).x
-	var where_wide := hand.get_string_size(WHERE, HORIZONTAL_ALIGNMENT_LEFT, -1, WHERE_SIZE).x
+	var to := tr(TO)
+	var where := tr(WHERE)
+	var to_wide := hand.get_string_size(to, HORIZONTAL_ALIGNMENT_LEFT, -1, TO_SIZE).x
+	var where_wide := hand.get_string_size(where, HORIZONTAL_ALIGNMENT_LEFT, -1, WHERE_SIZE).x
 	var at := Vector2(middle - to_wide * 0.5, ADDRESS_FOOT)
-	draw_string(hand, at, TO, HORIZONTAL_ALIGNMENT_LEFT, -1, TO_SIZE, INK)
+	draw_string(hand, at, to, HORIZONTAL_ALIGNMENT_LEFT, -1, TO_SIZE, INK)
 	var under := Vector2(middle - where_wide * 0.5, ADDRESS_FOOT + WHERE_DOWN)
-	draw_string(hand, under, WHERE, HORIZONTAL_ALIGNMENT_LEFT, -1, WHERE_SIZE, INK)
+	draw_string(hand, under, where, HORIZONTAL_ALIGNMENT_LEFT, -1, WHERE_SIZE, INK)
 	var half := maxf(to_wide, where_wide) * 0.5 + RULE_PAST
 	var rule := ADDRESS_FOOT + 12.0
 	draw_line(
@@ -116,7 +119,7 @@ func _draw_postmark() -> void:
 	draw_string(
 		font,
 		POSTMARK_AT + Vector2(-34.0, 5.0),
-		POSTMARK_WORDS,
+		tr(POSTMARK_WORDS),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		68.0,
 		12,

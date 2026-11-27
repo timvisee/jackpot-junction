@@ -15,11 +15,13 @@ const BODY := 21
 const CARD_BODY := 19
 const STEP := 36.0
 const CARD_STEP := 34.0
+## The letterhead: the game's name, as it is in every language, and THE HOUSE under it, shown
+## through tr().
 const NAME := "JACKPOT JUNCTION"
 const HOUSE := "THE HOUSE"
 const CARD_INK := Color(0.11, 0.1, 0.13)
 ## What every letter carries besides its lines: its reference and date under the letterhead, the
-## House's seal pressed in gold low on the right, and the line along its foot.
+## House's seal pressed in gold low on the right, and the line along its foot, shown through tr().
 const REFERENCE := "REF. %s"
 const FOOT := "THIS LETTER REMAINS THE PROPERTY OF THE HOUSE  ·  NO REPLY IS REQUIRED"
 const OPERATOR := "OPERATOR %s"
@@ -82,7 +84,7 @@ func _draw() -> void:
 		draw_string(
 			NotePage.TYPED,
 			Vector2(ROOM, y),
-			heading,
+			tr(heading),
 			HORIZONTAL_ALIGNMENT_CENTER,
 			size.x - ROOM * 2.0,
 			BODY + 4,
@@ -96,7 +98,7 @@ func _draw() -> void:
 		draw_string(
 			Type.display_font(),
 			Vector2(ROOM, bottom + STEP),
-			StoryLines.WELCOME_SIGNED,
+			tr(StoryLines.WELCOME_SIGNED),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			30,
@@ -107,7 +109,7 @@ func _draw() -> void:
 	draw_string(
 		Type.micro_font(),
 		Vector2(ROOM, size.y - 40.0),
-		FOOT,
+		tr(FOOT),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x - ROOM * 2.0,
 		11,
@@ -120,7 +122,8 @@ func _draw() -> void:
 func _draw_reference() -> void:
 	var number := profile.license_number if profile != null else ""
 	var font := NotePage.TYPED
-	draw_string(font, Vector2(ROOM, 196.0), REFERENCE % number, 0, -1, 15, HouseTheme.INK_FAINT)
+	var reference := tr(REFERENCE) % number
+	draw_string(font, Vector2(ROOM, 196.0), reference, 0, -1, 15, HouseTheme.INK_FAINT)
 	var day := LicenseCard.today()
 	var wide := font.get_string_size(day, 0, -1, 15).x
 	draw_string(font, Vector2(size.x - ROOM - wide, 196.0), day, 0, -1, 15, HouseTheme.INK_FAINT)
@@ -154,7 +157,7 @@ func _draw_head(alpha: float) -> void:
 	draw_string(
 		Type.micro_font(),
 		Vector2(ROOM, 142.0),
-		HOUSE,
+		tr(HOUSE),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		wide,
 		15,
@@ -187,7 +190,7 @@ func _draw_card() -> void:
 	draw_string(
 		NotePage.TYPED,
 		Vector2(CARD_ROOM, 70.0),
-		heading,
+		tr(heading) if not heading.is_empty() else "",
 		HORIZONTAL_ALIGNMENT_LEFT,
 		size.x - CARD_ROOM * 2.0,
 		CARD_BODY + 3,
@@ -209,7 +212,7 @@ func _draw_card() -> void:
 	draw_string(
 		NotePage.TYPED,
 		Vector2(CARD_ROOM, size.y - 36.0),
-		OPERATOR % number,
+		tr(OPERATOR) % number,
 		0,
 		-1,
 		15,

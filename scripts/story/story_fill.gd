@@ -2,7 +2,8 @@ class_name StoryFill
 extends RefCounted
 ## Fills in the placeholders of the story's lines, STORY.md 6: what the House knows about the
 ## player, from their profile, and what it saw at a table, from the match when there is one. Every
-## number is printed the way the House prints numbers, with its thousands set apart.
+## number is printed the way the House prints numbers, with its thousands set apart as the language
+## spoken sets them. A line is handed over already translated, and filled in as it is.
 
 ## Every placeholder a line of the story may hold.
 const KEYS: Array[String] = [
@@ -31,7 +32,7 @@ const KEYS: Array[String] = [
 	"since",
 	"profile",
 ]
-## What a license number reads before there is one.
+## What a license number reads before there is one, shown through tr().
 const LEARNER := "LEARNER"
 ## The House's profile of the player after the ending, STORY.md 8.6: the most it ever reads, how
 ## much of what is left each shift closes, and how far back each bet off the books or card of Kit's
@@ -41,8 +42,9 @@ const SHIFT_CLOSES := 0.04
 const KNOCKED_BACK := 1.5
 
 
-## [param text] with each placeholder filled in for [param profile]; [param table] gives the ones
-## only a match knows, the trait, the place, the models and the deviation, and may override any.
+## [param text], already in the language spoken, with each placeholder filled in for
+## [param profile]; [param table] gives the ones only a match knows, the trait, the place, the
+## models and the deviation, and may override any.
 static func fill(text: String, profile: Profile, table: Dictionary = {}) -> String:
 	if not text.contains("{"):
 		return text
@@ -64,7 +66,8 @@ static func values_for(profile: Profile) -> Dictionary:
 	var story := profile.story
 	return {
 		"name": name_of(profile),
-		"license": profile.license_number if not profile.license_number.is_empty() else LEARNER,
+		"license":
+		profile.license_number if not profile.license_number.is_empty() else Lang.t(LEARNER),
 		"minutes": number(Story.minutes(profile)),
 		"maps": number(story.maps),
 		"hands": number(story.maps + story.deaths),
@@ -73,14 +76,14 @@ static func values_for(profile: Profile) -> Dictionary:
 		"offered": number(accepted_of(profile) + story.declined),
 		"deaths": number(roundi(LifetimeStats.value_of(profile, &"deaths"))),
 		"chips_lost": number(roundi(LifetimeStats.value_of(profile, &"coins_lost"))),
-		"drifted_km": "%.1f" % (LifetimeStats.value_of(profile, &"drifted") / 1000.0),
+		"drifted_km": Lang.decimal(LifetimeStats.value_of(profile, &"drifted") / 1000.0),
 		"shifts": number(story.shifts),
 		"date": LicenseCard.today(),
 		"licensed":
 		profile.license_date if not profile.license_date.is_empty() else LicenseCard.today(),
 		"invitation": story.invitation,
 		"since": number(story.since),
-		"profile": "%.1f" % profile_share(profile),
+		"profile": Lang.decimal(profile_share(profile)),
 	}
 
 
@@ -146,25 +149,22 @@ static func _in_capitals(text: String) -> bool:
 	return bare == bare.to_upper()
 
 
-## [param value] with its thousands set apart, as the House prints a count: 1,204,388.
+## [param value] with its thousands set apart, as the House prints a count: 1,204,388 in English,
+## see [method Lang.number].
 static func number(value: int) -> String:
-	var digits := str(absi(value))
-	var grouped := ""
-	while digits.length() > 3:
-		grouped = "," + digits.substr(digits.length() - 3) + grouped
-		digits = digits.substr(0, digits.length() - 3)
-	return ("-" if value < 0 else "") + digits + grouped
+	return Lang.number(value)
 
 
-## A place as the House prints it: 1ST, 2ND, 3RD, 4TH and on.
+## A place as the House prints it, in the language spoken: 1ST, 2ND, 3RD, 4TH and on in English.
 static func ordinal(place: int) -> String:
-	var tail := "TH"
-	if place % 100 < 11 or place % 100 > 13:
-		match place % 10:
-			1:
-				tail = "ST"
-			2:
-				tail = "ND"
-			3:
-				tail = "RD"
-	return "%d%s" % [place, tail]
+	# TRANSLATORS: A place at a table as the House prints it, in capitals: 1ST, 2ND, 3RD, 4TH, 11TH.
+	var forms: Array[String] = [
+		Lang.t("%dTH", &"ordinal"),
+		Lang.t("%dST", &"ordinal"),
+		Lang.t("%dND", &"ordinal"),
+		Lang.t("%dRD", &"ordinal"),
+	]
+	var form := 0
+	if (place % 100 < 11 or place % 100 > 13) and place % 10 <= 3:
+		form = place % 10
+	return forms[form] % place

@@ -112,7 +112,7 @@ func raise() -> Node3D:
 	_hall = Node3D.new()
 	_hall.name = "Hall"
 	finale.add_child(_hall)
-	_plain = _group("Plain")
+	_plain = _group("Plain")  # NO_TRANSLATE
 	_walls()
 	_doorways()
 	_sconces()
@@ -127,7 +127,7 @@ func raise() -> Node3D:
 ## The walls at the table's edges, open on the near side where the camera comes in: the room's wall
 ## finish, the room's darker material along their foot and the House's rail along its top.
 func _walls() -> void:
-	var walls := _group("Walls")
+	var walls := _group("Walls")  # NO_TRANSLATE
 	var foot := Crowd.TABLE_TOP
 	var finish := surfaces.painted(dress.hall_wall)
 	var long := HALF.y + FRONT
@@ -172,7 +172,7 @@ func _walls() -> void:
 ## lamp-light comes through, a pair in each side wall. The back wall's corners are the room's own
 ## things', see [PartyRoom].
 func _doorways() -> void:
-	var doors := _group("Doorways")
+	var doors := _group("Doorways")  # NO_TRANSLATE
 	var light := _lamplight(DOOR_GLOW)
 	var foot := Crowd.TABLE_TOP
 	for side: float in [-1.0, 1.0]:
@@ -200,7 +200,7 @@ func _door(into: Node3D, foot: Vector3, facing: Vector3, light: Material) -> voi
 ## A lamp on each side wall between and either side of the doors: a foil plate on the wall and a
 ## shade over it lit in the room's lamp-light.
 func _sconces() -> void:
-	var lamps := _group("Sconces")
+	var lamps := _group("Sconces")  # NO_TRANSLATE
 	var light := _lamplight(SCONCE_GLOW)
 	var y := Crowd.TABLE_TOP + SCONCE_HIGH
 	for side: float in [-1.0, 1.0]:
@@ -249,7 +249,7 @@ func _rigging() -> void:
 	for side: float in [-1.0, 1.0]:
 		var back := Vector3(side * RIG.x, RIG_HIGH, RIG_BACK)
 		_truss(rig, back, Vector3(side * RIG.x, RIG_HIGH, RIG_FRONT), steel)
-	var cans := _group("Lamps")
+	var cans := _group("Lamps")  # NO_TRANSLATE
 	var body := _paint(RIG_INK, 0.5, 0.0)
 	var under := RIG_HIGH - TRUSS * 0.5 - CAN.y * 0.5
 	var spots: Array[Vector3] = []

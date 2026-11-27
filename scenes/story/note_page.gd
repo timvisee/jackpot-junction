@@ -248,7 +248,7 @@ func _draw() -> void:
 	match kind:
 		&"blueprint":
 			var margin := str(StoryNotes.NOTES.get(number, {}).get("margin", ""))
-			NotePaper.draw_blueprint(self, rect, margin)
+			NotePaper.draw_blueprint(self, rect, tr(margin) if not margin.is_empty() else "")
 			inside = NotePaper.blueprint_block(rect).grow_individual(-8.0, -5.0, -8.0, -5.0)
 		&"calendar":
 			_draw_calendar(rect)
@@ -275,8 +275,10 @@ func _draw() -> void:
 			var beside: Rect2 = _spans[_spans.size() - 1]
 			NoteCharts.tally(self, beside.position + Vector2(-12.0 - 8.0 * tally, 2.0), tally)
 		var stamp := str(StoryNotes.NOTES.get(number, {}).get("stamp", ""))
+		if not stamp.is_empty():
+			stamp = tr(stamp)
 		if kind == &"form":
-			stamp = "RECEIVED"
+			stamp = tr("RECEIVED")
 		if not stamp.is_empty():
 			var spot := _stamp_spot(rect, 1)
 			NotePaper.draw_stamp(self, stamp, spot[0], spot[1], rect)
@@ -293,13 +295,16 @@ func _write_lines(inside: Rect2, type_size: int, kind: StringName) -> void:
 	_write(StoryNotes.NOTES.get(number, {}).get("lines", []), inside, type_size, kind)
 
 
-## [param lines] written down [param inside], each in its voice; where they ended.
+## [param lines] written down [param inside], each in its voice and in the language spoken; where
+## they ended.
 func _write(lines: Array, inside: Rect2, type_size: int, kind: StringName) -> float:
 	var y := inside.position.y
 	_spans.clear()
 	for line: Array in lines:
 		var voice: StringName = line[0]
-		var text := StoryFill.fill(str(line[1]), profile) if profile != null else str(line[1])
+		var text := tr(str(line[1]))
+		if profile != null:
+			text = StoryFill.fill(text, profile)
 		var spec: Array = VOICES.get(voice, VOICES[&"print"])
 		var font: Font = spec[0] if spec[0] != null else Type.display_font()
 		var font_size := maxi(roundi(type_size * float(spec[2])), 7)
@@ -435,7 +440,7 @@ func _draw_back() -> void:
 	var stamp := str(back.get("stamp", ""))
 	if not stamp.is_empty():
 		var spot := _stamp_spot(rect, 2)
-		NotePaper.draw_stamp(self, stamp, spot[0], spot[1], rect)
+		NotePaper.draw_stamp(self, tr(stamp), spot[0], spot[1], rect)
 
 
 ## The stub's face as the invitation printed it, STORY.md 6.1a and 7.3: ADMIT ONE DRIVER over the
@@ -446,21 +451,18 @@ func _draw_stub(rect: Rect2) -> void:
 	var left := rect.position.x + 22.0
 	var top := rect.position.y + 18.0
 	var mark := Type.mark_font()
-	draw_string(
-		mark, Vector2(left, top + mark.get_ascent(30)), StoryLines.OPENING_ADMIT, 0, -1, 30, ink
-	)
-	draw_string(
-		Type.TEXT, Vector2(left, top + 50.0), StoryLines.OPENING_NO_EXPERIENCE, 0, -1, 12, ink
-	)
-	var number_said := (
-		"%s %s" % [StoryLines.OPENING_NUMBER, profile.story.invitation if profile != null else ""]
-	)
+	var admit := tr(StoryLines.OPENING_ADMIT)
+	draw_string(mark, Vector2(left, top + mark.get_ascent(30)), admit, 0, -1, 30, ink)
+	var lesson := tr(StoryLines.OPENING_NO_EXPERIENCE)
+	draw_string(Type.TEXT, Vector2(left, top + 50.0), lesson, 0, -1, 12, ink)
+	var invitation := profile.story.invitation if profile != null else ""
+	var number_said := "%s %s" % [tr(StoryLines.OPENING_NUMBER), invitation]
 	var wide := TYPED.get_string_size(number_said, 0, -1, 13).x
 	draw_string(TYPED, Vector2(rect.end.x - 22.0 - wide, top + 74.0), number_said, 0, -1, 13, ink)
 	draw_string(
 		Type.TEXT,
 		Vector2(left, rect.end.y - 22.0),
-		StoryLines.OPENING_SMALL_PRINT,
+		tr(StoryLines.OPENING_SMALL_PRINT),
 		0,
 		rect.size.x - 44.0,
 		8,
@@ -490,7 +492,8 @@ func _draw_junction(rect: Rect2) -> void:
 	for end: float in [-1.0, 1.0]:
 		var x := middle.x + outer * end
 		draw_line(Vector2(x, y - 5.0), Vector2(x, y + 5.0), PENCIL, 1.0, true)
-	_scrawl("40 cm", Vector2(middle.x - 18.0, y + 22.0), 20, PENCIL, 0.4)
+	# TRANSLATORS: Pencilled under a sketch, its measure across.
+	_scrawl(tr("40 cm"), Vector2(middle.x - 18.0, y + 22.0), 20, PENCIL, 0.4)
 
 
 ## [param text] split at its dotted leader into what is on either side of it, or nothing.
@@ -673,7 +676,12 @@ func _draw_chart(inside: Rect2, type_size: int) -> void:
 	var y := inside.position.y + 2.0
 	var above := Rect2()
 	for i: int in lines.size() - 1:
-		var posts := str(lines[i][1]).split(" · ")
+		# Each post as it is spoken, and as it is written, which says whether it is vacant or the
+		# one crossed through.
+		var posts := tr(str(lines[i][1])).split(" · ")
+		var written := str(lines[i][1]).split(" · ")
+		if written.size() != posts.size():
+			written = posts
 		var boxes: Array[Rect2] = []
 		var total := CHART_GAP * float(posts.size() - 1)
 		for post: String in posts:
@@ -689,12 +697,12 @@ func _draw_chart(inside: Rect2, type_size: int) -> void:
 			)
 		_chart_lines(above, boxes, ink)
 		for j: int in boxes.size():
-			_post(boxes[j], posts[j], type_size, ink)
+			_post(boxes[j], posts[j], written[j], type_size, ink)
 		above = boxes[0] if boxes.size() == 1 else Rect2()
 		y += tall + 18.0
 	# On its own at the foot, joined to nothing: an empty box, dashed, its post written small in
 	# its corner, and under it what the chart says of it.
-	var last := str(lines[lines.size() - 1][1])
+	var last := tr(str(lines[lines.size() - 1][1]))
 	var leader := _leader_of(last)
 	var post := leader[0] if leader.size() == 2 else last
 	var foot := Rect2(
@@ -753,15 +761,16 @@ func _chart_lines(above: Rect2, boxes: Array[Rect2], ink: Color) -> void:
 		draw_line(Vector2(box.get_center().x, bar), Vector2(box.get_center().x, to), ink, 1.0)
 
 
-## One post's box with its name in it: dashed for a post that is vacant, and crossed through in
-## red pen where the note says, STORY.md 7.3.
-func _post(box: Rect2, text: String, type_size: int, ink: Color) -> void:
-	if text.contains("(vacant)"):
+## One post's box with its name in it, [param text], as it is spoken: dashed for a post that is
+## vacant, and crossed through in red pen where the note says, STORY.md 7.3, both as the post is
+## [param written] in English.
+func _post(box: Rect2, text: String, written: String, type_size: int, ink: Color) -> void:
+	if written.contains("(vacant)"):
 		_dashed_box(box, ink)
 	else:
 		draw_rect(box, ink, false, 1.2)
 	var crossed := str(StoryNotes.NOTES.get(number, {}).get("crossed", ""))
-	if not crossed.is_empty() and text.contains(crossed):
+	if not crossed.is_empty() and written.contains(crossed):
 		var red := Color(0.78, 0.12, 0.12)
 		var over := box.grow_individual(10.0, 6.0, 10.0, 6.0)
 		NoteCharts.seg(self, over.position, over.end, red, 2.6)
@@ -837,7 +846,7 @@ func _draw_calendar(rect: Rect2) -> void:
 		var reach := 7.0 if i % 2 == 0 else 3.0
 		star.append(seal + Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 10.0) * reach)
 	draw_colored_polygon(star, gold)
-	var slogan := str(note.get("slogan", ""))
+	var slogan := tr(str(note.get("slogan", "")))
 	var face := Type.display_font()
 	var slogan_size := 17
 	var slogan_wide := face.get_string_size(slogan, HORIZONTAL_ALIGNMENT_LEFT, -1, slogan_size).x
@@ -857,8 +866,10 @@ func _draw_calendar(rect: Rect2) -> void:
 		Vector2(rect.position.x + 14.0, top), Vector2(rect.size.x - 28.0, rect.end.y - 30.0 - top)
 	)
 	var cell := Vector2(grid.size.x / 7.0, grid.size.y / 5.0)
+	# TRANSLATORS: The days of the week over a calendar's columns, one letter each, Monday first.
+	var initials := tr("MTWTFSS")
 	for i: int in 7:
-		var initial := "MTWTFSS"[i]
+		var initial := initials.substr(i, 1)
 		draw_string(
 			TYPED,
 			Vector2(grid.position.x + cell.x * (float(i) + 0.5) - 3.0, top - 8.0),
@@ -897,7 +908,7 @@ func _draw_calendar(rect: Rect2) -> void:
 	var from := (
 		grid.position + Vector2(cell.x * (first % 7) + 4.0, cell.y * floorf(first / 7.0) + 20.0)
 	)
-	var words := str(note["lines"][0][1])
+	var words := tr(str(note["lines"][0][1]))
 	var rows := _rows(words, HAND, 20, grid.end.x - from.x - 4.0)
 	if rows.size() > 2:
 		from.x = grid.position.x + 6.0
@@ -907,7 +918,7 @@ func _draw_calendar(rect: Rect2) -> void:
 		_scrawl(row, Vector2(from.x, y), 20, PENCIL, 0.5)
 		y += 19.0
 	# The House's print along the foot.
-	var footer := str(note.get("footer", ""))
+	var footer := tr(str(note.get("footer", "")))
 	var footer_wide := TYPED.get_string_size(footer, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
 	draw_string(
 		TYPED,

@@ -21,6 +21,13 @@ const NAME_MOST := 32
 ## How many decisions the House puts out in a day, its own statements' rate, STORY.md 8.5: about
 ## forty-eight thousand a second, from the stamp on in the player's name.
 const APPROVALS_A_DAY := 4118920113
+## The House's forecast and its verdict on it, as PREDICTED's line may read, see [method shown].
+const FORECASTS: Array[String] = [
+	StoryLines.PREDICT_STAMP,
+	StoryLines.PREDICT_NOT,
+	StoryLines.PREDICTED_RIGHT,
+	StoryLines.PREDICTED_WRONG,
+]
 
 ## The slot of this screen's own player at the Final Hand, the candidate here, see
 ## [method candidate], or -1: kept by the [FinalHandTable] for whatever prints a name.
@@ -149,9 +156,9 @@ static func candidate(match_node: Match) -> PlayerSlot:
 
 
 ## What the House prints for [param slot] wherever it prints a name, STORY.md 8.2: CANDIDATE for
-## the candidate at the Final Hand, the name otherwise.
+## the candidate at the Final Hand, in the language spoken, the name otherwise.
 static func name_of(slot: PlayerSlot) -> String:
-	return StoryLines.CANDIDATE if is_candidate(slot) else slot.display_name()
+	return Lang.t(StoryLines.CANDIDATE) if is_candidate(slot) else slot.display_name()
 
 
 ## The deviation on an evaluation [param kept], in percent, or 0 for none.
@@ -217,7 +224,8 @@ static func _readings(slot: PlayerSlot, minutes: float) -> Array[float]:
 
 
 ## The evaluation's lines for [param match_node] at its whistle, filled in, STORY.md 8.4: each its
-## label and its value, STATUS blank for the stamp.
+## label and its value, STATUS blank for the stamp. In English, as the profile keeps them, the
+## language spoken only in the numbers filled in; each is shown through [method shown].
 static func evaluation(match_node: Match) -> Array[Array]:
 	var lit := candidate(match_node)
 	var profile := Game.settings.profile
@@ -244,7 +252,8 @@ static func evaluation(match_node: Match) -> Array[Array]:
 ## The House's forecast of [param profile]'s stamp, STORY.md 8.4: the first time WILL STAMP, as sure
 ## as the terms accepted are of the terms offered, (accepted + 1) / (offered + 2); once the page has
 ## been torn off, from the Final Hands alone, WILL NOT STAMP, as sure as the tears are of the times
-## the page was answered, (tears + 1) / (answers + 2). In percent to one decimal.
+## the page was answered, (tears + 1) / (answers + 2). In percent to one decimal, and in English as
+## the evaluation is kept, see [method shown].
 static func prediction(profile: Profile) -> String:
 	var story := profile.story
 	if story.tears <= 0:
@@ -262,13 +271,82 @@ static func percent(part: int, whole: int) -> String:
 
 ## The House's verdict on its own forecast as the stamp lands on [param profile]'s page, STORY.md
 ## 8.4: CORRECT where it forecast the stamp, and INCORRECT, its model updated, where it forecast
-## the page torn off again.
+## the page torn off again. In English as the evaluation is kept, see [method shown].
 static func verdict(profile: Profile) -> String:
 	if profile.story.tears <= 0:
 		var accepted := StoryFill.accepted_of(profile)
 		var offered := accepted + profile.story.declined
 		return StoryLines.PREDICTED_RIGHT % percent(accepted + 1, offered + 2)
 	return StoryLines.PREDICTED_WRONG
+
+
+## A line of an evaluation as it is kept, see [method evaluation], as it is shown in the language
+## spoken: its label, and its value read back out of its line of [constant StoryLines.EVALUATION]
+## and written out again in the line as it is spoken, its numbers, place, class and the House's
+## forecast with it. A value that fits no line, one kept by another version, is shown as it is.
+static func shown(line: Array) -> PackedStringArray:
+	var label := str(line[0])
+	var value := str(line[1]) if line.size() > 1 else ""
+	var forms: Array[String] = []
+	for kept: Array in StoryLines.EVALUATION:
+		if str(kept[0]) == label:
+			forms.append(str(kept[1]))
+	return PackedStringArray([Lang.t(label), _reworded(value, forms)])
+
+
+## [param value], written after one of [param forms] in English, written after it again in the
+## language spoken with what filled it in read back out of it; as it is where none fits.
+static func _reworded(value: String, forms: Array[String]) -> String:
+	if value.is_empty():
+		return value
+	var marks := RegEx.create_from_string("\\{(\\w+)\\}|%s")
+	for form: String in forms:
+		var keys: Array[String] = []
+		var pattern := "^"
+		var at := 0
+		for found: RegExMatch in marks.search_all(form):
+			pattern += _escaped(form.substr(at, found.get_start() - at))
+			pattern += "(.*?)"
+			keys.append(found.get_string(1) if not found.get_string(1).is_empty() else "%s")
+			at = found.get_end()
+		var read := RegEx.create_from_string(pattern + _escaped(form.substr(at)) + "$").search(
+			value
+		)
+		if read == null:
+			continue
+		var said := Lang.t(form)
+		for i: int in keys.size():
+			var part := _respoken(keys[i], read.get_string(i + 1))
+			said = said % part if keys[i] == "%s" else said.replace("{%s}" % keys[i], part)
+		return said
+	return value
+
+
+## [param text] as a pattern that matches it and nothing else, a [code]%%[/code] a percent sign.
+static func _escaped(text: String) -> String:
+	var out := ""
+	for letter: String in text.replace("%%", "%"):
+		out += "\\" + letter if letter in "\\^$.|?*+()[]{}" else letter
+	return out
+
+
+## What filled in placeholder [param key] of an evaluation's line, [param part], as the language
+## spoken writes it: a count with its thousands set apart, a place, a class, a percentage and the
+## House's forecast; anything else, a name or a license number, as it is.
+static func _respoken(key: String, part: String) -> String:
+	var digits := part.replace(",", "").replace(".", "").replace(" ", "")
+	match key:
+		"name", "license":
+			return part
+		"place":
+			return StoryFill.ordinal(part.to_int()) if part.to_int() > 0 else part
+		"trait":
+			return StorySlip.named(part)
+		"prediction":
+			return _reworded(part, FORECASTS)
+		"%s":
+			return Lang.decimal(part.replace(",", ".").to_float())
+	return Lang.number(digits.to_int()) if digits.is_valid_int() else part
 
 
 ## The page torn off, STORY.md 8.4: noted and counted, one more term declined, kept for the folder

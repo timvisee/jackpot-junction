@@ -161,7 +161,9 @@ static func flash(arena: Arena) -> void:
 			Vector2.ZERO, Vector2(Billboard.WIDTH, Billboard.HEIGHT), FLASH_GREEN, true
 		)
 		screen.position.z = 0.09
-		var said := board.words(StoryLines.MONITOR, Vector2.ZERO, 0.5, Color(0.02, 0.06, 0.03))
+		var said := board.words(
+			Lang.t(StoryLines.MONITOR), Vector2.ZERO, 0.5, Color(0.02, 0.06, 0.03)
+		)
 		said.position.z = 0.12
 		var gone := screen.get_tree().create_timer(FLASH, false)
 		gone.timeout.connect(

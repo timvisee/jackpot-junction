@@ -172,7 +172,7 @@ func _draw() -> void:
 	draw_colored_polygon(points, PAPER)
 	# The words as far as the pencil has got.
 	var font := NotePage.HAND
-	var words := StoryLines.NOTE_COLLECTED
+	var words := tr(StoryLines.NOTE_COLLECTED)
 	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x
 	var shown := (
 		words.substr(0, ceili(words.length() * _written)) if phase == Phase.WRITING else words

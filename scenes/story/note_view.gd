@@ -57,18 +57,16 @@ const FOIL_RELIEF := 0.8
 const SHARPEST := 4096
 const SETTLE_MS := 150
 const ARROW_WIDTH := 88.0
-## How wide Turn over and Put back are, turning arrows and a cross on them rather than their words,
-## which are their tooltips.
+## How wide Turn over and Put back are, arrows and a cross on them rather than their words, their
+## tooltips; the words and the hints under the note are shown through tr().
 const ICON_WIDTH := 136.0
 const TURN_WORD := "Turn over"
 const BACK_WORD := "Put back"
 const HINT_MOUSE := "Click it to turn it over, beside it to put it back, scroll to look closer"
 const HINT_KEYS := "+ and - look closer, the arrows move it"
 const HINT_PAD := "The triggers look closer, the right stick moves it"
-const HINT_TOUCH := (
-	"Tap it to turn it over, beside it to put it back, pinch to look closer,"
-	+ " swipe for the next"
-)
+const HINT_TOUCH := """Tap it to turn it over, beside it to put it back, pinch to look closer, \
+swipe for the next"""
 ## A swipe across the note at its own size on a touch screen: how far a finger goes, mostly across,
 ## before the note follows it, rather than a tap's wobble; how far across, as a share of the
 ## screen's width, or how fast, in pixels a millisecond, takes it on to the note that way; and how
@@ -227,7 +225,7 @@ func _buttons() -> HBoxContainer:
 	_turn_button.name = "TurnOver"
 	_turn_button.icon = HouseArt.turning()
 	_turn_button.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_turn_button.tooltip_text = TURN_WORD
+	_turn_button.tooltip_text = tr(TURN_WORD)
 	_turn_button.custom_minimum_size.x = ICON_WIDTH
 	_turn_button.focus_mode = Control.FOCUS_NONE
 	_turn_button.pressed.connect(turn_over)
@@ -237,7 +235,7 @@ func _buttons() -> HBoxContainer:
 	back.name = "PutBack"
 	back.icon = HouseArt.cross()
 	back.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	back.tooltip_text = BACK_WORD
+	back.tooltip_text = tr(BACK_WORD)
 	back.custom_minimum_size.x = ICON_WIDTH
 	back.focus_mode = Control.FOCUS_NONE
 	back.pressed.connect(close)
@@ -989,11 +987,11 @@ func say_how() -> void:
 		old.queue_free()
 	var row: Control
 	if TouchInput.enabled:
-		row = MenuTheme.subtitle(HINT_TOUCH, Type.LABEL)
+		row = MenuTheme.subtitle(tr(HINT_TOUCH), Type.LABEL)
 	elif _pointer:
-		row = MenuTheme.subtitle(HINT_MOUSE, Type.LABEL)
+		row = MenuTheme.subtitle(tr(HINT_MOUSE), Type.LABEL)
 	else:
-		row = MenuTheme.subtitle(HINT_KEYS if keyboard else HINT_PAD, Type.LABEL)
+		row = MenuTheme.subtitle(tr(HINT_KEYS if keyboard else HINT_PAD), Type.LABEL)
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	row.grow_vertical = Control.GROW_DIRECTION_BOTH

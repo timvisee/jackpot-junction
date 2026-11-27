@@ -46,18 +46,19 @@ func _draw() -> void:
 	draw_style_box(paper, Rect2(Vector2.ZERO, SIZE))
 	# Who it is from, in the corner.
 	var from := _spaced(Type.DISPLAY, 3.0)
-	draw_string(from, Vector2(42.0, 66.0), StoryLines.OPENING_FROM, 0, -1, 30, INK)
-	draw_string(Type.TEXT, Vector2(42.0, 92.0), StoryLines.OPENING_FROM_PLACE, 0, -1, 20, FAINT)
+	draw_string(from, Vector2(42.0, 66.0), tr(StoryLines.OPENING_FROM), 0, -1, 30, INK)
+	var place := tr(StoryLines.OPENING_FROM_PLACE)
+	draw_string(Type.TEXT, Vector2(42.0, 92.0), place, 0, -1, 20, FAINT)
 	_draw_postage()
 	# The window, and nobody in particular in it, its lines in the middle of it.
 	draw_rect(WINDOW, Color(1.0, 1.0, 1.0, 0.5))
 	draw_rect(WINDOW, Color(0.0, 0.0, 0.0, 0.14), false, 1.5)
 	var y := WINDOW.get_center().y + 7.0 - 20.0 * float(StoryLines.OPENING_TO.size() - 1)
 	for line: String in StoryLines.OPENING_TO:
-		draw_string(NotePage.TYPED, Vector2(WINDOW.position.x + 33.0, y), line, 0, -1, 28, INK)
+		draw_string(NotePage.TYPED, Vector2(WINDOW.position.x + 33.0, y), tr(line), 0, -1, 28, INK)
 		y += 40.0
 	draw_set_transform(WINNER_AT, WINNER_TURN, Vector2.ONE)
-	draw_string(Type.mark_font(), Vector2.ZERO, StoryLines.OPENING_WINNER, 0, -1, 45, RED)
+	draw_string(Type.mark_font(), Vector2.ZERO, tr(StoryLines.OPENING_WINNER), 0, -1, 45, RED)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	_draw_barcode()
 	_draw_sign()
@@ -69,7 +70,8 @@ func _draw_postage() -> void:
 	var tall := 24.0 + 22.0 * lines.size()
 	draw_rect(Rect2(POSTAGE_AT, Vector2(POSTAGE_WIDE, tall)), INK, false, 3.0)
 	var y := POSTAGE_AT.y + 28.0
-	for line: String in lines:
+	for printed: String in lines:
+		var line := tr(printed)
 		var wide := NotePage.TYPED.get_string_size(line, 0, -1, 16).x
 		var x := POSTAGE_AT.x + (POSTAGE_WIDE - wide) * 0.5
 		draw_string(NotePage.TYPED, Vector2(x, y), line, 0, -1, 16, INK)
@@ -127,11 +129,12 @@ func _draw_sign() -> void:
 	):
 		draw_polyline(part, Color.WHITE, 3.0, true)
 	var words := Type.STRONG
-	draw_string(words, Vector2(23.0, 45.0), StoryLines.OPENING_SIGN, 0, -1, 20, Color.WHITE)
-	draw_string(words, Vector2(23.0, 70.0), StoryLines.OPENING_SIGN_EXIT, 0, -1, 17, Color.WHITE)
+	draw_string(words, Vector2(23.0, 45.0), tr(StoryLines.OPENING_SIGN), 0, -1, 20, Color.WHITE)
+	var exit := tr(StoryLines.OPENING_SIGN_EXIT)
+	draw_string(words, Vector2(23.0, 70.0), exit, 0, -1, 17, Color.WHITE)
 	_draw_arrow(Vector2(w - 42.0, 52.0), 18.0)
 	var joke := _spaced(words, 1.5)
-	draw_string(joke, Vector2(23.0, 91.0), StoryLines.OPENING_SIGN_JOKE, 0, -1, 12, Color.WHITE)
+	draw_string(joke, Vector2(23.0, 91.0), tr(StoryLines.OPENING_SIGN_JOKE), 0, -1, 12, Color.WHITE)
 	# The corner, folded back over the fold onto the face, its own shadow on the face under it.
 	var corner := Geometry2D.intersect_polygons(whole, _cutter(fold_from, fold_to, 0.0))
 	if not corner.is_empty():

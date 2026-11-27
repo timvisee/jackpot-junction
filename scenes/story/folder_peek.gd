@@ -41,7 +41,7 @@ const WAITING_TINT := Color(0.5, 0.5, 0.52)
 const HOURGLASS := 44.0
 const HOURGLASS_INK := HouseTheme.FOIL
 ## What a screen reader is told of it besides the words across it, and of a new note's corner, see
-## [method _tell].
+## [method _tell], shown through tr().
 const TOLD := "A folder of notes"
 const TOLD_NEW := "A new note sticks out of it"
 
@@ -150,9 +150,10 @@ func _notification(what: int) -> void:
 ## whether a new note sticks out of it or waits for the map to be over.
 func _tell() -> void:
 	var more := PackedStringArray(
-		[TOLD, TOLD_NEW if corner > 0 else "", LicenseTab.WAITING if waiting else ""]
+		[tr(TOLD), tr(TOLD_NEW) if corner > 0 else "", tr(LicenseTab.WAITING) if waiting else ""]
 	)
-	ScreenReader.name(self, ScreenReader.spoken(StoryLines.FOLDER_FRONT), ScreenReader.line(more))
+	var front := ScreenReader.spoken(tr(StoryLines.FOLDER_FRONT))
+	ScreenReader.name(self, front, ScreenReader.line(more))
 
 
 ## Draws the eye to it, after a map in which a note was taken, STORY.md 7.2: it comes out from the

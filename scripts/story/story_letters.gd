@@ -5,7 +5,8 @@ extends RefCounted
 ## see [HouseMail], and then filed in Kit's folder under a title of Kit's in pencil. A profile keeps
 ## the keys of the letters it has been shown; one that reached a stage without being shown the
 ## letters before it, a profile from before they were written, is shown the last and has the rest
-## filed as they are. Their words are [constant StoryLines.HOUSE_LETTERS].
+## filed as they are. Their words are [constant StoryLines.HOUSE_LETTERS], given out here in the
+## language spoken.
 
 ## The letters in the order they come, each by its key.
 const KEYS: Array[StringName] = [&"statement", &"profile_notice", &"your_table", &"duties"]
@@ -88,28 +89,31 @@ static func key_of(number: int) -> StringName:
 
 ## Kit's title over letter [param key]'s page in the folder.
 static func title_of(key: StringName) -> String:
-	return str(StoryLines.HOUSE_LETTERS[key]["title"])
+	return Lang.t(str(StoryLines.HOUSE_LETTERS[key]["title"]))
 
 
 ## What the House fills in letter [param key] with for [param of], beyond what [StoryFill] knows:
 ## the class its whole record comes closest to, how much of it that explains, and the class's line.
 static func table_for(of: Profile) -> Dictionary:
 	var classed := StorySlip.classify_record(of)
+	var line := str(StoryLines.CLASS_LINES.get(classed[0], ""))
 	return {
-		"trait": classed[0],
+		"trait": StorySlip.named(classed[0]),
 		"share": str(classed[1]),
-		"class_line": str(StoryLines.CLASS_LINES.get(classed[0], "")),
+		"class_line": Lang.t(line) if not line.is_empty() else "",
 	}
 
 
-## Letter [param key]'s lines for [param of], filled in, each a label and a value or a line alone.
+## Letter [param key]'s lines for [param of], in the language spoken and filled in, each a label
+## and a value or a line alone.
 static func lines_for(key: StringName, of: Profile) -> Array[PackedStringArray]:
 	var table := table_for(of) if of != null else {}
 	var out: Array[PackedStringArray] = []
 	for line: Array in StoryLines.HOUSE_LETTERS[key]["lines"]:
 		var filled := PackedStringArray()
 		for part: String in line:
-			filled.append(StoryFill.fill(part, of, table) if of != null else part)
+			var said := Lang.t(part) if not part.is_empty() else part
+			filled.append(StoryFill.fill(said, of, table) if of != null else said)
 		out.append(filled)
 	return out
 
@@ -120,7 +124,7 @@ static func read_out(key: StringName, of: Profile) -> String:
 	var said := PackedStringArray()
 	var heading := str(StoryLines.HOUSE_LETTERS[key].get("heading", ""))
 	if not heading.is_empty():
-		said.append(ScreenReader.spoken(heading))
+		said.append(ScreenReader.spoken(Lang.t(heading)))
 	for line: PackedStringArray in lines_for(key, of):
 		var words := " ".join(line).strip_edges()
 		if not words.is_empty():

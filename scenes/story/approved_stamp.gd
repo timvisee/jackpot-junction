@@ -39,8 +39,11 @@ static func draw_on(
 	)
 	canvas.draw_rect(band, Color(INK, 0.16))
 	canvas.draw_rect(band, INK, false, across * 0.035)
-	_centered(canvas, font, StoryLines.STAMP_WORD, Vector2(0.0, across * 0.15), across * 0.42)
-	_centered(canvas, font, StoryLines.STAMP_OVER, Vector2(0.0, -across * 0.42), across * 0.2)
+	var word := Lang.t(StoryLines.STAMP_WORD)
+	_centered(canvas, font, word, Vector2(0.0, across * 0.15), across * 0.42)
+	_centered(
+		canvas, font, Lang.t(StoryLines.STAMP_OVER), Vector2(0.0, -across * 0.42), across * 0.2
+	)
 	if not when.is_empty():
 		_centered(canvas, font, when, Vector2(0.0, across * 0.58), across * 0.18)
 	canvas.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)

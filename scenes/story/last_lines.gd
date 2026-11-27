@@ -161,7 +161,7 @@ func _show_line() -> void:
 	Audio.lift_sfx()
 	Audio.hush_match(false)
 	showing = 0
-	line.text = StoryLines.LAST_LINE
+	line.text = tr(StoryLines.LAST_LINE)
 	_stood = 0.0
 	create_tween().tween_property(line, "modulate:a", 1.0, FADE)
 

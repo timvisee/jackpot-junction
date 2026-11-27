@@ -98,7 +98,7 @@ func _ready() -> void:
 	_pool.position = LETTER_AT
 	_pool.draw.connect(func() -> void: OpeningInvitation.draw_pool(_pool))
 	_stage.add_child(_pool)
-	away = MenuTheme.primary(MenuTheme.button(StoryLines.MAIL_PUT_AWAY))
+	away = MenuTheme.primary(MenuTheme.button(tr(StoryLines.MAIL_PUT_AWAY)))
 	away.name = "PutAway"
 	away.custom_minimum_size.x = BUTTON_WIDE
 	away.position = Vector2((STAGE.x - BUTTON_WIDE) * 0.5, BUTTON_TOP)

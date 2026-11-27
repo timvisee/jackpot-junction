@@ -46,10 +46,11 @@ static func add_to(for_arena: Arena) -> StoryDressing:
 	if for_arena.room == null:
 		return null
 	if for_arena.room.id in LEFT_ALONE:
-		HouseWord.put_up(for_arena, StoryLines.at(StoryLines.ROAD, Story.Stage.CUSTOMER, ""))
+		var first := Lang.t(StoryLines.at(StoryLines.ROAD, Story.Stage.CUSTOMER, ""))
+		HouseWord.put_up(for_arena, first)
 		return null
 	var dressing := StoryDressing.new()
-	dressing._stand_in(for_arena, "Story")
+	dressing._stand_in(for_arena, "Story")  # NO_TRANSLATE
 	dressing.stage = Story.stage_here()
 	dressing._build()
 	# The house falls into step as the story goes, STORY.md 6.9.
@@ -84,7 +85,8 @@ func _build() -> void:
 ## The House's word for the stage, filled in for the profile, said in the room's own medium off
 ## the table, STORY.md 6.1.
 func _word() -> void:
-	var said := StoryFill.fill(StoryLines.at(StoryLines.ROAD, stage, ""), Game.settings.profile)
+	var road := tr(StoryLines.at(StoryLines.ROAD, stage, ""))
+	var said := StoryFill.fill(road, Game.settings.profile)
 	word = HouseWord.put_up(arena, said)
 
 
@@ -142,7 +144,8 @@ func _count_room_monitor() -> void:
 	)
 	remove_child(glass)
 	poster.add_child(glass)
-	var words := _words(StoryLines.MONITOR, COUNT_SCREEN.x * 0.86, COUNT_SCREEN.y * 0.24, room.trim)
+	var monitor := tr(StoryLines.MONITOR)
+	var words := _words(monitor, COUNT_SCREEN.x * 0.86, COUNT_SCREEN.y * 0.24, room.trim)
 	words.name = "Big"
 	words.shaded = false
 	words.position = Vector3(0.0, COUNT_SCREEN.y * 0.12, 0.18)
@@ -189,10 +192,10 @@ func _poster(at: Vector3, size: Vector2, lit: bool) -> void:
 	remove_child(back)
 	poster.add_child(back)
 	var ink := Palette.CHIP_GOLD if lit else INK
-	var big := _words(str(lines[0]), size.x * 0.84, size.y * 0.3, ink)
+	var big := _words(tr(str(lines[0])), size.x * 0.84, size.y * 0.3, ink)
 	big.name = "Big"
 	big.position = Vector3(0.0, size.y * 0.12, 0.17)
-	var small := _words(str(lines[1]), size.x * 0.7, size.y * 0.14, ink)
+	var small := _words(tr(str(lines[1])), size.x * 0.7, size.y * 0.14, ink)
 	small.name = "Small"
 	small.position = Vector3(0.0, -size.y * 0.26, 0.17)
 	for words: Label3D in [big, small]:
@@ -200,8 +203,8 @@ func _poster(at: Vector3, size: Vector2, lit: bool) -> void:
 		poster.add_child(words)
 
 
-## A line of [param text] [param tall] meters high at most, brought down to fit [param wide]
-## meters across, in [param ink].
+## A line of [param text], already in the language spoken, [param tall] meters high at most,
+## brought down to fit [param wide] meters across, in [param ink].
 func _words(text: String, wide: float, tall: float, ink: Color) -> Label3D:
 	var label := Label3D.new()
 	label.text = StoryFill.fill(text, Game.settings.profile)
@@ -223,7 +226,7 @@ func _words(text: String, wide: float, tall: float, ink: Color) -> Label3D:
 
 ## The words on the lit board over the Yard's doors, in its own light, STORY.md 6.8.
 func _sign(at: Vector3) -> void:
-	sign = _words(str(StoryLines.at(StoryLines.YARD_SIGN, stage, "")), 38.0, 2.8, room.trim)
+	sign = _words(tr(str(StoryLines.at(StoryLines.YARD_SIGN, stage, ""))), 38.0, 2.8, room.trim)
 	sign.name = "Sign"
 	sign.shaded = false
 	sign.position = at + Vector3(0.0, 0.0, 0.45)
@@ -328,7 +331,7 @@ func _picture(at: Vector3) -> void:
 	var plate := _box(Vector3(9.0, 1.4, 0.3), surfaces.neon(BRASS, 0.3), Vector3(0.0, -6.6, 0.2))
 	remove_child(plate)
 	picture.add_child(plate)
-	var words := _words(StoryLines.EMPLOYEE, 8.2, 0.8, Color(0.16, 0.12, 0.06))
+	var words := _words(tr(StoryLines.EMPLOYEE), 8.2, 0.8, Color(0.16, 0.12, 0.06))
 	words.name = "Plate"
 	words.position = Vector3(0.0, -6.6, 0.37)
 	picture.add_child(words)

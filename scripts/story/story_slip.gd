@@ -2,18 +2,22 @@ class_name StorySlip
 extends RefCounted
 ## What the story prints on the payout slip, STORY.md 6.2: its small print, the House's bulletin
 ## under it, the line under each of this machine's players saying how the House classified them,
-## and the slip's heading. The places, scores, awards and stamps on it never change.
+## and the slip's heading, each in the language spoken. The places, scores, awards and stamps on it
+## never change.
 
 ## The traits a match is classified into, in capitals as the House prints them, and the leanings
 ## that point at each, STORY.md 6.2: what a player did per minute of the match, and how much of it
 ## counts as a full lean. Nothing leaning past a full one is Balanced.
-const BALANCED := "BALANCED"
+const BALANCED := "BALANCED"  # NO_TRANSLATE
 const LEANS := {
 	"HUNTER": [&"kills", 1.2],
 	"BUMPER": [&"rams", 1.5],
 	"GRAZER": [&"grazes", 6.0],
 	"GREEDY": [&"jackpot_chips", 18.0],
 }
+## Each trait by the name it goes by in the code, as the House prints it, shown through tr(): the
+## names are the words in English.
+const TRAITS: Array[String] = ["HUNTER", "BUMPER", "GRAZER", "GREEDY", "CAUTIOUS", "BALANCED"]
 ## A Greedy player banks big, and a Cautious one banks often and small and seldom dies.
 const GREEDY_BANK := 400.0
 const CAUTIOUS_BANKS := 1.2
@@ -26,12 +30,18 @@ static var _last_bulletin := ""
 
 ## The heading over the slip: Payslip once the stamp has come down, Payout slip before.
 static func heading(stage: int) -> String:
-	return StoryLines.PAYSLIP if stage >= Story.Stage.OPERATOR else StoryLines.SLIP
+	return Lang.t(StoryLines.PAYSLIP if stage >= Story.Stage.OPERATOR else StoryLines.SLIP)
 
 
 ## The small print by the barcode, filled in for [param profile].
 static func small_print(stage: int, profile: Profile) -> String:
-	return StoryFill.fill(StoryLines.at(StoryLines.SMALL_PRINT, stage), profile)
+	return StoryFill.fill(Lang.t(StoryLines.at(StoryLines.SMALL_PRINT, stage)), profile)
+
+
+## The trait named [param kind], see [constant TRAITS], as the House prints it in the language
+## spoken.
+static func named(kind: String) -> String:
+	return Lang.t(kind) if kind in TRAITS else kind
 
 
 ## A bulletin of the House's for this slip, from the second stage, or empty: one of the stage
@@ -68,18 +78,19 @@ static func bulletin(
 	var table := {}
 	if not dealt.is_empty():
 		table["trait"] = dealt[rng.randi_range(0, dealt.size() - 1)]
-	return StoryFill.fill(line, profile, table)
+	return StoryFill.fill(Lang.t(line), profile, table)
 
 
-## The traits of the bots at [param slots]' table, in capitals, each once.
+## The traits of the bots at [param slots]' table, in capitals and in the language spoken, each
+## once.
 static func traits_at(slots: Array[PlayerSlot]) -> Array[String]:
 	var found: Array[String] = []
 	for slot: PlayerSlot in slots:
 		if slot.bot_trait == null:
 			continue
-		var named := slot.bot_trait.display_name.to_upper()
-		if named not in found:
-			found.append(named)
+		var called := Lang.t(slot.bot_trait.display_name).to_upper()
+		if called not in found:
+			found.append(called)
 	return found
 
 
@@ -87,7 +98,8 @@ static func traits_at(slots: Array[PlayerSlot]) -> Array[String]:
 static func classified(stage: int, slot: PlayerSlot, seconds: float) -> String:
 	if stage < StoryLines.CLASSIFIED_FROM:
 		return ""
-	return StoryLines.CLASSIFIED.replace("{trait}", classify(slot.stats, slot.kills, seconds))
+	var kind := named(classify(slot.stats, slot.kills, seconds))
+	return Lang.t(StoryLines.CLASSIFIED).replace("{trait}", kind)
 
 
 ## The class [param profile]'s whole record comes closest to, STORY.md 6.11, worked out as a
@@ -131,9 +143,10 @@ static func leanings(stats: PlayerStats, kills: int, seconds: float) -> Dictiona
 		var key: StringName = LEANS[kind][0]
 		var count := float(kills) if key == &"kills" else stats.value(key)
 		leans[kind] = count / minutes / float(LEANS[kind][1])
+	# By the traits' names, see [constant TRAITS]. NO_TRANSLATE
 	leans["GREEDY"] = maxf(float(leans["GREEDY"]), stats.value(&"biggest_bank") / GREEDY_BANK)
 	var often := stats.value(&"banks") / minutes / CAUTIOUS_BANKS
 	var small := stats.value(&"biggest_bank") < CAUTIOUS_BANK
 	var careful := stats.value(&"deaths") / minutes < CAUTIOUS_DEATHS
-	leans["CAUTIOUS"] = often if small and careful else 0.0
+	leans["CAUTIOUS"] = often if small and careful else 0.0  # NO_TRANSLATE
 	return leans

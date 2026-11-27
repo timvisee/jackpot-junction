@@ -60,8 +60,9 @@ var _stretch := 1.0
 var _plated := false
 
 
-## Puts [param words] up in [param arena]'s room, wherever and in whatever its style says, and on
-## the near apron in the House's paint where it says nothing, and returns the word.
+## Puts [param words], already in the language spoken, see [StoryDressing], up in [param arena]'s
+## room, wherever and in whatever its style says, and on the near apron in the House's paint where
+## it says nothing, and returns the word.
 static func put_up(arena: Arena, words: String) -> HouseWord:
 	var word := HouseWord.new()
 	word.name = "HouseWord"

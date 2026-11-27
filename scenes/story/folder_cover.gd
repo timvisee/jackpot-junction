@@ -25,7 +25,7 @@ static func draw_front(canvas: CanvasItem, rect: Rect2) -> void:
 	var unit := rect.size.x / WIDE
 	var size := maxi(roundi(MARKER_SIZE * unit), 6)
 	var font := NotePage.MARKER
-	var words := StoryLines.FOLDER_FRONT
+	var words := Lang.t(StoryLines.FOLDER_FRONT)
 	var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	# Written as big as fits across the cover with a margin either side.
 	while size > 6 and wide > rect.size.x * MARKER_SHARE:

@@ -53,17 +53,19 @@ const FLIP_FASTEST := 0.07
 ## Room kept round the folder on the screen, for the line under it.
 const ROOM := Vector2(32.0, 124.0)
 const SETTLE_MS := 150
-## How wide the arrows either side of Put it away are.
+## How wide the arrows either side of Put it away are; and the hints under the folder and Look
+## closer's word, shown through tr().
 const ARROW_WIDTH := 88.0
 const AWAY_MOUSE := "Click a note to look closer, or right-click to put the folder away"
 const AWAY_TOUCH := "Tap a page to turn it, or beside the folder to put it away"
 const LOOK_WORD := "Look closer"
 ## How wide Look closer and Put it away are, a magnifying glass and a cross on them rather than
-## their words, which are their tooltips.
+## their words, which are their tooltips, shown through tr().
 const LOOK_WIDTH := 136.0
 const AWAY_WORD := "Put it away"
-## A page of the spread open, as a screen reader is told it: its number and its note's title.
-const PAGE_SAID := "Page %d: %s"
+## A page of the spread open, as a screen reader is told it: its number and its note's title, shown
+## through tr().
+const PAGE_SAID := "Page {page}: {title}"
 
 ## Whose notes, the notes in order, and which spread is open: 0 the first, the inside of the cover
 ## on the left and the first note on the right.
@@ -267,7 +269,7 @@ func _draw_inside(side: Control) -> void:
 ## A turning leaf: its front a page and its back the page on the other side of it, each drawn into
 ## a picture of its own as a turn begins, as the theory book's are.
 func _leaf_over() -> TextureRect:
-	_leaf = _turning_rect("Leaf", PAGE, EDGE, GUTTER * 0.5)
+	_leaf = _turning_rect("Leaf", PAGE, EDGE, GUTTER * 0.5)  # NO_TRANSLATE
 	_faces = _faces_of(_leaf, PAGE)
 	return _leaf
 
@@ -275,7 +277,7 @@ func _leaf_over() -> TextureRect:
 ## The cover, swinging open over the spine and shut again: its front, see [FolderCover], and its
 ## manila inside.
 func _cover_over() -> TextureRect:
-	_cover = _turning_rect("Cover", COVER, 0.0, 0.0)
+	_cover = _turning_rect("Cover", COVER, 0.0, 0.0)  # NO_TRANSLATE
 	var faces := _faces_of(_cover, COVER)
 	var front := Control.new()
 	front.size = COVER
@@ -361,7 +363,7 @@ func _buttons() -> HBoxContainer:
 	look.name = "Look"
 	look.icon = HouseArt.magnifier()
 	look.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	look.tooltip_text = LOOK_WORD
+	look.tooltip_text = tr(LOOK_WORD)
 	look.custom_minimum_size.x = LOOK_WIDTH
 	look.focus_mode = Control.FOCUS_NONE
 	look.pressed.connect(look_closer)
@@ -371,7 +373,7 @@ func _buttons() -> HBoxContainer:
 	away.name = "Away"
 	away.icon = HouseArt.cross()
 	away.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	away.tooltip_text = AWAY_WORD
+	away.tooltip_text = tr(AWAY_WORD)
 	away.custom_minimum_size.x = LOOK_WIDTH
 	away.focus_mode = Control.FOCUS_NONE
 	away.pressed.connect(close)
@@ -541,12 +543,12 @@ func _show(spread: int) -> void:
 ## whether the note is new.
 func _spread_words() -> String:
 	var said := PackedStringArray()
-	var fresh := ScreenReader.spoken(CatalogCell.NEW)
+	var fresh := ScreenReader.spoken(tr(CatalogCell.NEW))
 	for index: int in [left_of(at), right_of(at)]:
 		if index < 0 or index >= pages.size():
 			continue
 		var number := pages[index]
-		var page := PAGE_SAID % [index + 1, StoryNotes.title_of(number)]
+		var page := tr(PAGE_SAID).format({"page": index + 1, "title": StoryNotes.title_of(number)})
 		said.append(ScreenReader.line([page, fresh if profile.story.is_new(number) else ""]))
 	return ScreenReader.line(said)
 
@@ -972,9 +974,9 @@ func say_away() -> void:
 		old.queue_free()
 	var row: Control
 	if TouchInput.enabled:
-		row = MenuTheme.subtitle(AWAY_TOUCH, Type.LABEL)
+		row = MenuTheme.subtitle(tr(AWAY_TOUCH), Type.LABEL)
 	elif _pointer:
-		row = MenuTheme.subtitle(AWAY_MOUSE, Type.LABEL)
+		row = MenuTheme.subtitle(tr(AWAY_MOUSE), Type.LABEL)
 	else:
 		return
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)

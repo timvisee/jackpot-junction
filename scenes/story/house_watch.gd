@@ -269,7 +269,7 @@ func _go_green() -> void:
 static func approved(named: String) -> Label3D:
 	var stamp := Label3D.new()
 	stamp.name = "Approved"
-	stamp.text = StoryLines.JUNCTION_APPROVED % named
+	stamp.text = Lang.t(StoryLines.JUNCTION_APPROVED) % named
 	stamp.font = Type.display_font()
 	stamp.font_size = 72
 	stamp.pixel_size = 0.009

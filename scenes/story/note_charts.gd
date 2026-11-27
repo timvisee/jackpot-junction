@@ -14,7 +14,8 @@ const GOLD := NotePaper.HOUSE_GOLD
 const FEED_RADIUS := 3.0
 const FEED_GAP := 18.0
 ## Note 13's traits and note 5's weeks, each as the note's own lines have them; the pie's colours, a
-## muted set that sits on aged paper.
+## muted set that sits on aged paper. The traits go by their names, each shown in the language
+## spoken by [method StorySlip.named]. NO_TRANSLATE
 const TRAITS := [
 	["BALANCED", 40],
 	["GREEDY", 15],
@@ -64,7 +65,8 @@ static func dress(page: NotePage, rect: Rect2, inside: Rect2) -> Rect2:
 ## Note 13 as a pie of participant types, with a legend and the unclassified sliver spelled out.
 static func _traits(canvas: CanvasItem, rect: Rect2) -> void:
 	var ink := NotePage.TYPED_INK
-	_print(canvas, rect.position + Vector2(18.0, 32.0), "HOUSE MEMO · PARTICIPANT TRAITS", 11)
+	var head := Lang.t("HOUSE MEMO · PARTICIPANT TRAITS")
+	_print(canvas, rect.position + Vector2(18.0, 32.0), head, 11)
 	var center := rect.position + Vector2(118.0, 190.0)
 	var angle := -PI * 0.5
 	for i: int in TRAITS.size():
@@ -82,16 +84,16 @@ static func _traits(canvas: CanvasItem, rect: Rect2) -> void:
 		var box := Rect2(rect.position.x + 232.0, ly, 14.0, 14.0)
 		canvas.draw_rect(box, TRAIT_COLORS[i])
 		canvas.draw_rect(box, ink, false, 1.2)
-		_print(
-			canvas, box.position + Vector2(22.0, 12.0), "%s %d%%" % [TRAITS[i][0], TRAITS[i][1]], 10
-		)
+		var named := StorySlip.named(str(TRAITS[i][0]))
+		_print(canvas, box.position + Vector2(22.0, 12.0), "%s %d%%" % [named, TRAITS[i][1]], 10)
 		ly += 22.0
-	_print(canvas, Vector2(rect.position.x + 18.0, rect.end.y - 18.0), "UNCLASSIFIED: UNDER 1%", 10)
+	var rest := Lang.t("UNCLASSIFIED: UNDER 1%")
+	_print(canvas, Vector2(rect.position.x + 18.0, rect.end.y - 18.0), rest, 10)
 
 
 ## Note 5 as a bar chart of staff on duty falling to zero, the last week automated.
 static func _rota(canvas: CanvasItem, rect: Rect2) -> void:
-	_print(canvas, rect.position + Vector2(18.0, 28.0), "TABLE 0001 · STAFF ON DUTY", 11)
+	_print(canvas, rect.position + Vector2(18.0, 28.0), Lang.t("TABLE 0001 · STAFF ON DUTY"), 11)
 	var base := rect.end.y - 70.0
 	var top := rect.position.y + 52.0
 	var x0 := rect.position.x + 40.0
@@ -104,16 +106,18 @@ static func _rota(canvas: CanvasItem, rect: Rect2) -> void:
 				Rect2(bx, base - h, 32.0, h), STAFF_GONE.lerp(STAFF_FULL, float(v) / 31.0)
 			)
 			canvas.draw_rect(Rect2(bx, base - h, 32.0, h), NotePage.TYPED_INK, false, 1.2)
-		_print(canvas, Vector2(bx - 2.0, base + 15.0), "WK " + str(WEEKS[i][0]), 9)
+		# TRANSLATORS: A week under a bar of a chart, short for WEEK: WK 9.
+		_print(canvas, Vector2(bx - 2.0, base + 15.0), Lang.t("WK %s") % WEEKS[i][0], 9)
 		_print(canvas, Vector2(bx + 8.0, base - h - 5.0), str(v), 10)
 	canvas.draw_line(
 		Vector2(x0 - 10.0, base), Vector2(rect.end.x - 14.0, base), NotePage.TYPED_INK, 1.2
 	)
-	_print(canvas, Vector2(x0 + 222.0, base + 30.0), "AUTOMATED", 9, Color(0.6, 0.2, 0.2))
+	var automated := Lang.t("AUTOMATED")
+	_print(canvas, Vector2(x0 + 222.0, base + 30.0), automated, 9, Color(0.6, 0.2, 0.2))
 	canvas.draw_string(
 		NotePage.HAND,
 		Vector2(rect.position.x + 18.0, rect.end.y - 12.0),
-		"Advisory (unpaid): 1. —K.",
+		Lang.t("Advisory (unpaid): 1. —K."),
 		0,
 		-1,
 		18,
@@ -137,6 +141,7 @@ static func _letterhead(canvas: CanvasItem, rect: Rect2, shine := false) -> floa
 		star.append(seal + Vector2.from_angle(-PI * 0.5 + TAU * float(i) / 10.0) * reach)
 	canvas.draw_colored_polygon(star, gold)
 	var name_at := Vector2(rect.position.x, seal.y + 30.0 * scale)
+	# The game's name, as it is in every language. NO_TRANSLATE
 	canvas.draw_string(
 		NotePage.TYPED, name_at, "JACKPOT JUNCTION", 1, rect.size.x, int(11 * scale), gold
 	)
@@ -154,29 +159,34 @@ static func letterhead_shine(canvas: CanvasItem, rect: Rect2) -> void:
 
 ## Note 16 as a dashboard of target meters, green within and red below, oversight bottomed at zero.
 static func _dashboard(canvas: CanvasItem, rect: Rect2) -> void:
-	_print(canvas, rect.position + Vector2(18.0, 32.0), "HOUSE OPERATIONS · DAILY STATEMENT", 11)
+	var head := Lang.t("HOUSE OPERATIONS · DAILY STATEMENT")
+	_print(canvas, rect.position + Vector2(18.0, 32.0), head, 11)
+	# Each meter: its label, its reading, a count or words, how full it is and its color, the words
+	# shown through tr().
 	var rows := [
-		["TABLES OPEN", "1,204,388", 1.0, STAFF_FULL],
-		["PARTICIPANTS", "9,811,450", 1.0, STAFF_FULL],
+		["TABLES OPEN", 1204388, 1.0, STAFF_FULL],
+		["PARTICIPANTS", 9811450, 1.0, STAFF_FULL],
 		["ECONOMIC ACTIVITY", "WITHIN TARGET", 0.8, STAFF_FULL],
 		["SOCIAL STABILITY", "WITHIN TARGET", 0.74, STAFF_FULL],
 		["PREDICTION QUALITY", "BELOW TARGET", 0.36, STAFF_GONE],
-		["HUMAN OVERSIGHT", "0", 0.0, STAFF_GONE],
+		["HUMAN OVERSIGHT", 0, 0.0, STAFF_GONE],
 	]
 	var y := rect.position.y + 58.0
 	for row: Array in rows:
-		_print(canvas, Vector2(rect.position.x + 18.0, y + 10.0), str(row[0]), 9)
+		_print(canvas, Vector2(rect.position.x + 18.0, y + 10.0), Lang.t(str(row[0])), 9)
 		var track := Rect2(rect.position.x + 150.0, y, 108.0, 12.0)
 		canvas.draw_rect(track, Color(0.0, 0.0, 0.0, 0.06))
 		canvas.draw_rect(Rect2(track.position, Vector2(track.size.x * float(row[2]), 12.0)), row[3])
 		canvas.draw_rect(track, NotePage.TYPED_INK, false, 1.0)
-		_print(canvas, Vector2(track.end.x + 8.0, y + 10.0), str(row[1]), 8)
+		var reading := Lang.t(row[1]) if row[1] is String else Lang.number(int(row[1]))
+		_print(canvas, Vector2(track.end.x + 8.0, y + 10.0), reading, 8)
 		y += 40.0
 
 
 ## Note 18 as a line of prediction quality falling below a red target.
 static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
-	_print(canvas, rect.position + Vector2(18.0, 30.0), "HOUSE MEMO · PREDICTION QUALITY", 10)
+	var head := Lang.t("HOUSE MEMO · PREDICTION QUALITY")
+	_print(canvas, rect.position + Vector2(18.0, 30.0), head, 10)
 	var plot := Rect2(rect.position + Vector2(40.0, 56.0), Vector2(rect.size.x - 70.0, 140.0))
 	canvas.draw_line(plot.position, Vector2(plot.position.x, plot.end.y), NotePage.TYPED_INK, 1.2)
 	canvas.draw_line(Vector2(plot.position.x, plot.end.y), plot.end, NotePage.TYPED_INK, 1.2)
@@ -184,7 +194,7 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 	canvas.draw_dashed_line(
 		Vector2(plot.position.x, target), Vector2(plot.end.x, target), STAFF_GONE, 1.4, 5.0
 	)
-	_print(canvas, Vector2(plot.end.x - 76.0, target - 4.0), "TARGET", 8, STAFF_GONE)
+	_print(canvas, Vector2(plot.end.x - 76.0, target - 4.0), Lang.t("TARGET"), 8, STAFF_GONE)
 	var at := [0.12, 0.2, 0.3, 0.46, 0.6, 0.78]
 	var line := PackedVector2Array()
 	for i: int in at.size():
@@ -198,7 +208,7 @@ static func _linegraph(canvas: CanvasItem, rect: Rect2) -> void:
 	_print(
 		canvas,
 		Vector2(rect.position.x + 18.0, rect.end.y - 18.0),
-		"MODELS CONVERGING. BELOW TARGET.",
+		Lang.t("MODELS CONVERGING. BELOW TARGET."),
 		9
 	)
 
@@ -216,7 +226,7 @@ static func overlay(page: NotePage, rect: Rect2, spans: Array) -> void:
 			_redact(page, spans[int(i)])
 	var mark := str(note.get("watermark", ""))
 	if not mark.is_empty():
-		_watermark(page, rect, mark)
+		_watermark(page, rect, Lang.t(mark))
 
 
 ## The sprocket holes of continuous-form paper, their centres down both edges, for the track to be

@@ -31,7 +31,7 @@ var _line: Control
 static func down_on(page: Control, line: Control) -> NotedStamp:
 	var stamp := NotedStamp.new()
 	stamp.name = "Declined"
-	var parts := StoryLines.EVALUATION_DECLINED.split("  ·  ", false, 1)
+	var parts := Lang.t(StoryLines.EVALUATION_DECLINED).split("  ·  ", false, 1)
 	stamp.big = parts[0]
 	stamp.small = parts[1] if parts.size() > 1 else ""
 	stamp._over = page

@@ -49,7 +49,7 @@ static func feed(holder: Control, of: Profile, from: float) -> ApprovalRecord:
 
 func _ready() -> void:
 	for line: Array in StoryLines.APPROVAL_RECORD:
-		_lines.append([str(line[0]), str(line[1])])
+		_lines.append([tr(str(line[0])), tr(str(line[1]))])
 	size = Vector2(WIDTH, HEAD + STEP * float(_lines.size()) + ROOM)
 	_place()
 	get_parent().resized.connect(_place)
@@ -126,7 +126,7 @@ func _draw() -> void:
 	draw_polyline(edge, Color(HouseTheme.PAPER_LOW, 0.6), 1.5)
 	var font := NotePage.TYPED
 	var y := paper.position.y + 50.0
-	var title := StoryLines.APPROVAL_TITLE
+	var title := tr(StoryLines.APPROVAL_TITLE)
 	var wide := font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, TYPE).x
 	draw_string(
 		font,

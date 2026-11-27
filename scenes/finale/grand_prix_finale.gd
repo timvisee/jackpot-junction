@@ -379,7 +379,7 @@ func _the_run() -> Array[Array]:
 	if run == null:
 		return maps
 	for i: int in mini(run.playlist.size(), run.scored_round + 1):
-		var name := ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])]
+		var name := tr(ArenaMaps.NAMES[ArenaMaps.index_of(run.playlist[i])])
 		var winner: PlayerSlot = null
 		for slot: PlayerSlot in match_node.slots:
 			var places: Array = run.places.get(slot.index, [])
@@ -389,8 +389,14 @@ func _the_run() -> Array[Array]:
 		if winner == null:
 			maps.append([name, "", HousePieces.FOIL])
 		else:
-			maps.append([name, Teams.called(winner), winner.color()])
+			maps.append([name, _called(winner), winner.color()])
 	return maps
+
+
+## What [param slot] is called where a winner is named, see [method Teams.called]: its team by its
+## suit in the language spoken, or the player by the name they gave.
+func _called(slot: PlayerSlot) -> String:
+	return tr(Teams.name_of(slot.team)) if slot.team >= 0 else slot.display_name()
 
 
 ## The room's own lamp over the dance floor, as over its table, GAME.md 8.1, so the party is lit
@@ -420,7 +426,7 @@ func _hang_the_lamp(room: RoomLook) -> void:
 func _move_the_front_row() -> void:
 	var middle := DiscoLights.COUNT / 2 + 1
 	for i: int in range(DiscoLights.COUNT / 2, DiscoLights.COUNT):
-		for part: String in ["Post%d" % i, "Head%d" % i]:
+		for part: String in ["Post%d" % i, "Head%d" % i]:  # NO_TRANSLATE
 			var node := disco.get_node_or_null(NodePath(part)) as Node3D
 			if node != null:
 				node.position.z += RIG_FORWARD
@@ -530,7 +536,7 @@ func _rail_the_floor() -> void:
 func _place_the_smoke() -> void:
 	for side: float in [-1.0, 1.0]:
 		var machine := SmokeMachine.new()
-		machine.name = "SmokeMachine%s" % ("Left" if side < 0.0 else "Right")
+		machine.name = "SmokeMachine%s" % ("Left" if side < 0.0 else "Right")  # NO_TRANSLATE
 		machine.position = Vector3(side * SMOKE_AT.x, 0.0, SMOKE_AT.y)
 		# Toward the camera and a little out. A machine's nozzle is along its -Z.
 		machine.rotation.y = atan2(-side * sin(SMOKE_OUT), -cos(SMOKE_OUT))
@@ -655,11 +661,11 @@ func _print_the_ticket(board: Billboard, winner: PlayerSlot) -> void:
 	var room := head.size.x - 0.4
 	var lift := TICKET_THICK + 0.012
 	var header := HousePieces.words(
-		board.face, "GRAND PRIX CHAMPION", HEADER_SIZE, room, HousePieces.FOIL, lift
+		board.face, tr("GRAND PRIX CHAMPION"), HEADER_SIZE, room, HousePieces.FOIL, lift
 	)
 	header.position.y = -head.get_center().y
 	_champion = HousePieces.words(
-		board.face, Teams.called(winner), NAME_SIZE, room, winner.color(), lift
+		board.face, _called(winner), NAME_SIZE, room, winner.color(), lift
 	)
 	_champion.name = "Champion"
 	_champion.position.y = -body.get_center().y

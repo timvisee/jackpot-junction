@@ -37,7 +37,8 @@ static func over(hud: Node, of_number: int) -> HouseAmendment:
 	var notice := HouseAmendment.new()
 	notice.name = "HouseAmendment"
 	notice.number = of_number
-	notice.words = StoryLines.AMENDMENTS[clampi(of_number - 1, 0, StoryLines.AMENDMENTS.size() - 1)]
+	var at := clampi(of_number - 1, 0, StoryLines.AMENDMENTS.size() - 1)
+	notice.words = Lang.t(StoryLines.AMENDMENTS[at])
 	notice.custom_minimum_size = SLIP
 	notice.set_anchors_preset(Control.PRESET_CENTER)
 	notice.offset_left = -SLIP.x * 0.5
@@ -49,12 +50,9 @@ static func over(hud: Node, of_number: int) -> HouseAmendment:
 	if call != null:
 		call.put_away()
 	hud.add_child(notice)
-	ScreenReader.say(
-		notice,
-		ScreenReader.line(
-			[StoryLines.AMENDMENT % of_number, notice.words, StoryLines.AMENDMENT_UNDER]
-		)
-	)
+	var heading := Lang.t(StoryLines.AMENDMENT) % of_number
+	var under := Lang.t(StoryLines.AMENDMENT_UNDER)
+	ScreenReader.say(notice, ScreenReader.line([heading, notice.words, under]))
 	return notice
 
 
@@ -68,7 +66,7 @@ func _process(delta: float) -> void:
 	if _stamped_at < 0.0 and _age >= IN + READ and driving:
 		_stamped_at = _age
 		accepted.emit()
-		ScreenReader.say(self, StoryLines.TERMS_ACCEPTED)
+		ScreenReader.say(self, tr(StoryLines.TERMS_ACCEPTED))
 	var gone := _stamped_at >= 0.0 and _age > _stamped_at + LAND + AFTER
 	var fade := 1.0
 	if gone:
@@ -97,7 +95,7 @@ func _draw() -> void:
 	draw_string(
 		Type.micro_font(),
 		Vector2(ROOM, 44.0),
-		StoryLines.AMENDMENT % number,
+		tr(StoryLines.AMENDMENT) % number,
 		HORIZONTAL_ALIGNMENT_CENTER,
 		wide,
 		15,
@@ -109,7 +107,7 @@ func _draw() -> void:
 	draw_string(
 		typed,
 		Vector2(ROOM, 128.0),
-		StoryLines.AMENDMENT_UNDER,
+		tr(StoryLines.AMENDMENT_UNDER),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		wide,
 		16,
@@ -124,7 +122,7 @@ func _draw() -> void:
 func _draw_stamp(landed: float) -> void:
 	var font := Type.display_font()
 	var font_size := 34
-	var said := StoryLines.TERMS_ACCEPTED
+	var said := tr(StoryLines.TERMS_ACCEPTED)
 	var text := font.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size)
 	var box := Vector2(text.x + 36.0, text.y + 14.0)
 	var grow := lerpf(1.6, 1.0, ease(landed, 0.5))
