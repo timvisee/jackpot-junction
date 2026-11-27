@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Odometer</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M10.21,36.57A18,18 0 1 1 37.79,36.57" stroke-width="3.5"/>
+  <path class="line ink" d="M15.19,32.39L13.66,33.68M12.52,24.34L10.52,24.22M16.11,16.63L14.74,15.18M24,13.5L24,11.5M31.89,16.63L33.26,15.18M35.48,24.34L37.48,24.22M32.81,32.39L34.34,33.68" stroke-width="1.6"/>
+  <g class="piece tint">
+    <path class="body" d="M19.5,33H28.5A1.5,1.5 0 0 1 30,34.5V37A1.5,1.5 0 0 1 28.5,38.5H19.5A1.5,1.5 0 0 1 18,37V34.5A1.5,1.5 0 0 1 19.5,33Z"/>
+    <path class="cut" d="M22,33V38.5M26,33V38.5" stroke-width="1.2"/>
+  </g>
+  <path class="line ink" d="M24,25L32.5,16.5" stroke-width="2.5"/>
+  <g class="piece cream">
+    <path class="body" d="M20.8,25A3.2,3.2 0 1 0 27.2,25A3.2,3.2 0 1 0 20.8,25Z"/>
+  </g>
+</g>
+</svg>

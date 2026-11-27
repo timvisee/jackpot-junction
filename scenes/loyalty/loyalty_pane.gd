@@ -728,12 +728,13 @@ static func opens_by(profile: Profile, landmark: LoyaltyLandmark) -> String:
 ## the items, its part of the dress and any more, the Showroom, a loose note.
 static func pays_of(landmark: LoyaltyLandmark, ink := Color.WHITE) -> Array[Array]:
 	var paid: Array[Array] = []
+	var paper := LoyaltyArt.paper_ink(ink)
 	for id: StringName in landmark.jokers:
 		var joker := CATALOG.by_id(id)
 		var named := Lang.t(joker.display_name) if joker != null else String(id)
-		paid.append([Lang.t(CARD) % named, JokerArt.draw_into.bind(id, ink)])
+		paid.append([Lang.t(CARD) % named, JokerArt.draw_into.bind(id, ink, paper)])
 	for id: StringName in landmark.items:
-		paid.append([Lang.t(ITEM) % Lang.t(_item_name(id)), PowerUpArt.draw_into.bind(id, ink)])
+		paid.append([Lang.t(ITEM) % _item_name(id), PowerUpArt.draw_into.bind(id, ink, paper)])
 	var dress: Array[String] = []
 	if landmark.dress_part != &"":
 		dress.append("%s:%s" % [landmark.dress_part, landmark.dress])
@@ -758,7 +759,7 @@ static func pays_of(landmark: LoyaltyLandmark, ink := Color.WHITE) -> Array[Arra
 static func _item_name(id: StringName) -> String:
 	for item: PowerUp in FIRST.entries + LATER.entries:
 		if item.id == id:
-			return item.display_name
+			return Lang.t(item.display_name)
 	return String(id)
 
 

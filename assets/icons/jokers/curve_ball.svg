@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Curve Ball</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M20,24H23.5A2,2 0 0 1 25.5,26V41A2,2 0 0 1 23.5,43H20A2,2 0 0 1 18,41V26A2,2 0 0 1 20,24Z"/>
+  </g>
+  <path class="line ink" d="M7.5,40C7,22 14,12.5 23,12C30,11.6 34.5,16 35.5,21.5" stroke-width="3"/>
+  <g class="piece ink">
+    <path class="body" d="M39.2,20.98L36.12,25.99A0.4,0.4 0 0 1 35.45,26.01L32.13,21.38A0.6,0.6 0 0 1 32.58,20.43L38.65,20.07A0.6,0.6 0 0 1 39.2,20.98Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M30,35A6.5,6.5 0 1 0 43,35A6.5,6.5 0 1 0 30,35ZM33,35A3.5,3.5 0 1 0 40,35A3.5,3.5 0 1 0 33,35Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM26.5,32A7,7 0 1 0 40.5,32A7,7 0 1 0 26.5,32Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M34.9,35A1.6,1.6 0 1 0 38.1,35A1.6,1.6 0 1 0 34.9,35Z"/>
+  </g>
+</g>
+</svg>

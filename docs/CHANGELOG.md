@@ -56,6 +56,9 @@ below, and hands the notes to the release workflow.
   two of a name's 16 letters, as it is drawn about twice as wide.
 - **Chinese characters on a license plate.** A plate may also carry two of the characters a Chinese
   plate does: a province's short name, such as 京 or 粤, or 学 for a learner.
+- **Redrawn jokers and power-ups.** Every joker's and power-up's picture is redrawn as a house
+  print, flat inks with a halftone shadow side, all on one grid so the set reads as one. Oil Stain
+  no longer disappears on a dark card.
 
 ### Fixed
 

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Swivel Cannon</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M37.59,33.34A15,15 0 0 1 10.41,33.34" stroke-width="2.5"/>
+  <g class="piece tint">
+    <path class="body" d="M35.95,30.06L38.1,25.54A0.6,0.6 0 0 1 39.17,25.5L41.53,29.68A0.6,0.6 0 0 1 41.06,30.57L36.53,30.92A0.6,0.6 0 0 1 35.95,30.06Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M12.05,30.06L9.9,25.54A0.6,0.6 0 0 0 8.83,25.5L6.47,29.68A0.6,0.6 0 0 0 6.94,30.57L11.47,30.92A0.6,0.6 0 0 0 12.05,30.06Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14.5,27A9.5,9.5 0 1 0 33.5,27A9.5,9.5 0 1 0 14.5,27Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM11,24A10,10 0 1 0 31,24A10,10 0 1 0 11,24Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22.75,4H25.25A2,2 0 0 1 27.25,6V23A2,2 0 0 1 25.25,25H22.75A2,2 0 0 1 20.75,23V6A2,2 0 0 1 22.75,4Z"/>
+    <path class="shade" d="M24.5,-20H70V70H24.5Z"/>
+    <path class="glint" d="M23,8V16"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M21,27A3,3 0 1 0 27,27A3,3 0 1 0 21,27Z"/>
+  </g>
+</g>
+</svg>

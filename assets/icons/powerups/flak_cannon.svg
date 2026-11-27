@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Flak Cannon</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M22,17.62L23.25,14.12A0.8,0.8 0 0 1 24.75,14.12L26,17.62A0.8,0.8 0 0 0 27.1,18.08L30.45,16.48A0.8,0.8 0 0 1 31.52,17.55L29.92,20.9A0.8,0.8 0 0 0 30.38,22L33.88,23.25A0.8,0.8 0 0 1 33.88,24.75L30.38,26A0.8,0.8 0 0 0 29.92,27.1L31.52,30.45A0.8,0.8 0 0 1 30.45,31.52L27.1,29.92A0.8,0.8 0 0 0 26,30.38L24.75,33.88A0.8,0.8 0 0 1 23.25,33.88L22,30.38A0.8,0.8 0 0 0 20.9,29.92L17.55,31.52A0.8,0.8 0 0 1 16.48,30.45L18.08,27.1A0.8,0.8 0 0 0 17.62,26L14.12,24.75A0.8,0.8 0 0 1 14.12,23.25L17.62,22A0.8,0.8 0 0 0 18.08,20.9L16.48,17.55A0.8,0.8 0 0 1 17.55,16.48L20.9,18.08A0.8,0.8 0 0 0 22,17.62Z"/>
+    <path class="shade" d="M26,-20H70V70H26Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M28.2,7.83A2.5,2.5 0 1 0 33.2,7.83A2.5,2.5 0 1 0 28.2,7.83Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M37.67,17.3A2.5,2.5 0 1 0 42.67,17.3A2.5,2.5 0 1 0 37.67,17.3Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M37.67,30.7A2.5,2.5 0 1 0 42.67,30.7A2.5,2.5 0 1 0 37.67,30.7Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M28.2,40.17A2.5,2.5 0 1 0 33.2,40.17A2.5,2.5 0 1 0 28.2,40.17Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M14.8,40.17A2.5,2.5 0 1 0 19.8,40.17A2.5,2.5 0 1 0 14.8,40.17Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M5.33,30.7A2.5,2.5 0 1 0 10.33,30.7A2.5,2.5 0 1 0 5.33,30.7Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M5.33,17.3A2.5,2.5 0 1 0 10.33,17.3A2.5,2.5 0 1 0 5.33,17.3Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M14.8,7.83A2.5,2.5 0 1 0 19.8,7.83A2.5,2.5 0 1 0 14.8,7.83Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M21,24A3,3 0 1 0 27,24A3,3 0 1 0 21,24Z"/>
+  </g>
+</g>
+</svg>

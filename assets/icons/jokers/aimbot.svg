@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Aimbot</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M9,24A15,15 0 1 0 39,24A15,15 0 1 0 9,24ZM12,24A12,12 0 1 0 36,24A12,12 0 1 0 12,24Z" fill-rule="evenodd"/>
+    <path class="glint" d="M11.31,19.38A13.5,13.5 0 0 1 18.29,11.76"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M24,4H24A1.5,1.5 0 0 1 25.5,5.5V15.5A1.5,1.5 0 0 1 24,17H24A1.5,1.5 0 0 1 22.5,15.5V5.5A1.5,1.5 0 0 1 24,4Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M24,31H24A1.5,1.5 0 0 1 25.5,32.5V42.5A1.5,1.5 0 0 1 24,44H24A1.5,1.5 0 0 1 22.5,42.5V32.5A1.5,1.5 0 0 1 24,31Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M5.5,22.5H15.5A1.5,1.5 0 0 1 17,24V24A1.5,1.5 0 0 1 15.5,25.5H5.5A1.5,1.5 0 0 1 4,24V24A1.5,1.5 0 0 1 5.5,22.5Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M32.5,22.5H42.5A1.5,1.5 0 0 1 44,24V24A1.5,1.5 0 0 1 42.5,25.5H32.5A1.5,1.5 0 0 1 31,24V24A1.5,1.5 0 0 1 32.5,22.5Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M21.5,24A2.5,2.5 0 1 0 26.5,24A2.5,2.5 0 1 0 21.5,24Z"/>
+  </g>
+</g>
+</svg>

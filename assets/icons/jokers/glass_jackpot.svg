@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Glass Jackpot</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint" data-seam="false">
+    <path class="body" d="M17,11H31V14.5C37.5,17 41,22.5 41,29C41,37.5 33.5,44 24,44C14.5,44 7,37.5 7,29C7,22.5 10.5,17 17,14.5Z"/>
+    <path class="glint" d="M11.78,25.05A13,13 0 0 1 17.5,18.24"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13,37.5A5.5,2.5 0 1 0 24,37.5A5.5,2.5 0 1 0 13,37.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,37.5A5.5,2.5 0 1 0 35,37.5A5.5,2.5 0 1 0 24,37.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M18.5,32.5A5.5,2.5 0 1 0 29.5,32.5A5.5,2.5 0 1 0 18.5,32.5Z"/>
+  </g>
+  <path class="line ink" d="M17,11H31V14.5C37.5,17 41,22.5 41,29C41,37.5 33.5,44 24,44C14.5,44 7,37.5 7,29C7,22.5 10.5,17 17,14.5Z" stroke-width="2.5" data-seam="false"/>
+  <g class="piece ink">
+    <path class="body" d="M16.5,4H31.5A2,2 0 0 1 33.5,6V7.5A2,2 0 0 1 31.5,9.5H16.5A2,2 0 0 1 14.5,7.5V6A2,2 0 0 1 16.5,4Z"/>
+  </g>
+  <g class="cut-all">
+    <path class="cut" d="M30,13L26.5,20L31,24L26.5,29.5" stroke-width="1.5"/>
+  </g>
+</g>
+</svg>

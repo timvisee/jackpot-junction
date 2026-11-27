@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Pit Crew</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon" transform="rotate(45 24 24)">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M24,17H24A3.5,3.5 0 0 1 27.5,20.5V33.5A3.5,3.5 0 0 1 24,37H24A3.5,3.5 0 0 1 20.5,33.5V20.5A3.5,3.5 0 0 1 24,17Z"/>
+    <path class="glint" d="M22.5,21V31"/>
+  </g>
+  <g class="piece ink" data-seam="false">
+    <path class="body" d="M15.5,11A8.5,8.5 0 1 0 32.5,11A8.5,8.5 0 1 0 15.5,11Z"/>
+    <path class="shade" d="M27,-20H70V70H27Z"/>
+    <path class="cut" d="M26.27,5.98L28.18,9.3A0.4,0.4 0 0 1 28.18,9.7L26.27,13.02A0.4,0.4 0 0 1 25.92,13.22L22.08,13.22A0.4,0.4 0 0 1 21.73,13.02L19.82,9.7A0.4,0.4 0 0 1 19.82,9.3L21.73,5.98A0.4,0.4 0 0 1 22.08,5.78L25.92,5.78A0.4,0.4 0 0 1 26.27,5.98Z"/>
+    <path class="cut" d="M21.85,0H26.15A0,0 0 0 1 26.15,0V9.5A0,0 0 0 1 26.15,9.5H21.85A0,0 0 0 1 21.85,9.5V0A0,0 0 0 1 21.85,0Z"/>
+  </g>
+  <g class="piece ink" data-seam="false">
+    <path class="body" d="M18.5,39.5A5.5,5.5 0 1 0 29.5,39.5A5.5,5.5 0 1 0 18.5,39.5Z"/>
+    <path class="shade" d="M26.5,-20H70V70H26.5Z"/>
+    <path class="cut" d="M26.42,38.33L26.42,40.67A0.4,0.4 0 0 1 26.22,41.02L24.2,42.18A0.4,0.4 0 0 1 23.8,42.18L21.78,41.02A0.4,0.4 0 0 1 21.58,40.67L21.58,38.33A0.4,0.4 0 0 1 21.78,37.98L23.8,36.82A0.4,0.4 0 0 1 24.2,36.82L26.22,37.98A0.4,0.4 0 0 1 26.42,38.33Z"/>
+  </g>
+</g>
+</svg>

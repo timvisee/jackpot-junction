@@ -1,9 +1,10 @@
 class_name PowerUpArt
 extends RefCounted
-## A picture for every power-up, GAME.md 8.3a, drawn from the same vocabulary as the joker
-## pictures so the two sets read as one hand's work.
+## A picture for every power-up, GAME.md 8.3a: an SVG drawing of its own in
+## assets/icons/powerups, printed by [IconPress] the same way the jokers' are, so the two sets read
+## as one hand's work.
 ##
-## Each is drawn in the item's own color, which the item carries, so the picture never names a
+## Each is printed in the item's own color, which the item carries, so the picture never names a
 ## color itself. An item is picked up, held and played in a second or two, and a name read off
 ## the HUD in that time is a name read instead of a corner taken.
 
@@ -51,107 +52,14 @@ static func picture(id: StringName, ink: Color) -> Picture:
 	return art
 
 
-## Draws [param id]'s picture into [param box]. An id with no picture of its own gets a question
-## mark's worth of nothing: a plain disc, which is what an unknown item is.
-static func draw_into(on: CanvasItem, box: Rect2, id: StringName, ink: Color) -> void:
-	var dim := IconShapes.behind(ink)
-	match id:
-		&"bomb":
-			IconShapes.disc(on, box, 0.46, 0.62, 0.3, ink)
-			IconShapes.line(on, box, 0.62, 0.36, 0.76, 0.18, ink)
-			IconShapes.flame(on, box, 0.78, 0.22, 0.22, 20.0, dim)
-		&"boomerang":
-			IconShapes.line(on, box, 0.22, 0.26, 0.52, 0.56, ink)
-			IconShapes.line(on, box, 0.52, 0.56, 0.82, 0.26, ink)
-			IconShapes.arc(on, box, 0.52, 0.52, 0.32, 200.0, 340.0, dim)
-		&"boost":
-			for at: float in [0.28, 0.54]:
-				IconShapes.tri(on, box, at, 0.5, 0.42, 90.0, dim)
-			IconShapes.tri(on, box, 0.78, 0.5, 0.42, 90.0, ink)
-		&"bullet_wipe":
-			IconShapes.disc(on, box, 0.5, 0.5, 0.12, dim)
-			IconShapes.ring(on, box, 0.5, 0.5, 0.34, ink)
-			IconShapes.line(on, box, 0.26, 0.74, 0.74, 0.26, ink)
-		&"chain_lightning":
-			IconShapes.line(on, box, 0.34, 0.12, 0.52, 0.44, ink)
-			IconShapes.line(on, box, 0.52, 0.44, 0.34, 0.56, ink)
-			IconShapes.line(on, box, 0.34, 0.56, 0.6, 0.88, ink)
-		&"coin_magnet":
-			IconShapes.arc(on, box, 0.4, 0.6, 0.28, 180.0, 360.0, ink)
-			IconShapes.line(on, box, 0.12, 0.6, 0.12, 0.86, ink)
-			IconShapes.line(on, box, 0.68, 0.6, 0.68, 0.86, ink)
-			IconShapes.disc(on, box, 0.78, 0.26, 0.16, dim)
-		&"decoy_kart":
-			IconShapes.bar(on, box, 0.14, 0.3, 0.42, 0.4, dim)
-			IconShapes.bar(on, box, 0.44, 0.3, 0.42, 0.4, ink)
-		&"flak_cannon":
-			IconShapes.disc(on, box, 0.5, 0.5, 0.14, ink)
-			IconShapes.line(on, box, 0.5, 0.5, 0.18, 0.2, dim)
-			IconShapes.line(on, box, 0.5, 0.5, 0.82, 0.2, dim)
-			IconShapes.line(on, box, 0.5, 0.5, 0.16, 0.72, dim)
-			IconShapes.line(on, box, 0.5, 0.5, 0.84, 0.72, dim)
-			IconShapes.line(on, box, 0.5, 0.5, 0.5, 0.88, dim)
-		&"grenade":
-			IconShapes.disc(on, box, 0.46, 0.6, 0.34, ink)
-			IconShapes.bar(on, box, 0.42, 0.14, 0.16, 0.16, dim)
-			IconShapes.arc(on, box, 0.62, 0.22, 0.18, 200.0, 320.0, dim)
-		&"oil_stain":
-			IconShapes.bar(on, box, 0.12, 0.6, 0.76, 0.26, dim)
-			IconShapes.disc(on, box, 0.3, 0.72, 0.16, dim)
-			IconShapes.disc(on, box, 0.72, 0.72, 0.13, dim)
-			IconShapes.flame(on, box, 0.5, 0.48, 0.34, 180.0, ink)
-		&"proximity_mine":
-			IconShapes.disc(on, box, 0.5, 0.56, 0.28, dim)
-			IconShapes.disc(on, box, 0.5, 0.56, 0.1, ink)
-			IconShapes.line(on, box, 0.5, 0.1, 0.5, 0.3, ink)
-			IconShapes.line(on, box, 0.22, 0.32, 0.34, 0.42, dim)
-			IconShapes.line(on, box, 0.78, 0.32, 0.66, 0.42, dim)
-		&"ricochet_cannon":
-			IconShapes.bar(on, box, 0.78, 0.1, 0.12, 0.8, dim)
-			IconShapes.line(on, box, 0.12, 0.2, 0.74, 0.48, ink)
-			IconShapes.line(on, box, 0.74, 0.48, 0.16, 0.82, ink)
-		&"railgun":
-			IconShapes.bar(on, box, 0.12, 0.44, 0.64, 0.12, ink)
-			IconShapes.tri(on, box, 0.82, 0.5, 0.28, 90.0, ink)
-			IconShapes.line(on, box, 0.26, 0.28, 0.26, 0.72, dim)
-			IconShapes.line(on, box, 0.46, 0.28, 0.46, 0.72, dim)
-		&"rocket":
-			IconShapes.bar(on, box, 0.4, 0.32, 0.2, 0.36, ink)
-			IconShapes.tri(on, box, 0.5, 0.22, 0.28, 0.0, ink)
-			IconShapes.flame(on, box, 0.5, 0.78, 0.26, 180.0, dim)
-		&"scrambler":
-			IconShapes.ring(on, box, 0.5, 0.5, 0.32, dim)
-			IconShapes.line(on, box, 0.4, 0.2, 0.56, 0.48, ink)
-			IconShapes.line(on, box, 0.56, 0.48, 0.42, 0.56, ink)
-			IconShapes.line(on, box, 0.42, 0.56, 0.6, 0.82, ink)
-		&"shield":
-			IconShapes.shield(on, box, 0.5, 0.5, 0.36, ink)
-		&"spread_cannon":
-			IconShapes.bar(on, box, 0.42, 0.66, 0.16, 0.26, dim)
-			IconShapes.tri(on, box, 0.24, 0.34, 0.28, -26.0, ink)
-			IconShapes.tri(on, box, 0.5, 0.26, 0.28, 0.0, ink)
-			IconShapes.tri(on, box, 0.76, 0.34, 0.28, 26.0, ink)
-		&"sticky_bomb":
-			IconShapes.disc(on, box, 0.46, 0.58, 0.3, ink)
-			IconShapes.line(on, box, 0.2, 0.58, 0.08, 0.58, dim)
-			IconShapes.line(on, box, 0.72, 0.58, 0.84, 0.58, dim)
-			IconShapes.line(on, box, 0.46, 0.28, 0.46, 0.14, dim)
-			IconShapes.arc(on, box, 0.62, 0.2, 0.16, 200.0, 340.0, dim)
-		&"swivel_cannon":
-			IconShapes.arc(on, box, 0.5, 0.62, 0.34, 190.0, 350.0, dim)
-			IconShapes.bar(on, box, 0.42, 0.24, 0.16, 0.44, ink)
-			IconShapes.disc(on, box, 0.5, 0.68, 0.12, ink)
-		&"turret":
-			IconShapes.bar(on, box, 0.24, 0.6, 0.52, 0.26, dim)
-			IconShapes.disc(on, box, 0.5, 0.48, 0.18, ink)
-			IconShapes.bar(on, box, 0.44, 0.1, 0.12, 0.34, ink)
-		&"windfall":
-			IconShapes.disc(on, box, 0.5, 0.74, 0.3, dim)
-			IconShapes.disc(on, box, 0.5, 0.56, 0.26, ink)
-			IconShapes.disc(on, box, 0.5, 0.4, 0.2, dim)
-			IconShapes.disc(on, box, 0.5, 0.28, 0.14, ink)
-		_:
-			IconShapes.ring(on, box, 0.5, 0.5, 0.32, ink)
+## Draws [param id]'s picture into [param box], in [param ink]; [param paper] for a light ground,
+## where the ink is dark and the picture goes unshaded. An id with no drawing of its own gets a
+## plain ring, which is what an unknown item is, and which the tests keep from shipping.
+static func draw_into(
+	on: CanvasItem, box: Rect2, id: StringName, ink: Color, paper := false
+) -> void:
+	if not IconPress.draw(on, box, id, ink, paper):
+		IconShapes.ring(on, box, 0.5, 0.5, 0.32, ink)
 
 
 ## Every id this knows a picture for, so a test can hold the set to the item list.

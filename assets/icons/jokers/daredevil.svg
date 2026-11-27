@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Daredevil</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M17,7.5H25M20.5,11.5H26" stroke-width="1.5"/>
+  <g class="piece ink">
+    <path class="body" d="M30.5,6.75H33C39,6.75 43,8.13 45,9.5C43,10.88 39,12.25 33,12.25H30.5A1.5,1.5 0 0 1 29,10.75V8.25A1.5,1.5 0 0 1 30.5,6.75Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22,42.8C12.1,35.6 7,30.2 7,23.9C7,18.8 10.9,15.2 15.7,15.2C18.7,15.2 20.8,16.7 22,19.1C23.2,16.7 25.3,15.2 28.3,15.2C33.1,15.2 37,18.8 37,23.9C37,30.2 31.9,35.6 22,42.8Z"/>
+    <path class="shade" d="M26,-20H70V70H26Z"/>
+    <path class="glint" d="M10.07,22.22A4.5,4.5 0 0 1 13.72,18.57"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M15.61,34.13L14.99,33.34A3,3 0 0 1 15.51,29.13L24.18,22.36A3,3 0 0 1 28.39,22.87L29.01,23.66A3,3 0 0 1 28.49,27.87L19.82,34.64A3,3 0 0 1 15.61,34.13Z"/>
+    <path class="cut" d="M19.8,27.4A0.8,0.8 0 1 0 21.4,27.4A0.8,0.8 0 1 0 19.8,27.4Z"/>
+    <path class="cut" d="M22.6,29.6A0.8,0.8 0 1 0 24.2,29.6A0.8,0.8 0 1 0 22.6,29.6Z"/>
+    <path class="cut" d="M20.3,30.2A0.8,0.8 0 1 0 21.9,30.2A0.8,0.8 0 1 0 20.3,30.2Z"/>
+    <path class="cut" d="M22.1,26.8A0.8,0.8 0 1 0 23.7,26.8A0.8,0.8 0 1 0 22.1,26.8Z"/>
+  </g>
+</g>
+</svg>

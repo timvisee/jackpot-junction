@@ -5110,106 +5110,119 @@ everyone sees when an opponent cashes out.
 
 ### 8.3a Icons
 
-Two sets of flat pictograms: one per joker, in the middle of its card, and one per
-power-up, beside its name in the HUD block. They are built from one shared
-vocabulary, `scenes/ui/icon_shapes.gd`, which is what makes the two look like one
-hand's work; the recipes themselves are `scenes/ui/joker_art.gd` and
-`scenes/ui/power_up_art.gd`, one `match` arm per id.
+Two sets of pictures that read as one: one per joker, in the middle of its card,
+and one per power-up, beside its name in the HUD block. Each is an SVG file of
+its own, `assets/icons/jokers/<id>.svg` and `assets/icons/powerups/<id>.svg`,
+printed by `IconPress` (`scenes/ui/icon_press.gd`) in the ink it is handed, at
+the size it is shown. `JokerArt` and `PowerUpArt` are what the rest of the game
+calls; they hand an id and a color to the press. Kit's five cards keep his
+pencil, STORY.md 6.3, drawn by `KitArt` as before.
 
-They are drawn rather than loaded: a folder of PNGs would weigh something, would
-be cut for one size, and would have to be recolored for every kind and every
-item. `make jokers` puts every icon in the game on one screen, the power-ups
-first and then the cards, which is the only way to judge a set that is meant to
-look like a set.
+The set was redrawn on 2026-11-26 over four rounds of review, from five
+directions (flat cut, enamel pin, engraved, two-ink print, struck relief) down
+to a mix of the first and the fourth: the house printing its own pictures. Every
+icon was marked keep, tweak or redo, and the uncertain ones were picked from
+every version drawn of them.
 
-**The rules that make thirty drawings one set.** Break these and the card stops
-matching the others before anybody can say why.
+`make jokers` puts every icon in the game on one screen, the power-ups first and
+then the cards, which is the only way to judge a set that is meant to look like
+a set.
 
-- One subject, and at most two supporting shapes behind it. A card is read at a
-  glance from a hand of five, not studied, and an item is picked up and played
-  inside a couple of seconds.
+**The printing.** Three inks and no outline:
+
+- the subject in the ink handed in: a joker's is its kind's, a power-up's is the
+  item's own, so a picture never names a color itself;
+- the same ink at 40% for what the subject sits on, in or behind;
+- cream, `#F2EAD6`, for what is light: a flame's heart, a rocket's nose, a chip;
+- and the shadow side, along the lower right of every inked piece and wherever
+  a drawing marks a `shade`, as a halftone screen of the ink half-way to black.
+  The screen is the same in screen pixels at every size, a dot every 2.8 pixels
+  on a grid turned on its corner, the way a printer's screen is.
+
+`IconPress.PRINTING` says how the shadow side is printed: `FLAT` (not at all),
+`TONE` (a flat darker ink) or `HALFTONE`. One constant, so the whole set goes
+back to flat by changing one line.
+
+On paper, where the program prints them in its dark ink, a picture goes
+unshaded and its cream is the paper's own. Below 40 pixels a picture drops its
+shading and its glints, which would only blur it, and the halftone turns flat.
+An ink nearly as dark as the card, Oil Stain's purple, is lifted toward white
+until it reads.
+
+**The rules every drawing keeps.** They are what made the set one set; break one
+and the card stops matching before anybody can say why.
+
+- A 48-unit grid. Everything sits inside 4 to 44 and on whole or half units.
+  Round things fill a circle of 40, tall things an upright of 32 by 40, square
+  things a square of 36, so a ball and a bottle look the same size.
+- One corner: a radius of 2, or 1 on parts under 8 units. A corner is sharp
+  only where the object has a real point, a star's, a flame's tip, a blade's.
+- No loose overlaps. A piece in front cuts a gap of 1.5 round itself into
+  whatever is behind it, so a join reads as a cut and never as a pile.
+- One cut and one line: cut-out details are 1.5 wide, drawn lines 2.5.
+  Symmetric things are mirrored, so both halves match exactly.
+- One light, from the top left: the shadow side on the lower right, short cream
+  glints on the upper left.
+- One subject and at most two things behind it. A card is read at a glance from
+  a hand of five, and an item is played inside a couple of seconds.
 - No text. The name is already beside or under the picture.
-- No third color, no gradients, no outlines drawn around fills.
-- Nothing outside 0.06 to 0.94 of the box, so the picture never touches the frame.
-- Do not reuse a silhouette another card already owns. A round thing with a hole
-  in it is Aimbot's; a five-pointed star is Wild Card's; a burst is Road Rage's.
+- No silhouette another icon owns. A sight is Aimbot's, a five-pointed star Wild
+  Card's, a bolt Chain Lightning's.
 
-**The box.** Every picture is handed a square box and draws in fractions of it:
-`(0, 0)` is the top left corner, `(1, 1)` the bottom right, y downwards. Radii,
-spans and stroke widths are fractions of the box's shorter side. Nothing is in
-pixels, which is what lets the same recipe serve the card in the hand, the larger
-one in the respawn pick and anything else that asks for one.
+**The file.** A plain SVG on a 48 by 48 view box that opens in any editor or
+browser, where a small style sheet in it shows it flat. What each shape is goes in
+its class, and that is all the press reads:
 
-**The two colors.** A picture gets exactly two, both handed in:
-
-- `ink` is the subject: the thing the icon is about.
-- `dim` is the same color at 40% alpha, from `IconShapes.behind`, for whatever
-  the subject sits on, in or behind -- the die under its pips, the pipe behind the
-  flame, the road under the arrow.
-
-The color arrives from outside, so a picture never names one itself: a joker's is
-its kind's, a power-up's is the item's own. That is what keeps a Stat card steel,
-a Rule card gold and a Cursed card red without forty places having to know it.
-
-**The vocabulary.** Every picture in both sets is built from these and nothing
-else. All of them are on `IconShapes` and all take the canvas and the box first,
-which the examples below leave out for brevity.
-
-| Shape | Call | What it is for |
-|-------|------|----------------|
-| Disc | `_disc(x, y, r, ink)` | a solid round thing: a coin, a chip, a ball, a wheel, a pip |
-| Ring | `_ring(x, y, r, ink)` | the same hollow: a rim, a gate, a sight |
-| Arc | `_arc(x, y, r, from, to, ink)` | part of a circle, in degrees clockwise from east with y down: a guard, a wing, a skid, a sweep |
-| Line | `_line(x1, y1, x2, y2, ink)` | a stroke between two points |
-| Bar | `_bar(x, y, w, h, ink)` | a rounded rectangle from its top left: a body, a panel, a block, a slab |
-| Triangle | `_tri(x, y, span, facing, ink)` | a solid triangle centered on x, y, facing in degrees clockwise from up: an arrow head, a bullet tip, a beak |
-| Flame | `_flame(x, y, span, turn, ink)` | a teardrop standing on x, y with its tip `span` away, blowing `turn` degrees off straight up |
-| Shield | `_shield(x, y, span, ink)` | square shoulders tapering to a point |
-| Bolt | `_bolt(x, y, span, ink)` | a lightning bolt, for speed rather than for a thing |
-| Star | `_star(x, y, span, ink)` | five points, the house's own mark |
-| Burst | `_burst(x, y, span, ink)` | ten points, for something going off |
-
-Every line is `STROKE` thick, 5.5% of the box, so weights match across the set.
-Shield, bolt, star and burst are one-off silhouettes: each belongs to one card and
-is not to be borrowed. Star and burst are the same spiked ring at different point
-counts, so a third silhouette of that shape would be `_spiked` with new numbers
-rather than new code.
-
-**Adding a picture for a new joker or power-up.** The two go the same way; only
-the file and the list differ.
-
-1. Decide the one thing it is about, and check nothing owns that shape already.
-   Run `make jokers` and look.
-2. Add a `match` arm keyed on the id -- in `JokerArt.draw_into` for a joker,
-   `PowerUpArt.draw_into` for an item -- drawing the subject in `ink` and anything
-   it sits on or behind in `dim`. Build it out of the vocabulary above; if it
-   genuinely needs a shape that is not there, add the shape to `IconShapes` so the
-   next one can use it too, rather than drawing it inline.
-3. Add the id to that file's `known()`.
-4. Run the tests. `test_every_joker_has_a_picture_and_every_picture_has_a_joker`
-   and its power-up twin hold the two lists to each other in both directions: one
-   without a picture fails, and so does a picture left behind by something that
-   has gone. They are written out separately on purpose, since a list that derives
-   itself from the other cannot catch either mistake.
-5. Run `make jokers` again and look at it next to the rest.
-
-Anything with no arm of its own falls through: a joker gets the star and an item
-gets a plain ring, so a missing picture is a card that looks like Wild Card rather
-than a card with a hole in it. The test is what stops that shipping.
-
-**A worked example.** Nitro Habit is a bottle with a flame coming out of the
-bottom of it:
-
-```gdscript
-&"nitro_habit":
-    IconShapes.bar(on, box, 0.34, 0.24, 0.32, 0.6, dim)   # the bottle, behind
-    IconShapes.bar(on, box, 0.42, 0.12, 0.16, 0.14, dim)  # its neck, behind
-    IconShapes.flame(on, box, 0.5, 0.8, 0.3, 0.0, ink)    # the flame, the subject
+```xml
+<g class="icon" transform="rotate(45 24 24)">  <!-- the whole drawing turned, if it is -->
+  <g class="piece ink">                       <!-- ink, tint or cream -->
+    <path class="body" d="..."/>              <!-- the piece itself -->
+    <path class="shade" d="..."/>             <!-- more shadow side, inside the piece -->
+    <path class="glint" d="..."/>             <!-- a cream highlight stroke, 1.5 wide -->
+    <path class="cut" d="..."/>               <!-- cut out of it, filled -->
+    <path class="cut" d="..." stroke-width="1.5"/>  <!-- or a cut line -->
+  </g>
+  <path class="line tint" d="..." stroke-width="2.5"/>  <!-- a stroke -->
+  <g class="cut-all"><path class="cut" d="..." stroke-width="1.5"/></g>
+</g>
 ```
 
-Three shapes, two of them `dim` and one `ink`, everything between 0.12 and 0.84 of
-the box, and the only thing drawn in full color is the thing the card is named
-for.
+Pieces are printed in the order they come, each cutting its gap into those
+before it; `data-seam="false"` lays a piece straight on top, a hand on a dial,
+and `data-shade="false"` leaves an inked piece without its rim of shadow, for a
+thin part that would be all rim. A piece's `transform` places it; the press
+works the light out after it, so a turned rocket still has its shadow on the
+lower right. The files are kept by Godot as they are (their `.import` says
+`importer="keep"`), so an exported game ships the SVG itself.
+
+**How it prints.** The press reads a file once, writes the SVG for the ink, the
+ground and the size asked for, with every gap and cut as a mask, and has Godot
+rasterize it. Godot's SVG renderer draws no `<pattern>`, and a halftone of real
+dots is too slow to rasterize, so the shadow side is printed twice: the picture
+flat, then the shadow side alone as a mask, pulled in by under a pixel from every
+edge, and a tile of dots in the shadow's ink laid through it. Sizes come in steps
+about a quarter apart, from 16 to 1024 pixels, so a card growing in prints a few
+sizes rather than one a pixel, and every printing is kept: a picture is
+rasterized once for an ink and a size, a few milliseconds, then drawn as one
+texture.
+
+**Adding an icon for a new joker or power-up.**
+
+1. Decide the one thing it is about, and check nothing owns that silhouette.
+   Run `make jokers` and look.
+2. Copy the file of the nearest icon to `<id>.svg` in the right folder, with an
+   `.import` beside it saying `importer="keep"`, and draw on the grid by the
+   rules above.
+3. Add the id to `JokerArt.known()` or `PowerUpArt.known()`.
+4. Run the tests. `test_every_joker_has_a_picture_and_every_picture_has_a_joker`
+   and its power-up twin hold the lists to the catalog in both directions, and
+   `test_icon_press.gd` holds the files to the lists, reads every file and prints
+   every icon at a card's size and a HUD's.
+5. Run `make jokers` again and look at it next to the rest.
+
+An id with no file falls through: a joker gets Wild Card's picture and an item a
+plain ring, so a missing picture is a card that looks like Wild Card rather than
+a card with a hole in it. The tests are what stop that shipping.
 
 ### 8.3b How to hold the wheel
 

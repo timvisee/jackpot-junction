@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Sticky Bomb</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M21.5,4H26.5A1.5,1.5 0 0 1 28,5.5V7.5A1.5,1.5 0 0 1 26.5,9H21.5A1.5,1.5 0 0 1 20,7.5V5.5A1.5,1.5 0 0 1 21.5,4Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M10,21A14,14 0 0 1 38,21C38,26.5 35.5,30.8 33.2,32.8V38.5A2.4,2.4 0 0 1 28.4,38.5V34.8C27,35 25.6,35 24.6,35V41.3A2.4,2.4 0 0 1 19.8,41.3V34.5C18,34 16.6,33.4 15.2,32.6V35.6A2.4,2.4 0 0 1 10.4,35.6V27C10.1,25.2 10,23 10,21Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+    <path class="glint" d="M14.13,17.41A10.5,10.5 0 0 1 19.56,11.48"/>
+  </g>
+</g>
+</svg>

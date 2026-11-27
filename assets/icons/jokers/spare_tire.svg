@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Spare Tire</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M4,24A20,20 0 1 0 44,24A20,20 0 1 0 4,24ZM9.5,24A14.5,14.5 0 1 0 38.5,24A14.5,14.5 0 1 0 9.5,24Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM0.5,21A20.5,20.5 0 1 0 41.5,21A20.5,20.5 0 1 0 0.5,21Z" fill-rule="evenodd"/>
+    <path class="glint" d="M7.74,18.08A17.3,17.3 0 0 1 15.35,9.02"/>
+    <path class="cut" d="M45,24L41.69,24" stroke-width="1.3"/>
+    <path class="cut" d="M43.97,30.49L40.82,29.47" stroke-width="1.3"/>
+    <path class="cut" d="M40.99,36.34L38.31,34.4" stroke-width="1.3"/>
+    <path class="cut" d="M36.34,40.99L34.4,38.31" stroke-width="1.3"/>
+    <path class="cut" d="M30.49,43.97L29.47,40.82" stroke-width="1.3"/>
+    <path class="cut" d="M24,45L24,41.69" stroke-width="1.3"/>
+    <path class="cut" d="M17.51,43.97L18.53,40.82" stroke-width="1.3"/>
+    <path class="cut" d="M11.66,40.99L13.6,38.31" stroke-width="1.3"/>
+    <path class="cut" d="M7.01,36.34L9.69,34.4" stroke-width="1.3"/>
+    <path class="cut" d="M4.03,30.49L7.18,29.47" stroke-width="1.3"/>
+    <path class="cut" d="M3,24L6.31,24" stroke-width="1.3"/>
+    <path class="cut" d="M4.03,17.51L7.18,18.53" stroke-width="1.3"/>
+    <path class="cut" d="M7.01,11.66L9.69,13.6" stroke-width="1.3"/>
+    <path class="cut" d="M11.66,7.01L13.6,9.69" stroke-width="1.3"/>
+    <path class="cut" d="M17.51,4.03L18.53,7.18" stroke-width="1.3"/>
+    <path class="cut" d="M24,3L24,6.31" stroke-width="1.3"/>
+    <path class="cut" d="M30.49,4.03L29.47,7.18" stroke-width="1.3"/>
+    <path class="cut" d="M36.34,7.01L34.4,9.69" stroke-width="1.3"/>
+    <path class="cut" d="M40.99,11.66L38.31,13.6" stroke-width="1.3"/>
+    <path class="cut" d="M43.97,17.51L40.82,18.53" stroke-width="1.3"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M11,24A13,13 0 1 0 37,24A13,13 0 1 0 11,24Z"/>
+    <path class="cut" d="M28.9,15.75A1.1,1.1 0 1 0 31.1,15.75A1.1,1.1 0 1 0 28.9,15.75Z"/>
+    <path class="cut" d="M32.6,27.15A1.1,1.1 0 1 0 34.8,27.15A1.1,1.1 0 1 0 32.6,27.15Z"/>
+    <path class="cut" d="M22.9,34.2A1.1,1.1 0 1 0 25.1,34.2A1.1,1.1 0 1 0 22.9,34.2Z"/>
+    <path class="cut" d="M13.2,27.15A1.1,1.1 0 1 0 15.4,27.15A1.1,1.1 0 1 0 13.2,27.15Z"/>
+    <path class="cut" d="M16.9,15.75A1.1,1.1 0 1 0 19.1,15.75A1.1,1.1 0 1 0 16.9,15.75Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,29.82C20.04,26.94 18,24.78 18,22.26C18,20.22 19.56,18.78 21.48,18.78C22.68,18.78 23.52,19.38 24,20.34C24.48,19.38 25.32,18.78 26.52,18.78C28.44,18.78 30,20.22 30,22.26C30,24.78 27.96,26.94 24,29.82Z"/>
+  </g>
+</g>
+</svg>

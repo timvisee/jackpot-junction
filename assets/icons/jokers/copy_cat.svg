@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Copy Cat</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M24.87,11.5L17.13,11.5A3,3 0 0 1 15.15,10.76L9.42,5.75A1,1 0 0 0 7.77,6.38L6.24,18.99A9,9 0 0 0 6.64,22.92L8.43,28.29A6,6 0 0 0 10.42,31.11L14.64,34.43A5,5 0 0 0 17.73,35.5L24.27,35.5A5,5 0 0 0 27.36,34.43L31.58,31.11A6,6 0 0 0 33.57,28.29L35.36,22.92A9,9 0 0 0 35.76,18.99L34.23,6.38A1,1 0 0 0 32.58,5.75L26.85,10.76A3,3 0 0 1 24.87,11.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M30.87,17.5L23.13,17.5A3,3 0 0 1 21.15,16.76L15.42,11.75A1,1 0 0 0 13.77,12.38L12.24,24.99A9,9 0 0 0 12.64,28.92L14.43,34.29A6,6 0 0 0 16.42,37.11L20.64,40.43A5,5 0 0 0 23.73,41.5L30.27,41.5A5,5 0 0 0 33.36,40.43L37.58,37.11A6,6 0 0 0 39.57,34.29L41.36,28.92A9,9 0 0 0 41.76,24.99L40.23,12.38A1,1 0 0 0 38.58,11.75L32.85,16.76A3,3 0 0 1 30.87,17.5Z"/>
+    <path class="shade" d="M37,-20H70V70H37Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M19.4,28.5A2.6,3.1 0 1 0 24.6,28.5A2.6,3.1 0 1 0 19.4,28.5Z"/>
+    <path class="cut" d="M22,26.1H22A0.6,0.6 0 0 1 22.6,26.7V30.3A0.6,0.6 0 0 1 22,30.9H22A0.6,0.6 0 0 1 21.4,30.3V26.7A0.6,0.6 0 0 1 22,26.1Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M29.4,28.5A2.6,3.1 0 1 0 34.6,28.5A2.6,3.1 0 1 0 29.4,28.5Z"/>
+    <path class="cut" d="M32,26.1H32A0.6,0.6 0 0 1 32.6,26.7V30.3A0.6,0.6 0 0 1 32,30.9H32A0.6,0.6 0 0 1 31.4,30.3V26.7A0.6,0.6 0 0 1 32,26.1Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M26.54,34.96L26.14,34.49A0.6,0.6 0 0 1 26.6,33.5L27.4,33.5A0.6,0.6 0 0 1 27.86,34.49L27.46,34.96A0.6,0.6 0 0 1 26.54,34.96Z"/>
+  </g>
+</g>
+</svg>

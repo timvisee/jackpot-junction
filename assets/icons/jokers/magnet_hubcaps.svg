@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Magnet Hubcaps</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M38.97,12.3A19,19 0 0 1 38.97,35.7" stroke-width="2.5"/>
+  <path class="line tint" d="M9.03,35.7A19,19 0 0 1 9.03,12.3" stroke-width="2.5"/>
+  <g class="piece ink">
+    <path class="body" d="M9.5,24A14.5,14.5 0 1 0 38.5,24A14.5,14.5 0 1 0 9.5,24ZM13.5,24A10.5,10.5 0 1 0 34.5,24A10.5,10.5 0 1 0 13.5,24Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM6,21A15,15 0 1 0 36,21A15,15 0 1 0 6,21Z" fill-rule="evenodd"/>
+    <path class="glint" d="M12.25,19.72A12.5,12.5 0 0 1 18.72,12.67"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M15,24A9,9 0 1 0 33,24A9,9 0 1 0 15,24Z"/>
+    <path class="cut" d="M22.4,18.6A1.6,1.6 0 1 0 25.6,18.6A1.6,1.6 0 1 0 22.4,18.6Z"/>
+    <path class="cut" d="M27.54,22.33A1.6,1.6 0 1 0 30.74,22.33A1.6,1.6 0 1 0 27.54,22.33Z"/>
+    <path class="cut" d="M25.57,28.37A1.6,1.6 0 1 0 28.77,28.37A1.6,1.6 0 1 0 25.57,28.37Z"/>
+    <path class="cut" d="M19.23,28.37A1.6,1.6 0 1 0 22.43,28.37A1.6,1.6 0 1 0 19.23,28.37Z"/>
+    <path class="cut" d="M17.26,22.33A1.6,1.6 0 1 0 20.46,22.33A1.6,1.6 0 1 0 17.26,22.33Z"/>
+    <path class="cut" d="M22.4,24A1.6,1.6 0 1 0 25.6,24A1.6,1.6 0 1 0 22.4,24Z"/>
+  </g>
+</g>
+</svg>

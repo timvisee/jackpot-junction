@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Tight Grip</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M13,8.5H35A3,3 0 0 1 38,11.5V11.5A3,3 0 0 1 35,14.5H13A3,3 0 0 1 10,11.5V11.5A3,3 0 0 1 13,8.5Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13,16H35A3,3 0 0 1 38,19V19A3,3 0 0 1 35,22H13A3,3 0 0 1 10,19V19A3,3 0 0 1 13,16Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13,23.5H35A3,3 0 0 1 38,26.5V26.5A3,3 0 0 1 35,29.5H13A3,3 0 0 1 10,26.5V26.5A3,3 0 0 1 13,23.5Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13,31H35A3,3 0 0 1 38,34V34A3,3 0 0 1 35,37H13A3,3 0 0 1 10,34V34A3,3 0 0 1 13,31Z"/>
+    <path class="shade" d="M32,-20H70V70H32Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M21.2,5H26.8A1.2,1.2 0 0 1 28,6.2V38.8A1.2,1.2 0 0 1 26.8,40H21.2A1.2,1.2 0 0 1 20,38.8V6.2A1.2,1.2 0 0 1 21.2,5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M19.3,18.5H28.7A1.8,1.8 0 0 1 30.5,20.3V25.7A1.8,1.8 0 0 1 28.7,27.5H19.3A1.8,1.8 0 0 1 17.5,25.7V20.3A1.8,1.8 0 0 1 19.3,18.5Z"/>
+    <path class="cut" d="M21.5,21H26.5A1,1 0 0 1 27.5,22V24A1,1 0 0 1 26.5,25H21.5A1,1 0 0 1 20.5,24V22A1,1 0 0 1 21.5,21Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M8,39.5H40A2,2 0 0 1 42,41.5V41.5A2,2 0 0 1 40,43.5H8A2,2 0 0 1 6,41.5V41.5A2,2 0 0 1 8,39.5Z"/>
+  </g>
+</g>
+</svg>

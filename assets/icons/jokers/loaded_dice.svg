@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Loaded Dice</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M10.12,12.75L23.02,5.55A2,2 0 0 1 24.98,5.55L37.88,12.75A2,2 0 0 1 37.88,16.25L24.98,23.45A2,2 0 0 1 23.02,23.45L10.12,16.25A2,2 0 0 1 10.12,12.75Z"/>
+    <path class="cut" d="M21,14.5A3,1.7 0 1 0 27,14.5A3,1.7 0 1 0 21,14.5Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M7,32.33L7,17.91A2,2 0 0 1 9.98,16.16L22.98,23.43A2,2 0 0 1 24,25.17L24,39.59A2,2 0 0 1 21.02,41.34L8.02,34.07A2,2 0 0 1 7,32.33Z"/>
+    <path class="cut" d="M10.3,23A1.8,1.8 0 1 0 13.9,23A1.8,1.8 0 1 0 10.3,23Z"/>
+    <path class="cut" d="M17.1,34.4A1.8,1.8 0 1 0 20.7,34.4A1.8,1.8 0 1 0 17.1,34.4Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,39.59L24,25.17A2,2 0 0 1 25.02,23.43L38.02,16.16A2,2 0 0 1 41,17.91L41,32.33A2,2 0 0 1 39.98,34.07L26.98,41.34A2,2 0 0 1 24,39.59Z"/>
+    <path class="shade" d="M0,-20H70V70H0Z"/>
+    <path class="cut" d="M26.5,26.4A1.8,1.8 0 1 0 30.1,26.4A1.8,1.8 0 1 0 26.5,26.4Z"/>
+    <path class="cut" d="M30.7,28.8A1.8,1.8 0 1 0 34.3,28.8A1.8,1.8 0 1 0 30.7,28.8Z"/>
+    <path class="cut" d="M34.9,31.1A1.8,1.8 0 1 0 38.5,31.1A1.8,1.8 0 1 0 34.9,31.1Z"/>
+  </g>
+</g>
+</svg>

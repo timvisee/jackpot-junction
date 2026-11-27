@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Flush Draw</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M9.99,35.73L5.42,14.22A2.5,2.5 0 0 1 7.35,11.25L21.04,8.34A2.5,2.5 0 0 1 24.01,10.27L28.58,31.78A2.5,2.5 0 0 1 26.65,34.75L12.96,37.66A2.5,2.5 0 0 1 9.99,35.73Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M15.17,22.15C12.56,20.99 11.13,20 10.83,18.56C10.58,17.4 11.3,16.39 12.39,16.16C13.08,16.01 13.63,16.25 14.02,16.74C14.18,16.13 14.58,15.69 15.27,15.54C16.36,15.31 17.43,15.94 17.68,17.11C17.98,18.55 17.08,20.03 15.17,22.15Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M18.73,34.18L22.55,12.52A2.5,2.5 0 0 1 25.45,10.49L39.24,12.92A2.5,2.5 0 0 1 41.27,15.82L37.45,37.48A2.5,2.5 0 0 1 34.55,39.51L20.76,37.08A2.5,2.5 0 0 1 18.73,34.18Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M29.7,30.03C26.87,27.09 25.51,25.03 25.87,22.96C26.17,21.28 27.65,20.33 29.23,20.61C30.22,20.78 30.82,21.39 31.07,22.25C31.61,21.53 32.38,21.16 33.37,21.33C34.94,21.61 36.01,23.02 35.72,24.69C35.35,26.76 33.37,28.24 29.7,30.03Z"/>
+  </g>
+</g>
+</svg>

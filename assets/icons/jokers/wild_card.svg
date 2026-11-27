@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Wild Card</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M10.06,38.19L3.9,21.28A2.5,2.5 0 0 1 5.4,18.07L15.74,14.31A2.5,2.5 0 0 1 18.94,15.81L25.1,32.72A2.5,2.5 0 0 1 23.6,35.93L13.26,39.69A2.5,2.5 0 0 1 10.06,38.19Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M22.9,32.72L29.06,15.81A2.5,2.5 0 0 1 32.26,14.31L42.6,18.07A2.5,2.5 0 0 1 44.1,21.28L37.94,38.19A2.5,2.5 0 0 1 34.74,39.69L24.4,35.93A2.5,2.5 0 0 1 22.9,32.72Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M15,33.5L15,12.5A2.5,2.5 0 0 1 17.5,10L30.5,10A2.5,2.5 0 0 1 33,12.5L33,33.5A2.5,2.5 0 0 1 30.5,36L17.5,36A2.5,2.5 0 0 1 15,33.5Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M22.38,20.71L23.44,17.95A0.6,0.6 0 0 1 24.56,17.95L25.62,20.71A0.6,0.6 0 0 0 26.15,21.09L29.1,21.25A0.6,0.6 0 0 1 29.45,22.32L27.15,24.18A0.6,0.6 0 0 0 26.95,24.8L27.71,27.66A0.6,0.6 0 0 1 26.81,28.32L24.33,26.71A0.6,0.6 0 0 0 23.67,26.71L21.19,28.32A0.6,0.6 0 0 1 20.29,27.66L21.05,24.8A0.6,0.6 0 0 0 20.85,24.18L18.55,22.32A0.6,0.6 0 0 1 18.9,21.25L21.85,21.09A0.6,0.6 0 0 0 22.38,20.71Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Oil Stain</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M7,38C7,34.5 11.5,33 16,33.5C19,32 29,32 32,33.5C36.5,33 41,34.5 41,38C41,41.5 36,43 31,42.5C28,43.5 20,43.5 17,42.5C12,43 7,41.5 7,38Z"/>
+    <path class="shade" d="M-20,39H70V70H-20Z"/>
+    <path class="glint" d="M12.5,36.5C14.5,35.5 17,35.3 19,35.6"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M24,4C27.5,10.5 32,14.5 32,20C32,24.5 28.5,28 24,28C19.5,28 16,24.5 16,20C16,14.5 20.5,10.5 24,4Z"/>
+    <path class="shade" d="M26.5,-20H70V70H26.5Z"/>
+    <path class="glint" d="M19.5,20C19.5,17.5 20.5,15.5 22,13.5"/>
+  </g>
+</g>
+</svg>

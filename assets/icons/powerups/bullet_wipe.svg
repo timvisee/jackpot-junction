@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Bullet Wipe</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M11.5,19.5H26C32,19.5 36,21.75 38,24C36,26.25 32,28.5 26,28.5H11.5A1.5,1.5 0 0 1 10,27V21A1.5,1.5 0 0 1 11.5,19.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M5,24A19,19 0 1 0 43,24A19,19 0 1 0 5,24ZM9,24A15,15 0 1 0 39,24A15,15 0 1 0 9,24Z" fill-rule="evenodd"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM1.5,21A19.5,19.5 0 1 0 40.5,21A19.5,19.5 0 1 0 1.5,21Z" fill-rule="evenodd"/>
+    <path class="glint" d="M8.03,18.19A17,17 0 0 1 15.5,9.28"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M12.69,32.49L32.49,12.69A2,2 0 0 1 35.31,12.69L35.31,12.69A2,2 0 0 1 35.31,15.51L15.51,35.31A2,2 0 0 1 12.69,35.31L12.69,35.31A2,2 0 0 1 12.69,32.49Z"/>
+  </g>
+</g>
+</svg>

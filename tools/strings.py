@@ -31,7 +31,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SOURCES = ("scenes", "scripts")
 # Tools for making the store's pictures and trailers, never shown to a player, stay English.
 # Nor a debug build's own page for moving the story along, nor a dedicated server's web page.
-LEFT_OUT = ("scenes/dev/", "scenes/ui/story_debug_tab.gd", "scenes/server/server_web.gd")
+# Nor the house print's SVG, which the cards and the icons are drawn in and holds no words.
+LEFT_OUT = (
+    "scenes/dev/",
+    "scenes/ui/story_debug_tab.gd",
+    "scenes/server/server_web.gd",
+    "scenes/ui/card_print.gd",
+    "scenes/ui/icon_press.gd",
+)
 DATA = "data"
 LOCALE = os.path.join("data", "locale")
 TEMPLATE = os.path.join(LOCALE, "jackpot_junction.pot")

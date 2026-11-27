@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Chip Magnet</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M18.5,9A5.5,5.5 0 1 0 29.5,9A5.5,5.5 0 1 0 18.5,9Z"/>
+    <path class="cut" d="M23.26,4.65L23.26,3A0.5,0.5 0 0 1 23.76,2.5L24.24,2.5A0.5,0.5 0 0 1 24.74,3L24.74,4.65A0.5,0.5 0 0 1 24.24,5.15L23.76,5.15A0.5,0.5 0 0 1 23.26,4.65Z"/>
+    <path class="cut" d="M26.55,5.4L27.72,4.23A0.5,0.5 0 0 1 28.42,4.23L28.77,4.58A0.5,0.5 0 0 1 28.77,5.28L27.6,6.45A0.5,0.5 0 0 1 26.89,6.45L26.55,6.11A0.5,0.5 0 0 1 26.55,5.4Z"/>
+    <path class="cut" d="M28.35,8.26L30,8.26A0.5,0.5 0 0 1 30.5,8.76L30.5,9.24A0.5,0.5 0 0 1 30,9.74L28.35,9.74A0.5,0.5 0 0 1 27.85,9.24L27.85,8.76A0.5,0.5 0 0 1 28.35,8.26Z"/>
+    <path class="cut" d="M27.6,11.55L28.77,12.72A0.5,0.5 0 0 1 28.77,13.42L28.42,13.77A0.5,0.5 0 0 1 27.72,13.77L26.55,12.6A0.5,0.5 0 0 1 26.55,11.89L26.89,11.55A0.5,0.5 0 0 1 27.6,11.55Z"/>
+    <path class="cut" d="M24.74,13.35L24.74,15A0.5,0.5 0 0 1 24.24,15.5L23.76,15.5A0.5,0.5 0 0 1 23.26,15L23.26,13.35A0.5,0.5 0 0 1 23.76,12.85L24.24,12.85A0.5,0.5 0 0 1 24.74,13.35Z"/>
+    <path class="cut" d="M21.45,12.6L20.28,13.77A0.5,0.5 0 0 1 19.58,13.77L19.23,13.42A0.5,0.5 0 0 1 19.23,12.72L20.4,11.55A0.5,0.5 0 0 1 21.11,11.55L21.45,11.89A0.5,0.5 0 0 1 21.45,12.6Z"/>
+    <path class="cut" d="M19.65,9.74L18,9.74A0.5,0.5 0 0 1 17.5,9.24L17.5,8.76A0.5,0.5 0 0 1 18,8.26L19.65,8.26A0.5,0.5 0 0 1 20.15,8.76L20.15,9.24A0.5,0.5 0 0 1 19.65,9.74Z"/>
+    <path class="cut" d="M20.4,6.45L19.23,5.28A0.5,0.5 0 0 1 19.23,4.58L19.58,4.23A0.5,0.5 0 0 1 20.28,4.23L21.45,5.4A0.5,0.5 0 0 1 21.45,6.11L21.11,6.45A0.5,0.5 0 0 1 20.4,6.45Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M11.5,18H19.5V30.5A4.5,4.5 0 0 0 28.5,30.5V18H36.5V30.5A12.5,12.5 0 0 1 11.5,30.5Z"/>
+    <path class="shade" d="M27,-20H70V70H27Z"/>
+    <path class="glint" d="M14.5,24.5V31"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M12.5,18H18.5A1,1 0 0 1 19.5,19V22.5A1,1 0 0 1 18.5,23.5H12.5A1,1 0 0 1 11.5,22.5V19A1,1 0 0 1 12.5,18Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M29.5,18H35.5A1,1 0 0 1 36.5,19V22.5A1,1 0 0 1 35.5,23.5H29.5A1,1 0 0 1 28.5,22.5V19A1,1 0 0 1 29.5,18Z"/>
+  </g>
+</g>
+</svg>

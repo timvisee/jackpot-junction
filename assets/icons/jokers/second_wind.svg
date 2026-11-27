@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Second Wind</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M34.93,10.98A17,17 0 1 1 11.37,12.62" stroke-width="3"/>
+  <g class="piece ink">
+    <path class="body" d="M13.82,14.74L15.26,9.28A0.4,0.4 0 0 0 14.79,8.79L9.28,10.04A0.6,0.6 0 0 0 8.98,11.04L12.81,15.01A0.6,0.6 0 0 0 13.82,14.74Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M20.47,23.42L15.62,16.58A1,1 0 0 1 16.43,15L18.6,15A1,1 0 0 1 19.42,15.42L25.09,23.42A1,1 0 0 1 25.09,24.58L19.42,32.58A1,1 0 0 1 18.6,33L16.43,33A1,1 0 0 1 15.62,31.42L20.47,24.58A1,1 0 0 0 20.47,23.42Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M28.47,23.42L23.62,16.58A1,1 0 0 1 24.43,15L26.6,15A1,1 0 0 1 27.42,15.42L33.09,23.42A1,1 0 0 1 33.09,24.58L27.42,32.58A1,1 0 0 1 26.6,33L24.43,33A1,1 0 0 1 23.62,31.42L28.47,24.58A1,1 0 0 0 28.47,23.42Z"/>
+    <path class="shade" d="M-20,24H70V70H-20Z"/>
+  </g>
+</g>
+</svg>

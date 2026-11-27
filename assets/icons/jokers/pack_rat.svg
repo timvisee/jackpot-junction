@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Pack Rat</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M18,15V11A2,2 0 0 1 20,9H28A2,2 0 0 1 30,11V15" stroke-width="2.5"/>
+  <g class="piece ink">
+    <path class="body" d="M7,20C7,16.5 9.5,14 13,14H35C38.5,14 41,16.5 41,20C42.5,25 42.5,32 41,37C41,40.5 38.5,43 35,43H13C9.5,43 7,40.5 7,37C5.5,32 5.5,25 7,20Z"/>
+    <path class="shade" d="M34,-20H70V70H34Z"/>
+    <path class="glint" d="M9.5,35C8.8,31 8.8,26 9.5,22"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M14,13H16.5A1,1 0 0 1 17.5,14V43A1,1 0 0 1 16.5,44H14A1,1 0 0 1 13,43V14A1,1 0 0 1 14,13Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M31.5,13H34A1,1 0 0 1 35,14V43A1,1 0 0 1 34,44H31.5A1,1 0 0 1 30.5,43V14A1,1 0 0 1 31.5,13Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M13.2,25H17.3A1.2,1.2 0 0 1 18.5,26.2V29.8A1.2,1.2 0 0 1 17.3,31H13.2A1.2,1.2 0 0 1 12,29.8V26.2A1.2,1.2 0 0 1 13.2,25Z"/>
+    <path class="cut" d="M14.2,26.6H16.3A0.6,0.6 0 0 1 16.9,27.2V28.8A0.6,0.6 0 0 1 16.3,29.4H14.2A0.6,0.6 0 0 1 13.6,28.8V27.2A0.6,0.6 0 0 1 14.2,26.6Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M30.7,25H34.8A1.2,1.2 0 0 1 36,26.2V29.8A1.2,1.2 0 0 1 34.8,31H30.7A1.2,1.2 0 0 1 29.5,29.8V26.2A1.2,1.2 0 0 1 30.7,25Z"/>
+    <path class="cut" d="M31.7,26.6H33.8A0.6,0.6 0 0 1 34.4,27.2V28.8A0.6,0.6 0 0 1 33.8,29.4H31.7A0.6,0.6 0 0 1 31.1,28.8V27.2A0.6,0.6 0 0 1 31.7,26.6Z"/>
+  </g>
+</g>
+</svg>

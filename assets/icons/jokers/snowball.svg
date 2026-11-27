@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Snowball</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M4.5,18H10M4.5,25H9M5.5,32H11" stroke-width="2.5"/>
+  <g class="piece ink">
+    <path class="body" d="M14,25A14,14 0 1 0 42,25A14,14 0 1 0 14,25Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM10.5,22A14.5,14.5 0 1 0 39.5,22A14.5,14.5 0 1 0 10.5,22Z" fill-rule="evenodd"/>
+    <path class="glint" d="M18.13,21.41A10.5,10.5 0 0 1 24.41,15.13"/>
+  </g>
+</g>
+</svg>

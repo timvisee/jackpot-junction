@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Snake Eyes</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M7.73,35.16L5.65,25.38A3.5,3.5 0 0 1 8.34,21.23L18.12,19.15A3.5,3.5 0 0 1 22.27,21.84L24.35,31.62A3.5,3.5 0 0 1 21.66,35.77L11.88,37.85A3.5,3.5 0 0 1 7.73,35.16Z"/>
+    <path class="shade" d="M18,-20H70V70H18Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M23.76,22.95L25.5,13.1A3.5,3.5 0 0 1 29.55,10.26L39.4,12A3.5,3.5 0 0 1 42.24,16.05L40.5,25.9A3.5,3.5 0 0 1 36.45,28.74L26.6,27A3.5,3.5 0 0 1 23.76,22.95Z"/>
+    <path class="shade" d="M36,-20H70V70H36Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M12.2,28.5A2.8,2.8 0 1 0 17.8,28.5A2.8,2.8 0 1 0 12.2,28.5Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M30.2,19.5A2.8,2.8 0 1 0 35.8,19.5A2.8,2.8 0 1 0 30.2,19.5Z"/>
+  </g>
+</g>
+</svg>

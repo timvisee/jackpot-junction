@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Decoy Kart</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M5.5,9H6.5A1.5,1.5 0 0 1 8,10.5V15.5A1.5,1.5 0 0 1 6.5,17H5.5A1.5,1.5 0 0 1 4,15.5V10.5A1.5,1.5 0 0 1 5.5,9Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M19.5,9H20.5A1.5,1.5 0 0 1 22,10.5V15.5A1.5,1.5 0 0 1 20.5,17H19.5A1.5,1.5 0 0 1 18,15.5V10.5A1.5,1.5 0 0 1 19.5,9Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M5.5,30H6.5A1.5,1.5 0 0 1 8,31.5V37.5A1.5,1.5 0 0 1 6.5,39H5.5A1.5,1.5 0 0 1 4,37.5V31.5A1.5,1.5 0 0 1 5.5,30Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M19.5,30H20.5A1.5,1.5 0 0 1 22,31.5V37.5A1.5,1.5 0 0 1 20.5,39H19.5A1.5,1.5 0 0 1 18,37.5V31.5A1.5,1.5 0 0 1 19.5,30Z"/>
+  </g>
+  <g class="piece tint" data-shade="false">
+    <path class="body" d="M6.56,14.73L8.06,7.96A2.5,2.5 0 0 1 10.51,6L15.49,6A2.5,2.5 0 0 1 17.94,7.96L19.44,14.73A2.5,2.5 0 0 1 19.5,15.27L19.5,38.5A2.5,2.5 0 0 1 17,41L9,41A2.5,2.5 0 0 1 6.5,38.5L6.5,15.27A2.5,2.5 0 0 1 6.56,14.73Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M9.4,24A3.6,3.6 0 1 0 16.6,24A3.6,3.6 0 1 0 9.4,24Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M27.5,9H28.5A1.5,1.5 0 0 1 30,10.5V15.5A1.5,1.5 0 0 1 28.5,17H27.5A1.5,1.5 0 0 1 26,15.5V10.5A1.5,1.5 0 0 1 27.5,9Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M41.5,9H42.5A1.5,1.5 0 0 1 44,10.5V15.5A1.5,1.5 0 0 1 42.5,17H41.5A1.5,1.5 0 0 1 40,15.5V10.5A1.5,1.5 0 0 1 41.5,9Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M27.5,30H28.5A1.5,1.5 0 0 1 30,31.5V37.5A1.5,1.5 0 0 1 28.5,39H27.5A1.5,1.5 0 0 1 26,37.5V31.5A1.5,1.5 0 0 1 27.5,30Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M41.5,30H42.5A1.5,1.5 0 0 1 44,31.5V37.5A1.5,1.5 0 0 1 42.5,39H41.5A1.5,1.5 0 0 1 40,37.5V31.5A1.5,1.5 0 0 1 41.5,30Z"/>
+  </g>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M28.56,14.73L30.06,7.96A2.5,2.5 0 0 1 32.51,6L37.49,6A2.5,2.5 0 0 1 39.94,7.96L41.44,14.73A2.5,2.5 0 0 1 41.5,15.27L41.5,38.5A2.5,2.5 0 0 1 39,41L31,41A2.5,2.5 0 0 1 28.5,38.5L28.5,15.27A2.5,2.5 0 0 1 28.56,14.73Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M31.4,24A3.6,3.6 0 1 0 38.6,24A3.6,3.6 0 1 0 31.4,24Z"/>
+  </g>
+</g>
+</svg>

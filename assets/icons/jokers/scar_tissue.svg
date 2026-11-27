@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Scar Tissue</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M24,41.1C12.45,32.7 6.5,26.4 6.5,19.05C6.5,13.1 11.05,8.9 16.65,8.9C20.15,8.9 22.6,10.65 24,13.45C25.4,10.65 27.85,8.9 31.35,8.9C36.95,8.9 41.5,13.1 41.5,19.05C41.5,26.4 35.55,32.7 24,41.1Z"/>
+    <path class="shade" d="M29,-20H70V70H29Z"/>
+    <path class="glint" d="M10.08,17.54A5.5,5.5 0 0 1 14.08,13.19"/>
+    <path class="cut" d="M14,15.5L34,34.5" stroke-width="1.5"/>
+    <path class="cut" d="M15.9,21.5L20.1,17.1" stroke-width="1.4"/>
+    <path class="cut" d="M19.9,25.3L24.1,20.9" stroke-width="1.4"/>
+    <path class="cut" d="M23.9,29.1L28.1,24.7" stroke-width="1.4"/>
+    <path class="cut" d="M27.9,32.9L32.1,28.5" stroke-width="1.4"/>
+  </g>
+</g>
+</svg>

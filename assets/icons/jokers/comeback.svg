@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Comeback</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M13,8V24A11,11 0 0 0 35,24V15.5" stroke-width="5"/>
+  <g class="piece ink">
+    <path class="body" d="M28.7,12.9L34.52,5.14A0.6,0.6 0 0 1 35.48,5.14L41.3,12.9A1,1 0 0 1 40.5,14.5L29.5,14.5A1,1 0 0 1 28.7,12.9Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M19,24A5,5 0 1 0 29,24A5,5 0 1 0 19,24Z"/>
+    <path class="cut" d="M23.32,20L23.32,18.5A0.5,0.5 0 0 1 23.82,18L24.18,18A0.5,0.5 0 0 1 24.68,18.5L24.68,20A0.5,0.5 0 0 1 24.18,20.5L23.82,20.5A0.5,0.5 0 0 1 23.32,20Z"/>
+    <path class="cut" d="M26.35,20.69L27.41,19.63A0.5,0.5 0 0 1 28.12,19.63L28.37,19.88A0.5,0.5 0 0 1 28.37,20.59L27.31,21.65A0.5,0.5 0 0 1 26.6,21.65L26.35,21.4A0.5,0.5 0 0 1 26.35,20.69Z"/>
+    <path class="cut" d="M28,23.32L29.5,23.32A0.5,0.5 0 0 1 30,23.82L30,24.18A0.5,0.5 0 0 1 29.5,24.68L28,24.68A0.5,0.5 0 0 1 27.5,24.18L27.5,23.82A0.5,0.5 0 0 1 28,23.32Z"/>
+    <path class="cut" d="M27.31,26.35L28.37,27.41A0.5,0.5 0 0 1 28.37,28.12L28.12,28.37A0.5,0.5 0 0 1 27.41,28.37L26.35,27.31A0.5,0.5 0 0 1 26.35,26.6L26.6,26.35A0.5,0.5 0 0 1 27.31,26.35Z"/>
+    <path class="cut" d="M24.68,28L24.68,29.5A0.5,0.5 0 0 1 24.18,30L23.82,30A0.5,0.5 0 0 1 23.32,29.5L23.32,28A0.5,0.5 0 0 1 23.82,27.5L24.18,27.5A0.5,0.5 0 0 1 24.68,28Z"/>
+    <path class="cut" d="M21.65,27.31L20.59,28.37A0.5,0.5 0 0 1 19.88,28.37L19.63,28.12A0.5,0.5 0 0 1 19.63,27.41L20.69,26.35A0.5,0.5 0 0 1 21.4,26.35L21.65,26.6A0.5,0.5 0 0 1 21.65,27.31Z"/>
+    <path class="cut" d="M20,24.68L18.5,24.68A0.5,0.5 0 0 1 18,24.18L18,23.82A0.5,0.5 0 0 1 18.5,23.32L20,23.32A0.5,0.5 0 0 1 20.5,23.82L20.5,24.18A0.5,0.5 0 0 1 20,24.68Z"/>
+    <path class="cut" d="M20.69,21.65L19.63,20.59A0.5,0.5 0 0 1 19.63,19.88L19.88,19.63A0.5,0.5 0 0 1 20.59,19.63L21.65,20.69A0.5,0.5 0 0 1 21.65,21.4L21.4,21.65A0.5,0.5 0 0 1 20.69,21.65Z"/>
+  </g>
+</g>
+</svg>

@@ -150,14 +150,20 @@ static func draw_new_tags(on: CanvasItem, rects: Array[Rect2], zoom: float) -> v
 		on.draw_string(font, base, word, HORIZONTAL_ALIGNMENT_LEFT, -1, size, HouseTheme.ON_FOIL)
 
 
+## Whether a picture in [param ink] is printed on paper: the program draws its cards and items in
+## its dark ink on the map, the slip and the stamp, and in a light one on the blueprint's blue.
+static func paper_ink(ink: Color) -> bool:
+	return ink.get_luminance() < 0.5
+
+
 ## The picture of what [param landmark] pays, into [param box] on [param on] in [param ink]: the
 ## first of its cards or its items, or its part of the dress, the Showroom's roller door, a loose
 ## note's scrap, or for the slip road the program's card.
 static func draw_reward(on: CanvasItem, box: Rect2, landmark: LoyaltyLandmark, ink: Color) -> void:
 	if not landmark.jokers.is_empty():
-		JokerArt.draw_into(on, box, landmark.jokers[0], ink)
+		JokerArt.draw_into(on, box, landmark.jokers[0], ink, paper_ink(ink))
 	elif not landmark.items.is_empty():
-		PowerUpArt.draw_into(on, box, landmark.items[0], ink)
+		PowerUpArt.draw_into(on, box, landmark.items[0], ink, paper_ink(ink))
 	elif PARTS.has(landmark.dress_part):
 		DressArt.draw_into(on, box, PARTS[landmark.dress_part], ink)
 	elif landmark.showroom:

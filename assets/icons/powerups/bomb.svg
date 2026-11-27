@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Bomb</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M34,14C35.5,11 37,9.8 38.5,9.2" stroke-width="2.5"/>
+  <g class="piece ink" transform="translate(32.4,16.6) rotate(45)" data-shade="false">
+    <path class="body" d="M-3.5,-3H3.5A1,1 0 0 1 4.5,-2V2A1,1 0 0 1 3.5,3H-3.5A1,1 0 0 1 -4.5,2V-2A1,1 0 0 1 -3.5,-3Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M6,28A15,15 0 1 0 36,28A15,15 0 1 0 6,28Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM2.5,25A15.5,15.5 0 1 0 33.5,25A15.5,15.5 0 1 0 2.5,25Z" fill-rule="evenodd"/>
+    <path class="glint" d="M10.66,24.24A11,11 0 0 1 17.24,17.66"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M40.46,6.21L41,4L41.54,6.21L43.47,5.03L42.29,6.96L44.5,7.5L42.29,8.04L43.47,9.97L41.54,8.79L41,11L40.46,8.79L38.53,9.97L39.71,8.04L37.5,7.5L39.71,6.96L38.53,5.03L40.46,6.21Z"/>
+  </g>
+</g>
+</svg>

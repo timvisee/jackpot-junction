@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Guardian Angel</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M22,21C17.5,14.5 10.5,12 4.5,14.5C4.5,18.5 6,21.5 9,23C6.5,24 5.5,26.5 6,29C9,30 11.5,29.5 13.5,28.5C12.5,31 13,33.5 14.5,35.5C18.5,34 21,31 22,27Z"/>
+    <path class="shade" d="M-20,27H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M26,21C30.5,14.5 37.5,12 43.5,14.5C43.5,18.5 42,21.5 39,23C41.5,24 42.5,26.5 42,29C39,30 36.5,29.5 34.5,28.5C35.5,31 35,33.5 33.5,35.5C29.5,34 27,31 26,27Z"/>
+    <path class="shade" d="M-20,27H70V70H-20Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M24,35.06C20.37,32.42 18.5,30.44 18.5,28.13C18.5,26.26 19.93,24.94 21.69,24.94C22.79,24.94 23.56,25.49 24,26.37C24.44,25.49 25.21,24.94 26.31,24.94C28.07,24.94 29.5,26.26 29.5,28.13C29.5,30.44 27.63,32.42 24,35.06Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M15,8A9,3.4 0 1 0 33,8A9,3.4 0 1 0 15,8ZM18,8A6,1.6 0 1 0 30,8A6,1.6 0 1 0 18,8Z" fill-rule="evenodd"/>
+  </g>
+</g>
+</svg>

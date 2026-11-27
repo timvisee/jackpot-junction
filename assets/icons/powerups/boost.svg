@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Boost</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece tint">
+    <path class="body" d="M14.52,23.31L5.82,10.89A1.2,1.2 0 0 1 6.8,9L11.38,9A1.2,1.2 0 0 1 12.36,9.51L22.02,23.31A1.2,1.2 0 0 1 22.02,24.69L12.36,38.49A1.2,1.2 0 0 1 11.38,39L6.8,39A1.2,1.2 0 0 1 5.82,37.11L14.52,24.69A1.2,1.2 0 0 0 14.52,23.31Z"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M25.02,23.31L16.32,10.89A1.2,1.2 0 0 1 17.3,9L21.88,9A1.2,1.2 0 0 1 22.86,9.51L32.52,23.31A1.2,1.2 0 0 1 32.52,24.69L22.86,38.49A1.2,1.2 0 0 1 21.88,39L17.3,39A1.2,1.2 0 0 1 16.32,37.11L25.02,24.69A1.2,1.2 0 0 0 25.02,23.31Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M35.52,23.31L26.82,10.89A1.2,1.2 0 0 1 27.8,9L32.38,9A1.2,1.2 0 0 1 33.36,9.51L43.02,23.31A1.2,1.2 0 0 1 43.02,24.69L33.36,38.49A1.2,1.2 0 0 1 32.38,39L27.8,39A1.2,1.2 0 0 1 26.82,37.11L35.52,24.69A1.2,1.2 0 0 0 35.52,23.31Z"/>
+    <path class="shade" d="M-20,24H70V70H-20Z"/>
+  </g>
+</g>
+</svg>

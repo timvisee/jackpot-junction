@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Echo</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M4.5,24A10.5,10.5 0 1 0 25.5,24A10.5,10.5 0 1 0 4.5,24Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM1,21A11,11 0 1 0 23,21A11,11 0 1 0 1,21Z" fill-rule="evenodd"/>
+    <path class="cut" d="M13.58,16.15L13.58,13A0.5,0.5 0 0 1 14.08,12.5L15.92,12.5A0.5,0.5 0 0 1 16.42,13L16.42,16.15A0.5,0.5 0 0 1 15.92,16.65L14.08,16.65A0.5,0.5 0 0 1 13.58,16.15Z"/>
+    <path class="cut" d="M19.55,17.45L21.78,15.22A0.5,0.5 0 0 1 22.48,15.22L23.78,16.52A0.5,0.5 0 0 1 23.78,17.22L21.55,19.45A0.5,0.5 0 0 1 20.85,19.45L19.55,18.15A0.5,0.5 0 0 1 19.55,17.45Z"/>
+    <path class="cut" d="M22.85,22.58L26,22.58A0.5,0.5 0 0 1 26.5,23.08L26.5,24.92A0.5,0.5 0 0 1 26,25.42L22.85,25.42A0.5,0.5 0 0 1 22.35,24.92L22.35,23.08A0.5,0.5 0 0 1 22.85,22.58Z"/>
+    <path class="cut" d="M21.55,28.55L23.78,30.78A0.5,0.5 0 0 1 23.78,31.48L22.48,32.78A0.5,0.5 0 0 1 21.78,32.78L19.55,30.55A0.5,0.5 0 0 1 19.55,29.85L20.85,28.55A0.5,0.5 0 0 1 21.55,28.55Z"/>
+    <path class="cut" d="M16.42,31.85L16.42,35A0.5,0.5 0 0 1 15.92,35.5L14.08,35.5A0.5,0.5 0 0 1 13.58,35L13.58,31.85A0.5,0.5 0 0 1 14.08,31.35L15.92,31.35A0.5,0.5 0 0 1 16.42,31.85Z"/>
+    <path class="cut" d="M10.45,30.55L8.22,32.78A0.5,0.5 0 0 1 7.52,32.78L6.22,31.48A0.5,0.5 0 0 1 6.22,30.78L8.45,28.55A0.5,0.5 0 0 1 9.15,28.55L10.45,29.85A0.5,0.5 0 0 1 10.45,30.55Z"/>
+    <path class="cut" d="M7.15,25.42L4,25.42A0.5,0.5 0 0 1 3.5,24.92L3.5,23.08A0.5,0.5 0 0 1 4,22.58L7.15,22.58A0.5,0.5 0 0 1 7.65,23.08L7.65,24.92A0.5,0.5 0 0 1 7.15,25.42Z"/>
+    <path class="cut" d="M8.45,19.45L6.22,17.22A0.5,0.5 0 0 1 6.22,16.52L7.52,15.22A0.5,0.5 0 0 1 8.22,15.22L10.45,17.45A0.5,0.5 0 0 1 10.45,18.15L9.15,19.45A0.5,0.5 0 0 1 8.45,19.45Z"/>
+    <path class="cut" d="M9.12,24A5.880000000000001,5.880000000000001 0 1 0 20.88,24A5.880000000000001,5.880000000000001 0 1 0 9.12,24Z" stroke-width="1.2"/>
+  </g>
+  <path class="line ink" d="M26.89,13.29A16,16 0 0 1 26.89,34.71" stroke-width="2.5"/>
+  <path class="line tint" d="M32.34,10.46A22,22 0 0 1 32.34,37.54" stroke-width="2.5"/>
+  <path class="line tint" d="M38.21,8.34A28,28 0 0 1 38.21,39.66" stroke-width="2.5"/>
+</g>
+</svg>

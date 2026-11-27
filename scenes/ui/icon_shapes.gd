@@ -1,7 +1,8 @@
 class_name IconShapes
 extends RefCounted
-## The shapes every icon in the game is drawn out of, GAME.md 8.3a: the joker pictures and the
-## power-up pictures both, so the two sets look like one hand drew them.
+## The shapes the small pictures drawn in code are made of: the achievements', the landmarks', the
+## modes' and the rest. The jokers' and power-ups' are SVG drawings printed by [IconPress] since
+## 2026-11-26, GAME.md 8.3a.
 ##
 ## Everything takes the canvas and a box, and everything else is a fraction of that box: (0, 0)
 ## is its top left corner, (1, 1) its bottom right, y downwards, and radii, spans and widths are

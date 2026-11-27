@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Getaway Driver</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line tint" d="M4,25.5H9M4,31.5H8.5M4.5,37.5H9.5" stroke-width="2.5"/>
+  <g class="piece ink" data-shade="false">
+    <path class="body" d="M30.13,17.16L20.87,17.16A1.38,1.38 0 0 1 19.61,16.34L17.74,12.12A2.3,2.3 0 0 1 19.84,8.88L31.16,8.88A2.3,2.3 0 0 1 33.26,12.12L31.39,16.34A1.38,1.38 0 0 1 30.13,17.16Z"/>
+    <path class="cut" d="M22.28,9.8L23.2,16.24M25.5,9.8L25.5,16.24M28.72,9.8L27.8,16.24" stroke-width="1.2"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M19.52,20.84C14.46,23.6 13.08,28.66 13.08,33.26C13.08,39.24 17.22,42.92 25.5,42.92C33.78,42.92 37.92,39.24 37.92,33.26C37.92,28.66 36.54,23.6 31.48,20.84Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM9.5,28A12,12 0 1 0 33.5,28A12,12 0 1 0 9.5,28Z" fill-rule="evenodd"/>
+    <path class="glint" d="M16.76,33.26C16.76,30.04 17.68,27.28 19.52,25.44"/>
+    <path class="cut" d="M20.9,32.8A4.6,4.6 0 1 0 30.1,32.8A4.6,4.6 0 1 0 20.9,32.8Z" stroke-width="1.5"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M20.44,16.7L30.56,16.7A1.38,1.38 0 0 1 31.94,18.08L31.94,19.46A1.38,1.38 0 0 1 30.56,20.84L20.44,20.84A1.38,1.38 0 0 1 19.06,19.46L19.06,18.08A1.38,1.38 0 0 1 20.44,16.7Z"/>
+  </g>
+</g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Carbon Copy</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece cream">
+    <path class="body" d="M9,31H39A2,2 0 0 1 41,33V42A2,2 0 0 1 39,44H9A2,2 0 0 1 7,42V33A2,2 0 0 1 9,31Z"/>
+    <path class="cut" d="M19.4,37.5A4.6,4.6 0 1 0 28.6,37.5A4.6,4.6 0 1 0 19.4,37.5ZM20.8,37.5A3.2,3.2 0 1 0 27.2,37.5A3.2,3.2 0 1 0 20.8,37.5Z" fill-rule="evenodd"/>
+  </g>
+  <g class="piece tint">
+    <path class="body" d="M15.5,23.5H32.5A1,1 0 0 1 33.5,24.5V26A1,1 0 0 1 32.5,27H15.5A1,1 0 0 1 14.5,26V24.5A1,1 0 0 1 15.5,23.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M14.5,16H33.5A2,2 0 0 1 35.5,18V21A2,2 0 0 1 33.5,23H14.5A2,2 0 0 1 12.5,21V18A2,2 0 0 1 14.5,16Z"/>
+    <path class="shade" d="M30,-20H70V70H30Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M22,9.5H26A1,1 0 0 1 27,10.5V15A1,1 0 0 1 26,16H22A1,1 0 0 1 21,15V10.5A1,1 0 0 1 22,9.5Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M20,7.5A4,4 0 1 0 28,7.5A4,4 0 1 0 20,7.5Z"/>
+    <path class="shade" d="M-20,-20H70V70H-20ZM16.5,4.5A4.5,4.5 0 1 0 25.5,4.5A4.5,4.5 0 1 0 16.5,4.5Z" fill-rule="evenodd"/>
+  </g>
+</g>
+</svg>

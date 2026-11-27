@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Hair Trigger</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M6.5,8H41.5A2,2 0 0 1 43.5,10V14A2,2 0 0 1 41.5,16H6.5A2,2 0 0 1 4.5,14V10A2,2 0 0 1 6.5,8Z"/>
+    <path class="shade" d="M-20,13H70V70H-20Z"/>
+  </g>
+  <path class="line ink" d="M12,16.5V26.5A9.5,9.5 0 0 0 21.5,36H33A5,5 0 0 0 38,31V16.5" stroke-width="3.5"/>
+  <g class="piece ink">
+    <path class="body" d="M22.5,18C23,23.5 21.5,28 17.5,31.5C21,32.5 24.5,31 26.8,28C29,25 29.5,21.5 29,18Z"/>
+    <path class="shade" d="M26,-20H70V70H26Z"/>
+  </g>
+  <g class="piece cream">
+    <path class="body" d="M33.5,22.3C34.08,24.92 34.08,24.92 36.7,25.5C34.08,26.08 34.08,26.08 33.5,28.7C32.92,26.08 32.92,26.08 30.3,25.5C32.92,24.92 32.92,24.92 33.5,22.3Z"/>
+  </g>
+</g>
+</svg>

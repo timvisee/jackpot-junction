@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>High Roller</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M13.63,28.88L14.89,7.88A2,2 0 0 1 16.88,6L31.12,6A2,2 0 0 1 33.11,7.88L34.37,28.88A2,2 0 0 1 32.38,31L15.62,31A2,2 0 0 1 13.63,28.88Z"/>
+    <path class="shade" d="M28.5,-20H70V70H28.5Z"/>
+    <path class="glint" d="M18.5,10V19"/>
+  </g>
+  <g class="piece cream" data-seam="false">
+    <path class="body" d="M13.74,27.97L14.07,22.97A0.5,0.5 0 0 1 14.57,22.5L33.43,22.5A0.5,0.5 0 0 1 33.93,22.97L34.26,27.97A0.5,0.5 0 0 1 33.77,28.5L14.23,28.5A0.5,0.5 0 0 1 13.74,27.97Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M5,34C5,31.5 10,31 24,31C38,31 43,31.5 43,34C43,36.5 38,37.5 24,37.5C10,37.5 5,36.5 5,34Z"/>
+    <path class="shade" d="M-20,34.5H70V70H-20Z"/>
+  </g>
+</g>
+</svg>

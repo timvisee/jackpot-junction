@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Double Tap</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M5.5,15.25H10C16,15.25 20,16.88 22,18.5C20,20.13 16,21.75 10,21.75H5.5A1.5,1.5 0 0 1 4,20.25V16.75A1.5,1.5 0 0 1 5.5,15.25Z"/>
+    <path class="shade" d="M-20,19H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M5.5,26.25H10C16,26.25 20,27.88 22,29.5C20,31.13 16,32.75 10,32.75H5.5A1.5,1.5 0 0 1 4,31.25V27.75A1.5,1.5 0 0 1 5.5,26.25Z"/>
+    <path class="shade" d="M-20,30H70V70H-20Z"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M34.5,32.78C28.56,28.46 25.5,25.22 25.5,21.44C25.5,18.38 27.84,16.22 30.72,16.22C32.52,16.22 33.78,17.12 34.5,18.56C35.22,17.12 36.48,16.22 38.28,16.22C41.16,16.22 43.5,18.38 43.5,21.44C43.5,25.22 40.44,28.46 34.5,32.78Z"/>
+    <path class="shade" d="M37,-20H70V70H37Z"/>
+    <path class="cut" d="M34.5,18.5L32.5,23L36.5,26L33.5,31.5" stroke-width="1.5"/>
+  </g>
+</g>
+</svg>
