@@ -52,8 +52,9 @@ below, and hands the notes to the release workflow.
   shorter than every other box to pick from.
 - **The music holds its level as a match heats up or calms down.** It dipped for a moment in the
   middle of every change between its calm, tense and full mixes.
-- **Karts outside the room come back.** A kart that ends up off the edge, inside a wall or under
-  the floor respawns after half a second, keeping its pot, as one can after a host leaves mid-map.
+- **Karts outside the room come back.** A kart that ends up off the edge, inside a wall, or under
+  or over the floor respawns after half a second, keeping its pot, as one can after a host leaves
+  mid-map.
 
 ## [0.24.1] - 2026-11-26
 

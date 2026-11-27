@@ -42,11 +42,13 @@ func test_what_is_out_of_the_room() -> void:
 	assert_bool(KartBounds.outside(grid, grid.cell_center(_a_wall(grid)))).is_true()
 	var under := match_node.arena.junction_position + Vector3.DOWN * 4.0
 	assert_bool(KartBounds.outside(grid, under)).is_true()
+	var over := match_node.arena.junction_position + Vector3.UP * 4.0
+	assert_bool(KartBounds.outside(grid, over)).is_true()
 	assert_bool(KartBounds.outside(grid, match_node.slots[0].kart.global_position)).is_false()
 
 
-## Carried off the grid and into a wall, two karts come back to the room, their pots kept; the one
-## on the floor stays put.
+## Carried off the grid and into a wall, two karts come back to the room, their pots kept, and so
+## does one up over the floor; the one on the floor stays put.
 func test_a_kart_out_of_the_room_is_respawned() -> void:
 	var match_node := _start_match()
 	await _runner.simulate_frames(30)
@@ -61,6 +63,18 @@ func test_a_kart_out_of_the_room_is_respawned() -> void:
 	await await_millis(1200)
 	assert_bool(KartBounds.outside(grid, away.global_position)).is_false()
 	assert_bool(KartBounds.outside(grid, walled.global_position)).is_false()
+	# Up over the floor, where nothing in a match lifts a kart, held there rather than let drop
+	# back of itself: brought back once more.
+	var respawned: Array[int] = []
+	var count := func(slot: int, _at: Vector3) -> void: respawned.append(slot)
+	Events.kart_respawned.connect(count)
+	away.set_physics_process(false)
+	away.global_position += Vector3.UP * 6.0
+	await await_millis(1200)
+	Events.kart_respawned.disconnect(count)
+	away.set_physics_process(true)
+	assert_array(respawned).contains([0])
+	assert_float(away.global_position.y).is_less(KartBounds.ABOVE)
 	assert_bool(away.alive).is_true()
 	assert_int(away.pot.coins).is_equal(40)
 	assert_float(staying.global_position.distance_to(stood)).is_less(2.0)

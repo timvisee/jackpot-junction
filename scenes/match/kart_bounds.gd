@@ -1,20 +1,22 @@
 class_name KartBounds
 extends Node
 ## A kart outside the room it plays in is respawned, GAME.md 3.6: off the room's grid, inside one
-## of its walls, or sunk well under its floor without falling into a pit. Nothing in a match puts a
-## kart there, but a client's karts go on as they last went while the host is silent, through
-## walls and off the edge, and a map carried over to a new host starts from what that client saw,
-## GAME.md 10.8; a hard enough knock might do it too. A kart found out there for
+## of its walls, sunk well under its floor without falling into a pit, or up over it. Nothing in a
+## match puts a kart there, but a client's karts go on as they last went while the host is silent,
+## through walls and off the edge, and a map carried over to a new host starts from what that
+## client saw, GAME.md 10.8; a hard enough knock might do it too. A kart found out there for
 ## [constant OUT_FOR] seconds is brought back the way one is after a death, where the match would
-## bring it back, its pot and its jokers its own still. Looked at only where the match is run,
-## never on a client's copy of it, every [constant EVERY] seconds.
+## bring it back, its pot and its jokers its own still. Looked at only where the match is run, the
+## host's say online, never on a client's copy of it, every [constant EVERY] seconds.
 
 ## How often the karts are looked at, and how long one has to be out to be brought back, in
 ## seconds: long enough that a kart shoved against a wall for a frame is left alone.
 const EVERY := 0.25
 const OUT_FOR := 0.5
-## How far under the floor a kart not falling into a pit is out of the room, in meters.
+## How far under the floor a kart not falling into a pit is out of the room, and how far over it,
+## in meters: a kart drives on the floor and never leaves it, and the walls stand 1 m.
 const BELOW := -3.0
+const ABOVE := 3.0
 
 var _match: Match
 var _next := 0.0
@@ -38,9 +40,9 @@ static func add_to(match_node: Match) -> KartBounds:
 
 
 ## Whether [param at] is out of the room [param grid] lays out: off its grid, inside a wall, or
-## under its floor.
+## under or over its floor.
 static func outside(grid: ArenaGrid, at: Vector3) -> bool:
-	if at.y < BELOW:
+	if at.y < BELOW or at.y > ABOVE:
 		return true
 	var cell := grid.cell_of(at)
 	if cell.x < 0 or cell.y < 0 or cell.x >= grid.width or cell.y >= grid.height:

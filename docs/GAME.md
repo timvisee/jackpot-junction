@@ -357,10 +357,12 @@ on the floor, and scatter as ever.
 
 A kart outside the room it plays in for half a second is respawned at once, as in step 7 but with
 nothing lost, its pot, mult and jokers its own still: off the room's grid, inside one of its walls,
-or sunk more than 3 m under its floor without falling into a pit (`KartBounds`). Nothing in a match
+sunk more than 3 m under its floor without falling into a pit, or more than 3 m up over it, where
+nothing lifts a kart (`KartBounds`). Nothing in a match
 puts a kart there, but a client's karts go on as they last went while the host is silent, through
 walls and off the edge, and a map carried over to a new host starts from what that client saw,
-10.8. Only where the match is run, never on a client's copy of it.
+10.8. Only where the match is run, which online is the host's to decide, never on a client's copy
+of it.
 
 ### 3.7 Jokers
 
