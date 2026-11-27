@@ -332,22 +332,29 @@ func succession_line() -> Array:
 ## changes, GAME.md 10.8, for the game to be handed down the line should the host go.
 func _tell_succession() -> void:
 	var line := succession_line()
-	var plan := _plan_here()
 	var port := _hosted_port()
 	var host := ""
 	for slot: PlayerSlot in session.match_node.slots if session.match_node != null else []:
 		if slot.is_local_human():
 			host = slot.display_name()
 			break
-	var said := str([line, port, plan, host])
-	for client: int in multiplayer.get_peers():
+	# The password only to those playing: somebody watching may have come in without it.
+	var plans: Array[String] = [_plan_here(false), _plan_here()]
+	var playing := session._player_peers()
+	var peers := multiplayer.get_peers()
+	for told: int in _succession_told.keys():
+		if told not in peers:
+			_succession_told.erase(told)
+	for client: int in peers:
+		var plan := plans[int(client in playing)]
+		var said := str([line, port, plan, host])
 		if _succession_told.get(client, "") != said:
 			_succession_told[client] = said
 			_succession_is.rpc_id(client, line, port, plan, host)
 
 
-func _plan_here() -> String:
-	return MatchResume.plan_of(Game.pending_config, session.door, -1, true)
+func _plan_here(with_password := true) -> String:
+	return MatchResume.plan_of(Game.pending_config, session.door, -1, with_password)
 
 
 func _hosted_port() -> int:

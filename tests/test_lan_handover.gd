@@ -155,6 +155,33 @@ func test_the_first_in_line_takes_it_on() -> void:
 	assert_bool(client.host_controls.succession.is_empty()).is_false()
 
 
+## Somebody watching, let in without the password, is told who hosts next but not the password.
+func test_watchers_are_not_told_the_password() -> void:
+	var host := _a_host()
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.port = port
+	host.door.password = "secret"
+	host.door.watchers_need_password = false
+	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
+	client_match.name = "Match"
+	client_match.rules = _quick_rules()
+	client_match.with_hud = false
+	_client_root.add_child(client_match)
+	client_match.start_puppet()
+	var watcher: NetSession = auto_free(NetSession.new())
+	watcher.name = "Session"
+	watcher.match_node = client_match
+	watcher.watching = true
+	_client_root.add_child(watcher)
+	assert_int(watcher.join("127.0.0.1", port)).is_equal(OK)
+	var told := func() -> bool: return not watcher.host_controls.succession_plan.is_empty()
+	await _until(told, 8000)
+	var plan: Dictionary = JSON.parse_string(watcher.host_controls.succession_plan)
+	assert_bool((plan["door"] as Dictionary).has("password")).is_false()
+	assert_int(watcher.host_controls.succession_port).is_equal(port)
+	host.free()
+
+
 ## The one in line is somebody else: asked at their address until a game answers there, and
 ## followed in as the player this one was; nobody answering, the next in line, this one, takes it
 ## on.
