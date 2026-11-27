@@ -7,7 +7,7 @@ extends CloseLook
 ## a while and moving, pushing in, craning, tracking, going round, or closing in by the lens, the
 ## kart turning on the table doing the rest. Up while the kart stands on the turntable.
 
-## The picture and its frame.
+## The picture and its frame, and its title, shown through tr().
 const PIXELS := Vector2i(560, 380)
 const TITLE := "THE SHOWROOM"
 const SHOWN := Vector2(600.0, 520.0)
@@ -16,7 +16,8 @@ const SHOWN := Vector2(600.0, 520.0)
 ## room is not drawn twice.
 const SHOT := 6.5
 const FAR := 40.0
-## What a kart wearing nothing but the plain of everything is said to be, as a dealer says it.
+## What a kart wearing nothing but the plain of everything is said to be, as a dealer says it,
+## shown through tr().
 const STANDARD := "Standard trim"
 ## The shots: where the camera stands, from the middle of the table on the floor, the way in down
 ## the carpet toward +z and the bay's back wall close behind it, so none stands behind the table;
@@ -62,13 +63,14 @@ static func of(on_it: Kart, on_table: Node3D) -> ShowroomView:
 
 
 func _ready() -> void:
-	_build(TITLE, worn_words(kart.style), PIXELS, SHOWN, false, FAR)
+	_build(tr(TITLE), worn_words(kart.style), PIXELS, SHOWN, false, FAR)
 	under.name = "Worn"
 	_frame()
 
 
 ## What [param style] dresses a kart in, a part each, the plain parts left out: the paint, the hat,
-## the flag, the trail, the plate, the tire marks and the body it is built in.
+## the flag, the trail, the plate, the tire marks and the body it is built in; in the language
+## spoken.
 static func worn_words(style: KartStyle) -> String:
 	var said := PackedStringArray()
 	var chosen: Array[int] = [
@@ -76,8 +78,8 @@ static func worn_words(style: KartStyle) -> String:
 	]
 	for part: int in chosen.size():
 		if chosen[part] > 0:
-			said.append(str(KartStyle.CHOICES[part][chosen[part]]))
-	return "  ·  ".join(said) if not said.is_empty() else STANDARD
+			said.append(Lang.t(str(KartStyle.CHOICES[part][chosen[part]])))
+	return "  ·  ".join(said) if not said.is_empty() else Lang.t(STANDARD)
 
 
 func _process(delta: float) -> void:

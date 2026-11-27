@@ -33,9 +33,9 @@ func spares(kart: Kart, cause: StringName) -> bool:
 		kart.use_item()
 	else:
 		return false
-	went_off(kart, "GUARDED")
+	went_off(kart, Lang.later("GUARDED"))
 	return true
 
 
 func went_off_words(times: int) -> String:
-	return "Saved you once" if times == 1 else "Saved you %d times" % times
+	return told(tr_n("Saved you once", "Saved you %d times", times), times)

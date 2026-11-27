@@ -354,12 +354,12 @@ func _glow(index: int) -> float:
 ## Joker.went_off], does not.
 func _on_went_off(slot: int, joker: StringName, word: String) -> void:
 	if kart != null and kart.slot == slot and not word.is_empty():
-		flash(joker, word)
+		flash(joker, Joker.shown_word(word))
 
 
 func _on_used_up(slot: int, joker: StringName, word: String) -> void:
 	if kart != null and kart.slot == slot:
-		burn(joker, word)
+		burn(joker, Joker.shown_word(word))
 
 
 ## How far into the screen the cards come while none is lifted, for what has to stay clear of
@@ -652,7 +652,7 @@ func _place_suited(right: float, middle: float) -> void:
 		_place_table(right, middle)
 		return
 	if best >= 0:
-		_suited.show_hand(kart.jokers.made.shown, JokerHands.name_of(best).to_upper())
+		_suited.show_hand(kart.jokers.made.shown, tr(JokerHands.name_of(best)).to_upper())
 	else:
 		_suited.show_hand([], "")
 	var sign_size := _suited.get_combined_minimum_size()
@@ -884,9 +884,7 @@ func _show_detail(joker: Joker) -> void:
 	var key := "%d|%s|%d" % [selected(), joker.id, held]
 	if key != _told:
 		_told = key
-		var place := "%d of %d" % [selected() + 1, _cards.size()]
-		var said := PackedStringArray([place, joker.display_name, JokerCard.told(joker, held)])
-		ScreenReader.say(self, ScreenReader.line(said))
+		ScreenReader.say(self, JokerCard.told_at(selected() + 1, _cards.size(), joker, held))
 	var lead := maxi(JokerSuits.leading(kart.jokers.jokers), 0)
 	_detail.show_active(kart.jokers.made, lead, details)
 	if _pointed():
@@ -911,17 +909,17 @@ func _show_detail(joker: Joker) -> void:
 	var parts: Array = [
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, ink, size),
 	]
-	var line := "%s cycle"
 	# A player waiting to come back can read their hand but not throw any of it away, GAME.md
 	# 3.7, so the pane stops offering the two buttons that would. A hint for a button that does
 	# nothing is worse than no hint: it reads as the game having stopped listening.
 	if alive:
 		parts.append(InputHint.glyph(InputActions.JOKER_DROP, keyboard, ink, size))
 		parts.append(InputHint.glyph(InputActions.JOKER_DESTROY, keyboard, ink, size))
-		line += "   %s drop   %s destroy"
 	# And the key that says more of the card and of the hand, Alt or the right stick, GAME.md 8.3.
 	parts.append(InputHint.glyph(InputActions.DETAILS, keyboard, ink, size))
-	line += "   %s details"
+	var line := tr("%s cycle   %s details")
+	if alive:
+		line = tr("%s cycle   %s drop   %s destroy   %s details")
 	_detail.set_hints(InputGlyph.pinned_for(InputHint.row(line, parts, ink, size), kart))
 
 
@@ -949,11 +947,11 @@ func touch_buttons() -> Dictionary[StringName, Button]:
 func _show_touch_hints() -> void:
 	var pinned := TouchInput.joker_pinned
 	var acting := pinned and kart != null and kart.alive
-	var verb := "Tap" if TouchInput.enabled else "Click"
+	var touch := TouchInput.enabled
 	var wanted := (
 		"%s %s %s"
 		% [
-			verb,
+			touch,
 			"acting" if acting else ("pinned" if pinned else "held"),
 			InputHint.stamp([InputActions.PAUSE], true),
 		]
@@ -970,7 +968,9 @@ func _show_touch_hints() -> void:
 		row.add_theme_constant_override("separation", 12)
 		row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		for id: StringName in [&"drop", &"destroy"]:
-			var button := MenuTheme.button(String(id).capitalize(), Type.BODY)
+			var button := MenuTheme.button(
+				tr("Drop") if id == &"drop" else tr("Destroy"), Type.BODY
+			)
 			button.custom_minimum_size = TOUCH_BUTTON
 			# Pressed by the touch controls, which answer every finger on its own, GAME.md 4.2.
 			button.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -985,14 +985,13 @@ func _show_touch_hints() -> void:
 		# The pause key closes it as well, before it would pause, see [MouseJokers].
 		var key := InputHint.glyph(InputActions.PAUSE, true, ink, InputHint.FONT_SIZE)
 		column.add_child(
-			InputHint.row("Click it again or %s to close it", [key], ink, InputHint.FONT_SIZE)
+			InputHint.row(tr("Click it again or %s to close it"), [key], ink, InputHint.FONT_SIZE)
 		)
 		_detail.set_hints(column)
 		return
 	var line := Label.new()
-	line.text = (
-		"%s the card to keep it open" % verb if not pinned else "%s it again to close it" % verb
-	)
+	line.text = tr("Tap it again to close it") if pinned else tr("Tap the card to keep it open")
+	line.text = tr("Click the card to keep it open") if not touch else line.text
 	Type.text(line, InputHint.FONT_SIZE, ink)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(line)

@@ -320,7 +320,7 @@ func _ready() -> void:
 	# second one while a thumb is resting on the stick. A real mouse lights it up as it passes
 	# over, and its click is [MouseJokers]'s, as a click on a card is. Off a touch screen it is a
 	# chip in the pane's hint row rather than a button of its own, see [method _with_chip].
-	_skip_button = MenuTheme.button("Skip") if TouchInput.enabled else _chip()
+	_skip_button = MenuTheme.button(tr("Skip")) if TouchInput.enabled else _chip()
 	_skip_button.name = "Skip"
 	_skip_button.mouse_filter = (
 		Control.MOUSE_FILTER_IGNORE if TouchInput.enabled else Control.MOUSE_FILTER_STOP
@@ -328,7 +328,7 @@ func _ready() -> void:
 	_skip_button.focus_mode = Control.FOCUS_NONE
 	_skip_button.visible = false
 	add_child(_skip_button)
-	_reroll_button = MenuTheme.button("Reroll  -%d" % JokerOffer.REROLL_COST)
+	_reroll_button = MenuTheme.button(tr("Reroll  -%d") % JokerOffer.REROLL_COST)
 	_reroll_button.name = "Reroll"
 	_reroll_button.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_reroll_button.focus_mode = Control.FOCUS_NONE
@@ -365,17 +365,17 @@ func show_offer(offer: JokerOffer, kart: Kart) -> void:
 	_swap_hint = full
 	if choosing:
 		if offer.keeping:
-			_title.text = "Keep which joker for this map?"
+			_title.text = tr("Keep which joker for this map?")
 		else:
-			_title.text = "Pick a joker to swap in" if full else "Pick a joker"
+			_title.text = tr("Pick a joker to swap in") if full else tr("Pick a joker")
 	else:
-		_title.text = "Replace which joker with %s?" % offer.chosen.display_name
+		_title.text = tr("Replace which joker with %s?") % tr(offer.chosen.display_name)
 	_show_incoming(offer.chosen if not choosing else null)
 	# Skipping a keep keeps nothing of last map's, GAME.md 9.7.
 	_skip_button.visible = true
 	var rerolls := choosing and offer.can_reroll()
 	_reroll_button.visible = rerolls and TouchInput.enabled
-	_dress_skip("Skip" if choosing else "Back")
+	_dress_skip(tr("Skip") if choosing else tr("Back"))
 	if picked >= 0 and picked < jokers.size():
 		var held := kart.jokers.ids().count(jokers[picked].id)
 		_detail.show_joker(jokers[picked], held, choosing, details)
@@ -420,9 +420,11 @@ func _tell(jokers: Array[Joker], picked: int, copies: int) -> void:
 	_told = key
 	var asked := _title.text if _title.text != _asked else ""
 	_asked = _title.text
-	var place := "%d of %d" % [picked + 1, jokers.size()]
+	var place := tr("{index} of {count}").format({"index": picked + 1, "count": jokers.size()})
 	var joker := jokers[picked]
-	var said := PackedStringArray([asked, place, joker.display_name, JokerCard.told(joker, copies)])
+	var said := PackedStringArray(
+		[asked, place, tr(joker.display_name), JokerCard.told(joker, copies)]
+	)
 	ScreenReader.say(self, ScreenReader.line(said))
 
 
@@ -886,9 +888,9 @@ func _clear() -> void:
 ## first stage, the candidate's terms at the Final Hand.
 static func terms_line() -> String:
 	if Story.final_hand_on:
-		return StoryLines.PICK_FINAL_HAND
+		return Lang.t(StoryLines.PICK_FINAL_HAND)
 	var line: String = StoryLines.at(StoryLines.PICK, Story.stage_here())
-	return StoryFill.fill(line, Game.settings.profile)
+	return StoryFill.fill(Lang.t(line), Game.settings.profile)
 
 
 ## A line of the House's small print, in its foil, as the line under the cards is drawn.
@@ -932,7 +934,7 @@ func _accepted(taken: Joker) -> void:
 		return
 	var said := _small_print()
 	said.name = "TermsAccepted"
-	said.text = StoryLines.TERMS_ACCEPTED
+	said.text = tr(StoryLines.TERMS_ACCEPTED)
 	if kit:
 		said.name = "KitTick"
 		said.text = ""
@@ -950,11 +952,12 @@ func _accepted(taken: Joker) -> void:
 
 ## What a finger does with the cards, said in place of the buttons, GAME.md 4.2.
 func _touch_row(choosing: bool, keeping := false) -> Control:
-	var doing := "take" if choosing else "replace"
-	if keeping:
-		doing = "keep"
 	var line := Label.new()
-	line.text = "Tap a card to %s it, hold it to read it" % doing
+	line.text = tr("Tap a card to take it, hold it to read it")
+	if keeping:
+		line.text = tr("Tap a card to keep it, hold it to read it")
+	elif not choosing:
+		line.text = tr("Tap a card to replace it, hold it to read it")
 	Type.text(line, InputHint.FONT_SIZE, JokerDetail.hint_ink())
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return line
@@ -970,18 +973,19 @@ func _hint_row(choosing: bool, keeping := false, hand := false, rerolls := false
 		# has a thumb on, so it is the one shown here.
 		InputHint.glyph(InputActions.FIRE, keyboard, ink, size),
 	]
-	# Skipping, or going back, is the chip at the end of the row, with its key on it.
-	var template := "%s choose   %s take" if choosing else "%s choose   %s replace"
+	# Skipping, or going back, is the chip at the end of the row, with its key on it. Each button
+	# and what it does is a hint of its own, the hints set apart by wide gaps.
+	var hints: Array[String] = [tr("%s choose"), tr("%s take") if choosing else tr("%s replace")]
 	if keeping:
-		template = "%s choose   %s keep"
+		hints[1] = tr("%s keep")
 	# The hand of cards held open over the pick, to read what is already held, GAME.md 3.7.
 	if hand:
-		template += "   %s hand"
+		hints.append(tr("%s hand"))
 		parts.append(InputHint.glyph(InputActions.JOKER_MENU, keyboard, ink, size))
 	# The card under the cursor dealt again, for its price, GAME.md 3.7.
 	if rerolls:
-		template += "   %%s reroll -%d" % JokerOffer.REROLL_COST
+		hints.append(tr("%s reroll -{cost}").format({"cost": JokerOffer.REROLL_COST}))
 		parts.append(InputHint.glyph(InputActions.NITRO, keyboard, ink, size))
-	var row := InputHint.row(template, parts, ink, size)
+	var row := InputHint.row("   ".join(hints), parts, ink, size)
 	InputGlyph.pin_all(row, pad)
 	return row

@@ -30,13 +30,13 @@ const NARROW := 700.0
 ## rest; never wider than the pane is on a wide one.
 const SIDE_SHARE := 0.3
 const SIDE_LEAST := 300.0
-## The switch over the pane, and the bind that flips it, the dialogs' view key, see [DialogBinds].
+## The switch over the pane, shown through tr(), and its bind, the dialogs' view key.
 const LIST := "List"
 const LIST_ACTION := InputActions.MENU_VIEW
-## The binds that zoom the map, in the row over it: a pad's triggers, smoothly for as long and as
-## fast as they are pulled, and on keys minus and plus, a notch a press.
+## The binds that zoom the map, shown through tr(), in the row over it: a pad's triggers, smoothly
+## for as long and as fast as they are pulled, and on keys minus and plus, a notch a press.
 const ZOOM := "Zoom"
-## What the arrows or the stick do on the map, in the same row.
+## What the arrows or the stick do on the map, in the same row, shown through tr().
 const SELECT := "Select landmark"
 ## The map's two sheets, see [LoyaltyMapLayout.Sheet]: their tabs over the map once Kit's is on
 ## it, see [SheetTabs], and the dialogs' page keys turn from one to the other, Q or the left
@@ -53,7 +53,7 @@ const ZOOM_RATE := 2.0
 const PAN_RATE := 1800.0
 const TRIGGER_REST := 0.04
 const STICK_REST := 0.2
-## How it works in the head, which shows the House's first look again, see [LoyaltyTour], and its
+## How it works in the head, shown through tr(), which shows the House's first look again, and its
 ## bind, H or a pad's Back; and its question mark where the head has no room for its words.
 const HOW := "How it works"
 const HOW_SHORT := "?"
@@ -175,20 +175,20 @@ static func open(parent: Node, unfold := false, at := &"", hold := false) -> Loy
 
 
 ## The program's name by the story's stage, STORY.md 6.6b, as [param profile]'s screens show it:
-## the first stage's with its story off.
+## the first stage's with its story off. In English, translated where it is shown.
 static func program_name(profile: Profile) -> String:
 	return str(StoryLines.at(StoryLines.PROGRAM, _stage_of(profile)))
 
 
-## The line under the program's name, in the House's capitals.
+## The line under the program's name, in the House's capitals, in the language spoken.
 static func program_line(profile: Profile) -> String:
-	var line := str(StoryLines.at(StoryLines.PROGRAM_LINE, _stage_of(profile)))
+	var line := Lang.t(str(StoryLines.at(StoryLines.PROGRAM_LINE, _stage_of(profile))))
 	return line.replace("{license}", Game.settings.license_number.to_upper())
 
 
-## The atlas's name stamped in the foot of its cover, STORY.md 6.6b.
+## The atlas's name stamped in the foot of its cover, STORY.md 6.6b, in the language spoken.
 static func atlas_name(profile: Profile) -> String:
-	var name_of := str(StoryLines.at(StoryLines.ATLAS, _stage_of(profile)))
+	var name_of := Lang.t(str(StoryLines.at(StoryLines.ATLAS, _stage_of(profile))))
 	return name_of.replace("{license}", Game.settings.license_number.to_upper())
 
 
@@ -235,7 +235,7 @@ func _ready() -> void:
 	_head.name = "Head"
 	_head.add_theme_constant_override("separation", 24)
 	column.add_child(_head)
-	_title = MenuTheme.title(program_name(_profile), Type.TITLE)
+	_title = MenuTheme.title(tr(program_name(_profile)), Type.TITLE)
 	_title.name = "Title"
 	_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_head.add_child(_title)
@@ -261,7 +261,7 @@ func _ready() -> void:
 	column.add_child(_body())
 	# Back at the foot of the column beside the map, under the card, so the map runs down to the
 	# cover's foot; a ticket a little short of a menu's button, a finger's still.
-	back = AtlasTicketStyle.ticket("Back", 200.0)
+	back = AtlasTicketStyle.ticket(tr("Back"), 200.0)
 	back.name = "Back"
 	back.size_flags_horizontal = Control.SIZE_SHRINK_END
 	back.pressed.connect(close)
@@ -383,7 +383,7 @@ func _body() -> HBoxContainer:
 	map_view.profile = _profile
 	if not _showing.is_empty():
 		map_view.profile = LoyaltyReveal.held_back(_profile, _showing)
-	map_view.program = program_name(_profile)
+	map_view.program = tr(program_name(_profile))
 	cursor = LoyaltyCursor.new()
 	cursor.name = "Cursor"
 	map_view.cursor = cursor
@@ -524,11 +524,11 @@ func _switch_row() -> HBoxContainer:
 	_hint_row.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_switches.add_child(_hint_row)
 	var named := Label.new()
-	named.text = LIST
+	named.text = tr(LIST)
 	Type.strong(named, Type.BODY, HouseTheme.WORDS)
 	named.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_switches.add_child(named)
-	list_switch = ScreenReader.name(MenuTheme.toggle(listed), LIST) as CheckButton
+	list_switch = ScreenReader.name(MenuTheme.toggle(listed), tr(LIST)) as CheckButton
 	AtlasTicketStyle.dress_switch(list_switch)
 	list_switch.name = "ListSwitch"
 	list_switch.focus_mode = Control.FOCUS_NONE
@@ -540,7 +540,7 @@ func _switch_row() -> HBoxContainer:
 	# How it works, the House's first look shown again: a ticket as tall as Next new's beside it, in
 	# the head's own size of words, its bind hung on it while keys or a pad are in hand, as the
 	# slip's Pin has.
-	how_ticket = ScreenReader.name(AtlasTicketStyle.ticket(HOW, 0.0), HOW) as Button
+	how_ticket = ScreenReader.name(AtlasTicketStyle.ticket(tr(HOW), 0.0), tr(HOW)) as Button
 	how_ticket.name = "HowItWorks"
 	Type.set_font(how_ticket, Type.STRONG, Type.LABEL + 1)
 	# Narrower round its words than Back, so the House's pencil still has the head's room.
@@ -841,7 +841,7 @@ func _fit_head() -> void:
 	_line.visible = false
 	if _how != null:
 		_how.visible = false
-	how_ticket.text = HOW
+	how_ticket.text = tr(HOW)
 	var room := head_room() + gap
 	for child: Node in _head.get_children():
 		var each := child as Control
@@ -980,7 +980,7 @@ func _show_binds() -> void:
 				pull.axis = trigger as JoyAxis
 				pull.axis_value = 1.0
 				parts.append(InputGlyph.of_event(pull, ink, size))
-		_how = InputHint.row("%s " + SELECT + "   %s %s " + ZOOM, parts, ink, size)
+		_how = InputHint.row("%s " + tr(SELECT) + "   %s %s " + tr(ZOOM), parts, ink, size)
 		_how.name = "How"
 		_hint_row.add_child(_how)
 	# The switch's own bind just before its word, which says what it does.

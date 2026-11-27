@@ -12,7 +12,7 @@ enum Standing { CLOSED, OPEN, WON }
 
 ## The roundabout's ring, GAME.md 8.9: how many bets a lap, what each lap's are as much again of,
 ## and the bets they are dealt from, the counts of the Strip and the Department, each the statistic
-## it reads, its count on the first lap and how it reads, "{count}" its count.
+## it reads, its count on the first lap and how it reads, "{count}" its count, shown through tr().
 const RING_BETS := 7
 const RING_GROWTH := 1.5
 const RING_POOL: Array[Array] = [
@@ -35,10 +35,12 @@ const RING_POOL: Array[Array] = [
 const ROUNDABOUT := &"roundabout"
 ## Where every profile's map starts, its one bet won by activating the card, GAME.md 8.9.
 const SLIP_ROAD := &"slip_road"
-## The finishes an edition moves a piece of dress up through, GAME.md 8.9, each over the last.
+## The finishes an edition moves a piece of dress up through, GAME.md 8.9, each over the last, shown
+## through tr().
 const FINISHES: Array[String] = ["Foil", "Holographic", "Polychrome"]
 ## The Steam supporter pack's own finish, GAME.md 10.8, past the editions' and never one of them:
-## laid on a piece by a switch rather than moved up to, see [method worn_finish].
+## laid on a piece by a switch rather than moved up to, see [method worn_finish]; its name is shown
+## through tr().
 const STARLIGHT := 4
 const STARLIGHT_NAME := "Starlight"
 
@@ -324,33 +326,33 @@ static func adder_of(id: StringName) -> LoyaltyLandmark:
 	return null
 
 
-## What [param landmark]'s bet asks, its count as the map shows it, GAME.md 8.9.
+## What [param landmark]'s bet asks, its count as the map shows it, GAME.md 8.9, in the language
+## spoken.
 static func bet_of(landmark: LoyaltyLandmark) -> String:
-	return landmark.bet.replace("{count}", count_text(landmark))
+	return Lang.t(landmark.bet).replace("{count}", count_text(landmark))
 
 
 ## [param landmark]'s count as the map shows it: a distance in kilometers, a time in minutes, a
 ## share of shots in percent, and otherwise a number with its thousands marked.
 static func count_text(landmark: LoyaltyLandmark) -> String:
 	if landmark.stat in METERS:
-		return "%s km" % _figure(landmark.count / 1000.0)
+		return Lang.t("%s km") % _figure(landmark.count / 1000.0)
 	if landmark.stat in SECONDS:
 		var minutes := landmark.count / 60.0
-		var many := "" if is_equal_approx(minutes, 1.0) else "s"
-		return "%s minute%s" % [_figure(minutes), many]
+		# A share of a minute is said as minutes are, as two of them would be.
+		var whole := is_equal_approx(minutes, roundf(minutes))
+		return (
+			Lang.tn("%s minute", "%s minutes", roundi(minutes) if whole else 2) % _figure(minutes)
+		)
 	if landmark.stat == &"accuracy":
 		return "%d%%" % roundi(landmark.count)
 	return thousands(roundi(landmark.count))
 
 
-## [param number] with a comma between its thousands, 5,000.
+## [param number] with its thousands set apart as the language spoken does, 5,000, see
+## [method Lang.number].
 static func thousands(number: int) -> String:
-	var figures := str(absi(number))
-	var marked := ""
-	while figures.length() > 3:
-		marked = "," + figures.right(3) + marked
-		figures = figures.left(figures.length() - 3)
-	return ("-" if number < 0 else "") + figures + marked
+	return Lang.number(number)
 
 
 ## How [param landmark] stands on [param profile]'s map, see [enum Standing].
@@ -413,10 +415,10 @@ static func has_fresh(profile: Profile) -> bool:
 ## the deck, items added to the tables, or dress and the rest issued.
 static func reward_words(landmark: LoyaltyLandmark, stage: int) -> String:
 	if not landmark.jokers.is_empty():
-		return str(StoryLines.at(StoryLines.REWARD_CARDS, stage))
+		return Lang.t(str(StoryLines.at(StoryLines.REWARD_CARDS, stage)))
 	if not landmark.items.is_empty():
-		return str(StoryLines.at(StoryLines.REWARD_ITEMS, stage))
-	return str(StoryLines.at(StoryLines.REWARD_DRESS, stage))
+		return Lang.t(str(StoryLines.at(StoryLines.REWARD_ITEMS, stage)))
+	return Lang.t(str(StoryLines.at(StoryLines.REWARD_DRESS, stage)))
 
 
 ## Whether the Showroom off the Garage is open for [param profile], GAME.md 8.9: the landmark that
@@ -429,12 +431,12 @@ static func showroom_open(profile: Profile) -> bool:
 
 
 ## The endorsements [param profile]'s program has stamped on its license, GAME.md 8.9, in the map's
-## order.
+## order, in the language spoken.
 static func endorsements_of(profile: Profile) -> PackedStringArray:
 	var stamped := PackedStringArray()
 	for each: LoyaltyLandmark in map().landmarks:
 		if not each.endorsement.is_empty() and profile.loyalty.has_won(each.id):
-			stamped.append(each.endorsement)
+			stamped.append(Lang.t(each.endorsement))
 	return stamped
 
 
@@ -460,10 +462,11 @@ static func _amount(landmark: LoyaltyLandmark, value: float) -> String:
 	return thousands(floori(value))
 
 
-## [param value] to a tenth, without one for a whole number: 10, 2.5.
+## [param value] to a tenth, without one for a whole number, with the decimal mark of the language
+## spoken: 10, 2.5.
 static func _figure(value: float) -> String:
 	var tenths := roundi(value * 10.0)
-	return str(roundi(tenths / 10.0)) if tenths % 10 == 0 else String.num(tenths / 10.0, 1)
+	return str(roundi(tenths / 10.0)) if tenths % 10 == 0 else Lang.decimal(tenths / 10.0, 1)
 
 
 static func _names(value: Variant) -> PackedStringArray:
@@ -582,11 +585,12 @@ static func pinned_progress(profile: Profile, slot: PlayerSlot = null, since := 
 	return progress_live(profile, landmark, slot, since)
 
 
-## What what [param profile] has pinned asks, in words; none with nothing pinned.
+## What what [param profile] has pinned asks, in words in the language spoken; none with nothing
+## pinned.
 static func pinned_bet(profile: Profile) -> String:
 	var id := pinned_of(profile)
 	if id == ROUNDABOUT:
-		return LoyaltyPane.RING_ASKS
+		return Lang.t(LoyaltyPane.RING_ASKS)
 	var landmark := map().landmark(id)
 	return bet_of(landmark) if landmark != null else ""
 
@@ -598,8 +602,8 @@ static func pinned_words(profile: Profile, slot: PlayerSlot = null, since := {})
 	return words_of(profile, pinned_of(profile), slot, since)
 
 
-## [param id] in words as a pin says it, its name and how far it has come, counted live as
-## [method pinned_words] counts it, whether it is pinned or not; none for none.
+## [param id] in words as a pin says it, in the language spoken, its name and how far it has come,
+## counted live as [method pinned_words] counts it, whether it is pinned or not; none for none.
 static func words_of(
 	profile: Profile, id: StringName, slot: PlayerSlot = null, since := {}
 ) -> Array[String]:
@@ -610,13 +614,14 @@ static func words_of(
 		for bet: Dictionary in profile.loyalty.ring:
 			var come := ring_progress(profile, bet)
 			met += 1 if come.x >= come.y else 0
-		return [LoyaltyPane.ROUNDABOUT, LoyaltyPane.RING_COME % [met, profile.loyalty.ring.size()]]
+		var come := {"won": met, "count": profile.loyalty.ring.size()}
+		return [Lang.t(LoyaltyPane.ROUNDABOUT), Lang.t(LoyaltyPane.RING_COME).format(come)]
 	var landmark := map().landmark(id)
 	var come := progress_live(profile, landmark, slot, since)
 	var said := bet_of(landmark)
 	if come.y > 0.0:
 		said = "%s / %s" % [_amount(landmark, come.x), count_text(landmark)]
-	return [landmark.title, said]
+	return [Lang.t(landmark.title), said]
 
 
 ## How far [param landmark]'s bet has come as [method progress] has it, a statistic's counted live
@@ -692,12 +697,12 @@ static func ring_progress(profile: Profile, bet: Dictionary) -> Vector2:
 	return Vector2(clampf(have, 0.0, float(bet["count"])), float(bet["count"]))
 
 
-## The ring's bet [param bet] in words, its count as the map shows one.
+## The ring's bet [param bet] in words in the language spoken, its count as the map shows one.
 static func ring_bet_of(bet: Dictionary) -> String:
 	var asks := _ring_landmark(bet)
 	for kind: Array in RING_POOL:
 		if String(kind[0]) == String(bet["stat"]):
-			return str(kind[2]).replace("{count}", count_text(asks))
+			return Lang.t(str(kind[2])).replace("{count}", count_text(asks))
 	return String(bet["stat"])
 
 

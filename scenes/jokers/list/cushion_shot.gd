@@ -13,8 +13,8 @@ func on_shot_bounced(kart: Kart) -> void:
 
 
 func stack_values(copies: int) -> Dictionary:
-	return {"coins": counted(copies, "chip", "chips")}
+	return {"coins": tr_n("%d chip", "%d chips", copies) % copies}
 
 
 func went_off_words(times: int) -> String:
-	return "Paid for a bounce once" if times == 1 else "Paid for %d bounces" % times
+	return told(tr_n("Paid for a bounce once", "Paid for %d bounces", times), times)

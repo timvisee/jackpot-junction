@@ -18,12 +18,12 @@ const ORDER: Array[int] = [
 	Joker.Suit.CLUBS,
 	Joker.Suit.WILD
 ]
-## How big a chip is and how far apart, how far in its suit is drawn, how faded one not shown is,
-## and what the chip for every suit says.
+## How big a chip is and how far apart, how far in its suit is drawn, how faded one not shown is.
 const CHIP := Vector2(24.0, 30.0)
 const GAP := 3
 const INSET := 4.0
 const FADED := 0.55
+## What the chip for every suit says, shown through tr(), and how big.
 const ALL_WORD := "All"
 const ALL_SIZE := 13
 const PICTURES := &"suit_filter_pictures"
@@ -53,7 +53,7 @@ func _init(shown_suit: int = ALL) -> void:
 	for suit: int in ORDER:
 		var chip := Button.new()
 		chip.name = "All" if suit == ALL else JokerSuits.name_of(suit)
-		chip.accessibility_name = ALL_WORD if suit == ALL else JokerSuits.name_of(suit)
+		chip.accessibility_name = tr(ALL_WORD) if suit == ALL else tr(JokerSuits.name_of(suit))
 		chip.toggle_mode = true
 		chip.button_group = group
 		chip.focus_mode = Control.FOCUS_NONE
@@ -81,7 +81,7 @@ static func next(suit: int) -> int:
 func choose(suit: int) -> void:
 	if suit != shown():
 		var words := _chips[ORDER.find(suit)].accessibility_name
-		ScreenReader.say(self, ScreenReader.line([CatalogDialog.SUIT, words]))
+		ScreenReader.say(self, ScreenReader.line([tr(CatalogDialog.SUIT), words]))
 	for i: int in _chips.size():
 		_chips[i].set_pressed_no_signal(ORDER[i] == suit)
 	queue_redraw()
@@ -125,9 +125,10 @@ static func paint(on: CanvasItem, shown_suit: int, over: int) -> void:
 				on.draw_rect(mark.grow(1.0), Color(face.bg_color, 1.0 - fade))
 			continue
 		var font := Type.STRONG
-		var wide := font.get_string_size(ALL_WORD, 0, -1, ALL_SIZE).x
+		var every := Lang.t(ALL_WORD)
+		var wide := font.get_string_size(every, 0, -1, ALL_SIZE).x
 		var at := box.position + Vector2(box.size.x - wide, box.size.y + ALL_SIZE * 0.72) * 0.5
-		on.draw_string(font, at, ALL_WORD, 0, -1, ALL_SIZE, ink)
+		on.draw_string(font, at, every, 0, -1, ALL_SIZE, ink)
 
 
 func _draw() -> void:
@@ -136,7 +137,7 @@ func _draw() -> void:
 	var pixels := Vector2i((size * scale_by).ceil())
 	var picture := KeptPictures.of(
 		self,
-		"suit_filter|%d|%d" % [shown_suit, _over],
+		"suit_filter|%d|%d" % [shown_suit, _over],  # NO_TRANSLATE
 		pixels,
 		func() -> Control:
 			var drawing := RowPicture.new()

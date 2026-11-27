@@ -149,18 +149,18 @@ func problems() -> PackedStringArray:
 	var marks := {}
 	for each: LoyaltyLandmark in landmarks:
 		if ids.has(each.id):
-			found.append("Two landmarks are called %s." % each.id)
+			found.append("Two landmarks are called %s." % each.id)  # NO_TRANSLATE
 		ids[each.id] = true
 		if marks.has(each.mark):
-			found.append("Two landmarks are drawn as %s." % each.mark)
+			found.append("Two landmarks are drawn as %s." % each.mark)  # NO_TRANSLATE
 		marks[each.mark] = true
 		if not _at.has(each.id) and not grid.is_empty():
-			found.append("%s is not drawn on the grid." % each.id)
+			found.append("%s is not drawn on the grid." % each.id)  # NO_TRANSLATE
 		var house := each.district != LoyaltyLandmark.District.OFF_THE_BOOKS
 		if each.keystone and house and not reaches_roundabout(each.id):
-			found.append("The keystone %s has no road to the roundabout." % each.id)
+			found.append("The keystone %s has no road to the roundabout." % each.id)  # NO_TRANSLATE
 	for id: StringName in _unreached():
-		found.append("No road reaches %s." % id)
+		found.append("No road reaches %s." % id)  # NO_TRANSLATE
 	return found
 
 
@@ -210,9 +210,10 @@ func _read_grid() -> void:
 			if by_mark.has(here):
 				var id: StringName = by_mark[here]
 				if _at.has(id):
-					_problems.append("%s is drawn twice." % id)
+					_problems.append("%s is drawn twice." % id)  # NO_TRANSLATE
 				_at[id] = Vector2i(x, y)
 			elif not _is_road(here) and here != ROUNDABOUT and here != " ":
+				# A problem for whoever draws the map, in the log's English. NO_TRANSLATE
 				_problems.append("Nothing is drawn as %s, at %d, %d." % [here, x, y])
 	for y: int in _rows.size():
 		for x: int in _rows[y].length():
@@ -264,7 +265,7 @@ func _follow(start: Vector2i, seen: Dictionary, by_mark: Dictionary) -> void:
 		)
 	)
 	if ends.size() + (1 if roundabout else 0) + (1 if off_the_map else 0) < 2:
-		_problems.append("A road at %d, %d goes nowhere." % [start.x, start.y])
+		_problems.append("A road at %d, %d goes nowhere." % [start.x, start.y])  # NO_TRANSLATE
 	for a: StringName in ends:
 		for b: StringName in ends:
 			if a != b:

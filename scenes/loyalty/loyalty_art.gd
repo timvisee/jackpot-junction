@@ -46,7 +46,8 @@ const BULB := 2.2
 const BULB_STEP := 11.0
 ## The bulbs chasing round the sign the cursor is at: every this many is bright at a time.
 const CHASE_GAP := 3
-## The stamp on a won landmark: how big round, its word, and how far it is turned.
+## The stamp on a won landmark: how big round, its word, shown through tr(), and how far it is
+## turned.
 const STAMP := 24.0
 const STAMP_WORD := "WON"
 const STAMP_TURN := -0.32
@@ -130,7 +131,8 @@ static func draw_new(on: CanvasItem, rect: Rect2, zoom: float) -> void:
 static func draw_new_tags(on: CanvasItem, rects: Array[Rect2], zoom: float) -> void:
 	var font := Type.STRONG
 	var size := maxi(roundi(NEW_SIZE * zoom), 1)
-	var wide := font.get_string_size(CatalogCell.NEW, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var word := Lang.t(CatalogCell.NEW)
+	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var tags: Array[Rect2] = []
 	for rect: Rect2 in rects:
 		tags.append(
@@ -145,9 +147,7 @@ static func draw_new_tags(on: CanvasItem, rects: Array[Rect2], zoom: float) -> v
 		on.draw_rect(tag, HouseTheme.FOIL)
 	for tag: Rect2 in tags:
 		var base := tag.position + Vector2(5.0 * zoom, 2.5 * zoom + font.get_ascent(size))
-		on.draw_string(
-			font, base, CatalogCell.NEW, HORIZONTAL_ALIGNMENT_LEFT, -1, size, HouseTheme.ON_FOIL
-		)
+		on.draw_string(font, base, word, HORIZONTAL_ALIGNMENT_LEFT, -1, size, HouseTheme.ON_FOIL)
 
 
 ## The picture of what [param landmark] pays, into [param box] on [param on] in [param ink]: the
@@ -259,7 +259,7 @@ static func _face(
 	var size := maxi(roundi(TITLE_SIZE * zoom * (HAND_SCALE if kit else 1.0)), 1)
 	var left := picture.end.x + room * 0.8
 	var wide := rect.end.x - room - left
-	var lines := lines_of(font, landmark.title, size, wide, 2)
+	var lines := lines_of(font, Lang.t(landmark.title), size, wide, 2)
 	var tall := font.get_height(size) * (0.82 if kit else 0.92)
 	var top := rect.position.y + (rect.size.y - tall * lines.size()) * 0.5
 	for i: int in lines.size():
@@ -353,7 +353,7 @@ static func seal(on: CanvasItem, at: Vector2, radius: float, base := Transform2D
 	on.draw_string(
 		font,
 		word_at,
-		STAMP_WORD,
+		Lang.t(STAMP_WORD),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		radius * 2.0,
 		size,
@@ -411,7 +411,8 @@ static func stamp(
 	var size := maxi(roundi(radius * 0.72), 1)
 	var wide := radius * 2.0
 	var word_at := Vector2(-radius, font.get_ascent(size) * 0.5 - size * 0.12)
-	on.draw_string(font, word_at, STAMP_WORD, HORIZONTAL_ALIGNMENT_CENTER, wide, size, ink)
+	var word := Lang.t(STAMP_WORD)
+	on.draw_string(font, word_at, word, HORIZONTAL_ALIGNMENT_CENTER, wide, size, ink)
 	on.draw_set_transform_matrix(base)
 
 

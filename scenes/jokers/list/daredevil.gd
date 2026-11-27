@@ -6,9 +6,9 @@ extends Joker
 func modify_graze_mult(kart: Kart, amount: float) -> float:
 	if not kart.puppet and kart.is_wounded() and KartLives.healable(kart):
 		kart.restore_life()
-		went_off(kart, "PATCHED")
+		went_off(kart, Lang.later("PATCHED"))
 	return amount
 
 
 func went_off_words(times: int) -> String:
-	return "Patched you up once" if times == 1 else "Patched you up %d times" % times
+	return told(tr_n("Patched you up once", "Patched you up %d times", times), times)

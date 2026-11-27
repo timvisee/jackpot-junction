@@ -7,8 +7,8 @@ func on_victim_death(killer: Kart, victim: Kart, death: DeathOutcome) -> void:
 	death.drop_fraction = 0.0
 	# What it takes, as the death will work it out: none from a pot Tight Grip holds shut.
 	if not death.sealed and killer.alive and floori(victim.pot.coins * death.steal_fraction) > 0:
-		went_off(killer, "STOLEN")
+		went_off(killer, Lang.later("STOLEN"))
 
 
 func went_off_words(times: int) -> String:
-	return "Picked a pocket once" if times == 1 else "Picked %d pockets" % times
+	return told(tr_n("Picked a pocket once", "Picked %d pockets", times), times)

@@ -40,7 +40,8 @@ const ISLAND := 18.0
 const MOAT_LEAST := 34.0
 const MOAT_MOST := 96.0
 const MOAT_EDGE := 44.0
-## The water's names: the lake between the districts, the river's own, and the river.
+## The water's names: the lake between the districts, the river's own, and the river, shown
+## through tr(), and laid out in the language spoken, see [method LoyaltyMapLayout.of].
 const MIDDLE_LAKE_NAME := "Bluff Lake"
 const LAKE_NAME := "Lake Ante"
 const RIVER_NAME := "The River"
@@ -142,7 +143,7 @@ func _lay_middle_lake() -> Vector2:
 		var angle := TAU * i / 32.0
 		var swell := 1.0 + 0.12 * sin(angle * 2.0 + 0.6) + 0.06 * sin(angle * 5.0)
 		oval.append(middle + Vector2(cos(angle), sin(angle)) * reach * swell)
-	layout.lakes.append(LoyaltyMapLayout.by_hand(oval, "middle lake", 8.0, 11.0))
+	layout.lakes.append(LoyaltyMapLayout.by_hand(oval, "middle lake", 8.0, 11.0))  # NO_TRANSLATE
 	land.take_rect(Rect2(middle - reach, reach * 2.0), land.water)
 	layout.doodles.append(
 		{
@@ -154,16 +155,17 @@ func _lay_middle_lake() -> Vector2:
 	)
 	var font := LoyaltyMapPrint.place_font()
 	var size := LoyaltyMapPrint.PLACE_SIZE
-	var half := font.get_string_size(MIDDLE_LAKE_NAME, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x * 0.5
+	var named := tr(MIDDLE_LAKE_NAME)
+	var half := font.get_string_size(named, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x * 0.5
 	for at: Vector2 in [
 		middle + Vector2(0.0, reach.y + 30.0),
 		middle - Vector2(0.0, reach.y + 14.0),
 		middle + Vector2(reach.x + half + 12.0, 5.0),
 		middle - Vector2(reach.x + half + 12.0, -5.0),
 	]:
-		if land.name_place(MIDDLE_LAKE_NAME, at, true):
+		if land.name_place(named, at, true):
 			break
-	_shore(layout.lakes[-1], "middle lake")
+	_shore(layout.lakes[-1], "middle lake")  # NO_TRANSLATE
 	return middle
 
 
@@ -362,7 +364,7 @@ func _wandered(
 	path: Array[Vector2i], away: PackedInt32Array, cells: Vector2i, grid: PackedByteArray
 ) -> PackedVector2Array:
 	var nodes := PackedVector2Array()
-	var phase := LoyaltyMapLayout.roll("river wander") * TAU
+	var phase := LoyaltyMapLayout.roll("river wander") * TAU  # NO_TRANSLATE
 	for i: int in path.size():
 		var at := (Vector2(path[i]) + Vector2.ONE * 0.5) * CELL
 		var k := path[i].y * cells.x + path[i].x
@@ -463,7 +465,7 @@ func _lay_lake(path: Array[Vector2i], away: PackedInt32Array) -> void:
 	for at: Vector2 in [
 		middle + under, middle - under + Vector2(0.0, 16.0), middle + aside, middle - aside
 	]:
-		if land.name_place(LAKE_NAME, at, true):
+		if land.name_place(tr(LAKE_NAME), at, true):
 			break
 	_shore(layout.lakes[-1], "lake")
 
@@ -496,10 +498,11 @@ func _name_river(across: bool) -> void:
 	)
 	var font := LoyaltyMapPrint.place_font()
 	var size := LoyaltyMapPrint.PLACE_SIZE
-	var wide := font.get_string_size(RIVER_NAME, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var named := tr(RIVER_NAME)
+	var wide := font.get_string_size(named, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	for at: Vector2 in tried.slice(0, 8):
 		var off := Vector2(0.0, -12.0) if across else Vector2(wide * 0.5 + 14.0, 4.0)
-		if land.name_place(RIVER_NAME, at + off, true):
+		if land.name_place(named, at + off, true):
 			return
-		if land.name_place(RIVER_NAME, at - off + Vector2(0.0, 12.0), true):
+		if land.name_place(named, at - off + Vector2(0.0, 12.0), true):
 			return

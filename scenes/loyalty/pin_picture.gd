@@ -6,6 +6,7 @@ extends Control
 ## strip, a phone's, the pause menu's note, see [PinnedNote]; a caption in the House's capitals
 ## over it saying where it is, all of it on a pane of the dark the arena's top is.
 
+## The caption over it, where the pin is shown, shown through tr().
 const BY_THE_CLOCK := "IN A MATCH, BY THE CLOCK"
 const IN_THE_MENU := "IN THE PAUSE MENU"
 ## The room round it inside its pane, the caption's line, and the gap between the clock and the
@@ -62,7 +63,7 @@ func wanted() -> Vector2:
 
 
 func _caption() -> String:
-	return BY_THE_CLOCK if strip else IN_THE_MENU
+	return tr(BY_THE_CLOCK) if strip else tr(IN_THE_MENU)
 
 
 func _draw() -> void:

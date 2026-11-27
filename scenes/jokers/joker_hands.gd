@@ -8,10 +8,12 @@ extends RefCounted
 
 enum Hand { FLUSH, FOUR_OF_A_KIND, FULL_HOUSE, RAINBOW, SUITED, TWO_PAIR }
 
+## Each hand by name, shown through tr(); [method name_of] gives it in English, as the stats and
+## the bonuses go by it.
 const NAMES: Array[String] = [
 	"Flush", "Four of a Kind", "Full House", "Rainbow", "Suited", "Two Pair"
 ]
-## What each is, and what it pays, as the pay tables say them.
+## What each is, and what it pays, as the pay tables say them, shown through tr().
 const IS: Array[String] = [
 	"Five cards of one suit",
 	"Four cards of one suit",
@@ -28,7 +30,7 @@ const PAYS: Array[String] = [
 	"Its suit's bonus",
 	"Cash-outs bank 5% more",
 ]
-## What each pays in a few words, for a ticket's narrow line.
+## What each pays in a few words, for a ticket's narrow line, shown through tr().
 const SHORT: Array[String] = [
 	"bonus x2", "a chip / 3 s", "both suits", "cash-out +10%", "its bonus", "cash-out +5%"
 ]

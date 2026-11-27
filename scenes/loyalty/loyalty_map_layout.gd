@@ -94,7 +94,7 @@ const LEGEND := Vector2(262.0, 156.0)
 const CARTOUCHE := Vector2(330.0, 118.0)
 
 ## Every layout laid out this run, by the map, the sheet and whether Kit's district is drawn,
-## which is all of a profile's progress that changes where anything goes.
+## which is all of a profile's progress that changes where anything goes, and by the language.
 static var _laid: Dictionary[String, LoyaltyMapLayout] = {}
 
 var map: LoyaltyMap
@@ -159,7 +159,10 @@ var _sway_phase := Vector2.ZERO
 ## back after, so the map opens and turns its sheets without laying it all out again.
 static func of(drawn: LoyaltyMap, whose: Profile, on := Sheet.HOUSE) -> LoyaltyMapLayout:
 	var kit := Loyalty.district_open(whose, LoyaltyLandmark.District.OFF_THE_BOOKS)
-	var key := "%d|%d|%d|%s" % [drawn.get_instance_id(), drawn.grid.hash(), on, kit]
+	# Its signs and its places are as wide as their names, so it is laid out for each language.
+	var key := (
+		"%d|%d|%d|%s|%s" % [drawn.get_instance_id(), drawn.grid.hash(), on, kit, Lang.current]
+	)
 	if _laid.has(key):
 		return _laid[key]
 	var layout := LoyaltyMapLayout.new()
@@ -350,9 +353,10 @@ func _lay_sway() -> void:
 		var reach := 1.0
 		for at: Vector2 in spots[side]:
 			reach = maxf(reach, at.distance_to(turned_about))
-		var how := 0.55 + 0.45 * absf(wobble("turn %d %d" % [sheet, side]))
+		var how := 0.55 + 0.45 * absf(wobble("turn %d %d" % [sheet, side]))  # NO_TRANSLATE
 		var turn := minf(TURN * how, TURN_REACH / reach)
 		_sway_turns.append(turn * (1.0 if side == 1 else -1.0))
+	# The dice's seed, not words. NO_TRANSLATE
 	_sway_phase = Vector2(wobble("phase x %d" % sheet), wobble("phase y %d" % sheet)) * PI
 
 
@@ -446,7 +450,7 @@ static func sign_size(landmark: LoyaltyLandmark) -> Vector2:
 	var size := roundi(LoyaltyArt.TITLE_SIZE * (LoyaltyArt.HAND_SCALE if kit else 1.0))
 	var room := SIGN_MOST - PICTURE_ROOM - LoyaltyArt.ROOM
 	var widest := 0.0
-	for line: String in LoyaltyArt.lines_of(font, landmark.title, size, room, 2):
+	for line: String in LoyaltyArt.lines_of(font, Lang.t(landmark.title), size, room, 2):
 		widest = maxf(widest, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x)
 	var wide := clampf(widest + PICTURE_ROOM + LoyaltyArt.ROOM + 6.0, SIGN_LEAST, SIGN_MOST)
 	return Vector2(roundf(wide), SIGN_TALL + (6.0 if landmark.keystone else 0.0))
@@ -485,12 +489,14 @@ func _lay_grid() -> void:
 	for column: int in cells.x + 1:
 		_cols.append(x)
 		if not kit or column >= first_column:
+			# The dice's seed, not words. NO_TRANSLATE
 			x += WIDE + wobble("column %d" % column) * WIDE_SWAY if wide.has(column) else NARROW
 	_rows = PackedFloat32Array()
 	var y := MARGIN.y
 	for row: int in cells.y + 1:
 		_rows.append(y)
 		if row >= _first_row and (not kit or row <= last_row + 1):
+			# The dice's seed, not words. NO_TRANSLATE
 			y += TALL + wobble("row %d" % row) * TALL_SWAY if tall.has(row) else SHORT
 	paper = Vector2(x + MARGIN.x, y + (MARGIN.y if kit else FOOT))
 
@@ -875,7 +881,7 @@ func _lay_streets() -> void:
 		var within: Dictionary[Vector2i, bool] = {}
 		for row: int in count.y:
 			for column: int in count.x:
-				var seed := "%d street %d,%d" % [district, column, row]
+				var seed := "%d street %d,%d" % [district, column, row]  # NO_TRANSLATE
 				var at := low + Vector2(column, row) * step
 				var off := (
 					Vector2(roll(seed + "x") - 0.5, roll(seed + "y") - 0.5) * 2.0 * STREET_JITTER
@@ -886,6 +892,7 @@ func _lay_streets() -> void:
 		_lay_blocks(corners, within, district)
 		for cell: Vector2i in corners:
 			for way: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN]:
+				# The dice's seed, not words. NO_TRANSLATE
 				var seed := "%d stretch %d,%d %d" % [district, cell.x, cell.y, way.x]
 				if not corners.has(cell + way) or roll(seed) > STREETS_KEPT:
 					continue

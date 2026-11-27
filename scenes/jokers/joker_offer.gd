@@ -117,7 +117,7 @@ func replace(held_index: int) -> void:
 	_replaced = _kart.jokers.ids()[held_index]
 	# Gone from the hand by the player's own choice, which its card says, GAME.md 8.3.
 	if not _kart.puppet:
-		Events.joker_used_up.emit(_kart.slot, _replaced, "REPLACED")
+		Events.joker_used_up.emit(_kart.slot, _replaced, Lang.later("REPLACED"))
 	_kart.jokers.remove_at(held_index)
 	Events.joker_destroyed.emit(_kart.slot, _replaced)
 	_finish()

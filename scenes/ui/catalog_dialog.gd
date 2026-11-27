@@ -31,6 +31,7 @@ signal put_away
 
 ## Over a room's pause menu, under the notices and the loading screen.
 const LAYER := PauseMenu.LAYER + 5
+## The dialog's title and its pages', each shown through tr(); the pages' nodes are named by them.
 const TITLE := "Catalog"
 const JOKERS := "Jokers"
 const ITEMS := "Power-ups"
@@ -39,24 +40,22 @@ const HANDS := "Hands"
 const HANDS_PAGE := 2
 ## A tab's words: the page and how many of how many it has found.
 const COUNT := "%s  %d / %d"
-## What a page with nothing found on it yet says in place of its cards, GAME.md 8.8.
+## What a page with nothing found on it yet says in place of its cards, GAME.md 8.8, shown through
+## tr().
 const NO_JOKERS := "Start a match and take a joker to unlock this page."
 const NO_ITEMS := "Start a match and use a power-up to unlock this page."
-## What a card face down says, and how many times one face up was taken.
+## What a card face down says, shown through tr(); how many times one face up was taken or used,
+## see [method taken_words].
 const NOT_FOUND := "Not found yet"
 const TAKE_ONE := "Take one in a match to read it here."
 const USE_ONE := "Use one in a match to read it here."
 ## Under a card the profile's loyalty program has yet to add, GAME.md 8.9: the program's name and
-## the bet that adds it.
-const NOT_DEALT := "Not in your deck yet. %s: %s."
-const NOT_ON_TABLES := "Not on your tables yet. %s: %s."
-const TAKEN_ONCE := "Taken once"
-const TAKEN := "Taken %d times"
-const USED_ONCE := "Used once"
-const USED := "Used %d times"
+## the bet that adds it, shown through tr().
+const NOT_DEALT := "Not in your deck yet. {program}: {bet}."
+const NOT_ON_TABLES := "Not on your tables yet. {program}: {bet}."
 ## The switches and the stack's field under a joker's pane, see [CatalogSwitches], and the binds
 ## that flip, step and turn them on, in the row of tabs; and what the field says beside it, of the
-## biggest stack held.
+## biggest stack held. The words are shown through tr().
 const DETAILED := "Detailed"
 const STACK := "Stack"
 const SUIT := "Suit"
@@ -68,13 +67,15 @@ const BY_SUIT_ACTION := InputActions.MENU_SORT
 const HELD_UP_TO := "Held up to ×%d"
 ## The stack asked for that is every joker's whole stack, whatever it stacks to.
 const WHOLE_STACK := 99
+## What the field says beside it of a joker that does not stack, shown through tr().
 const NO_STACK := "Does not stack"
 ## Between how often a joker was taken and the biggest stack held, at the pane's foot.
 const FOOT_JOIN := "  ·  "
 ## How far over and under their words the sheets' tabs leave room, with a finger and without.
 const TAB_DOWN := 11.0
 const TAB_DOWN_TOUCH := 16.0
-## The line of facts that says which set an item comes in, in the lobby's words, GAME.md 9.6.
+## The line of facts that says which set an item comes in, in the lobby's words, GAME.md 9.6, shown
+## through tr().
 const SET := "Set"
 const BASIC_SET := "Basic items"
 const LATER_SET := "All items only"
@@ -205,7 +206,7 @@ static func jokers_in_order(suited := false) -> Array[Joker]:
 				return a.rarity < b.rarity
 			if a.kind != b.kind:
 				return a.kind < b.kind
-			return a.display_name.naturalnocasecmp_to(b.display_name) < 0
+			return Lang.t(a.display_name).naturalnocasecmp_to(Lang.t(b.display_name)) < 0
 	)
 	return ordered
 
@@ -229,12 +230,12 @@ static func ids_of(things: Array) -> Array[StringName]:
 
 ## What a joker's pane's foot says of how many times it was taken.
 static func taken_words(times: int) -> String:
-	return TAKEN_ONCE if times == 1 else TAKEN % times
+	return Joker.told(Lang.tn("Taken once", "Taken %d times", times), times)
 
 
 ## What a power-up's pane's foot says of how many times it was used.
 static func used_words(times: int) -> String:
-	return USED_ONCE if times == 1 else USED % times
+	return Joker.told(Lang.tn("Used once", "Used %d times", times), times)
 
 
 ## The debug build's catalog argument, `++ --catalog-all`: every joker taken and every power-up used
@@ -256,7 +257,8 @@ static func read_arguments(args: PackedStringArray, settings: Settings) -> void:
 ## The lines of facts an item's pane shows: its own, then the set it comes in.
 static func facts_of(item: PowerUp) -> Array[PackedStringArray]:
 	var lines := item.facts()
-	lines.append(PowerUp.fact(SET, LATER_SET if item in LATER.entries else BASIC_SET))
+	var named := LATER_SET if item in LATER.entries else BASIC_SET
+	lines.append(PowerUp.fact(Lang.t(SET), Lang.t(named)))
 	return lines
 
 
@@ -303,7 +305,7 @@ func _ready() -> void:
 	_balance.name = "Balance"
 	_balance.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_head.add_child(_balance)
-	_title = MenuTheme.title(TITLE, Type.TITLE)
+	_title = MenuTheme.title(tr(TITLE), Type.TITLE)
 	_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_head.add_child(_title)
 	# Next new, a slip on the mat as Back is, and as tall.
@@ -316,7 +318,7 @@ func _ready() -> void:
 	for heard: Signal in [next_new.minimum_size_changed, next_new.visibility_changed]:
 		heard.connect(_balance_head)
 	# Whose record this is, as the story goes, STORY.md 6.6a.
-	var kept := str(StoryLines.at(StoryLines.CATALOG_LINE, _stage()))
+	var kept := tr(str(StoryLines.at(StoryLines.CATALOG_LINE, _stage())))
 	if not kept.is_empty():
 		_kept = MenuTheme.subtitle(kept, Type.LABEL)
 		_kept.name = "Kept"
@@ -334,6 +336,7 @@ func _ready() -> void:
 	tabs.add_child(_items_page())
 	var hands := CatalogPage.hands(_settings.profile)
 	tabs.add_child(hands)
+	tabs.set_tab_title(HANDS_PAGE, tr(HANDS))
 	_empty.append(hands.get_node("Well/Empty") as Label)
 	# The tabs and their pages one piece, as the settings' are: no air between the row and the page.
 	var pages := VBoxContainer.new()
@@ -350,7 +353,7 @@ func _ready() -> void:
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_foot_row.add_child(room)
-	back = MenuTheme.button("Back")
+	back = MenuTheme.button(tr("Back"))
 	ProofStyle.dress(back)
 	back.name = "Back"
 	back.custom_minimum_size.x = 200.0
@@ -365,7 +368,7 @@ func _ready() -> void:
 	cover.tabs = tabs
 	cover.foot = _foot_row
 	cover.back = back
-	cover.motto = str(StoryLines.at(StoryLines.PROOF, _stage()))
+	cover.motto = tr(str(StoryLines.at(StoryLines.PROOF, _stage())))
 	cover.say(_settings, page_ids())
 	_pane.add_child(cover)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _show_binds())
@@ -414,7 +417,7 @@ func is_empty(index: int) -> bool:
 func set_detailed(on: bool) -> void:
 	detailed = on
 	detailed_switch.set_pressed_no_signal(on)
-	ScreenReader.say(detailed_switch, ScreenReader.switched(DETAILED, on))
+	ScreenReader.say(detailed_switch, ScreenReader.switched(tr(DETAILED), on))
 	if _joker_at != null:
 		_describe_joker(_joker_at)
 
@@ -428,7 +431,7 @@ func set_stack(copies: int) -> void:
 	if _joker_at != null and _joker_at.found:
 		var joker := (_joker_at.card as JokerCard).joker
 		var copied := joker.describe(clampi(stack, 1, stack_limit(joker)))
-		ScreenReader.say(stepper, ScreenReader.line([STACK, stepper.shown(), copied]))
+		ScreenReader.say(stepper, ScreenReader.line([tr(STACK), stepper.shown(), copied]))
 
 
 ## Shows the jokers of [param suit] alone, by [enum Joker.Suit], or every one for [constant
@@ -443,7 +446,7 @@ func show_suit(suit: int) -> void:
 func set_by_suit(on: bool) -> void:
 	by_suit = on
 	switches.by_suit_switch.set_pressed_no_signal(on)
-	ScreenReader.say(switches.by_suit_switch, ScreenReader.switched(BY_SUIT, on))
+	ScreenReader.say(switches.by_suit_switch, ScreenReader.switched(tr(BY_SUIT), on))
 	_arrange()
 
 
@@ -665,7 +668,7 @@ func _jokers_page() -> Control:
 	joker_pane = JokerDetail.new()
 	joker_pane.print_on_paper()
 	joker_preview = CardPreview.new()
-	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview, NO_JOKERS)
+	var page := _page(JOKERS, joker_grid, joker_pane, joker_preview, tr(NO_JOKERS))
 	switches = CatalogSwitches.add_to(page.get_node("Side/Column") as Control, self)
 	detailed_switch = switches.detailed_switch
 	stepper = switches.stepper
@@ -691,11 +694,11 @@ func _items_page() -> Control:
 	item_pane = PowerUpDetail.new()
 	item_pane.print_on_paper()
 	item_preview = CardPreview.new()
-	return _page(ITEMS, item_grid, item_pane, item_preview, NO_ITEMS)
+	return _page(ITEMS, item_grid, item_pane, item_preview, tr(NO_ITEMS))
 
 
-## A page called [param named], see [method CatalogPage.build], its words for nothing found yet
-## kept to say whether it has any.
+## A page called [param named], in English, see [method CatalogPage.build], its words for nothing
+## found yet, [param none], kept to say whether it has any.
 func _page(
 	named: String, grid: CardGrid, pane: Control, preview: CardPreview, none: String
 ) -> HBoxContainer:
@@ -725,7 +728,7 @@ func _count_tabs() -> void:
 		var ids: Array[StringName] = pages[i][1]
 		var found := catalog.found_of(ids)
 		# Nothing found yet is no count: the page says how to unlock it instead.
-		var named: String = pages[i][0]
+		var named := tr(pages[i][0])
 		tabs.set_tab_title(i, named if found == 0 else COUNT % [named, found, ids.size()])
 		tabs.set_tab_icon(i, MenuTheme.tick() if found >= ids.size() else null)
 		tab_bar.set_tab_title(i, tabs.get_tab_title(i))
@@ -875,7 +878,7 @@ func _on_item_looked_at(cell: CatalogCell) -> void:
 	else:
 		item_preview.show_unknown()
 	if not cell.found:
-		item_pane.show_unknown(NOT_FOUND, _until_added(USE_ONE, NOT_ON_TABLES, cell.id))
+		item_pane.show_unknown(tr(NOT_FOUND), _until_added(tr(USE_ONE), tr(NOT_ON_TABLES), cell.id))
 		item_pane.set_hints(null)
 	else:
 		var item: PowerUp = (cell.card as ItemCard).item
@@ -885,18 +888,19 @@ func _on_item_looked_at(cell: CatalogCell) -> void:
 
 
 ## [param under] for a card or item never found, and for one the profile's loyalty program has
-## yet to add, [param line] after it, naming the program and the bet that adds it, GAME.md 8.9.
+## yet to add, [param line] after it, naming the program and the bet that adds it, GAME.md 8.9:
+## both translated already, the line with a place for each.
 func _until_added(under: String, line: String, id: StringName) -> String:
 	var adder := Loyalty.adder_of(id)
 	if adder == null or _settings.profile.loyalty.has_won(adder.id):
 		return under
-	var program: String = StoryLines.at(StoryLines.PROGRAM, Story.stage_here())
-	return under + "\n" + line % [program, Loyalty.bet_of(adder)]
+	var program := tr(StoryLines.at(StoryLines.PROGRAM, Story.stage_here()))
+	return under + "\n" + line.format({"program": program, "bet": Loyalty.bet_of(adder)})
 
 
 func _describe_joker(cell: CatalogCell) -> void:
 	if not cell.found:
-		joker_pane.show_unknown(NOT_FOUND, _until_added(TAKE_ONE, NOT_DEALT, cell.id))
+		joker_pane.show_unknown(tr(NOT_FOUND), _until_added(tr(TAKE_ONE), tr(NOT_DEALT), cell.id))
 		joker_pane.set_hints(null)
 		_show_stack(0, 0, "")
 		joker_preview.show_unknown()
@@ -905,8 +909,8 @@ func _describe_joker(cell: CatalogCell) -> void:
 	joker_preview.show_joker(joker)
 	var limit := stack_limit(joker)
 	var copies := clampi(stack, 1, limit)
-	var held := HELD_UP_TO % _settings.profile.catalog.best_stack(joker.id)
-	_show_stack(copies, limit, held if joker.stackable else NO_STACK)
+	var held := tr(HELD_UP_TO) % _settings.profile.catalog.best_stack(joker.id)
+	_show_stack(copies, limit, held if joker.stackable else tr(NO_STACK))
 	joker_pane.show_joker(joker, copies, false, detailed)
 	var taken := taken_words(_settings.profile.catalog.times(cell.id))
 	var foot := taken + FOOT_JOIN + held if joker.stackable else taken
@@ -987,5 +991,5 @@ func _switch_hint(keyboard: bool) -> HBoxContainer:
 	var parts: Array = []
 	for action: StringName in [DETAILED_ACTION, STACK_ACTION, SUIT_ACTION, BY_SUIT_ACTION]:
 		parts.append(InputGlyph.of_action(action, keyboard, ink, size))
-	var words := "%s " + "   %s ".join([DETAILED, STACK, SUIT, BY_SUIT])
+	var words := "%s " + "   %s ".join([tr(DETAILED), tr(STACK), tr(SUIT), tr(BY_SUIT)])
 	return InputHint.row(words, parts, ink, size)

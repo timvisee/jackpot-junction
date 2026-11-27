@@ -411,7 +411,7 @@ static func _milestone(on: CanvasItem, box: Rect2, ink: Color, faint: Color) -> 
 	on.draw_string(
 		font,
 		Vector2(base.x - wide * 0.5, base.y),
-		MILESTONE,
+		Lang.decimal(MILESTONE.to_float()),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		wide,
 		size,

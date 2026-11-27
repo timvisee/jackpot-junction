@@ -13,4 +13,4 @@ func blocks_healing() -> bool:
 
 
 func stack_values(copies: int) -> Dictionary:
-	return {"lives": "Two more lives" if copies == 2 else "One more life"}
+	return {"lives": tr("Two more lives") if copies == 2 else tr("One more life")}

@@ -17,7 +17,7 @@ const ENGRAVED := 0.22
 const MARK := "?"
 const MARK_SIZE := 64
 ## The backs a card may wear, the first everybody's and the rest won in the loyalty program, by
-## the names its landmarks pay them under.
+## the names its landmarks pay them under, in English the dress's ids and shown through tr().
 const STYLES: Array[String] = [
 	"The house's", "Gilt", "Hand-drawn", "Doodled", "Beacon", "Constellation", "Aurora"
 ]
@@ -185,7 +185,7 @@ static func worn() -> int:
 	if chosen in SUPPORTER:
 		return chosen if Supporter.owned() else 0
 	var dress: PackedStringArray = Loyalty.unlocks_of(profile)["dress"]
-	return chosen if "card_back:%s" % STYLES[chosen] in dress else 0
+	return chosen if "card_back:%s" % STYLES[chosen] in dress else 0  # NO_TRANSLATE
 
 
 ## The question mark of a card face down, [param font_size] big in [param ink], with the middle

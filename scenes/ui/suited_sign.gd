@@ -38,7 +38,7 @@ const SHINE: Shader = preload("res://scenes/ui/sign_shine.gdshader")
 const SHINE_REACH := 16.0
 
 var _suits: Array[int] = []
-var _word := "SUITED"
+var _word := ""
 ## When each suit's card came, on the engine's clock, for its turn.
 var _came: Dictionary[int, float] = {}
 ## How much of a stamp is still to run, 1 to 0, and of a lost hand being let go, and what it was.
@@ -50,6 +50,7 @@ var _ghost_word := ""
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_word = tr("SUITED")
 
 
 ## Shows a card for each of [param suits], by [enum Joker.Suit], a new one turning over into place,

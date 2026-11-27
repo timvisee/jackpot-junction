@@ -358,7 +358,7 @@ func test_the_pane_says_the_landmark() -> void:
 	assert_str(opens).starts_with("Opens with a road from ")
 	for named: String in ["The Counting Room", "The High Limit Room", "The Winners' Circle"]:
 		assert_str(opens).contains(named)
-	assert_str(opens).contains(LoyaltyPane.OR)
+	assert_str(opens).contains(" or ")
 	dialog.pane.show_landmark(profile, map.landmark(&"card_shark"))
 	assert_str(_label(dialog.pane, "Standing").text).contains(LoyaltyPane.KEYSTONE.to_upper())
 	assert_str(_label(dialog.pane, "Opens").text).starts_with("Opens once every road in is won")

@@ -31,12 +31,12 @@ static func add_to(column: Control, dialog: CatalogDialog) -> CatalogSwitches:
 	var beside := HBoxContainer.new()
 	beside.add_theme_constant_override("separation", BESIDE)
 	var words := Label.new()
-	words.text = CatalogDialog.BY_SUIT
+	words.text = Lang.t(CatalogDialog.BY_SUIT)
 	Type.strong(words, Type.LABEL, HouseTheme.WORDS)
 	beside.add_child(words)
 	beside.add_child(switches.by_suit_switch)
-	ScreenReader.name(switches.by_suit_switch, CatalogDialog.BY_SUIT)
-	switches._row(CatalogDialog.DETAILED, switches.detailed_switch, beside)
+	ScreenReader.name(switches.by_suit_switch, words.text)
+	switches._row(Lang.t(CatalogDialog.DETAILED), switches.detailed_switch, beside)
 	switches.stepper = StackStepper.new()
 	switches.stepper.on_paper = true
 	switches.stepper.name = "Stack"
@@ -44,11 +44,11 @@ static func add_to(column: Control, dialog: CatalogDialog) -> CatalogSwitches:
 	switches.stack_note = Label.new()
 	switches.stack_note.name = "Held"
 	Type.text(switches.stack_note, Type.LABEL, JokerDetail.hint_ink())
-	switches._row(CatalogDialog.STACK, switches.stepper, switches.stack_note)
+	switches._row(Lang.t(CatalogDialog.STACK), switches.stepper, switches.stack_note)
 	switches.suits = SuitFilter.new(CatalogDialog.suit_shown)
 	switches.suits.name = "Suits"
 	switches.suits.chosen.connect(dialog.show_suit)
-	switches._row(CatalogDialog.SUIT, switches.suits)
+	switches._row(Lang.t(CatalogDialog.SUIT), switches.suits)
 	return switches
 
 

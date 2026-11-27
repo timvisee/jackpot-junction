@@ -9,4 +9,4 @@ func copies_drops() -> bool:
 
 
 func went_off_words(times: int) -> String:
-	return "Copied your cards once" if times == 1 else "Copied your cards %d times" % times
+	return told(tr_n("Copied your cards once", "Copied your cards %d times", times), times)

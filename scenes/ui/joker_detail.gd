@@ -16,7 +16,7 @@ extends PanelContainer
 ##
 ## The catalog prints it on the House's paper instead, its spec sheet, see [method print_on_paper].
 
-## The kind of one of Kit's cards, which is none of the House's, STORY.md 6.3.
+## The kind of one of Kit's cards, which is none of the House's, STORY.md 6.3, shown through tr().
 const KIT := "KIT'S"
 const WIDTH := 400.0
 const HINT := Color(0.62, 0.62, 0.68)
@@ -32,7 +32,7 @@ const SUIT_SIDE := 16.0
 ## How big the suit before the name is, where it is shown there.
 const TITLE_SUIT := 26.0
 const SPACE := "\u00a0"
-## What the hand makes, under the suit's line in a match, GAME.md 7.3.
+## What the hand makes, under the suit's line in a match, GAME.md 7.3, shown through tr().
 const ACTIVE := "Your hand: %s."
 
 var _style: TicketStyle
@@ -246,7 +246,7 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	var copies := held + 1 if taking else held
 	var said := ""
 	if joker.stackable and copies > 1:
-		said = ("makes ×%d" if taking else "×%d") % copies
+		said = (tr("makes ×%d") if taking else "×%d") % copies
 	var stage := Story.stage_here()
 	var standing := joker.standing_for
 	var same := joker == _joker and said == _stack_said and details == _details
@@ -258,7 +258,7 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_details = details
 	_stage = stage
 	var term: String = StoryLines.TERMS.get(joker.id, "")
-	_term.text = term
+	_term.text = tr(term)
 	_term.visible = stage >= StoryLines.TERMS_FROM and not term.is_empty()
 	_stack.text = said
 	_stack.visible = not said.is_empty()
@@ -266,7 +266,7 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 	_style.frame = Color(color, FRAME)
 	_style.frame_body = Color(color, FRAME_BODY)
 	_style.engraving = Color(color, 0.0 if _paper else ENGRAVED)
-	_name.text = joker.display_name
+	_name.text = tr(joker.display_name)
 	# New to the reader's catalog, GAME.md 8.8: one of the House's the profile has never held, not
 	# one of Kit's, which the catalog does not keep, see [member CatalogState.jokers]. The badge is
 	# hung on or taken off the corner to match, straddling it as a button's does, see [method
@@ -302,10 +302,10 @@ func show_joker(joker: Joker, held := 1, taking := false, details := false) -> v
 ## kind, and Kit's line where the suit's would be.
 func _in_pencil(joker: Joker) -> void:
 	_rarity.visible = false
-	_kind.text = KIT
+	_kind.text = tr(KIT)
 	_suit_mark.visible = false
 	_suit_count.visible = false
-	_suit_words.text = '"%s" —K.' % joker.kit_line
+	_suit_words.text = tr('"%s" —K.') % tr(joker.kit_line)
 
 
 ## Says what the hand the card is in makes, in a match while its key is held, GAME.md 7.3: its
@@ -322,8 +322,8 @@ func show_active(made: JokerHands.Made, lead: int, details := true) -> void:
 		return
 	var named: Array[String] = []
 	for hand: int in made.hands:
-		named.append(JokerHands.name_of(hand))
-	_active.text = ACTIVE % ", ".join(named)
+		named.append(tr(JokerHands.name_of(hand)))
+	_active.text = tr(ACTIVE) % Lang.t(", ", &"list").join(named)
 
 
 ## The suit's line in gold while the hand is Suited in it, or as the pane's hints otherwise.

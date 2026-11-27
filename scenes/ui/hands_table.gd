@@ -29,8 +29,9 @@ const SHARED_WASH := 150.0
 const SHARED_GLOW := Scoreboard.GLOW
 const UNMADE := Color(1.0, 1.0, 1.0, 0.6)
 const WANTED := Color(1.0, 0.8, 0.4)
+## Its head, and what the next hand up still wants, shown through tr().
 const HEAD := "HANDS"
-const WANTS := "%d more %s"
+const WANTS := "{count} more {suit}"
 const PICTURES := &"hands_table_pictures"
 
 var _made: Array[int] = []
@@ -107,9 +108,10 @@ static func paint(
 	back.border_color = Color(Palette.CHIP_GOLD, 0.5)
 	on.draw_style_box(back, Rect2(Vector2.ZERO, SIZE))
 	var font := Type.STRONG
-	var head_wide := font.get_string_size(HEAD, HORIZONTAL_ALIGNMENT_LEFT, -1, HEAD_SIZE).x
+	var head := Lang.t(HEAD)
+	var head_wide := font.get_string_size(head, HORIZONTAL_ALIGNMENT_LEFT, -1, HEAD_SIZE).x
 	var head_at := Vector2((SIZE.x - head_wide) * 0.5, 24.0)
-	on.draw_string(font, head_at, HEAD, HORIZONTAL_ALIGNMENT_LEFT, -1, HEAD_SIZE, UNMADE)
+	on.draw_string(font, head_at, head, HORIZONTAL_ALIGNMENT_LEFT, -1, HEAD_SIZE, UNMADE)
 	for hand: int in JokerHands.Hand.size():
 		var y := TOP + hand * ROW
 		var lit := hand in made
@@ -120,15 +122,15 @@ static func paint(
 			_draw_marks(on, hand, y, marks)
 		HandsArt.fan(on, Vector2(14.0, y + 13.0), JokerHands.SHOWN[hand], CARD, base)
 		var ink := Palette.CHIP_GOLD if lit else UNMADE
-		var named := JokerHands.name_of(hand).to_upper()
+		var named := Lang.t(JokerHands.name_of(hand)).to_upper()
 		var row_at := y + 18.0
 		on.draw_string(
 			font, Vector2(NAME_AT, row_at), named, HORIZONTAL_ALIGNMENT_LEFT, -1, NAME_SIZE, ink
 		)
-		var said := JokerHands.PAYS[hand]
+		var said := Lang.t(JokerHands.PAYS[hand])
 		var said_ink := Color(1.0, 1.0, 1.0, 0.8)
 		if not wanted.is_empty() and wanted[0] == hand:
-			said = WANTS % [wanted[1], JokerSuits.SYMBOLS[wanted[2]]]
+			said = Lang.t(WANTS).format({"count": wanted[1], "suit": JokerSuits.SYMBOLS[wanted[2]]})
 			said_ink = WANTED
 		var room := SIZE.x - PAYS_AT - 8.0
 		on.draw_string(
@@ -178,7 +180,7 @@ func _draw() -> void:
 	var marks := _marks
 	var picture := KeptPictures.of(
 		self,
-		"hands_table|%s|%s|%s" % [made, wanted, marks],
+		"hands_table|%s|%s|%s" % [made, wanted, marks],  # NO_TRANSLATE
 		pixels,
 		func() -> Control:
 			var drawing := Picture.new()

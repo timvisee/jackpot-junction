@@ -28,7 +28,8 @@ const STRIP := Color("#efe6d2")
 const STRIP_PATTERN := Color(0.62, 0.52, 0.3, 0.22)
 const SIGNED := preload("res://assets/fonts/HomemadeApple-Regular.ttf")
 const SIGNED_INK := Color("#1d2a5c")
-## What the back says in microprint, STORY.md 6.6b, and over its signature strip.
+## What the back says in microprint, STORY.md 6.6b, and over its signature strip, and the rest
+## printed on it, shown through tr().
 const MICROPRINT: Array[String] = [
 	"THIS CARD REMAINS THE PROPERTY OF THE HOUSE · NOT TRANSFERABLE",
 	"ALL PLAY IS RECORDED",
@@ -38,8 +39,8 @@ const MEMBER := "MEMBER"
 const NUMBER := "No."
 const LAP := "LAP %d"
 
-## The program's name and its line, by the story's stage.
-var program := "Loyalty Program"
+## The program's name and its line, by the story's stage, in the language spoken.
+var program := ""
 var line := ""
 ## Whose card it is and its number.
 var holder := ""
@@ -55,22 +56,23 @@ func _init() -> void:
 	size = SIZE
 	custom_minimum_size = SIZE
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	program = tr("Loyalty Program")
 
 
 ## The card of [param profile], as its screens show the program now.
 static func of(profile: Profile) -> LoyaltyCard:
 	var card := LoyaltyCard.new()
-	card.program = LoyaltyDialog.program_name(profile)
+	card.program = Lang.t(LoyaltyDialog.program_name(profile))
 	card.line = LoyaltyDialog.program_line(profile)
 	card.holder = holder_of(profile)
 	card.member = profile.loyalty.member if not profile.loyalty.member.is_empty() else "0000 0000"
 	card.laps = profile.loyalty.laps
-	var lap := LAP % card.laps if card.laps > 0 else ""
+	var lap := Lang.t(LAP) % card.laps if card.laps > 0 else ""
 	var said := PackedStringArray(
 		[
 			ScreenReader.spoken(card.line),
 			card.holder,
-			"%s %s %s" % [ScreenReader.spoken(MEMBER), NUMBER, card.member],
+			"%s %s %s" % [ScreenReader.spoken(Lang.t(MEMBER)), Lang.t(NUMBER), card.member],
 			ScreenReader.spoken(lap),
 		]
 	)
@@ -85,7 +87,7 @@ static func holder_of(profile: Profile) -> String:
 		return profile.player_names[0].strip_edges()
 	if not profile.license_holder.strip_edges().is_empty():
 		return profile.license_holder.strip_edges()
-	return "Valued Member"
+	return Lang.t("Valued Member")
 
 
 func _draw() -> void:
@@ -130,13 +132,13 @@ func _draw_front() -> void:
 	draw_rect(pad.grow(-3.0), HouseTheme.FOIL)
 	_pad_lines(HouseTheme.FOIL_LOW)
 	var numbers := Type.numbers_font()
-	_embossed(Vector2(44.0, 244.0), "%s %s" % [NUMBER, member], numbers, 34)
+	_embossed(Vector2(44.0, 244.0), "%s %s" % [tr(NUMBER), member], numbers, 34)
 	_embossed(Vector2(44.0, 296.0), holder.to_upper(), Type.STRONG, 24)
 	var small := Type.micro_font()
 	draw_string(
 		small,
 		Vector2(SIZE.x - 150.0, 296.0),
-		MEMBER,
+		tr(MEMBER),
 		HORIZONTAL_ALIGNMENT_RIGHT,
 		110.0,
 		12,
@@ -174,7 +176,7 @@ func _draw_foil(gold: Color) -> void:
 	)
 	if laps > 0:
 		draw_string(
-			display, Vector2(136.0, 170.0), LAP % laps, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, gold
+			display, Vector2(136.0, 170.0), tr(LAP) % laps, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, gold
 		)
 	if shine_only:
 		_emblem(Vector2(SIZE.x - 104.0, 196.0), 50.0, gold)
@@ -231,7 +233,7 @@ func _draw_back() -> void:
 	draw_string(
 		Type.micro_font(),
 		strip.position + Vector2(0.0, -8.0),
-		SIGNATURE,
+		tr(SIGNATURE),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		10,
@@ -270,7 +272,7 @@ func _draw_back() -> void:
 		draw_string(
 			Type.micro_font(),
 			at,
-			MICROPRINT[i],
+			tr(MICROPRINT[i]),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			9,

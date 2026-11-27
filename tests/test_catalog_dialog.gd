@@ -411,7 +411,7 @@ func test_an_items_pane_has_its_facts_and_set() -> void:
 	var facts := dialog.item_pane.facts_shown()
 	assert_array(facts[-1]).contains_exactly([CatalogDialog.SET, CatalogDialog.LATER_SET])
 	assert_array(facts[0]).contains_exactly(item.facts()[0])
-	assert_str(_words_in(dialog.item_pane)).contains(CatalogDialog.USED_ONCE)
+	assert_str(_words_in(dialog.item_pane)).contains(CatalogDialog.used_words(1))
 	dialog.cell_of(&"shield").grab_focus()
 	await get_tree().process_frame
 	assert_str(dialog.item_pane.title()).is_equal(CatalogDialog.NOT_FOUND)

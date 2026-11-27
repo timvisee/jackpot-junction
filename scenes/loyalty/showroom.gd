@@ -26,6 +26,7 @@ const HOUSING := Color(0.3, 0.31, 0.34)
 ## How wide the frame round the door is.
 const FRAME := 0.16
 const PLATE := Color(0.08, 0.08, 0.1)
+## The sign over the door, shown through tr().
 const WORDS := "SHOWROOM"
 const UNDER := "MEMBERS ONLY  ·  DEPT. OF KARTS"
 
@@ -156,14 +157,14 @@ func _sign(at: Vector3, wide: float) -> void:
 	board.position = at
 	add_child(board)
 	var words := Label3D.new()
-	words.text = WORDS
+	words.text = tr(WORDS)
 	words.font_size = 72
 	words.pixel_size = 0.006
 	words.modulate = HouseTheme.FOIL
 	words.position = at + Vector3(0.0, 0.08, 0.04)
 	add_child(words)
 	var under := Label3D.new()
-	under.text = UNDER
+	under.text = tr(UNDER)
 	under.font_size = 28
 	under.pixel_size = 0.006
 	under.modulate = Color(0.85, 0.85, 0.88)

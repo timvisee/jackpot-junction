@@ -21,6 +21,7 @@ extends Panel
 const SIZE := Vector2(120.0, 168.0)
 ## The red that marks a card for destruction, on its frame and on the cross over it.
 const DOOMED := Color("#FF3B30")
+## The kinds and the rarities by name, each shown through tr().
 const KIND_NAMES: Dictionary[int, String] = {
 	Joker.Kind.STAT: "Stat", Joker.Kind.RULE: "Rule", Joker.Kind.CURSED: "Cursed"
 }
@@ -57,7 +58,8 @@ const INDEX_IN := 2
 const PICTURES := &"joker_card_pictures"
 const PICTURE_STEP := 8
 const STEADY := 6
-## One of Kit's cards, STORY.md 6.3, as a screen reader is told it; and its corner, Kit's initial.
+## One of Kit's cards, STORY.md 6.3, as a screen reader is told it, shown through tr(); and its
+## corner, Kit's initial.
 const KIT_CARD := "One of Kit's cards"
 const KIT_MARK := "K."
 
@@ -192,7 +194,7 @@ static func create(for_joker: Joker) -> JokerCard:
 	var card := JokerCard.new()
 	card.joker = for_joker
 	card._build()
-	ScreenReader.name(card, for_joker.display_name, told(for_joker))
+	ScreenReader.name(card, Lang.t(for_joker.display_name), told(for_joker))
 	return card
 
 
@@ -201,15 +203,26 @@ static func create(for_joker: Joker) -> JokerCard:
 static func told(for_joker: Joker, copies := 1) -> String:
 	if for_joker.contraband:
 		return ScreenReader.line(
-			[KIT_CARD, for_joker.describe(copies), '"%s"' % for_joker.kit_line]
+			[Lang.t(KIT_CARD), for_joker.describe(copies), '"%s"' % Lang.t(for_joker.kit_line)]
 		)
+	# TRANSLATORS: How rare a joker is and its kind, as a screen reader says them: Common Stat.
 	var said := PackedStringArray(
 		[
-			JokerSuits.name_of(for_joker.suit),
-			"%s %s" % [rarity_name(for_joker), kind_name(for_joker)],
+			Lang.t(JokerSuits.name_of(for_joker.suit)),
+			Lang.t("{rarity} {kind}").format(
+				{"rarity": rarity_name(for_joker), "kind": kind_name(for_joker)}
+			),
 			for_joker.describe(copies),
 		]
 	)
+	return ScreenReader.line(said)
+
+
+## What a screen reader is told of [param for_joker] as the [param index]th of [param count] cards,
+## from 1, [param copies] of it held: where it is, its name, then the rest, see [method told].
+static func told_at(index: int, count: int, for_joker: Joker, copies := 1) -> String:
+	var place := Lang.t("{index} of {count}").format({"index": index, "count": count})
+	var said := PackedStringArray([place, Lang.t(for_joker.display_name), told(for_joker, copies)])
 	return ScreenReader.line(said)
 
 
@@ -226,8 +239,9 @@ static func kind_color(for_joker: Joker) -> Color:
 	return Palette.CHIP_GOLD
 
 
+## The joker's kind, in the language spoken.
 static func kind_name(for_joker: Joker) -> String:
-	return KIND_NAMES[for_joker.kind]
+	return Lang.t(KIND_NAMES[for_joker.kind])
 
 
 ## The color that stands for how rare a joker is, shared by the cards and the detail pane.
@@ -235,8 +249,9 @@ static func rarity_color(for_joker: Joker) -> Color:
 	return RARITY_COLORS[for_joker.rarity]
 
 
+## How rare the joker is, in the language spoken.
 static func rarity_name(for_joker: Joker) -> String:
-	return RARITY_NAMES[for_joker.rarity]
+	return Lang.t(RARITY_NAMES[for_joker.rarity])
 
 
 ## Lays the face of [param face], the card this Copy Cat copies, over its own, built again only when
@@ -373,7 +388,7 @@ func _build() -> void:
 	var art := JokerArt.picture(joker.id, color)
 	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var title := Label.new()
-	title.text = joker.display_name
+	title.text = tr(joker.display_name)
 	Type.set_font(title, Type.STRONG, 15)
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -408,14 +423,14 @@ func _build() -> void:
 ## Kit's hand, and along its foot where the House's term would be, Kit's line.
 func _in_pencil(kind: Label, title: Label, suit: Control, stack: VBoxContainer) -> void:
 	suit.visible = false
-	kind.text = KIT_MARK
+	kind.text = tr(KIT_MARK)
 	Type.set_font(kind, NotePage.HAND, 18)
 	kind.add_theme_color_override("font_color", KitCards.PENCIL)
 	Type.set_font(title, NotePage.HAND, 20)
 	title.add_theme_color_override("font_color", KitCards.PENCIL)
 	var line := Label.new()
 	line.name = "KitLine"
-	line.text = joker.kit_line
+	line.text = tr(joker.kit_line)
 	line.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -456,7 +471,7 @@ func _ask_picture() -> void:
 	var of := joker
 	var drawn := KeptPictures.of(
 		self,
-		"joker_face|%s" % joker.id,
+		"joker_face|%s" % joker.id,  # NO_TRANSLATE
 		pixels,
 		func() -> Control:
 			var holder := Control.new()

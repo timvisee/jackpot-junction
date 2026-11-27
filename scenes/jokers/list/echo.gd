@@ -22,11 +22,11 @@ func echoes(kart: Kart) -> bool:
 	var now := Time.get_ticks_msec() * 0.001
 	if now - _said >= QUIET:
 		_said = now
-		went_off(kart, "ECHO")
+		went_off(kart, Lang.later("ECHO"))
 	else:
 		went_off(kart, "")
 	return true
 
 
 func went_off_words(times: int) -> String:
-	return "Paid again once" if times == 1 else "Paid again %d times" % times
+	return told(tr_n("Paid again once", "Paid again %d times", times), times)

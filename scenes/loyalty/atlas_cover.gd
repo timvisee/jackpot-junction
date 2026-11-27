@@ -350,7 +350,11 @@ func _draw_cover() -> void:
 	var rect := Rect2(Vector2.ZERO, pane.size)
 	var placed := places()
 	var scale_by := maxf(KeptPictures.scale_of(pane), 0.25)
-	var key := "%s|%s|%.3f|%s|%s" % [short, pane.size.round(), scale_by, motto, placed.key()]
+	# Kept by the language as well, for the words on what lies on it.
+	var key := (
+		"%s|%s|%.3f|%s|%s|%s"
+		% [short, pane.size.round(), scale_by, motto, placed.key(), Lang.current]
+	)
 	if _kept != null and key == _kept_key:
 		var whole := rect.grow(ROOM)
 		pane.draw_texture_rect_region(_kept, whole, Rect2(Vector2.ZERO, whole.size * scale_by))
@@ -473,7 +477,7 @@ static func piece(on: CanvasItem, kind: Kind, at: Vector2, turn: float, long: fl
 	var scale_by := maxf(KeptPictures.scale_of(on), 0.25)
 	var picture := KeptPictures.of(
 		on,
-		"atlas_piece|%d|%d" % [kind, roundi(long)],
+		"atlas_piece|%d|%d" % [kind, roundi(long)],  # NO_TRANSLATE
 		Vector2i((room * scale_by).ceil()),
 		func() -> Control:
 			var drawing := Piece.new()

@@ -39,6 +39,8 @@ const STRAYS := 0.13
 const NAMED := 0.45
 ## The fewest drawings a group laid can have and keep its name.
 const NAMED_LEAST := 4
+## The names of the woods, the farm and the hills, shown through tr(), laid out in the language
+## spoken.
 const WOODS_NAMES: Array[String] = ["Lucky Pines", "Flop Forest"]
 const FARM_NAME := "Full House Farm"
 const HILLS_NAME := "High Roller Hills"
@@ -151,7 +153,7 @@ func _lay_blocks() -> void:
 			low = low.min(corner)
 			high = high.max(corner)
 		var box := Rect2(low, high - low)
-		if _roll("block %d" % i) > BUILT or _is_in(box.grow(-2.0), signs):
+		if _roll("block %d" % i) > BUILT or _is_in(box.grow(-2.0), signs):  # NO_TRANSLATE
 			continue
 		if _crosses_a_road(block["quad"], box):
 			continue
@@ -224,8 +226,8 @@ static func furthest(at: Vector2, points: Array[Vector2]) -> float:
 	return least
 
 
-## Names [param named] with its baseline's middle at [param at], where it is clear, and takes it.
-## False where it is not clear.
+## Names [param named], in the language spoken, with its baseline's middle at [param at], where it
+## is clear, and takes it. False where it is not clear.
 func name_place(named: String, at: Vector2, wet: bool) -> bool:
 	var font := LoyaltyMapPrint.place_font()
 	var size := font.get_string_size(
@@ -249,7 +251,7 @@ func _lay_groups() -> void:
 	while y < paper.y:
 		var x := GROUP_STEP * (0.25 + 0.5 * (row % 2))
 		while x < paper.x:
-			var seed := "group %d,%d" % [roundi(x), roundi(y)]
+			var seed := "group %d,%d" % [roundi(x), roundi(y)]  # NO_TRANSLATE
 			var at := Vector2(x, y)
 			at += Vector2(_wobble(seed + "a"), _wobble(seed + "b")) * GROUP_JITTER
 			x += GROUP_STEP
@@ -436,7 +438,7 @@ func _name_group(kind: StringName, at: Vector2, seed: String) -> String:
 	if _roll(seed + "named") > NAMED:
 		return ""
 	var under := Vector2(0.0, 8.0 if kind == &"woods" else 40.0)
-	if not name_place(left[0], at + under, false):
+	if not name_place(tr(left[0]), at + under, false):
 		return ""
 	return left.pop_front()
 

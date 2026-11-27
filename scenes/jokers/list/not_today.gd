@@ -40,4 +40,5 @@ func on_respawn(kart: Kart) -> void:
 	# Never under the pot's own 1.
 	var given := maxf(owed, 1.0 - kart.pot.mult)
 	kart.jokers.pay_mult(self, given, &"not_today")
-	went_off(kart, ("+%s MULT" if given > 0.0 else "%s MULT") % figure(given))
+	# The word goes to every machine, its figure in English, see [method Joker.shown_word].
+	went_off(kart, Lang.later("%s MULT") % (("+" if given > 0.0 else "") + String.num(given, 1)))

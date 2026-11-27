@@ -219,7 +219,7 @@ func _ready() -> void:
 	_pool.name = "Pool"
 	_pool.draw.connect(func() -> void: OpeningInvitation.draw_pool(_pool))
 	_stage.add_child(_pool)
-	activate = MenuTheme.primary(MenuTheme.button(StoryLines.WELCOME_ACTIVATE))
+	activate = MenuTheme.primary(MenuTheme.button(tr(StoryLines.WELCOME_ACTIVATE)))
 	activate.name = "Activate"
 	activate.custom_minimum_size.x = BUTTON_WIDE
 	activate.position = button_at()

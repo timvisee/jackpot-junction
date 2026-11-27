@@ -39,17 +39,17 @@ static func hang_on(clock: Control, lost: LoyaltyLandmark) -> LostTag:
 	return tag
 
 
-## What the tag says, its lines in order: FOUND and the room and the thing, UNCLAIMED, and from
-## the story's second stage its own line, STORY.md 6.6b.
+## What the tag says, its lines in order in the language spoken: FOUND and the room and the thing,
+## UNCLAIMED, and from the story's second stage its own line, STORY.md 6.6b.
 static func lines_for(lost: LoyaltyLandmark, stage: int) -> PackedStringArray:
 	var said := PackedStringArray()
-	said.append(StoryLines.LOST_FOUND)
-	said.append(str(StoryLines.LOST_WHERE.get(lost.id, lost.title)).to_upper())
-	said.append(StoryLines.LOST_UNCLAIMED)
+	said.append(Lang.t(StoryLines.LOST_FOUND))
+	said.append(Lang.t(str(StoryLines.LOST_WHERE.get(lost.id, lost.title))).to_upper())
+	said.append(Lang.t(StoryLines.LOST_UNCLAIMED))
 	if stage >= Story.Stage.PARTICIPANT:
 		var line: String = StoryLines.LOST_LINES.get(lost.id, "")
 		if not line.is_empty():
-			said.append(line)
+			said.append(Lang.t(line))
 	return said
 
 
@@ -129,7 +129,7 @@ func _draw() -> void:
 		draw_string(
 			Type.display_font(),
 			Vector2(-56.0, 9.0),
-			StoryLines.LOST_CLAIMED,
+			tr(StoryLines.LOST_CLAIMED),
 			HORIZONTAL_ALIGNMENT_CENTER,
 			112.0,
 			22,

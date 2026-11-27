@@ -11,8 +11,8 @@ func modify_death(_kart: Kart, death: DeathOutcome) -> void:
 ## rather than in [method modify_death], which the whistle asks as well.
 func on_death(kart: Kart) -> void:
 	if not kart.pot.is_empty():
-		went_off(kart, "INSURED")
+		went_off(kart, Lang.later("INSURED"))
 
 
 func went_off_words(times: int) -> String:
-	return "Paid out once" if times == 1 else "Paid out %d times" % times
+	return told(tr_n("Paid out once", "Paid out %d times", times), times)

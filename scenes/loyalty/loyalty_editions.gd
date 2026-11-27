@@ -10,10 +10,12 @@ extends PanelContainer
 signal chosen(piece: String)
 signal done
 
+## The pane's title, how many are left to choose, a piece of dress's button, at its last finish or
+## not, and Done, shown through tr().
 const TITLE := "Choose an edition"
 const LEFT := "%d to choose"
-const AT_LAST := "%s  ·  %s, the last finish"
-const MOVES := "%s  ·  %s"
+const AT_LAST := "{piece}  ·  {finish}, the last finish"
+const MOVES := "{piece}  ·  {finish}"
 const NONE_YET := "%s  ·  %s"
 const DONE := "Done"
 ## The kinds of dress a finish shows on.
@@ -51,7 +53,7 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	add_child(column)
-	column.add_child(MenuTheme.title(TITLE, Type.HEADING))
+	column.add_child(MenuTheme.title(tr(TITLE), Type.HEADING))
 	_left = MenuTheme.subtitle("", Type.LABEL)
 	column.add_child(_left)
 	var scroll := ScrollContainer.new()
@@ -67,7 +69,7 @@ func _ready() -> void:
 	_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_rows.add_theme_constant_override("separation", 6)
 	scroll.add_child(_rows)
-	_done = MenuTheme.button(DONE)
+	_done = MenuTheme.button(tr(DONE))
 	_done.name = "Done"
 	_done.pressed.connect(func() -> void: done.emit())
 	column.add_child(_done)
@@ -90,7 +92,7 @@ func _fill() -> void:
 	for child: Node in _rows.get_children():
 		(child as Control).hide()
 		child.queue_free()
-	_left.text = LEFT % profile.loyalty.owed
+	_left.text = tr(LEFT) % profile.loyalty.owed
 	var first: Button = null
 	# Its words start at the row's left, so clear of the chevron, as a box's are, see [HouseTheme].
 	var looks := HouseTheme.button_looks()
@@ -98,12 +100,9 @@ func _fill() -> void:
 		looks[state].content_margin_left = 38.0
 	for piece: String in pieces_of(profile):
 		var finish := Loyalty.finish_of(profile, piece)
-		var named := (
-			"%s: %s"
-			% [
-				LoyaltyPane.PARTS.get(StringName(piece.get_slice(":", 0)), ""),
-				piece.get_slice(":", 1)
-			]
+		var part: String = LoyaltyPane.PARTS.get(StringName(piece.get_slice(":", 0)), "")
+		var named := tr("{part}: {name}").format(
+			{"part": tr(part), "name": tr(piece.get_slice(":", 1))}
 		)
 		var button := MenuTheme.button("", Type.BODY)
 		button.name = piece.replace(":", "_")
@@ -111,10 +110,10 @@ func _fill() -> void:
 		for state: StringName in looks:
 			button.add_theme_stylebox_override(state, looks[state])
 		if finish >= Loyalty.FINISHES.size():
-			button.text = AT_LAST % [named, Loyalty.FINISHES[-1]]
+			button.text = tr(AT_LAST).format({"piece": named, "finish": tr(Loyalty.FINISHES[-1])})
 			button.disabled = true
 		else:
-			button.text = MOVES % [named, Loyalty.FINISHES[finish]]
+			button.text = MOVES.format({"piece": named, "finish": tr(Loyalty.FINISHES[finish])})
 			button.pressed.connect(_choose.bind(piece))
 			if first == null:
 				first = button

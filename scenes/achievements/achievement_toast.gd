@@ -29,8 +29,9 @@ const NOTCH := 8.0
 const STUB := 86.0
 const BITE := 7.0
 const HOLES := 5.0
-## The stamp across its end: its words, its box, how far it leans, when it comes down after the
-## ticket starts in, from how much bigger, and how long that takes; the sound is the stamp's.
+## The stamp across its end: its words, shown through tr(), its box, how far it leans, when it comes
+## down after the ticket starts in, from how much bigger, and how long that takes; the sound is the
+## stamp's.
 const STAMPED := "EARNED"
 const STAMP := Vector2(104.0, 28.0)
 const STAMP_LEAN := -0.11
@@ -57,10 +58,8 @@ const BETWEEN := 8.0
 ## of the width a thing there may take before it is taken for something over the whole screen.
 const MIDDLE := 0.25
 const WIDEST := 0.6
-## What sits over the name, and over a count of them.
+## What sits over the name, and over a count of them, shown through tr().
 const UNLOCKED := "ACHIEVEMENT UNLOCKED"
-const UNLOCKED_MANY := "%d achievements unlocked"
-const UNLOCKED_ONE := "1 achievement unlocked"
 const ALREADY := "EARNED ALREADY"
 ## So the camera keeps the karts out from under it, see [HudCovers].
 const GROUP := &"achievement_toasts"
@@ -146,11 +145,8 @@ func _ready() -> void:
 	add_child(_chip)
 	_step(0.0)
 	# Nothing takes the cursor to it, so a screen reader is told it as it comes, see [ScreenReader].
-	var title := achievement.title
-	if count > 0:
-		title = UNLOCKED_ONE if count == 1 else UNLOCKED_MANY % count
-	var over := ScreenReader.spoken(UNLOCKED if count == 0 else ALREADY)
-	ScreenReader.say(self, ScreenReader.line([over, title, holder]))
+	var over := ScreenReader.spoken(tr(UNLOCKED if count == 0 else ALREADY))
+	ScreenReader.say(self, ScreenReader.line([over, _title(), holder]))
 
 
 func _process(delta: float) -> void:
@@ -332,7 +328,7 @@ func _draw() -> void:
 		draw_polyline(hairline, Color(HouseTheme.FOIL, 0.55), 1.0, true)
 	var left := STUB + 14.0
 	var wide := SIZE.x - left - STAMP.x - PAD * 2.0
-	var over := UNLOCKED if count == 0 else ALREADY
+	var over := tr(UNLOCKED if count == 0 else ALREADY)
 	draw_string(
 		Type.micro_font(),
 		Vector2(left, 26.0),
@@ -342,9 +338,7 @@ func _draw() -> void:
 		11,
 		HouseTheme.FOIL
 	)
-	var title := achievement.title
-	if count > 0:
-		title = UNLOCKED_ONE if count == 1 else UNLOCKED_MANY % count
+	var title := _title()
 	var font := Type.display_font()
 	var size_of := TITLE_SIZE
 	while size_of > TITLE_LEAST:
@@ -366,6 +360,14 @@ func _draw() -> void:
 		)
 	if _stamped > 0.0:
 		_draw_stamp()
+
+
+## What it says under [constant UNLOCKED]: the achievement's name, or for a toast that counts them
+## how many a profile was credited at once.
+func _title() -> String:
+	if count > 0:
+		return tr_n("%d achievement unlocked", "%d achievements unlocked", count) % count
+	return tr(achievement.title)
 
 
 ## The ticket's outline: its corners cut, and a half round bitten out of its top and its foot where
@@ -415,7 +417,7 @@ func _draw_stamp() -> void:
 	draw_string(
 		Type.display_font(),
 		Vector2(-STAMP.x * 0.5, 7.0),
-		STAMPED,
+		tr(STAMPED),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		STAMP.x,
 		20,

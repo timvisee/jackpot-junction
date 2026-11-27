@@ -86,7 +86,7 @@ static func kept_chip(
 	notch_ink := NOTCHES
 ) -> void:
 	var side := KeptPictures.step_up(radius * 2.0 * KeptPictures.scale_of(canvas), 4)
-	var key := "chip|%s|%s|%d" % [face.to_html(), notch_ink.to_html(), notches]
+	var key := "chip|%s|%s|%d" % [face.to_html(), notch_ink.to_html(), notches]  # NO_TRANSLATE
 	if not canvas.is_in_group(KEPT):
 		canvas.add_to_group(KEPT)
 	var make := _picture.bind(side, face, notches, notch_ink)

@@ -24,6 +24,7 @@ const EVERY := 0.5
 ## How much bigger it is under the mouse, and how quickly it gets there.
 const LIFT := 1.04
 const LIFT_TIME := 0.12
+## The word over what is pinned, shown through tr().
 const MARK := "PINNED"
 const INK := Color(0.15, 0.13, 0.14)
 const QUIET_INK := Color(0.15, 0.13, 0.14, 0.62)
@@ -195,7 +196,7 @@ static func draw_note(
 	if said.size() < 2:
 		return
 	on.draw_string(
-		Type.STRONG, Vector2(left, 22.0), MARK, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, QUIET_INK
+		Type.STRONG, Vector2(left, 22.0), Lang.t(MARK), HORIZONTAL_ALIGNMENT_LEFT, -1, 11, QUIET_INK
 	)
 	draw_count(on, left + wide, 22.0, said[1], 15, met)
 	on.draw_string(

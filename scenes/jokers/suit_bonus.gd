@@ -21,7 +21,7 @@ var second := false
 static func of(of_suit: int, again := false) -> SuitBonus:
 	var bonus := SuitBonus.new()
 	bonus.id = StringName("suited_%s" % JokerSuits.name_of(of_suit).to_lower())
-	bonus.display_name = "Flush" if again else "Suited"
+	bonus.display_name = Lang.later("Flush") if again else Lang.later("Suited")
 	bonus.suit = of_suit as Joker.Suit
 	bonus.second = again
 	return bonus

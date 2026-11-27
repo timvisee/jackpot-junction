@@ -795,7 +795,7 @@ static func _approved(on: CanvasItem, box: Rect2, ink: Color, paper: Color) -> v
 	IconShapes.bar(on, box, 0.02, 0.4, 0.96, 0.2, ink)
 	var font := Type.display_font()
 	var size := maxi(roundi(IconShapes.span(box, 0.17)), 6)
-	var word := "APPROVED"
+	var word := Lang.t("APPROVED")
 	var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var middle := IconShapes.at(box, 0.5, 0.5)
 	on.draw_string(

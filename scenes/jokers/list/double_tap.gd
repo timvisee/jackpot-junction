@@ -4,8 +4,8 @@ extends Joker
 ## grace is the wounded kart's, so it is asked where a bullet reaches it, see [method
 ## KartLives.tapped].
 
-## How much of the grace a stack of none to three waits out, as the card says it: as fractions,
-## set as the font sets them.
+## How much of the grace a stack of none to three waits out, as the card says it, shown through
+## tr(): as fractions, set as the font sets them.
 const SHARES: Array[String] = ["all", "½", "¼", "⅛"]
 
 
@@ -20,4 +20,4 @@ func modify_wound_grace(grace_share: float) -> float:
 
 
 func stack_values(copies: int) -> Dictionary:
-	return {"share": SHARES[clampi(copies, 0, SHARES.size() - 1)]}
+	return {"share": tr(SHARES[clampi(copies, 0, SHARES.size() - 1)])}

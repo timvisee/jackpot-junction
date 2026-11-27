@@ -14,7 +14,8 @@ signal looked_at(cell: CatalogCell)
 
 ## The room between the card's edge and the frame round it under the cursor.
 const FRAME_ROOM := 7.0
-## The NEW tag: its word, its size on the card, and how far it stands out over the card's corner.
+## The NEW tag: its word, shown through tr(), its size on the card, and how far it stands out over
+## the card's corner.
 const NEW := "NEW"
 const NEW_SIZE := 15
 const NEW_OUT := Vector2(10.0, -12.0)
@@ -56,10 +57,11 @@ static func holding(what: StringName, taken: bool, make: Callable) -> CatalogCel
 	cell.card = make.call()
 	cell._make = make
 	if cell.card is DieLine:
-		cell._picture_of = "card|die"
+		cell._picture_of = "card|die"  # NO_TRANSLATE
 	elif cell.card is CardBack:
-		cell._picture_of = "card|back|%d" % CardBack.worn()
+		cell._picture_of = "card|back|%d" % CardBack.worn()  # NO_TRANSLATE
 	else:
+		# NO_TRANSLATE
 		cell._picture_of = "card|%s|%s" % ["joker" if cell.card is JokerCard else "item", what]
 	cell.add_child(cell.card)
 	cell.add_child(cell._over)
@@ -94,13 +96,11 @@ func _notification(what: int) -> void:
 func _tell() -> void:
 	var words := card.accessibility_name if found else ""
 	var more := card.accessibility_description if found else ""
-	ScreenReader.name(
-		self,
-		words if not words.is_empty() else CatalogDialog.NOT_FOUND,
-		ScreenReader.line(
-			PackedStringArray([ScreenReader.spoken(NEW) if is_fresh() else "", more]) + marks
-		)
-	)
+	var said := PackedStringArray([ScreenReader.spoken(tr(NEW)) if is_fresh() else "", more])
+	for mark: String in marks:
+		said.append(tr(mark))
+	var named := words if not words.is_empty() else tr(CatalogDialog.NOT_FOUND)
+	ScreenReader.name(self, named, ScreenReader.line(said))
 
 
 func _ready() -> void:
@@ -297,7 +297,7 @@ static func new_tag() -> Control:
 	var style := foil()
 	tag.add_theme_stylebox_override("panel", style)
 	var word := Label.new()
-	word.text = NEW
+	word.text = Lang.t(NEW)
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.strong(word, NEW_SIZE, HouseTheme.ON_FOIL)
 	tag.add_child(word)

@@ -5,7 +5,8 @@ extends RefCounted
 ## draw call or more for each of them every frame it is shown, and as a picture one. Each is kept by
 ## what it is and how many pixels it is drawn at, drawn under the first node that asks for it; until
 ## it is ready the asker shows itself as before, and then every node waiting on it is told. Nothing
-## is drawn with no screen to draw on.
+## is drawn with no screen to draw on. Many have words in them, so each is kept by the language it
+## was drawn in as well, and another language draws it again, GAME.md 10.9.
 
 static var _kept: Dictionary[String, Texture2D] = {}
 ## The pictures being drawn, each by its host, and the group and the method to tell should its
@@ -31,7 +32,7 @@ static func of(
 ) -> Texture2D:
 	if not host.is_inside_tree() or Game.is_headless():
 		return null
-	var named := "%s|%d|%d" % [key, pixels.x, pixels.y]
+	var named := "%s|%d|%d|%s" % [key, pixels.x, pixels.y, Lang.current]
 	var kept: Texture2D = _kept.get(named)
 	if kept != null:
 		return kept

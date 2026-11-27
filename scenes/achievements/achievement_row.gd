@@ -23,17 +23,19 @@ const NARROW := 520.0
 ## The felt the round is pressed into, and the label's notches.
 const RECESS := Color("#1d3d2d")
 const NOTCH := 7.0
-## What a hidden one says, and what a row earned says over its day.
+## What a hidden one says, and what a row earned says over its day, shown through tr().
 const HIDDEN := "Hidden achievement"
 const HIDDEN_LINE := "Keep playing to reveal it."
 const EARNED := "EARNED"
+## The months as a slip prints them, shown through tr().
+# TRANSLATORS: A month, shortened as in a date: Oct 13, 2026.
 const MONTHS: Array[String] = [
 	"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ]
 ## How long the chip takes to turn over under the cursor.
 const TURN := 0.45
-## How far along a row is, said to a screen reader, see [method _tell].
-const COME := "%d of %d"
+## How far along a row is, said to a screen reader, see [method _tell], shown through tr().
+const COME := "{done} of {count}"
 
 var achievement: Achievement
 var look := AchievementArt.Look.LOCKED
@@ -90,17 +92,17 @@ func _tell() -> void:
 	var hidden := look == AchievementArt.Look.HIDDEN
 	var end := ""
 	if earned_at > 0:
-		end = ScreenReader.line([ScreenReader.spoken(EARNED), day_of(earned_at)])
+		end = ScreenReader.line([ScreenReader.spoken(tr(EARNED)), day_of(earned_at)])
 	elif come.y > 0 and not hidden:
-		end = COME % [come.x, come.y]
+		end = tr(COME).format({"done": come.x, "count": come.y})
 	var more := PackedStringArray(
 		[
-			ScreenReader.spoken(CatalogCell.NEW) if is_fresh() else "",
-			HIDDEN_LINE if hidden else achievement.objective,
+			ScreenReader.spoken(tr(CatalogCell.NEW)) if is_fresh() else "",
+			tr(HIDDEN_LINE if hidden else achievement.objective),
 			end,
 		]
 	)
-	ScreenReader.name(self, HIDDEN if hidden else achievement.title, ScreenReader.line(more))
+	ScreenReader.name(self, tr(HIDDEN if hidden else achievement.title), ScreenReader.line(more))
 
 
 func _on_mouse_entered() -> void:
@@ -176,8 +178,8 @@ func _draw() -> void:
 	if has_focus():
 		draw_style_box(_frame, focus_frame())
 	var hidden := look == AchievementArt.Look.HIDDEN
-	var name := HIDDEN if hidden else achievement.title
-	var line := HIDDEN_LINE if hidden else achievement.objective
+	var name := tr(HIDDEN if hidden else achievement.title)
+	var line := tr(HIDDEN_LINE if hidden else achievement.objective)
 	var narrow := label.size.x < NARROW
 	var end := 0.0 if narrow or hidden or (earned_at == 0 and come.y <= 0) else END_WIDE
 	var words_left := label.position.x + 18.0
@@ -224,7 +226,7 @@ func _draw_end(room: Rect2) -> void:
 		draw_string(
 			Type.display_font(),
 			Vector2(-58.0, 8.0),
-			EARNED,
+			tr(EARNED),
 			HORIZONTAL_ALIGNMENT_CENTER,
 			116.0,
 			21,
@@ -259,4 +261,7 @@ func _draw_end(room: Rect2) -> void:
 static func day_of(when: int) -> String:
 	var bias := int(Time.get_time_zone_from_system().get("bias", 0)) * 60
 	var date := Time.get_date_dict_from_unix_time(when + bias)
-	return "%s %d, %d" % [MONTHS[clampi(int(date["month"]) - 1, 0, 11)], date["day"], date["year"]]
+	var month := Lang.t(MONTHS[clampi(int(date["month"]) - 1, 0, 11)])
+	# TRANSLATORS: A day as a slip prints it: Oct 13, 2026.
+	var said := Lang.t("{month} {day}, {year}")
+	return said.format({"month": month, "day": date["day"], "year": date["year"]})

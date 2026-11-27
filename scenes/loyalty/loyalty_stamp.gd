@@ -107,7 +107,7 @@ func _draw() -> void:
 	draw_string(
 		Type.STRONG,
 		Vector2(left, 32.0),
-		landmark.title,
+		tr(landmark.title),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		wide,
 		18,
@@ -134,7 +134,7 @@ func _draw() -> void:
 	draw_string(
 		font,
 		Vector2(-54.0, 9.0),
-		StoryLines.BET_WON,
+		tr(StoryLines.BET_WON),
 		HORIZONTAL_ALIGNMENT_CENTER,
 		108.0,
 		24,

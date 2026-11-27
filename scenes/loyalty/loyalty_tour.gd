@@ -22,21 +22,18 @@ enum Step { HERE, COUNTS, PIN, JACKPOT, DONE }
 
 const STEPS := 4
 ## What each step's tag says, its heading and its line, the first's with the program's name by the
-## story's stage, and the third's on a screen with no room for the strip by the clock.
+## story's stage, and the third's on a screen with no room for the strip by the clock; and the
+## buttons that go on, by their words, which [TourTag] presses them by. Shown through tr().
 const SAID: Array[Array] = [
 	[
 		"You are here",
-		(
-			"You activated your %s card, which won the first landmark's bet. Winning a bet opens"
-			+ " the roads past it to new landmarks."
-		),
+		"""You activated your %s card, which won the first landmark's bet. Winning a bet opens the \
+roads past it to new landmarks.""",
 	],
 	[
 		"Every match counts",
-		(
-			"Each landmark holds a bet and a reward. Every match you play counts toward all open"
-			+ " bets at once, so there's no need to pick one."
-		),
+		"""Each landmark holds a bet and a reward. Every match you play counts toward all open bets \
+at once, so there's no need to pick one.""",
 	],
 	[
 		"Pin one to track it",
@@ -49,7 +46,8 @@ const NEXT := "Next"
 const PIN_IT := "Pin it"
 const NOT_NOW := "Not now"
 const DONE := "Got it"
-## The chips naming the slip's parts at the second step, in the House's capitals.
+## The chips naming the slip's parts at the second step, in the House's capitals, shown through
+## tr().
 const PARTS: Array[String] = ["What to do", "So far", "What it pays"]
 
 ## How dark the dialog is round the spots, their soft edge, the room round what they light, and
@@ -253,7 +251,13 @@ func _here() -> void:
 
 ## What the first step says, the program named as its card is.
 func _here_said() -> Array:
-	return [SAID[0][0], str(SAID[0][1]) % LoyaltyDialog.program_name(_profile)]
+	var program := tr(LoyaltyDialog.program_name(_profile))
+	return [tr(SAID[0][0]), tr(SAID[0][1]) % program]
+
+
+## What step [param index] of [constant SAID] says, in the language spoken.
+func _said(index: int) -> Array:
+	return [tr(SAID[index][0]), tr(SAID[index][1])]
 
 
 ## The kart driven to the nearest open bet, the slip saying it, and once it is there and the page
@@ -281,7 +285,7 @@ func _at_bet() -> void:
 	get_tree().create_timer(TURNED).timeout.connect(
 		func() -> void:
 			if step == Step.COUNTS:
-				_show_tag(SAID[1], [NEXT])
+				_show_tag(_said(1), [NEXT])
 	)
 
 
@@ -300,9 +304,9 @@ func _pin() -> void:
 	_lit = func() -> Array[Rect2]: return [_global(pin), _global(_picture), _global(dialog.pane)]
 	_aim = func() -> Rect2: return _global(pin)
 	_settled = true
-	var said: Array = SAID[2].duplicate()
+	var said := _said(2)
 	if not _picture.strip:
-		said[1] = PIN_IN_MENU
+		said[1] = tr(PIN_IN_MENU)
 	var going: Array[String] = [NOT_NOW, PIN_IT]
 	if _profile.loyalty.pinned == _bet:
 		going = [NEXT]
@@ -324,7 +328,7 @@ func _jackpot() -> void:
 	)
 	_drawing_back.tween_callback(_settle)
 	Audio.play_sfx(&"page", -8.0, 0.05)
-	_show_tag(SAID[3], [DONE], false)
+	_show_tag(_said(3), [DONE], false)
 
 
 ## The step's movement done: a press goes on.
@@ -402,8 +406,9 @@ func _global(control: Control) -> Rect2:
 	return get_global_transform().affine_inverse() * control.get_global_rect()
 
 
-## The tag saying [param said], its heading and line, with [param going] the buttons that go on,
-## Skip tour with them where [param skippable]; the cursor on the last.
+## The tag saying [param said], its heading and line in the language spoken, with [param going] the
+## buttons that go on, by their words in English, Skip tour with them where [param skippable]; the
+## cursor on the last.
 func _show_tag(said: Array, going: Array[String], skippable := true) -> void:
 	_tag.say(step + 1, STEPS, str(said[0]), str(said[1]), going, skippable)
 	_tag.fit_to(minf(size.x - EDGE * 2.0, TourTag.WIDE))
@@ -554,7 +559,7 @@ func _draw_lines() -> void:
 func _draw_parts(alpha: float) -> void:
 	var pane := dialog.pane
 	var parts: Array[Control] = []
-	for named: String in ["Bet", "Bar", "Pays"]:
+	for named: String in ["Bet", "Bar", "Pays"]:  # NO_TRANSLATE
 		parts.append(pane.find_child(named, true, false) as Control)
 	var font := Type.display_font()
 	var tall := float(Type.LABEL + 3)
@@ -562,7 +567,7 @@ func _draw_parts(alpha: float) -> void:
 		var rect := _global(parts[i])
 		if rect.size == Vector2.ZERO:
 			continue
-		var words := PARTS[i].to_upper()
+		var words := tr(PARTS[i]).to_upper()
 		var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, int(tall)).x + 20.0
 		var right := _global(pane).position.x - 6.0
 		var chip := Rect2(

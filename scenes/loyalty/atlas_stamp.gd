@@ -7,9 +7,9 @@ extends Control
 ## [KeptPictures], and shown from that. It stands in the slip, over its words and under its coil,
 ## and takes no input.
 
-## The stamp: its word, how big the word is, the room round it in its box, its ink, how far it is
-## turned, and where it stands, how far across the slip and how far down past the middle of the
-## line it is stamped over.
+## The stamp: its word, shown through tr(), how big the word is, the room round it in its box, its
+## ink, how far it is turned, and where it stands, how far across the slip and how far down past the
+## middle of the line it is stamped over.
 const WORD := "CONCEPT"
 const WORD_SIZE := 34
 const BOX_ROOM := Vector2(14.0, 6.0)
@@ -70,7 +70,7 @@ func show_as(on_plans: bool, with_seal: bool) -> void:
 ## How big the stamp is, its box and the room round it.
 static func stamp_size() -> Vector2:
 	var font := Type.mark_font()
-	var wide := font.get_string_size(WORD, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
+	var wide := font.get_string_size(Lang.t(WORD), HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
 	return Vector2(wide, WORD_SIZE * 1.24) + BOX_ROOM * 2.0 + Vector2.ONE * ROOM * 2.0
 
 
@@ -78,13 +78,13 @@ static func stamp_size() -> Vector2:
 ## fine one inside it, and specks of [param paper] through it where it is worn.
 static func draw_stamp(on: CanvasItem, middle: Vector2, paper: Color) -> void:
 	var font := Type.mark_font()
-	var wide := font.get_string_size(WORD, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
+	var wide := font.get_string_size(Lang.t(WORD), HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
 	var box := Rect2(middle - Vector2(wide * 0.5, WORD_SIZE * 0.62) - BOX_ROOM, Vector2.ZERO)
 	box.size = Vector2(wide, WORD_SIZE * 1.24) + BOX_ROOM * 2.0
 	on.draw_rect(box, INK, false, 3.0)
 	on.draw_rect(box.grow(-5.0), Color(INK, INK.a * 0.7), false, 1.5)
 	var at := middle + Vector2(-wide * 0.5, WORD_SIZE * 0.36)
-	on.draw_string(font, at, WORD, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, INK)
+	on.draw_string(font, at, Lang.t(WORD), HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, INK)
 	var rolls := RandomNumberGenerator.new()
 	rolls.seed = 3
 	for i: int in SPECKS:
@@ -143,7 +143,7 @@ func _picture(seal: bool, middle: Vector2, turn: float) -> void:
 	var scale_by := maxf(KeptPictures.scale_of(self), 0.25)
 	var picture := KeptPictures.of(
 		self,
-		"atlas_seal" if seal else "atlas_stamp|%s" % WORD,
+		"atlas_seal" if seal else "atlas_stamp|%s" % WORD,  # NO_TRANSLATE
 		Vector2i((room * scale_by).ceil()),
 		func() -> Control:
 			var drawing := Drawing.new()

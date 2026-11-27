@@ -11,9 +11,9 @@ func modify_slot_pays(kart: Kart, pays: int) -> int:
 	elif pays == SlotPad.THREE_PAY:
 		better = SlotPad.SEVENS_PAY
 	if better != pays:
-		went_off(kart, "LUCKY")
+		went_off(kart, Lang.later("LUCKY"))
 	return better
 
 
 func went_off_words(times: int) -> String:
-	return "Sweetened a pull once" if times == 1 else "Sweetened %d pulls" % times
+	return told(tr_n("Sweetened a pull once", "Sweetened %d pulls", times), times)

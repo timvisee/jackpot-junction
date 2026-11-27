@@ -133,8 +133,8 @@ func _rule(y: float, area: Rect2) -> void:
 class Later:
 	extends Control
 
-	## The word, how big and how turned, how far in from the slip's right side its middle is, and
-	## the room round it inside its loop; the pencil.
+	## The word, shown through tr(), how big and how turned, how far in from the slip's right side
+	## its middle is, and the room round it inside its loop; the pencil.
 	const WORD := "later"
 	const WORD_SIZE := 30
 	const WORD_TURN := -0.12
@@ -213,10 +213,11 @@ class Later:
 	## "later" in Kit's hand round [param at], a loop gone round it a little more than once.
 	func _later(at: Vector2) -> void:
 		var hand := LoyaltyPane.KIT_HAND
-		var wide := hand.get_string_size(WORD, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
+		var word := tr(WORD)
+		var wide := hand.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE).x
 		draw_set_transform(at, WORD_TURN, Vector2.ONE)
 		var word_at := Vector2(-wide * 0.5, WORD_SIZE * 0.3)
-		draw_string(hand, word_at, WORD, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, INK)
+		draw_string(hand, word_at, word, HORIZONTAL_ALIGNMENT_LEFT, -1, WORD_SIZE, INK)
 		var rolls := RandomNumberGenerator.new()
 		rolls.seed = 6
 		var round_by := Vector2(wide * 0.5 + LOOP_ROOM.x, WORD_SIZE * LOOP_ROOM.y)

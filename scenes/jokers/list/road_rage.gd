@@ -11,4 +11,4 @@ func ram_kills(kart: Kart) -> bool:
 
 
 func went_off_words(times: int) -> String:
-	return "Wrecked a kart once" if times == 1 else "Wrecked %d karts" % times
+	return told(tr_n("Wrecked a kart once", "Wrecked %d karts", times), times)

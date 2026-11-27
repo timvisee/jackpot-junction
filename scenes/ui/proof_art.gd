@@ -62,6 +62,7 @@ const GREASE := HouseTheme.STAMP_RED
 const GREASE_BLUE := Color("#2d5fb8")
 const GREASE_GREEN := Color("#2c8a4a")
 const RING_OUT := Vector2(0.6, 0.56)
+## Why a card is ringed, shown through tr(), in English telling the pencils apart.
 const RING_FIRST := "1st!"
 const RING_MOST := "Fave!"
 const RING_BEST := "MVP!"
@@ -111,9 +112,10 @@ const TICKET_SIZE := Vector2(340.0, 150.0)
 const TICKET_HEAD := 28.0
 const TICKET_WORDS := 13
 const TICKET_TURN := -0.044
+## The pressman's OK on it, shown through tr().
 const TICKET_SIGNED := "OK -H."
-## The jokers' page's ticket, the pay table of the hands: its head, how tall a line is and how big
-## a line's cards.
+## The jokers' page's ticket, the pay table of the hands: its head, shown through tr(), how tall a
+## line is and how big a line's cards.
 const PAY_TABLE := "PAY TABLE  ·  HANDS"
 const PAY_ROW := 19.0
 const PAY_CARD := Vector2(9.0, 13.0)
@@ -362,7 +364,8 @@ static func die_line(on: CanvasItem, rect: Rect2) -> void:
 
 ## The pressman's grease pencil round the card over [param rect]: a loop that does not quite close,
 ## a little more than once round, and beside it [param words], why, a line each, on its right, or on
-## its left where [param left] says the card ends its row and there is no room on its right.
+## its left where [param left] says the card ends its row and there is no room on its right. The
+## words are of [constant RING_FIRST] and the others, in English, and said in the language spoken.
 static func grease_ring(
 	on: CanvasItem, rect: Rect2, left := false, words := PackedStringArray([RING_FIRST])
 ) -> void:
@@ -381,7 +384,8 @@ static func grease_ring(
 		on.draw_polyline(loop, Color(grease_of(words[mark]), 0.85), 3.0, true)
 	var size := RING_WORDS_SIZE
 	for line: int in words.size():
-		var wide := MARKER.get_string_size(words[line], HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var said := Lang.t(words[line])
+		var wide := MARKER.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 		var at := rect.get_center() + Vector2(reach.x * 0.9, -reach.y * 0.5 + line * size * 0.95)
 		if left:
 			at.x = rect.get_center().x - reach.x * 0.9 - wide
@@ -389,7 +393,7 @@ static func grease_ring(
 		on.draw_string(
 			MARKER,
 			Vector2.ZERO,
-			words[line],
+			said,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			size,
@@ -424,7 +428,7 @@ static func steel_rule(on: CanvasItem, rect: Rect2) -> void:
 		1.0
 	)
 	var ink := Color(0.15, 0.15, 0.17)
-	var words := "THE HOUSE  ·  STAINLESS"
+	var words := Lang.t("THE HOUSE  ·  STAINLESS")
 	var font := Type.micro_font()
 	var named := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x
 	var ticks := PackedVector2Array()
@@ -464,9 +468,10 @@ static func ink_tin(on: CanvasItem, middle: Vector2) -> void:
 	on.draw_circle(lid, TIN, CHROME_LOW)
 	on.draw_circle(lid, TIN - 3.0, CHROME)
 	on.draw_circle(lid, TIN - 9.0, Color("#1c1a22"))
-	_centered(on, lid + Vector2(0.0, -10.0), "HOUSE GOLD", 12, HouseTheme.FOIL, Type.display_font())
-	_centered(on, lid + Vector2(0.0, 6.0), "OFFSET INK", 8, Color(1.0, 1.0, 1.0, 0.7))
-	_centered(on, lid + Vector2(0.0, 18.0), "1 KG", 8, Color(1.0, 1.0, 1.0, 0.7))
+	var gold_ink := Lang.t("HOUSE GOLD")
+	_centered(on, lid + Vector2(0.0, -10.0), gold_ink, 12, HouseTheme.FOIL, Type.display_font())
+	_centered(on, lid + Vector2(0.0, 6.0), Lang.t("OFFSET INK"), 8, Color(1.0, 1.0, 1.0, 0.7))
+	_centered(on, lid + Vector2(0.0, 18.0), Lang.t("1 KG"), 8, Color(1.0, 1.0, 1.0, 0.7))
 	on.draw_arc(lid, TIN - 1.5, PI * 1.1, PI * 1.6, 16, CHROME_HIGH, 2.0, true)
 	var gold := HouseTheme.FOIL.darkened(0.15)
 	on.draw_circle(middle + FALL, TIN + 2.0, FALLEN)
@@ -692,7 +697,7 @@ static func pay_ticket(on: CanvasItem, base: Transform2D) -> void:
 	on.draw_rect(card, TICKET)
 	on.draw_rect(Rect2(card.position, Vector2(card.size.x, TICKET_HEAD)), INK)
 	var head := card.position + Vector2(12.0, 20.0)
-	on.draw_string(TYPED, head, PAY_TABLE, HORIZONTAL_ALIGNMENT_LEFT, -1, 15, TICKET)
+	on.draw_string(TYPED, head, Lang.t(PAY_TABLE), HORIZONTAL_ALIGNMENT_LEFT, -1, 15, TICKET)
 	for hand: int in JokerHands.Hand.size():
 		var y := card.position.y + TICKET_HEAD + 13.0 + hand * PAY_ROW
 		HandsArt.fan(
@@ -700,10 +705,10 @@ static func pay_ticket(on: CanvasItem, base: Transform2D) -> void:
 		)
 		on.draw_set_transform_matrix(turned)
 		var at := Vector2(card.position.x + 70.0, y + 4.0)
-		var named := JokerHands.name_of(hand).to_upper()
+		var named := Lang.t(JokerHands.name_of(hand)).to_upper()
 		on.draw_string(TYPED, at, named, HORIZONTAL_ALIGNMENT_LEFT, -1, TICKET_WORDS - 1, INK)
 		var pays := Vector2(card.position.x + 190.0, y + 4.0)
-		var short_pay := JokerHands.SHORT[hand]
+		var short_pay := Lang.t(JokerHands.SHORT[hand])
 		on.draw_string(TYPED, pays, short_pay, HORIZONTAL_ALIGNMENT_LEFT, -1, TICKET_WORDS - 1, INK)
 	on.draw_set_transform_matrix(base)
 
@@ -827,7 +832,7 @@ static func job_ticket(
 	on.draw_string(
 		MARKER,
 		Vector2(card.end.x - 96.0, card.end.y - 10.0),
-		TICKET_SIGNED,
+		Lang.t(TICKET_SIGNED),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		18,

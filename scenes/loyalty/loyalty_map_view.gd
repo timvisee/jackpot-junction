@@ -121,7 +121,7 @@ func _ready() -> void:
 		return
 	# Named for the program to a screen reader, which is told each landmark the cursor comes to by
 	# the dialog, as its pane says it.
-	ScreenReader.name(self, LoyaltyDialog.program_name(profile))
+	ScreenReader.name(self, tr(LoyaltyDialog.program_name(profile)))
 	# Over the map, the roundabout calling while an edition is owed.
 	add_child(LoyaltyBeacon.new(self))
 	_bake = LoyaltyMapBake.new(self)

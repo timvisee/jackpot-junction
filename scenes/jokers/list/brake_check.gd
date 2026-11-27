@@ -35,7 +35,7 @@ func on_step(kart: Kart, delta: float) -> int:
 	_wait = EVERY
 	_ran = 0.0
 	kart.jokers.pay_mult(self, MULT, &"brake_check")
-	went_off(kart, "+1 MULT")
+	went_off(kart, Lang.later("%s MULT") % ("+" + String.num(MULT, 1)))
 	return 0
 
 

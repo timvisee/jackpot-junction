@@ -65,28 +65,31 @@ const KIT_HAND_SIZE := 1.3
 ## How tall the bar is, printed, and drawn by Kit, roomier for his hatching.
 const BAR_TALL := 10.0
 const KIT_BAR_TALL := 14.0
-## The words for each district, as the pane's header says them, and each one's color there, as
-## the map has it; printed on the paper, see [method HouseTheme.on_paper].
+## The Department's blue, as the map has it.
+const DEPARTMENT_BLUE := Color("#3f6fd0")
+## The words for each district, as the pane's header says them, shown through tr(), and each one's
+## color there, as the map has it; printed on the paper, see [method HouseTheme.on_paper].
 const DISTRICTS := {
 	LoyaltyLandmark.District.SLIP: ["", HouseTheme.INK],
 	LoyaltyLandmark.District.STRIP: ["The Strip", HouseTheme.FOIL],
-	LoyaltyLandmark.District.DEPARTMENT: ["Dept. of Karts", Color("#3f6fd0")],
+	LoyaltyLandmark.District.DEPARTMENT: ["Dept. of Karts", DEPARTMENT_BLUE],
 	LoyaltyLandmark.District.OFF_THE_BOOKS: ["Off the books", Color(0.42, 0.42, 0.45)],
 }
-## How it stands, said over its bet.
+## How it stands, said over its bet, shown through tr().
 const CLOSED := "Closed"
 const OPEN := "Open"
 const WON := "Won"
 const KEYSTONE := "Keystone"
-## What a closed one says in its bet's place, which is not said until a road into it is won.
+## What a closed one says in its bet's place until a road into it is won, shown through tr().
 const ASKS_LATER := "Objective hidden until unlocked."
-## What a closed one needs: any road in, or for a keystone every one.
+## What a closed one needs, shown through tr(): any road in, named in a list with or, or for a
+## keystone every one, see [method Lang.listed]; and over what it pays.
 const OPENS_BY := "Opens with a road from %s."
 const OPENS_BY_ALL := "Opens once every road in is won: %s."
-const OR := " or "
-const AND := " and "
+const OR := "{some} or {last}"
 const PAYS := "PAYS"
-## The words for each kind of dress a landmark pays, by the name it gives it.
+## The words for each kind of dress a landmark pays, by the name it gives it, and for the rest it
+## pays, shown through tr().
 const PARTS := {
 	&"paint": "Paint",
 	&"hat": "Hat",
@@ -103,17 +106,18 @@ const ONTO_THE_MAP := "The roads onto the map"
 const CARD := "Joker card: %s"
 const ITEM := "Power-up: %s"
 const PICTURE := 34.0
-## The roundabout's pane: its name and place, how it opens, a lap's bets and what a lap pays.
+## The roundabout's pane: its name and place, how it opens, a lap's bets and what a lap pays, shown
+## through tr().
 const ROUNDABOUT := "The Roundabout"
 const POT := "JACKPOT"
 const LAP := "LAP %d"
 const RING_OPENS := "Opens once %s are won."
 const RING_ASKS := "Win all seven bets of the ring to go round."
-const RING_COME := "%d of %d won"
+const RING_COME := "{won} of {count} won"
 const RING_PAYS := "An edition: a piece of your dress moves up a finish"
 const EDITION := "Choose an edition (%d)"
-## Pinning what the pane says, GAME.md 8.9: the button's words for it unpinned and pinned, and its
-## bind for keys and pads.
+## Pinning what the pane says, GAME.md 8.9: the button's words for it unpinned and pinned, shown
+## through tr(), and its bind for keys and pads.
 const PIN := "Pin"
 const PINNED := "Pinned"
 const PIN_ACTION := &"ui_accept"
@@ -520,7 +524,7 @@ func _init() -> void:
 	_box.add_child(_come)
 	var pays := _line(14, HINT)
 	_pays_heading = pays
-	pays.text = PAYS
+	pays.text = tr(PAYS)
 	Type.set_font(pays, Type.STRONG, 14)
 	_box.add_child(pays)
 	_pays = VBoxContainer.new()
@@ -546,7 +550,7 @@ func _init() -> void:
 	ButtonBinds.mark(_edition, PIN_ACTION)
 	_edition.visible = false
 	_box.add_child(_edition)
-	pin = MenuTheme.button(PIN, Type.LABEL)
+	pin = MenuTheme.button(tr(PIN), Type.LABEL)
 	AtlasTicketStyle.dress(pin)
 	pin.custom_minimum_size.y = 0.0 if not TouchInput.enabled else pin.custom_minimum_size.y
 	pin.name = "Pin"
@@ -588,25 +592,25 @@ func _init() -> void:
 func show_roundabout(profile: Profile) -> void:
 	_turn_page(profile, Loyalty.ROUNDABOUT)
 	shown = Loyalty.ROUNDABOUT
-	_name.text = ROUNDABOUT
-	_district.text = POT
+	_name.text = tr(ROUNDABOUT)
+	_district.text = tr(POT)
 	var open := Loyalty.ring_open(profile)
 	_plan(not open, false)
 	_wear(HouseTheme.FOIL)
 	_clear_rows()
 	var state := profile.loyalty
-	var standing := CLOSED
+	var standing := tr(CLOSED)
 	if open:
-		standing = LAP % state.laps if state.laps > 0 else OPEN
+		standing = tr(LAP) % state.laps if state.laps > 0 else tr(OPEN)
 	_standing.text = standing.to_upper()
 	_opens.visible = not open
 	if not open:
 		var keystones := PackedStringArray()
 		for each: LoyaltyLandmark in Loyalty.map().landmarks:
 			if each.keystone and Loyalty.map().reaches_roundabout(each.id):
-				keystones.append(each.title)
-		_opens.text = RING_OPENS % _listed(keystones, AND)
-	_bet.text = RING_ASKS if open else ASKS_LATER
+				keystones.append(tr(each.title))
+		_opens.text = tr(RING_OPENS) % Lang.listed(Array(keystones))
+	_bet.text = tr(RING_ASKS) if open else tr(ASKS_LATER)
 	_bet.add_theme_color_override("font_color", _ink() if open else _hint())
 	var met := 0
 	for bet: Dictionary in state.ring:
@@ -621,11 +625,11 @@ func show_roundabout(profile: Profile) -> void:
 	_bar.max_value = maxf(float(state.ring.size()), 1.0)
 	_bar.value = met
 	_come.visible = _bar.visible
-	_come.text = RING_COME % [met, state.ring.size()]
+	_come.text = tr(RING_COME).format({"won": met, "count": state.ring.size()})
 	var star := HouseTheme.FOIL if _planned else HouseTheme.on_paper(HouseTheme.FOIL)
-	_pays.add_child(_paid_row(RING_PAYS, IconShapes.star.bind(0.5, 0.5, 0.6, star)))
+	_pays.add_child(_paid_row(tr(RING_PAYS), IconShapes.star.bind(0.5, 0.5, 0.6, star)))
 	_edition.visible = state.owed > 0
-	_edition.text = EDITION % state.owed
+	_edition.text = tr(EDITION) % state.owed
 	_show_pin(profile)
 
 
@@ -633,8 +637,8 @@ func show_roundabout(profile: Profile) -> void:
 static func _so_far(profile: Profile, bet: Dictionary) -> String:
 	var come := Loyalty.ring_progress(profile, bet)
 	if come.x >= come.y:
-		return WON.to_lower()
-	return Loyalty.ring_progress_text(profile, bet).get_slice(" / ", 0) + " so far"
+		return Lang.t(WON).to_lower()
+	return Lang.t("%s so far") % Loyalty.ring_progress_text(profile, bet).get_slice(" / ", 0)
 
 
 func _clear_rows() -> void:
@@ -649,7 +653,7 @@ func _show_pin(profile: Profile) -> void:
 	pin.visible = Loyalty.can_pin(profile, shown)
 	var pinned := profile.loyalty.pinned == shown
 	pin.set_pressed_no_signal(pinned)
-	pin.text = PINNED if pinned else PIN
+	pin.text = tr(PINNED) if pinned else tr(PIN)
 	# The same key chooses an edition while one is owed, so it pins nothing then.
 	if _edition.visible:
 		pin.remove_meta(&"bind_action")
@@ -677,13 +681,13 @@ func show_landmark(profile: Profile, landmark: LoyaltyLandmark) -> void:
 	var kit := landmark.district == LoyaltyLandmark.District.OFF_THE_BOOKS
 	_plan(closed and not kit, landmark.keystone, kit)
 	_later.showing = kit and closed
-	_name.text = landmark.title
+	_name.text = tr(landmark.title)
 	var district: Array = DISTRICTS.get(landmark.district, DISTRICTS[LoyaltyLandmark.District.SLIP])
-	_district.text = str(district[0]).to_upper()
+	_district.text = tr(str(district[0])).to_upper()
 	_wear(district[1])
-	var said: String = [CLOSED, OPEN, WON][stands]
-	_standing.text = (said + "  ·  " + KEYSTONE if landmark.keystone else said).to_upper()
-	_bet.text = ASKS_LATER if closed else Loyalty.bet_of(landmark)
+	var said := tr([CLOSED, OPEN, WON][stands])
+	_standing.text = (said + "  ·  " + tr(KEYSTONE) if landmark.keystone else said).to_upper()
+	_bet.text = tr(ASKS_LATER) if closed else Loyalty.bet_of(landmark)
 	_bet.add_theme_color_override("font_color", _hint() if closed else _ink())
 	var come := Loyalty.progress(profile, landmark)
 	_bar.visible = not closed and come.y > 0.0
@@ -712,12 +716,12 @@ static func opens_by(profile: Profile, landmark: LoyaltyLandmark) -> String:
 		var other := map.landmark(id)
 		if other != null and Loyalty.is_drawn(profile, other) and not other.keystone:
 			if not (landmark.keystone and profile.loyalty.has_won(id)):
-				names.append(other.title)
+				names.append(Lang.t(other.title))
 	if names.is_empty():
 		return ""
 	if landmark.keystone:
-		return OPENS_BY_ALL % _listed(names, AND)
-	return OPENS_BY % _listed(names, OR)
+		return Lang.t(OPENS_BY_ALL) % Lang.listed(Array(names))
+	return Lang.t(OPENS_BY) % _or_listed(names)
 
 
 ## What [param landmark] pays, a line each with the way to draw its picture: the cards it adds and
@@ -726,24 +730,28 @@ static func pays_of(landmark: LoyaltyLandmark, ink := Color.WHITE) -> Array[Arra
 	var paid: Array[Array] = []
 	for id: StringName in landmark.jokers:
 		var joker := CATALOG.by_id(id)
-		var named := joker.display_name if joker != null else String(id)
-		paid.append([CARD % named, JokerArt.draw_into.bind(id, ink)])
+		var named := Lang.t(joker.display_name) if joker != null else String(id)
+		paid.append([Lang.t(CARD) % named, JokerArt.draw_into.bind(id, ink)])
 	for id: StringName in landmark.items:
-		paid.append([ITEM % _item_name(id), PowerUpArt.draw_into.bind(id, ink)])
+		paid.append([Lang.t(ITEM) % Lang.t(_item_name(id)), PowerUpArt.draw_into.bind(id, ink)])
 	var dress: Array[String] = []
 	if landmark.dress_part != &"":
 		dress.append("%s:%s" % [landmark.dress_part, landmark.dress])
 	dress.append_array(landmark.also)
 	for piece: String in dress:
 		var part := StringName(piece.get_slice(":", 0))
-		var words := "%s: %s" % [PARTS.get(part, String(part)), piece.get_slice(":", 1)]
+		var named := {
+			"part": Lang.t(PARTS.get(part, String(part))), "name": Lang.t(piece.get_slice(":", 1))
+		}
+		var words := Lang.t("{part}: {name}").format(named)
 		paid.append([words, DressArt.draw_into.bind(LoyaltyArt.PARTS.get(part, 0), ink)])
 	if landmark.showroom:
-		paid.append([SHOWROOM, LoyaltyArt.roller_door.bind(ink)])
+		paid.append([Lang.t(SHOWROOM), LoyaltyArt.roller_door.bind(ink)])
 	if landmark.note != &"":
-		paid.append([NOTE, LoyaltyArt.scrap.bind(ink)])
+		paid.append([Lang.t(NOTE), LoyaltyArt.scrap.bind(ink)])
 	if landmark.kind == LoyaltyLandmark.Kind.CARD:
-		paid.append([ONTO_THE_MAP, DressArt.draw_into.bind(LoyaltyArt.PARTS[&"card_back"], ink)])
+		var card_back: int = LoyaltyArt.PARTS[&"card_back"]
+		paid.append([Lang.t(ONTO_THE_MAP), DressArt.draw_into.bind(card_back, ink)])
 	return paid
 
 
@@ -754,11 +762,13 @@ static func _item_name(id: StringName) -> String:
 	return String(id)
 
 
-## [param names] as a list in words, the last two joined by [param last].
-static func _listed(names: PackedStringArray, last: String) -> String:
+## [param names] as a list in words, the last two joined by or, as [method Lang.listed] joins them
+## by and.
+static func _or_listed(names: PackedStringArray) -> String:
 	if names.size() <= 1:
 		return "".join(names)
-	return ", ".join(names.slice(0, names.size() - 1)) + last + names[-1]
+	var some := Lang.t(", ", &"list").join(names.slice(0, names.size() - 1))
+	return Lang.t(OR).format({"some": some, "last": names[-1]})
 
 
 func _paid_row(words: String, draw_with: Callable) -> HBoxContainer:

@@ -7,10 +7,13 @@ extends RefCounted
 
 ## How many cards of a suit make a hand Suited in it, GAME.md 7.3, unless a joker says otherwise.
 const SUITED := 3
+## Each suit by name, shown through tr(); [method name_of] gives it in English, as the stats and the
+## bonuses go by it.
 const NAMES: Array[String] = ["Spades", "Hearts", "Diamonds", "Clubs", "Wild"]
 ## Each suit as a letter of words, where it is said rather than drawn.
 const SYMBOLS: Array[String] = ["♠", "♥", "♦", "♣", "★"]
-## What being Suited in each suit pays, as the pane that describes a card says it.
+## What being Suited in each suit pays, as the pane that describes a card says it, shown through
+## tr().
 const PAYS: Array[String] = [
 	"your bullets fly 20% faster",
 	"come back holding a Shield",
@@ -104,8 +107,10 @@ static func draw_jester(on: CanvasItem, box: Rect2, paper := false) -> void:
 ## goes.
 static func words(suit: int) -> String:
 	if suit == Joker.Suit.WILD:
-		return "Wild: joins the suit you hold most of."
-	return ": %s." % PAYS[suit]
+		return Lang.t("Wild: joins the suit you hold most of.")
+	# TRANSLATORS: After "3×" and a suit drawn, what three cards of that suit pay: ": your bullets
+	# fly 20% faster."
+	return Lang.t(": %s.") % Lang.t(PAYS[suit])
 
 
 ## How many of each suit [param jokers] holds, the wild cards left out, by [enum Joker.Suit].

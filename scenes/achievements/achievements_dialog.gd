@@ -23,6 +23,7 @@ const LAYER := CatalogDialog.LAYER
 const GROUP := &"achievements_dialogs"
 ## The group a room's pause menu is in, [code]PauseMenu.GROUP[/code], see [method show_in].
 const ROOM_MENUS := &"pause_menu"
+## The title, and the orders the list is sorted in as the Sort button says them, shown through tr().
 const TITLE := "Achievements"
 const COUNT := "%d / %d"
 const ORDERS: Array[String] = ["In order", "Earned", "To do"]
@@ -30,7 +31,7 @@ const SORT := "Sort: %s"
 const SORT_ACTION := InputActions.MENU_VIEW
 ## The switch that leaves out what is earned, and its bind, the dialogs' option key as the
 ## catalog's second switch has it, see [DialogBinds]; and what the list says with nothing left in
-## it.
+## it. The words are shown through tr().
 const HIDE := "Hide earned"
 const HIDE_ACTION := InputActions.MENU_OPTION
 const ALL_EARNED := "Every achievement is earned."
@@ -40,7 +41,7 @@ const SORT_TALL := 48.0
 ## binds keep: the switch stands 58 tall against their SORT_TALL, and centred in the row its foot is
 ## half that difference lower, so its bind would hang that much below theirs without the lift.
 const HIDE_BIND_LIFT := (58.0 - SORT_TALL) * 0.5
-## Each group's heading, in the list's order, see [enum Achievement.Group].
+## Each group's heading, in the list's order, see [enum Achievement.Group], shown through tr().
 const HEADINGS: Array[String] = [
 	"Getting started",
 	"Winning",
@@ -196,7 +197,7 @@ var _cushion: ArrayMesh
 ## The motto printed on the table's felt in the foot of the line round the rows, the House's at the
 ## stage the story is at, STORY.md 6.6c.
 static func motto() -> String:
-	return str(StoryLines.at(StoryLines.TABLE_MOTTO, Story.stage_here()))
+	return Lang.t(str(StoryLines.at(StoryLines.TABLE_MOTTO, Story.stage_here())))
 
 
 static func open(parent: Node, at := &"", whose: Profile = null) -> AchievementsDialog:
@@ -324,7 +325,7 @@ func _ready() -> void:
 	var room := Control.new()
 	room.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_foot_row.add_child(room)
-	back = MenuTheme.button("Back")
+	back = MenuTheme.button(tr("Back"))
 	back.name = "Back"
 	back.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	back.pressed.connect(close)
@@ -350,7 +351,7 @@ func _make_head() -> HBoxContainer:
 	_head = HBoxContainer.new()
 	_head.name = "Head"
 	_head.add_theme_constant_override("separation", 20)
-	_title = MenuTheme.title(TITLE, Type.TITLE)
+	_title = MenuTheme.title(tr(TITLE), Type.TITLE)
 	_head.add_child(_title)
 	count = Label.new()
 	count.name = "Count"
@@ -372,13 +373,13 @@ func _make_head() -> HBoxContainer:
 	# finger, while keys and a pad get the switch's bind hung on its own foot, as Sort's is.
 	_hide_words = Label.new()
 	_hide_words.name = "HideEarned"
-	_hide_words.text = HIDE
+	_hide_words.text = tr(HIDE)
 	Type.strong(_hide_words, Type.BODY, HouseTheme.WORDS)
 	_hide_words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_head.add_child(_hide_words)
 	hide_earned = MenuTheme.toggle(_settings.achievements_hide_earned)
 	hide_earned.name = "HideSwitch"
-	ScreenReader.name(hide_earned, HIDE)
+	ScreenReader.name(hide_earned, tr(HIDE))
 	hide_earned.focus_mode = Control.FOCUS_NONE
 	hide_earned.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	hide_earned.toggled.connect(set_hide_earned)
@@ -444,9 +445,8 @@ func _dress_buttons() -> void:
 	var font := Type.STRONG
 	var wide := font.get_string_size(back.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.BODY).x
 	for order: String in ORDERS:
-		wide = maxf(
-			wide, font.get_string_size(SORT % order, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.BODY).x
-		)
+		var said := tr(SORT) % tr(order)
+		wide = maxf(wide, font.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.BODY).x)
 	for button: Button in [sort, back]:
 		FeltPrintStyle.dress(button)
 		Type.set_font(button, Type.STRONG, Type.BODY)
@@ -481,7 +481,9 @@ func _puck() -> void:
 			hide_earned.draw_circle(at + Vector2(0.0, 3.0), PUCK, Color(0.0, 0.0, 0.0, 0.45))
 			hide_earned.draw_circle(at, PUCK, face)
 			hide_earned.draw_arc(at, PUCK - 4.0, 0.0, TAU, 40, Color(mark, 0.7), 1.5, true)
-			var words := "ON" if on else "OFF"
+			# TRANSLATORS: On a craps table's round puck, the switch hiding what is earned: a few
+			# letters.
+			var words := tr("ON") if on else tr("OFF")
 			var font := Type.STRONG
 			var wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.SMALL)
 			var baseline := (
@@ -523,14 +525,14 @@ func fill() -> void:
 			continue
 		if order == Order.IN_ORDER and shown.group != group:
 			group = shown.group
-			list.add_child(_heading(HEADINGS[clampi(group, 0, HEADINGS.size() - 1)]))
+			list.add_child(_heading(tr(HEADINGS[clampi(group, 0, HEADINGS.size() - 1)])))
 		var row := AchievementRow.of(shown, profile)
 		row.looked_at.connect(_on_looked_at)
 		list.add_child(row)
 	if list.get_child_count() == 0:
 		var done := Label.new()
 		done.name = "AllEarned"
-		done.text = ALL_EARNED
+		done.text = tr(ALL_EARNED)
 		done.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		Type.text(done, Type.BODY, HouseTheme.WORDS)
 		list.add_child(done)
@@ -547,7 +549,7 @@ func fill() -> void:
 		_head.add_child(tick)
 		_head.move_child(tick, count.get_index() + 1)
 		_fit_head.call_deferred()
-	sort.text = SORT % ORDERS[order]
+	sort.text = tr(SORT) % tr(ORDERS[order])
 
 
 ## A group's heading, a little brass plate screwed to the felt with its name engraved on it.

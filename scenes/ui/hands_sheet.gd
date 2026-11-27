@@ -5,14 +5,11 @@ extends Control
 ## its name, what it is, what it pays and how often the profile has made it. One picture, kept for
 ## the run for its width and what it says, see [KeptPictures].
 
+## Its head, its line and what it says of a hand not made yet, each shown through tr().
 const HEAD := "WHAT THE HOUSE PAYS"
-const LINE := (
-	"A hand pays as well as its jokers. Wild cards join the suit you hold most of; every hand you "
-	+ "make pays at once."
-)
+const LINE := """A hand pays as well as its jokers. Wild cards join the suit you hold most of; \
+every hand you make pays at once."""
 const NOT_MADE := "Not made yet"
-const MADE_ONCE := "Made once"
-const MADE := "Made %d times"
 ## How far in its words are, how tall its head is and a row, how big a row's cards are, and where
 ## the name, the pay and the count start.
 const INSIDE := 24.0
@@ -57,10 +54,17 @@ static func paint(on: CanvasItem, wide: float, made: Array[int], base := Transfo
 	var ink := HouseTheme.INK
 	var faint := HouseTheme.INK_FAINT
 	var gold := HouseTheme.on_paper(Palette.CHIP_GOLD).darkened(0.2)
-	on.draw_string(display, Vector2(INSIDE, 40.0), HEAD, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
+	var head := Lang.t(HEAD)
+	on.draw_string(display, Vector2(INSIDE, 40.0), head, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink)
 	var line_room := wide - INSIDE * 2.0
 	on.draw_string(
-		Type.STRONG, Vector2(INSIDE, 68.0), LINE, HORIZONTAL_ALIGNMENT_LEFT, line_room, 17, faint
+		Type.STRONG,
+		Vector2(INSIDE, 68.0),
+		Lang.t(LINE),
+		HORIZONTAL_ALIGNMENT_LEFT,
+		line_room,
+		17,
+		faint
 	)
 	for hand: int in JokerHands.Hand.size():
 		var top := HEAD_TALL + hand * ROW
@@ -68,14 +72,14 @@ static func paint(on: CanvasItem, wide: float, made: Array[int], base := Transfo
 			on.draw_line(Vector2(INSIDE, top), Vector2(wide - INSIDE, top), Color(ink, 0.15), 1.0)
 		var middle := top + ROW * 0.5
 		HandsArt.fan(on, Vector2(INSIDE + 8.0, middle), JokerHands.SHOWN[hand], CARD, base)
-		var named := JokerHands.name_of(hand).to_upper()
+		var named := Lang.t(JokerHands.name_of(hand)).to_upper()
 		on.draw_string(
 			display, Vector2(NAME_AT, middle - 4.0), named, HORIZONTAL_ALIGNMENT_LEFT, -1, 30, ink
 		)
 		on.draw_string(
 			Type.STRONG,
 			Vector2(NAME_AT, middle + 22.0),
-			JokerHands.IS[hand],
+			Lang.t(JokerHands.IS[hand]),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			17,
@@ -86,14 +90,16 @@ static func paint(on: CanvasItem, wide: float, made: Array[int], base := Transfo
 		on.draw_string(
 			Type.STRONG,
 			Vector2(pays_at, middle + 8.0),
-			JokerHands.PAYS[hand],
+			Lang.t(JokerHands.PAYS[hand]),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			room,
 			22,
 			gold
 		)
 		var times := made[hand] if hand < made.size() else 0
-		var said := NOT_MADE if times == 0 else (MADE_ONCE if times == 1 else MADE % times)
+		var said := Joker.told(Lang.tn("Made once", "Made %d times", times), times)
+		if times == 0:
+			said = Lang.t(NOT_MADE)
 		on.draw_string(
 			Type.STRONG,
 			Vector2(wide - MADE_FROM_END, middle + 8.0),
@@ -114,7 +120,7 @@ func _draw() -> void:
 	var counts := made
 	var picture := KeptPictures.of(
 		self,
-		"hands_sheet|%d|%s" % [roundi(wide), counts],
+		"hands_sheet|%d|%s" % [roundi(wide), counts],  # NO_TRANSLATE
 		pixels,
 		func() -> Control:
 			var drawing := Picture.new()

@@ -13,7 +13,7 @@ signal chosen(id: StringName)
 
 const ROW_TALL := 74.0
 const PICTURE := 44.0
-## What the list says with no bet open, which is a program won to its end.
+## What the list says with no bet open, which is a program won to its end, shown through tr().
 const NONE_OPEN := "Every bet on the map is won."
 
 
@@ -53,7 +53,7 @@ class Row:
 		focus_exited.connect(queue_redraw)
 		mouse_entered.connect(grab_focus)
 		set_process(owed > 0)
-		var more := PackedStringArray([LoyaltyPane.PINNED if pinned else "", bet, said])
+		var more := PackedStringArray([tr(LoyaltyPane.PINNED) if pinned else "", bet, said])
 		ScreenReader.name(self, ScreenReader.line([title]), ScreenReader.line(more))
 
 	## A button to a screen reader, see [ScreenReader].
@@ -148,7 +148,7 @@ func _init() -> void:
 	add_child(_rows)
 	_none = Label.new()
 	_none.name = "None"
-	_none.text = NONE_OPEN
+	_none.text = tr(NONE_OPEN)
 	_none.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.text(_none, Type.BODY, HouseTheme.QUIET)
 	_rows.add_child(_none)
@@ -195,7 +195,7 @@ func fill(profile: Profile) -> void:
 		row.name = String(each.id)
 		row.landmark = each
 		row.id = each.id
-		row.title = each.title
+		row.title = tr(each.title)
 		row.bet = Loyalty.bet_of(each)
 		row.come = Loyalty.progress(profile, each)
 		row.said = Loyalty.progress_text(profile, each)
@@ -219,20 +219,20 @@ static func _ring_row(profile: Profile) -> Row:
 	row.name = "Roundabout"
 	row.id = Loyalty.ROUNDABOUT
 	var laps := profile.loyalty.laps
-	row.title = LoyaltyPane.ROUNDABOUT
+	row.title = Lang.t(LoyaltyPane.ROUNDABOUT)
 	if laps > 0:
-		row.title += "  ·  " + LoyaltyCard.LAP % laps
-	row.bet = LoyaltyPane.RING_ASKS
+		row.title += "  ·  " + Lang.t(LoyaltyCard.LAP) % laps
+	row.bet = Lang.t(LoyaltyPane.RING_ASKS)
 	row.owed = profile.loyalty.owed
 	if row.owed > 0:
-		row.bet = LoyaltyPane.EDITION % row.owed
+		row.bet = Lang.t(LoyaltyPane.EDITION) % row.owed
 	var met := 0
 	for bet: Dictionary in profile.loyalty.ring:
 		var come := Loyalty.ring_progress(profile, bet)
 		met += 1 if come.x >= come.y else 0
 	var of := maxi(profile.loyalty.ring.size(), Loyalty.RING_BETS)
 	row.come = Vector2(met, of)
-	row.said = LoyaltyPane.RING_COME % [met, of]
+	row.said = Lang.t(LoyaltyPane.RING_COME).format({"won": met, "count": of})
 	return row
 
 

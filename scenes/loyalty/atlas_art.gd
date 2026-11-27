@@ -68,7 +68,7 @@ const CONTOUR := Color(0.95, 0.76, 0.31, 0.07)
 const CONTOUR_HEAVY := Color(0.95, 0.76, 0.31, 0.13)
 const CONTOUR_STEP := 30.0
 ## The pencil: its body's half width, how long its sharpened point and its eraser's end are, and
-## the words on it.
+## the words on it, shown through tr().
 const PENCIL_HALF := 7.0
 const PENCIL_POINT := 34.0
 const PENCIL_END := 26.0
@@ -328,7 +328,8 @@ static func pencil(
 	on.draw_set_transform_matrix(base * Transform2D(along.angle(), body_from.lerp(body_to, 0.32)))
 	var words := Color(HouseTheme.FOIL, 0.9)
 	var font := Type.mark_font()
-	on.draw_string(font, Vector2(0.0, 3.5), PENCIL_WORDS, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, words)
+	var stamped := Lang.t(PENCIL_WORDS)
+	on.draw_string(font, Vector2(0.0, 3.5), stamped, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, words)
 	on.draw_set_transform_matrix(base)
 	var lead := to - along * 9.0
 	var wood := PackedVector2Array(

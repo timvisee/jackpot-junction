@@ -121,7 +121,7 @@ static func drawn(
 	var named := "hidden" if look == Look.HIDDEN else String(achievement.id)
 	return KeptPictures.of(
 		host,
-		"achievement|%s|%d|%d" % [named, look, int(back)],
+		"achievement|%s|%d|%d" % [named, look, int(back)],  # NO_TRANSLATE
 		Vector2i(pixels, pixels),
 		func() -> Control:
 			var drawing := Drawing.new()

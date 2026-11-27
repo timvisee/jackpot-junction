@@ -16,7 +16,7 @@ const CARD_SCALE := 0.8
 const ROOM := 64.0
 const BODY := 23
 const STEP := 33.0
-const NAME := "JACKPOT JUNCTION"
+const NAME := "JACKPOT JUNCTION"  # NO_TRANSLATE
 const GLUE := Color(0.74, 0.64, 0.36, 0.5)
 ## The shade of the paper where the card sits, a little bigger than the card; and the paper torn up
 ## where the glue held it, its fibers lighter and rough.
@@ -27,8 +27,8 @@ const FIBER := Color(0.62, 0.55, 0.42, 0.55)
 ## Where the two spots of glue are, a share of the card's size either way from its middle.
 const GLUED: Array[Vector2] = [Vector2(-0.3, 0.0), Vector2(0.3, 0.0)]
 
-## The program's name and its line, and who the letter is to.
-var program := "Loyalty Program"
+## The program's name and its line, in the language spoken, and who the letter is to.
+var program := ""
 var line := ""
 var to := ""
 ## Whether the card has been torn off it, the paper torn up where it was glued; and whether it is
@@ -46,12 +46,13 @@ func _init() -> void:
 	# Scaled about its middle, as the folder lays what it keeps, see [FolderBack].
 	pivot_offset = SIZE * 0.5
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	program = tr("Loyalty Program")
 
 
 ## The letter to [param profile], as its screens show the program now.
 static func to_profile(profile: Profile) -> LoyaltyLetter:
 	var letter := LoyaltyLetter.new()
-	letter.program = LoyaltyDialog.program_name(profile)
+	letter.program = Lang.t(LoyaltyDialog.program_name(profile))
 	letter.line = LoyaltyDialog.program_line(profile)
 	letter.to = LoyaltyCard.holder_of(profile)
 	letter.number = profile.loyalty.member
@@ -62,7 +63,7 @@ static func to_profile(profile: Profile) -> LoyaltyLetter:
 func paragraphs() -> PackedStringArray:
 	var said := PackedStringArray()
 	for paragraph: String in StoryLines.WELCOME_LETTER:
-		said.append(paragraph.replace("{name}", to).replace("{program}", program))
+		said.append(tr(paragraph).replace("{name}", to).replace("{program}", program))
 	return said
 
 
@@ -106,7 +107,7 @@ func _draw() -> void:
 	draw_string(
 		display,
 		Vector2(ROOM, y + 14.0),
-		StoryLines.WELCOME_SIGNED,
+		tr(StoryLines.WELCOME_SIGNED),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		30,

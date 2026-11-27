@@ -11,6 +11,6 @@ func on_drift_boost(kart: Kart) -> void:
 
 
 func went_off_words(times: int) -> String:
-	return (
-		"Made a turbo pad of a drift once" if times == 1 else "Made %d turbo pads of drifts" % times
+	return told(
+		tr_n("Made a turbo pad of a drift once", "Made %d turbo pads of drifts", times), times
 	)

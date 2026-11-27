@@ -5,6 +5,7 @@ extends TabBar
 ## Kit's is on it. Each wears NEW while a landmark won on its sheet has not been looked at yet, as
 ## the catalog's tabs do for their pages, see [TabTags].
 
+## Each sheet's tab, shown through tr().
 const HOUSE := "The House's map"
 const KIT := "Kit's map"
 
@@ -16,8 +17,8 @@ var tags: TabTags
 static func of(profile: Profile) -> SheetTabs:
 	var bar := SheetTabs.new()
 	bar.name = "Sheets"
-	bar.add_tab(HOUSE)
-	bar.add_tab(KIT)
+	bar.add_tab(Lang.t(HOUSE))
+	bar.add_tab(Lang.t(KIT))
 	bar.tab_alignment = TabBar.ALIGNMENT_LEFT
 	bar.focus_mode = Control.FOCUS_NONE
 	bar.clip_tabs = false

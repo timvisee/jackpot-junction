@@ -12,14 +12,14 @@ func modify_death(_kart: Kart, death: DeathOutcome) -> void:
 ## GAME.md 8.3. A ram is only asked about with coins in the pot.
 func on_death(kart: Kart) -> void:
 	if kart.pot.coins > 0:
-		went_off(kart, "GRIPPED")
+		went_off(kart, Lang.later("GRIPPED"))
 
 
 func modify_ram_knock(kart: Kart, fraction: float) -> float:
 	if fraction > 0.0:
-		went_off(kart, "GRIPPED")
+		went_off(kart, Lang.later("GRIPPED"))
 	return 0.0
 
 
 func went_off_words(times: int) -> String:
-	return "Kept your pot shut once" if times == 1 else "Kept your pot shut %d times" % times
+	return told(tr_n("Kept your pot shut once", "Kept your pot shut %d times", times), times)

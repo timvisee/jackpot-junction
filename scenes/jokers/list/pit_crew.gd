@@ -23,12 +23,12 @@ func on_turbo_pad(kart: Kart) -> void:
 		return
 	_resting = REST
 	kart.refill_nitro(SHARE * copies)
-	went_off(kart, "PIT STOP")
+	went_off(kart, Lang.later("PIT STOP"))
 
 
 func stack_values(copies: int) -> Dictionary:
-	return {"share": "half" if copies <= 1 else "all"}
+	return {"share": tr("half") if copies <= 1 else tr("all")}
 
 
 func went_off_words(times: int) -> String:
-	return "Filled your tank once" if times == 1 else "Filled your tank %d times" % times
+	return told(tr_n("Filled your tank once", "Filled your tank %d times", times), times)

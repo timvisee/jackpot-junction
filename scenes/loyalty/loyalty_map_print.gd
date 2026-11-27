@@ -18,7 +18,7 @@ const TICKET_ROAD := 17.0
 const NOTCH := 4.5
 const ROAD := 5.0
 const TICKET_PAPER := Color("#f8f1df")
-## The districts' names, printed over them, and Kit's over the pencil.
+## The districts' names, printed over them, and Kit's over the pencil, shown through tr().
 const STRIP := "THE STRIP"
 const DEPARTMENT := "DEPARTMENT OF KARTS"
 const OFF_THE_BOOKS := "off the books"
@@ -31,21 +31,23 @@ const PLACE_SLANT := 0.22
 const PLACE_SPACING := 2
 const WATER_INK := Color(0.25, 0.45, 0.66, 0.9)
 const LAND_INK := Color(0.3, 0.42, 0.24, 0.9)
-## The legend's words, and the title block's.
+## The legend's words, and the title block's, shown through tr().
 const LEGEND := "LEGEND"
 const LEGEND_LINES: Array[String] = [
 	"The House's road", "Not open yet", "The Strip", "Dept. of Karts", "Won"
 ]
 ## What Kit pencils in under the House's legend, once Kit's roads are on the map, and how far
-## askew.
+## askew; and the title block's words. The words are shown through tr().
 const KIT_LEGEND := "my roads"
 const KIT_LEGEND_TURN := -0.06
 const IMPRINT := "ROAD MAP  ·  NOT TO SCALE"
 const PRINTED := "Printed by the House for its members"
-## What is written beside the arrow at the end of one of Kit's roads off a sheet.
+## What is written beside the arrow at the end of one of Kit's roads off a sheet, shown through
+## tr().
 const WAY_OFF := "to %s"
 const KIT_MAP := "Kit's map"
-## What is written by the arrow on Kit's road onto his sheet, which his first landmark is on.
+## What is written by the arrow on Kit's road onto his sheet, which his first landmark is on, shown
+## through tr().
 const WAY_IN := "the back way in"
 
 static var _spaced: FontVariation
@@ -72,7 +74,7 @@ static func words(view: LoyaltyMapView) -> void:
 		var kit := district == LoyaltyLandmark.District.OFF_THE_BOOKS
 		var font: Font = LoyaltyArt.HAND if kit else _spaced_font()
 		var size_of := DISTRICT_SIZE * (LoyaltyArt.HAND_SCALE if kit else 1.0)
-		view.say(layout.names_at[district], named[0], font, size_of, named[1])
+		view.say(layout.names_at[district], Lang.t(named[0]), font, size_of, named[1])
 	for place: Dictionary in layout.places:
 		var ink := WATER_INK if place["water"] else LAND_INK
 		var named: String = place["name"]
@@ -88,12 +90,13 @@ static func words(view: LoyaltyMapView) -> void:
 	var pot_ink := HouseTheme.ON_FOIL
 	if not view.ring_open():
 		pot_ink.a = 1.0 - LoyaltyArt.PALE
-	view.say(pot_at, POT, display, pot, pot_ink, HORIZONTAL_ALIGNMENT_CENTER, layout.ring * 2.0)
+	var said := Lang.t(POT)
+	view.say(pot_at, said, display, pot, pot_ink, HORIZONTAL_ALIGNMENT_CENTER, layout.ring * 2.0)
 	var laps := view.profile.loyalty.laps
 	if laps > 0:
 		view.say(
 			pot_at + Vector2(0.0, pot * 0.95),
-			LoyaltyCard.LAP % laps,
+			Lang.t(LoyaltyCard.LAP) % laps,
 			Type.STRONG,
 			pot * 0.55,
 			HouseTheme.ON_FOIL,
@@ -101,7 +104,9 @@ static func words(view: LoyaltyMapView) -> void:
 			layout.ring * 2.0
 		)
 	var north := layout.compass + Vector2(-20.0, -LoyaltyMapLayout.COMPASS - 6.0)
-	view.say(north, "N", display, 16.0, HouseTheme.STAMP_RED, HORIZONTAL_ALIGNMENT_CENTER, 40.0)
+	# TRANSLATORS: North, on the map's compass.
+	var up := Lang.t("N", &"compass")
+	view.say(north, up, display, 16.0, HouseTheme.STAMP_RED, HORIZONTAL_ALIGNMENT_CENTER, 40.0)
 	_legend_words(view, display)
 	_title_words(view, display)
 
@@ -109,10 +114,10 @@ static func words(view: LoyaltyMapView) -> void:
 ## The legend's heading and its lines, and Kit's line pencilled in under them once it shows.
 static func _legend_words(view: LoyaltyMapView, display: Font) -> void:
 	var box := view.layout.legend
-	view.say(box.position + Vector2(16.0, 24.0), LEGEND, display, 15.0, HouseTheme.INK)
+	view.say(box.position + Vector2(16.0, 24.0), Lang.t(LEGEND), display, 15.0, HouseTheme.INK)
 	for i: int in LEGEND_LINES.size():
 		var at := box.position + Vector2(70.0, 44.0 + i * 19.0)
-		view.say(at, LEGEND_LINES[i], Type.STRONG, 12.0, HouseTheme.INK)
+		view.say(at, Lang.t(LEGEND_LINES[i]), Type.STRONG, 12.0, HouseTheme.INK)
 	if not kit_legend_shown(view.profile):
 		return
 	var written := view.to_view(_kit_legend_at(view.layout) + Vector2(54.0, 5.0))
@@ -121,7 +126,7 @@ static func _legend_words(view: LoyaltyMapView, display: Font) -> void:
 	view.draw_string(
 		LoyaltyArt.HAND,
 		Vector2.ZERO,
-		KIT_LEGEND,
+		Lang.t(KIT_LEGEND),
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		px,
@@ -136,8 +141,8 @@ static func _title_words(view: LoyaltyMapView, display: Font) -> void:
 	var wide := title.size.x - 24.0
 	var lines := [
 		[40.0, view.program.to_upper(), display, 26.0, HouseTheme.INK],
-		[66.0, IMPRINT, Type.STRONG, 12.0, HouseTheme.INK],
-		[92.0, PRINTED, LoyaltyArt.HAND, 15.0, HouseTheme.INK_FAINT],
+		[66.0, Lang.t(IMPRINT), Type.STRONG, 12.0, HouseTheme.INK],
+		[92.0, Lang.t(PRINTED), LoyaltyArt.HAND, 15.0, HouseTheme.INK_FAINT],
 	]
 	for line: Array in lines:
 		view.say(
@@ -194,12 +199,13 @@ static func kit_legend_shown(profile: Profile) -> bool:
 ## Kit's way onto his sheet along [param line], said in his hand under its arrow, kept on the paper.
 static func _say_way_in(view: LoyaltyMapView, line: PackedVector2Array) -> void:
 	var size_of := 13.0 * LoyaltyArt.HAND_SCALE
+	var said := Lang.t(WAY_IN)
 	var wide := (
-		LoyaltyArt.HAND.get_string_size(WAY_IN, HORIZONTAL_ALIGNMENT_LEFT, -1, roundi(size_of)).x
+		LoyaltyArt.HAND.get_string_size(said, HORIZONTAL_ALIGNMENT_LEFT, -1, roundi(size_of)).x
 	)
 	var at := LoyaltyMapView.way_off_tip(line) + Vector2(-wide * 0.5, 30.0)
 	at.x = clampf(at.x, 12.0, view.layout.paper.x - wide - 12.0)
-	view.say(at, WAY_IN, LoyaltyArt.HAND, size_of, LoyaltyArt.PENCIL)
+	view.say(at, said, LoyaltyArt.HAND, size_of, LoyaltyArt.PENCIL)
 
 
 ## Where Kit's line in the legend starts, on the map: under the House's last.
@@ -240,13 +246,13 @@ static func _say_ways_off(view: LoyaltyMapView) -> void:
 		if to == &"":
 			continue
 		var there := Loyalty.map().landmark(to)
-		var named := there.title if there != null else String(to)
+		var named := Lang.t(there.title) if there != null else String(to)
 		var up := line.size() >= 2 and line[-1].y < line[-2].y
 		if up:
-			named = KIT_MAP
+			named = Lang.t(KIT_MAP)
 		var at := LoyaltyMapView.way_off_tip(line) + Vector2(18.0, 20.0 if up else -6.0)
 		var size_of := 13.0 * LoyaltyArt.HAND_SCALE
-		view.say(at, WAY_OFF % named, LoyaltyArt.HAND, size_of, LoyaltyArt.PENCIL)
+		view.say(at, Lang.t(WAY_OFF) % named, LoyaltyArt.HAND, size_of, LoyaltyArt.PENCIL)
 
 
 ## The bet of [param landmark], open, on a ticket hung from under its sign [param rect] on

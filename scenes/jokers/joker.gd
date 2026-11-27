@@ -10,11 +10,14 @@ enum Kind { STAT, RULE, CURSED }
 ## staying alive, Diamonds chips and banking, Clubs driving and mult, and wild for any of them.
 enum Suit { SPADES, HEARTS, DIAMONDS, CLUBS, WILD }
 
-## How many times as much, as the cards say it, see [method times].
+## How many times as much, as the cards say it, see [method times], each shown through tr().
 const TIMES: Array[String] = ["", "once", "twice", "three times", "four times", "five times"]
 const RARITY_WEIGHTS: Dictionary[int, float] = {
 	Rarity.COMMON: 60.0, Rarity.UNCOMMON: 30.0, Rarity.RARE: 10.0
 }
+
+## A number in a word said over a card, see [method shown_word].
+static var _number := RegEx.create_from_string("[+-]?\\d+(\\.\\d+)?")
 
 @export var id: StringName
 @export var display_name := ""
@@ -60,7 +63,9 @@ var standing_for: Joker
 ## off in the hand with [param word] over it. Only where the karts are run, the host online, which
 ## says it to every client: a puppet's jokers do nothing of their own. With no word it is only
 ## counted for the catalog, GAME.md 8.8, and the card stays still: for one that does its thing too
-## often for the card to say so every time, Cushion Shot's bounces.
+## often for the card to say so every time, Cushion Shot's bounces. The word goes in English, marked
+## with [method Lang.later], and whoever shows it says it in its own language, see [method
+## shown_word].
 func went_off(kart: Kart, word: String) -> void:
 	if kart != null and not kart.puppet:
 		Events.joker_went_off.emit(kart.slot, id, word)
@@ -71,6 +76,22 @@ func went_off(kart: Kart, word: String) -> void:
 ## [method went_off].
 func went_off_words(_times: int) -> String:
 	return ""
+
+
+## [param word] said over a card gone off or used up, see [method went_off], in the language spoken
+## here: sent in English, any number in it, "+2 MULT", is put back into its translated words.
+static func shown_word(word: String) -> String:
+	var number := _number.search(word)
+	if number == null:
+		return Lang.t(word)
+	var bare := word.substr(0, number.get_start()) + "%s" + word.substr(number.get_end())
+	return Lang.t(bare) % number.get_string().replace(".", Lang.t(".", &"decimal"))
+
+
+## [param words] from [method Object.tr_n] for [param count], with the count put in where the
+## language has a place for it: "Paid out once" has none, "Paid out %d times" has.
+static func told(words: String, count: int) -> String:
+	return words % count if "%d" in words else words
 
 
 ## Says this joker has just gone from [param kart]'s hand by itself, used up, GAME.md 8.3: its
@@ -116,7 +137,7 @@ func describe(copies := 1, mark := "%s", details := false) -> String:
 		count = clampi(copies, 1, most if most > 0 else maxi(copies, 1))
 	var one := stack_values(1)
 	var now := stack_values(count)
-	var said := description
+	var said := tr(description)
 	for key: String in now:
 		var value := str(now[key])
 		var alone := str(one[key])
@@ -125,7 +146,7 @@ func describe(copies := 1, mark := "%s", details := false) -> String:
 			shown += " (%s)" % (alone.left(1).to_lower() + alone.substr(1))
 		said = said.replace("{%s}" % key, shown)
 	if stackable and details:
-		said += " Stacks up to ×%d." % most if most > 0 else " Stacks."
+		said += " " + (tr("Stacks up to ×%d.") % most if most > 0 else tr("Stacks."))
 	return said
 
 
@@ -135,19 +156,17 @@ func stack_values(_copies: int) -> Dictionary:
 	return {}
 
 
-## [param count] of a thing as the cards say it: "1 coin", "2 coins".
-static func counted(count: int, one: String, many: String) -> String:
-	return "%d %s" % [count, one if count == 1 else many]
-
-
 ## How many times as much as the cards say it: "twice", "three times".
 static func times(factor: int) -> String:
-	return TIMES[factor] if factor < TIMES.size() else "%d times" % factor
+	if factor < TIMES.size():
+		return Lang.t(TIMES[factor])
+	return Lang.tn("%d time", "%d times", factor) % factor
 
 
-## A figure as the cards say it: 2 rather than 2.0, and one decimal at most.
+## A figure as the cards say it: 2 rather than 2.0, one decimal at most, with the decimal mark of
+## the language spoken.
 static func figure(value: float) -> String:
-	return String.num(value, 1)
+	return String.num(value, 1).replace(".", Lang.t(".", &"decimal"))
 
 
 func on_attach(_kart: Kart) -> void:

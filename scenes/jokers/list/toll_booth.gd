@@ -14,7 +14,7 @@ func on_other_bank_completed(kart: Kart, _other_slot: int, total: int) -> int:
 	var copies := stacked()
 	var toll := floori(total * share(copies)) if copies > 0 else 0
 	if toll > 0:
-		went_off(kart, "TOLL")
+		went_off(kart, Lang.later("TOLL"))
 	return toll
 
 
@@ -23,4 +23,4 @@ func stack_values(copies: int) -> Dictionary:
 
 
 func went_off_words(times: int) -> String:
-	return "Collected a toll once" if times == 1 else "Collected %d tolls" % times
+	return told(tr_n("Collected a toll once", "Collected %d tolls", times), times)

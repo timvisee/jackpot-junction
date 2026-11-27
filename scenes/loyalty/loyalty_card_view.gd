@@ -114,7 +114,7 @@ class KeptCard:
 		var drawn := card
 		var picture := KeptPictures.of(
 			self,
-			"loyalty_card|%s" % [printed],
+			"loyalty_card|%s" % [printed],  # NO_TRANSLATE
 			pixels,
 			func() -> Control:
 				var holder := Control.new()
@@ -178,11 +178,12 @@ func _ready() -> void:
 	column.add_child(row)
 	# On the hand's button, as the license's and Kit's notes' are; accept still turns it too.
 	turn = _icon_button(
-		"TurnOver", HouseArt.turning(), LicenseView.TURN_WORD, InputActions.JOKER_MENU
+		"TurnOver", HouseArt.turning(), tr(LicenseView.TURN_WORD), InputActions.JOKER_MENU
 	)
 	turn.pressed.connect(turn_over)
 	row.add_child(turn)
-	away = _icon_button("Away", HouseArt.cross(), LicenseView.AWAY_WORD, &"ui_cancel")
+	# NO_TRANSLATE: the button's name.
+	away = _icon_button("Away", HouseArt.cross(), tr(LicenseView.AWAY_WORD), &"ui_cancel")
 	away.pressed.connect(close)
 	row.add_child(away)
 	away_line = Control.new()
@@ -391,9 +392,9 @@ func say_away() -> void:
 		old.queue_free()
 	var row: Control
 	if TouchInput.enabled:
-		row = MenuTheme.subtitle(LicenseView.AWAY_TOUCH, Type.LABEL)
+		row = MenuTheme.subtitle(tr(LicenseView.AWAY_TOUCH), Type.LABEL)
 	elif _pointer:
-		row = MenuTheme.subtitle(LicenseView.AWAY_MOUSE, Type.LABEL)
+		row = MenuTheme.subtitle(tr(LicenseView.AWAY_MOUSE), Type.LABEL)
 	else:
 		return
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)

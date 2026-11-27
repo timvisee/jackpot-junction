@@ -37,18 +37,17 @@ class WonLine:
 		LoyaltyArt.draw_reward(self, picture, landmark, LoyaltySlipPage.INK)
 		var left := picture.end.x + 12.0
 		var base := size.y * 0.5 - 2.0
+		var title := tr(landmark.title)
 		draw_string(
 			Type.STRONG,
 			Vector2(left, base),
-			landmark.title,
+			title,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			20,
 			LoyaltySlipPage.INK
 		)
-		var named := (
-			Type.STRONG.get_string_size(landmark.title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
-		)
+		var named := Type.STRONG.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
 		var paid := Loyalty.reward_words(landmark, stage)
 		var paid_wide := (
 			Type.micro_font().get_string_size(paid, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
@@ -135,14 +134,14 @@ class NearLine:
 
 	## What the pin says to a mouse over it.
 	func pin_words() -> String:
-		return LoyaltyPane.PINNED if pinned() else LoyaltyPane.PIN
+		return tr(LoyaltyPane.PINNED) if pinned() else tr(LoyaltyPane.PIN)
 
 	func _place_pin() -> void:
 		pin.position = Vector2(size.x - pin.size.x, (size.y - pin.size.y) * 0.5)
 		pin.visible = profile != null and Loyalty.can_pin(profile, landmark.id)
 		pin.tooltip_text = pin_words()
 		# Read by its tooltip, and whose it is after it, see [ScreenReader].
-		pin.accessibility_description = landmark.title
+		pin.accessibility_description = tr(landmark.title)
 
 	## The pin drawn upright on its button: full while pinned, faint while not, and a shade
 	## brighter under the mouse or the cursor, which marks it as it marks a button.
@@ -159,7 +158,7 @@ class NearLine:
 		draw_string(
 			Type.TEXT,
 			Vector2(0.0, base),
-			landmark.title,
+			tr(landmark.title),
 			HORIZONTAL_ALIGNMENT_LEFT,
 			size.x * 0.4,
 			17,
@@ -293,7 +292,7 @@ func _build() -> void:
 ## the House's to print, which is no page.
 func fill(report: Array[Dictionary]) -> bool:
 	var profile := Game.settings.profile
-	heading.text = LoyaltyDialog.program_name(profile)
+	heading.text = tr(LoyaltyDialog.program_name(profile))
 	caption.text = LoyaltyDialog.program_line(profile)
 	for child: Node in rows.get_children():
 		rows.remove_child(child)
@@ -314,18 +313,18 @@ func fill(report: Array[Dictionary]) -> bool:
 		if laps > 0:
 			var lap := Label.new()
 			var profile_of: Profile = line["profile"]
-			lap.text = StoryLines.SLIP_LAP % profile_of.loyalty.laps
+			lap.text = tr(StoryLines.SLIP_LAP) % profile_of.loyalty.laps
 			Type.strong(lap, Type.LARGE, LoyaltySlipPage.STAMP_INK)
 			rows.add_child(lap)
 		if not won.is_empty():
-			rows.add_child(_small(StoryLines.SLIP_WON))
+			rows.add_child(_small(tr(StoryLines.SLIP_WON)))
 		for landmark: LoyaltyLandmark in won:
 			var row := WonLine.new()
 			row.landmark = landmark
 			row.stage = stage
 			rows.add_child(row)
 		if not nearer.is_empty():
-			rows.add_child(_small(StoryLines.SLIP_NEAREST))
+			rows.add_child(_small(tr(StoryLines.SLIP_NEAREST)))
 		for landmark: LoyaltyLandmark in nearer:
 			var near := NearLine.new()
 			near.landmark = landmark
@@ -360,12 +359,13 @@ func _small(words: String) -> Label:
 	return small
 
 
-## The bets won off the books in [param report], every profile's, as Kit writes them: their names.
+## The bets won off the books in [param report], every profile's, as Kit writes them: their names,
+## in the language spoken.
 static func kit_lines(report: Array[Dictionary]) -> PackedStringArray:
 	var lines := PackedStringArray()
 	for line: Dictionary in report:
 		for landmark: LoyaltyLandmark in line["kit"]:
-			lines.append(landmark.title)
+			lines.append(Lang.t(landmark.title))
 	return lines
 
 

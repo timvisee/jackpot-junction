@@ -62,24 +62,25 @@ const NEAR := 1.5
 const PICTURES := &"proof_pictures"
 const STEP := 8
 
-## The job line in each sheet's foot, and the job ticket's head and lines, GAME.md 8.8.
-const JOKER_SHEET := "JOKER DECK  ·  SHEET 1 OF 2  ·  %d OF %d PRINTED"
-const ITEM_SHEET := "POWER-UP SET  ·  SHEET 2 OF 2  ·  %d OF %d PRINTED"
-## The stamp across the head of the jokers' sheet while it shows one suit alone, GAME.md 8.8.
-const ONLY := "%s ONLY  ·  %d OF %d"
-const WILD_ONLY := "WILD CARDS ONLY  ·  %d OF %d"
+## The job line in each sheet's foot, and the job ticket's head and lines, GAME.md 8.8, each shown
+## through tr().
+const JOKER_SHEET := "JOKER DECK  ·  SHEET 1 OF 2  ·  {found} OF {count} PRINTED"
+const ITEM_SHEET := "POWER-UP SET  ·  SHEET 2 OF 2  ·  {found} OF {count} PRINTED"
+## The stamp across the head of the jokers' sheet while it shows one suit alone, GAME.md 8.8, shown
+## through tr().
+const ONLY := "{suit} ONLY  ·  {shown} OF {count}"
+const WILD_ONLY := "WILD CARDS ONLY  ·  {shown} OF {count}"
 const TICKET := "JOB TICKET"
 const TICKET_NUMBERED := "JOB TICKET    No. %s"
 const CUSTOMER := "CUSTOMER"
 const JOB := "JOB"
-const JOKER_JOB := "Joker deck, %d cards"
 const ITEM_JOB := "Power-up set, %d"
 const STOCK := "STOCK"
 const HOUSE_STOCK := "House card, 300 g"
 const INKS := "INKS"
 const HOUSE_INKS := "4 col. + house gold"
 const PRINTED := "PRINTED"
-const PRINTED_OF := "%d of %d"
+const PRINTED_OF := "{found} of {count}"
 ## The pictures of the mat kept, by what each was drawn for, the oldest first.
 static var _kept: Dictionary[String, Texture2D] = {}
 
@@ -164,6 +165,7 @@ func _ready() -> void:
 		var scroll := page.get_node("Well/Scroll") as ScrollContainer
 		scroll.get_v_scroll_bar().value_changed.connect(func(_to: float) -> void: queue_redraw())
 		# A page of cards has its grid and its column; the page of the hands has neither.
+		# Its parts by their paths. NO_TRANSLATE
 		for path: String in ["Well/Scroll/Grid", "Side/Column/Preview", "Side/Column/Pane"]:
 			var part := page.get_node_or_null(path) as Control
 			if part != null:
@@ -200,20 +202,24 @@ func fit(is_short: bool) -> void:
 func say(settings: Settings, pages: Array[Array]) -> void:
 	var catalog := settings.profile.catalog
 	var number := settings.license_number.to_upper()
-	ticket_head = TICKET if number.is_empty() else TICKET_NUMBERED % number
+	ticket_head = tr(TICKET) if number.is_empty() else tr(TICKET_NUMBERED) % number
 	slugs.clear()
 	tickets.clear()
 	for i: int in pages.size():
 		var ids: Array[StringName] = []
 		ids.assign(pages[i])
 		var found := catalog.found_of(ids)
-		slugs.append((JOKER_SHEET if i == 0 else ITEM_SHEET) % [found, ids.size()])
+		var counted := {"found": found, "count": ids.size()}
+		slugs.append(tr(JOKER_SHEET if i == 0 else ITEM_SHEET).format(counted))
+		var job := tr(ITEM_JOB) % ids.size()
+		if i == 0:
+			job = tr_n("Joker deck, %d card", "Joker deck, %d cards", ids.size()) % ids.size()
 		var lines: Array[PackedStringArray] = [
-			PackedStringArray([CUSTOMER, settings.license_holder]),
-			PackedStringArray([JOB, (JOKER_JOB if i == 0 else ITEM_JOB) % ids.size()]),
-			PackedStringArray([STOCK, HOUSE_STOCK]),
-			PackedStringArray([INKS, HOUSE_INKS]),
-			PackedStringArray([PRINTED, PRINTED_OF % [found, ids.size()]]),
+			PackedStringArray([tr(CUSTOMER), settings.license_holder]),
+			PackedStringArray([tr(JOB), job]),
+			PackedStringArray([tr(STOCK), tr(HOUSE_STOCK)]),
+			PackedStringArray([tr(INKS), tr(HOUSE_INKS)]),
+			PackedStringArray([tr(PRINTED), tr(PRINTED_OF).format(counted)]),
 		]
 		tickets.append(lines)
 
@@ -235,7 +241,7 @@ func places() -> ProofArt.Places:
 	if not foot.is_visible_in_tree():
 		return placed
 	var y := _on_pane(foot).get_center().y
-	var from := _on_pane(_page_node("Well")).position.x + RULE_IN
+	var from := _on_pane(_page_node("Well")).position.x + RULE_IN  # NO_TRANSLATE
 	var stop := _on_pane(back).position.x - BACK_ROOM
 	# The ticket lying in the foot, where the column had no room for it, keeps the rest left of it.
 	var ticket_at := _foot_ticket()
@@ -285,12 +291,12 @@ func ticket_spot() -> Rect2:
 
 ## The ticket's spot in the column, or nothing where the column has no room for it.
 func _side_ticket() -> Rect2:
-	var side := _page_node("Side")
+	var side := _page_node("Side")  # NO_TRANSLATE
 	if side == null or not side.is_visible_in_tree():
 		return Rect2()
-	var above := _page_node("Side/Column/Switches")
+	var above := _page_node("Side/Column/Switches")  # NO_TRANSLATE
 	if above == null:
-		above = _page_node("Side/Column/Pane")
+		above = _page_node("Side/Column/Pane")  # NO_TRANSLATE
 	var top := _on_self(above).end.y + TICKET_UNDER
 	var bottom := _on_self(side).end.y
 	if back.is_visible_in_tree() and back.get_parent() == foot:
@@ -305,11 +311,11 @@ func _side_ticket() -> Rect2:
 ## room for it: over the sheet's foot a little, and nothing where the foot is too short for it and
 ## a little of the rest, or there is no foot, a short screen's.
 func _foot_ticket() -> Rect2:
-	if _side_ticket().has_area() or _page_node("Side") == null:
+	if _side_ticket().has_area() or _page_node("Side") == null:  # NO_TRANSLATE
 		return Rect2()
 	if not foot.is_visible_in_tree() or not back.is_visible_in_tree() or back.get_parent() != foot:
 		return Rect2()
-	var well := _page_node("Well")
+	var well := _page_node("Well")  # NO_TRANSLATE
 	if well == null:
 		return Rect2()
 	var size := ProofArt.TICKET_SIZE
@@ -334,7 +340,10 @@ func _draw_mat() -> void:
 	var sheet := _settled_sheet
 	var placed := _settled_places
 	var scale_by := maxf(KeptPictures.scale_of(pane), 0.25)
-	var key := "%s|%s|%.3f|%s|%s" % [short, _settled_size, scale_by, sheet, placed.key()]
+	# The foot's rule and tin have words on them, so the picture is the language's too.
+	var key := (
+		"%s|%s|%.3f|%s|%s|%s" % [short, _settled_size, scale_by, sheet, placed.key(), Lang.current]
+	)
 	var kept: Texture2D = _kept.get(key)
 	if kept != null:
 		var whole := rect.grow(ROOM)
@@ -372,7 +381,7 @@ static func _near(a: Rect2, b: Rect2) -> bool:
 
 ## The page showing's sheet, its well's rect on the pane, or nothing for a page with no well.
 func _sheet() -> Rect2:
-	var well := _page_node("Well")
+	var well := _page_node("Well")  # NO_TRANSLATE
 	if well == null or not well.is_visible_in_tree():
 		return Rect2()
 	var rect := _on_pane(well)
@@ -433,7 +442,7 @@ func _draw() -> void:
 	if placed.fan != Vector2.ZERO:
 		var fan := ProofArt.fan_reach()
 		_piece("proof_fan", _on_self_point(placed.fan), fan, ProofArt.swatch_fan)
-	var preview := _page_node("Side/Column/Preview") as CardPreview
+	var preview := _page_node("Side/Column/Preview") as CardPreview  # NO_TRANSLATE
 	var suit := _suit_of(preview)
 	var loupe := preview != null and preview.is_visible_in_tree()
 	loupe = loupe and preview.side() >= CardPreview.LEAST
@@ -447,7 +456,7 @@ func _draw() -> void:
 		middle += Vector2.ONE * across * 0.5
 		var reach := across * 0.5 + ProofArt.LOUPE_OUT
 		_piece(
-			"proof_loupe|%d" % roundi(reach),
+			"proof_loupe|%d" % roundi(reach),  # NO_TRANSLATE
 			middle,
 			ProofArt.loupe_reach(reach),
 			func(on: CanvasItem, base: Transform2D) -> void: ProofArt.loupe(on, reach, base)
@@ -455,12 +464,12 @@ func _draw() -> void:
 		if suit >= 0:
 			var bezel := reach + ProofArt.LOUPE_OUT + ProofArt.LOUPE_RIM * 0.5
 			_piece(
-				"proof_suit|%d" % suit,
+				"proof_suit|%d" % suit,  # NO_TRANSLATE
 				middle + Vector2.from_angle(ProofArt.SUIT_CARD_AT) * bezel,
 				ProofArt.suit_card_reach(),
 				func(on: CanvasItem, base: Transform2D) -> void: ProofArt.suit_card(on, suit, base)
 			)
-	var spec := _page_node("Side/Column/Pane")
+	var spec := _page_node("Side/Column/Pane")  # NO_TRANSLATE
 	if spec != null and spec.is_visible_in_tree():
 		var clip := Vector2(_on_self(spec).end.x - CLIP_IN, _on_self(spec).position.y)
 		_piece("proof_clip", clip, Rect2(-60.0, -52.0, 120.0, 90.0), ProofArt.bulldog_clip)
@@ -479,7 +488,7 @@ func _draw() -> void:
 		for line: PackedStringArray in lines:
 			said += "|" + " ".join(line)
 		_piece(
-			"proof_ticket|%d" % said.hash(),
+			"proof_ticket|%d" % said.hash(),  # NO_TRANSLATE
 			spot.get_center(),
 			Rect2(-spot.size * 0.5, spot.size).grow(16.0),
 			func(on: CanvasItem, base: Transform2D) -> void:
@@ -490,8 +499,8 @@ func _draw() -> void:
 ## The crop marks in the sheet's margins at the edges of the cards showing: their columns over and
 ## under the cards, their rows either side as they scroll.
 func _draw_crop_marks() -> void:
-	var grid := _page_node("Well/Scroll/Grid") as CardGrid
-	var scroll := _page_node("Well/Scroll")
+	var grid := _page_node("Well/Scroll/Grid") as CardGrid  # NO_TRANSLATE
+	var scroll := _page_node("Well/Scroll")  # NO_TRANSLATE
 	if grid == null or not scroll.is_visible_in_tree():
 		return
 	var shown := _on_self(scroll)
@@ -542,14 +551,14 @@ func _piece(key: String, at: Vector2, reach: Rect2, draw_it: Callable) -> void:
 ## so and how many of them it shows: easier to see than the chip pressed in under the pane.
 func _draw_stamp() -> void:
 	var words := stamp_words()
-	var well := _page_node("Well")
+	var well := _page_node("Well")  # NO_TRANSLATE
 	if words.is_empty() or well == null or not well.is_visible_in_tree():
 		return
 	var suit := CatalogDialog.suit_shown
 	var sheet := _on_self(well)
 	var at := Vector2(sheet.get_center().x, sheet.position.y + (12.0 if short else 15.0))
 	_piece(
-		"proof_stamp|%s" % words,
+		"proof_stamp|%s" % words,  # NO_TRANSLATE
 		at,
 		ProofArt.filter_stamp_reach(),
 		func(on: CanvasItem, base: Transform2D) -> void:
@@ -560,14 +569,16 @@ func _draw_stamp() -> void:
 ## What the stamp across the jokers' sheet says, or nothing while it shows every suit.
 func stamp_words() -> String:
 	var suit := CatalogDialog.suit_shown
-	var grid := _page_node("Well/Scroll/Grid") as CardGrid
+	var grid := _page_node("Well/Scroll/Grid") as CardGrid  # NO_TRANSLATE
 	if tabs.current_tab != 0 or suit == SuitFilter.ALL or grid == null:
 		return ""
 	var shown := grid.cells().size()
 	var all := grid.get_child_count()
+	var counted := {"shown": shown, "count": all}
 	if suit == Joker.Suit.WILD:
-		return WILD_ONLY % [shown, all]
-	return ONLY % [JokerSuits.name_of(suit).to_upper(), shown, all]
+		return tr(WILD_ONLY).format(counted)
+	counted["suit"] = tr(JokerSuits.name_of(suit)).to_upper()
+	return tr(ONLY).format(counted)
 
 
 ## The suit of the joker [param preview] shows, or -1 for none: an item, or a card face down.
@@ -581,7 +592,7 @@ static func _suit_of(preview: CardPreview) -> int:
 ## Has the joker pane showing put [param suit] before the card's name, or nothing for -1, once it
 ## is not saying so already.
 func _title_suit(suit: int) -> void:
-	var spec := _page_node("Side/Column/Pane") as JokerDetail
+	var spec := _page_node("Side/Column/Pane") as JokerDetail  # NO_TRANSLATE
 	if spec != null and spec.title_suit() != suit:
 		spec.show_title_suit.call_deferred(suit)
 

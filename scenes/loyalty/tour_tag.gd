@@ -21,7 +21,7 @@ const CHIP := Color(0.8, 0.17, 0.14)
 const EDGE := Color(0.58, 0.5, 0.36, 0.7)
 const DOT_INK := Color(0.72, 0.66, 0.54)
 ## A button's height, a finger's on a touch screen, the least it is across, and the room kept
-## either side of its words for the cursor's chevrons.
+## either side of its words for the cursor's chevrons; and Skip tour's words, shown through tr().
 const BUTTON_TALL := 44.0
 const BUTTON_LEAST := 120.0
 const CHEVRON_ROOM := 34.0
@@ -107,7 +107,8 @@ func _init() -> void:
 
 ## Says step [param step] of [param steps]: [param title] and [param said], and along its foot
 ## Skip tour, where [param skippable], and [param going], the buttons that go on, the last of them
-## the House's own ink, the cursor on it.
+## the House's own ink, the cursor on it. The buttons are named in English, by which they are
+## pressed, and say their words in the language spoken, see [method _button].
 func say(
 	step: int, steps: int, title: String, said: String, going: Array[String], skippable := true
 ) -> void:
@@ -157,12 +158,15 @@ func show_binds(keyboard: bool, shown: bool) -> void:
 	ButtonBinds.show([skip], keyboard, shown and skip.visible)
 
 
+## A button pressed by [param words], in English, saying them in the language spoken.
 func _button(words: String, inked: bool) -> Button:
-	var button := MenuTheme.button(words, Type.LABEL + 1)
+	var button := MenuTheme.button(tr(words), Type.LABEL + 1)
 	button.theme_type_variation = HouseTheme.PAPER_PRIMARY if inked else HouseTheme.PAPER_BUTTON
 	# Room either side of its words for the cursor's chevrons.
 	var font := button.get_theme_font(&"font")
-	var words_wide := font.get_string_size(words, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.LABEL + 1).x
+	var words_wide := (
+		font.get_string_size(button.text, HORIZONTAL_ALIGNMENT_LEFT, -1, Type.LABEL + 1).x
+	)
 	var tall := BUTTON_TALL if not TouchInput.enabled else 56.0
 	button.custom_minimum_size = Vector2(maxf(BUTTON_LEAST, words_wide + CHEVRON_ROOM * 2.0), tall)
 	button.pressed.connect(func() -> void: pressed.emit(words))
