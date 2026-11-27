@@ -98,10 +98,19 @@ static func _kart_of(kart: Kart) -> Dictionary:
 	}
 
 
-## Whose each slot of [param session]'s room is, by its index: the Steam account and the number of
-## the seat at their machine of everybody playing, this machine's own players marked here.
+## Whose each slot of [param session]'s room is, by its index: the Steam account, or off Steam the
+## peer, and the number of the seat at their machine of everybody playing, this machine's own
+## players marked here. Off Steam the line of who hosts next says it, see
+## [method HostControls.succession_line].
 static func owners_of(session: NetSession) -> Dictionary:
 	var owners := {}
+	for entry: Variant in session.host_controls.succession:
+		var seats: Variant = (entry as Dictionary).get("seats", {}) if entry is Dictionary else {}
+		if seats is Dictionary:
+			for number: Variant in seats:
+				var owner := {"account": 0, "peer": int((entry as Dictionary).get("peer", 0))}
+				owner["seat"] = int(number)
+				owners[int(seats[number])] = owner
 	for guest: Dictionary in session.host_controls.guests():
 		if guest.has("slot"):
 			var account := int(guest.get("account", 0))

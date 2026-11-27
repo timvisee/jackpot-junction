@@ -11312,8 +11312,9 @@ jokers lying dropped on the floor. The rest starts afresh: shots, turrets, bombs
 go, an open joker pick goes, its kart coming back once its wait is out, and what a screen never sees,
 the bots' plans, the order of the deck, the counters some jokers keep, when the pads restock and
 the random numbers, is dealt again. Bob's match is held on the grid while everybody else comes back,
-each sat in their own kart, the one in their color, for up to 15 s, or a few seconds once the last
-of them has connected; then the start's countdown of 3.8 runs again, and the map plays on. A
+each sat in their own kart, the one in their color: up to 15 s for them to connect, and then until
+each has the map up, as at any map's start, 10.3, up to 15 s more, every screen saying how many are
+ready meanwhile; then the start's countdown of 3.8 runs again, and the map plays on. A
 player coming back in Last Call sits down all the same. It is not hidden, since it should seldom
 happen: a few seconds and a countdown. A showdown and the story's Final Hand are not carried over;
 there, and from the lobby or the podium, the new host opens the same room with the game's rules,
@@ -11333,9 +11334,9 @@ was lost".
 
 Off Steam, on the game's own network, there is no lobby, so the host tells every player whenever it
 changes who hosts after it, in order, the player at another machine who has been in the game
-longest first, each at the address the host reaches them at; the port it hosts on; and the same
-match and door, the password with it, which only its players are told
-(`HostControls.succession_line`). As the connection to the host goes, the first in line hosts the
+longest first, each at the address the host reaches them at and the karts their seats hold, so a
+map carried over keeps their own for them; the port it hosts on; and the same match and door, the
+password with it, which only its players are told (`HostControls.succession_line`). As the connection to the host goes, the first in line hosts the
 game afresh on that port, as above. Everybody else asks at their address once a second until a game
 answers there (`HostProbe`), and follows them in with the game's password, sat in their own kart
 again by the player they were. With nobody answering in 10 s, the next in line takes it on instead,

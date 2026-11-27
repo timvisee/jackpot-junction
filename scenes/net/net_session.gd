@@ -457,8 +457,8 @@ func room_built() -> void:
 @rpc("any_peer", "call_remote", "reliable")
 func _room_built() -> void:
 	conduct.said(multiplayer.get_remote_sender_id())
-	if is_host and _gate != null:
-		_gate.arrived(multiplayer.get_remote_sender_id())
+	if is_host:
+		host_controls.room_built(multiplayer.get_remote_sender_id())
 
 
 ## Where the gate is, for every screen to show, and the lamps once it opens.

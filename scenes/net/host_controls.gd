@@ -53,10 +53,10 @@ const PLACES: Array[StringName] = [&"lobby", &"next", &"rematch", &"start"]
 ## count as touched.
 const IDLE_FOR := 60.0
 const TOUCHED := 0.2
-## How long a new host carrying a map over holds its start for the players coming back, in seconds,
-## GAME.md 10.8, and how long once the last of them has connected, for their room to go up.
+## How long a new host carrying a map over holds its start for the players coming back to connect,
+## in seconds, GAME.md 10.8; once they have, each is waited for to put the room up as at any map's
+## start, see [constant StartGate.DEADLINE].
 const RESUME_WAIT := 15.0
-const RESUME_SETTLE := 4.0
 
 var session: NetSession
 ## Whether the host's say has stopped the match for everybody without waiting to be asked: on the
@@ -111,11 +111,14 @@ var _benched: Dictionary[int, bool] = {}
 ## Steam account the game is to be handed to once the map in play is over, 0 for nobody.
 var _next_map: Dictionary[int, bool] = {}
 var _hand_on_to := 0
-## At a new host carrying a map over, GAME.md 10.8: the seats kept for the players coming back, by
-## Steam account, see [method MatchResume.seats_kept]; and how long the start is still held for
-## them.
+## At a new host carrying a map over, GAME.md 10.8: the seats kept for the players coming back, see
+## [method MatchResume.seats_kept]; whether its start is held for them, how much longer for them to
+## connect and then to put the room up; and the clients that have it up, see [method room_built].
 var _kept_for: Dictionary = {}
+var _resuming := false
 var _resume_left := 0.0
+var _loading_left := 0.0
+var _built: Dictionary[int, bool] = {}
 ## At a host off Steam: what each client was last told of who hosts after it.
 var _succession_told: Dictionary[int, String] = {}
 ## The clients come back to their own karts, who are told nothing about taking one over.
@@ -315,7 +318,8 @@ func hand_on(player: int) -> void:
 
 
 ## Who hosts after the host here off Steam, in order, GAME.md 10.8: every player at another machine
-## who has been in it longest first, each by peer, the address the host reaches them at, and name.
+## who has been in it longest first, each by peer, the address the host reaches them at, name, and
+## the slot each of their seats holds, so a map carried over keeps their own karts for them.
 func succession_line() -> Array:
 	var line: Array = []
 	var here := session._player_peers()
@@ -326,7 +330,10 @@ func succession_line() -> Array:
 	for each: int in order:
 		if each in here:
 			var address := session.guard.address_of(each)
-			line.append({"peer": each, "address": address, "name": _seat_name(each)})
+			var seats: Dictionary = session._peer_slots.held.get(each, {}).duplicate()
+			line.append(
+				{"peer": each, "address": address, "name": _seat_name(each), "seats": seats}
+			)
 	return line
 
 
@@ -601,11 +608,21 @@ func _took_over_here(from: String, banked: int, coins: int, jokers: int) -> void
 
 ## At a new host carrying a map over, GAME.md 10.8: the seats [param resume] keeps for the players
 ## coming back, each sat in their own kart as they arrive, and the start held on the grid until
-## they all have, or for [constant RESUME_WAIT] seconds.
+## they all have and have the room up, see [method _hold_the_resume].
 func resume_from(resume: Dictionary) -> void:
 	_kept_for = MatchResume.seats_kept(resume)
-	# Nobody to wait for: the lamps at once.
-	_resume_left = RESUME_WAIT if not _kept_for.is_empty() else 0.01
+	_built.clear()
+	_resuming = true
+	_resume_left = RESUME_WAIT
+	_loading_left = StartGate.DEADLINE
+
+
+## A client has the room up, GAME.md 10.3: counted by the gate holding a map's lamps, and by a map
+## carried over waiting on the players coming back.
+func room_built(peer: int) -> void:
+	if session._gate != null:
+		session._gate.arrived(peer)
+	_built[peer] = true
 
 
 ## A client let in at the host, having said [param words] as it knocked: one coming back to a map
@@ -630,20 +647,57 @@ func keep_seats_for(player: int, who: String) -> void:
 	session._peer_slots.kept[player] = theirs
 	_returned[player] = true
 	_kept_for.erase(who)
-	# Nobody to hold the start for any more, or everybody back.
-	if _kept_for.is_empty():
-		_resume_left = minf(_resume_left, RESUME_SETTLE)
 
 
-## The start of a map carried over, held until the players coming back are in, GAME.md 10.8.
+## The start of a map carried over, held on the grid, GAME.md 10.8: until every player coming back
+## has connected, [constant RESUME_WAIT] at most, and then until each has the room up as at any
+## map's start, [constant StartGate.DEADLINE] at most, every screen saying how many are ready,
+## 10.3. The countdown runs then, from the top.
 func _hold_the_resume(delta: float) -> void:
-	if _resume_left <= 0.0:
-		return
-	_resume_left -= delta
 	var match_node := session.match_node
-	if _resume_left <= 0.0 and match_node != null and match_node.state == Match.State.LOBBY:
-		_kept_for.clear()
-		match_node.begin_from_lobby()
+	if not _resuming or match_node == null or match_node.state != Match.State.LOBBY:
+		_resuming = false
+		return
+	if not _kept_for.is_empty():
+		_resume_left -= delta
+		if _resume_left <= 0.0:
+			# Not coming: nobody is held up for them any longer.
+			_kept_for.clear()
+	var ready := _resume_ready()
+	match_node.loading = ready
+	if not _kept_for.is_empty():
+		return
+	if ready.x < ready.y:
+		_loading_left -= delta
+		if _loading_left > 0.0:
+			return
+	_resuming = false
+	match_node.loading = Vector2i.ZERO
+	match_node.begin_from_lobby()
+
+
+## How many players of a map carried over have the room up, out of how many are playing it or on
+## their way back: those here, every seat of a client come back that has it up, and every seat
+## still kept for somebody not back yet.
+func _resume_ready() -> Vector2i:
+	var count := Vector2i.ZERO
+	for slot: PlayerSlot in session.match_node.slots:
+		if slot.is_local_human():
+			count += Vector2i.ONE
+	# Connected at all, or still saying hello: a player is given their seats as they knock, before
+	# they count as connected, and one still putting the room up is not counted as playing yet.
+	var connected := session._peers()
+	var scene := multiplayer as SceneMultiplayer
+	if scene != null:
+		connected.append_array(scene.get_authenticating_peers())
+	for peer: int in _returned:
+		if peer in connected:
+			var seats := maxi((session._peer_slots.held.get(peer, {}) as Dictionary).size(), 1)
+			count.y += seats
+			count.x += seats if _built.has(peer) else 0
+	for who: Variant in _kept_for:
+		count.y += (_kept_for[who] as Dictionary).size()
+	return count
 
 
 ## Whether [param input] says anybody is at the controls: a stick off its middle, a pedal, a button.

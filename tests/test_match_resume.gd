@@ -287,6 +287,7 @@ func test_the_start_is_held_for_the_players_coming_back() -> void:
 	await await_millis(200)
 	assert_int(host_match.state).is_equal(Match.State.LOBBY)
 	host.host_controls._resume_left = 0.05
+	host.host_controls._loading_left = 0.05
 	await _until(func() -> bool: return host_match.state != Match.State.LOBBY, 2000)
 	assert_bool(host_match.state != Match.State.LOBBY).is_true()
 
