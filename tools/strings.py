@@ -3,9 +3,10 @@
 
 Every word a player reads is written in English in the code and marked for translation where it is
 written: inside tr(), tr_n(), Lang.t(), Lang.tn(), or Lang.later() and Lang.message() for another
-machine, or in a table of words, a const or var whose comment above says it is shown through tr(). This reads them all, with the words the
-data resources hold (a joker's name, an achievement's objective), into a gettext template, and
-merges that into each language's .po file, keeping every translation already made.
+machine, or in a table of words, a const or var whose comment above says it is shown through tr().
+This reads them all, with the words the data resources hold (a joker's name, an achievement's
+objective), into a gettext template, and merges that into each language's .po file, keeping every
+translation already made.
 
     tools/strings.py update          write the template and bring every .po file up to it
     tools/strings.py check           fail if either is behind the code, if text is not marked,
@@ -18,8 +19,8 @@ merges that into each language's .po file, keeping every translation already mad
 What looks like text is a guess: a string with a word in it and a space, a capital or a full stop.
 One that is not text after all, a node's name or a key, is left as it is; one the guess still takes
 for text is marked with a `# NO_TRANSLATE` comment at the end of its line, or in the comment above
-the statement or table it is in. A `# TRANSLATORS:` comment above a statement is handed to the
-translator with the words in it.
+the statement or table it is in. A `# TRANSLATORS:` comment above a statement, over as many # lines
+as it runs to, is handed to the translator with the words in it.
 """
 
 import os
@@ -85,7 +86,8 @@ QUIET_CALLS = {
     "has_theme_font", "has_theme_font_size", "has_theme_stylebox", "has_theme_icon",
     "load_threaded_request", "load_threaded_get", "load_threaded_get_status", "exists",
     "get_animation", "has_animation", "play", "match", "search", "compile", "RegEx",
-    "create_from", "create_from_string", "expect", "parse", "begins_with", "ends_with", "find", "rfind", "contains",
+    "create_from", "create_from_string", "expect", "parse", "begins_with", "ends_with", "find",
+    "rfind", "contains",
     "replace", "split", "get_slice", "trim_prefix", "trim_suffix", "count",
 }
 QUIET_PREFIXES = ("add_theme_", "get_theme_", "remove_theme_", "has_theme_")
@@ -295,7 +297,7 @@ def table_word(s):
 
 
 def statements(lines, depth_at_line):
-    """Each statement's first and last line, with the comment block right above it."""
+    """Each statement's first and last line, with the comment block right above it, as written."""
     found = []
     i = 0
     total = len(lines)
@@ -317,7 +319,7 @@ def statements(lines, depth_at_line):
         k = i - 1
         while k >= 0 and (lines[k].strip().startswith("#") or lines[k].strip().startswith("@")):
             if lines[k].strip().startswith("#"):
-                above.insert(0, lines[k].strip().lstrip("#").strip())
+                above.insert(0, lines[k].strip())
             k -= 1
         declares = bool(DECLARATION.match(lines[i]))
         # A run of declarations with nothing between them shares the comment over its first.
@@ -328,6 +330,20 @@ def statements(lines, depth_at_line):
     return found
 
 
+def translators_notes(above):
+    """Each `TRANSLATORS:` note in the comment above a statement, with the # lines after it."""
+    notes, going = [], False
+    for line in above:
+        text = line.lstrip("#").strip()
+        if "TRANSLATORS:" in line:
+            notes, going = notes + [line.split("TRANSLATORS:", 1)[1].strip()], True
+        elif going and text and not line.startswith("##"):
+            notes[-1] += " " + text
+        else:
+            going = False
+    return notes
+
+
 def scan(path):
     """The words marked in a script, and what looks like text in it and is not."""
     with open(path, encoding="utf-8") as f:
@@ -336,8 +352,8 @@ def scan(path):
     lines = source.split("\n")
     by_line = {}
     for first, last, above, declares in statements(lines, depth_at_line):
-        joined = " ".join(above)
-        notes = [a.split("TRANSLATORS:", 1)[1].strip() for a in above if "TRANSLATORS:" in a]
+        joined = " ".join(line.lstrip("#").strip() for line in above)
+        notes = translators_notes(above)
         mode = ""
         if "NO_TRANSLATE" in joined:
             mode = "quiet"
@@ -757,7 +773,8 @@ def broken_translations(locale, path):
             if entry["plural"] and (i > 0 or len(entry["strings"]) == 1):
                 english = entry["plural"]
             if lesson:
-                wrong = [t for t in re.findall(r"\{([^{}]+)\}", text) if t.lower() not in said_terms]
+                braced = re.findall(r"\{([^{}]+)\}", text)
+                wrong = [t for t in braced if t.lower() not in said_terms]
                 found += [(word, "{%s} is none of the lessons' words here" % t) for t in wrong]
             elif sorted(PLACEHOLDER.findall(text)) != sorted(PLACEHOLDER.findall(english)):
                 found.append((word, "the {placeholders} differ from the English"))
@@ -798,7 +815,8 @@ def register(locale):
     if re.search(r"^locale/translations=", text, re.M):
         text = re.sub(r"^locale/translations=.*$", line, text, flags=re.M)
     elif "[internationalization]" in text:
-        text = text.replace("[internationalization]\n", "[internationalization]\n\n" + line + "\n", 1)
+        head = "[internationalization]\n"
+        text = text.replace(head, head + "\n" + line + "\n", 1)
     else:
         text = text.rstrip("\n") + "\n\n[internationalization]\n\n" + line + "\n"
     with open(path, "w", encoding="utf-8") as f:
@@ -858,7 +876,7 @@ def unmarked_tables():
             if not declares or not m:
                 continue
             name = m.group(0).split()[-1]
-            joined = " ".join(above)
+            joined = " ".join(line.lstrip("#").strip() for line in above)
             found[name] = "tr()" in joined or "NO_TRANSLATE" in joined
         tables[rel] = found
     wrong = []

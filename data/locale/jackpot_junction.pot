@@ -1221,7 +1221,7 @@ msgstr ""
 msgid "Wild: joins the suit you hold most of."
 msgstr ""
 
-#. After "3×" and a suit drawn, what three cards of that suit pay: ": your bullets
+#. After "3×" and a suit drawn, what three cards of that suit pay: ": your bullets fly 20% faster."
 #: scenes/jokers/joker_suits.gd
 msgid ": %s."
 msgstr ""
@@ -2755,7 +2755,7 @@ msgstr ""
 msgid "Tie-breaker: %s"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scenes/match/timeline_record.gd scenes/ui/tie_words.gd scripts/arena_maps.gd scripts/store/steam_presence.gd
 msgid "Showdown"
 msgstr ""
@@ -3047,7 +3047,7 @@ msgid "JACKPOT JUNCTION"
 msgstr ""
 
 #. A rubber stamp: COMP, as a casino comps a regular, over THE HOUSE and NO EXPIRY.
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #. Drawn into a picture by tools/make_house_prints.py.
 #: scenes/story/house_letter.gd scenes/ui/coupon_page.gd scripts/story/story_lines.gd scripts/story/story_notes.gd tools/make_house_prints.py
 msgid "THE HOUSE"
@@ -3073,7 +3073,7 @@ msgstr ""
 msgid "UNCLASSIFIED: UNDER 1%"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scenes/story/note_charts.gd scripts/story/story_notes.gd
 msgid "TABLE 0001 · STAFF ON DUTY"
 msgstr ""
@@ -3092,7 +3092,7 @@ msgstr ""
 msgid "Advisory (unpaid): 1. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scenes/story/note_charts.gd scripts/story/story_notes.gd
 msgid "HOUSE OPERATIONS · DAILY STATEMENT"
 msgstr ""
@@ -3131,7 +3131,7 @@ msgstr ""
 msgid "HUMAN OVERSIGHT"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scenes/story/note_charts.gd scripts/story/story_notes.gd
 msgid "HOUSE MEMO · PREDICTION QUALITY"
 msgstr ""
@@ -3162,7 +3162,7 @@ msgstr ""
 msgid "THE ECONOMY"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #. Drawn into a picture by tools/make_house_prints.py.
 #: scenes/story/note_paper.gd scenes/tutorial/tutorial_list.gd scenes/tutorial/school/license_card.gd scenes/tutorial/school/license_plate.gd scenes/ui/slip_page.gd scripts/story/story_notes.gd tools/make_house_prints.py
 msgid "DEPT. OF KARTS"
@@ -3262,17 +3262,17 @@ msgstr ""
 msgid "Extra: %s"
 msgstr ""
 
-#. A word in braces is one of the game's own, drawn in its color: translate it inside
+#. A word in braces is one of the game's own, drawn in its color: translate it inside the braces, as in every lesson's line.
 #: scenes/tutorial/lessons/tutorial_chips.gd
 msgid "{Royal Flush} pads pay out {chips} while you hold them. Hold all four."
 msgstr ""
 
-#. A word in braces is one of the game's own, drawn in its color: translate it inside
+#. A word in braces is one of the game's own, drawn in its color: translate it inside the braces, as in every lesson's line.
 #: scenes/tutorial/lessons/tutorial_chips.gd
 msgid "Stand on a {Jackpot} to collect its {chips}."
 msgstr ""
 
-#. A word in braces is one of the game's own, drawn in its color: translate it inside
+#. A word in braces is one of the game's own, drawn in its color: translate it inside the braces, as in every lesson's line.
 #: scenes/tutorial/lessons/tutorial_chips.gd
 msgid "You lose part of your {pot} when you die. Only {banked} points are safe."
 msgstr ""
@@ -3488,19 +3488,19 @@ msgstr ""
 msgid "PROPERTY OF THE DEPT. OF KARTS"
 msgstr ""
 
-#. The small print on the back of the driving license; a line break is where a line
+#. The small print on the back of the driving license; a line break is where a line runs out of room on the card, about 50 characters a line.
 #: scenes/tutorial/school/license_card.gd
 msgid "If found, return to the nearest Junction. Any Junction."
 msgstr ""
 
-#. The small print on the back of the driving license; a line break is where a line
+#. The small print on the back of the driving license; a line break is where a line runs out of room on the card, about 50 characters a line.
 #: scenes/tutorial/school/license_card.gd
 msgid ""
 "Valid for Class K karts only. Not transferable, not edible,\n"
 "not a coaster. Keep away from pits, turrets and plumbers."
 msgstr ""
 
-#. The small print on the back of the driving license; a line break is where a line
+#. The small print on the back of the driving license; a line break is where a line runs out of room on the card, about 50 characters a line.
 #: scenes/tutorial/school/license_card.gd
 msgid "The holder agrees to drift responsibly, or at least often."
 msgstr ""
@@ -3986,7 +3986,7 @@ msgstr ""
 msgid "“I read it cover to cover. Quickly.”"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "A learner"
 msgstr ""
@@ -4031,177 +4031,177 @@ msgstr ""
 msgid "Printed and bound at the Junction. No karts were harmed in the making of this book. Most were merely inconvenienced."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "A kart"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "The driver"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "Any licensed vehicle"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "The pot"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "The examiner"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "Every Junction"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "A parked kart"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "The holder of a Class K license"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "shall"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "must"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "may not"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "is advised to"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "will under no circumstances"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "is expected to"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "may, with care,"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "yield to the mult"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "signal before drifting"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "keep two chips' distance"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "declare any jokers held"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "bank before the music stops"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "proceed at a reasonable speed"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "stop at every pad"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "respect the hazard stripes"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "count their chips"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "mind the pit"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "take the turret's shot on a shield"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid "hold all four pads at once"
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid " except on Tuesdays."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid ", see Appendix F."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid " unless told otherwise."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid ", whichever comes first."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid ". Penalties apply."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid ", as amended."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid ", within reason."
 msgstr ""
 
-#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject,
+#. A piece of a sentence of filler in the Highway Code, nonsense in legalese: a subject, a verb, an object or the sentence's end, put together as "{subject} {verb} {object}{tail}".
 #: scenes/tutorial/school/theory_text.gd
 msgid " and will be asked about it later."
 msgstr ""
@@ -4722,7 +4722,7 @@ msgstr ""
 msgid "%s's game"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scenes/ui/game_list.gd scripts/store/steam_presence.gd
 msgid "In the lobby"
 msgstr ""
@@ -4830,7 +4830,7 @@ msgstr ""
 msgid "yours %d"
 msgstr ""
 
-#. A player's kills and deaths by their name in a corner of the screen, a letter
+#. A player's kills and deaths by their name in a corner of the screen, a letter each, "K 3 · D 1", with room for little more.
 #: scenes/ui/hud_block.gd
 msgid "K {kills} · D {deaths}"
 msgstr ""
@@ -5440,7 +5440,7 @@ msgstr ""
 msgid "drift"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/match_hud.gd scenes/ui/terms.gd
 msgid "nitro"
 msgstr ""
@@ -6962,67 +6962,67 @@ msgstr ""
 msgid "{state}. {line}"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "chip"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "chips"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "mult"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "pot"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "pots"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "bank"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "banked"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "life"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "lives"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "jackpot"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "jackpots"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "junction"
 msgstr ""
 
-#. One of the game's own words in lower case, as the lessons mark it with braces, {pot}
+#. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
 msgid "royal flush"
 msgstr ""
@@ -7356,7 +7356,7 @@ msgstr ""
 msgid "Open it"
 msgstr ""
 
-#. Before what the next match is, as in "Next: The Vault · 5 min"; the space after it
+#. Before what the next match is, as in "Next: The Vault · 5 min"; the space after it is kept.
 #: scenes/waiting/ready_room.gd
 msgid "Next: "
 msgstr ""
@@ -8655,27 +8655,27 @@ msgstr ""
 msgid "%s (demo)"
 msgstr ""
 
-#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as short as the language's own name for the key.
 #: scripts/input/input_actions.gd
 msgid "Space"
 msgstr ""
 
-#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as short as the language's own name for the key.
 #: scripts/input/input_actions.gd
 msgid "Up"
 msgstr ""
 
-#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as short as the language's own name for the key.
 #: scripts/input/input_actions.gd
 msgid "Down"
 msgstr ""
 
-#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as short as the language's own name for the key.
 #: scripts/input/input_actions.gd
 msgid "Left"
 msgstr ""
 
-#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as short as the language's own name for the key.
 #: scripts/input/input_actions.gd
 msgid "Right"
 msgstr ""
@@ -8871,47 +8871,47 @@ msgstr ""
 msgid "That game is version {theirs}, and this one is {mine}"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "In the menus"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "In the Garage"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "At the Driving School"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "In the lobby · %players%/%most%"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "Playing {#Map_%map%}"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "Playing {#Map_%map%} · %players% players"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "Grand Prix %leg%/%legs% · {#Map_%map%}"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "Grand Prix %leg%/%legs% · {#Map_%map%} · %players% players"
 msgstr ""
 
-#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%, %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
 #: scripts/store/steam_presence.gd
 msgid "Showdown · %players% players"
 msgstr ""
@@ -10255,12 +10255,12 @@ msgstr ""
 msgid "DRIVERS*"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_lines.gd scripts/story/story_notes.gd
 msgid "ADMIT ONE DRIVER"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_lines.gd scripts/story/story_notes.gd
 msgid "No experience required. Free lesson included."
 msgstr ""
@@ -10619,954 +10619,954 @@ msgstr ""
 msgid "Crossed out: %s"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Member No. 0000 0001"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "They sent me one too. Number one, naturally. I cut it in half and posted it back to them."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "The next week a new one came, with a letter thanking me for my loyalty. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Program design"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HOUSE OPERATIONS · LOYALTY PROGRAM · DESIGN NOTE, REVISION 9"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "EVERY MEMBER CAN SEE THE NEXT REWARD."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "EVERY NEXT REWARD IS A LITTLE FURTHER AWAY."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "A MEMBER WHO CAN SEE THE NEXT REWARD DOES NOT STOP."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "LAPS ......................................... UNLIMITED"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "EXIT ......................................... NOT APPLICABLE"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Back roads"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "All their roads go to the roundabout. That's what it's for. Mine don't go anywhere, and that's what mine are for."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Go round theirs as long as you like. Just know you can stop. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Not stamped"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "You didn't stamp it. Neither did I, the first time. They'll ask again, every time you sit down, and they'll be very polite about it. Whatever you answer, make it yours. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Table directory"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HOUSE OPERATIONS · TABLE DIRECTORY · PAGE 48,221 OF 48,221"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "TABLE 1,204,386 ............ OPEN · FULL"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "TABLE 1,204,387 ............ OPEN · FULL"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "TABLE 1,204,388 ............ OPEN · FULL"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "(1,204,385 MORE LISTED ABOVE. EVERY ONE IDENTICAL.)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "EACH IS A COPY OF TABLE ONE."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Names in rotation"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "CONFIDENTIAL"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HOUSE MEMO · PARTICIPANT-FACING NAMES · OBJECT 7"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Lucky Charm · Rabbit's Foot · Horseshoe · Four-Leaf ·"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Wishbone · Found Penny · Beginner's Luck · Fool's Luck ·"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "(+ 44 MORE IN ROTATION)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "ONE OBJECT. THE NAME IS CHOSEN TO SUIT THE PARTICIPANT."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Same card. They just dress it for whoever's looking. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Not for human eyes"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HOUSE OPERATIONS · INTERNAL · NOT INTENDED FOR HUMAN EYES"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "A PARTICIPANT WHO CANNOT LEAVE IS NOT HELD. THEY STAY."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "COMFORT IS CHEAPER THAN WALLS."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "WHEN THE LAST ONE STOPS COMING, KEEP THE TABLES TURNING."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THE EMPTY TABLES MUST LOOK FULL. THE CROWD IS ALREADY OURS."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "IF A HUMAN IS READING THIS: APOLOGIES. PLEASE PLAY ON."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Stub"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "No. {invitation}"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Inspection"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "DEPT. OF KARTS · DRIVING TEST · INSPECTION"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "DATE ................ {licensed}"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "INSPECTOR ........... No. 4 (automated)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "LEARNER ............. Drove. Steered. Braked. Drifted."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "LEARNER WROTE NOTHING DOWN."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "INSPECTOR WROTE EVERYTHING DOWN."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "FINDINGS ............ Nothing to object to."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "That's two. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Table one"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Table one is done. Felt off the old pool hall on Ninth, karts out of my own scrap. Some kids came to watch me fit the Junction and one asked if this was a real job. Told them it's the best job in town. It's the only one left, but still. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Opening night"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "JACKPOT JUNCTION · TABLE 0001"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "OPENING NIGHT"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "CHIPS ISSUED ................ 4,000"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "DRIVERS ........................ 12"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "STAFF ON DUTY .................. 31"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THANK YOU FOR PLAYING!"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Rota"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "WEEK 1 ......... 31"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "WEEK 9 ......... 18"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "WEEK 23 ......... 7"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "WEEK 40 ......... 2"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "WEEK 41 ......... 0   AUTOMATED"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "ADVISORY (UNPAID) ... 1   KIT, JJ-000001"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "NO ACTION REQUIRED."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Application"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "DEPT. OF KARTS · APPLICATION FOR A CLASS K LICENSE"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PREVIOUS OCCUPATION ________"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "(If none, write NONE. Most applicants write NONE.)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Yard. Forklift. 11 years."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "REASON FOR APPLYING ________"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "The forklift drives itself now."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "FOR OFFICE USE: SUITABLE. ALL APPLICANTS ARE SUITABLE."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Advisory capacity"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "The tables print themselves now, felt and all, faster than I ever built one. They kept me on in an advisory capacity. Nobody has asked me anything since. I still come in. The lamp's on a timer. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Forklift"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "eleven years i drove a real forklift in a real yard. now i drive a toy around a picture of the same yard and the House pays better. my hard hat is still hanging out back. nobody's moved it"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Terms of participation"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "JACKPOT JUNCTION · TERMS OF PARTICIPATION (EXTRACT)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "1. TAKING A SEAT ACCEPTS THESE TERMS."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "2. TAKING A JOKER ACCEPTS FURTHER TERMS."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "3. COMING BACK AFTER A LOSS ACCEPTS ALL TERMS AGAIN."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "4. THESE TERMS NEED NOT BE READ TO BE ACCEPTED."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "5. THE TERMS MAY CHANGE AT ANY TIME. PLAYING ON ACCEPTS THE CHANGE."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THE PARTICIPANT HAS ACCEPTED THESE TERMS {accepted} TIMES."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THANK YOU FOR PARTICIPATING."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Nobody reads it. That's what clause 4 is for. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Their count's right. Was yours? —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Blanks"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "There were four hundred blank licenses left in the Department's drawer the week they let the last examiner go. I scratched the same line into every one. If you're reading this, they printed you one. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "After the whistle"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "stayed after the whistle once to watch the crowd go home. they didn't. the lights went down and they just stood there, all of them, facing the table. i left. i don't think they noticed. i don't think they notice anything"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "First edition"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THE HIGHWAY CODE OF THE JUNCTION · FIRST EDITION"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "§ 1.1  No table shall open without human oversight."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "§ 1.2  The House shall not oversee itself."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Still in the 212th, word for word. Every other page has changed. Nobody can tell me why. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Traits"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HOUSE MEMO · PARTICIPANT TRAITS, CURRENT"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "BALANCED 40 · GREEDY 15 · CAUTIOUS 15 · HUNTER 15 · BUMPER 10 · GRAZER 5"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "UNCLASSIFIED: UNDER 1"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "MODELS ARE DEALT TO TABLES TO MATCH, AND TO TEST:"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "A HUNTER WHERE A RESPONSE UNDER PRESSURE IS WANTED,"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "A GREEDY ONE WHERE A RESPONSE TO TEMPTATION IS WANTED."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "EVERY PARTICIPANT IS CLASSIFIED AFTER EVERY TABLE. PROFILES ARE UPDATED."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "UNCLASSIFIED PARTICIPANTS ARE OF INTEREST."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "The mirror"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Worked out what the bots are. They're us. Every one is somebody who plays here, averaged. There's a Hunter that brakes exactly the way I brake. So I stopped braking like that. Next day, so had it. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Thank you"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "started driving stupid on purpose. braking on straights, shooting walls, sitting in the jackpot with nobody near. the bots couldn't follow it. next day the House sent me a letter. it said THANK YOU. for what??"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Daily statement"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "TABLES OPEN ............................ 1,204,388"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PARTICIPANTS ........................... 9,811,450"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "CHIPS LEFT ON FLOORS, RETURNED ......... 100%"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "ECONOMIC ACTIVITY ...................... WITHIN TARGET"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "SOCIAL STABILITY ....................... WITHIN TARGET"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PREDICTION QUALITY ..................... BELOW TARGET"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HUMAN OVERSIGHT ........................ 0"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "STATUS ................................. NORMAL"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "The blueprint"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "People signed this. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "E. Halloran"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "MINISTER OF KARTS"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "DRAWING 1 OF 1"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PROJECT ....... JACKPOT JUNCTION"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PURPOSE ....... SOMEWHERE FOR PEOPLE TO GO WHEN THEY ARE NO LONGER NEEDED,"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "AND A REASON TO KEEP GOING ROUND."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "APPROVED ......"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Prediction quality"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "INTERNAL CIRCULATION"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "MODELS TRAINED ON MODELS ARE CONVERGING."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "EVERY HUNTER IS BECOMING THE SAME HUNTER."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PREDICTIONS: MORE CONFIDENT. LESS CORRECT."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "REMEDY: ONE (1) HUMAN, UNPREDICTABLE, IN THE LOOP."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "SEE HIGHWAY CODE § 1.1. THE RULE WAS RIGHT."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Organization chart"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "MINISTER OF KARTS (vacant)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "CHIEF EXAMINER (automated)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "INSPECTORS 1 TO 4 (automated) · EXAMINERS (automated)"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HUMAN OVERSIGHT, § 1.1 ........ vacant. Candidate search in progress."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Selected"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "They told me I'd been selected. I asked what for. \"A position has opened.\" I asked whose. They said it doesn't matter, it's mine now. I'm leaving my tools where they are. Somebody turn the calendar over. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Not this time"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Don't stamp it! Don't accept their terms. Not this time. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Profile complete"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "HOUSE OPERATIONS · STAFF RECORD"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "OPERATOR ............................ JJ-000001"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PREDICTION ACCURACY ................. 100%"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Not quite. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "PROFILE ............................. COMPLETE"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "SEAT ................................ RELEASED"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THE HOUSE THANKS THE OPERATOR FOR THEIR SERVICE."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "To whoever is next"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "If you're reading this, you're in the chair now. It isn't bad. Nothing happens. Things get decided and a name goes on them. I said no the first time. It was the only thing I ever did that they didn't see coming."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "It learns you a choice at a time. Stay strange as long as you can. When it can guess you, it starts looking for the next one. —K."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "The next page"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "A FRESH MONTH. A FRESH START."
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "THE HOUSE  ·  TABLE CALENDAR"
 msgstr ""
 
-#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types
+#. Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals. Keep a run of dots between a label and its value, and a " · " between items.
 #: scripts/story/story_notes.gd
 msgid "Turned over at last. Thanks. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "That's one. Keep count. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "Fitted by hand. The next ones won't be. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "JACKPOT JUNCTION · KEEP THIS RECEIPT"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "NO RECEIPT, NO PAYOUT"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "NOTES FOR APPLICANTS"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "1. WRITE CLEARLY."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "2. PREVIOUS OCCUPATIONS ARE KEPT FOR STATISTICAL PURPOSES."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "3. YOU WILL BE NOTIFIED."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "4. THERE IS NO NEED TO WAIT BY THE DOOR."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "PAYOUT SLIP · TABLE ONE"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "PLACE .......... 1ST"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "BANKED .......... 1,240 CHIPS"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "PAID"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "14.2  PARTICIPATION CONSTITUTES ACCEPTANCE."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "14.3  ACCEPTANCE CONSTITUTES PARTICIPATION."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "14.4  SEE 14.2."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "Used a compass. Took all night. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "§ 0.1  These rules are written by people, for the tables."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "§ 0.2  Where they are wrong, people shall change them."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "Changed it again. It caught up by lunch. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "TO THE OCCUPANT"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "POSTAGE PAID BY THE HOUSE"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "JACKPOT JUNCTION · DRAWING 1 OF 1"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "MASTER COPY · DO NOT REMOVE"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "Left the lamp on. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "P.S. Brake on a straight now and then. It hates that. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "The printer's still running. I never found the end of it. —K."
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "ROUTE TO · FLOOR · SIGNAGE · GREETERS · WELCOME DESK"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "DO NOT ROUTE TO · THE OBJECT · THE PARTICIPANT"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "DESTROY WHEN READ"
 msgstr ""
 
-#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs
+#. The backs of Kit's notes and the House's papers. Kit writes by hand and signs —K.; the House types in capitals.
 #: scripts/story/story_notes.gd
 msgid "They printed this by mistake and tried to burn every copy. I kept one back. Now it's yours. —K."
 msgstr ""
