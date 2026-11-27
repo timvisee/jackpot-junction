@@ -151,11 +151,14 @@ func _follows(place: int) -> void:
 	# By its id: a lambda holding the session itself would hold it freed once the host goes.
 	var old := (room.session as NetSession).get_instance_id()
 	var map := &""
+	var color := -1
 	if _in_a_map:
 		map = await _the_map_played(false)
+		var playing: Match = _scene().match_node if not _failed else null
+		color = playing.slots[playing.local_slot].color_index if playing != null else -1
 	if _failed or not await _sat_down_away_from(old):
 		return
-	var back := await _back_in_the_map(map) if _in_a_map else await _in_the_lobby()
+	var back := await _back_in_the_map(map, color) if _in_a_map else await _in_the_lobby()
 	if not back:
 		return
 	await _seconds(2.0)
@@ -212,6 +215,8 @@ func _opens_the_lobby(others: int) -> bool:
 		return false
 	_check(lobby.host_settings != null, "the new host has the match settings")
 	_check(Net.session.match_node == lobby.match_node, "a lobby, not a map")
+	if not await _told_it_hosts(lobby):
+		return false
 	return await _until(
 		func() -> bool: return _remote(lobby.match_node) == others,
 		40.0,
@@ -229,8 +234,32 @@ func _carries_on(map: StringName) -> bool:
 	_check(played.rules.map == map, "the same map carried on")
 	var left := played.time_left
 	_check(left < played.rules.duration - 2.0, "its clock where it was, %.0f s left" % left)
+	if not await _told_it_hosts(carried):
+		return false
+	# Held on the grid until the other player is back and has the map up, then counted down.
+	var controls := Net.session.host_controls
+	if not await _until(
+		func() -> bool: return played.state != Match.State.LOBBY, 40.0, "the countdown starts"
+	):
+		return false
+	var back := controls._returned.keys()
+	_check(
+		not back.is_empty() and back.all(func(peer: int) -> bool: return controls._built.has(peer)),
+		"only once the other player was back with the map up"
+	)
 	return await _until(
 		func() -> bool: return played.is_running(), 40.0, "and it plays on after a countdown"
+	)
+
+
+## Whether this machine, the game's new host, was told so over [param scene].
+func _told_it_hosts(scene: Node) -> bool:
+	return await _until(
+		func() -> bool:
+			var notice := scene.get_node_or_null("Notice") as NoticePane
+			return notice != null and notice.visible,
+		20.0,
+		"told it is the host now"
 	)
 
 
@@ -243,13 +272,15 @@ func _in_the_lobby() -> bool:
 	)
 
 
-## Back in [param map] at the new host, and playing on.
-func _back_in_the_map(map: StringName) -> bool:
+## Back in [param map] at the new host, in its own kart, the one in [param color], and playing on.
+func _back_in_the_map(map: StringName, color: int) -> bool:
 	var carried := await _up_in_a_map(false)
 	if carried == null:
 		return false
 	var played: Match = carried.match_node
 	_check(played.rules.map == map, "the same map carried on here too")
+	var mine := played.slots[played.local_slot].color_index
+	_check(mine == color, "in its own kart again, color %d" % mine)
 	return await _until(func() -> bool: return played.is_running(), 40.0, "and it plays on here")
 
 
