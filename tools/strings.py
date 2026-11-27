@@ -502,7 +502,8 @@ OWN_HEADER = (
     "Plural-Forms",
 )
 PLACEHOLDER = re.compile(r"\{[A-Za-z_][A-Za-z0-9_]*\}")
-FORMAT = re.compile(r"%[-+ 0#]*\d*(?:\.\d+)?[sdifxXcv]")
+# No space flag: "20% faster" is a percentage before a word, never a code the game fills.
+FORMAT = re.compile(r"%[-+0#]*\d*(?:\.\d+)?[sdifxXcv]")
 TAG = re.compile(r"\[(/?[a-z_]+)(?:[= ][^\]]*)?\]")
 
 
