@@ -100,7 +100,7 @@ static func _slots(match_node: Match, slow: SlowParts) -> Array:
 		# GAME.md 10.3.
 		var trait_id := String(slot.bot_trait.id) if slot.bot_trait != null else ""
 		var named := {"name": slot.player_name, "trait": trait_id}
-		_slow(entry, slow, "slot%d." % slot.index, named, slot.index)
+		_slow(entry, slow, "slot%d." % slot.index, named, slot.index)  # NO_TRANSLATE
 		if slow == null or slow.due(slot.index):
 			entry["stats"] = slot.stats.to_array()
 		if slot.offer != null and not slot.offer.is_done():
@@ -177,7 +177,7 @@ static func _karts(match_node: Match, slow: SlowParts) -> Array:
 			"decoy": kart.is_decoy(),
 		}
 		var dressed := {"style": kart.style.to_array(), "plate": KartVisuals.plate_worn(kart)}
-		_slow(entry, slow, "kart%d." % kart.get_instance_id(), dressed, kart.slot)
+		_slow(entry, slow, "kart%d." % kart.get_instance_id(), dressed, kart.slot)  # NO_TRANSLATE
 		data.append(entry)
 	return data
 

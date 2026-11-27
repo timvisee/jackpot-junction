@@ -26,15 +26,18 @@ const FOLDERS := &"notes_folders"
 const LAYER := 20
 ## The achievements dialog, opened over the menu by its path, see [method open_achievements].
 const ACHIEVEMENTS := "res://scenes/achievements/achievements_dialog.gd"
-## What skipping the driving school asks, in the school and its test alike, GAME.md 9.4a.
-const SKIP_SCHOOL: Array[String] = [
-	"Skip the driving school?",
-	(
-		"Your progress here is not saved. You can earn your license any time from the title's "
-		+ "Driving School button."
-	),
-	"Skip",
-	"Stay",
+## The lines under the questions asked before leaving, shown through tr(), in the order
+## [method lobby_words] and then [method leave_words] take them.
+const LEAVING: Array[String] = [
+	"This match ends here.",
+	"The Grand Prix ends here.",
+	"Everybody comes back to the lobby with you and stays connected, but this match ends here.",
+	"""Everybody comes back to the lobby with you and stays connected, but the Grand Prix ends \
+here.""",
+	"You leave the room, and the others play on without you.",
+	"You leave the room, and with nobody else playing the game ends for those watching.",
+	"You leave the room, and with nobody else in it the game ends.",
+	"You leave the room, the others play on without you, and the host's say passes on.",
 ]
 ## The air between the menu's parts, and its heading's size.
 const SEPARATION := 16
@@ -213,10 +216,10 @@ func _ready() -> void:
 	_list.reach(SEPARATION, MenuTheme.PANE_GAP, MenuTheme.PANE_GAP)
 	TouchScroll.attach(_list)
 	# Back to driving is the way on from here, GAME.md 8.1a, in foil.
-	_resume = MenuTheme.primary(MenuTheme.button("Resume"))
+	_resume = MenuTheme.primary(MenuTheme.button(tr("Resume")))
 	_resume.pressed.connect(set_paused.bind(false))
 	buttons.add_child(_resume)
-	_force = MenuTheme.button("Pause game")
+	_force = MenuTheme.button(tr("Pause game"))
 	_force.pressed.connect(_force_pause)
 	_force.visible = false
 	# The tick on the far end of the words, and no bigger than they are.
@@ -228,7 +231,7 @@ func _ready() -> void:
 	_door.visible = false
 	_door.closed.connect(_put_away_aside)
 	middle.add_child(_door)
-	_door_button = MenuTheme.button("Lobby settings")
+	_door_button = MenuTheme.button(tr("Lobby settings"))
 	_door_button.pressed.connect(func() -> void: _open_aside(_door, _door_button))
 	_door_button.visible = false
 	buttons.add_child(_door_button)
@@ -238,7 +241,7 @@ func _ready() -> void:
 	_invites.visible = false
 	_invites.closed.connect(_put_away_aside)
 	middle.add_child(_invites)
-	_invite = MenuTheme.button("Invite friends")
+	_invite = MenuTheme.button(tr("Invite friends"))
 	_invite.name = "InviteFriends"
 	_invite.pressed.connect(_invite_friends)
 	_invite.visible = false
@@ -249,7 +252,7 @@ func _ready() -> void:
 	_players.closed.connect(_put_away_aside)
 	_players.asking.connect(ask)
 	middle.add_child(_players)
-	_manage = MenuTheme.button("Manage players")
+	_manage = MenuTheme.button(tr("Manage players"))
 	_manage.pressed.connect(func() -> void: _open_aside(_players, _manage))
 	_manage.visible = false
 	_players.button = _manage
@@ -258,7 +261,7 @@ func _ready() -> void:
 	# the loyalty program, the catalog and the achievements, and not the Garage or the Driving
 	# School, which are rooms of their own. The Operator's is the staff's, STORY.md 8.6.
 	var operator := Story.stage_here() == Story.Stage.OPERATOR
-	_clubhouse_button = MenuTheme.button(StoryLines.STAFF_ROOM if operator else "Clubhouse")
+	_clubhouse_button = MenuTheme.button(tr(StoryLines.STAFF_ROOM) if operator else tr("Clubhouse"))
 	_clubhouse_button.name = "ClubhouseButton"
 	_clubhouse_button.pressed.connect(show_clubhouse.bind(true))
 	buttons.add_child(_clubhouse_button)
@@ -268,11 +271,11 @@ func _ready() -> void:
 		_pinned_note = PinnedNote.new(pane)
 		_pinned_note.opened.connect(open_loyalty)
 		_panel.add_child(_pinned_note)
-	var settings := MenuTheme.button("Settings")
+	var settings := MenuTheme.button(tr("Settings"))
 	settings.pressed.connect(open_settings)
 	buttons.add_child(settings)
 	settings.add_sibling(PadLeaflet.entry(self))
-	_quit = MenuTheme.button("Back to title")
+	_quit = MenuTheme.button(tr("Back to title"))
 	_quit.pressed.connect(_back_to_title)
 	buttons.add_child(_quit)
 	# In a Grand Prix, where the run has got and what it is played to, see [method run_words]: the
@@ -303,7 +306,7 @@ func _ready() -> void:
 	var held_pane := MenuTheme.pane()
 	held.add_child(held_pane)
 	var words := Label.new()
-	words.text = "The host paused the game"
+	words.text = tr("The host paused the game")
 	Type.strong(words, Type.HEADING, Palette.CHIP_WHITE)
 	held_pane.add_child(words)
 	_held = held
@@ -333,7 +336,7 @@ func add_entry(text: String, action: Callable, under: Control = null) -> Button:
 ## which wear it at once. The dialog is put up over the menu, which waits under it, as the
 ## catalog's is.
 func offer_kart(room: Match) -> Button:
-	_kart_button = MenuTheme.button(KartDialog.ENTRY)
+	_kart_button = MenuTheme.button(tr(KartDialog.ENTRY))
 	_kart_button.name = "YourKart"
 	_kart_button.pressed.connect(open_kart.bind(room))
 	# Kept in the list as the Clubhouse's others are, see [method _fill_clubhouse].
@@ -369,13 +372,23 @@ func for_the_school(skip: Callable) -> void:
 	if _pinned_note != null:
 		_pinned_note.queue_free()
 		_pinned_note = null
-	_quit.text = "Skip driving school"
+	_quit.text = tr("Skip driving school")
 	_quit.name = "SkipSchool"
 	_quit.pressed.disconnect(_back_to_title)
+	# What skipping the driving school asks, in the school and its test alike, GAME.md 9.4a.
+	var asked: Array[String] = [
+		tr("Skip the driving school?"),
+		tr(
+			"""Your progress here is not saved. You can earn your license any time from the \
+title's Driving School button."""
+		),
+		tr("Skip"),
+		tr("Stay"),
+	]
 	_quit.pressed.connect(
 		func() -> void:
 			ask(
-				SKIP_SCHOOL,
+				asked,
 				func() -> void:
 					set_paused(false)
 					skip.call(),
@@ -395,12 +408,12 @@ func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable(
 	if _pinned_note != null:
 		_pinned_note.queue_free()
 		_pinned_note = null
-	_quit.text = "Quit"
+	_quit.text = tr("Quit")
 	_quit.pressed.disconnect(_back_to_title)
 	_quit.pressed.connect(func() -> void: Game.quit())
 	# Not an entry, which puts the menu away before it does anything: the question of how to drive
 	# comes up in the menu's place, see [method instead].
-	var seat := MenuTheme.outlined(MenuTheme.button("Join current match"))
+	var seat := MenuTheme.outlined(MenuTheme.button(tr("Join current match")))
 	seat.name = "JoinMatch"
 	if join.is_valid():
 		seat.pressed.connect(join)
@@ -408,7 +421,7 @@ func for_the_demo(full_game: Callable, join := Callable(), can_join := Callable(
 	Glint.on(seat)
 	_can_join = can_join
 	_join = seat
-	var full := MenuTheme.outlined(add_entry("Play the full game", full_game, seat))
+	var full := MenuTheme.outlined(add_entry(tr("Play the full game"), full_game, seat))
 	Glint.on(full)
 	full.add_sibling(MenuTheme.dotted_rule())
 
@@ -441,7 +454,7 @@ func let_go() -> void:
 ## Prix it is part of. Online it is only there while the host's say is this machine's, which at a
 ## dedicated server may come to it in the middle of a map, GAME.md 9.3a.
 func offer_the_lobby() -> Button:
-	var button := MenuTheme.button("Back to lobby")
+	var button := MenuTheme.button(tr("Back to lobby"))
 	_to_lobby = button
 	button.pressed.connect(
 		func() -> void:
@@ -456,14 +469,8 @@ func offer_the_lobby() -> Button:
 ## What is asked before going back to the lobby: the question, the line under it and the button
 ## that goes. Online, with everybody still connected; either way, the end of what is being played.
 static func lobby_words(online: bool, grand_prix: bool) -> Array[String]:
-	var line := "The Grand Prix ends here." if grand_prix else "This match ends here."
-	if online:
-		var what := "the Grand Prix" if grand_prix else "this match"
-		line = (
-			"Everybody comes back to the lobby with you and stays connected, but %s ends here."
-			% what
-		)
-	return ["Back to the lobby?", line, "Back to lobby"]
+	var line := Lang.t(LEAVING[int(grand_prix) + 2 * int(online)])
+	return [Lang.t("Back to the lobby?"), line, Lang.t("Back to lobby")]
 
 
 ## What is asked before leaving for the title online, and not offline, where nobody else is in
@@ -476,16 +483,12 @@ static func leave_words(
 ) -> Array[String]:
 	if hosting:
 		return HostControls.host_leave_words()
-	var line := "You leave the room, and the others play on without you."
+	var line := LEAVING[4]
 	if saying and others <= 0:
-		line = (
-			"You leave the room, and with nobody else playing the game ends for those watching."
-			if watching > 0
-			else "You leave the room, and with nobody else in it the game ends."
-		)
+		line = LEAVING[5] if watching > 0 else LEAVING[6]
 	elif saying:
-		line = "You leave the room, the others play on without you, and the host's say passes on."
-	return ["Back to the title?", line, "Leave"]
+		line = LEAVING[7]
+	return [Lang.t("Back to the title?"), Lang.t(line), Lang.t("Leave")]
 
 
 ## Who else is in the room, as the host's say sees it, GAME.md 9.3a: players at other machines,
@@ -643,19 +646,19 @@ func in_clubhouse() -> bool:
 ## over Back, see [method offer_kart].
 func _fill_clubhouse() -> void:
 	if Game.settings.profile.loyalty.welcomed:
-		_loyalty_button = MenuTheme.button(LoyaltyDialog.program_name(Game.settings.profile))
+		_loyalty_button = MenuTheme.button(tr(LoyaltyDialog.program_name(Game.settings.profile)))
 		_loyalty_button.name = "Loyalty"
 		_loyalty_button.pressed.connect(open_loyalty)
 		_club.add_child(_loyalty_button)
-	_catalog_button = MenuTheme.button("Catalog")
+	_catalog_button = MenuTheme.button(tr("Catalog"))
 	_catalog_button.name = "Catalog"
 	_catalog_button.pressed.connect(open_catalog)
 	_club.add_child(_catalog_button)
-	_achievements_button = MenuTheme.button("Achievements")
+	_achievements_button = MenuTheme.button(tr("Achievements"))
 	_achievements_button.name = "Achievements"
 	_achievements_button.pressed.connect(open_achievements)
 	_club.add_child(_achievements_button)
-	var back := MenuTheme.button("Back")
+	var back := MenuTheme.button(tr("Back"))
 	back.name = "ClubhouseBack"
 	back.pressed.connect(show_clubhouse.bind(false))
 	_club.add_child(back)
@@ -799,12 +802,13 @@ static func run_words(rules: MatchRules) -> String:
 	if rules.rounds <= 0:
 		return ""
 	var keep := clampi(rules.keep_jokers, 0, MatchOptions.KEEPS.size() - 1)
+	var goal := rules.team_target() if rules.target_score > 0 else 0
 	var parts: PackedStringArray = [
-		"Grand Prix",
-		"map %d of %d" % [rules.round, rules.rounds],
-		"%s each" % MatchOptions.length_words(rules.duration),
-		"first to %d" % rules.team_target() if rules.target_score > 0 else "no target",
-		"jokers: %s" % MatchOptions.KEEPS[keep].to_lower(),
+		Lang.t("Grand Prix"),
+		Lang.t("map {round} of {rounds}").format({"round": rules.round, "rounds": rules.rounds}),
+		Lang.t("%s each") % MatchOptions.length_words(rules.duration),
+		Lang.t("first to %d") % goal if goal > 0 else Lang.t("no target"),
+		Lang.t("jokers: %s") % Lang.t(MatchOptions.KEEPS[keep]).to_lower(),
 	]
 	# Each part kept whole where the line wraps: it breaks between them, never inside one.
 	for i: int in parts.size():
@@ -992,4 +996,4 @@ func _freeze(on: bool) -> void:
 ## the match; online Menu, as the match goes on for the others, until everybody has it open and the
 ## match has stopped, [param stopped].
 static func heading(online: bool, stopped: bool) -> String:
-	return "Paused" if stopped or not online else "Menu"
+	return Lang.t("Paused") if stopped or not online else Lang.t("Menu")

@@ -9,8 +9,9 @@ extends Node3D
 signal loaded
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
-## The pause menu's way to the end of the House's table in a debug build, STORY.md 8.
-const DEBUG_SKIP := "Debug: skip to end"
+## The pause menu's way to the end of the House's table in a debug build, STORY.md 8, left in
+## English as the debug build's own words are.
+const DEBUG_SKIP := "Debug: skip to end"  # NO_TRANSLATE
 
 var match_node: Match
 var config: MatchConfig
@@ -85,11 +86,12 @@ func _ready() -> void:
 				session.in_arena = true
 				var error := session.host(config.port)
 				if error != OK:
-					_fail("Could not host on port %d: %s" % [config.port, error_string(error)])
+					var why := {"port": config.port, "error": error_string(error)}
+					_fail(tr("Could not host on port {port}: {error}").format(why))
 				else:
-					match_node.lobby_hint = (
-						"Friends join on port %d at %s"
-						% [config.port, ", ".join(_local_addresses())]
+					var hint := tr("Friends join on port {port} at {addresses}")
+					match_node.lobby_hint = hint.format(
+						{"port": config.port, "addresses": ", ".join(_local_addresses())}
 					)
 					match_node.hold_in_lobby()
 		"join":
@@ -110,13 +112,14 @@ func _ready() -> void:
 				if not config.human_styles.is_empty():
 					session.player_style = PackedInt32Array(config.human_styles[0])
 			session.rules_applied.connect(_build_puppet_arena, CONNECT_ONE_SHOT)
-			session.connection_failed.connect(
-				func() -> void: _fail("Could not connect to %s:%d" % [config.address, config.port])
-			)
-			var gone := "The host disconnected"
+			var whom := {"address": config.address, "port": config.port}
+			var failed := tr("Could not connect to {address}:{port}").format(whom)
+			session.connection_failed.connect(func() -> void: _fail(failed))
+			var gone := tr("The host disconnected")
 			if not config.server.is_empty():
-				gone = "The connection to the game was lost"
+				gone = tr("The connection to the game was lost")
 			session.disconnected.connect(func() -> void: _fail(gone))
+			# Why the host turned this machine away, said in the language spoken here already.
 			session.refused.connect(_fail)
 			session.seat_refused.connect(_on_seat_refused)
 			session.slot_assigned.connect(
@@ -145,15 +148,16 @@ func _ready() -> void:
 				# Nothing is built until the host has seated this machine, so the words stand on
 				# the menus' background rather than on an empty world.
 				_pane().backdrop = true
-				_show_status("Starting the match...")
+				_show_status(tr("Starting the match..."))
 				session.ready_for_seat()
 			else:
 				var error := session.join(config.address, config.port)
 				if error != OK:
-					_fail("Could not connect: %s" % error_string(error))
+					_fail(tr("Could not connect: %s") % error_string(error))
 				else:
 					_pane().backdrop = true
-					_show_status("Connecting to %s:%d..." % [config.address, config.port])
+					var where := {"address": config.address, "port": config.port}
+					_show_status(tr("Connecting to {address}:{port}...").format(where))
 		_:
 			await _put_the_room_up()
 			# Anybody choosing which joker to keep does it on the grid, with the lamps waiting for
@@ -278,7 +282,7 @@ func _on_grand_prix_scored(run: Dictionary) -> void:
 ## about a sixth of a second to put up and bake, which is ten frames of a screen that has stopped
 ## if it is done in one go.
 func _put_the_room_up() -> void:
-	var named := ArenaMaps.NAMES[ArenaMaps.index_of(match_node.rules.map)]
+	var named := tr(ArenaMaps.NAMES[ArenaMaps.index_of(match_node.rules.map)])
 	await LoadingScreen.put_up(self, match_node, named, true)
 
 

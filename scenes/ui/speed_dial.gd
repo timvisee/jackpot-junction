@@ -109,7 +109,7 @@ func _process(delta: float) -> void:
 func _draw() -> void:
 	var pixels := KeptPictures.scale_of(self) * size
 	var step := Vector2i(KeptPictures.step_up(pixels.x, 8), KeptPictures.step_up(pixels.y, 8))
-	var key := "speed_dial|" + unit
+	var key := "speed_dial|" + unit  # NO_TRANSLATE
 	var face := KeptPictures.of(self, key, step, _face_picture.bind(step), FACES)
 	if face != null:
 		draw_texture_rect(face, Rect2(Vector2.ZERO, size), false)

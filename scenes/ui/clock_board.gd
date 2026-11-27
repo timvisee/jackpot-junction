@@ -33,7 +33,7 @@ const TAG_TALL := 30.0
 const TAG_LEAST := 184.0
 const PIP_ROOM := 16.0
 const PIP := 3.5
-## What the tag says on a map played to a target score.
+## What the tag says on a map played to a target score, shown through tr().
 const GOAL := "FIRST TO %d"
 ## The group a clock waiting on its pictures is in, see [KeptPictures].
 const KEPT := &"clock_board_kept"
@@ -79,7 +79,7 @@ func show_time(match_node: Match) -> void:
 	var overtime := match_node.state == Match.State.OVERTIME
 	if overtime:
 		# There is nothing left to count: the clock has run out and the match is still on.
-		text = "OVERTIME"
+		text = tr("OVERTIME")
 	else:
 		var seconds := ceili(match_node.time_left)
 		text = "%d:%02d" % [seconds / 60, seconds % 60]
@@ -88,7 +88,7 @@ func show_time(match_node: Match) -> void:
 	# clock is the arena's, and the goal is left to the pause menu's fine print.
 	if not match_node.rules.showdown():
 		var goal := match_node.rules.goal()
-		under = GOAL % goal if goal > 0 and not MenuTheme.is_short(self) else ""
+		under = tr(GOAL) % goal if goal > 0 and not MenuTheme.is_short(self) else ""
 
 
 ## How far under the board the tag reaches while one is hung, 0 while none is: for what hangs from
@@ -177,7 +177,7 @@ func _draw_kept(middle: float, lit: Color) -> bool:
 	var plate := Vector2(TOP, TALL)
 	var unlit := _unlit(text)
 	var board_pixels := Vector2i((plate * scale).ceil())
-	var board_key := "clock_board|%s|%s" % [unlit, hot]
+	var board_key := "clock_board|%s|%s" % [unlit, hot]  # NO_TRANSLATE
 	var make := _board_picture.bind(board_pixels, unlit, lit)
 	var board := KeptPictures.of(self, board_key, board_pixels, make, KEPT)
 	if board == null:
@@ -188,7 +188,7 @@ func _draw_kept(middle: float, lit: Color) -> bool:
 	for each: String in text:
 		var cell := Vector2(_advance(each), DIGIT) + room * 2.0
 		var pixels := Vector2i((cell * scale).ceil())
-		var key := "clock_digit|%s|%s" % [each, hot]
+		var key := "clock_digit|%s|%s" % [each, hot]  # NO_TRANSLATE
 		var made := _digit_picture.bind(pixels, cell, room, each, lit)
 		var picture := KeptPictures.of(self, key, pixels, made, KEPT)
 		if picture == null:

@@ -13,15 +13,16 @@ extends Control
 ## Half over its left edge the pages' arrows and dots stand upright, see [ResultsPager], and the
 ## ways on stand on their own in a row at the foot of the screen under it.
 
-## What the screen is headed. A podium is what is on it and what the last minute of a match is
-## about; "Results" is the name of a state machine's last state. The run's page in a Grand Prix is
-## headed with the name of what is being won.
+## What the screen is headed, shown through tr(). A podium is what is on it and what the last minute
+## of a match is about; "Results" is the name of a state machine's last state. The run's page in a
+## Grand Prix is headed with the name of what is being won.
 const TITLE := "Payout slip"
 const GRAND_PRIX_TITLE := "Grand Prix"
 const WIDTH := 980.0
 ## The ink of the small print.
 const FAINT := HouseTheme.INK_FAINT
-## The small print by the barcode, as the first stage of the story prints it, STORY.md 6.2.
+## The small print by the barcode, as the first stage of the story prints it, STORY.md 6.2, shown
+## through tr().
 const SMALL_PRINT := "PAID IN CHIPS, NOT CASH  ·  NO REFUNDS ON A BAD LAP"
 ## The size the story's lines on the slip are printed at, STORY.md 6.2.
 const STORY_PRINT := 11
@@ -51,7 +52,7 @@ const SCROLL_STEP := 64
 ## theirs: on a screen too narrow for them beside it they go while the slip is up, see
 ## [method _clear_beside].
 const BESIDE: Array[StringName] = [&"Scoreboard", &"KillFeed"]
-const BESIDE_CORNERS := "Block"
+const BESIDE_CORNERS := "Block"  # NO_TRANSLATE
 
 var match_node: Match
 ## The bill the pages are printed on, and the pages: the map's, always, and the run's in a Grand
@@ -69,7 +70,7 @@ var _style: TicketStyle
 ## The barcode and the small print at the foot of the bill, numbered for the match it pays out.
 var _end: VBoxContainer
 var _barcode: Control
-var _code := "JJ-0000-0"
+var _code := "JJ-0000-0"  # NO_TRANSLATE
 ## The small print beside the barcode and the House's bulletin under it, STORY.md 6.2, drawn once a
 ## slip so a page filled in again keeps what it said.
 var _small_words: Label
@@ -167,8 +168,10 @@ func fill_in() -> void:
 	var stage := Story.stage_here()
 	var named := ""
 	if grand_prix:
-		named = ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)]
-		named = "%s · map %d of %d" % [named, rules.round, rules.rounds]
+		var map := tr(ArenaMaps.NAMES[ArenaMaps.index_of(rules.map)])
+		named = tr("{map} · map {round} of {rounds}").format(
+			{"map": map, "round": rules.round, "rounds": rules.rounds}
+		)
 	var said := _keeping_words(rules.keep_jokers) if more else _level_words(run)
 	map_page.head(StorySlip.heading(stage), named, said)
 	map_page.short = short_screen()
@@ -184,11 +187,16 @@ func fill_in() -> void:
 			run_page = SlipPage.create(match_node)
 			run_page.name = "RunPage"
 		var ranked := run.standings(match_node.slots)
-		var after := "Standings after map %d of %d" % [rules.round, rules.rounds]
+		var after := tr("Standings after map {round} of {rounds}").format(
+			{"round": rules.round, "rounds": rules.rounds}
+		)
 		if not more:
-			after = "Final standings after %d maps" % rules.rounds
+			var maps := rules.rounds
+			after = (
+				tr_n("Final standings after %d map", "Final standings after %d maps", maps) % maps
+			)
 			wears = ranked
-		run_page.head(GRAND_PRIX_TITLE, after, "")
+		run_page.head(tr(GRAND_PRIX_TITLE), after, "")
 		run_page.short = short_screen()
 		run_page.fill_run(ranked, run)
 		pages.append(run_page)
@@ -200,7 +208,7 @@ func fill_in() -> void:
 		MenuTheme.wear(_style, wears[0].color())
 	_story_print(stage)
 	var winner_score := standings[0].banked if not standings.is_empty() else 0
-	_code = "JJ-%04d-%d" % [absi(hash(rules.map)) % 10000, winner_score]
+	_code = "JJ-%04d-%d" % [absi(hash(rules.map)) % 10000, winner_score]  # NO_TRANSLATE
 	_barcode.queue_redraw()
 	var rising := not visible
 	visible = true
@@ -227,7 +235,13 @@ func _tell(heading: String, standings: Array[PlayerSlot]) -> void:
 	if standings.is_empty():
 		return
 	var first := standings[0]
-	var placed := "%s %s %d" % [StoryFill.ordinal(1).to_lower(), first.display_name(), first.banked]
+	var placed := tr("{place} {name} {banked}").format(
+		{
+			"place": StoryFill.ordinal(1).to_lower(),
+			"name": first.display_name(),
+			"banked": first.banked
+		}
+	)
 	ScreenReader.say(self, ScreenReader.line([heading, placed]))
 
 
@@ -373,13 +387,13 @@ func _ways_on() -> void:
 	_host_decides.visible = (
 		waiting or (not decides and Net.online() and (not last or run_up or tie))
 	)
-	_host_decides.text = "The host takes everybody back to the lobby."
+	_host_decides.text = tr("The host takes everybody back to the lobby.")
 	if waiting:
-		_host_decides.text = StoryLines.STILL_WITH_THE_HOUSE
+		_host_decides.text = tr(StoryLines.STILL_WITH_THE_HOUSE)
 	elif more:
-		_host_decides.text = "The host starts the next map."
+		_host_decides.text = tr("The host starts the next map.")
 	elif tie:
-		_host_decides.text = "The host starts the tie-breaker."
+		_host_decides.text = tr("The host starts the tie-breaker.")
 	if _house_ways != null:
 		_house_ways.visible = _at_house()
 	_pager.show_page(bill.page, bill.page_count())
@@ -688,12 +702,12 @@ func _on_say_changed(_mine: bool) -> void:
 func _keeping_words(keep: int) -> String:
 	match keep:
 		GrandPrix.Keep.NONE:
-			return "Nobody takes their jokers on to the next map."
+			return tr("Nobody takes their jokers on to the next map.")
 		GrandPrix.Keep.CHOOSE:
-			return "As the next map starts, everybody picks which of their jokers to keep."
+			return tr("As the next map starts, everybody picks which of their jokers to keep.")
 		GrandPrix.Keep.ALL:
-			return "Everybody takes all their jokers on to the next map."
-	return "Everybody keeps one of their jokers for the next map, at random."
+			return tr("Everybody takes all their jokers on to the next map.")
+	return tr("Everybody keeps one of their jokers for the next map, at random.")
 
 
 ## On to how the run stands, GAME.md 9.7: the page under the map's, in the middle of a run. The
@@ -759,9 +773,8 @@ func _level_words(run: GrandPrix) -> String:
 		for seat: int in level:
 			if seat < match_node.slots.size():
 				names.append(match_node.slots[seat].display_name())
-		var listed := ", ".join(names.slice(0, -1)) + " and " + names[-1]
-		groups.append("%s (%d)" % [listed, run.total(level[0])])
-	return "Level on points: %s. A showdown settles it." % ", ".join(groups)
+		groups.append("%s (%d)" % [Lang.listed(Array(names)), run.total(level[0])])
+	return tr("Level on points: %s. A showdown settles it.") % tr(", ", &"list").join(groups)
 
 
 ## At a run's showdown's whistle, straight on to the party in the room and the run's final
@@ -854,6 +867,7 @@ func _small_print() -> VBoxContainer:
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
 	_barcode = Control.new()
+	# As wide as the longest number it is printed with, a match's number. NO_TRANSLATE
 	_barcode.custom_minimum_size = Vector2(Barcode.width_of("JJ-0000-00000") + 8.0, 46.0)
 	_barcode.draw.connect(
 		func() -> void:
@@ -867,7 +881,7 @@ func _small_print() -> VBoxContainer:
 	line.add_child(_barcode)
 	_small_words = Label.new()
 	_small_words.name = "SmallPrint"
-	_small_words.text = SMALL_PRINT
+	_small_words.text = tr(SMALL_PRINT)
 	Type.strong(_small_words, STORY_PRINT, FAINT)
 	_small_words.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_small_words.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -913,7 +927,8 @@ func _build_the_foot() -> HBoxContainer:
 	_foot.name = "Foot"
 	_foot.alignment = BoxContainer.ALIGNMENT_CENTER
 	_foot.add_theme_constant_override("separation", 20)
-	_host_decides = MenuTheme.subtitle("The host takes everybody back to the lobby.", Type.LABEL)
+	var decides := tr("The host takes everybody back to the lobby.")
+	_host_decides = MenuTheme.subtitle(decides, Type.LABEL)
 	_host_decides.add_theme_color_override("font_color", HouseTheme.WORDS)
 	# On whatever is behind the screen, with nothing under it: the room's own dark round it.
 	_host_decides.add_theme_color_override("font_outline_color", HouseTheme.STOCK)
@@ -929,17 +944,17 @@ func _build_the_foot() -> HBoxContainer:
 ## back to the waiting room of GAME.md 9.6, where the next one is chosen and whoever wants to leave
 ## can. The ones that carry the match on are in foil, the rest only ways out.
 func _buttons() -> void:
-	_next = MenuTheme.button("Next map", 26)
+	_next = MenuTheme.button(tr("Next map"), 26)
 	_next.pressed.connect(func() -> void: Game.next_map(match_node))
-	_continue = MenuTheme.button("Continue", 26)
+	_continue = MenuTheme.button(tr("Continue"), 26)
 	_continue.pressed.connect(_on_standings)
-	_tie = MenuTheme.button("Tie-breaker", 26)
+	_tie = MenuTheme.button(tr("Tie-breaker"), 26)
 	_tie.pressed.connect(func() -> void: Game.next_map(match_node))
-	_rematch = MenuTheme.button("Rematch", 26)
+	_rematch = MenuTheme.button(tr("Rematch"), 26)
 	_rematch.pressed.connect(func() -> void: Game.rematch(match_node))
-	_lobby = MenuTheme.button("Back to lobby", 26)
+	_lobby = MenuTheme.button(tr("Back to lobby"), 26)
 	_lobby.pressed.connect(_back_to_lobby)
-	_quit = MenuTheme.button("Back to title", 26)
+	_quit = MenuTheme.button(tr("Back to title"), 26)
 	_quit.pressed.connect(func() -> void: Game.go_to_title())
 	for way: Button in [_next, _continue, _tie, _rematch, _lobby, _quit]:
 		way.custom_minimum_size.x = WAY_WIDTH

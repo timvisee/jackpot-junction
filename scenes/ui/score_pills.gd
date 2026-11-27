@@ -93,11 +93,12 @@ static func add_to(parent: Control, right: bool) -> ScorePills:
 	return pills
 
 
-## A mult as it is written: whole when it is whole, one decimal when it is not.
+## A mult as it is written: whole when it is whole, one decimal when it is not, with the decimal
+## mark of the language spoken.
 static func mult_text(mult: float) -> String:
 	if is_equal_approx(mult, roundf(mult)):
 		return str(int(roundf(mult)))
-	return "%.1f" % mult
+	return Lang.decimal(mult)
 
 
 ## What the kart is carrying: so many chips, times so much.

@@ -133,7 +133,7 @@ func _gather() -> void:
 			_add_held(picker.get_children(), null)
 	_add(hud.scoreboard())
 	# And the demo for a booth's line along the foot, GAME.md 9.8.
-	for named: String in ["Clock", "Lobby"]:
+	for named: String in ["Clock", "Lobby"]:  # NO_TRANSLATE
 		_add(hud.get_node_or_null(named))
 	_add(DemoLine.of(hud))
 	# An achievement's toast stays a few seconds beside its corner, GAME.md 8.10.

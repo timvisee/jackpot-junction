@@ -198,9 +198,10 @@ static func left(match_node: Match) -> int:
 	return count
 
 
-## What the corner of a player out of the fight says, GAME.md 9.7a: sitting it out, or out of it.
+## What the corner of a player out of the fight says, GAME.md 9.7a: sitting it out, or out of it, in
+## the language spoken.
 static func corner_words(slot: PlayerSlot) -> String:
-	return "watching the tie-breaker" if slot.benched else "out of the showdown"
+	return Lang.t("watching the tie-breaker") if slot.benched else Lang.t("out of the showdown")
 
 
 static func _lives(slot: PlayerSlot) -> int:

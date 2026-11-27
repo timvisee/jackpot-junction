@@ -5,6 +5,7 @@ extends Panel
 ## and engraved in the item's own color, with its picture of 8.3a in the middle and its name under
 ## it. No pips: an item has no rarity.
 
+## The word over the picture, as a joker's card has its kind, shown through tr().
 const KIND := "Item"
 
 var item: PowerUp
@@ -17,7 +18,7 @@ static func create(for_item: PowerUp) -> ItemCard:
 	var card := ItemCard.new()
 	card.item = for_item
 	card._build()
-	ScreenReader.name(card, for_item.display_name, for_item.description)
+	ScreenReader.name(card, Lang.t(for_item.display_name), Lang.t(for_item.description))
 	return card
 
 
@@ -59,7 +60,7 @@ func _build() -> void:
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(stack)
 	var kind := Label.new()
-	kind.text = KIND.to_upper()
+	kind.text = tr(KIND).to_upper()
 	kind.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(kind, Type.STRONG, 13)
 	kind.add_theme_color_override("font_color", ink)
@@ -72,7 +73,7 @@ func _build() -> void:
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(art)
 	var title := Label.new()
-	title.text = item.display_name
+	title.text = tr(item.display_name)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(title, Type.STRONG, 15)
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)

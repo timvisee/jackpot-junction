@@ -63,7 +63,7 @@ func show_kart(kart: Kart) -> void:
 			art.id = kart.held_item.id
 			art.ink = kart.held_item.color
 			art.halo = ItemTag.GUARDIAN.guards(kart)
-			label.text = kart.held_item.display_name
+			label.text = tr(kart.held_item.display_name)
 			Type.ink(label, kart.held_item.color)
 	# The hoard queued behind the held one with Pack Rat, GAME.md 7.3: a small picture each, up to
 	# what fits, so what is waiting its turn reads at a glance rather than only as a number.
@@ -84,14 +84,15 @@ func show_kart(kart: Kart) -> void:
 		var what: Dictionary = going[i]
 		var name_of_it: Label = line["name"]
 		var bar: ProgressBar = line["clock"]
-		name_of_it.text = what["name"]
+		name_of_it.text = tr(what["name"])
 		Type.ink(name_of_it, what["color"])
 		bar.modulate = what["color"]
 		bar.value = 100.0 * float(what["left"])
 
 
 ## What is going on a kart, in the order it is worth reading: whatever a power-up started and is
-## still running, and whatever is loaded in the cannon. A cannon power-up runs out in shots rather
+## still running, and whatever is loaded in the cannon, each named in English to be shown through
+## tr(). A cannon power-up runs out in shots rather
 ## than in seconds -- the spread and the ricochet are loaded, not timed -- so the bar under it is
 ## the shots left rather than the time.
 static func going_on(kart: Kart) -> Array[Dictionary]:

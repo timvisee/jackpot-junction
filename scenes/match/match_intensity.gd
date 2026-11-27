@@ -122,8 +122,9 @@ func share() -> float:
 	return float(level - 1) / float(LEVELS - 1)
 
 
-## One line for the debug overlay.
+## One line for the debug overlay, in English as the debug build's own words are.
 func debug_text() -> String:
+	# NO_TRANSLATE
 	return (
 		"level %d/%d  meter %.2f (heat %.2f  hold %.2f  next %.0fs)"
 		% [level, LEVELS, value, heat, pressure, maxf(_hold, DWELL - _dwell)]

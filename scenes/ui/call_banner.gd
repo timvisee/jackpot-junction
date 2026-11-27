@@ -160,8 +160,12 @@ func _ready() -> void:
 
 
 ## Calls out [param call] for [param who], in [param color], dressed as [constant DRESSES] says;
-## [param urgent] runs it out on hazard tape whatever it is. It holds [param hold] seconds.
-func show_call(who: String, call: String, color: Color, urgent := false, hold := HOLD) -> void:
+## [param urgent] runs it out on hazard tape whatever it is. It holds [param hold] seconds. The call
+## is the English one, which it is dressed by; [param words] are what it says, in the language
+## spoken, and with none given it says the call as it is.
+func show_call(
+	who: String, call: String, color: Color, urgent := false, hold := HOLD, words := ""
+) -> void:
 	for child: Node in _names.get_children():
 		_names.remove_child(child)
 		child.queue_free()
@@ -169,7 +173,7 @@ func show_call(who: String, call: String, color: Color, urgent := false, hold :=
 	_who.text = who
 	_who.visible = not who.is_empty()
 	_who.add_theme_color_override("font_color", color)
-	_what.text = call
+	_what.text = words if not words.is_empty() else call
 	dress = Dress.TAPE if urgent else DRESSES.get(call, Dress.PLATE)
 	_ink = color
 	_cards = CARDS_FOR.get(call, 0)
@@ -193,7 +197,7 @@ func show_call(who: String, call: String, color: Color, urgent := false, hold :=
 	# A call that cannot wait, a match point, is said to a screen reader too; the kills and streaks
 	# go by too often in a busy room to be read out over everything else.
 	if urgent:
-		ScreenReader.say(self, ScreenReader.line([who, ScreenReader.spoken(call)]))
+		ScreenReader.say(self, ScreenReader.line([who, ScreenReader.spoken(_what.text)]))
 
 
 ## Says [param names] under the call on show, each in its color of [param colors]: who a
@@ -222,7 +226,7 @@ func show_names(names: PackedStringArray, colors: Array[Color]) -> void:
 func _versus() -> Label:
 	var versus := Label.new()
 	versus.name = "Versus"
-	versus.text = "vs"
+	versus.text = tr("vs")
 	Type.set_font(versus, Type.display_font(), VERSUS_SIZE)
 	HudText.shadowed(versus, 2)
 	versus.add_theme_color_override("font_color", HouseTheme.FOIL)

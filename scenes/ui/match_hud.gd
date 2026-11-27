@@ -28,12 +28,10 @@ const SYNC_SNAP := 1.0
 
 const CALL_DROP := 120.0
 ## What is called out when a player's next cash-out would win, after their name the way every call
-## is, see [MatchPoint].
+## is, see [MatchPoint]; shown through tr().
 const WIN_CALL := "MATCH POINT"
 ## The flag drops in the gantry's own green; Last Call is a bar's neon sign, see [NeonSign].
 const GO_INK := Color("#5fe08a")
-## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
-## how big the buttons in it are drawn, what color it is, and the word that goes with each one.
 ## A life, under the name: how big one heart is drawn and the gray a spent one goes.
 ## How wide a player's corner block is, whatever is in it: fixed, so it does not grow from 99 to 100
 ## km/h and shrink at the next corner, which the eye would follow. Wide enough that the line never
@@ -45,8 +43,8 @@ const LIFE_LOST := Color(0.22, 0.22, 0.26, 0.9)
 ## meters. It started at the width of the words it replaced, which as a shape rather than a line
 ## of text came out wider than the kart is long and buried it.
 const LIFE_ICON := 0.65
-## The held item's picture: how big it is drawn, how fast the roulette flicks through the others
-## while the box is still opening, and the gray it flicks in.
+## The line under each player's block that says what is worth pressing right now, GAME.md 8.3:
+## how big the buttons in it are drawn, what color it is, and the word shown through tr() with each.
 const HINT_SIZE := 17
 const HINT_INK := Color(0.82, 0.82, 0.88)
 const HINT_WORDS: Dictionary[StringName, String] = {
@@ -139,7 +137,7 @@ func _ready() -> void:
 	Type.ink(_banner, GO_INK)
 	_last_call = NeonSign.new()
 	_last_call.name = "LastCall"
-	_last_call.text = "LAST CALL"
+	_last_call.text = tr("LAST CALL")
 	_last_call.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_last_call.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_last_call.grow_vertical = Control.GROW_DIRECTION_BOTH
@@ -207,14 +205,16 @@ func _ready() -> void:
 func _on_bounty_called(slot: int) -> void:
 	var kart := _kart(slot)
 	if kart != null:
-		FloatingText.spawn(match_node, kart.global_position, "BOUNTY", Palette.CHIP_GOLD, 56, 1.6)
+		FloatingText.spawn(
+			match_node, kart.global_position, tr("BOUNTY"), Palette.CHIP_GOLD, 56, 1.6
+		)
 
 
 func _on_bounty_claimed(killer_slot: int, _victim_slot: int, amount: int) -> void:
 	var kart := _kart(killer_slot)
 	if kart != null:
 		FloatingText.spawn(
-			match_node, kart.global_position, "+%d BOUNTY" % amount, Palette.CHIP_GOLD, 48, 1.4
+			match_node, kart.global_position, tr("+%d BOUNTY") % amount, Palette.CHIP_GOLD, 48, 1.4
 		)
 
 
@@ -256,7 +256,7 @@ func _on_flush_completed(slot: int) -> void:
 	var kart := _kart(slot)
 	if kart != null:
 		FloatingText.spawn(
-			match_node, kart.global_position, "ROYAL FLUSH", Palette.CHIP_GOLD, 64, 1.6
+			match_node, kart.global_position, tr("ROYAL FLUSH"), Palette.CHIP_GOLD, 64, 1.6
 		)
 
 
@@ -264,7 +264,7 @@ func _on_nitro_gained(slot: int) -> void:
 	var kart := _kart(slot)
 	if kart != null:
 		FloatingText.spawn(
-			match_node, kart.global_position, "+NITRO", Color(1.0, 0.75, 0.3), 36, 0.9
+			match_node, kart.global_position, tr("+NITRO"), Color(1.0, 0.75, 0.3), 36, 0.9
 		)
 
 
@@ -435,10 +435,11 @@ func stand_down() -> void:
 func _on_corrected(meters: float, snapped: bool) -> void:
 	_sync_count += 1
 	_sync_left = SYNC_TIME
+	var said := {"meters": Lang.decimal(meters, 2), "count": _sync_count}
 	_sync.text = (
-		"RESYNC %.2f m  (%d)" % [meters, _sync_count]
+		tr("RESYNC {meters} m  ({count})").format(said)
 		if snapped or meters >= SYNC_SNAP
-		else "sync %.2f m  (%d)" % [meters, _sync_count]
+		else tr("sync {meters} m  ({count})").format(said)
 	)
 	# A nudge is worth seeing and not worth worrying about; a snap moved the kart somewhere a
 	# player was not expecting and is the one they want to know about.
@@ -543,13 +544,13 @@ func _update_blocks() -> void:
 		elif match_node.state == Match.State.OVERTIME:
 			# Nobody comes back in sudden death, GAME.md 3.13, so a count would be a count to
 			# nothing: it stood still at whatever it had reached when the clock ran out.
-			pot.say("waiting on players")
+			pot.say(tr("waiting on players"))
 		else:
-			pot.say("respawning %.1f" % maxf(slot.respawn_left, 0.0))
+			pot.say(tr("respawning %s") % Lang.decimal(maxf(slot.respawn_left, 0.0)))
 		(block["lag"] as LagWarning).show_trip(_round_trip(slot))
 		# A pot that would win the match on the next cash-out burns, GAME.md 3.4.
 		pot.set_burning(match_node.is_running() and match_node.would_win(slot))
-		stats.text = "K %d · D %d" % [slot.kills, slot.deaths]
+		HudBlock.show_stats(block, slot)
 		HudBlock.show_catch(block, kart, waiting)
 		HudBlock.show_lives(block, slot)
 		var nitro: NitroCells = block["nitro"]
@@ -602,7 +603,7 @@ func _on_announced(slot: int, call: String) -> void:
 	var who := _slot_name(slot)
 	if call == WIN_CALL and slot < match_node.slots.size() and match_node.slots[slot].team >= 0:
 		who = Teams.name_of(match_node.slots[slot].team)
-	_call.show_call(who, call, _slot_color(slot), call == WIN_CALL)
+	_call.show_call(who, call, _slot_color(slot), call == WIN_CALL, CallBanner.HOLD, tr(call))
 
 
 ## A player getting to where their next cash-out wins the match, GAME.md 3.4, called out on every
@@ -633,7 +634,7 @@ func _update_banner(delta: float) -> void:
 			_go_left = 0.8 if match_node.rules.countdown > 0.0 else 0.0
 		Match.State.PLAYING:
 			_banner.visible = _go_left > 0.0
-			_banner.text = "GO"
+			_banner.text = tr("GO")
 			_last_call.visible = false
 		Match.State.LAST_CALL:
 			# The sign flickers on by itself, and steady for anybody who asked for fewer flashes.
@@ -701,7 +702,7 @@ func _on_mult_gained(slot: int, amount: float, reason: StringName) -> void:
 		FloatingText.spawn(
 			match_node,
 			kart.global_position,
-			"+%s MULT" % _format_mult(amount),
+			tr("+%s MULT") % _format_mult(amount),
 			Palette.CHIP_GOLD,
 			48,
 			1.0
@@ -849,7 +850,7 @@ func _update_hints(block: Dictionary, kart: Kart, device: int) -> void:
 	var template := ""
 	for action: StringName in wanted:
 		parts.append(InputHint.glyph(action, keyboard, HINT_INK, HINT_SIZE))
-		template += "%s " + HINT_WORDS[action] + "   "
+		template += "%s " + tr(HINT_WORDS[action]) + "   "
 	holder.add_child(InputGlyph.pinned(InputHint.row(template, parts, HINT_INK, HINT_SIZE), device))
 
 
@@ -945,7 +946,7 @@ func _build_lobby() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 12)
 	_lobby.add_child(column)
-	column.add_child(MenuTheme.title("Online lobby", 44))
+	column.add_child(MenuTheme.title(tr("Online lobby"), 44))
 	_lobby_hint = Label.new()
 	Type.set_font(_lobby_hint, Type.TEXT, Type.LABEL)
 	_lobby_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -957,11 +958,11 @@ func _build_lobby() -> void:
 	_lobby_rows.scroll_active = false
 	_lobby_rows.add_theme_font_size_override("normal_font_size", 24)
 	column.add_child(_lobby_rows)
-	_lobby_start = MenuTheme.button("Start match")
+	_lobby_start = MenuTheme.button(tr("Start match"))
 	_lobby_start.pressed.connect(func() -> void: match_node.begin_from_lobby())
 	_lobby_start.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(_lobby_start)
-	var leave := MenuTheme.button("Back to title", 24)
+	var leave := MenuTheme.button(tr("Back to title"), 24)
 	leave.pressed.connect(func() -> void: Game.go_to_title())
 	leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(leave)
@@ -984,11 +985,11 @@ func _update_lobby() -> void:
 	_lobby_hint.text = (
 		match_node.lobby_hint
 		if not match_node.puppet
-		else "Waiting for the host to start the match..."
+		else tr("Waiting for the host to start the match...")
 	)
 	var lines: PackedStringArray = []
 	for slot: PlayerSlot in match_node.slots:
-		var kind := "player" if slot.is_human() else "bot, free for a player to take"
+		var kind := tr("player") if slot.is_human() else tr("bot, free for a player to take")
 		lines.append(
 			(
 				"[color=#%s]■[/color]  %s  [color=#9a9aa0]%s[/color]"

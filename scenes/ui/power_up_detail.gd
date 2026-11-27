@@ -88,8 +88,8 @@ func show_item(item: PowerUp, facts: Array[PackedStringArray]) -> void:
 		return
 	_item = item
 	_wear(PowerUp.ink_of(item))
-	_name.text = item.display_name
-	_body.text = item.description
+	_name.text = tr(item.display_name)
+	_body.text = tr(item.description)
 	_body.add_theme_color_override("font_color", HouseTheme.INK if _paper else BODY)
 	_facts.visible = true
 	for child: Node in _facts.get_children():

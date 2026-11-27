@@ -92,181 +92,49 @@ const ACCURACY_SHOTS := 10
 ## a pot at a death are most of the coins it drops there.
 const SAME_STORY: Array[Array] = [[&"coins_lost", &"coins_dropped"]]
 
-## Each award, by the field it is for: its title, what it says of one and of more, the least of it
-## that earns it, its tier, a feat or a contest, and whether that least is a total, which grows and
-## shrinks with how long the map ran, see [constant MINIMUMS_FOR], rather than a peak or a share.
+## Each award, by the field it is for: its title, shown through tr(), the least of it that earns
+## it, its tier, a feat or a contest, and whether that least is a total, which grows and shrinks
+## with how long the map ran, see [constant MINIMUMS_FOR], rather than a peak or a share. What it
+## says of how much was done is [method _words]'s.
 const AWARDS: Dictionary[StringName, Array] = {
-	&"bullets":
-	["Trigger Happy", "%d shot fired", "%d shots fired", 80.0, Tier.BUSY, Kind.CONTEST, true],
-	&"coins_lost":
-	["Butterfingers", "%d chip lost", "%d chips lost", 300.0, Tier.RIBBING, Kind.CONTEST, true],
-	&"coins":
-	[
-		"Vacuum Cleaner",
-		"%d chip picked up",
-		"%d chips picked up",
-		500.0,
-		Tier.BUSY,
-		Kind.CONTEST,
-		true
-	],
-	&"jokers":
-	["Card Shark", "%d joker taken", "%d jokers taken", 8.0, Tier.BUSY, Kind.CONTEST, true],
-	&"driven":
-	["Road Warrior", "%.0f m driven", "%.0f m driven", 1200.0, Tier.BUSY, Kind.CONTEST, true],
-	&"drifted":
-	[
-		"Sideways Specialist",
-		"%.0f m drifted",
-		"%.0f m drifted",
-		150.0,
-		Tier.SKILL,
-		Kind.CONTEST,
-		true
-	],
-	&"grazes": ["Close Shave", "%d graze", "%d grazes", 5.0, Tier.SKILL, Kind.CONTEST, true],
-	&"banks":
-	["Regular Customer", "%d cash-out", "%d cash-outs", 15.0, Tier.BUSY, Kind.CONTEST, true],
-	&"biggest_bank":
-	[
-		"Big Spender",
-		"%d in one cash-out",
-		"%d in one cash-out",
-		1000.0,
-		Tier.HEADLINE,
-		Kind.FEAT,
-		false
-	],
-	&"items": ["Gadgeteer", "%d item used", "%d items used", 5.0, Tier.BUSY, Kind.CONTEST, true],
-	&"nitro":
-	["Nitro Junkie", "%.1f s of nitro", "%.1f s of nitro", 15.0, Tier.BUSY, Kind.CONTEST, true],
-	&"turbo_pads":
-	["Pad Hopper", "%d turbo pad", "%d turbo pads", 10.0, Tier.BUSY, Kind.CONTEST, true],
-	&"max_mult":
-	[
-		"Multiplier Maniac",
-		"x%.1f peak mult",
-		"x%.1f peak mult",
-		6.0,
-		Tier.SKILL,
-		Kind.CONTEST,
-		false
-	],
-	&"crates":
-	["Demolition Crew", "%d crate broken", "%d crates broken", 10.0, Tier.BUSY, Kind.CONTEST, true],
-	&"targets":
-	[
-		"Sharpshooter",
-		"%d target knocked down",
-		"%d targets knocked down",
-		3.0,
-		Tier.HEADLINE,
-		Kind.FEAT,
-		false
-	],
-	&"bomb_kills":
-	["Pyrotechnician", "%d bomb kill", "%d bomb kills", 2.0, Tier.HEADLINE, Kind.FEAT, false],
-	&"flushes": ["Royal Flush", "%d flush", "%d flushes", 2.0, Tier.HEADLINE, Kind.FEAT, false],
-	&"bounties":
-	[
-		"Bounty Hunter",
-		"%d bounty collected",
-		"%d bounties collected",
-		2.0,
-		Tier.HEADLINE,
-		Kind.FEAT,
-		false
-	],
-	&"lives_restored":
-	[
-		"Comeback Kid",
-		"%d life patched up",
-		"%d lives patched up",
-		5.0,
-		Tier.SKILL,
-		Kind.CONTEST,
-		true
-	],
-	&"pit_deaths":
-	["Spelunker", "%d pit fall", "%d pit falls", 3.0, Tier.RIBBING, Kind.CONTEST, true],
-	&"self_kills":
-	["Own Goal", "%d self kill", "%d self kills", 1.0, Tier.RIBBING, Kind.CONTEST, false],
-	&"deaths": ["Crash Test Dummy", "%d death", "%d deaths", 8.0, Tier.RIBBING, Kind.CONTEST, true],
-	&"jackpot_chips":
-	[
-		"Vault Cracker",
-		"%d chip out of the Jackpot",
-		"%d chips out of the Jackpot",
-		200.0,
-		Tier.HEADLINE,
-		Kind.FEAT,
-		false
-	],
-	&"drift_boosts":
-	[
-		"Power Slide",
-		"%d drift carried to the boost",
-		"%d drifts carried to the boost",
-		5.0,
-		Tier.SKILL,
-		Kind.CONTEST,
-		true
-	],
-	&"pads_taken":
-	[
-		"Card Counter",
-		"%d flush pad taken",
-		"%d flush pads taken",
-		25.0,
-		Tier.SKILL,
-		Kind.CONTEST,
-		true
-	],
-	&"oil_spins":
-	["Banana Skin", "%d spin on oil", "%d spins on oil", 3.0, Tier.RIBBING, Kind.CONTEST, true],
-	&"overtakes":
-	[
-		"Last Word",
-		"%d place taken in sudden death",
-		"%d places taken in sudden death",
-		1.0,
-		Tier.HEADLINE,
-		Kind.FEAT,
-		false
-	],
-	&"match_points":
-	[
-		"Knocking on the Door",
-		"%d match point",
-		"%d match points",
-		2.0,
-		Tier.HEADLINE,
-		Kind.FEAT,
-		false
-	],
-	&"coins_dropped":
-	["Piggy Bank", "%d chip dropped", "%d chips dropped", 80.0, Tier.RIBBING, Kind.CONTEST, true],
-	&"rams":
-	["Battering Ram", "%d player rammed", "%d players rammed", 3.0, Tier.SKILL, Kind.CONTEST, true],
-	&"accuracy":
-	[
-		"Marksman",
-		"%.0f%% of shots on target",
-		"%.0f%% of shots on target",
-		50.0,
-		Tier.SKILL,
-		Kind.CONTEST,
-		false
-	],
+	&"bullets": ["Trigger Happy", 80.0, Tier.BUSY, Kind.CONTEST, true],
+	&"coins_lost": ["Butterfingers", 300.0, Tier.RIBBING, Kind.CONTEST, true],
+	&"coins": ["Vacuum Cleaner", 500.0, Tier.BUSY, Kind.CONTEST, true],
+	&"jokers": ["Card Shark", 8.0, Tier.BUSY, Kind.CONTEST, true],
+	&"driven": ["Road Warrior", 1200.0, Tier.BUSY, Kind.CONTEST, true],
+	&"drifted": ["Sideways Specialist", 150.0, Tier.SKILL, Kind.CONTEST, true],
+	&"grazes": ["Close Shave", 5.0, Tier.SKILL, Kind.CONTEST, true],
+	&"banks": ["Regular Customer", 15.0, Tier.BUSY, Kind.CONTEST, true],
+	&"biggest_bank": ["Big Spender", 1000.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"items": ["Gadgeteer", 5.0, Tier.BUSY, Kind.CONTEST, true],
+	&"nitro": ["Nitro Junkie", 15.0, Tier.BUSY, Kind.CONTEST, true],
+	&"turbo_pads": ["Pad Hopper", 10.0, Tier.BUSY, Kind.CONTEST, true],
+	&"max_mult": ["Multiplier Maniac", 6.0, Tier.SKILL, Kind.CONTEST, false],
+	&"crates": ["Demolition Crew", 10.0, Tier.BUSY, Kind.CONTEST, true],
+	&"targets": ["Sharpshooter", 3.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"bomb_kills": ["Pyrotechnician", 2.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"flushes": ["Royal Flush", 2.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"bounties": ["Bounty Hunter", 2.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"lives_restored": ["Comeback Kid", 5.0, Tier.SKILL, Kind.CONTEST, true],
+	&"pit_deaths": ["Spelunker", 3.0, Tier.RIBBING, Kind.CONTEST, true],
+	&"self_kills": ["Own Goal", 1.0, Tier.RIBBING, Kind.CONTEST, false],
+	&"deaths": ["Crash Test Dummy", 8.0, Tier.RIBBING, Kind.CONTEST, true],
+	&"jackpot_chips": ["Vault Cracker", 200.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"drift_boosts": ["Power Slide", 5.0, Tier.SKILL, Kind.CONTEST, true],
+	&"pads_taken": ["Card Counter", 25.0, Tier.SKILL, Kind.CONTEST, true],
+	&"oil_spins": ["Banana Skin", 3.0, Tier.RIBBING, Kind.CONTEST, true],
+	&"overtakes": ["Last Word", 1.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"match_points": ["Knocking on the Door", 2.0, Tier.HEADLINE, Kind.FEAT, false],
+	&"coins_dropped": ["Piggy Bank", 80.0, Tier.RIBBING, Kind.CONTEST, true],
+	&"rams": ["Battering Ram", 3.0, Tier.SKILL, Kind.CONTEST, true],
+	&"accuracy": ["Marksman", 50.0, Tier.SKILL, Kind.CONTEST, false],
 }
 ## Where each of those is kept in an award's entry.
 const TITLE := 0
-const SAID_ONE := 1
-const SAID_MORE := 2
-const LEAST := 3
-const TIER := 4
-const KIND := 5
-const TOTAL := 6
+const LEAST := 1
+const TIER := 2
+const KIND := 3
+const TOTAL := 4
 ## How long a map the least of a total is for, in seconds: a map half as long asks half as many
 ## shots of a Trigger Happy, and the most and least it is ever scaled by.
 const MINIMUMS_FOR := 300.0
@@ -361,11 +229,87 @@ static func deal(order: Array[PlayerStats], seconds: float, count := 3) -> Array
 	return dealt
 
 
-## The [title, words] of the award for [param field] at [param value], one or more of it.
+## The [title, words] of the award for [param field] at [param value], one or more of it, in the
+## language spoken.
 static func said(field: StringName, value: float) -> Array:
-	var award: Array = AWARDS[field]
-	var words: String = award[SAID_ONE] if is_equal_approx(value, 1.0) else award[SAID_MORE]
-	return [award[TITLE], words % value]
+	return [Lang.t(AWARDS[field][TITLE]), _words(field, value)]
+
+
+## What the award for [param field] says of [param value] of it: a count, a distance or a share.
+static func _words(field: StringName, value: float) -> String:
+	var count := int(value)
+	match field:
+		&"bullets":
+			return Lang.tn("%d shot fired", "%d shots fired", count) % count
+		&"coins_lost":
+			return Lang.tn("%d chip lost", "%d chips lost", count) % count
+		&"coins":
+			return Lang.tn("%d chip picked up", "%d chips picked up", count) % count
+		&"jokers":
+			return Lang.tn("%d joker taken", "%d jokers taken", count) % count
+		&"driven":
+			return Lang.t("%.0f m driven") % value
+		&"drifted":
+			return Lang.t("%.0f m drifted") % value
+		&"grazes":
+			return Lang.tn("%d graze", "%d grazes", count) % count
+		&"banks":
+			return Lang.tn("%d cash-out", "%d cash-outs", count) % count
+		&"biggest_bank":
+			return Lang.tn("%d in one cash-out", "%d in one cash-out", count) % count
+		&"items":
+			return Lang.tn("%d item used", "%d items used", count) % count
+		&"nitro":
+			return Lang.t("%s s of nitro") % Lang.decimal(value)
+		&"turbo_pads":
+			return Lang.tn("%d turbo pad", "%d turbo pads", count) % count
+		&"max_mult":
+			return Lang.t("x%s peak mult") % Lang.decimal(value)
+		&"crates":
+			return Lang.tn("%d crate broken", "%d crates broken", count) % count
+		&"targets":
+			return Lang.tn("%d target knocked down", "%d targets knocked down", count) % count
+		&"bomb_kills":
+			return Lang.tn("%d bomb kill", "%d bomb kills", count) % count
+		&"flushes":
+			return Lang.tn("%d flush", "%d flushes", count) % count
+		&"bounties":
+			return Lang.tn("%d bounty collected", "%d bounties collected", count) % count
+		&"lives_restored":
+			return Lang.tn("%d life patched up", "%d lives patched up", count) % count
+		&"pit_deaths":
+			return Lang.tn("%d pit fall", "%d pit falls", count) % count
+		&"self_kills":
+			return Lang.tn("%d self kill", "%d self kills", count) % count
+		&"deaths":
+			return Lang.tn("%d death", "%d deaths", count) % count
+		&"jackpot_chips":
+			return (
+				Lang.tn("%d chip out of the Jackpot", "%d chips out of the Jackpot", count) % count
+			)
+		&"drift_boosts":
+			return (
+				Lang.tn("%d drift carried to the boost", "%d drifts carried to the boost", count)
+				% count
+			)
+		&"pads_taken":
+			return Lang.tn("%d flush pad taken", "%d flush pads taken", count) % count
+		&"oil_spins":
+			return Lang.tn("%d spin on oil", "%d spins on oil", count) % count
+		&"overtakes":
+			return (
+				Lang.tn("%d place taken in sudden death", "%d places taken in sudden death", count)
+				% count
+			)
+		&"match_points":
+			return Lang.tn("%d match point", "%d match points", count) % count
+		&"coins_dropped":
+			return Lang.tn("%d chip dropped", "%d chips dropped", count) % count
+		&"rams":
+			return Lang.tn("%d player rammed", "%d players rammed", count) % count
+		&"accuracy":
+			return Lang.t("%.0f%% of shots on target") % value
+	return ""
 
 
 ## The least of [param field] that earns its award after a map [param scale] as long as the

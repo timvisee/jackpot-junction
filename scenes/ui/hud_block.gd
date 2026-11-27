@@ -33,7 +33,8 @@ const TAB_NOTCH := 7.0
 const TAB_ROOM := Vector2(12.0, 6.0)
 ## How tall the tab of hints is, for the room kept under a block before it has been shown.
 const TAB_TALL := 36.0
-## The microprint along the foot of each strip, and the engraving's strength on it.
+## The microprint along the foot of each strip, shown through tr(), and the engraving's strength on
+## it.
 const MICRO := "SEAT %d · JACKPOT JUNCTION · DEPT. OF KARTS · "
 const ENGRAVED := 0.07
 ## The soft shadow edge around a corner block that lifts it off the room, see
@@ -50,7 +51,7 @@ const SHADOW_REACH := 16.0
 static func show_catch(block: Dictionary, kart: Kart, waiting: bool) -> void:
 	var catch: Label = block["catch"]
 	catch.visible = not waiting and kart.alive and kart.coin_bonus >= CATCH_FLOOR
-	catch.text = "×%.1f" % kart.coin_bonus if catch.visible else ""
+	catch.text = "×%s" % Lang.decimal(kart.coin_bonus) if catch.visible else ""
 
 
 ## The block for [param slot] in [param corner] of [param hud], with a heart for each of the
@@ -172,7 +173,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	dial_box.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	var speed_dial := SpeedDial.new()
 	speed_dial.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	speed_dial.tooltip_text = "Speed"
+	speed_dial.tooltip_text = Lang.t("Speed")
 	dial_box.add_child(speed_dial)
 	var speed := Label.new()
 	speed.text = "0"
@@ -189,7 +190,7 @@ static func make(hud: CanvasLayer, slot: PlayerSlot, corner: int, lives_each: in
 	nitro.custom_minimum_size = CELLS
 	nitro.ink = slot.color()
 	nitro.value = 100.0
-	nitro.tooltip_text = "Nitro"
+	nitro.tooltip_text = Lang.t("Nitro")
 	nitro.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	gauge.add_child(nitro)
 	for part: Control in [gauge, counts] if right else [counts, gauge]:
@@ -285,7 +286,7 @@ static func strip(slot: PlayerSlot, right: bool, bottom: bool) -> StripStyle:
 	style.engraving = Color(HouseTheme.FOIL, ENGRAVED)
 	style.waves = true
 	# What the microprint says moves with the story, STORY.md 6.4; MICRO is its first stage's.
-	var micro := str(StoryLines.at(StoryLines.MICRO_HUD, Story.stage_here(), MICRO))
+	var micro := Lang.t(str(StoryLines.at(StoryLines.MICRO_HUD, Story.stage_here(), MICRO)))
 	style.micro = micro % (slot.index + 1)
 	style.micro_size = StripStyle.MICRO_TOUCH if TouchInput.enabled else StripStyle.MICRO_SIZE
 	# A handful of flat polygons, cheap, but off with the room's shadows so a player who turns those
@@ -431,6 +432,14 @@ static func show_bank(block: Dictionary, slot: PlayerSlot, slots: Array[PlayerSl
 	HudText.fit(banked, str(Teams.score_of(slots, slot)), Type.SCORE)
 	var share: Label = block["share"]
 	share.visible = slot.team >= 0 and banked.visible
-	var text := "yours %d" % slot.banked
+	var text := Lang.t("yours %d") % slot.banked
 	if share.visible and share.text != text:
 		share.text = text
+
+
+## [param slot]'s kills and deaths in [param block], beside its name.
+static func show_stats(block: Dictionary, slot: PlayerSlot) -> void:
+	# TRANSLATORS: A player's kills and deaths by their name in a corner of the screen, a letter
+	# each, "K 3 · D 1", with room for little more.
+	var said := Lang.t("K {kills} · D {deaths}")
+	(block["stats"] as Label).text = said.format({"kills": slot.kills, "deaths": slot.deaths})

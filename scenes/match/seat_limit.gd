@@ -12,7 +12,8 @@ const MOST_HERE := 4
 ## The seats an arena has at the least, GAME.md 9.3: four on one machine, and online four or as many
 ## as the host's lobby lets play, whichever is more, so a lobby for two still has seats for bots.
 const SEATS := 4
-## What a fifth player at one machine is told, on the notice and under the ready count, GAME.md 9.6.
+## What a fifth player at one machine is told, on the notice and under the ready count, GAME.md 9.6,
+## shown through tr().
 const HERE_FULL := "This device has room for 4 players."
 
 
@@ -91,14 +92,17 @@ static func turns_away(parent: Node, match_node: Match, session: NetSession, dev
 static func say_full(parent: Node, most: int) -> void:
 	NoticePane.tell(
 		parent,
-		"Maximum number of players reached",
-		"This game has room for %d player%s." % [most, "" if most == 1 else "s"]
+		Lang.t("Maximum number of players reached"),
+		(
+			Lang.tn("This game has room for %d player.", "This game has room for %d players.", most)
+			% most
+		)
 	)
 
 
 ## Says over [param parent] that this machine has as many players as one may, GAME.md 9.2.
 static func say_full_here(parent: Node) -> void:
-	NoticePane.tell(parent, "Maximum number of players reached", HERE_FULL)
+	NoticePane.tell(parent, Lang.t("Maximum number of players reached"), Lang.t(HERE_FULL))
 
 
 ## A press of join on [param device] at this machine, GAME.md 9.2 and 10.3: turned away while the

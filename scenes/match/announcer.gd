@@ -6,23 +6,26 @@ extends Node
 ## happened, so a run of kills reads as a story rather than as a wall of text.
 ##
 ## It says nothing itself. It works out what was worth saying and emits [signal
-## Events.announced]; the HUD decides how that looks.
+## Events.announced], in English, as an id to tell the calls apart by; the HUD decides how that
+## looks, and says it in the language spoken.
 
 ## Seconds within which kills count as one run, and within which two kills count as a trade.
 const COMBO_WINDOW := 4.0
 const TRADE_WINDOW := 2.5
-## What a run of kills inside the window is called, from two upward. Anything longer than the
-## list keeps the last name.
+## What a run of kills inside the window is called, from two upward, shown through tr(). Anything
+## longer than the list keeps the last name.
 const COMBOS: Array[String] = ["DOUBLE KILL", "TRIPLE KILL", "QUAD KILL", "KILLING SPREE"]
-## Kills without dying, and what each is called. Read in order; the last one reached wins.
+## Kills without dying, and what each is called, shown through tr(). Read in order; the last one
+## reached wins.
 const STREAKS: Dictionary[int, String] = {3: "HOT STREAK", 5: "ON FIRE", 8: "UNTOUCHABLE"}
 ## A kill straight back at whoever took the killer out, and an overtake in sudden death, to the top
-## of the running order or past the kart taken out, see [KartDeath].
+## of the running order or past the kart taken out, see [KartDeath]; each shown through tr().
 const TRADE_CALL := "TRADE KILL"
 const LEAD_CALL := "TAKING THE LEAD"
 const OVERTAKE_CALL := "OVERTAKE"
-## A showdown's calls, GAME.md 9.7a: every kart that goes out of it, and whoever is left at the
-## whistle, the tie broken in a Grand Prix's and the showdown won in a quick match's.
+## A showdown's calls, GAME.md 9.7a, each shown through tr(): every kart that goes out of it, and
+## whoever is left at the whistle, the tie broken in a Grand Prix's and the showdown won in a quick
+## match's.
 const OUT_CALL := "OUT"
 const TIE_BROKEN := "BREAKS THE TIE"
 const SHOWDOWN_WON := "WINS THE SHOWDOWN"

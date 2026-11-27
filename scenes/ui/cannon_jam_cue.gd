@@ -29,7 +29,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_label = Label.new()
-	_label.text = "JAMMED"
+	_label.text = tr("JAMMED")
 	_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
 	_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_label.grow_vertical = Control.GROW_DIRECTION_BOTH

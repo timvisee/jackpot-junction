@@ -203,11 +203,15 @@ func device() -> int:
 	return player.device if player != null else DeviceInput.ANY
 
 
+## What the seat is called: the name its player gave, as given, or else its number and, for a bot,
+## its trait, in the language spoken.
 func display_name() -> String:
 	if not player_name.is_empty():
 		return player_name
 	if is_dummy():
-		return "P%d Dummy" % (index + 1)
+		return tr("P%d Dummy") % (index + 1)
 	if bot_trait != null:
-		return "P%d %s" % [index + 1, bot_trait.display_name]
-	return "P%d" % (index + 1)
+		var named := {"seat": index + 1, "trait": tr(bot_trait.display_name)}
+		return tr("P{seat} {trait}").format(named)
+	# TRANSLATORS: A seat with nobody's name on it, by its number: P1, P2.
+	return tr("P%d") % (index + 1)

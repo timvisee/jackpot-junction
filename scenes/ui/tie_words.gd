@@ -3,11 +3,12 @@ extends RefCounted
 ## What put a row in its place among the rows level with it, GAME.md 3.8 and 9.7a, for the chip a
 ## slip prints on it. A tie a showdown settled says where its row finished that; any other says
 ## which tie-break decided it and what the row had of it, so nobody is left to wonder why the row
-## above theirs on the same score is above it.
+## above theirs on the same score is above it. Its words are in the language spoken.
 
+## The chip's titles, and what is left when everything the order goes by is level and the seats
+## decide, each shown through tr().
 const TIE := "Tie"
 const SHOWDOWN := "Showdown"
-## What is left when everything the order goes by is level, and the seats decide.
 const SEATS := "seat order"
 
 
@@ -22,14 +23,16 @@ static func of_map(slot: PlayerSlot, standings: Array[PlayerSlot]) -> PackedStri
 	if level.size() < 2:
 		return PackedStringArray()
 	if _alone(level, slot, func(other: PlayerSlot) -> int: return other.kills):
-		return PackedStringArray([TIE, counted(slot.kills, "kill", "kills")])
+		var kills := Lang.tn("%d kill", "%d kills", slot.kills) % slot.kills
+		return PackedStringArray([Lang.t(TIE), kills])
 	var same: Array[PlayerSlot] = []
 	for other: PlayerSlot in level:
 		if other.kills == slot.kills:
 			same.append(other)
 	if _alone(same, slot, func(other: PlayerSlot) -> int: return other.deaths):
-		return PackedStringArray([TIE, counted(slot.deaths, "death", "deaths")])
-	return PackedStringArray([TIE, SEATS])
+		var deaths := Lang.tn("%d death", "%d deaths", slot.deaths) % slot.deaths
+		return PackedStringArray([Lang.t(TIE), deaths])
+	return PackedStringArray([Lang.t(TIE), Lang.t(SEATS)])
 
 
 ## The chip for [param seat] on the standings of [param run] among [param slots], a title and a
@@ -47,10 +50,10 @@ static func of_run(seat: int, run: GrandPrix, slots: Array[PlayerSlot]) -> Packe
 		level.append(slot)
 	if level.size() < 2:
 		return PackedStringArray()
-	var title := TIE
+	var title := Lang.t(TIE)
 	var placed := ""
 	if run.showdown.has(seat):
-		title = SHOWDOWN
+		title = Lang.t(SHOWDOWN)
 		placed = ordinal(run.showdown_place(seat, slots))
 		var together: Array[PlayerSlot] = []
 		for slot: PlayerSlot in level:
@@ -63,33 +66,21 @@ static func of_run(seat: int, run: GrandPrix, slots: Array[PlayerSlot]) -> Packe
 	var me := _seat_in(level, seat)
 	if _alone(level, me, func(slot: PlayerSlot) -> int: return run.wins(slot.index)):
 		var won := run.wins(seat)
-		return PackedStringArray([title, placed + counted(won, "map won", "maps won")])
+		return PackedStringArray([title, placed + Lang.tn("%d map won", "%d maps won", won) % won])
 	var same: Array[PlayerSlot] = []
 	for slot: PlayerSlot in level:
 		if run.wins(slot.index) == run.wins(seat):
 			same.append(slot)
 	var banked := func(slot: PlayerSlot) -> int: return run.side_banked_over(slot.index)
 	if _alone(same, me, banked):
-		var chips := Loyalty.thousands(run.side_banked_over(seat))
-		return PackedStringArray([title, placed + "%s banked" % chips])
-	return PackedStringArray([title, placed + SEATS])
+		var chips := Lang.number(run.side_banked_over(seat))
+		return PackedStringArray([title, placed + Lang.t("%s banked") % chips])
+	return PackedStringArray([title, placed + Lang.t(SEATS)])
 
 
-## [param count] of a thing, said as [param one] or [param many].
-static func counted(count: int, one: String, many: String) -> String:
-	return "%d %s" % [count, one if count == 1 else many]
-
-
-## A place said the way a slip says it: 1st, 2nd, 3rd, 4th.
+## A place said the way a slip says it, the House's print in small letters: 1st, 2nd, 3rd, 4th.
 static func ordinal(place: int) -> String:
-	match place:
-		1:
-			return "1st"
-		2:
-			return "2nd"
-		3:
-			return "3rd"
-	return "%dth" % place
+	return StoryFill.ordinal(place).to_lower()
 
 
 ## Whether [param slot] is the only one of [param among] with what [param measure] says of it.

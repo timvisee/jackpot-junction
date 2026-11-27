@@ -101,7 +101,8 @@ static func look() -> ShaderMaterial:
 func _ready() -> void:
 	_dice.randomize()
 	_next_tear = _dice.randf_range(TEARS.x, TEARS.y)
-	_rec = _words("REC", HORIZONTAL_ALIGNMENT_LEFT)
+	# TRANSLATORS: A camera's mark that it is recording, in the corner of a picture from it.
+	_rec = _words(tr("REC"), HORIZONTAL_ALIGNMENT_LEFT)
 	_rec.position = Vector2(INSET, INSET) + WORDS_IN + Vector2(DOT * 2.0 + 6.0, -2.0)
 	_time = _words("", HORIZONTAL_ALIGNMENT_RIGHT)
 	_cam = _words("", HORIZONTAL_ALIGNMENT_LEFT)
@@ -197,7 +198,7 @@ func _say() -> void:
 		% [floori(seconds / 3600.0), floori(seconds / 60.0) % 60, seconds % 60, frame]
 	)
 	_time.position = Vector2(size.x - INSET - WORDS_IN.x - _time.size.x, INSET + WORDS_IN.y - 2.0)
-	_cam.text = "CAM %d" % camera
+	_cam.text = tr("CAM %d") % camera
 	_cam.position = Vector2(INSET + WORDS_IN.x, size.y - INSET - WORDS_IN.y - _cam.size.y)
 
 

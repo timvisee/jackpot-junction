@@ -129,11 +129,11 @@ static func _scatter(match_node: Match, slot: PlayerSlot, death: DeathOutcome) -
 				copied = true
 			else:
 				# Gone from the hand without the player's say, which its card says, GAME.md 8.3.
-				dropped.used_up(kart, "LOST")
+				dropped.used_up(kart, Lang.later("LOST"))
 				kart.jokers.remove(dropped)
 			match_node.arena.spawn_floor_joker(position, dropped, rules.floor_item_lifetime)
 	if copied:
-		copier.went_off(kart, "COPIED")
+		copier.went_off(kart, Lang.later("COPIED"))
 	if kart.held_item != null:
 		if rng.randf() < death.item_drop_chance:
 			match_node.arena.spawn_floor_item(position, kart.held_item, rules.floor_item_lifetime)

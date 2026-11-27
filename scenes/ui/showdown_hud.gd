@@ -37,7 +37,7 @@ static func add_to(hud: MatchHud) -> void:
 
 ## The tag under the clock, see [member ClockBoard.under].
 static func tag(match_node: Match) -> String:
-	return "SHOWDOWN  ·  %d LEFT" % Showdown.left(match_node)
+	return Lang.t("SHOWDOWN  ·  %d LEFT") % Showdown.left(match_node)
 
 
 func _ready() -> void:
@@ -84,7 +84,9 @@ func _open_up() -> void:
 			colors.append(slot.color())
 			if slot.kart != null:
 				karts.append(slot.kart)
-		_plate.show_call("", "SHOWDOWN", HouseTheme.FOIL, false, UNTIL_THE_FLAG)
+		var said := tr("SHOWDOWN")
+		# The call it is dressed by, in English. NO_TRANSLATE
+		_plate.show_call("", "SHOWDOWN", HouseTheme.FOIL, false, UNTIL_THE_FLAG, said)
 		_plate.show_names(names, colors)
 		if match_node.arena != null:
 			match_node.arena.disco.focus_each(karts)

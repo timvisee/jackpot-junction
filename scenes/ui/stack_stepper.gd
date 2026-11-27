@@ -152,7 +152,7 @@ func _end(middle: Vector2, radius: float, by: int, can: bool) -> void:
 	var pixels := Vector2i.ONE * ceili(room * 2.0 * scale_by)
 	var picture := KeptPictures.of(
 		self,
-		"stack_chip|%s|%d|%.1f" % [gold, by, radius],
+		"stack_chip|%s|%d|%.1f" % [gold, by, radius],  # NO_TRANSLATE
 		pixels,
 		func() -> Control:
 			var drawing := ChipPicture.new()

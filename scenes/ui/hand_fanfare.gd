@@ -30,7 +30,8 @@ const CALL_OVER := 60
 const CALL_COMES := 0.2
 const CALL_STAYS := 1.0
 const CALL_GOES := 0.45
-## The note: how big, how far it rises, how long it stays and goes, and how it says what was lost.
+## The note: how big, how far it rises, how long it stays and goes, and how it says what was lost,
+## shown through tr().
 const NOTE_SIZE := 16
 const NOTE_RISE := 14.0
 const NOTE_TIME := 1.8
@@ -73,7 +74,7 @@ func _on_hands_changed(gained: Array[int], lost: Array[int]) -> void:
 func _remember() -> void:
 	var made := _kart.jokers.made
 	_shown = made.shown.duplicate()
-	_word = JokerHands.name_of(made.best()).to_upper() if made.best() >= 0 else ""
+	_word = tr(JokerHands.name_of(made.best())).to_upper() if made.best() >= 0 else ""
 
 
 ## [param made_hand] made: stamped, called, its cards lit, to a riffle and a bell.
@@ -86,7 +87,7 @@ func _made(made_hand: int) -> void:
 		var rank := JokerHands.Hand.size() - 1 - made_hand
 		Audio.play_sfx(&"slot_bell", -17.0, 0.0, 0.92 + rank * 0.06)
 	if CALL:
-		_call(JokerHands.name_of(made_hand).to_upper() + "!")
+		_call(tr("%s!") % tr(JokerHands.name_of(made_hand)).to_upper())
 	if LIGHT:
 		var jokers := _kart.jokers.jokers
 		hand.shine_cards(JokerHands.cards_of(jokers, _kart.jokers.made, made_hand))
@@ -99,7 +100,7 @@ func _lost(lost_hand: int) -> void:
 	if lost_hand <= SOUNDED:
 		Audio.play_sfx(&"joker_drop", -16.0, 0.0, 0.85)
 	if NOTE:
-		_note(LOST % JokerHands.name_of(lost_hand))
+		_note(tr(LOST) % tr(JokerHands.name_of(lost_hand)))
 
 
 ## [param words] called in gold over the hand of cards, on a dark half disc that fades up from the

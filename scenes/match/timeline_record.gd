@@ -6,10 +6,18 @@ extends Node
 ## stretches of the match's own clock for everybody watching it. Every machine hears its own seats
 ## out of what it hears anyway, a client from its host, as [AchievementRecord] does. Each map is
 ## tagged on the game phase of its Grand Prix, a map played alone being a phase of its own, and
-## the phase is told how it went. Only made with Steam on.
+## the phase is told how it went. Only made with Steam on. Steam shows the words on this machine,
+## so they are said in the language spoken here.
 
-## What three of each face of [enum SlotPad.Face] are called.
-const SLOT_FACES: Array[String] = ["sevens", "cherries", "bells", "bars", "lemons", "chips"]
+## A pull of three of each face of [enum SlotPad.Face], with what it won, each shown through tr().
+const SLOT_FACES: Array[String] = [
+	"Three sevens · won %d",
+	"Three cherries · won %d",
+	"Three bells · won %d",
+	"Three bars · won %d",
+	"Three lemons · won %d",
+	"Three chips · won %d",
+]
 ## How long after a cash-out's start a kart may still not show it, a client's picture of the kart
 ## arriving after the host's word, before it counts as driven off the Junction, in seconds.
 const SHOWING := 0.5
@@ -101,14 +109,12 @@ func _physics_process(delta: float) -> void:
 	for at: int in _match_points.step(match_node, delta):
 		var slot := match_node.slots[at]
 		if _here(slot):
-			var line := (
-				"%s banked, %s in the pot"
-				% [
-					Loyalty.thousands(Teams.score_of(match_node.slots, slot)),
-					Loyalty.thousands(Scoring.pot_value(slot.kart.pot.coins, slot.kart.pot.mult)),
-				]
+			var banked := Lang.number(Teams.score_of(match_node.slots, slot))
+			var pot := Lang.number(Scoring.pot_value(slot.kart.pot.coins, slot.kart.pot.mult))
+			var line := tr("{banked} banked, {pot} in the pot").format(
+				{"banked": banked, "pot": pot}
 			)
-			Timeline.mark(&"match_point", _titled(slot, "Match Point"), line)
+			Timeline.mark(&"match_point", _titled(slot, tr("Match Point")), line)
 
 
 ## The flag dropping: the map tagged on its phase, a showdown said, and the Final Hand's stretch
@@ -122,16 +128,17 @@ func _begin() -> void:
 		var fighters: Array[String] = []
 		for slot: PlayerSlot in match_node.slots:
 			fighters.append(slot.display_name())
-		Timeline.mark(&"showdown", "Showdown", "Tie-breaker: %s" % ", ".join(fighters))
+		var between := tr("Tie-breaker: %s") % tr(", ", &"list").join(fighters)
+		Timeline.mark(&"showdown", tr("Showdown"), between)
 	if Story.final_hand_on:
-		_final_hand = Timeline.open(&"final_hand", "Final Hand", "The House deals")
+		_final_hand = Timeline.open(&"final_hand", tr("Final Hand"), tr("The House deals"))
 
 
 ## What the game phase of this map is a phase of: its Grand Prix, or the map alone.
 func phase_key() -> String:
 	var run := Game.grand_prix
 	var of: Object = run if run != null else match_node
-	return "jj%d" % of.get_instance_id()
+	return "jj%d" % of.get_instance_id()  # NO_TRANSLATE
 
 
 ## The driving test's lessons, GAME.md 9.4a: each passed as the next begins and the exam as the test
@@ -146,12 +153,13 @@ func _on_lesson_started(index: int, run: TutorialRun) -> void:
 		return
 	var lesson := run.lessons[index - 1]
 	if not lesson.skipped:
-		Timeline.mark(&"lesson", "Passed: %s" % lesson.title, "Driving school")
+		Timeline.mark(&"lesson", tr("Passed: %s") % lesson.title, tr("Driving school"))
 
 
 func _on_test_passed(run: TutorialRun) -> void:
 	var exam: TutorialLesson = run.lessons[-1]
-	Timeline.mark(&"lesson", "Passed the %s" % exam.title.to_lower(), "Driving school")
+	var passed := tr("Passed the %s") % exam.title.to_lower()
+	Timeline.mark(&"lesson", passed, tr("Driving school"))
 
 
 ## The kinds of play a phase of [param in_match] is, for its tags, GAME.md 10.8.
@@ -159,32 +167,32 @@ static func modes_of(in_match: Match) -> Array[String]:
 	var rules := in_match.rules
 	var modes: Array[String] = []
 	if Story.final_hand_on:
-		modes.append("Final Hand")
+		modes.append(Lang.t("Final Hand"))
 	elif Game.grand_prix != null and rules.rounds > 0:
-		modes.append("Grand Prix")
+		modes.append(Lang.t("Grand Prix"))
 	elif rules.showdown():
-		modes.append("Showdown")
+		modes.append(Lang.t("Showdown"))
 	else:
-		modes.append("Single map")
+		modes.append(Lang.t("Single map"))
 	if rules.teams > 0:
-		modes.append("Teams")
+		modes.append(Lang.t("Teams"))
 	if Net.online():
-		modes.append("Online")
+		modes.append(Lang.t("Online"))
 	var here := 0
 	for slot: PlayerSlot in in_match.slots:
 		if slot.is_local_human() or in_match.is_local_seat(slot.index):
 			here += 1
 	if here == 0:
-		modes.append("Watching")
+		modes.append(Lang.t("Watching"))
 	elif here > 1:
-		modes.append("Shared screen")
+		modes.append(Lang.t("Shared screen"))
 	return modes
 
 
-## The name [param map] is shown by.
+## The name [param map] is shown by, in the language spoken.
 static func map_name(map: StringName) -> String:
 	var at := ArenaMaps.index_of(map)
-	return ArenaMaps.NAMES[at] if at >= 0 and at < ArenaMaps.NAMES.size() else String(map)
+	return Lang.t(ArenaMaps.NAMES[at]) if at >= 0 and at < ArenaMaps.NAMES.size() else String(map)
 
 
 ## Whether [param slot] is a seat at this machine.
@@ -203,12 +211,14 @@ func _titled(slot: PlayerSlot, words: String) -> String:
 	for each: PlayerSlot in match_node.slots:
 		if _here(each):
 			here += 1
-	return "%s: %s" % [slot.display_name(), words] if here > 1 else words
+	if here <= 1:
+		return words
+	return tr("{name}: {words}").format({"name": slot.display_name(), "words": words})
 
 
 func _name_of(index: int) -> String:
 	var slot := _slot(index)
-	return slot.display_name() if slot != null else "somebody"
+	return slot.display_name() if slot != null else tr("somebody")
 
 
 ## Who is cashing out at match point, see [member _closing], on a map with a target to reach.
@@ -254,38 +264,43 @@ func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
 		_took_out[killer] = victim
 	if credited and _here(by):
 		if closing:
-			var line := "%s was cashing out at Match Point" % _name_of(victim)
-			Timeline.mark(&"payment_interrupted", _titled(by, "Payment Interrupted"), line)
+			var line := tr("%s was cashing out at Match Point") % _name_of(victim)
+			Timeline.mark(&"payment_interrupted", _titled(by, tr("Payment Interrupted")), line)
 		else:
-			Timeline.mark(&"kill", _titled(by, "Took out %s" % _name_of(victim)))
+			Timeline.mark(&"kill", _titled(by, tr("Took out %s") % _name_of(victim)))
 	var lost := _slot(victim)
 	if not _here(lost):
 		return
-	var words := "Taken out by %s" % _name_of(killer)
+	var words := tr("Taken out by %s") % _name_of(killer)
 	if not credited:
-		words = "Fell into a pit" if cause == &"pit" else "Out"
+		words = tr("Fell into a pit") if cause == &"pit" else tr("Out")
 	Timeline.mark(&"death", _titled(lost, words))
 
 
 ## The announcer's calls, GAME.md 3.12, of a seat here: a run of kills, a streak, a trade and an
-## overtake.
+## overtake. A call is told apart by its English, and said in the language spoken, in small letters
+## after the first as a title is.
 func _on_announced(at: int, call: String) -> void:
 	var slot := _slot(at)
 	if not _here(slot):
 		return
-	var words := call.substr(0, 1) + call.substr(1).to_lower()
+	var said := tr(call)
+	var words := said.substr(0, 1) + said.substr(1).to_lower()
 	if call in Announcer.COMBOS:
 		Timeline.mark(&"run_of_kills", _titled(slot, words))
 	elif call in Announcer.STREAKS.values():
 		var kills: int = Announcer.STREAKS.find_key(call)
-		Timeline.mark(&"streak", _titled(slot, words), "%d kills without dying" % kills)
+		var streak := tr_n("%d kill without dying", "%d kills without dying", kills) % kills
+		Timeline.mark(&"streak", _titled(slot, words), streak)
 	elif call == Announcer.TRADE_CALL:
-		var line := "Trade kill: %s" % _name_of(_took_out.get(at, -1))
+		var line := tr("Trade kill: %s") % _name_of(_took_out.get(at, -1))
 		Timeline.mark(&"trade_kill", _titled(slot, line))
 	elif call == Announcer.LEAD_CALL or call == Announcer.OVERTAKE_CALL:
 		var whom := _name_of(_took_out.get(at, -1))
-		var line := "Took the lead from %s" if call == Announcer.LEAD_CALL else "Overtook %s"
-		Timeline.mark(&"took_the_lead", _titled(slot, line % whom), "In sudden death")
+		var line := (
+			tr("Took the lead from %s") if call == Announcer.LEAD_CALL else tr("Overtook %s")
+		)
+		Timeline.mark(&"took_the_lead", _titled(slot, line % whom), tr("In sudden death"))
 
 
 func _on_bank_started(at: int) -> void:
@@ -300,14 +315,16 @@ func _on_bank_completed(at: int, coins: int, mult: float, total: int) -> void:
 	var slot := _slot(at)
 	if not _here(slot):
 		return
-	var line := "%s chips × %s" % [coins, PowerUp.number(mult)]
+	var line := tr_n("{coins} chip × {mult}", "{coins} chips × {mult}", coins).format(
+		{"coins": coins, "mult": PowerUp.number(mult)}
+	)
 	var target := match_node.rules.target_score
 	var aimed := target > 0 and target < AchievementRecord.NO_TARGET
 	if aimed and Teams.score_of(match_node.slots, slot) >= match_node.rules.team_target():
-		var title := "Cashed out %s for the win" % Loyalty.thousands(total)
+		var title := tr("Cashed out %s for the win") % Lang.number(total)
 		Timeline.span(&"winning_cash_out", _titled(slot, title), line, _clock - began)
 	else:
-		var title := "Banked %s" % Loyalty.thousands(total)
+		var title := tr("Banked %s") % Lang.number(total)
 		Timeline.mark(&"cash_out", _titled(slot, title), line)
 
 
@@ -321,7 +338,8 @@ func _on_jackpot_collected(at: int, chips: int) -> void:
 func _on_jackpot_emptied(_zone: int) -> void:
 	var slot := _slot(_jar_slot)
 	if _here(slot) and _jar_chips > 0:
-		Timeline.mark(&"jackpot", _titled(slot, "Jackpot · %d chips" % _jar_chips))
+		var jackpot := tr_n("Jackpot · %d chip", "Jackpot · %d chips", _jar_chips) % _jar_chips
+		Timeline.mark(&"jackpot", _titled(slot, jackpot))
 	_jar_slot = -1
 	_jar_chips = 0
 
@@ -329,13 +347,14 @@ func _on_jackpot_emptied(_zone: int) -> void:
 func _on_flush_completed(at: int) -> void:
 	var slot := _slot(at)
 	if _here(slot):
-		Timeline.mark(&"royal_flush", _titled(slot, "Royal Flush"), "+3 mult and a full tank")
+		var flush := tr("+3 mult and a full tank")
+		Timeline.mark(&"royal_flush", _titled(slot, tr("Royal Flush")), flush)
 
 
 func _on_bounty_called(at: int) -> void:
 	var slot := _slot(at)
 	if _here(slot) and not _bounties.has(at):
-		_bounties[at] = Timeline.open(&"bounty_on_you", _titled(slot, "Bounty on your head"))
+		_bounties[at] = Timeline.open(&"bounty_on_you", _titled(slot, tr("Bounty on your head")))
 
 
 func _on_bounty_claimed(killer: int, victim: int, amount: int) -> void:
@@ -343,7 +362,9 @@ func _on_bounty_claimed(killer: int, victim: int, amount: int) -> void:
 	_bounties.erase(victim)
 	var by := _slot(killer)
 	if _here(by):
-		var title := "Collected the bounty on %s · +%d" % [_name_of(victim), amount]
+		var title := tr("Collected the bounty on {name} · +{chips}").format(
+			{"name": _name_of(victim), "chips": amount}
+		)
 		Timeline.mark(&"bounty_collected", _titled(by, title))
 
 
@@ -364,17 +385,15 @@ func _on_slot_paid(at: int, _pad: int, won: int) -> void:
 	_faces.erase(at)
 	if not _here(slot) or faces.size() < 3 or faces[0] != faces[1] or faces[1] != faces[2]:
 		return
-	if faces[0] == SlotPad.Face.SEVEN:
-		Timeline.mark(&"three_sevens", _titled(slot, "Three sevens · won %d" % won))
-	else:
-		var three := "Three %s · won %d" % [SLOT_FACES[faces[0]], won]
-		Timeline.mark(&"slot_win", _titled(slot, three))
+	var three := tr(SLOT_FACES[faces[0]]) % won
+	var id := &"three_sevens" if faces[0] == SlotPad.Face.SEVEN else &"slot_win"
+	Timeline.mark(id, _titled(slot, three))
 
 
 func _on_bet_won(at: int, landmark: LoyaltyLandmark) -> void:
 	var slot := _slot(at)
 	if _here(slot):
-		Timeline.mark(&"bet_won", _titled(slot, "Bet won: %s" % landmark.title))
+		Timeline.mark(&"bet_won", _titled(slot, tr("Bet won: %s") % tr(landmark.title)))
 
 
 func _on_state(state: int) -> void:
@@ -383,12 +402,13 @@ func _on_state(state: int) -> void:
 	match state:
 		Match.State.LAST_CALL:
 			if _last_call == 0:
-				_last_call = Timeline.open(&"last_call", "Last Call", "The Junction pays double")
+				var double := tr("The Junction pays double")
+				_last_call = Timeline.open(&"last_call", tr("Last Call"), double)
 		Match.State.OVERTIME:
 			Timeline.close(_last_call)
 			_last_call = 0
 			if _overtime == 0:
-				_overtime = Timeline.open(&"overtime", "Overtime", "Last one standing")
+				_overtime = Timeline.open(&"overtime", tr("Overtime"), tr("Last one standing"))
 		Match.State.RESULTS:
 			_whistle(was == Match.State.OVERTIME)
 
@@ -412,23 +432,32 @@ func _whistle(sudden_death: bool) -> void:
 		var place := _place_in(sides, slot)
 		if best < 0 or place < best:
 			best = place
-		var score := Loyalty.thousands(Teams.score_of(match_node.slots, slot))
-		var line := "%s points · %s of %d" % [score, Timeline.ordinal(place), sides.size()]
+		var score := Teams.score_of(match_node.slots, slot)
+		var line := tr_n(
+			"{points} point · {place} of {sides}", "{points} points · {place} of {sides}", score
+		)
+		line = line.format(
+			{"points": Lang.number(score), "place": Timeline.ordinal(place), "sides": sides.size()}
+		)
 		if place == 1 and sudden_death and _in(standing, slot):
-			Timeline.mark(&"last_one_standing", _titled(slot, "Last one standing"), line)
+			Timeline.mark(&"last_one_standing", _titled(slot, tr("Last one standing")), line)
 		if match_node.rules.showdown():
 			if place == 1:
-				Timeline.mark(&"won_map", _titled(slot, "Won the showdown"))
+				Timeline.mark(&"won_map", _titled(slot, tr("Won the showdown")))
 		elif place == 1:
-			Timeline.mark(&"won_map", _titled(slot, "Won %s" % map), line)
+			Timeline.mark(&"won_map", _titled(slot, tr("Won %s") % map), line)
 		else:
-			var title := "Finished %s on %s" % [Timeline.ordinal(place), map]
+			var title := tr("Finished {place} on {map}").format(
+				{"place": Timeline.ordinal(place), "map": map}
+			)
 			Timeline.mark(&"placed", _titled(slot, title), line, Timeline.place_icon(place))
 	# A map played alone is its own phase, and done with now; a Grand Prix's is told at its end.
 	if phases and Game.grand_prix == null and best > 0:
 		var scored := _best_here(ranked)
-		var points := Loyalty.thousands(Teams.score_of(match_node.slots, scored))
-		Timeline.phase_result(best, sides.size(), "%s points" % points)
+		var points := Teams.score_of(match_node.slots, scored)
+		Timeline.phase_result(
+			best, sides.size(), tr_n("%s point", "%s points", points) % Lang.number(points)
+		)
 
 
 ## A Grand Prix scored, GAME.md 9.7: at its end, its winner marked if it is a seat here, and its
@@ -444,10 +473,13 @@ func _on_grand_prix_scored(_run: Dictionary) -> void:
 		return
 	var place := _place_in(sides, best)
 	var maps := run.playlist.size()
-	var points := "%d points" % run.total(best.index)
+	var total := run.total(best.index)
+	var points := tr_n("%d point", "%d points", total) % total
 	if place == 1:
-		var line := "%s over %d maps" % [points, maps]
-		Timeline.mark(&"won_grand_prix", _titled(best, "Won the Grand Prix"), line)
+		var line := tr_n("{points} over {maps} map", "{points} over {maps} maps", maps).format(
+			{"points": points, "maps": maps}
+		)
+		Timeline.mark(&"won_grand_prix", _titled(best, tr("Won the Grand Prix")), line)
 	Timeline.phase_result(place, sides.size(), points)
 
 

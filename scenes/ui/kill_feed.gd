@@ -22,12 +22,13 @@ const NEUTRAL := Color(0.78, 0.78, 0.82)
 ## their rows, GAME.md 8.3.
 const STRIPE := 6.0
 
-## How a death reads, by the cause the match reports.
+## How a death reads, by the cause the match reports, each line whole and shown through tr(): the
+## killer and the victim go in by name.
 const VERBS: Dictionary[StringName, String] = {
-	&"bullet": "shot",
-	&"ram": "rammed",
-	&"bomb": "bombed",
-	&"pit": "shoved",
+	&"bullet": "{killer} shot {victim}",
+	&"ram": "{killer} rammed {victim}",
+	&"bomb": "{killer} bombed {victim}",
+	&"pit": "{killer} shoved {victim}",
 }
 
 ## The match whose kills it says, by its players' names and colors; none for a feed that is only
@@ -103,10 +104,9 @@ func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> vo
 	if owner.is_empty():
 		return
 	var decoy := _decoys(_tag(owner, _color(owner_slot)))
-	var how := _alone(cause)
-	var line := "%s %s" % [decoy, "was wrecked" if how == "wrecked itself" else how]
+	var line := _alone(decoy, cause, true)
 	if by_slot == owner_slot:
-		line = "%s took out their own decoy" % _tag(owner, _color(owner_slot))
+		line = tr("%s took out their own decoy") % _tag(owner, _color(owner_slot))
 	elif by_slot >= 0 and not _name(by_slot).is_empty():
 		line = _by(_tag(_name(by_slot), _color(by_slot)), decoy, cause)
 	_push(_label(_mine([by_slot, owner_slot])), line)
@@ -114,24 +114,26 @@ func _on_decoy_destroyed(owner_slot: int, by_slot: int, cause: StringName) -> vo
 
 ## [param tagged], a name as the feed writes it, with "'s decoy" after it in the feed's own gray.
 static func _decoys(tagged: String) -> String:
-	return "%s's decoy" % tagged
+	return Lang.t("%s's decoy") % tagged
 
 
 func _on_bounty_called(slot: int) -> void:
 	if match_node != null:
-		add_line("a bounty on %s" % _name(slot), Palette.CHIP_GOLD, _mine([slot]))
+		add_line(tr("a bounty on %s") % _name(slot), Palette.CHIP_GOLD, _mine([slot]))
 
 
 func _on_bounty_claimed(killer_slot: int, victim_slot: int, amount: int) -> void:
 	if match_node != null:
-		var said := "%s collected %d on %s" % [_name(killer_slot), amount, _name(victim_slot)]
+		var said := tr("{killer} collected {amount} on {victim}").format(
+			{"killer": _name(killer_slot), "amount": amount, "victim": _name(victim_slot)}
+		)
 		add_line(said, Palette.CHIP_GOLD, _mine([killer_slot, victim_slot]))
 
 
 ## Said quietly, in the feed rather than over the middle of the screen, GAME.md 10.3.
 func _on_player_kicked(named: String) -> void:
 	if match_node != null:
-		add_line(NetConduct.TOLD % named, NEUTRAL)
+		add_line(tr(NetConduct.TOLD) % named, NEUTRAL)
 
 
 func _name(slot: int) -> String:
@@ -262,34 +264,43 @@ func _line(
 	if cause == &"line":
 		return red
 	if killer.is_empty():
-		return "%s %s" % [red, _alone(cause)]
+		return _alone(red, cause)
+	if killer == victim and cause == &"turret":
+		return tr("{victim} was shot by their own turret").format({"victim": red})
 	if killer == victim:
-		var own := "was shot by their own turret" if cause == &"turret" else "wrecked itself"
-		return "%s %s" % [red, own]
+		return tr("{victim} wrecked itself").format({"victim": red})
 	return _by(_tag(killer, killer_color), red, cause)
 
 
-## How a kart nobody gets the credit for went, by [param cause]: down a hole, onto a live cabinet,
-## GAME.md 6.2, or by its own doing.
-static func _alone(cause: StringName) -> String:
+## How [param red], a kart nobody gets the credit for, went, by [param cause]: down a hole, onto a
+## live cabinet, GAME.md 6.2, or by its own doing, which a [param decoy] is not, but wrecked.
+static func _alone(red: String, cause: StringName, decoy := false) -> String:
+	var said := Lang.t("{victim} wrecked itself")
 	match cause:
 		&"pit":
-			return "fell in"
+			said = Lang.t("{victim} fell in")
 		LiveCabinet.CAUSE:
-			return "was electrocuted"
-	return "wrecked itself"
+			said = Lang.t("{victim} was electrocuted")
+		_:
+			if decoy:
+				said = Lang.t("{victim} was wrecked")
+	return said.format({"victim": red})
 
 
 ## A kill somebody else made, by [param cause]: [param blue] did it to [param red].
 static func _by(blue: String, red: String, cause: StringName) -> String:
+	var said := Lang.t("{killer} took out {victim}")
 	match cause:
 		&"pit":
-			return "%s shoved %s in" % [blue, red]
+			said = Lang.t("{killer} shoved {victim} in")
 		LiveCabinet.CAUSE:
-			return "%s shoved %s onto the wires" % [blue, red]
+			said = Lang.t("{killer} shoved {victim} onto the wires")
 		&"turret":
-			return "%s's turret shot %s" % [blue, red]
-	return "%s %s %s" % [blue, VERBS.get(cause, "took out"), red]
+			said = Lang.t("{killer}'s turret shot {victim}")
+		_:
+			if VERBS.has(cause):
+				said = Lang.t(VERBS[cause])
+	return said.format({"killer": blue, "victim": red})
 
 
 func _tag(text: String, color: Color) -> String:
