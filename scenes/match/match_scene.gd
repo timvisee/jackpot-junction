@@ -31,6 +31,9 @@ func _ready() -> void:
 	match_node.rules = config.rules(
 		match_node.rules if match_node.rules != null else load("res://data/match/default.tres")
 	)
+	# A map carried over from a host who went is played by the rules it was played by, GAME.md 10.8.
+	if not config.resume.is_empty():
+		match_node.rules.from_wire(config.resume.get("rules", {}))
 	match_node.bot_difficulty = load("res://data/ai/%s.tres" % config.difficulty)
 	# What the table deals, GAME.md 8.9: the cards and the later items the loyalty program has added
 	# for the profile playing, or at a dedicated server for whoever has the host's say there.
@@ -46,6 +49,20 @@ func _ready() -> void:
 	match_node.with_hud = not config.dedicated
 	add_child(match_node)
 	match config.online:
+		"host" when not config.resume.is_empty():
+			await _put_the_room_up()
+			_start_session()
+			MatchResume.start(match_node, config.resume)
+			session.in_arena = true
+			# The door as the old host had it, a Steam game's with no password.
+			session.door.from_wire(config.door_plan)
+			session.door.password = ""
+			var error := session.host_steam()
+			if error != OK:
+				_fail("Could not host on Steam: %s" % error_string(error))
+			else:
+				Store.steam.lobbies.hosted_here()
+				session.host_controls.resume_from(config.resume)
 		"host":
 			await _put_the_room_up()
 			var arriving := Net.online()

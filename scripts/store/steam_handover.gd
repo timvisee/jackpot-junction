@@ -30,6 +30,8 @@ var leave_button: Button
 ## Where the room goes once the game has a new host: there, as host or as a player, unless a test
 ## says otherwise.
 var go_on: Callable = Game.go_to_waiting
+## Where the new host goes with a map in play carried over: into it, unless a test says otherwise.
+var play_on: Callable = Game.start_match
 ## And where it goes once given up on, saying why: Play Online, unless a test says otherwise.
 var give_up_to: Callable = Game.go_to_play_online
 
@@ -41,6 +43,8 @@ var _left_name := ""
 var _heading := ""
 var _watching := false
 var _waited := 0.0
+## What this machine last saw of the map being played as the host went, see [MatchResume].
+var _resume := {}
 var _easing: Tween
 
 
@@ -77,6 +81,8 @@ func take(session: NetSession) -> bool:
 	_lobby = lobbies.id
 	_old_host = lobbies.host_account
 	_watching = session.watching
+	# Taken before the session closes and the room with it, in case this machine hosts next.
+	_resume = MatchResume.capture(session)
 	var config := Game.pending_config
 	_left_name = config.steam_name if config != null and not config.steam_name.is_empty() else ""
 	if _left_name.is_empty():
@@ -107,6 +113,7 @@ func hand_to(account: int) -> void:
 	_lobby = lobbies.id
 	_old_host = Store.steam.account
 	_watching = false
+	_resume = {}
 	_left_name = Store.persona()
 	lobbies.hand_to(account)
 	lobbies.hosting = false
@@ -147,8 +154,15 @@ func _host_it() -> void:
 	var lobby := _lobby
 	var config := rehost_config(Store.steam.api, lobby)
 	Store.steam.lobbies.take_over(config.lobby_who)
+	var resume := _resume
 	_done()
-	go_on.call(config)
+	if resume.is_empty():
+		go_on.call(config)
+		return
+	# A map was being played: on with it here, GAME.md 10.8, as this machine last saw it.
+	config.resume = resume
+	config.map = StringName(str((resume["rules"] as Dictionary).get("map", config.map)))
+	play_on.call(config)
 
 
 ## Another player is the new host and its game is up: in after them, as the others do.
@@ -173,6 +187,7 @@ func give_up() -> void:
 
 func _done() -> void:
 	_lobby = 0
+	_resume = {}
 	if _easing != null:
 		_easing.kill()
 	dialog.visible = false
@@ -181,9 +196,8 @@ func _done() -> void:
 ## The game a new host hosts in [param lobby], as its lobby says through [param api]: hosting
 ## again, the match and door the old host played by, and open to whoever it was.
 static func rehost_config(api: Object, lobby: int) -> MatchConfig:
-	var said: Variant = JSON.parse_string(
-		str(api.call(&"getLobbyData", lobby, SteamLobby.PLAN_KEY))
-	)
+	var text := str(api.call(&"getLobbyData", lobby, SteamLobby.PLAN_KEY))
+	var said: Variant = JSON.parse_string(text) if not text.is_empty() else null
 	var plan: Dictionary = said if said is Dictionary else {}
 	var config := SteamJoins.host_config(clampi(int(plan.get("who", 1)), 0, 2))
 	var chosen: Variant = plan.get("match", {})

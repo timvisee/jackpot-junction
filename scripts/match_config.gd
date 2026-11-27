@@ -122,6 +122,9 @@ var quick_play := false
 ## see [method NetDoor.to_wire].
 var rehost := false
 var door_plan := {}
+## And the map that was being played as its host went, carried over to start from, see
+## [MatchResume]; empty for a game taken on in its lobby.
+var resume := {}
 var steam_lobby := 0
 var steam_host := 0
 var steam_name := ""

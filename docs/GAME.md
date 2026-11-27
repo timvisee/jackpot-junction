@@ -11204,9 +11204,7 @@ rather than as the "somewhere" every peer without an address would share.
 
 #### Public games and Quick Play
 
-For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: everything but the map in play
-carried over to a new host. Until it is, a host going during a map takes everybody to the new
-host's lobby, the map lost, as from the lobby or the podium. Decided with the user on 2026-11-26
+For the Steam launch, PLAN.md M24 L3 and L4, built in steps, all of it now. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
@@ -11300,17 +11298,20 @@ a bot's kart, as anybody joining is. One of several players at a machine just go
 the lobby to another player by itself when its owner goes, to the title, for good or with a lost
 connection. Everybody's arena stops where it stands, under a short dialog over it: the old host's
 name for its title, "Kit left", a line saying "Migrating host to Bob...", and a bar while everybody
-connects to Bob. Bob's machine then runs the match from the last snapshot it was sent, 10.3: every
-kart where it stood, every banked score, pot, held item, joker, respawn and open joker pick, the
-bullets, the floor, the Jackpot, the bounty and the clock. The start's countdown of 3.8 runs again,
-and the map plays on. What a client never sees starts afresh: the bots' plans, the order of the deck,
-the counters some jokers keep, when the pickups come back, the random numbers. A host who leaves
-on purpose sends those to the new host before going, so only a crash or a lost connection loses
-them. It is not hidden, since it should seldom happen: a few seconds and a countdown. From the
-lobby or the podium, the new host opens the same room with the game's rules, and everybody follows.
-
-Built in two steps, both before the launch: first the handover from the lobby and the podium, with a
-map in play ended and everybody taken to the new host's lobby; then the map carried over as above.
+connects to Bob. Bob's machine then runs the match from what its own screen last showed of it,
+read off the match it was drawing (`MatchResume`): every slot where it was, every kart where it stood
+facing the way it faced, every banked score, kill and death, pot, held item, joker hand, life and
+the wait of a kart that was out, the clock, the bounty, the Jackpot's pile, and the chips, items and
+jokers lying dropped on the floor. The rest starts afresh: shots, turrets, bombs and oil in flight
+go, an open joker pick goes, its kart coming back once its wait is out, and what a screen never sees,
+the bots' plans, the order of the deck, the counters some jokers keep, when the pads restock and
+the random numbers, is dealt again. Bob's match is held on the grid while everybody else comes back,
+each sat in their own kart, the one in their color, for up to 15 s, or a few seconds once the last
+of them has connected; then the start's countdown of 3.8 runs again, and the map plays on. A
+player coming back in Last Call sits down all the same. It is not hidden, since it should seldom
+happen: a few seconds and a countdown. A showdown and the story's Final Hand are not carried over;
+there, and from the lobby or the podium, the new host opens the same room with the game's rules,
+and everybody follows.
 
 How it is handed over. The host keeps in its lobby what a new host takes the game on with, the match
 as its settings have it and its door but for a password, whether it is a Quick Play game and who may

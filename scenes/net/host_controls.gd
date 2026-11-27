@@ -53,6 +53,10 @@ const PLACES: Array[StringName] = [&"lobby", &"next", &"rematch", &"start"]
 ## count as touched.
 const IDLE_FOR := 60.0
 const TOUCHED := 0.2
+## How long a new host carrying a map over holds its start for the players coming back, in seconds,
+## GAME.md 10.8, and how long once the last of them has connected, for their room to go up.
+const RESUME_WAIT := 15.0
+const RESUME_SETTLE := 4.0
 
 var session: NetSession
 ## Whether the host's say has stopped the match for everybody without waiting to be asked: on the
@@ -95,10 +99,18 @@ var _benched: Dictionary[int, bool] = {}
 ## Steam account the game is to be handed to once the map in play is over, 0 for nobody.
 var _next_map: Dictionary[int, bool] = {}
 var _hand_on_to := 0
+## At a new host carrying a map over, GAME.md 10.8: the seats kept for the players coming back, by
+## Steam account, see [method MatchResume.seats_kept]; and how long the start is still held for
+## them.
+var _kept_for: Dictionary = {}
+var _resume_left := 0.0
+## The clients come back to their own karts, who are told nothing about taking one over.
+var _returned: Dictionary[int, bool] = {}
 
 
 func _ready() -> void:
 	Events.player_joined.connect(_on_player_joined)
+	multiplayer.peer_connected.connect(_on_peer_connected)
 
 
 static func of(owner: NetSession) -> HostControls:
@@ -405,6 +417,8 @@ func _process(delta: float) -> void:
 ## the host, each slot driven from elsewhere is timed; at a client watching for it, the first
 ## press takes it back.
 func _physics_process(delta: float) -> void:
+	if session.is_host:
+		_hold_the_resume(delta)
 	if not session.is_host:
 		if benched and touched(session.local_input):
 			benched = false
@@ -437,6 +451,9 @@ func holds_for_next_map(player: int) -> bool:
 	if not Store.steam_game() or match_node == null or not session.in_arena:
 		return false
 	if not match_node.in_the_finale() and match_node.state != Match.State.RESULTS:
+		return false
+	# Somebody coming back to their own kart of a map carried over sits in it whenever.
+	if _returned.has(player):
 		return false
 	_next_map[player] = true
 	session._watchers[player] = true
@@ -479,6 +496,9 @@ func _tell_who_was_here(index: int) -> void:
 		return
 	for player: int in session._peer_slots.held:
 		if index in (session._peer_slots.held[player] as Dictionary).values():
+			if _returned.has(player):
+				slot.taken_from = ""
+				return
 			var kart := slot.kart
 			var jokers := kart.jokers.ids().size()
 			_took_over_here.rpc_id(player, slot.taken_from, slot.banked, kart.pot.coins, jokers)
@@ -490,6 +510,50 @@ func _tell_who_was_here(index: int) -> void:
 @rpc("authority", "call_remote", "reliable")
 func _took_over_here(from: String, banked: int, coins: int, jokers: int) -> void:
 	took_over.emit(PlayerNames.clean(from), banked, coins, jokers)
+
+
+## At a new host carrying a map over, GAME.md 10.8: the seats [param resume] keeps for the players
+## coming back, each sat in their own kart as they arrive, and the start held on the grid until
+## they all have, or for [constant RESUME_WAIT] seconds.
+func resume_from(resume: Dictionary) -> void:
+	_kept_for = MatchResume.seats_kept(resume)
+	# Nobody to wait for: the lamps at once.
+	_resume_left = RESUME_WAIT if not _kept_for.is_empty() else 0.01
+
+
+## A client has connected: one coming back to a map carried over is kept its own seats, by its
+## Steam account, which [method PlayerSlot.bot_seat] finds by their color, GAME.md 10.8.
+func _on_peer_connected(player: int) -> void:
+	if session.is_host and not _kept_for.is_empty():
+		keep_seats_for(player, ManagePlayers.account_at(session, player))
+
+
+## The seats kept for the Steam account [param account] given to [param player], come back to a map
+## carried over, GAME.md 10.8, if any were.
+func keep_seats_for(player: int, account: int) -> void:
+	if not _kept_for.has(account):
+		return
+	var theirs: Dictionary[int, Dictionary] = {}
+	for number: int in _kept_for[account]:
+		var kept: Dictionary = _kept_for[account][number]
+		theirs[number] = {"color": kept["color"], "name": kept["name"], "team": kept["team"]}
+	session._peer_slots.kept[player] = theirs
+	_returned[player] = true
+	_kept_for.erase(account)
+	# Nobody to hold the start for any more, or everybody back.
+	if _kept_for.is_empty():
+		_resume_left = minf(_resume_left, RESUME_SETTLE)
+
+
+## The start of a map carried over, held until the players coming back are in, GAME.md 10.8.
+func _hold_the_resume(delta: float) -> void:
+	if _resume_left <= 0.0:
+		return
+	_resume_left -= delta
+	var match_node := session.match_node
+	if _resume_left <= 0.0 and match_node != null and match_node.state == Match.State.LOBBY:
+		_kept_for.clear()
+		match_node.begin_from_lobby()
 
 
 ## Whether [param input] says anybody is at the controls: a stick off its middle, a pedal, a button.
