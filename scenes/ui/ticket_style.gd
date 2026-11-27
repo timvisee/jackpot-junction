@@ -27,6 +27,9 @@ const CHEVRON_AT := 13.0
 const CHEVRON_HALF := 6.0
 const CHEVRON_GAP := 7.0
 const CHEVRON_WIDTH := 2.4
+## How far in from the left edge the lane chevron reaches, its stroke included, for what stands on
+## a ticket to keep clear of.
+const CHEVRON_END := CHEVRON_AT + CHEVRON_GAP + CHEVRON_HALF * 0.85 + CHEVRON_WIDTH * 0.5
 ## How wide a ticket has to be to wear the chevron: on a button that is only a picture, a trash can
 ## or an arrow, the chevron would stand on the picture, and the gold round it says enough.
 const CHEVRON_ROOM := 110.0

@@ -15,6 +15,15 @@ const WORDS: Dictionary[String, String] = {
 }
 const ICON := 34.0
 const INK := Color(0.88, 0.88, 0.92)
+## How big a button is, and how far apart its picture and its word stand.
+const WIDE := Vector2(190.0, 52.0)
+const SEPARATION := 10
+## How far in from a button's left end its picture keeps, clear of the lane chevron the cursor
+## puts there, see [constant TicketStyle.CHEVRON_END], and from its right end its word: a longer
+## word, as a translation's can be, moves the two right off the middle, and past that is set
+## smaller, GAME.md 10.9.
+const CLEAR := TicketStyle.CHEVRON_END + 4.0
+const EDGE := 8.0
 
 ## The way chosen.
 var mode := Settings.DRIVE_ADVANCED:
@@ -48,7 +57,7 @@ func _add(which: String) -> void:
 	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER
-	inside.add_theme_constant_override("separation", 10)
+	inside.add_theme_constant_override("separation", SEPARATION)
 	inside.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	var picture := DriveArt.picture(which, INK, ICON)
 	picture.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -56,10 +65,17 @@ func _add(which: String) -> void:
 	var word := Label.new()
 	word.text = tr(WORDS[which])
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(word, Type.STRONG, Type.BODY)
+	var room := WIDE.x - CLEAR - EDGE - ICON - SEPARATION
+	var points := Type.fitting(word.text, Type.STRONG, Type.BODY, room)
+	Type.set_font(word, Type.STRONG, points)
 	inside.add_child(word)
+	var said := Type.STRONG.get_string_size(word.text, HORIZONTAL_ALIGNMENT_LEFT, -1, points).x
+	# Moved as a whole, so it stays in the middle of a button grown wider than its own size.
+	var shift := maxf(CLEAR - (WIDE.x - ICON - SEPARATION - said) * 0.5, 0.0)
+	inside.offset_left = shift
+	inside.offset_right = shift
 	pressable.add_child(inside)
-	pressable.custom_minimum_size = Vector2(190.0, 52.0)
+	pressable.custom_minimum_size = WIDE
 	pressable.pressed.connect(_press.bind(which))
 	add_child(pressable)
 	_buttons[which] = pressable
