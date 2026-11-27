@@ -163,6 +163,9 @@ func _ready() -> void:
 			_invite.set_process_unhandled_input(false)
 			_invite.accept.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			_invite.accept.focus_mode = Control.FOCUS_NONE
+			# Pushed in on smoothly: a Control's place is otherwise held to whole pixels, so the
+			# slow push moved a pixel every few frames.
+			get_viewport().gui_snap_controls_to_pixels = false
 		"license":
 			_license()
 		"bay":

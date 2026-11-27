@@ -203,6 +203,9 @@ class Orbit:
 
 func _ready() -> void:
 	CAPTION.deafen(self)
+	# What floats over the karts moves smoothly: a Control's place is otherwise held to whole
+	# pixels, so one rising slowly stood still for a frame or two between pixels.
+	get_viewport().gui_snap_controls_to_pixels = false
 	_dress()
 	super()
 	for arg: String in OS.get_cmdline_user_args():
