@@ -11219,8 +11219,8 @@ game has.
 
 **The list.** Play Online's first tab is Steam: one box of every Steam game this player may join,
 friends' games first, marked Friend, whether public or not, then public games, the lowest ping
-first, all in the one box, which scrolls. Quick Play stands over it with the cursor on it; Host a
-game and its choice stand under it. Steam is asked for public games of this game on this minor
+first, all in the one box, which scrolls. Quick Play stands at the top of the box with the cursor
+on it; Host a game and its choice stand under it. Steam is asked for public games of this game on this minor
 version only, by a lobby key saying "0.24", since 0.24.x plays 0.24.y (`GameVersion.compatible`),
 and from anywhere in the world. A stranger's game on another version never shows; a friend's still
 does, grayed with the version it needs, as now. The Playtest and the Next Fest demo are Steam apps
@@ -11250,8 +11250,9 @@ pot · 2 jokers"; the host tells them once it has seated them. Not in Last Call,
 the podium: then the newcomer watches, a line at the foot of the screen saying they take a seat on
 the next map, and is let go to sit down there as the host leaves for it.
 
-**Quick Play.** First on Play Online, in a Steam build, in foil over the box, which is a row
-shorter for it, so the pages stay one height; the cursor starts on it, and the box's link, "Start a
+**Quick Play.** First on Play Online, in a Steam build, in foil at the top of the box, pinned over
+the games, which scroll under it, so the box stands where every tab's does and turning between
+the tabs moves nothing (`ListBox.pin`); the cursor starts on it, and the box's link, "Start a
 game with bots: anybody can join it", does the same. It asks Steam for public games near this
 player: Steam's default distance first, their region and those next to it, then far, never
 worldwide. A game it may join is public and on this version. It has a seat for every player at this

@@ -314,6 +314,20 @@ func wear(row: Control) -> void:
 	move_child(row, 0)
 
 
+## [param head] pinned at the top of the well, over the rows, which scroll in the room left under
+## it: the box keeps its size and place whatever it holds, so a screen turning between boxes moves
+## nothing. Quick Play on Play Online's Steam tab, GAME.md 10.8.
+func pin(head: Control) -> void:
+	var room := _scroll.get_parent() as Control
+	if head.get_parent() != null:
+		head.get_parent().remove_child(head)
+	head.set_anchors_and_offsets_preset(Control.PRESET_TOP_WIDE)
+	var tall := maxf(head.custom_minimum_size.y, head.get_combined_minimum_size().y)
+	head.offset_bottom = tall
+	room.add_child(head)
+	_scroll.offset_top = tall + GAP
+
+
 ## What the box is headed, and what it says while it has nothing in it.
 func set_heading(heading: String) -> void:
 	_heading.text = heading.to_upper()

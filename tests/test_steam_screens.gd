@@ -125,10 +125,16 @@ func test_play_online_has_a_tab_for_steam_games() -> void:
 		"Join%d" % (lobby & 0x7FFFFFFF)
 	)
 	assert_str(page.line.text).starts_with("140 playing now.")
-	# Turned to Servers, which is kept for next time; who may join kept too.
+	# Quick Play first in the box, pinned over the games, so the box stands where the others do.
+	assert_bool(page.box.is_ancestor_of(page.quick_button)).is_true()
+	var steam_box := page.box.get_global_rect()
+	# Turned to Servers, which is kept for next time; who may join kept too. Its box where Steam's
+	# was: turning between the tabs moves nothing.
 	screen.show_tab(screen.SERVERS_TAB)
 	assert_bool(screen.steam_page.visible).is_false()
 	assert_bool(screen.servers_page.visible).is_true()
+	await runner.simulate_frames(3)
+	assert_that(screen.servers_box.get_global_rect()).is_equal(steam_box)
 	assert_str(Game.settings.play_online_tab).is_equal(screen.SERVERS_TAB)
 	page.who_button.select(SteamLobby.Who.ANYONE)
 	page.who_button.item_selected.emit(SteamLobby.Who.ANYONE)

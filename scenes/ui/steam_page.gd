@@ -21,7 +21,8 @@ const PLAYING := "%s playing now. "
 ## What each way of being open to players is called on the button that picks one.
 const WHO_WORDS: Array[String] = ["Anyone can join", "Friends can join", "Invite only"]
 
-## Quick Play, its button over the box, and what it does, see [QuickPlay], given by Play Online.
+## Quick Play, its button pinned at the top of the box, and what it does, see [QuickPlay], given
+## by Play Online.
 var quick_button: Button
 var quick: QuickPlay
 ## The box, its list, the line over it, and the buttons under it.
@@ -47,20 +48,18 @@ func _init() -> void:
 	line = ListBox.fit(MenuTheme.subtitle(LINE))
 	line.name = "Line"
 	add_child(line)
-	# The way on from here, in foil, GAME.md 8.1a.
-	quick_button = MenuTheme.primary(MenuTheme.button("Quick Play", Type.BODY))
-	quick_button.name = "QuickPlay"
-	quick_button.custom_minimum_size = Vector2(ListBox.WIDTH, MenuTheme.button_size().y)
-	quick_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	quick_button.pressed.connect(quick_play)
-	add_child(quick_button)
 	games = GameList.new()
 	games.chosen.connect(_join)
-	# A row fewer than the other pages' boxes, for Quick Play's room over it: the pages are one
-	# height, so turning between them moves nothing.
-	box = ListBox.of("Steam games", games, START_ONE, ListBox.ROOMY - 1)
+	box = ListBox.of("Steam games", games, START_ONE)
 	box.link.pressed.connect(quick_play)
 	add_child(box)
+	# The way on from here, in foil, GAME.md 8.1a: first in the box, over the games, so the box
+	# stands where every page's does and turning between them moves nothing.
+	quick_button = MenuTheme.primary(MenuTheme.button("Quick Play", Type.BODY))
+	quick_button.name = "QuickPlay"
+	quick_button.custom_minimum_size = Vector2(0.0, MenuTheme.button_size().y)
+	quick_button.pressed.connect(quick_play)
+	box.pin(quick_button)
 	var ways := ListBox.button_row()
 	add_child(ways)
 	host_button = ListBox.add_row_button(ways, "Host a game")
