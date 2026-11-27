@@ -6732,7 +6732,7 @@ msgstr "Dode zone stick"
 
 #: scenes/ui/settings_screen.gd
 msgid "Reset bindings to defaults"
-msgstr "Toewijzingen terugzetten naar standaard"
+msgstr "Besturing resetten"
 
 #: scenes/ui/settings_screen.gd
 msgid "Bindings reset"
@@ -12322,7 +12322,7 @@ msgstr "Nitro vult {times} zo snel bij."
 #. display name
 #: data/jokers/loaded_dice.tres
 msgid "Loaded Dice"
-msgstr "Valse dobbelstenen"
+msgstr "Valse stenen"
 
 #. description
 #: data/jokers/loaded_dice.tres
@@ -12477,7 +12477,7 @@ msgstr "Kom terug met +1 mult per vervloekte joker die je hebt."
 #. display name
 #: data/jokers/rubber_bumpers.tres
 msgid "Rubber Bumpers"
-msgstr "Rubberen bumpers"
+msgstr "Rubberbumpers"
 
 #. description
 #: data/jokers/rubber_bumpers.tres
