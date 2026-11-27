@@ -294,6 +294,19 @@ func test_the_book_reads_faster_shuts_and_asks() -> void:
 	assert_int(went[0]).is_equal(1)
 
 
+## A plate holds the characters a Chinese plate carries, a province's short name and the learner's
+## and the like, two at most, each taking two of its eight places, GAME.md 10.9; no others.
+func test_a_plate_holds_what_a_chinese_plate_carries() -> void:
+	assert_str(LicensePlate.clean("京a12345")).is_equal("京A12345")  # NO_TRANSLATE
+	assert_str(LicensePlate.clean("粤B·123学")).is_equal("粤B123学")  # NO_TRANSLATE
+	assert_str(LicensePlate.clean("粤B·1234学")).is_equal("粤B1234")  # NO_TRANSLATE
+	assert_str(LicensePlate.clean("京沪粤学")).is_equal("京沪")  # NO_TRANSLATE
+	assert_str(LicensePlate.clean("京ABCDEFGH")).is_equal("京ABCDEF")  # NO_TRANSLATE
+	assert_str(LicensePlate.clean("林小雨")).is_equal("")  # NO_TRANSLATE
+	assert_str(LicensePlate.suggest("林小雨", "JJ-224123")).is_equal("JJ-123")  # NO_TRANSLATE
+	assert_bool(Type.DISPLAY.has_char("粤".unicode_at(0))).is_true()  # NO_TRANSLATE
+
+
 ## The license is good for an unreasonable while, and a plate is up to eight of what a plate may
 ## hold, suggested from the holder's initials and the number.
 func test_the_license_expires_in_centuries_and_a_plate_is_eight_characters() -> void:

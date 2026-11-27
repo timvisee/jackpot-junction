@@ -1831,7 +1831,10 @@ short buzz the slider gives, so reading along the row is felt card by card.
 - On its rear bumper, under the flag, a kart of this machine's wears a plate,
   which nobody picks at a stall: a learner's L, a red L on a white square, until
   this machine has earned the driver license of 9.4a, and the license plate that
-  comes with it after, up to eight characters: on the kart and in a list of
+  comes with it after, up to eight characters, letters, digits, spaces and dashes,
+  and up to two of the characters a Chinese plate carries, a province's short
+  name at its front and 学 for a learner and the like at its end, each taking two
+  places, 10.9: on the kart and in a list of
   players a plain plate, black on pale with a dark rim and a bolt in each top
   corner, which is what reads that small; and big, where it is chosen, printed
   as the house's documents are, 8.1a: the school's cream paper with rounded

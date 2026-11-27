@@ -15,6 +15,12 @@ extends Control
 ## case, since a plate is stamped and not written.
 const MOST := 8
 const ALLOWED := "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -"  # NO_TRANSLATE
+## And the characters a Chinese plate carries, GAME.md 10.9: the short name of a province at its
+## front, and at its end a learner's, the police's, a trailer's, Hong Kong's and Macau's, an
+## embassy's and a consulate's. No more than two on a plate, each taking two of its places, as a
+## Chinese character is drawn twice as wide, see [method PlayerNames.width].
+const CHINESE := "京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼学警挂港澳使领"  # NO_TRANSLATE
+const MOST_CHINESE := 2
 ## The star a plate may hold where the Steam supporter pack is owned, GAME.md 10.8: typed as an
 ## asterisk, or as a star itself, kept as the asterisk and drawn as a five-pointed star, see
 ## [method draw_words]. Any plate off the wire may hold it, whoever owns what.
@@ -81,7 +87,7 @@ static func badge(worn: String, wide: float) -> Control:
 
 
 ## [param raw] as a plate may read: upper case, nothing a plate cannot hold, one space at a time,
-## no longer than [constant MOST].
+## no longer than [constant MOST], a Chinese character taking two places.
 static func clean(raw: String, starred := Supporter.owned()) -> String:
 	return clean_typed(raw, starred).strip_edges()
 
@@ -90,12 +96,17 @@ static func clean(raw: String, starred := Supporter.owned()) -> String:
 ## standing, since the next letter may be on its way.
 static func clean_typed(raw: String, starred := Supporter.owned()) -> String:
 	var kept := ""
+	var chinese := 0
 	for character: String in raw.to_upper().replace(STAR_TYPED, STAR):
-		if character in ALLOWED or (starred and character == STAR):
+		if character in CHINESE:
+			if chinese < MOST_CHINESE:
+				kept += character
+				chinese += 1
+		elif character in ALLOWED or (starred and character == STAR):
 			kept += character
 	while kept.contains("  "):
 		kept = kept.replace("  ", " ")
-	return kept.strip_edges(true, false).substr(0, MOST)
+	return PlayerNames.cut(kept.strip_edges(true, false), MOST)
 
 
 ## A plate for [param holder], numbered [param number], to start from: the initials of the name,

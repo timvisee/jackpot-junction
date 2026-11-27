@@ -135,5 +135,9 @@ Not translated yet. What the game already expects:
   has one translation.
 - **Receipts.** A typed line's columns are found by its dot leader: keep two or more half-width
   dots between its sides, as in `第 41 周 ......... 0`.
+- **Names and plates.** A Chinese character counts as two letters in a name, so a handed-out name
+  is up to eight characters. A plate may hold, besides letters and digits, two of the characters a
+  Chinese plate carries (京, 沪, 粤 and the other provinces', 学, 警, 挂, 港, 澳, 使, 领), which the
+  plate's line on the License page may say.
 - **Room.** A Chinese line has fewer characters than the English, but each is about twice as wide,
   so it comes out about as wide. HUD words, stamps and buttons want two to four characters.

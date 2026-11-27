@@ -53,6 +53,8 @@ below, and hands the notes to the release workflow.
   before it throws away the keys and buttons you set.
 - **A Chinese name fits where a name goes.** A Chinese, Japanese or Korean character counts as
   two of a name's 16 letters, as it is drawn about twice as wide.
+- **Chinese characters on a license plate.** A plate may also carry two of the characters a Chinese
+  plate does: a province's short name, such as 京 or 粤, or 学 for a learner.
 
 ### Fixed
 
