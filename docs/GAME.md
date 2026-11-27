@@ -11487,8 +11487,13 @@ the bots' plans, the order of the deck, the counters some jokers keep, when the 
 the random numbers, is dealt again. Bob's match is held on the grid while everybody else comes back,
 each sat in their own kart, the one in their color: up to 15 s for them to connect, and then until
 each has the map up, as at any map's start, 10.3, up to 15 s more, every screen saying how many are
-ready meanwhile; then the start's countdown of 3.8 runs again, and the map plays on. A
-player coming back in Last Call sits down all the same. It is not hidden, since it should seldom
+ready meanwhile; then the start's countdown of 3.8 runs again, and the map plays on. Everybody
+coming back goes straight into the map: joining a game opens the waiting room, 10.3, which is only
+passed through on the way here, put up unseen while the dialog stays up over the menus' stock, and
+the dialog goes as the map's own loading screen comes up, so nobody sees the lobby go up only to be
+left for the map (`MatchConfig.into_map`). Should the new host's game turn out to be in its lobby
+after all, the dialog goes and the lobby is shown. A player coming back in Last Call sits down all
+the same. It is not hidden, since it should seldom
 happen: a few seconds and a countdown. A showdown and the story's Final Hand are not carried over;
 there, and from the lobby or the podium, the new host opens the same room with the game's rules,
 and everybody follows. The new host is told so on the dialog's own pane as it goes, "You are

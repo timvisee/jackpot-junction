@@ -56,6 +56,10 @@ var _menu: PauseMenu
 var _admitted := false
 ## The pause menu's Start now, at the machine that decides where the room goes, GAME.md 9.6.
 var _start_now: Button
+## Whether the room is only being passed through, unseen, on the way into the map a new host
+## carried over, GAME.md 10.8, see [member MatchConfig.into_map]; until the game turns out to be in
+## its lobby after all, or not to come up, see [method _arrived].
+var _passing := false
 
 
 func _ready() -> void:
@@ -75,9 +79,15 @@ func _ready() -> void:
 	# Nobody looks at a room hosted with nobody at it, GAME.md 9.3a.
 	match_node.with_hud = not config.dedicated
 	add_child(match_node)
+	_passing = config.into_map
+	config.into_map = false
 	# Put up behind a loading screen, the way a map is, whoever is hosting.
-	# Called the Lobby on the screen, GAME.md 9.6.
-	await LoadingScreen.put_up(self, match_node, tr("Lobby"))
+	# Called the Lobby on the screen, GAME.md 9.6. Only the way into a map carried over to a new
+	# host, it is put up unseen, under the handover's dialog, GAME.md 10.8.
+	if _passing:
+		await LoadingScreen.put_up_unseen(match_node)
+	else:
+		await LoadingScreen.put_up(self, match_node, tr("Lobby"))
 	match config.online:
 		"host":
 			_take_seats()
@@ -258,6 +268,7 @@ func _join() -> void:
 		# Nobody here takes a seat, so the line that says how to has nothing to say.
 		session.watching_started.connect(
 			func() -> void:
+				_arrived()
 				ready_room_hint(tr("You are watching"))
 				if ready_room != null:
 					ready_room.hide_how_to_sit_down()
@@ -279,15 +290,26 @@ func _join() -> void:
 
 ## The host has answered with the room's rules: through the door.
 func _connected() -> void:
+	_arrived()
 	if _connecting != null:
 		_connecting.queue_free()
 		_connecting = null
+
+
+## The room is where this machine is staying, passed through or not, see [member _passing]: a new
+## host's game in its lobby after all, or a game that did not come up, which the room says. The
+## handover's dialog held over it on the way to the map goes, GAME.md 10.8.
+func _arrived() -> void:
+	if _passing:
+		_passing = false
+		get_tree().call_group(&"host_handover", &"release_hold")
 
 
 ## The room is being left before it was ever joined, and the player is told why.
 ## The host wants a password, GAME.md 9.6: asked for, over the room, and knocked again with. A
 ## wrong one goes back to LAN games saying so, and so does Back, without saying anything.
 func _ask_password(wrong: bool) -> void:
+	_arrived()
 	if _connecting != null:
 		_connecting.queue_free()
 		_connecting = null
@@ -318,6 +340,7 @@ func _ask_password(wrong: bool) -> void:
 
 ## Why the room is left before it was ever joined, [param message], already in the language spoken.
 func _fail(message: String) -> void:
+	_arrived()
 	if _connecting != null:
 		_connecting.queue_free()
 		_connecting = null

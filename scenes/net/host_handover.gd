@@ -21,8 +21,10 @@ extends CanvasLayer
 ##
 ## Either way, a map being played is carried over, see [MatchResume], and a dialog says so while it
 ## is handed over, over whatever the room was: whose game it was, who hosts it now, and a bar, with
-## Leave, which gives up. Made by [Game] from its path, so nothing it names is compiled with the
-## autoloads, and kept across scenes.
+## Leave, which gives up. A player following the new host into that map passes through the waiting
+## room unseen, see [member MatchConfig.into_map], the dialog kept up until the map's own loading
+## screen is. Made by [Game] from its path, so nothing it names is compiled with the autoloads, and
+## kept across scenes.
 
 ## What is being handed over: nothing, a Steam game through its lobby, or a game on the game's own
 ## network.
@@ -108,6 +110,15 @@ var _heading := ""
 var _watching := false
 var _waited := 0.0
 var _resume := {}
+## Whether a map was being played here as the host went, for this machine to follow the new host
+## straight into it, see [method _follow]; and whether the dialog is held up over the waiting room
+## passed through on the way, with what is behind it covered, for how much longer at most, and over
+## which scene it was first held, by its instance.
+var _into_map := false
+var _held := false
+var _held_left := 0.0
+var _held_over := 0
+var _cover: Control
 var _easing: Tween
 ## How much longer the new host's room is waited for, see [method _now_the_host], whether it is
 ## up, how much longer the word is shown since, and its fading.
@@ -126,6 +137,13 @@ func _ready() -> void:
 	screen.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	screen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(screen)
+	# Behind the dialog held over the waiting room passed through, the stock every menu stands on, as
+	# the map's loading screen after it does, see [method _hold].
+	_cover = Backdrop.new()
+	_cover.name = "Cover"
+	_cover.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_cover.visible = false
+	screen.add_child(_cover)
 	dialog = FormDialog.add_to(screen, "", "")
 	dialog.name = "Handover"
 	bar = dialog.add_bar()
@@ -187,6 +205,7 @@ func take(session: NetSession) -> bool:
 	_watching = session.watching
 	# Taken before the session closes and the room with it, in case this machine hosts next.
 	_resume = MatchResume.capture(session)
+	_into_map = not _resume.is_empty()
 	_open(tr("%s left") % _left_name)
 	Net.close.call_deferred()
 	return true
@@ -245,6 +264,7 @@ func hand_to(account: int) -> void:
 	_old_host = Store.steam.account
 	_watching = false
 	_resume = {}
+	_into_map = MatchResume.carried(Net.session.match_node)
 	_left_name = Store.persona()
 	lobbies.hand_to(account)
 	lobbies.hosting = false
@@ -270,6 +290,7 @@ func hand_down(line: Array, port: int, plan: String) -> void:
 	_asking_old = false
 	_watching = false
 	_resume = {}
+	_into_map = MatchResume.carried(Net.session.match_node)
 	# This machine's own, see [method give_up].
 	_left_name = ""
 	_stage = 0
@@ -290,6 +311,7 @@ func _close_soon() -> void:
 
 
 func _open(heading: String) -> void:
+	release_hold()
 	_stop_the_room()
 	_heading = heading
 	_waited = 0.0
@@ -318,6 +340,8 @@ func _stop_the_room() -> void:
 func _process(delta: float) -> void:
 	if banner.visible:
 		_step_banner(delta)
+	if _held:
+		_step_held(delta)
 	if _kind == Kind.STEAM and Store.on():
 		_step_steam(delta)
 	elif _kind == Kind.LAN:
@@ -415,11 +439,58 @@ func _host_it(config: MatchConfig) -> void:
 	play_on.call(config)
 
 
-## Another player is the new host and its game is up: in after them, as the others do.
+## Another player is the new host and its game is up: in after them, as the others do. With a map
+## being played here, straight into it: the waiting room the way in is passed through unseen, see
+## [member MatchConfig.into_map], under this dialog, held up until the map's loading screen is.
 func _follow(config: MatchConfig) -> void:
-	_done()
+	var into_map := _into_map
+	_done(into_map)
 	_let_go()
+	if into_map:
+		config.into_map = true
+		_hold()
 	go_on.call(config)
+
+
+## The dialog kept up on its way to the map being played, over the stock every menu stands on, see
+## [method _follow]: whatever room is behind it is only passed through.
+func _hold() -> void:
+	_held = true
+	_held_left = TELL_WITHIN
+	var scene := get_tree().current_scene
+	_held_over = scene.get_instance_id() if scene != null else 0
+	_cover.visible = true
+
+
+## The dialog held on the way to the map put away once the map's loading screen is up over it, the
+## game has gone on to anything but a room, the menus, or it has been up for [constant TELL_WITHIN]
+## seconds. The waiting room passed through puts it away as well, should it turn out to be the lobby
+## after all, or the game fail to come up, see [method release_hold].
+func _step_held(delta: float) -> void:
+	_held_left -= delta
+	var scene := get_tree().current_scene
+	var left := (
+		scene != null
+		and scene.get_instance_id() != _held_over
+		and scene.scene_file_path not in ROOMS
+	)
+	var loading := not get_tree().get_nodes_in_group(LoadingScreen.GROUP).is_empty()
+	if left or loading or _held_left <= 0.0:
+		release_hold()
+
+
+## The dialog held on the way to the map put away, see [method _hold]: up over it, or at the room
+## this machine arrived in rather than passed through, the lobby, or a room saying why the game did
+## not come up. Asked of the [constant GROUP] by those rooms, which name nothing of this.
+func release_hold() -> void:
+	if not _held:
+		return
+	_held = false
+	_cover.visible = false
+	if _kind == Kind.NONE:
+		if _easing != null:
+			_easing.kill()
+		dialog.visible = false
 
 
 ## This machine took the game on, GAME.md 10.8: as the dialog goes, the same pane says
@@ -474,8 +545,13 @@ func _let_go() -> void:
 
 
 ## Given up, or Leave: a Steam game's lobby left, and back to Play Online saying [param why], or
-## else that the game is over.
+## else that the game is over. Left on the way to the map at the new host's, see [method _hold],
+## nothing is said: the game goes on without this machine.
 func give_up(why := "") -> void:
+	if _held and _kind == Kind.NONE:
+		release_hold()
+		give_up_to.call("")
+		return
 	if _kind == Kind.NONE:
 		return
 	if why.is_empty() and _left_name.is_empty():
@@ -492,13 +568,18 @@ func give_up(why := "") -> void:
 	give_up_to.call(why)
 
 
-func _done() -> void:
+## Nothing handed over any more, the dialog put away unless it is [param held] up on the way to the
+## map, see [method _hold].
+func _done(held := false) -> void:
 	_kind = Kind.NONE
 	_lobby = 0
 	_line = []
 	_probe = null
 	_asking_old = false
 	_resume = {}
+	_into_map = false
+	if held:
+		return
 	if _easing != null:
 		_easing.kill()
 	dialog.visible = false

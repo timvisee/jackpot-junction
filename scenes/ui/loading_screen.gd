@@ -123,6 +123,16 @@ static func put_up(parent: Node, match_node: Match, named: String, a_match := fa
 	await screen.run(arena.build_steps(), building(arena.final_hand))
 
 
+## Puts [param match_node]'s room up a phase a frame as [method put_up] does, with nothing over it,
+## and comes back once it is up: for a room only passed through on the way to the next, under
+## something else, see [member MatchConfig.into_map].
+static func put_up_unseen(match_node: Match) -> void:
+	var arena := match_node.prepare_arena(true)
+	for step: Callable in arena.build_steps():
+		step.call()
+		await match_node.get_tree().process_frame
+
+
 ## The line under the bar: what is being built and, as the story goes, who for, STORY.md 6.5, in
 ## the language spoken.
 static func building(final_hand := false) -> String:

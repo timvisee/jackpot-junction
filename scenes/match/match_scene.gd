@@ -365,6 +365,8 @@ func _pane() -> StatusPane:
 ## itself: the HUD stands down, taking any open joker pick, the standings and the blocks with it,
 ## and the pane is the only thing left to read.
 func _fail(message: String) -> void:
+	# Over the handover's dialog, should it still be held up on the way here, GAME.md 10.8.
+	get_tree().call_group(&"host_handover", &"release_hold")
 	_pane().fail(message)
 	if match_node != null and match_node.hud != null:
 		match_node.hud.stand_down()

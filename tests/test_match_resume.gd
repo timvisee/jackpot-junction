@@ -358,3 +358,65 @@ func test_the_handover_goes_into_the_map() -> void:
 	assert_bool(played[0].rehost).is_true()
 	assert_str(String(played[0].map)).is_equal("crossfire")
 	assert_dict(played[0].resume).is_equal(resume)
+
+
+## Another player took on a game whose map was being played here: followed straight into it, the
+## waiting room the way in only passed through, under the dialog held up over a cover until the
+## map's loading screen is up over that, GAME.md 10.8; Leave while it is held leaves saying nothing.
+func test_following_into_the_map() -> void:
+	var fake := FakeSteam.new()
+	Store.steam = SteamStore.new(fake)
+	Store.steam.start(3141590)
+	var handover: HostHandover = auto_free(HostHandover.new())
+	var went: Array[MatchConfig] = []
+	var gave_up: Array[String] = []
+	handover.go_on = func(config: MatchConfig) -> void: went.append(config)
+	handover.give_up_to = func(why: String) -> void: gave_up.append(why)
+	add_child(handover)
+	var lobby := fake.friends_lobby(BO, {SteamLobby.HOSTED_KEY: str(BO)})
+	handover._kind = HostHandover.Kind.STEAM
+	handover._lobby = lobby
+	handover._old_host = 76561197960287933
+	handover._into_map = true
+	handover.dialog.open(handover.leave_button)
+	await await_millis(100)
+	assert_int(went.size()).is_equal(1)
+	assert_bool(went[0].into_map).is_true()
+	assert_bool(handover.is_handing_over()).is_false()
+	assert_bool(handover.dialog.visible).is_true()
+	assert_bool(handover._cover.visible).is_true()
+	# Up until the map's loading screen is.
+	await await_millis(100)
+	assert_bool(handover.dialog.visible).is_true()
+	var loading: Node = auto_free(Node.new())
+	loading.add_to_group(LoadingScreen.GROUP)
+	add_child(loading)
+	await await_millis(100)
+	assert_bool(handover.dialog.visible).is_false()
+	assert_bool(handover._cover.visible).is_false()
+	loading.queue_free()
+	# Held again, and left: back to Play Online with nothing to say.
+	handover._hold()
+	handover.dialog.visible = true
+	handover.leave_button.pressed.emit()
+	assert_array(gave_up).contains_exactly([""])
+	assert_bool(handover.dialog.visible).is_false()
+
+
+## With no map in play here, the next host's game is followed into its lobby, shown as ever.
+func test_following_into_the_lobby() -> void:
+	var fake := FakeSteam.new()
+	Store.steam = SteamStore.new(fake)
+	Store.steam.start(3141590)
+	var handover: HostHandover = auto_free(HostHandover.new())
+	var went: Array[MatchConfig] = []
+	handover.go_on = func(config: MatchConfig) -> void: went.append(config)
+	add_child(handover)
+	handover._kind = HostHandover.Kind.STEAM
+	handover._lobby = fake.friends_lobby(BO, {SteamLobby.HOSTED_KEY: str(BO)})
+	handover._old_host = 76561197960287933
+	await await_millis(100)
+	assert_int(went.size()).is_equal(1)
+	assert_bool(went[0].into_map).is_false()
+	assert_bool(handover.dialog.visible).is_false()
+	assert_bool(handover._cover.visible).is_false()

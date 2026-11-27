@@ -42,12 +42,7 @@ static func plan_of(config: MatchConfig, door: NetDoor, who: int, with_password 
 ## match too, a showdown, the Final Hand.
 static func capture(session: NetSession) -> Dictionary:
 	var match_node := session.match_node if session != null else null
-	if match_node == null or not match_node.puppet or match_node.state not in PLAYING:
-		return {}
-	var layout := match_node.arena_layout
-	if layout != null and layout.resource_path == WAITING_ROOM:
-		return {}
-	if match_node.rules.showdown() or match_node.rules.final_hand:
+	if match_node == null or not match_node.puppet or not carried(match_node):
 		return {}
 	var owners := owners_of(session)
 	var slots: Array = []
@@ -133,6 +128,18 @@ static func owners_of(session: NetSession) -> Dictionary:
 			var device := player.device if player != null else DeviceInput.ANY
 			owners[each.slot] = {"account": own, "seat": each.seat, "device": device}
 	return owners
+
+
+## Whether the map [param match_node] plays is one carried over to a new host as its host goes,
+## GAME.md 10.8: being played, and not the waiting room, a showdown or the Final Hand. At any
+## screen, the host's own too.
+static func carried(match_node: Match) -> bool:
+	if match_node == null or not is_instance_valid(match_node) or match_node.state not in PLAYING:
+		return false
+	var layout := match_node.arena_layout
+	if layout != null and layout.resource_path == WAITING_ROOM:
+		return false
+	return not (match_node.rules.showdown() or match_node.rules.final_hand)
 
 
 static func _jackpots_of(match_node: Match) -> Array:

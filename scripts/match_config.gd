@@ -125,6 +125,10 @@ var door_plan := {}
 ## And the map that was being played as its host went, carried over to start from, see
 ## [MatchResume]; empty for a game taken on in its lobby.
 var resume := {}
+## Following the new host of a game handed over into the map being played, GAME.md 10.8: the
+## waiting room the way in is passed through unseen, under the handover's dialog, rather than put up
+## and shown as the lobby only to be left for the map at once. Once only: the room clears it.
+var into_map := false
 ## Joining the new host of a game handed over off Steam: the peer this machine was in the old one,
 ## said as it knocks, for a map carried over to seat it in its own kart, 0 otherwise; and the
 ## secret the old host gave it to prove it, see [member HostControls.rejoin_token].

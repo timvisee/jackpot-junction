@@ -32,6 +32,9 @@ const FOUND_GONE := 60.0
 var _in_a_map := false
 var _made := false
 var _killed := false
+## Whether the lobby's loading screen went up here since the host went, which following the new
+## host into the map carried over never shows, see [member MatchConfig.into_map].
+var _lobby_shown := false
 
 
 func _run() -> void:
@@ -40,6 +43,7 @@ func _run() -> void:
 	_made = "--make-host" in args
 	_killed = "--killed" in args
 	multiplayer.server_disconnected.connect(func() -> void: _say("the host hung up"))
+	get_tree().node_added.connect(_on_node_added)
 	# Settings of its own, by process, since three run at once.
 	Game.settings = Settings.new()
 	Game.settings.profile.stats[&"maps"] = float(TableCards.Card.size())
@@ -139,6 +143,7 @@ func _makes_host(session: NetSession, played: Match) -> void:
 		# Seen at the others before it goes.
 		await _seconds(0.5)
 	_say("making the second in line host%s" % (" during the map" if in_map else ""))
+	_lobby_shown = false
 	controls.hand_on(to)
 	if not await _sat_down_away_from(old):
 		return
@@ -183,13 +188,22 @@ func _follows(room: Node) -> void:
 		map = await _the_map_played(false)
 		var playing: Match = _scene().match_node if not _failed else null
 		color = playing.slots[playing.local_slot].color_index if playing != null else -1
-	if _failed or not await _sat_down_away_from(old):
+	if _failed:
+		return
+	_lobby_shown = false
+	if not await _sat_down_away_from(old):
 		return
 	var back := await _back_in_the_map(map, color) if _in_a_map else await _in_the_lobby()
 	if not back:
 		return
 	await _seconds(2.0)
 	_finished = true
+
+
+## Notes a loading screen for the lobby going up, see [member _lobby_shown].
+func _on_node_added(node: Node) -> void:
+	if node is LoadingScreen and (node as LoadingScreen).room_name == "Lobby":
+		_lobby_shown = true
 
 
 ## Whether this machine sat down at the game's new host, in another session than [param old].
@@ -342,6 +356,9 @@ func _back_in_the_map(map: StringName, color: int, banked := -1) -> bool:
 		return false
 	var played: Match = carried.match_node
 	_check(played.rules.map == map, "the same map carried on here too")
+	_check(not _lobby_shown, "straight into it, the lobby never shown on the way")
+	var handover := get_tree().get_first_node_in_group(&"host_handover") as HostHandover
+	_check(handover != null and not handover.dialog.visible, "the handover's dialog gone")
 	var mine := played.slots[played.local_slot].color_index
 	_check(mine == color, "in its own kart again, color %d" % mine)
 	if banked >= 0:

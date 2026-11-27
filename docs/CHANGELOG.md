@@ -50,6 +50,8 @@ below, and hands the notes to the release workflow.
   outline, rather than shapes whose outlines crossed each other and the letters on them.
 - **The mouse's buttons meet its edge.** In the button hints, a mouse's pressed button fills it right
   up to its edge, where a pale sliver showed at its corners.
+- **Straight back into the map when a host leaves.** Everybody else followed the new host through
+  the lobby's loading screen first, then loaded the map again; now they go straight into the map.
 
 ## [0.25.0] - 2026-11-27
 
