@@ -186,7 +186,7 @@ static func _lay_out() -> void:
 		[KEY_CTRL, "Ctrl"],
 		[KEY_META, "Super"],
 		[KEY_ALT, "Alt"],
-		[KEY_SPACE, "Space"],
+		[KEY_SPACE, ""],
 		[KEY_ALT, "Alt"],
 		[KEY_META, "Super"],
 		[KEY_MENU, "Menu"],

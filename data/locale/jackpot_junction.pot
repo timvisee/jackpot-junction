@@ -8655,6 +8655,31 @@ msgstr ""
 msgid "%s (demo)"
 msgstr ""
 
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#: scripts/input/input_actions.gd
+msgid "Space"
+msgstr ""
+
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#: scripts/input/input_actions.gd
+msgid "Up"
+msgstr ""
+
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#: scripts/input/input_actions.gd
+msgid "Down"
+msgstr ""
+
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#: scripts/input/input_actions.gd
+msgid "Left"
+msgstr ""
+
+#. A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+#: scripts/input/input_actions.gd
+msgid "Right"
+msgstr ""
+
 #: scripts/input/steam_actions.gd
 msgid "Aim and emote"
 msgstr ""

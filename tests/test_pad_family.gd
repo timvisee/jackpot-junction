@@ -250,6 +250,25 @@ func test_keys_are_named_as_the_players_keyboard_prints_them() -> void:
 	assert_str(InputActions.event_text(space)).is_equal("Space")
 
 
+## A key whose name is a word is named in the language spoken: the space bar is Spatie in Dutch.
+func test_a_keys_name_is_said_in_the_language_spoken() -> void:
+	var was := Lang.current
+	var space := InputEventKey.new()
+	space.physical_keycode = KEY_SPACE
+	var up := InputEventKey.new()
+	up.physical_keycode = KEY_UP
+	var tab := InputEventKey.new()
+	tab.physical_keycode = KEY_TAB
+	Lang.apply("nl")
+	assert_str(InputActions.event_text(space)).is_equal("Spatie")
+	assert_str(InputActions.event_text(up)).is_equal(Lang.t_in("nl", "Up"))
+	assert_str(InputActions.event_text(tab)).is_equal("Tab")
+	Lang.apply(Lang.ENGLISH)
+	assert_str(InputActions.event_text(space)).is_equal("Space")
+	assert_str(InputActions.event_text(up)).is_equal("Up")
+	Lang.apply(was)
+
+
 ## Pads are numbered from 1 as the menus say them, the engine's first and then Steam Input's, so a
 ## pad of Steam Input's is Gamepad 1 rather than 33 with no other plugged in; one gone has none.
 func test_pads_are_numbered_from_one() -> void:

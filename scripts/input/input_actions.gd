@@ -117,6 +117,12 @@ const KEY_SYMBOLS: Dictionary[String, String] = {
 	"BackSlash": "\\",
 	"QuoteLeft": "`",
 }
+## The engine's names of the keys whose name is a word a language says its own way, each shown
+## through tr(): the space bar, Spatie in Dutch, and the arrows. The rest, Ctrl, Shift, Tab, Enter
+## and the like, are printed on the keys themselves and named alike everywhere.
+# TRANSLATORS: A key's name, on a key cap beside a button hint or in the controls' list: keep it as
+# short as the language's own name for the key.
+const KEY_WORDS: Array[String] = ["Space", "Up", "Down", "Left", "Right"]
 ## The first of the buttons no pad has, which a controller of Steam Input's presses for a few
 ## actions at once where no button of the pad's own does just those, see [method chord]: past
 ## every button the engine names, and below the most it reads, 128.
@@ -432,6 +438,8 @@ static func event_text(event: InputEvent, family: int = -1) -> String:
 		if not printed.is_empty():
 			return printed
 		var key := text.replace(" - Physical", "")
+		if key in KEY_WORDS:
+			return Lang.t(key)
 		return KEY_SYMBOLS.get(key, key)
 	var motion := event as InputEventJoypadMotion
 	if event is InputEventJoypadButton or motion != null:
