@@ -4233,6 +4233,12 @@ msgstr ""
 msgid "{subject} {verb} {object}{tail}"
 msgstr ""
 
+#. The full stop that ends a sentence of filler: 。 in Chinese.
+#: scenes/tutorial/school/theory_text.gd
+msgctxt "full stop"
+msgid "."
+msgstr ""
+
 #: scenes/ui/about_tab.gd
 msgid "Enjoying it? The Supporter Pack on Steam is a small way to chip in, and says thanks with a few pieces of kart dress."
 msgstr ""

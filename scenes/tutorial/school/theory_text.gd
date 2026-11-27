@@ -502,8 +502,15 @@ func _sentence(rng: RandomNumberGenerator) -> String:
 	# TRANSLATORS: A sentence of filler put together from its pieces, in the language's order.
 	var sentence := tr("{subject} {verb} {object}{tail}")
 	return sentence.format(
-		{"subject": tr(subject), "verb": tr(verb), "object": tr(object), "tail": tr(tail)}
+		{"subject": tr(subject), "verb": tr(verb), "object": tr(object), "tail": _tail(tail)}
 	)
+
+
+## [param tail] in the language spoken: a plain full stop through an entry of its own, since one
+## dot alone is no word the template would find, GAME.md 10.9.
+func _tail(tail: String) -> String:
+	# TRANSLATORS: The full stop that ends a sentence of filler: 。 in Chinese.
+	return tr(".", &"full stop") if tail == "." else tr(tail)
 
 
 func _paragraph(text: String, strong: bool) -> Label:
