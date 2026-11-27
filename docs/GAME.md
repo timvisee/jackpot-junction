@@ -5198,7 +5198,9 @@ of a box that opens a list its gold. The padlock of a sealed table card is in th
 keyhole cut through to the card. The suits print flat as type, cream and red on a card and the
 House's inks on paper; the wild card's jester, the Jokers card's hat, is two drawings printed one
 over the other, its points in red with the middle one cream, then its band and bells in gold. The
-arena's pads and stickers keep their own outlined suits, `SuitArt`. The emotes print in the House's ink
+arena's Royal Flush pads print the same suits, white in a dark ring of their own shape so they read
+on a pad lit pale, as do the pinball table's plastics and drop targets; the stickers keep their own
+outlined suits, `SuitArt`. The emotes print in the House's ink
 on their chip's inlay, the heart in the table's red in two inks. Below 40 pixels a picture drops its
 shading and its glints, which would only blur it, and the halftone turns flat; the map pin alone,
 so small wherever it is stuck, keeps its shadow side there as a flat darker red.

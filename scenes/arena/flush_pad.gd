@@ -309,12 +309,23 @@ func _build_halo() -> void:
 	add_child(_halo)
 
 
-## The suit on the plate, outlined in the dark of the asphalt so it reads on a pad lit in a pale
-## color.
+## The suit on the plate, its drawing of [JokerSuits], outlined in the dark of the asphalt so it
+## reads on a pad lit in a pale color: its own shape in the dark laid round it, out to [constant
+## EDGE] of the plate in [constant STEPS] steps round it, at half that and all of it.
 class Mark:
 	extends Control
+
+	const EDGE := 0.035
+	const STEPS := 32
 
 	var suit := 0
 
 	func _draw() -> void:
-		SuitArt.draw_into(self, Rect2(Vector2.ZERO, size), suit, Color.WHITE, size.x * 0.035)
+		var id := JokerSuits.PICTURES[suit % JokerSuits.PICTURES.size()]
+		var box := JokerSuits.filled(Rect2(Vector2.ZERO, size))
+		for reach: float in [0.5, 1.0]:
+			for step: int in STEPS:
+				var out := Vector2.from_angle(TAU * step / STEPS) * size.x * EDGE * reach
+				var under := Rect2(box.position + out, box.size)
+				IconPress.draw(self, under, id, SuitArt.OUTLINE, IconPress.Ground.PAPER)
+		IconPress.draw(self, box, id, Color.WHITE, IconPress.Ground.PAPER)

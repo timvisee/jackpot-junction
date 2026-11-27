@@ -4,7 +4,7 @@ extends RefCounted
 ## hand is Suited in, and what being Suited in each pays. The suits are the four of the Royal Flush
 ## pads and of the teams, in cream for Spades and Clubs and red for Hearts and Diamonds as a deck
 ## has them; a wild card wears a jester's hat, the joker's own. As marks they are drawings of
-## GAME.md 8.3a, printed flat like type; the arena's pads draw theirs with [SuitArt].
+## GAME.md 8.3a, printed flat like type, on the arena's pads and its pinball table's prints too.
 
 ## How many cards of a suit make a hand Suited in it, GAME.md 7.3, unless a joker says otherwise.
 const SUITED := 3
@@ -31,6 +31,8 @@ const JESTER_BAND := &"suit_jester_band"
 ## How far a mark's outline reaches, in pixels, and in how many steps round it is drawn.
 const HALO := 1.4
 const HALO_STEPS := 8
+## How much bigger than its room a suit on the table is printed, see [method filled].
+const FILLED := 1.16
 
 
 ## A suit drawn into a control: a card's corner, the pane's line, the hand's Suited sign.
@@ -55,6 +57,12 @@ class Mark:
 				var out := Vector2.from_angle(TAU * step / HALO_STEPS) * HALO
 				JokerSuits.draw_shadow(self, Rect2(box.position + out, box.size), suit, halo)
 		JokerSuits.draw_mark(self, box, suit, paper)
+
+
+## [param box] grown round its middle so that a suit printed into it fills it nearly edge to edge,
+## as a suit on a pad or a card on the table does: the drawings keep their grid's margin round them.
+static func filled(box: Rect2) -> Rect2:
+	return box.grow(minf(box.size.x, box.size.y) * (FILLED - 1.0) * 0.5)
 
 
 static func name_of(suit: int) -> String:

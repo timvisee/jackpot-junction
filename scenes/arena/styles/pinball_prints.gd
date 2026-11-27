@@ -289,7 +289,9 @@ func _target(rect: Rect2, rank: int) -> void:
 	var glyph := Rect2(
 		Vector2(left + width + gap, rect.get_center().y - pip * 0.5), Vector2.ONE * pip
 	)
-	SuitArt.draw_into(self, glyph, suit, ink)
+	IconPress.draw(
+		self, JokerSuits.filled(glyph), JokerSuits.PICTURES[suit], ink, IconPress.Ground.PAPER
+	)
 
 
 ## A plastic over [param rect] of the sheet: the teal of the field under a cream border keylined in
@@ -329,7 +331,10 @@ func _fan(at: Vector2, high: float) -> void:
 		var glyph := Rect2(
 			box.get_center() - Vector2.ONE * card.x * 0.25, Vector2.ONE * card.x * 0.5
 		)
-		SuitArt.draw_into(self, glyph, suit, INK if i % 2 == 0 else PIP_RED)
+		var ink := INK if i % 2 == 0 else PIP_RED
+		IconPress.draw(
+			self, JokerSuits.filled(glyph), JokerSuits.PICTURES[suit], ink, IconPress.Ground.PAPER
+		)
 	draw_set_transform(Vector2.ZERO)
 
 
