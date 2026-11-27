@@ -19,5 +19,5 @@ func describe(copies := 1, mark := "%s", details := false) -> String:
 	if not in_hand:
 		return said
 	if standing_for == null:
-		return said + " " + tr("Copying nothing: the card before it does not stack.")
-	return said + " " + tr("Copying %s.") % (mark % tr(standing_for.display_name))
+		return Lang.sentences(said, tr("Copying nothing: the card before it does not stack."))
+	return Lang.sentences(said, tr("Copying %s.") % (mark % tr(standing_for.display_name)))

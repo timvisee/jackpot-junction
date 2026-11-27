@@ -254,6 +254,17 @@ static func picture(path: String) -> Texture2D:
 	return load(own if current != ENGLISH and ResourceLoader.exists(own) else path)
 
 
+## [param first] and [param second], two sentences one after the other as the language spoken runs
+## them on: a space between them in English, none after a Chinese or Japanese full stop, GAME.md
+## 10.9. Either may be empty, and then there is nothing to put between.
+static func sentences(first: String, second: String) -> String:
+	if first.is_empty() or second.is_empty():
+		return first + second
+	# From the CJK radicals on, a script whose sentences run on without a space.
+	var wide := first.unicode_at(first.length() - 1) >= 0x2E80
+	return first + ("" if wide else " ") + second
+
+
 ## [param items] as a list in a sentence: "a", "a and b", "a, b and c".
 static func listed(items: Array) -> String:
 	if items.is_empty():

@@ -188,3 +188,12 @@ func test_an_exported_game_carries_what_breaks_a_line_of_chinese() -> void:
 	var server := TextServerManager.get_primary_interface()
 	assert_bool(server.has_feature(TextServer.FEATURE_BREAK_ITERATORS)).is_true()
 	assert_str(server.get_support_data_filename()).is_equal("icudt_godot.dat")
+
+
+## Two sentences run on with a space between in English, and with none after a Chinese full stop,
+## GAME.md 10.9.
+func test_sentences_run_on_as_the_language_runs_them() -> void:
+	assert_str(Lang.sentences("Stacks.", "Copying Big Tank.")).is_equal("Stacks. Copying Big Tank.")
+	assert_str(Lang.sentences("可叠加。", "正在复制。")).is_equal("可叠加。正在复制。")  # NO_TRANSLATE
+	assert_str(Lang.sentences("", "Stacks.")).is_equal("Stacks.")
+	assert_str(Lang.sentences("Stacks.", "")).is_equal("Stacks.")

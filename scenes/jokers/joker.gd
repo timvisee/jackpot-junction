@@ -133,7 +133,7 @@ func describe(copies := 1, mark := "%s", details := false) -> String:
 			shown += " (%s)" % (alone.left(1).to_lower() + alone.substr(1))
 		said = said.replace("{%s}" % key, shown)
 	if stackable and details:
-		said += " " + (tr("Stacks up to ×%d.") % most if most > 0 else tr("Stacks."))
+		said = Lang.sentences(said, tr("Stacks up to ×%d.") % most if most > 0 else tr("Stacks."))
 	return said
 
 

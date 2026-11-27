@@ -70,13 +70,13 @@ func ask(hook: Control) -> void:
 	middle.add_child(question)
 	question.answered.connect(_on_answered)
 	var owner_now := dialog.kart_owner()
-	var line := tr(LINE) + " " + tr(LINE_EARN)
+	var line := Lang.sentences(tr(LINE), tr(LINE_EARN))
 	if owner_now.profile != Game.settings.profile:
 		var other := tr(OTHER).format({"name": owner_now.display_name()})
 		question.ask(tr(QUESTION), other, "", tr(OK), RoadSign.Kind.QUESTION)
 		question.yes_button().visible = false
 	elif dialog._room != null:
-		question.ask(tr(QUESTION), line + " " + tr(LEAVES), tr(EARN), tr(NOT_NOW))
+		question.ask(tr(QUESTION), Lang.sentences(line, tr(LEAVES)), tr(EARN), tr(NOT_NOW))
 	else:
 		question.ask(tr(QUESTION), line, tr(EARN), tr(NOT_NOW), RoadSign.Kind.QUESTION)
 		question.yes_button().grab_focus()

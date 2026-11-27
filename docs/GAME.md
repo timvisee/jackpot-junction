@@ -11800,6 +11800,9 @@ How a word is marked, so the template finds it and the language spoken shows it 
   network call, a relayed event, a function that sends what it is handed, or a packed value. A
   name a player gave is never translated; a bot's is translated by the machine that seats it, and
   goes as a name.
+- **Sentences after sentences.** Two sentences shown as one paragraph are run on with
+  `Lang.sentences()`, never with a space put between by hand: Chinese runs its sentences on with
+  none after its full stop.
 - **Numbers and lists.** `Lang.number()` sets thousands apart as the language does (1,204 and 1.204),
   `Lang.decimal()` writes its decimal mark, and `Lang.listed()` makes a list in a sentence.
 - **Not text.** A string that is a name the code goes by, a node's, a key, a typeface's, an id, is
