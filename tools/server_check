@@ -16,6 +16,10 @@
 #   joiner:  joins, sees it blacked out, plays it as its own candidate and stamps keeping nothing;
 #            the room is back in its lobby once both are through
 #
+# And the notices the server carries, GAME.md 9.3a: its page's /licenses.html, linked from the
+# footer and gzipped for a browser that takes it, and --licenses, each naming Godot's pieces and
+# the fonts, and no music; against an exported server, no sound, GodotSteam or gdUnit4 either.
+#
 # Usage: tools/server_check          (about a minute)
 #
 # The server has to be small while it holds no game: started without the game's autoloads, it is
@@ -79,6 +83,37 @@ else
 		failed=1
 	fi
 fi
+
+# The notices the server carries, GAME.md 8.5 and 9.3a: on its page, linked from the footer and
+# gzipped for a browser that takes it, and printed by --licenses. They name Godot's pieces and the
+# fonts, and never music, which the hall has none of; an exported server, built without its sound
+# and GodotSteam, names neither, nor gdUnit4, see Credits.in_this_build.
+licensed() {
+	local said=$1 where=$2
+	for want in "The FreeType Project" "Mbed TLS" "Barlow typeface" "GNU General Public License 3.0"; do
+		if ! grep -qF -- "$want" <<<"$said"; then
+			echo "server check: $where never names '$want'" >&2
+			failed=1
+		fi
+	done
+	local unwanted=("Electronic Music Pack")
+	if [[ -n ${SVCHECK_SERVER:-} ]]; then
+		unwanted+=("Casino Audio" "Racing Sound Pack" "GodotSteam" "gdUnit4")
+	fi
+	for gone in "${unwanted[@]}"; do
+		if grep -qF -- "$gone" <<<"$said"; then
+			echo "server check: $where names '$gone', which the server does not hold" >&2
+			failed=1
+		fi
+	done
+}
+if ! curl -fsS --max-time 10 "http://127.0.0.1:$port/" | grep -qF 'href="licenses.html"'; then
+	echo "server check: the page's footer does not link the licenses" >&2
+	failed=1
+fi
+licensed "$(curl -fsS --max-time 10 --compressed "http://127.0.0.1:$port/licenses.html")" \
+	"/licenses.html"
+licensed "$(timeout 120 "${server_cmd[@]}" --licenses 2>&1)" "--licenses"
 
 run() {
 	local role=$1
