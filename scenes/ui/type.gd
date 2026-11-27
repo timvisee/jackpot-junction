@@ -162,3 +162,11 @@ static func text(label: Label, size: int, ink: Color = Color.WHITE) -> Label:
 static func fitting(text: String, font: Font, wanted: int, widest: float) -> int:
 	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, wanted).x
 	return wanted if wide <= widest else maxi(floori(wanted * widest / wide), 1)
+
+
+## The size to set [param text] at in [param font] on a line [param across] wide that it wraps on:
+## [param wanted] if it fits on one line, else [param smaller], so the two lines a longer name
+## takes, as a translation's can, stand no higher than they have to, GAME.md 10.9.
+static func wrapping(text: String, font: Font, wanted: int, smaller: int, across: float) -> int:
+	var wide := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, wanted).x
+	return wanted if wide <= across else smaller

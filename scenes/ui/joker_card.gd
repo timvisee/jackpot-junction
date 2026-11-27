@@ -46,6 +46,11 @@ const HAIRLINE := 0.35
 const INSET := 5.0
 ## How far the kind stands in from the card's margin, clear of the hairline's round corner.
 const KIND_ROOM := 4.0
+## How far in from the card's edges its words stand, and how big its name is: on one line, or
+## smaller on the two a longer name wraps onto, see [method Type.wrapping].
+const MARGIN := 8
+const TITLE := 15
+const TITLE_WRAPPED := 12
 ## How big the cat is in the corner of a Copy Cat's copied face, GAME.md 7.3.
 const COPY_BADGE := 26.0
 ## The suit before the kind, GAME.md 7.3: how big, and how far from the kind.
@@ -373,7 +378,7 @@ func _build() -> void:
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for side: String in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
-		margin.add_theme_constant_override(side, 8)
+		margin.add_theme_constant_override(side, MARGIN)
 	add_child(margin)
 	_content.append(margin)
 	var stack := VBoxContainer.new()
@@ -389,7 +394,7 @@ func _build() -> void:
 	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	var title := Label.new()
 	title.text = tr(joker.display_name)
-	Type.set_font(title, Type.STRONG, 15)
+	Type.set_font(title, Type.STRONG, title_size(title.text))
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -417,6 +422,11 @@ func _build() -> void:
 		_in_pencil(kind, title, suit, stack)
 		return
 	stack.add_child(_build_pips())
+
+
+## The size a card's name [param text] is set at, see [constant TITLE].
+static func title_size(text: String) -> int:
+	return Type.wrapping(text, Type.STRONG, TITLE, TITLE_WRAPPED, SIZE.x - MARGIN * 2.0)
 
 
 ## One of Kit's cards: K. in its corner in pencil where the suit and kind would be, its name in

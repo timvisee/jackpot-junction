@@ -54,7 +54,7 @@ func _build() -> void:
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for side: String in ["margin_left", "margin_right", "margin_top", "margin_bottom"]:
-		margin.add_theme_constant_override(side, 8)
+		margin.add_theme_constant_override(side, JokerCard.MARGIN)
 	add_child(margin)
 	var stack := VBoxContainer.new()
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -75,7 +75,7 @@ func _build() -> void:
 	var title := Label.new()
 	title.text = tr(item.display_name)
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Type.set_font(title, Type.STRONG, 15)
+	Type.set_font(title, Type.STRONG, JokerCard.title_size(title.text))
 	title.add_theme_color_override("font_color", Palette.CHIP_WHITE)
 	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER

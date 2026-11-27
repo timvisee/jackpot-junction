@@ -49,3 +49,12 @@ func test_every_cut_can_fall_back() -> void:
 	for font: FontFile in [Type.TEXT, Type.STRONG, Type.DISPLAY, Type.MARK]:
 		assert_bool(font.fallbacks.has(Type.FALLBACK)).is_true()
 	assert_bool(Type.FALLBACK.has_char("Ж".unicode_at(0))).is_true()
+
+
+## A card's name too long for one line, as a translation's can be, is set smaller on the two it
+## wraps onto, GAME.md 10.9; one that fits keeps its size, as every English one does.
+func test_a_name_too_long_for_one_line_is_set_smaller() -> void:
+	assert_int(JokerCard.title_size("Big Tank")).is_equal(JokerCard.TITLE)
+	assert_int(JokerCard.title_size("Onder de toonbank")).is_equal(JokerCard.TITLE_WRAPPED)
+	assert_int(Type.wrapping("Paid", Type.STRONG, 20, 10, 10.0)).is_equal(10)
+	assert_int(Type.wrapping("Paid", Type.STRONG, 20, 10, 400.0)).is_equal(20)
