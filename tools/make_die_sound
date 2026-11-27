@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Builds the die's throw, GAME.md 4.4a and 9.6, into assets/audio/sfx/die_throw_1.ogg to _3.ogg.
+"""Builds the dice's sounds into assets/audio/sfx/: the die's throw, GAME.md 4.4a and 9.6, into
+die_throw_1.ogg to _3.ogg, and the kart dialog shuffle's roll, 4.4a, into shuffle_roll_1.ogg to
+_3.ogg.
 
 One die thrown onto a wooden table, timed to the die drawn on the screen (NameDie): it is picked up
 off what it lay on with a faint scuff, flies, and lands three times, each landing lower and sooner
@@ -11,12 +13,21 @@ high; little above eight kilohertz, and nothing ringing on up there as a die on 
 it, so it sounds struck in one rather than in nothing. Three takes, each its own die and its own
 table, for the game to pick from.
 
-Not part of `make check`: run it again only to change the sounds. Needs ffmpeg, python3 and numpy.
+The shuffle's roll is the same die's click on a machine's plate rather than on a table, timed to
+the die drawn spinning on its push button as a slot machine's reel does (PartHook): the button
+pushed down into its collar with a thump of the box under it, then a light tick as each face of
+the die goes by, quick and even at first over a soft whir, further apart as it brakes, the last
+one a firmer clack where it lands, and a soft knock as it settles back onto that face. Three
+takes, each its own die and its own machine.
 
-    tools/make_die_sound
+Not part of `make check`: run it again only to change the sounds, naming the one to build, throw
+or shuffle, or neither for both. Needs ffmpeg, python3 and numpy.
+
+    tools/make_die_sound [throw|shuffle]
 """
 import os
 import subprocess
+import sys
 
 import numpy as np
 
@@ -36,6 +47,23 @@ SETTLE = [(0.032, 0.13), (0.054, 0.08), (0.069, 0.045), (0.079, 0.025)]
 LENGTH = 1.15
 # Over this the whole throw is rolled off, a die and a table having little up there.
 TOP = 8000.0
+# The shuffle's roll: how long the die on its push button spins, how many faces go by, how far
+# into the spin it starts to brake and when it stops, a little past its last face, how far past,
+# PartHook.ROLL, ROLL_FACES, ROLL_BRAKE, ROLL_STOP and ROLL_PAST, changed together; how loud a face
+# going by ticks, the last one lands, the whir under them at full speed is and it settles, as a
+# share of the push; when it has settled back onto that face, as a share of the spin; and how long
+# the sound is.
+ROLL = 1.0
+ROLL_FACES = 12
+ROLL_BRAKE = 0.35
+ROLL_STOP = 0.8
+ROLL_PAST = 0.22
+TICK = 0.3
+LANDED = 0.8
+WHIR = 0.03
+SEAT = 0.15
+SEATED = 0.94
+ROLL_LENGTH = 1.25
 
 
 def lowpass(x, cutoff):
@@ -134,6 +162,79 @@ def take(seed):
     return lowpass(room(out, rng), TOP)
 
 
+def smoothstep(low, high, x):
+    t = min(max((x - low) / (high - low), 0.0), 1.0)
+    return t * t * (3.0 - 2.0 * t)
+
+
+def reel_run(t):
+    """How many faces have gone by [t] seconds into a roll: PartHook.reel_run, in seconds."""
+    t /= ROLL
+    if t >= ROLL_STOP:
+        return ROLL_FACES + ROLL_PAST * (1.0 - smoothstep(ROLL_STOP, 1.0, t))
+    u = t / ROLL_STOP
+    brake = ROLL_BRAKE / ROLL_STOP
+    speed = 2.0 / (1.0 + brake)
+    run = speed * u
+    if u > brake:
+        run -= speed * (u - brake) ** 2 / (2.0 * (1.0 - brake))
+    return (ROLL_FACES + ROLL_PAST) * run
+
+
+def alone(rng, die, box, strength, knock, second=0.0):
+    """One meeting of the die and the machine by itself, from its start, and a second one softer a
+    few milliseconds after if [second], as its face follows its edge down."""
+    sound = np.zeros(int(0.15 * SR))
+    hit(sound, 0.0, strength, die, box, rng, knock)
+    if second > 0.0:
+        hit(sound, rng.uniform(0.005, 0.008), strength * second, die, box, rng)
+    return sound
+
+
+def heard(sound):
+    """How loud [sound] is heard, near enough: its peak with the lows an ear makes little of taken
+    off, so a click and a thump are compared as they sound rather than as they swing."""
+    return np.max(np.abs(highpass(sound, 400.0)))
+
+
+def roll(seed):
+    rng = np.random.default_rng(seed)
+    out = np.zeros(int(ROLL_LENGTH * SR))
+    # Its own machine, a steel box under the plate, damped as the table is but a little higher and
+    # hollower; and its own die, the throw's click.
+    box = modes(rng, [
+        (95.0, 125.0, 0.9, 0.025),
+        (380.0, 520.0, 0.7, 0.01),
+        (1100.0, 1500.0, 0.5, 0.005),
+        (2700.0, 3300.0, 0.25, 0.003),
+    ], 0.12)
+    die = modes(rng, [(2200.0, 3000.0, 1.0, 0.0009), (3600.0, 4600.0, 0.7, 0.0007)], 0.008)
+    # Pushed down into its collar: the cap's edge, its face a moment after, and the box under it.
+    push = alone(rng, die, box, 1.0, 1.6, second=0.35)
+    put(out, 0.0, push)
+    level = heard(push)
+
+    def at(when, share, sound):
+        put(out, when, sound * share * level / heard(sound))
+
+    # Spinning: a tick as each face goes by, light, with little of the box in it, over a whir as
+    # quick as the reel; the last face a firmer clack, landing.
+    t = np.arange(int(ROLL * SR)) / SR
+    run = np.array([reel_run(when) for when in t])
+    for face in range(1, ROLL_FACES + 1):
+        when = t[np.argmax(run >= face)]
+        if face == ROLL_FACES:
+            at(when, LANDED, alone(rng, die, box, 1.0, 1.2, second=0.3))
+        else:
+            at(when, TICK * rng.uniform(0.85, 1.1), alone(rng, die, box, 1.0, 0.25))
+    speed = np.maximum(np.gradient(run) * SR, 0.0)
+    whir = lowpass(highpass(rng.standard_normal(len(t)), 900.0), 3500.0)
+    put(out, 0.0, WHIR * level * whir / np.sqrt(np.mean(whir ** 2)) * speed / speed.max())
+    # Settled back onto that face past which it ran: a soft knock.
+    at(SEATED * ROLL + rng.uniform(-0.01, 0.01), SEAT, alone(rng, die, box, 1.0, 0.6))
+    return lowpass(room(out, rng), TOP)
+
+
 def write(out, name):
     fade = int(0.04 * SR)
     out[-fade:] *= np.linspace(1.0, 0.0, fade)
@@ -149,8 +250,13 @@ def write(out, name):
 
 
 def main():
-    for i, seed in enumerate([11, 23, 37]):
-        write(take(seed), "die_throw_%d.ogg" % (i + 1))
+    which = sys.argv[1:] or ["throw", "shuffle"]
+    if "throw" in which:
+        for i, seed in enumerate([11, 23, 37]):
+            write(take(seed), "die_throw_%d.ogg" % (i + 1))
+    if "shuffle" in which:
+        for i, seed in enumerate([41, 53, 67]):
+            write(roll(seed), "shuffle_roll_%d.ogg" % (i + 1))
 
 
 if __name__ == "__main__":

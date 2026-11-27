@@ -2068,7 +2068,12 @@ PLACE; on a short screen, as a phone's, it fills the screen with no frame.
   on a profile's, and a color nobody else in the room is in, another than the one it was in,
   and keeps them. The option key, F or X,
   presses it from anywhere in the dialog, and its button goes down and its die spins as for
-  a click.
+  a click. Heard as the name's die clicking on a machine rather than a table: the button
+  pushed down with a thump of the box under it, a light tick as each face goes by over a soft
+  whir, quick and then further apart as it brakes, a firmer clack where it lands and a soft
+  knock as it settles back, one of three takes made by tools/make_die_sound to the reel's own
+  timing. Pressed again as it spins, the roll is heard again from the push, the first cut
+  short.
 - **The rack.** A hook pressed hangs the rack of its part over the bench, rising into its
   place from behind the bench's bottom edge, a little past and back, and dropping back
   behind it as it is put away; a pegboard of the

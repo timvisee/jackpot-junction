@@ -28,6 +28,11 @@ const ROLL_PAST := 0.22
 const ROLL_BLUR := 30.0
 ## How long the push button stays pushed in as it rolls, for a shuffle done by a key.
 const PUSH_TIME := 0.14
+## The roll heard, and how loud: the button pushed, a tick as each face goes by and a clack where
+## it lands, timed to [constant ROLL] and the rest of the roll's, which tools/make_die_sound builds
+## it to; change them together. Played at its own pitch, so its ticks stay on time.
+const SOUND := &"shuffle_roll"
+const SOUND_DB := -6.0
 ## How far round the hook its picked-out picture reaches, for its tape's glow, and the group told
 ## when one is ready, see [method _draw_picked].
 const PICKED_AROUND := 16.0
@@ -184,9 +189,12 @@ func focus_frame() -> Rect2:
 
 ## The shuffle's die spun as a slot machine's reel: its faces running down through the button,
 ## fast and then slowing, until it comes to rest on one at random, the button pushed in a moment
-## as it starts. Pressed again as it spins, it spins on from the face it is on.
+## as it starts, heard, see [constant SOUND]. Pressed again as it spins, it spins on from the face
+## it is on, heard again from the push, the first roll's ticks cut short.
 func roll() -> void:
 	_pushed = PUSH_TIME
+	Audio.cut_sfx(SOUND)
+	Audio.play_sfx(SOUND, SOUND_DB, 0.0)
 	var from := face
 	if _rolling >= 0.0:
 		from = _reel[clampi(roundi(reel_run(_rolling / ROLL)), 0, _reel.size() - 1)]

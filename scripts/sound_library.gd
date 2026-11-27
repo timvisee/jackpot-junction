@@ -108,4 +108,7 @@ const EFFECTS: Dictionary[StringName, Array] = {
 	# The name die thrown, GAME.md 4.4a and 9.6: one die landing on a table three times, timed to
 	# the die drawn hopping, see tools/make_die_sound and [NameDie].
 	&"die_throw": ["die_throw_1.ogg", "die_throw_2.ogg", "die_throw_3.ogg"],
+	# The kart dialog's shuffle, GAME.md 4.4a: its push button pushed, a tick for each face of its
+	# die going by as it spins, and a clack where it lands, see tools/make_die_sound and [PartHook].
+	&"shuffle_roll": ["shuffle_roll_1.ogg", "shuffle_roll_2.ogg", "shuffle_roll_3.ogg"],
 }

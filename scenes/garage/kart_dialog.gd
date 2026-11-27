@@ -616,7 +616,6 @@ func shuffle() -> void:
 		keys[current].say(owner_now)
 		_color_tried = -1
 		_show_color()
-	Audio.play_sfx(&"stamp", -6.0, 0.05)
 	_style = owner_now.style()
 	_show_dress()
 	stage.perform(KartStage.Move.DONUT)

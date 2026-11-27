@@ -278,6 +278,16 @@ func stop_sounds() -> void:
 		player.stop()
 
 
+## Cuts short [param name] wherever it is still playing, any of its takes, for one starting over
+## that has to keep time with what is drawn, see [method PartHook.roll].
+func cut_sfx(name: StringName) -> void:
+	for file: String in LIBRARY.get(name, []):
+		var stream: AudioStream = _streams.get(file)
+		for player: AudioStreamPlayer in _pool:
+			if stream != null and player.playing and player.stream == stream:
+				player.stop()
+
+
 ## Mutes or unmutes the music bus at once and remembers the choice.
 func toggle_music_mute() -> void:
 	Game.settings.music_muted = not Game.settings.music_muted
