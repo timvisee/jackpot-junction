@@ -523,14 +523,15 @@ static func _dot() -> Texture2D:
 
 
 ## A map pin stuck in at [param at], [param tall] high, the Pin button's drawing, see
-## [method HouseArt.pin]: a steel needle up from its point and a red head on it, the head's shadow
-## on the paper; what is pinned wears it, GAME.md 8.9.
+## [method HouseArt.pin]: a steel needle up from its point and a red head on it, its shadow side
+## screened, or a flat darker red while it is small, the head's shadow on the paper; what is pinned
+## wears it, GAME.md 8.9.
 static func draw_pin(on: CanvasItem, at: Vector2, tall: float) -> void:
 	var side := tall * PIN_BOX
 	var box := Rect2(at - PIN_TIP * side, Vector2(side, side))
 	var head := box.position + PIN_HEAD * side
 	on.draw_circle(head + Vector2(1.5, 2.0), PIN_HEAD_SIZE * side, Color(0.0, 0.0, 0.0, 0.3))
-	IconPress.draw(on, box, &"ui_pin", PIN_RED, IconPress.Ground.PAPER, PIN_STEEL)
+	IconPress.draw(on, box, &"ui_pin", PIN_RED, IconPress.Ground.TWO_INKS, PIN_STEEL, true)
 
 
 ## The cursor's mark round the sign at [param rect] the cursor is at, GAME.md 8.9: the sign lifted

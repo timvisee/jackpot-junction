@@ -116,10 +116,10 @@ static func cross() -> ImageTexture:
 
 
 ## A map pin standing a little aslant, for the button that pins a bet of the loyalty program,
-## GAME.md 8.9: a cream needle under a red head, the map's own pin, see
-## [method LoyaltyArt.draw_pin]. In its own colors, which the house's white icon tint leaves be.
+## GAME.md 8.9: a cream needle under a red head, its shadow side a darker red, the map's own pin,
+## see [method LoyaltyArt.draw_pin]. In its own colors, which the house's white icon tint leaves be.
 static func pin() -> ImageTexture:
-	return _printed(&"ui_pin", ICON, PIN_RED, IconPress.CREAM)
+	return _printed(&"ui_pin", ICON, PIN_RED, IconPress.CREAM, IconPress.Ground.TWO_INKS)
 
 
 ## Two arrows chasing each other round a circle, for a button that turns something over. White, for
@@ -169,17 +169,21 @@ static func _chip(image: Image, middle: Vector2, radius: float, face: Color, not
 			image.set_pixel(x, y, under.blend(Color(ink, covered)))
 
 
-## The glyph [param id] of GAME.md 8.3a printed flat in [param ink], [constant DETAIL] times bigger
+## The glyph [param id] of GAME.md 8.3a printed in [param ink], [constant DETAIL] times bigger
 ## than its [param shown] side, what is light in it in [param light] or left bare so the button
-## shows through, see [IconPress].
+## shows through, see [IconPress]: flat on paper, or on [param ground] with its shadow side.
 static func _printed(
-	id: StringName, shown: int, ink: Color, light := Color.TRANSPARENT
+	id: StringName,
+	shown: int,
+	ink: Color,
+	light := Color.TRANSPARENT,
+	ground := IconPress.Ground.PAPER
 ) -> ImageTexture:
 	var key := String(id)
 	if _drawn.has(key):
 		return _drawn[key]
 	var side := shown * DETAIL
-	var image := IconPress.printed(id, ink, side, IconPress.Ground.PAPER, light)
+	var image := IconPress.printed(id, ink, side, ground, light, shown, true)
 	return _keep(key, image, Vector2i(shown, shown))
 
 

@@ -5173,7 +5173,8 @@ House's inks on paper; the wild card's jester, the Jokers card's hat, is two dra
 over the other, its points in red with the middle one cream, then its band and bells in gold. The
 arena's pads and stickers keep their own outlined suits, `SuitArt`. The emotes print in the House's ink
 on their chip's inlay, the heart in the table's red in two inks. Below 40 pixels a picture drops its
-shading and its glints, which would only blur it, and the halftone turns flat.
+shading and its glints, which would only blur it, and the halftone turns flat; the map pin alone,
+so small wherever it is stuck, keeps its shadow side there as a flat darker red.
 An ink nearly as dark as the card, Oil Stain's purple, is lifted toward white
 until it reads.
 

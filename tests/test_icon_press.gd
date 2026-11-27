@@ -219,6 +219,34 @@ func test_on_paper_cream_is_the_paper() -> void:
 	assert_bool(IconPress.look_of(oil, 96, IconPress.Ground.TWO_INKS, paper)["glints"]).is_true()
 
 
+## A toned picture keeps its shadow side when it is too small for the screen, as a flat darker ink,
+## where any other drops it: the map's pin. Kept bigger than it shows, it is shaded as what it shows
+## at.
+func test_a_toned_picture_keeps_its_shadow_side_when_small() -> void:
+	var drawing := IconPress.parse(
+		FileAccess.get_file_as_string("res://assets/icons/ui/ui_pin.svg")
+	)
+	var red := LoyaltyArt.PIN_RED
+	var shade := red.lerp(IconPress.INKY, IconPress.INKY_SHADE)
+	var two := IconPress.Ground.TWO_INKS
+	var flat := IconPress.image(drawing, red, 28, two, IconPress.CREAM)
+	var toned := IconPress.image(drawing, red, 28, two, IconPress.CREAM, 0, true)
+	var kept := IconPress.image(drawing, red, 112, two, IconPress.CREAM, 28, true)
+	assert_int(_count_near(flat, shade)).is_equal(0)
+	assert_int(_count_near(toned, shade)).is_greater(4)
+	assert_int(_count_near(kept, shade)).is_greater(40)
+
+
+static func _count_near(picture: Image, color: Color) -> int:
+	var count := 0
+	for y: int in picture.get_height():
+		for x: int in picture.get_width():
+			var pixel := picture.get_pixel(x, y)
+			if pixel.a > 0.9 and _near(pixel, color):
+				count += 1
+	return count
+
+
 ## On bare paper what is cream is left unprinted, even where it lies on ink without a gap round it:
 ## a slot machine's reels show the button under them, the cabinet round them is ink.
 func test_cream_on_bare_paper_shows_what_is_under_it() -> void:

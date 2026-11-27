@@ -61,7 +61,8 @@ const TINT := 0.4
 ## An ink too dark to read on the card is lifted toward white until it does: Oil Stain's purple.
 const READABLE := 0.34
 const LIFT := 0.1
-## Below this many pixels a picture drops its shading and glints, which would only blur it.
+## Below this many pixels a picture drops its shading and glints, which would only blur it; a toned
+## one keeps its shadow side there as a flat darker ink, see [method draw].
 const SMALL := 40
 ## The halftone's screen, the same in screen pixels whatever size a picture is shown at: a tile
 ## this many pixels a side, a dot every [constant SCREEN] pixels along a row and a row between
@@ -120,22 +121,24 @@ static func has(id: StringName) -> bool:
 
 ## Draws [param id] into the square in the middle of [param box] on [param on], in [param ink],
 ## at the size it will show on screen, on [param ground]; on paper, what is cream is printed in
-## [param paper], or left bare where that is clear. Its alpha fades the picture. False if there is
-## no drawing.
+## [param paper], or left bare where that is clear. Its alpha fades the picture. [param toned]
+## keeps its shadow side when it is small, flat rather than screened, as the map's pin does.
+## False if there is no drawing.
 static func draw(
 	on: CanvasItem,
 	box: Rect2,
 	id: StringName,
 	ink: Color,
 	ground := Ground.CARD,
-	paper := Color.TRANSPARENT
+	paper := Color.TRANSPARENT,
+	toned := false
 ) -> bool:
 	var side := minf(box.size.x, box.size.y)
 	if side <= 0.0:
 		return false
 	var square := Rect2(box.get_center() - Vector2(side, side) * 0.5, Vector2(side, side))
 	var pixels := side * KeptPictures.scale_of(on)
-	var picture := texture(id, Color(ink, 1.0), pixels, ground, paper)
+	var picture := texture(id, Color(ink, 1.0), pixels, ground, paper, toned)
 	if picture == null:
 		return false
 	on.draw_texture_rect(picture, square, false, Color(1.0, 1.0, 1.0, ink.a))
@@ -144,17 +147,24 @@ static func draw(
 
 ## [param id] printed in [param ink] for about [param pixels] a side, kept for the next asker.
 static func texture(
-	id: StringName, ink: Color, pixels: float, ground := Ground.CARD, paper := Color.TRANSPARENT
+	id: StringName,
+	ink: Color,
+	pixels: float,
+	ground := Ground.CARD,
+	paper := Color.TRANSPARENT,
+	toned := false
 ) -> Texture2D:
 	var side := step(pixels)
-	var key := "%s|%s|%d|%d|%s" % [id, ink.to_html(false), side, ground, paper.to_html()]
+	var key := "%s|%s|%d|%d|%s|%s" % [id, ink.to_html(false), side, ground, paper.to_html(), toned]
 	var kept: Texture2D = _pictures.get(key)
 	if kept != null:
 		return kept
 	var drawing := _drawing(id)
 	if drawing.is_empty():
 		return null
-	var picture := ImageTexture.create_from_image(image(drawing, ink, side, ground, paper))
+	var picture := ImageTexture.create_from_image(
+		image(drawing, ink, side, ground, paper, 0, toned)
+	)
 	if _pictures.size() >= KEPT:
 		_pictures.erase(_pictures.keys()[0])
 	_pictures[key] = picture
@@ -162,14 +172,21 @@ static func texture(
 
 
 ## [param id] printed in [param ink], [param side] pixels a side, on [param ground], for a picture
-## that is kept elsewhere, as the house's buttons keep theirs; null if there is no drawing.
+## that is kept elsewhere, as the house's buttons keep theirs, and shown at [param shown] pixels;
+## null if there is no drawing.
 static func printed(
-	id: StringName, ink: Color, side: int, ground := Ground.CARD, paper := Color.TRANSPARENT
+	id: StringName,
+	ink: Color,
+	side: int,
+	ground := Ground.CARD,
+	paper := Color.TRANSPARENT,
+	shown := 0,
+	toned := false
 ) -> Image:
 	var drawing := _drawing(id)
 	if drawing.is_empty():
 		return null
-	return image(drawing, ink, side, ground, paper)
+	return image(drawing, ink, side, ground, paper, shown, toned)
 
 
 ## The size of the steps that [param pixels] is rasterized at.
@@ -181,15 +198,27 @@ static func step(pixels: float) -> int:
 
 
 ## [param drawing] printed in [param ink], [param side] pixels a side, on [param ground].
+## Drawn [param side] pixels a side for a screen showing it at [param shown], the same when 0: a
+## picture kept bigger than it shows is shaded as what it shows at. [param toned] keeps the
+## shadow side of a small one as a flat tone.
 static func image(
-	drawing: Dictionary, ink: Color, side: int, ground := Ground.CARD, paper := Color.TRANSPARENT
+	drawing: Dictionary,
+	ink: Color,
+	side: int,
+	ground := Ground.CARD,
+	paper := Color.TRANSPARENT,
+	shown := 0,
+	toned := false
 ) -> Image:
-	var look := look_of(ink, side, ground, paper)
+	var seen := shown if shown > 0 else side
+	var look := look_of(ink, seen, ground, paper)
 	ink = look["ink"]
-	var shaded := ground != Ground.PAPER and side >= SMALL and PRINTING != Printing.FLAT
-	var layer := Layer.TONE if shaded and PRINTING == Printing.TONE else Layer.FLAT
+	var big := seen >= SMALL
+	var shaded := ground != Ground.PAPER and (big or toned) and PRINTING != Printing.FLAT
+	var flat_shade := shaded and (PRINTING == Printing.TONE or not big)
+	var layer := Layer.TONE if flat_shade else Layer.FLAT
 	var printed := _raster(compose(drawing, ink, look, layer, side), side)
-	if shaded and PRINTING == Printing.HALFTONE:
+	if shaded and not flat_shade and PRINTING == Printing.HALFTONE:
 		var mask := _raster(compose(drawing, ink, look, Layer.SHADE, side), side)
 		var screen := _screen(side, look["shade"])
 		printed.blend_rect_mask(screen, mask, Rect2i(0, 0, side, side), Vector2i.ZERO)
