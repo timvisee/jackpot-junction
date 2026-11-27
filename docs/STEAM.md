@@ -257,9 +257,12 @@ takes everything back on the account, for trying it again.
 
 ## Rich presence
 
-Under Community > Rich Presence, upload `docs/steam/rich_presence.vdf` (UTF-8) and
-publish. It holds the words for every token the game sets, GAME.md 10.8, and a
-test holds it to the game: a new map needs its `#Map_<id>` line. Check what an
+Under Community > Rich Presence, upload each of `docs/steam/rich_presence_<language>.vdf`
+(UTF-8), one at a time, each naming its language inside: `rich_presence_english.vdf`, then
+`rich_presence_dutch.vdf`. Then publish. They hold the words for every token the game sets,
+GAME.md 10.8, in each language the game speaks, from its translations, and Steam shows each
+friend their own, English where it has none. `make steam-presence` writes them, and a test fails
+while they are behind the game: after a new map, or `make strings` with new words. Check what an
 account says at https://steamcommunity.com/dev/testrichpresence while it plays.
 Under app 480 nothing of ours can be uploaded, so the friends list shows nothing
 of it, but the test page still lists the keys.

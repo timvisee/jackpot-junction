@@ -2757,7 +2757,8 @@ msgstr "Matchpoint"
 msgid "Tie-breaker: %s"
 msgstr "Beslissing: %s"
 
-#: scenes/match/timeline_record.gd scenes/ui/tie_words.gd scripts/arena_maps.gd
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scenes/match/timeline_record.gd scenes/ui/tie_words.gd scripts/arena_maps.gd scripts/store/steam_presence.gd
 msgid "Showdown"
 msgstr "Showdown"
 
@@ -4732,7 +4733,8 @@ msgstr "Spel van de host"
 msgid "%s's game"
 msgstr "Spel van %s"
 
-#: scenes/ui/game_list.gd
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scenes/ui/game_list.gd scripts/store/steam_presence.gd
 msgid "In the lobby"
 msgstr "In de lobby"
 
@@ -8860,6 +8862,51 @@ msgstr "Dat is geen Jackpot Junction-spel"
 #: scripts/store/steam_lobby.gd
 msgid "That game is version {theirs}, and this one is {mine}"
 msgstr "Dat spel draait versie {theirs}, dit spel {mine}"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "In the menus"
+msgstr "In de menu's"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "In the Garage"
+msgstr "In de Garage"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "At the Driving School"
+msgstr "Op de Rijschool"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "In the lobby · %players%/%most%"
+msgstr "In de lobby · %players%/%most%"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Playing {#Map_%map%}"
+msgstr "Speelt op {#Map_%map%}"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Playing {#Map_%map%} · %players% players"
+msgstr "Speelt op {#Map_%map%} · %players% spelers"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Grand Prix %leg%/%legs% · {#Map_%map%}"
+msgstr "Grand Prix %leg%/%legs% · {#Map_%map%}"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Grand Prix %leg%/%legs% · {#Map_%map%} · %players% players"
+msgstr "Grand Prix %leg%/%legs% · {#Map_%map%} · %players% spelers"
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Showdown · %players% players"
+msgstr "Showdown · %players% spelers"
 
 #: scripts/store/steam_store.gd
 msgid "Steam isn't running"

@@ -11115,7 +11115,8 @@ the game's at start and says what either lacks.
 #### Presence
 
 What the friends list says a player is doing is Steam's rich presence: a token per kind of place,
-with the words in `docs/steam/rich_presence.vdf`, uploaded to Steamworks whenever it changes.
+with the words in a file per language, `docs/steam/rich_presence_<language>.vdf`, written by
+`make steam-presence` from `SteamPresence.WORDS` and uploaded to Steamworks whenever they change.
 
 | Where | Says |
 |---|---|
@@ -11822,9 +11823,10 @@ pages, the log, and a dedicated server's console and web page; whatever a server
 as words for another machine. Steam's own words come from the game's translations where the game
 hands them to Steam, in English and every language the game speaks, each under the name Steam gives
 it (`Lang.on_steam()`, the words looked up with `Lang.t_in()` whatever is spoken): the controller
-actions' names in `data/steam/input/`, written by `make steam-input`, a test failing until they are,
-and the achievements' names and objectives in the table `make steam-achievement-art` writes for
-Steamworks' bulk import. The store page and the presence are translated on Steamworks.
+actions' names in `data/steam/input/`, written by `make steam-input`, and the presence's words in
+`docs/steam/`, by `make steam-presence`, tests failing until they are; and the achievements' names
+and objectives in the table `make steam-achievement-art` writes for Steamworks' bulk import. The
+store page is translated on Steamworks.
 
 ## 11. Roadmap
 

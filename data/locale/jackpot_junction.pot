@@ -2755,7 +2755,8 @@ msgstr ""
 msgid "Tie-breaker: %s"
 msgstr ""
 
-#: scenes/match/timeline_record.gd scenes/ui/tie_words.gd scripts/arena_maps.gd
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scenes/match/timeline_record.gd scenes/ui/tie_words.gd scripts/arena_maps.gd scripts/store/steam_presence.gd
 msgid "Showdown"
 msgstr ""
 
@@ -4721,7 +4722,8 @@ msgstr ""
 msgid "%s's game"
 msgstr ""
 
-#: scenes/ui/game_list.gd
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scenes/ui/game_list.gd scripts/store/steam_presence.gd
 msgid "In the lobby"
 msgstr ""
 
@@ -8842,6 +8844,51 @@ msgstr ""
 
 #: scripts/store/steam_lobby.gd
 msgid "That game is version {theirs}, and this one is {mine}"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "In the menus"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "In the Garage"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "At the Driving School"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "In the lobby · %players%/%most%"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Playing {#Map_%map%}"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Playing {#Map_%map%} · %players% players"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Grand Prix %leg%/%legs% · {#Map_%map%}"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Grand Prix %leg%/%legs% · {#Map_%map%} · %players% players"
+msgstr ""
+
+#. Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+#: scripts/store/steam_presence.gd
+msgid "Showdown · %players% players"
 msgstr ""
 
 #: scripts/store/steam_store.gd

@@ -82,9 +82,10 @@ too. After translating them, run `python3 tools/make_house_prints.py` and
 numpy).
 
 Some words are Steam's too: the names Steam shows for the game's controls in its controller
-settings, and the achievements' names and objectives on Steam, which are the game's own. They are in
-the template as the rest are; `make steam-input` and `make steam-achievement-art` write them into
-Steam's files in every language that translates them.
+settings, what the friends list says a player is doing, and the achievements' names and objectives
+on Steam, which are the game's own. They are in the template as the rest are; `make steam-input`,
+`make steam-presence` and `make steam-achievement-art` write them into Steam's files in every
+language that translates them.
 
 ## Notes per language
 

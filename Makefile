@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check strings strings-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check strings strings-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-presence steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -299,6 +299,12 @@ steam-addon:
 # goes or a pad's default button changes: test_steam_actions fails until it is.
 steam-input: | $(CACHE)
 	$(GODOT) --headless --path . -s tools/steam_input.gd
+
+# What the Steam friends list says, GAME.md 10.8: a file of the presence's words for each language
+# the game speaks, into docs/steam, from SteamPresence, uploaded to Steamworks. Run whenever a token,
+# a map or the words change: test_steam_presence fails until it is.
+steam-presence: | $(CACHE)
+	$(GODOT) --headless --path . -s tools/steam_presence.gd
 
 # The game from this checkout with Steam on, as Spacewar, app 480, unless data/steam/app.cfg names
 # another: Steam has to be running. Without --steam nothing ever talks to Steam, GAME.md 10.8. The

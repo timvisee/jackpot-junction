@@ -2,15 +2,15 @@ class_name SteamPresence
 extends Node
 ## What the Steam friends list says this player is doing, GAME.md 10.8: Steam's rich presence, read
 ## off the room being played once a second and told to Steam when it changes. A token per kind of
-## place, `steam_display`, its words in docs/steam/rich_presence.vdf, which Steamworks keeps; the
-## map, the Grand Prix's leg and the people playing as the keys its words are filled in from; and in
-## a Steam game, the lobby, so friends in the same game are grouped. Made by [Game] from its path
-## with Steam on, so nothing it names is compiled with the autoloads.
+## place, `steam_display`, its words in [constant WORDS], which Steamworks keeps in every language
+## the game speaks, see [method files]; the map, the Grand Prix's leg and the people playing as the
+## keys its words are filled in from; and in a Steam game, the lobby, so friends in the same game
+## are grouped. Made by [Game] from its path with Steam on, so nothing it names is compiled with
+## the autoloads.
 
 ## How often the room is read, in seconds.
 const EVERY := 1.0
-## The tokens, as docs/steam/rich_presence.vdf has them, a test holding the two together. Steam's
-## keys, whose words are translated on Steamworks, GAME.md 10.9, NO_TRANSLATE.
+## The tokens, Steam's keys for the words in [constant WORDS]. NO_TRANSLATE
 const MENUS := "#Menus"
 const GARAGE := "#Garage"
 const SCHOOL := "#School"
@@ -20,8 +20,28 @@ const GRAND_PRIX := "#GrandPrix"
 const SHOWDOWN := "#Showdown"
 ## What a token is called online, with the people playing in its words.
 const ONLINE := "Online"  # NO_TRANSLATE
-## What a map's own token is called after: `#Map_vault`.
+## What a map's own token is called after: `#Map_vault`, its words the map's name.
 const MAP_PREFIX := "#Map_"  # NO_TRANSLATE
+## What the friends list says for each token, in English, and in each other language the game speaks
+## as tr() would say it there, see [method files]. Steam fills in %players% and the other keys, and
+## {#Map_%map%} with the words of the map's own token.
+# TRANSLATORS: Steam's friends list, saying what a friend is doing. Keep %players%, %most%, %leg%,
+# %legs% and {#Map_%map%} as they are: Steam fills them in, the last with the map's name.
+const WORDS: Dictionary[String, String] = {
+	MENUS: "In the menus",
+	GARAGE: "In the Garage",
+	SCHOOL: "At the Driving School",
+	LOBBY: "In the lobby",
+	LOBBY + ONLINE: "In the lobby · %players%/%most%",
+	MAP: "Playing {#Map_%map%}",
+	MAP + ONLINE: "Playing {#Map_%map%} · %players% players",
+	GRAND_PRIX: "Grand Prix %leg%/%legs% · {#Map_%map%}",
+	GRAND_PRIX + ONLINE: "Grand Prix %leg%/%legs% · {#Map_%map%} · %players% players",
+	SHOWDOWN: "Showdown",
+	SHOWDOWN + ONLINE: "Showdown · %players% players",
+}
+## Where the files of words are kept, uploaded to Steamworks from there, docs/STEAM.md.
+const FOLDER := "res://docs/steam"
 
 var _since := 0.0
 
@@ -53,6 +73,25 @@ func _process(delta: float) -> void:
 func _exit_tree() -> void:
 	if Store.on():
 		Store.steam.present({})
+
+
+## Steam's words for every token, the maps' among them, a file for each language the game speaks,
+## by its name in [constant FOLDER]: `rich_presence_<language>.vdf`, the language as Steam names it,
+## which Steamworks takes one at a time. `make steam-presence` writes them, a test failing until it
+## has.
+static func files() -> Dictionary[String, String]:
+	var all: Dictionary[String, String] = {}
+	var steam := Lang.on_steam()
+	for language: String in steam:
+		var tokens: Array = []
+		for token: String in WORDS:
+			tokens.append([token, Lang.t_in(steam[language], WORDS[token])])
+		for index: int in ArenaMaps.IDS.size():
+			var words := Lang.t_in(steam[language], ArenaMaps.NAMES[index])
+			tokens.append([MAP_PREFIX + ArenaMaps.IDS[index], words])
+		var file := [["lang", [["Language", language], ["Tokens", tokens]]]]  # NO_TRANSLATE
+		all["rich_presence_%s.vdf" % language] = SteamActions.vdf(file)  # NO_TRANSLATE
+	return all
 
 
 ## Where the player is, from [param scene], the room being played: its scene, and in a room with

@@ -1,0 +1,26 @@
+"lang"
+{
+	"Language"		"dutch"
+	"Tokens"
+	{
+		"#Menus"		"In de menu's"
+		"#Garage"		"In de Garage"
+		"#School"		"Op de Rijschool"
+		"#Lobby"		"In de lobby"
+		"#LobbyOnline"		"In de lobby · %players%/%most%"
+		"#Map"		"Speelt op {#Map_%map%}"
+		"#MapOnline"		"Speelt op {#Map_%map%} · %players% spelers"
+		"#GrandPrix"		"Grand Prix %leg%/%legs% · {#Map_%map%}"
+		"#GrandPrixOnline"		"Grand Prix %leg%/%legs% · {#Map_%map%} · %players% spelers"
+		"#Showdown"		"Showdown"
+		"#ShowdownOnline"		"Showdown · %players% spelers"
+		"#Map_lucky_crossing"		"Gelukskruising"
+		"#Map_vault"		"De Kluis"
+		"#Map_crossfire"		"Kruisvuur"
+		"#Map_loose_threads"		"Losse Draadjes"
+		"#Map_pin_alley"		"Flippersteeg"
+		"#Map_toy_box"		"Speelgoedkist"
+		"#Map_house_rules"		"Huisregels"
+		"#Map_showdown"		"Showdown"
+	}
+}

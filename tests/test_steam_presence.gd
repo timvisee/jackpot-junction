@@ -1,9 +1,8 @@
 extends GdUnitTestSuite
 ## What the Steam friends list says, GAME.md 10.8: the token for each kind of place, the keys it is
 ## filled in from, Steam told only what changed, and the words Steamworks keeps holding every token
-## the game sets.
+## the game sets, in every language the game speaks.
 
-const WORDS := "res://docs/steam/rich_presence.vdf"
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
 
 var _settings_were: Settings
@@ -104,10 +103,12 @@ func test_steam_hears_only_what_changed() -> void:
 	assert_dict(fake.presence).is_empty()
 
 
-## Every token the game sets, and every map's, is in the words Steamworks keeps.
+## Every token the game sets, and every map's, is in the words Steamworks keeps, in each language.
 func test_every_token_has_words() -> void:
-	var words := FileAccess.get_file_as_string(WORDS)
-	assert_str(words).is_not_empty()
+	var files := SteamPresence.files()
+	assert_array(files.keys()).contains_exactly(
+		["rich_presence_english.vdf", "rich_presence_dutch.vdf"]
+	)
 	var tokens: Array[String] = []
 	for base: String in [SteamPresence.MAP, SteamPresence.GRAND_PRIX, SteamPresence.SHOWDOWN]:
 		tokens.append_array([base, base + SteamPresence.ONLINE])
@@ -125,10 +126,35 @@ func test_every_token_has_words() -> void:
 	)
 	for map: StringName in ArenaMaps.IDS:
 		tokens.append(SteamPresence.MAP_PREFIX + String(map))
-	for token: String in tokens:
-		assert_str(words).override_failure_message("no words for %s" % token).contains(
-			'"%s"' % token
+	for name: String in files:
+		assert_str(files[name]).contains(
+			'\t"Language"\t\t"%s"' % name.get_slice("_", 2).get_basename()
 		)
+		for token: String in tokens:
+			assert_str(files[name]).override_failure_message("no words for %s" % token).contains(
+				'"%s"' % token
+			)
+	# Each language's own words, a map's name the game's own.
+	var dutch := files["rich_presence_dutch.vdf"]
+	assert_str(dutch).contains('"#Map_vault"\t\t"%s"' % Lang.t_in("nl", "The Vault"))
+	assert_str(dutch).contains('"#Map"\t\t"%s"' % Lang.t_in("nl", "Playing {#Map_%map%}"))
+	assert_str(dutch).not_contains("Playing")
+	assert_str(files["rich_presence_english.vdf"]).contains('"#Map_vault"\t\t"The Vault"')
+
+
+## The files Steamworks is handed are the ones written from here, and no others.
+func test_the_files_of_words_are_written_from_here() -> void:
+	var files := SteamPresence.files()
+	for name: String in files:
+		var path := SteamPresence.FOLDER.path_join(name)
+		(
+			assert_str(FileAccess.get_file_as_string(path))
+			. override_failure_message("%s is old: make steam-presence" % path)
+			. is_equal(files[name])
+		)
+	for name: String in DirAccess.get_files_at(SteamPresence.FOLDER):
+		if name.ends_with(".vdf"):
+			assert_bool(files.has(name)).override_failure_message(name).is_true()
 
 
 func _display(place: Dictionary) -> String:
