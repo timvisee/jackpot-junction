@@ -11202,6 +11202,96 @@ snapshot, stays unreliable, a sequence number dropping a late one, where GodotSt
 reliably and hold everything up behind a lost one. `NetGuard` counts a Steam peer by its account,
 rather than as the "somewhere" every peer without an address would share.
 
+#### Public games and Quick Play
+
+Planned for the Steam launch, PLAN.md M24 L3 and L4, and not built yet. Once built, it replaces
+the friends-only lobby and the host leaving described above. Decided with the user on 2026-11-26
+from 34 numbered questions, with the screens picked from drawings
+(https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
+list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a
+press. It is in a Steam build only: the GitHub, itch.io and Android builds keep Play Online as it
+is, though something like it may come to them later.
+
+**Who may come in.** Host for friends and Invite only become one Host a game, beside a choice of
+who may join: Anyone, Friends or Invite only. It is Friends the first time, then whatever the host
+last picked; a game Quick Play makes is always Anyone. Lobby settings has the same choice, which
+changes the Steam lobby at once and shows nobody out. A public game has no password, as no Steam
+game has.
+
+**The list.** Play Online's first tab is Steam: one box of every Steam game this player may join,
+friends' games first, marked Friend, whether public or not, then public games, the lowest ping
+first, all in the one box, which scrolls. Quick Play stands over it with the cursor on it; Host a
+game and its choice stand under it. Steam is asked for public games of this game on this minor
+version only, by a lobby key saying "0.24", since 0.24.x plays 0.24.y (`GameVersion.compatible`),
+and from anywhere in the world. A stranger's game on another version never shows; a friend's still
+does, grayed with the version it needs, as now. The Playtest and the Next Fest demo are Steam apps
+of their own and list only their own players' games: Steam matches no demo with the full game.
+
+**A row.** The game's name, the one its host gave it or "Ann's game", with Friend after it when a
+friend is in it, over a gray line of its mode and where it is: "Grand Prix · Crossfire, map 2 of 3",
+"In the lobby · Single map, 5 min". At the row's right end, the seats as chips: a chip in their
+color for each player, a gray chip for each bot and a ring for each free seat, so bots making way
+for people is seen at a glance. Then the ping, as four bars and its number, and the eye beside the
+row, to watch. Each host writes its Steam ping location into its lobby, so the ping is Steam's
+estimate from here, made without connecting. Over 200 ms it is one red bar, and the game can still
+be joined. There is no count of players online and no language on a row: the game has no chat, so
+players of different languages have nothing to say to each other that emotes do not say.
+
+**Empty and full.** With no game listed, the box holds its link alone, "Start a game with bots:
+anybody can join it", as every list's does; a drawing of an empty table may come later. A full
+game, one without a seat for every player at this machine, is listed last. Its button is dimmed,
+says Full in place of its seats and cannot be pressed; its eye stays lit while it takes watchers.
+
+**Joining a match in play.** A newcomer goes straight in, into a bot's kart with its score, pot and
+jokers as 9.2 has it. A ticket over the arena says for three seconds whose kart it was and what came
+with it: "You took over Kit's kart · 420 banked · 60 in the pot · 2 jokers". Not in Last Call or on
+the podium: then the newcomer watches, told they take a seat on the next map, and is seated there.
+
+**Quick Play.** First on Play Online, in a Steam build. It asks Steam for public games near this
+player: Steam's default distance first, their region and those next to it, then far, never
+worldwide. A game it may join is public and on this version. It has a seat for every player at this
+machine, nobody in it whom the player has blocked on Steam, and a ping under Quick Play's cap. Of
+those it takes a friend's first, then the one with the most people, then one in its lobby before one
+playing a map, then the lowest ping. While it looks, a dialog in the look of Connecting says
+"Finding a game near you..." with its bar and Cancel. With nothing found in about three seconds it
+waits a moment, 0 to 2 s at random, and asks once more, so two players pressing at once do not both
+start an empty game. Still nothing, the dialog says it is starting a game with bots and that people
+take their seats as they come, and two seconds later the player is in a map against bots, not in an
+empty lobby.
+
+The game Quick Play hosts is public and called "Ann's game": a quick match, one map with its arena
+dealt, the host's Standard preset, normal bots and a player limit of 8. Bots make up four karts.
+Each person who joins takes a bot's kart; between maps the bots are dealt again, so people and bots
+are four, and past four people there are none, up to eight. A host who changes the Bots row in the
+match settings is played by that instead. In its lobby the match starts when everybody is on the
+pad, or 30 s after half of the room is, counted down over the pad; the host keeps Start now.
+Otherwise it is the host's game like any other: their rules, their kicks, their invites.
+
+**Players.** Everybody in a Steam game has Players on their pause menu: a seat card for everybody,
+with their name on Steam, Profile, which opens their Steam profile in the overlay, and Mute. The
+host's is Manage players, with Kick as well. Mute hides that player's emotes, picture and sound, on
+this screen for the rest of the game. Profile is where Steam's Report and Block are: the game has no
+report form of its own. It tells Steam whom it played with (`setPlayedWith`), so they stay in
+Steam's Recent Players after the game. Kick in a public game also bars the player from that game,
+by their Steam account, until the host stops hosting; in a friends' game it is as before, and they
+may come back. A lasting ban is Steam's own Block, which the game keeps to: a host turns away
+anybody it has blocked, the list leaves out games hosted by anybody the player has blocked, and
+Quick Play skips games with them in. Names, kart plates and game names from anybody who is not the
+reader's Steam friend go through Steam's text filter, by the reader's own Steam setting. There is
+no vote kick: the host kicks, and anybody unhappy with the host leaves, which costs nothing. In a
+public match a kart with no input for 60 s is driven by a bot, and any press takes it back.
+
+**A host who goes.** The game carries on at a new host. Steam hands the lobby to another player by
+itself when its owner goes, to the title, for good or with a lost connection. That player's machine
+opens a lobby with the game's rules as it was last sent them, and everybody else follows it there
+within a few seconds. The map being played is lost, since every kart, bot and joker of it ran at the
+old host, but the room and its people are kept. A host leaving on purpose, from the pause menu, the
+podium or the title, with anybody else in the game, is asked first and hands the game on before
+going, which is still open in its details. LAN games still end when the host goes, and a dedicated
+server's games keep Make host, 9.3a.
+
+**The store page** says in one line how online works.
+
 #### The overlay freezing a game
 
 On Linux, Steam's overlay can freeze a game for good: each time the window changes size, the
