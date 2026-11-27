@@ -596,7 +596,7 @@ Additional notes, the same for both:
   blood. Simulated gambling, yes: casino tables, chips and slot machines, though
   nothing is ever staked, real or in the game.
 - **AI disclosure**: pre-generated content, yes; live-generated, none, since
-  nothing is generated while playing. The description Steam shows with it: "This game is built by generative AI, with some assistance from a human. AI wrote the code and the in-game text, and the art is drawn by that code, so no image, voice or music generators were used. The music, sound effects and fonts are made by people."
+  nothing is generated while playing. The description Steam shows with it: "This game is built by generative AI, with some assistance from a human. AI wrote the code, the in-game text and its translations, and the art is drawn by that code, so no image, voice or music generators were used. The music, sound effects and fonts are made by people."
 - **Legal notice**, the store page's own line: "Jackpot Junction is free software
   under the GPL-3.0, with an additional permission to link the Steamworks SDK. Its
   own art is CC BY 4.0. Music by Ovani Sound, licensed to the game's developer.

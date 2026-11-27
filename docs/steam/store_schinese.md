@@ -112,7 +112,7 @@ English, with numbers and names that need no translating.
 
 Where Steamworks takes them per language.
 
-- **AI disclosure**: "本游戏由生成式 AI 制作，人类提供了一些协助。AI 编写了代码和游戏内的文字，美术由这些代码绘制，因此没有使用任何图像、语音或音乐生成工具。音乐、音效和字体均由人类创作。"
+- **AI disclosure**: "本游戏由生成式 AI 制作，人类提供了一些协助。AI 编写了代码、游戏内的文字及其翻译，美术由这些代码绘制，因此没有使用任何图像、语音或音乐生成工具。音乐、音效和字体均由人类创作。"
 - **Legal notice**: "头奖路口（Jackpot Junction）是自由软件，采用 GPL-3.0 许可，并附有链接 Steamworks SDK 的额外许可。游戏自有的美术采用 CC BY 4.0 许可。音乐由 Ovani Sound 创作，授权给本游戏的开发者使用。第三方素材列于游戏的制作人员名单中。"
 
 ## The supporter pack

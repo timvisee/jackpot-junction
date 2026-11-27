@@ -105,8 +105,8 @@ English, with numbers and names that need no translating.
 Where Steamworks takes them per language.
 
 - **AI disclosure**: "Dit spel is gebouwd met generatieve AI, met wat hulp van een mens. AI schreef
-  de code en de teksten in het spel, en de art wordt door die code getekend, dus er zijn geen
-  beeld-, stem- of muziekgeneratoren gebruikt. De muziek, de geluidseffecten en de lettertypen zijn
+  de code, de teksten in het spel en hun vertalingen, en de art wordt door die code getekend, dus
+  er zijn geen beeld-, stem- of muziekgeneratoren gebruikt. De muziek, de geluidseffecten en de lettertypen zijn
   door mensen gemaakt."
 - **Legal notice**: "Jackpot Junction is vrije software onder de GPL-3.0, met een extra
   toestemming om de Steamworks SDK te linken. De eigen art valt onder CC BY 4.0. Muziek door Ovani
