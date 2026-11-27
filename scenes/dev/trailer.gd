@@ -38,6 +38,9 @@ extends "res://scenes/dev/playground.gd"
 const CAPTION := preload("res://scenes/dev/trailer_caption.gd")
 const CAMERA := preload("res://scenes/dev/trailer_camera.gd")
 const FPS := 60
+## The hero's name, one of the names the game hands out, said as the game says it, as the README's
+## shots say it.
+const DRIVER := "Tail Light Tim"
 ## Watchers' reactions: how long before the shot they start, how often one floats up, and how many.
 const REACT_FROM := 1.6
 const REACT_EVERY := 0.24
@@ -345,10 +348,10 @@ func _once(key: String, due: bool) -> bool:
 func _dress() -> void:
 	var settings := Game.settings
 	settings.tutorial_done = true
-	settings.set_seat_name(0, "Tail Light Tim")
+	settings.set_seat_name(0, Lang.t(DRIVER))
 	settings.set_seat_color(0, 1)
 	settings.set_seat_style(0, PackedInt32Array([5, 2, 3, 2, 0, 0, 0]))
-	settings.license_holder = "Tail Light Tim"
+	settings.license_holder = Lang.t(DRIVER)
 	settings.license_number = "JJ-7714-0921"
 	settings.license_date = LicenseCard.today()
 	settings.license_plate = LicensePlate.clean("TIM 777")

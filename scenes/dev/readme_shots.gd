@@ -18,6 +18,9 @@ const LOYALTY_WON := 0.55
 ## the driving test's endorsements it has.
 const LICENSE_SEED := 2026
 const LICENSE_ENDORSED := 5
+## The driver the shots are of, one of the names the game hands out, so said as the game says it in
+## the language the shots are taken in: Achterlicht Tim in Dutch, see [method driver].
+const DRIVER := "Tail Light Tim"
 
 ## What is held square on to the camera every frame, its tilted cards not turned toward wherever
 ## the cursor happens to be, see [method _process].
@@ -58,6 +61,11 @@ func _ready() -> void:
 		_kart()
 
 
+## [constant DRIVER] in the language spoken.
+static func driver() -> String:
+	return Lang.t(DRIVER)
+
+
 ## The driver's license, GAME.md 9.4a, held up as the title shows it once the driving test is
 ## passed: Tail Light Tim's, in blue with a top hat, with most of the test's endorsements.
 func _license() -> void:
@@ -65,13 +73,13 @@ func _license() -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = LICENSE_SEED
 	settings.tutorial_done = true
-	settings.set_seat_name(0, "Tail Light Tim")
+	settings.set_seat_name(0, driver())
 	settings.set_seat_color(0, 1)
 	settings.set_seat_style(0, PackedInt32Array([5, 2, 3, 2, 0, 0, 0]))
-	settings.license_holder = "Tail Light Tim"
+	settings.license_holder = driver()
 	settings.license_number = LicenseCard.new_number(rng)
 	settings.license_date = LicenseCard.today()
-	settings.license_plate = LicensePlate.suggest("Tail Light Tim", settings.license_number)
+	settings.license_plate = LicensePlate.suggest(driver(), settings.license_number)
 	if Supporter.owned():
 		# The supporter pack's endorsement, and its star on the plate.
 		settings.supporter_since = LicenseCard.today()
@@ -133,7 +141,7 @@ func _kart(rack := -1, on := -1, outfit := -1) -> void:
 	for landmark: LoyaltyLandmark in Loyalty.map().landmarks:
 		profile.loyalty.win(landmark.id)
 	Loyalty.settle(profile)
-	Game.settings.set_seat_name(0, "Tail Light Tim")
+	Game.settings.set_seat_name(0, driver())
 	Game.settings.set_seat_color(0, 1)
 	Game.settings.set_seat_style(0, PackedInt32Array([5, 2, 3, 2, 0, 0, 0]))
 	if outfit >= 0 or rack >= 0:
