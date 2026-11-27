@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
 <title>Lucky Charm</title>
 <style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
-<g class="icon">
-  <path class="line ink" d="M24,27C24,34 25.5,39 30,43" stroke-width="2.5"/>
+<g class="icon" transform="translate(0 2)">
+  <path class="line ink" d="M24.95,35C25.84,38.12 27.43,40.72 30,43" stroke-width="2.5"/>
   <g class="piece ink">
     <path class="body" d="M22.05,20.05C16.41,20.94 12.95,20.85 10.87,18.77C9.18,17.08 9.28,14.61 10.87,13.03C11.86,12.04 13.05,11.84 14.23,12.23C13.84,11.05 14.04,9.86 15.03,8.87C16.61,7.28 19.08,7.18 20.77,8.87C22.85,10.95 22.94,14.41 22.05,20.05Z"/>
     <path class="shade" d="M22,-20H70V70H22Z"/>

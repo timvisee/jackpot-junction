@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
 <title>Curve Ball</title>
 <style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
-<g class="icon">
+<g class="icon" transform="translate(0 -4.5)">
   <g class="piece tint">
     <path class="body" d="M20,24H23.5A2,2 0 0 1 25.5,26V41A2,2 0 0 1 23.5,43H20A2,2 0 0 1 18,41V26A2,2 0 0 1 20,24Z"/>
   </g>

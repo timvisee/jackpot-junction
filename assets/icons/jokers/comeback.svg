@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
 <title>Comeback</title>
 <style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
-<g class="icon">
+<g class="icon" transform="translate(0 2.5)">
   <path class="line ink" d="M13,8V24A11,11 0 0 0 35,24V15.5" stroke-width="5"/>
   <g class="piece ink">
     <path class="body" d="M28.7,12.9L34.52,5.14A0.6,0.6 0 0 1 35.48,5.14L41.3,12.9A1,1 0 0 1 40.5,14.5L29.5,14.5A1,1 0 0 1 28.7,12.9Z"/>

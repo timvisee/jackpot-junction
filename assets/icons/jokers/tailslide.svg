@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
 <title>Tailslide</title>
 <style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
-<g class="icon">
+<g class="icon" transform="translate(0 2)">
   <path class="line tint" d="M12.04,36.71A27.000000000000004,27.000000000000004 0 0 1 21.66,15.08" stroke-width="3.4" stroke-dasharray="2.4 1.4" stroke-linecap="butt"/>
   <path class="line tint" d="M24.03,36.29A15,15 0 0 1 29.38,24.27" stroke-width="3.4" stroke-dasharray="2.4 1.4" stroke-linecap="butt"/>
   <g class="piece ink" transform="rotate(50 30.5 15.5)" data-shade="false">
