@@ -735,30 +735,34 @@ def broken_translations(locale, path):
         if entry and entry["strings"] and entry["strings"][0]:
             said_terms.add(entry["strings"][0].lower())
 
-    def placeholders(text, words):
-        return sorted(p for p in PLACEHOLDER.findall(text) if p[1:-1].lower() not in words)
-
     found = []
     for (context, word), entry in entries.items():
         if entry["obsolete"] or entry["fuzzy"]:
             continue
+        englishes = [word] + ([entry["plural"]] if entry["plural"] else [])
+        braced = {b[1:-1].lower() for e in englishes for b in re.findall(r"\{[^{}]+\}", e)}
+        # A lesson's line marks only the lessons' words; a line with any other braces is filled
+        # by the code, and keeps every one of them as they are.
+        lesson = bool(braced) and braced <= english_terms
         for i, text in enumerate(entry["strings"]):
             if not text:
                 continue
             english = word
             if entry["plural"] and (i > 0 or len(entry["strings"]) == 1):
                 english = entry["plural"]
-            for term in re.findall(r"\{([^{}]+)\}", text):
-                if term.lower() in said_terms or not english_terms & {
-                    t[1:-1].lower() for t in re.findall(r"\{[^{}]+\}", english)
-                }:
-                    continue
-                found.append((word, "{%s} is none of the lessons' words in this language" % term))
-            if placeholders(text, said_terms) != placeholders(english, english_terms):
+            if lesson:
+                wrong = [t for t in re.findall(r"\{([^{}]+)\}", text) if t.lower() not in said_terms]
+                found += [(word, "{%s} is none of the lessons' words here" % t) for t in wrong]
+            elif sorted(PLACEHOLDER.findall(text)) != sorted(PLACEHOLDER.findall(english)):
                 found.append((word, "the {placeholders} differ from the English"))
-            elif FORMAT.findall(text.replace("%%", "")) != FORMAT.findall(
-                english.replace("%%", "")
-            ):
+                continue
+            codes = FORMAT.findall(text.replace("%%", ""))
+            # A count's forms say the number as the English do; where the English says one
+            # without it, "once", a form may leave it out, its code filling only what has one.
+            allowed = [FORMAT.findall(e.replace("%%", "")) for e in englishes]
+            if entry["plural"] and not allowed[0]:
+                allowed.append([])
+            if codes not in allowed if entry["plural"] else codes != allowed[0]:
                 found.append((word, "the % codes differ from the English, or their order"))
             elif sorted(TAG.findall(text)) != sorted(TAG.findall(english)):
                 found.append((word, "the [tags] differ from the English"))
