@@ -215,6 +215,8 @@ def looks_like_text(s):
     """Whether a string reads as words to a player rather than a name the code goes by."""
     if "://" in s or s.startswith(("res:", "user:", "uid:", "http")):
         return False
+    if re.fullmatch(r"#?[0-9A-Fa-f]{3,8}", s):
+        return False
     bare = re.sub(r"\{[^}]*\}", " ", s)
     bare = re.sub(r"%[-+ 0#]*\d*(?:\.\d+)?[sdifxXcv%]", " ", bare)
     bare = re.sub(r"\[/?[a-z_]+(?:=[^\]]*)?\]", " ", bare)
