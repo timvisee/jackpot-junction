@@ -2202,7 +2202,7 @@ msgstr "GEKOPIEERD"
 
 #: scenes/match/match_scene.gd
 msgid "Could not host the game: %s"
-msgstr ""
+msgstr "Kon het spel niet hosten: %s"
 
 #: scenes/match/match_scene.gd
 msgid "Could not host on port {port}: {error}"
@@ -2957,11 +2957,11 @@ msgstr "De host heeft je uit het spel verwijderd"
 
 #: scenes/net/host_controls.gd
 msgid "%s hosts it after you."
-msgstr ""
+msgstr "Na jou host %s het."
 
 #: scenes/net/host_controls.gd
 msgid "Leave the game?"
-msgstr ""
+msgstr "Het spel verlaten?"
 
 #: scenes/net/host_controls.gd
 msgid "Everybody who has joined will be disconnected."
@@ -2973,43 +2973,43 @@ msgstr "Iedereen loskoppelen"
 
 #: scenes/net/host_handover.gd
 msgid "You are now the host"
-msgstr ""
+msgstr "Jij bent nu de host"
 
 #: scenes/net/host_handover.gd
 msgid "%s left"
-msgstr ""
+msgstr "%s is weg"
 
 #: scenes/net/host_handover.gd
 msgid "The host"
-msgstr ""
+msgstr "De host"
 
 #: scenes/net/host_handover.gd
 msgid "Handing over"
-msgstr ""
+msgstr "Overdragen"
 
 #: scenes/net/host_handover.gd
 msgid "Migrating host..."
-msgstr ""
+msgstr "Host wordt overgedragen..."
 
 #: scenes/net/host_handover.gd
 msgid "the next host"
-msgstr ""
+msgstr "de volgende host"
 
 #: scenes/net/host_handover.gd
 msgid "Migrating host to %s..."
-msgstr ""
+msgstr "Host wordt overgedragen aan %s..."
 
 #: scenes/net/host_handover.gd
 msgid "Nobody could take the game on, so it is over."
-msgstr ""
+msgstr "Niemand kon het spel overnemen, dus het is voorbij."
 
 #: scenes/net/host_handover.gd
 msgid "You left, so the game is over."
-msgstr ""
+msgstr "Je bent weg, dus het spel is voorbij."
 
 #: scenes/net/host_handover.gd
 msgid "%s left, so the game is over."
-msgstr ""
+msgstr "%s is weg, dus het spel is voorbij."
 
 #: scenes/net/net_conduct.gd
 msgid "%s was kicked: abnormal behavior detected"
@@ -3029,7 +3029,7 @@ msgstr "Deze server heeft een wachtwoord: doe mee aan de spellen ervan via Onlin
 
 #: scenes/net/net_door.gd
 msgid "You can't join this game"
-msgstr ""
+msgstr "Je kunt niet meedoen aan dit spel"
 
 #: scenes/net/net_door.gd
 msgid "This game is not open to watchers"
@@ -3595,25 +3595,27 @@ msgstr "De examinator"
 
 #: scenes/tutorial/school/license_card.gd
 msgid "CLASS B"
-msgstr ""
+msgstr "CATEGORIE B"
 
 #: scenes/tutorial/school/license_card.gd
 msgid "B  ·  Bot"
-msgstr ""
+msgstr "B  ·  Bot"
 
 #: scenes/tutorial/school/license_card.gd
 msgid "NOT A PERSON  ·  NOT VALID AS ID  ·  DO NOT FEED"
-msgstr ""
+msgstr "GEEN PERSOON  ·  NIET GELDIG ALS ID  ·  NIET VOEREN"
 
 #: scenes/tutorial/school/license_card.gd
 msgid "WAIVED"
-msgstr ""
+msgstr "VRIJGESTELD"
 
 #: scenes/tutorial/school/license_card.gd
 msgid ""
 "Valid for Class B karts only. Not transferable, not edible,\n"
 "not a coaster. Keep away from pits, turrets and plumbers."
 msgstr ""
+"Alleen voor karts van categorie B. Niet overdraagbaar, niet eetbaar,\n"
+"geen onderzetter. Mijd kuilen, geschutstorens en loodgieters."
 
 #: scenes/tutorial/school/license_card.gd
 msgid "cones %d"
@@ -4534,11 +4536,11 @@ msgstr "Herstellen"
 
 #: scenes/ui/benched_line.gd
 msgid "A bot drives your kart. Press any button to drive again."
-msgstr ""
+msgstr "Een bot rijdt in je kart. Druk op een knop om zelf weer te rijden."
 
 #: scenes/ui/benched_line.gd
 msgid "You take a seat on the next map."
-msgstr ""
+msgstr "Je stapt in op de volgende map."
 
 #: scenes/ui/blueprint_art.gd
 msgid "20 CM"
@@ -4823,7 +4825,7 @@ msgstr "%d fps"
 
 #: scenes/ui/game_list.gd scripts/store/steam_presence.gd
 msgid "Single map, %d min"
-msgstr ""
+msgstr "Losse map, %d min"
 
 #. A game in a list of games, named after its host, who has no name.
 #: scenes/ui/game_list.gd
@@ -4872,12 +4874,12 @@ msgstr "{map}, map {leg} van {legs}"
 #: scenes/ui/game_list.gd
 msgctxt "game"
 msgid "Full"
-msgstr ""
+msgstr "Vol"
 
 #. A tag after a game's name in a list of games: a Steam friend is in it.
 #: scenes/ui/game_list.gd
 msgid "Friend"
-msgstr ""
+msgstr "Vriend"
 
 #: scenes/ui/game_list.gd
 msgid "Host: %s"
@@ -4898,14 +4900,14 @@ msgstr "Niet open voor kijkers"
 #: scenes/ui/game_list.gd
 msgid "{people} of {most} player"
 msgid_plural "{people} of {most} players"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "{people} van {most} speler"
+msgstr[1] "{people} van {most} spelers"
 
 #: scenes/ui/game_list.gd
 msgid "%d bot"
 msgid_plural "%d bots"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d bot"
+msgstr[1] "%d bots"
 
 #. Milliseconds there and back, small, beside a player's name on the HUD.
 #: scenes/ui/game_list.gd scenes/ui/game_seats.gd scenes/ui/lag_warning.gd
@@ -5509,7 +5511,7 @@ msgstr "Kijken zonder wachtwoord"
 
 #: scenes/ui/lobby_settings.gd scenes/ui/steam_page.gd
 msgid "Who can join"
-msgstr ""
+msgstr "Wie mag meedoen"
 
 #: scenes/ui/lobby_settings.gd
 msgid "Who can join changes for the next to come. Nobody already here is shown out."
@@ -5522,7 +5524,7 @@ msgstr "JACKPOT JUNCTION  ·  AFD. KARTS  ·  TOEGELATEN AAN ELKE TAFEL  ·  "
 
 #: scenes/ui/manage_players.gd
 msgid "Only the host can kick players or make someone else the host."
-msgstr ""
+msgstr "Alleen de host kan spelers kicken of iemand anders host maken."
 
 #: scenes/ui/manage_players.gd
 msgid "Players"
@@ -5534,11 +5536,11 @@ msgstr "Wie gekickt wordt, gaat terug naar het titelscherm en kan opnieuw meedoe
 
 #: scenes/ui/manage_players.gd
 msgid "Somebody kicked goes back to the title, and can't join this game again."
-msgstr ""
+msgstr "Wie gekickt wordt, gaat terug naar het titelscherm en kan niet meer aan dit spel meedoen."
 
 #: scenes/ui/manage_players.gd
 msgid "Mute hides somebody's emotes on your screen. Report is on their Steam profile."
-msgstr ""
+msgstr "Dempen verbergt iemands emotes op jouw scherm. Rapporteren kan via hun Steam-profiel."
 
 #: scenes/ui/manage_players.gd
 msgid "Somebody kicked goes back to the server's games, and can join again. Make host hands them the host's say."
@@ -5550,7 +5552,7 @@ msgstr "Er is verder niemand."
 
 #: scenes/ui/manage_players.gd
 msgid "Host"
-msgstr ""
+msgstr "Host"
 
 #: scenes/ui/manage_players.gd
 msgid "Make host"
@@ -5562,11 +5564,11 @@ msgstr "Kicken"
 
 #: scenes/ui/manage_players.gd
 msgid "Unmute"
-msgstr ""
+msgstr "Dempen opheffen"
 
 #: scenes/ui/manage_players.gd
 msgid "Mute"
-msgstr ""
+msgstr "Dempen"
 
 #: scenes/ui/manage_players.gd
 msgid "%s goes back to the title, and can join again."
@@ -5574,7 +5576,7 @@ msgstr "%s gaat terug naar het titelscherm en kan opnieuw meedoen."
 
 #: scenes/ui/manage_players.gd
 msgid "%s goes back to the title, and can't join this game again."
-msgstr ""
+msgstr "%s gaat terug naar het titelscherm en kan niet meer aan dit spel meedoen."
 
 #: scenes/ui/manage_players.gd
 msgid "%s goes back to the server's games, and can join again."
@@ -5594,7 +5596,7 @@ msgstr "De zeggenschap van de host gaat over naar %s: de match, de lobby en wie 
 
 #: scenes/ui/manage_players.gd
 msgid "%s hosts the game from then on, and you play on in it."
-msgstr ""
+msgstr "Vanaf dan host %s het spel, en jij speelt gewoon verder."
 
 #: scenes/ui/manage_players.gd
 msgid "{says} · {name} on Steam"
@@ -5602,7 +5604,7 @@ msgstr "{says} · {name} op Steam"
 
 #: scenes/ui/manage_players.gd scenes/ui/slip_page.gd
 msgid "%s's license"
-msgstr ""
+msgstr "Rijbewijs van %s"
 
 #: scenes/ui/match_hud.gd
 msgid "MATCH POINT"
@@ -5683,7 +5685,7 @@ msgstr "bot, vrij voor een speler om over te nemen"
 
 #: scenes/ui/match_options.gd
 msgid "Make up 4"
-msgstr ""
+msgstr "Aanvullen tot 4"
 
 #: scenes/ui/match_options.gd
 msgid "Discard all"
@@ -5890,7 +5892,7 @@ msgstr[1] "{count} bots, {difficulty}"
 
 #: scenes/ui/match_options.gd
 msgid "Bots make up 4, {difficulty}"
-msgstr ""
+msgstr "Bots vullen aan tot 4, {difficulty}"
 
 #: scenes/ui/match_options.gd
 msgid "%d team, friendly fire"
@@ -6263,7 +6265,7 @@ msgstr "Dit spel vraagt om een wachtwoord."
 
 #: scenes/ui/play_online.gd
 msgid "Steam"
-msgstr ""
+msgstr "Steam"
 
 #: scenes/ui/play_online.gd
 msgid "Servers"
@@ -6593,15 +6595,15 @@ msgstr "Ultra"
 
 #: scenes/ui/quick_play.gd
 msgid "Finding a game near you..."
-msgstr ""
+msgstr "Een spel bij jou in de buurt zoeken..."
 
 #: scenes/ui/quick_play.gd
 msgid "No games near you yet. Starting one with bots: people join as they come."
-msgstr ""
+msgstr "Nog geen spellen bij jou in de buurt. Er begint er een met bots: spelers doen mee zodra ze komen."
 
 #: scenes/ui/quick_play.gd scenes/ui/steam_page.gd
 msgid "Quick Play"
-msgstr ""
+msgstr "Snel spelen"
 
 #: scenes/ui/results_screen.gd scripts/story/story_lines.gd
 msgid "Payout slip"
@@ -7085,23 +7087,23 @@ msgstr "Niemand online heet zo"
 
 #: scenes/ui/steam_page.gd
 msgid "Start a game with bots: anybody can join it"
-msgstr ""
+msgstr "Begin een spel met bots: iedereen kan meedoen"
 
 #: scenes/ui/steam_page.gd
 msgid "Join anybody's game on Steam, or host one."
-msgstr ""
+msgstr "Doe mee aan een spel op Steam, of host er zelf een."
 
 #: scenes/ui/steam_page.gd
 msgid "%s playing now. Join anybody's game on Steam, or host one."
-msgstr ""
+msgstr "Nu %s aan het spelen. Doe mee aan een spel op Steam, of host er zelf een."
 
 #: scenes/ui/steam_page.gd
 msgid "Anyone can join"
-msgstr ""
+msgstr "Iedereen mag meedoen"
 
 #: scenes/ui/steam_page.gd
 msgid "Friends can join"
-msgstr ""
+msgstr "Vrienden mogen meedoen"
 
 #: scenes/ui/steam_page.gd scripts/store/steam_lobby.gd
 msgid "Invite only"
@@ -7109,7 +7111,7 @@ msgstr "Alleen op uitnodiging"
 
 #: scenes/ui/steam_page.gd
 msgid "Steam games"
-msgstr ""
+msgstr "Steam-spellen"
 
 #: scenes/ui/suit_filter.gd
 msgid "All"
@@ -7182,19 +7184,19 @@ msgstr "{state}. {line}"
 
 #: scenes/ui/takeover_ticket.gd
 msgid "You took over a kart"
-msgstr ""
+msgstr "Je hebt een kart overgenomen"
 
 #: scenes/ui/takeover_ticket.gd
 msgid "You took over %s's kart"
-msgstr ""
+msgstr "Je hebt de kart van %s overgenomen"
 
 #: scenes/ui/takeover_ticket.gd
 msgid "%d banked"
-msgstr ""
+msgstr "%d op de bank"
 
 #: scenes/ui/takeover_ticket.gd
 msgid "%d in the pot"
-msgstr ""
+msgstr "%d in de pot"
 
 #. One of the game's own words in lower case, as the lessons mark it with braces, {pot} say: the word the lessons' translations put in braces, for it to be drawn in its color.
 #: scenes/ui/terms.gd
@@ -7602,7 +7604,7 @@ msgstr "SPELERS KLAAR"
 #. After PLAYERS READY on the waiting room's count: the seconds till it starts.
 #: scenes/waiting/ready_room.gd
 msgid "STARTS IN %d"
-msgstr ""
+msgstr "START OVER %d"
 
 #: scenes/waiting/ready_room.gd
 msgid "SEAT %d"
@@ -9176,11 +9178,11 @@ msgstr "Steam vraagt om mee te doen aan hun spel."
 
 #: scripts/store/steam_lobby.gd
 msgid "Anyone"
-msgstr ""
+msgstr "Iedereen"
 
 #: scripts/store/steam_lobby.gd
 msgid "Friends"
-msgstr ""
+msgstr "Vrienden"
 
 #: scripts/store/steam_lobby.gd
 msgid "Steam could not make the game: %d"
@@ -9192,7 +9194,7 @@ msgstr "Kon niet meedoen aan het spel op Steam"
 
 #: scripts/store/steam_lobby.gd
 msgid "That game can't be joined"
-msgstr ""
+msgstr "Aan dat spel kun je niet meedoen"
 
 #: scripts/store/steam_lobby.gd
 msgid "That is not a Jackpot Junction game"
@@ -10686,7 +10688,7 @@ msgstr "KANDIDAAT"
 
 #: scripts/story/story_lines.gd
 msgid "MODEL  ·  AVERAGED FROM %s PARTICIPANTS"
-msgstr ""
+msgstr "MODEL  ·  GEMIDDELDE VAN %s DEELNEMERS"
 
 #: scripts/story/story_lines.gd
 msgid "HOUSE EVALUATION  ·  FINAL HAND"
