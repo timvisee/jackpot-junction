@@ -1,8 +1,8 @@
 class_name IconShapes
 extends RefCounted
-## The shapes the small pictures drawn in code are made of: the achievements', the landmarks', the
-## modes' and the rest. The jokers' and power-ups' are SVG drawings printed by [IconPress] since
-## 2026-11-26, GAME.md 8.3a.
+## The shapes the small pictures still drawn in code are made of: the HUD's, the driving school's,
+## the loyalty program's rewards and the rest. The icons of GAME.md 8.3a are SVG drawings printed by
+## [IconPress].
 ##
 ## Everything takes the canvas and a box, and everything else is a fraction of that box: (0, 0)
 ## is its top left corner, (1, 1) its bottom right, y downwards, and radii, spans and widths are
@@ -13,8 +13,6 @@ extends RefCounted
 ## behind the subject of a picture.
 const STROKE := 0.055
 const FAINT := 0.4
-## How big a pip is, for the pictures made of them.
-const PIP := 0.055
 
 
 ## The dimmer of the two colors a picture is drawn in: whatever the subject sits on, in or
@@ -41,12 +39,6 @@ static func disc(on: CanvasItem, box: Rect2, x: float, y: float, r: float, ink: 
 
 static func ring(on: CanvasItem, box: Rect2, x: float, y: float, r: float, ink: Color) -> void:
 	on.draw_arc(at(box, x, y), span(box, r), 0.0, TAU, 40, ink, width(box))
-
-
-static func arc(
-	on: CanvasItem, box: Rect2, x: float, y: float, r: float, from: float, to: float, ink: Color
-) -> void:
-	on.draw_arc(at(box, x, y), span(box, r), deg_to_rad(from), deg_to_rad(to), 32, ink, width(box))
 
 
 static func line(
@@ -135,50 +127,6 @@ static func tri(
 	on.draw_colored_polygon(points, ink)
 
 
-## A flame: a teardrop standing on [param x], [param y] with its tip [param span] away, blowing
-## [param turn] degrees off straight up, so the ones out of an exhaust can lie on their side.
-static func flame(
-	on: CanvasItem, box: Rect2, x: float, y: float, span: float, turn: float, ink: Color
-) -> void:
-	var foot := at(box, x, y)
-	var reach := span(box, span)
-	var angle := deg_to_rad(turn)
-	var out := Vector2(sin(angle), -cos(angle))
-	var side := Vector2(-out.y, out.x)
-	var outline: Array[Vector2] = [
-		Vector2(0.0, 0.0),
-		Vector2(0.46, 0.2),
-		Vector2(0.42, 0.56),
-		Vector2(0.18, 0.72),
-		Vector2(0.12, 1.0),
-		Vector2(-0.16, 0.76),
-		Vector2(-0.4, 0.58),
-		Vector2(-0.46, 0.22)
-	]
-	var points := PackedVector2Array()
-	for step: Vector2 in outline:
-		points.append(foot + side * reach * step.x + out * reach * step.y)
-	on.draw_colored_polygon(points, ink)
-
-
-## A shield: shoulders square, sides tapering to a point.
-static func shield(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
-	var center := at(box, x, y)
-	var reach := span(box, span)
-	on.draw_colored_polygon(
-		PackedVector2Array(
-			[
-				center + Vector2(-reach * 0.8, -reach),
-				center + Vector2(reach * 0.8, -reach),
-				center + Vector2(reach * 0.8, reach * 0.25),
-				center + Vector2(0.0, reach),
-				center + Vector2(-reach * 0.8, reach * 0.25)
-			]
-		),
-		ink
-	)
-
-
 ## A heart, [param span] of the box from its middle to its edge: a life, see [Heart].
 static func heart(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
 	var side := span(box, span) * 2.0
@@ -192,25 +140,6 @@ static func heart(on: CanvasItem, box: Rect2, x: float, y: float, span: float, i
 ## A jagged burst, for the pictures that are about something going off.
 static func burst(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
 	spiked(on, box, x, y, span, 10, 0.52, ink)
-
-
-## A lightning bolt, for the one picture in the set that is about speed rather than about a
-## thing. Nothing else here is a bolt, so it reads on its own.
-static func bolt(on: CanvasItem, box: Rect2, x: float, y: float, span: float, ink: Color) -> void:
-	var center := at(box, x, y)
-	var reach := span(box, span)
-	var outline: Array[Vector2] = [
-		Vector2(0.24, -1.0),
-		Vector2(-0.52, 0.1),
-		Vector2(-0.04, 0.1),
-		Vector2(-0.24, 1.0),
-		Vector2(0.52, -0.14),
-		Vector2(0.04, -0.14)
-	]
-	var points := PackedVector2Array()
-	for step: Vector2 in outline:
-		points.append(center + step * reach)
-	on.draw_colored_polygon(points, ink)
 
 
 ## A five-pointed star, the house's own mark.
