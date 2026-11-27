@@ -8002,8 +8002,8 @@ players as Me; the players at one client share its say. It can be handed on, too
 the row of everybody else who plays is Make host, which asks first, "Make Bob the host?", as Kick
 does, and on yes gives that player the say at once and takes it from whoever pressed it, whose
 host's panes close. They are told who made them the host.
-Somebody watching has none, having no say to be given, and nor does a LAN game's Manage players,
-whose host is the machine the game runs on.
+Somebody watching has none, having no say to be given. At a game hosted at a player's machine,
+Make host hands on the game itself, 10.8.
 
 **Play Online.** The title's way to playing with other machines, in two screens. The first is the
 player's own servers, in the box of 9.3 headed "Your servers", a row each for the dedicated
@@ -11294,9 +11294,10 @@ hands the kart over as for somebody who leaves, and its player watches, a line a
 screen saying a bot drives their kart and a press takes it back, until a press seats them again in
 a bot's kart, as anybody joining is. One of several players at a machine just goes from it.
 
-**A host who goes.** The game carries on at a new host, the map being played included. Steam hands
-the lobby to another player by itself when its owner goes, to the title, for good or with a lost
-connection. Everybody's arena stops where it stands, under a short dialog over it: the old host's
+**A host who goes.** The game carries on at a new host, the map being played included, on Steam
+and off it, though never at a dedicated server, whose host is the server. Steam hands the lobby to
+another player by itself when its owner goes, to the title, for good or with a lost connection;
+off Steam the host has told everybody who comes after it. Everybody's arena stops where it stands, under a short dialog over it: the old host's
 name for its title, "Kit left", a line saying "Migrating host to Bob...", and a bar while everybody
 connects to Bob. Bob's machine then runs the match from what its own screen last showed of it,
 read off the match it was drawing (`MatchResume`): every slot where it was, every kart where it stood
@@ -11318,24 +11319,44 @@ as its settings have it and its door but for a password, whether it is a Quick P
 come in, and which account hosts it now, see `SteamLobby.PLAN_KEY` and `HOSTED_KEY`. A client whose
 connection to the host goes, in a Steam game, keeps the lobby and puts the dialog up, "Kit left"
 over "Migrating host...", with a bar and Leave, rather than going back to Play Online
-(`SteamHandover`). Whoever Steam makes the lobby's owner hosts the game afresh from what the lobby
+(`HostHandover`). Whoever Steam makes the lobby's owner hosts the game afresh from what the lobby
 says, into a waiting room with nothing chosen again and its door as it was, and says in the lobby
 once the game is up; the dialog then says "Migrating host to Bob...", and everybody else follows
 them there. With nobody taking it on in 45 s, or at Leave, the lobby is left and Play Online says
-"Kit left, so the game is over."
+"Kit left, so the game is over.", or, the old host still in the lobby, "The connection to the game
+was lost".
+
+Off Steam, on the game's own network, there is no lobby, so the host tells every player whenever it
+changes who hosts after it, in order, the player at another machine who has been in the game
+longest first, each at the address the host reaches them at; the port it hosts on; and the same
+match and door, the password with it, which only its players are told
+(`HostControls.succession_line`). As the connection to the host goes, the first in line hosts the
+game afresh on that port, as above. Everybody else asks at their address once a second until a game
+answers there (`HostProbe`), and follows them in with the game's password, sat in their own kart
+again by the player they were. With nobody answering in 10 s, the next in line takes it on instead,
+and so on down the line; somebody watching is never in it. With nobody left in it, Play Online says
+"Nobody could take the game on, so it is over." A host that hung up is heard to: it knocks twice a
+second, and the connection going within 2 s of a knock is the host going (`NetPing.heard_lately`).
+One gone quiet instead, its machine gone or this one's connection, is asked after at its own
+address first, which takes a few seconds: still answering, it was this machine's connection that
+went, and Play Online says "The connection to the game was lost". Over the internet the new host
+has to be reached at their address as the old one was, a forwarded port; a player nobody reaches
+ends up hosting a game of their own.
 
 Who takes over: on a planned leave, the player who has been in the game longest, as at
-a dedicated server; on a crash or a lost connection, whoever Steam makes the lobby's owner; never
-somebody only watching. LAN games still end when the host goes, and a dedicated server's games keep
+a dedicated server; on a crash or a lost connection, whoever Steam makes the lobby's owner, and off
+Steam the first in line who answers; never somebody only watching. A dedicated server's games keep
 Make host, 9.3a.
 
 A host leaving on purpose with anybody else in the game, by Leave, Back to title or Quit, is asked
 first: "Leave the game? Bob hosts it after you.", with Leave and Stay, and the game is handed on
 before they go. There is no Leave after this map: a host who wants the map finished leaves once it
 is. Manage players in
-a Steam game has Make host on everybody else's row, as a dedicated server's has: the game is handed
-to that player at once in the lobby and on the podium, and at the podium when pressed during a map.
-Whenever the game changes hands, the Steam lobby goes with it (`setLobbyOwner`).
+a game hosted at a player's machine, on Steam or off it, has Make host on everybody else's row, as a
+dedicated server's has: the game is handed to that player at once in the lobby and on the podium,
+and at the podium when pressed during a map. Whenever a Steam game changes hands, the lobby goes
+with it (`setLobbyOwner`); off Steam the player made host is put first in line, and the old host
+follows them as everybody else does.
 
 **The store page** says in one line how online works.
 

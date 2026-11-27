@@ -9,7 +9,7 @@ const OLD_HOST := 76561197960287931
 const NEXT := 76561197960287932
 
 var _fake: FakeSteam
-var _handover: SteamHandover
+var _handover: HostHandover
 var _went: Array[MatchConfig] = []
 var _gave_up: Array[String] = []
 
@@ -18,7 +18,7 @@ func before_test() -> void:
 	_fake = FakeSteam.new()
 	Store.steam = SteamStore.new(_fake)
 	Store.steam.start(3141590)
-	_handover = SteamHandover.new()
+	_handover = HostHandover.new()
 	_handover.go_on = func(config: MatchConfig) -> void: _went.append(config)
 	_handover.give_up_to = func(why: String) -> void: _gave_up.append(why)
 	add_child(_handover)
@@ -46,7 +46,7 @@ func _plan() -> String:
 	door.title = "Friday Karts"
 	door.max_players = 6
 	door.password = "secret"
-	return SteamPresence.plan_of(config, door, SteamLobby.Who.ANYONE)
+	return MatchResume.plan_of(config, door, SteamLobby.Who.ANYONE)
 
 
 ## A client of the old host's game, in its lobby, with the plan in it.
@@ -68,7 +68,7 @@ func _a_client() -> NetSession:
 ## Final Hand, which is its dealer's, and a password, which a Steam game has none of.
 func test_the_plan_a_new_host_takes_on() -> void:
 	var lobby := _fake.friends_lobby(OLD_HOST, {SteamLobby.PLAN_KEY: _plan()})
-	var config := SteamHandover.rehost_config(_fake, lobby)
+	var config := HostHandover.rehost_config(_fake, lobby)
 	assert_bool(config.rehost).is_true()
 	assert_str(config.online).is_equal("host")
 	assert_bool(config.steam).is_true()
@@ -81,7 +81,7 @@ func test_the_plan_a_new_host_takes_on() -> void:
 	assert_int(int(config.door_plan["max_players"])).is_equal(6)
 	assert_bool(config.door_plan.has("password")).is_false()
 	# A lobby saying nothing: the next host's own settings, still a game taken on.
-	var bare := SteamHandover.rehost_config(_fake, _fake.friends_lobby(OLD_HOST, {}))
+	var bare := HostHandover.rehost_config(_fake, _fake.friends_lobby(OLD_HOST, {}))
 	assert_bool(bare.rehost).is_true()
 	assert_int(bare.lobby_who).is_equal(SteamLobby.Who.FRIENDS)
 

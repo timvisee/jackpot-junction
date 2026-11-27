@@ -173,7 +173,7 @@ func _ready() -> void:
 	)
 	multiplayer.server_disconnected.connect(
 		func() -> void:
-			if not _turned_away and not Store.hand_over(self):
+			if not _turned_away and not Net.hand_over(self):
 				disconnected.emit()
 	)
 	# A client is told how many players the host's room holds, for its own to say when it is full

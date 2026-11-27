@@ -77,6 +77,18 @@ var benched := false
 ## On a client in a Steam game: whether it watches until the next map, come in too late in this one,
 ## GAME.md 10.8.
 var held := false
+## On a client of a game hosted at a player's machine off Steam, GAME.md 10.8: who hosts after the
+## host, in order, each as the peer they are, the address the host reaches them at and their name,
+## see [method succession_line]; the port the game is hosted on; what to host it from, see
+## [method MatchResume.plan_of]; what the host is called; and the peer this machine is in it, kept
+## for once the connection has gone. And the peer this machine was in a game handed over, said as
+## it knocks at the new host, see [HostHandover].
+var succession: Array = []
+var succession_port := 0
+var succession_plan := ""
+var succession_host := ""
+var succession_me := 0
+var was_peer := 0
 
 ## At a dedicated server: the players in the order they first sat down, for the say to pass down.
 var _order: Array[int] = []
@@ -104,13 +116,14 @@ var _hand_on_to := 0
 ## them.
 var _kept_for: Dictionary = {}
 var _resume_left := 0.0
+## At a host off Steam: what each client was last told of who hosts after it.
+var _succession_told: Dictionary[int, String] = {}
 ## The clients come back to their own karts, who are told nothing about taking one over.
 var _returned: Dictionary[int, bool] = {}
 
 
 func _ready() -> void:
 	Events.player_joined.connect(_on_player_joined)
-	multiplayer.peer_connected.connect(_on_peer_connected)
 
 
 static func of(owner: NetSession) -> HostControls:
@@ -277,17 +290,78 @@ func seated(player: int) -> void:
 		_hand_to(player)
 
 
-## Hands the Steam game hosted here to the account [param account], GAME.md 10.8: at once in the
-## lobby and on the podium, and at the podium when asked during a map. Make host.
-func hand_on(account: int) -> void:
-	if not session.is_host or not Store.steam_game() or account == 0:
+## Hands the game hosted here to the player at [param player], GAME.md 10.8: at once in the lobby
+## and on the podium, and at the podium when asked during a map. A Steam game's lobby goes to their
+## account; off Steam they are put first in line, and everybody follows them. Make host.
+func hand_on(player: int) -> void:
+	if not session.is_host or session.dedicated or player == 0:
 		return
 	if _in_a_map():
-		_hand_on_to = account
+		_hand_on_to = player
 		return
-	var handover := get_tree().get_first_node_in_group(&"steam_handover")
-	if handover != null:
-		handover.call(&"hand_to", account)
+	var handover := get_tree().get_first_node_in_group(&"host_handover")
+	if handover == null:
+		return
+	if Store.steam_game():
+		var account := ManagePlayers.account_at(session, player)
+		if account != 0:
+			handover.call(&"hand_to", account)
+		return
+	_order.erase(player)
+	_order.push_front(player)
+	handover.call(&"hand_down", succession_line(), _hosted_port(), _plan_here())
+
+
+## Who hosts after the host here off Steam, in order, GAME.md 10.8: every player at another machine
+## who has been in it longest first, each by peer, the address the host reaches them at, and name.
+func succession_line() -> Array:
+	var line: Array = []
+	var here := session._player_peers()
+	var order := _order.duplicate()
+	for each: int in here:
+		if each not in order:
+			order.append(each)
+	for each: int in order:
+		if each in here:
+			var address := session.guard.address_of(each)
+			line.append({"peer": each, "address": address, "name": _seat_name(each)})
+	return line
+
+
+## Every client told who hosts after the host here, on which port and from what, whenever that
+## changes, GAME.md 10.8, for the game to be handed down the line should the host go.
+func _tell_succession() -> void:
+	var line := succession_line()
+	var plan := _plan_here()
+	var port := _hosted_port()
+	var host := ""
+	for slot: PlayerSlot in session.match_node.slots if session.match_node != null else []:
+		if slot.is_local_human():
+			host = slot.display_name()
+			break
+	var said := str([line, port, plan, host])
+	for client: int in multiplayer.get_peers():
+		if _succession_told.get(client, "") != said:
+			_succession_told[client] = said
+			_succession_is.rpc_id(client, line, port, plan, host)
+
+
+func _plan_here() -> String:
+	return MatchResume.plan_of(Game.pending_config, session.door, -1, true)
+
+
+func _hosted_port() -> int:
+	var config := Game.pending_config
+	return config.port if config != null else NetSession.DEFAULT_PORT
+
+
+@rpc("authority", "call_remote", "reliable")
+func _succession_is(line: Array, port: int, plan: String, host: String) -> void:
+	succession = line
+	succession_port = port
+	succession_plan = plan
+	succession_host = PlayerNames.clean(host)
+	succession_me = multiplayer.get_unique_id()
 
 
 ## Whether a map is being played here, its podium not yet up.
@@ -296,8 +370,9 @@ func _in_a_map() -> bool:
 	return session.in_arena and match_node != null and match_node.state != Match.State.RESULTS
 
 
-## Who hosts a Steam game after the host here, GAME.md 10.8: the player at another machine who has
-## been in it longest, 0 for nobody; their Steam account, and the name they go by in the room.
+## Who hosts the game after the host here, GAME.md 10.8: the player at another machine who has been
+## in it longest, 0 for nobody, the first of [method succession_line]; their Steam account, and the
+## name they go by in the room.
 func successor() -> int:
 	var here := session._player_peers()
 	for each: int in _order:
@@ -314,12 +389,11 @@ func successor_name() -> String:
 	return _seat_name(successor())
 
 
-## What is asked before a host leaves for the title, GAME.md 9.3 and 10.8: a Steam game with
-## somebody else playing in it goes on with them hosting it; any other is over for everybody who has
-## joined.
+## What is asked before a host leaves for the title, GAME.md 9.3 and 10.8: a game with somebody else
+## playing in it goes on with them hosting it; one with nobody but watchers is over for them.
 static func host_leave_words() -> Array[String]:
 	var session := Net.session
-	if Store.steam_game() and session != null and session.host_controls.successor() != 0:
+	if session != null and not session.dedicated and session.host_controls.successor() != 0:
 		var next := session.host_controls.successor_name()
 		return ["Leave the game?", "%s hosts it after you." % next, "Leave", "Stay"]
 	return [
@@ -388,12 +462,14 @@ func _process(delta: float) -> void:
 	if not session._room_up and not _next_map.is_empty():
 		_let_go_of_the_held()
 	# Make host asked during a map, done once it is over.
-	if _hand_on_to != 0 and not _in_a_map():
+	if _hand_on_to != 0 and not _in_a_map() and session._connected():
 		var to := _hand_on_to
 		_hand_on_to = 0
 		hand_on(to)
 	var steam := Store.steam_game()
-	if peer == 0 and not steam:
+	# A game hosted here off Steam: everybody told who hosts after it, GAME.md 10.8.
+	var hosted_here := not steam and not session.dedicated
+	if peer == 0 and not steam and not hosted_here:
 		return
 	_look_left -= delta
 	if _look_left > 0.0:
@@ -401,6 +477,8 @@ func _process(delta: float) -> void:
 	_look_left = GUESTS_EVERY
 	if steam:
 		_tell_everybody()
+	elif hosted_here:
+		_tell_succession()
 	if peer == 0:
 		return
 	var others: Array[Dictionary] = []
@@ -521,25 +599,28 @@ func resume_from(resume: Dictionary) -> void:
 	_resume_left = RESUME_WAIT if not _kept_for.is_empty() else 0.01
 
 
-## A client has connected: one coming back to a map carried over is kept its own seats, by its
-## Steam account, which [method PlayerSlot.bot_seat] finds by their color, GAME.md 10.8.
-func _on_peer_connected(player: int) -> void:
-	if session.is_host and not _kept_for.is_empty():
-		keep_seats_for(player, ManagePlayers.account_at(session, player))
+## A client let in at the host, having said [param words] as it knocked: one coming back to a map
+## carried over is kept its own seats, by its Steam account or the peer it was in the old game,
+## which [method PlayerSlot.bot_seat] finds by their color, GAME.md 10.8.
+func knocked(player: int, words: Dictionary) -> void:
+	if not session.is_host or _kept_for.is_empty():
+		return
+	var account := ManagePlayers.account_at(session, player)
+	keep_seats_for(player, MatchResume.returning(account, int(words.get("was", 0))))
 
 
-## The seats kept for the Steam account [param account] given to [param player], come back to a map
-## carried over, GAME.md 10.8, if any were.
-func keep_seats_for(player: int, account: int) -> void:
-	if not _kept_for.has(account):
+## The seats kept for the player who was [param who], see [method MatchResume.returning], given to
+## [param player], come back to a map carried over, GAME.md 10.8, if any were.
+func keep_seats_for(player: int, who: String) -> void:
+	if who.is_empty() or not _kept_for.has(who):
 		return
 	var theirs: Dictionary[int, Dictionary] = {}
-	for number: int in _kept_for[account]:
-		var kept: Dictionary = _kept_for[account][number]
+	for number: int in _kept_for[who]:
+		var kept: Dictionary = _kept_for[who][number]
 		theirs[number] = {"color": kept["color"], "name": kept["name"], "team": kept["team"]}
 	session._peer_slots.kept[player] = theirs
 	_returned[player] = true
-	_kept_for.erase(account)
+	_kept_for.erase(who)
 	# Nobody to hold the start for any more, or everybody back.
 	if _kept_for.is_empty():
 		_resume_left = minf(_resume_left, RESUME_SETTLE)

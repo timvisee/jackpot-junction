@@ -125,6 +125,9 @@ var door_plan := {}
 ## And the map that was being played as its host went, carried over to start from, see
 ## [MatchResume]; empty for a game taken on in its lobby.
 var resume := {}
+## Joining the new host of a game handed over off Steam: the peer this machine was in the old one,
+## said as it knocks, for a map carried over to seat it in its own kart, 0 otherwise.
+var was_peer := 0
 var steam_lobby := 0
 var steam_host := 0
 var steam_name := ""

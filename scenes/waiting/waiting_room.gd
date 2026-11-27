@@ -210,6 +210,7 @@ func _join() -> void:
 		session.password = config.password
 		session.server_password = config.server_password
 		session.local_input = PlayerInput.new(DeviceInput.ANY, 0)
+		session.host_controls.was_peer = config.was_peer
 		session.player_name = config.human_names[0] if not config.human_names.is_empty() else ""
 		if not config.human_styles.is_empty():
 			session.player_style = PackedInt32Array(config.human_styles[0])

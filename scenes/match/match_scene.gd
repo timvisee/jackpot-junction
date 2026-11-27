@@ -56,12 +56,14 @@ func _ready() -> void:
 			session.in_arena = true
 			# The door as the old host had it, a Steam game's with no password.
 			session.door.from_wire(config.door_plan)
-			session.door.password = ""
-			var error := session.host_steam()
+			if config.steam:
+				session.door.password = ""
+			var error := session.host_steam() if config.steam else session.host(config.port)
 			if error != OK:
-				_fail("Could not host on Steam: %s" % error_string(error))
+				_fail("Could not host the game: %s" % error_string(error))
 			else:
-				Store.steam.lobbies.hosted_here()
+				if config.steam:
+					Store.steam.lobbies.hosted_here()
 				session.host_controls.resume_from(config.resume)
 		"host":
 			await _put_the_room_up()

@@ -234,8 +234,12 @@ func test_the_new_host_starts_from_it() -> void:
 ## The seats kept for the players coming back, by account and the number of their seat there.
 func test_the_seats_kept() -> void:
 	var kept := MatchResume.seats_kept(_a_resume(&"x"))
-	assert_array(kept.keys()).is_equal([BO])
-	assert_dict(kept[BO][0]).is_equal({"slot": 1, "color": 5, "team": -1, "name": "Bo"})
+	var bo := "a%d" % BO
+	assert_array(kept.keys()).is_equal([bo])
+	assert_dict(kept[bo][0]).is_equal({"slot": 1, "color": 5, "team": -1, "name": "Bo"})
+	# Off Steam a player is known by the peer they were.
+	assert_str(MatchResume.returning(0, 7)).is_equal("p7")
+	assert_str(MatchResume.returning(0, 0)).is_empty()
 
 
 ## A player coming back is kept their seat, and sits in their own kart, which their color finds.
@@ -249,7 +253,9 @@ func test_a_player_comes_back_to_their_own_kart() -> void:
 	var resume := _a_resume(host_match.joker_catalog.printed()[0].id)
 	MatchResume.start(host_match, resume)
 	host.host_controls.resume_from(resume)
-	host.host_controls.keep_seats_for(77, BO)
+	host.host_controls.knocked(77, {"was": 3})
+	assert_dict(host._peer_slots.kept).is_empty()
+	host.host_controls.keep_seats_for(77, "a%d" % BO)
 	var kept := host._peer_slots.kept_for(77, 0)
 	assert_int(int(kept["color"])).is_equal(5)
 	var slot := host_match.join_network(NetInput.new(), kept)
@@ -282,7 +288,7 @@ func test_the_handover_goes_into_the_map() -> void:
 	var fake := FakeSteam.new()
 	Store.steam = SteamStore.new(fake)
 	Store.steam.start(3141590)
-	var handover: SteamHandover = auto_free(SteamHandover.new())
+	var handover: HostHandover = auto_free(HostHandover.new())
 	var lobbied: Array[MatchConfig] = []
 	var played: Array[MatchConfig] = []
 	handover.go_on = func(config: MatchConfig) -> void: lobbied.append(config)
@@ -290,6 +296,7 @@ func test_the_handover_goes_into_the_map() -> void:
 	add_child(handover)
 	var resume := _a_resume(&"x")
 	resume["rules"]["map"] = "crossfire"
+	handover._kind = HostHandover.Kind.STEAM
 	handover._lobby = fake.friends_lobby(fake.account, {})
 	handover._old_host = BO
 	handover._resume = resume

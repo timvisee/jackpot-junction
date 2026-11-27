@@ -319,13 +319,3 @@ static func left_game() -> void:
 			steam.lobbies.handing_over = false
 			return
 		steam.lobbies.leave()
-
-
-## The connection to a Steam game's host gone, at [param session], a client: the game is handed to
-## the next host rather than over, GAME.md 10.8, if there is one to hand it to. Says whether it is.
-static func hand_over(session: NetSession) -> bool:
-	if not steam_game() or session.is_host:
-		return false
-	var tree := Engine.get_main_loop() as SceneTree
-	var handover: Node = tree.get_first_node_in_group(&"steam_handover") if tree != null else null
-	return handover != null and bool(handover.call(&"take", session))

@@ -76,6 +76,14 @@ func close() -> void:
 	Muted.clear()
 
 
+## The connection to the host of [param session]'s game gone, at a client: the game is handed to
+## the next host rather than over, GAME.md 10.8, if there is one to hand it to, see [HostHandover].
+## Says whether it is.
+func hand_over(going: NetSession) -> bool:
+	var handover := get_tree().get_first_node_in_group(&"host_handover")
+	return handover != null and bool(handover.call(&"take", going))
+
+
 ## Whether this machine is talking to anybody.
 func online() -> bool:
 	return session != null

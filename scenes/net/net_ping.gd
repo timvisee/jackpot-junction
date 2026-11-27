@@ -18,12 +18,19 @@ const SETTLE := 0.3
 const SLOW := 100.0
 ## Past this an answer is not believed, being more likely made up than that slow.
 const MOST := 60000.0
+## Seconds since the host last knocked within which it still counts as heard lately, see
+## [method heard_lately]: a few knocks' worth, well short of the wait before a connection gone quiet
+## is let go of, see [constant NetLine.TIMEOUT_MIN].
+const LATELY := 2.0
 
 ## Each client's round trip in milliseconds, settled over the last few answers.
 var _round_trips: Dictionary[int, float] = {}
 ## When the oldest knock to each client still unanswered went, in microseconds.
 var _waiting: Dictionary[int, int] = {}
 var _next := 0.0
+## At a client: when the host last knocked, in milliseconds since the game started, see
+## [method heard_lately].
+var _heard := 0
 
 
 func _ready() -> void:
@@ -72,6 +79,13 @@ func _mark_seats(session: NetSession) -> void:
 				match_node.slots[index].round_trip = trip
 
 
+## At a client: whether the host has knocked in the last [constant LATELY] seconds. Asked as the
+## connection to it goes, it says the host hung up on purpose, rather than the line going quiet:
+## the host's game gone, or this machine's connection, GAME.md 10.8, see [HostHandover].
+func heard_lately() -> bool:
+	return _heard > 0 and Time.get_ticks_msec() - _heard <= int(LATELY * 1000.0)
+
+
 func _forget(peer: int) -> void:
 	_round_trips.erase(peer)
 	_waiting.erase(peer)
@@ -79,6 +93,7 @@ func _forget(peer: int) -> void:
 
 @rpc("authority", "call_remote", "unreliable")
 func _knock(sent: int) -> void:
+	_heard = Time.get_ticks_msec()
 	_answer.rpc_id(1, sent)
 
 

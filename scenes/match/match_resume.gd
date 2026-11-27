@@ -19,6 +19,20 @@ const PLAYING: Array[int] = [
 ]
 
 
+## What a new host takes the game on with, GAME.md 10.8, in words: the match [param config] sets
+## up, the [param door], its password only [param with_password], which a Steam game has none of and
+## only its players hear off Steam, whether it is a Quick Play game, and [param who] may come in.
+static func plan_of(config: MatchConfig, door: NetDoor, who: int, with_password := false) -> String:
+	var chosen := MatchOptions.to_wire(config) if config != null else {}
+	chosen.erase("house")
+	chosen.erase("final_hand")
+	var opened := door.to_wire()
+	if not with_password:
+		opened.erase("password")
+	var quick := config != null and config.quick_play
+	return JSON.stringify({"match": chosen, "door": opened, "quick": quick, "who": who})
+
+
 ## What [param session], a client of a Steam game whose host has gone, last saw of the map being
 ## played, to carry it over; empty for anything else: no map in play, a showdown, the Final Hand.
 static func capture(session: NetSession) -> Dictionary:
@@ -83,7 +97,9 @@ static func owners_of(session: NetSession) -> Dictionary:
 	for guest: Dictionary in session.host_controls.guests():
 		if guest.has("slot"):
 			var account := int(guest.get("account", 0))
-			owners[int(guest["slot"])] = {"account": account, "seat": int(guest.get("seat", 0))}
+			var owner := {"account": account, "peer": int(guest.get("peer", 0))}
+			owner["seat"] = int(guest.get("seat", 0))
+			owners[int(guest["slot"])] = owner
 	var own := Store.steam.account if Store.on() else 0
 	for each: ClientSeat in session.seats:
 		if each.slot >= 0:
@@ -245,23 +261,31 @@ static func _restore_floor(match_node: Match, left: Dictionary) -> void:
 				arena.place_drop(card, arena.clamp_to_floor(at))
 
 
-## The seats [param resume] keeps for the players coming back, by Steam account: the number of each
-## seat at their machine and the slot it is, with its color, team and name, see
-## [method PeerSeats.kept_for].
+## The seats [param resume] keeps for the players coming back, by who they were, see
+## [method returning]: the number of each seat at their machine and the slot it is, with its
+## color, team and name, see [method PeerSeats.kept_for].
 static func seats_kept(resume: Dictionary) -> Dictionary:
 	var kept := {}
 	var entries: Array = resume.get("slots", [])
 	for index: int in entries.size():
 		var entry: Dictionary = entries[index]
-		var account := int(entry.get("account", 0))
-		if not bool(entry.get("human", false)) or bool(entry.get("here", false)) or account == 0:
+		var key := returning(int(entry.get("account", 0)), int(entry.get("peer", 0)))
+		if not bool(entry.get("human", false)) or bool(entry.get("here", false)) or key.is_empty():
 			continue
-		var theirs: Dictionary = kept.get(account, {})
+		var theirs: Dictionary = kept.get(key, {})
 		theirs[int(entry.get("seat", 0))] = {
 			"slot": index,
 			"color": int(entry.get("color", -1)),
 			"team": int(entry.get("team", -1)),
 			"name": str(entry.get("name", "")),
 		}
-		kept[account] = theirs
+		kept[key] = theirs
 	return kept
+
+
+## Who a player coming back to a map carried over is: their Steam account, or off Steam the peer
+## they were in the old game; empty for nobody known.
+static func returning(account: int, was: int) -> String:
+	if account != 0:
+		return "a%d" % account
+	return "p%d" % was if was != 0 else ""

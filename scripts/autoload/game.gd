@@ -25,7 +25,7 @@ const DEMO_HOST := "res://scenes/demo/demo_host.gd"
 ## too.
 const STEAM_PRESENCE := "res://scripts/store/steam_presence.gd"
 const STEAM_JOINS := "res://scripts/store/steam_joins.gd"
-const STEAM_HANDOVER := "res://scripts/store/steam_handover.gd"
+const HOST_HANDOVER := "res://scenes/net/host_handover.gd"
 const STEAM_TIMELINE := "res://scripts/store/steam_timeline.gd"
 const STEAM_KEYBOARD := "res://scripts/store/steam_keyboard.gd"
 ## The supporter pack bought while the game runs, its thank-you card at once in the menus,
@@ -201,7 +201,6 @@ func _ready() -> void:
 	if Store.on():
 		add_child(load(STEAM_PRESENCE).new())
 		add_child(load(STEAM_JOINS).new())
-		add_child(load(STEAM_HANDOVER).new())
 		add_child(load(STEAM_TIMELINE).new())
 		add_child(load(STEAM_KEYBOARD).new())
 	# Steam's controllers as pads, unless the player turned Steam Input off, GAME.md 10.8; in the
@@ -210,6 +209,13 @@ func _ready() -> void:
 	Store.use_steam_input(self, Store.steam_input_wanted(args, settings.steam_input))
 	if Supporter.offered() and not serving:
 		add_child(load(SUPPORTER_WATCH).new())
+	# A game whose host goes is handed to the next, GAME.md 10.8; a server's host is the server, and a
+	# test or a check in tools/ hands a game on only where it puts its own handover up.
+	var loop := get_tree().get_script() as Script
+	var path := loop.resource_path if loop != null else ""
+	var checked := path.begins_with("res://addons/gdUnit4/") or path.begins_with("res://tools/")
+	if not serving and not checked:
+		add_child(load(HOST_HANDOVER).new())
 	# A text box the phone's keyboard comes up over is shown over the keyboard, GAME.md 8.3.
 	if TouchInput.enabled:
 		KeyboardBar.add_to(self)

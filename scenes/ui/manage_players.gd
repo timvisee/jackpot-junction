@@ -168,7 +168,7 @@ func _row(guest: Dictionary) -> SeatCard:
 	)
 	# Room for the buttons on every row, so the plates line up over rows with none, and the row
 	# wider by Profile's and Mute's, so the names keep theirs.
-	var handing := _handing() or _steam_hosting()
+	var handing := _handing() or _hosting_here()
 	var room := (KICK_SIZE.x if _says() else 0.0) + (HAND_SIZE.x + BUTTON_ROOM if handing else 0.0)
 	var profiles := _profiles()
 	var wider := 0.0
@@ -205,22 +205,20 @@ func _row(guest: Dictionary) -> SeatCard:
 				)
 		)
 		card.actions.add_child(hand)
-	elif _steam_hosting() and plays and account != 0:
+	elif _hosting_here() and plays and (account != 0 or not Store.steam_game()):
 		# The game handed to them, at once in the lobby and on the podium, and at the podium when
 		# asked during a map, GAME.md 10.8.
-		var steam_hand := MenuTheme.button("Make host", Type.BODY)
-		steam_hand.name = "MakeHost"
-		steam_hand.custom_minimum_size = HAND_SIZE
-		var to := account
-		steam_hand.pressed.connect(
+		var giving := MenuTheme.button("Make host", Type.BODY)
+		giving.name = "MakeHost"
+		giving.custom_minimum_size = HAND_SIZE
+		var to := peer
+		giving.pressed.connect(
 			func() -> void:
 				asking.emit(
-					steam_hand_words(named),
-					func() -> void: session.host_controls.hand_on(to),
-					steam_hand
+					hand_on_words(named), func() -> void: session.host_controls.hand_on(to), giving
 				)
 		)
-		card.actions.add_child(steam_hand)
+		card.actions.add_child(giving)
 	if not _says():
 		return card
 	var kick := MenuTheme.button("Kick", Type.BODY)
@@ -268,9 +266,9 @@ static func hand_words(named: String) -> Array[String]:
 	]
 
 
-## What is asked before a Steam game is handed to [param named], GAME.md 10.8: they host it from
-## then on, and the host here plays on in it.
-static func steam_hand_words(named: String) -> Array[String]:
+## What is asked before the game hosted here is handed to [param named], GAME.md 10.8: they host
+## it from then on, and the host here plays on in it.
+static func hand_on_words(named: String) -> Array[String]:
 	return [
 		"Make %s the host?" % named,
 		"%s hosts the game from then on, and you play on in it." % named,
@@ -278,10 +276,10 @@ static func steam_hand_words(named: String) -> Array[String]:
 	]
 
 
-## Whether the game is a Steam game hosted here, which can be handed to another player, GAME.md
-## 10.8.
-func _steam_hosting() -> bool:
-	return session != null and session.is_host and Store.steam_game()
+## Whether the game is hosted here, at a player's machine, which can be handed to another player,
+## GAME.md 10.8.
+func _hosting_here() -> bool:
+	return session != null and session.is_host and not session.dedicated
 
 
 ## [param says], with the Steam name [param steam_name] after it in a Steam game, GAME.md 10.8, the
