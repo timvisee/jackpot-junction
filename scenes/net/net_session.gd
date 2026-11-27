@@ -220,11 +220,7 @@ func host(port: int = DEFAULT_PORT) -> Error:
 	if error != OK:
 		return error
 	NetLine.compress(peer)
-	# Everything a client hears comes from the host, so at a server, 9.3a, nobody is told about the
-	# others coming and going: with two going at once, that telling was an error in its log.
-	var scene := multiplayer as SceneMultiplayer
-	if dedicated and scene != null:
-		scene.server_relay = false
+	NetGuard.no_relay(multiplayer)
 	multiplayer.multiplayer_peer = line_for(peer)
 	is_host = true
 	_start_relaying()
@@ -264,6 +260,7 @@ func host_steam() -> Error:
 	var peer := Store.steam.host_peer(NetDoor.peers(dedicated)) if Store.on() else null
 	if peer == null:
 		return ERR_CANT_CREATE
+	NetGuard.no_relay(multiplayer)
 	multiplayer.multiplayer_peer = line_for(peer, true)
 	is_host = true
 	_start_relaying()

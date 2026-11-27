@@ -86,20 +86,23 @@ func _a_host() -> NetSession:
 	return host
 
 
-## A client of it, seated, knocking with [param password].
-func _a_client(password := "") -> NetSession:
+## A client of it, seated, knocking with [param password], under [param root], the test's own
+## client's unless another is given.
+func _a_client(password := "", root: Node = null) -> NetSession:
+	if root == null:
+		root = _client_root
 	var client_match: Match = auto_free(MATCH_SCENE.instantiate())
 	client_match.name = "Match"
 	client_match.rules = _quick_rules()
 	client_match.with_hud = false
-	_client_root.add_child(client_match)
+	root.add_child(client_match)
 	client_match.start_puppet()
 	var client: NetSession = auto_free(NetSession.new())
 	client.name = "Session"
 	client.match_node = client_match
 	client.local_input = KartInput.new()
 	client.password = password
-	_client_root.add_child(client)
+	root.add_child(client)
 	assert_int(client.join("127.0.0.1", port)).is_equal(OK)
 	await _until(func() -> bool: return client.local_slot >= 0, 12000)
 	return client
@@ -351,3 +354,42 @@ func test_the_game_taken_on() -> void:
 	var follow := HostHandover.follow_config("10.0.0.7", 7790, "secret", 4, true)
 	assert_bool(follow.watching).is_true()
 	assert_int(follow.was_peer).is_equal(4)
+
+
+## Nobody but the host hands the game over, GAME.md 10.8. A client asking a player's host to make it
+## host is not heard; one telling the host, or another client through it, that it hosts next is not
+## believed, the host passing nothing on from one client to another; and nothing is handed down.
+func test_no_client_hands_the_game_over() -> void:
+	var host := _a_host()
+	Game.pending_config = MatchConfig.new()
+	Game.pending_config.port = port
+	assert_bool((host.multiplayer as SceneMultiplayer).server_relay).is_false()
+	var honest: NetSession = await _a_client()
+	var other: Node = auto_free(Node.new())
+	other.name = "OtherRoot"
+	add_child(other)
+	get_tree().set_multiplayer(SceneMultiplayer.new(), other.get_path())
+	var bad: NetSession = await _a_client("", other)
+	var both := func() -> bool: return honest.host_controls.succession.size() == 2
+	await _until(both, 4000)
+	assert_int(honest.host_controls.succession.size()).is_equal(2)
+	_handover.remove_from_group(HostHandover.GROUP)
+	var stub: HandedDown = auto_free(HandedDown.new())
+	stub.add_to_group(HostHandover.GROUP)
+	add_child(stub)
+	var me := bad.multiplayer.get_unique_id()
+	var fake := [{"peer": me, "address": "10.0.0.66", "name": "Mallory", "seats": {}}]
+	bad.host_controls._make_host.rpc_id(1, me)
+	bad.host_controls._succession_is.rpc_id(1, fake, port + 1, "{}", "Mallory")
+	var to := honest.multiplayer.get_unique_id()
+	bad.host_controls._succession_is.rpc_id(to, fake, port + 1, "{}", "Mallory")
+	await await_millis(600)
+	assert_array(stub.got).is_empty()
+	assert_bool(host.is_host).is_true()
+	assert_array(host.host_controls.succession).is_empty()
+	assert_int(honest.host_controls.succession_port).is_equal(port)
+	assert_int(honest.host_controls.succession.size()).is_equal(2)
+	for each: Dictionary in honest.host_controls.succession:
+		assert_str(str(each["name"])).is_not_equal("Mallory")
+	host.free()
+	get_tree().set_multiplayer(null, other.get_path())

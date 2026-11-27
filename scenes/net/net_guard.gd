@@ -171,6 +171,17 @@ func watch(delta: float) -> void:
 		)
 
 
+## Has the host at [param api] pass nothing on from one client to another, GAME.md 10.3: whatever a
+## client hears comes from the host, and whatever it says goes to the host alone. So no client can
+## tell another anything as if the host had, who hosts next among it, 10.8, nor make the host carry
+## its flood to them; nor is anybody told of the others coming and going, which at a server, 9.3a,
+## with two going at once, was an error in its log. Before the connection is put on.
+static func no_relay(api: MultiplayerAPI) -> void:
+	var scene := api as SceneMultiplayer
+	if scene != null:
+		scene.server_relay = false
+
+
 ## Where [param peer] is connecting from: an address, or for a Steam game its account, GAME.md
 ## 10.8, so the limits on one place hold for one person there too.
 func address_of(peer: int) -> String:

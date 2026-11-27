@@ -11409,7 +11409,12 @@ a game hosted at a player's machine, on Steam or off it, has Make host on everyb
 dedicated server's has: the game is handed to that player at once in the lobby and on the podium,
 and at the podium when pressed during a map. Whenever a Steam game changes hands, the lobby goes
 with it (`setLobbyOwner`); off Steam the player made host is put first in line, and the old host
-follows them as everybody else does.
+follows them as everybody else does. Nobody but the host hands a game on. A client's connection to
+the host going is the one thing that starts a handover at a client, and who hosts next is
+believed from the host alone: a client asking a player's host for Make host is not heard, and no
+host passes anything from one client on to another (`NetGuard.no_relay`), so no client can tell
+the others that it hosts next. On Steam only the lobby's owner can change who owns it or what it
+says.
 
 **The store page** says in one line how online works.
 
