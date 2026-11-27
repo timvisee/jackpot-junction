@@ -5371,9 +5371,10 @@ Checked before planning, on Godot 4.7.2:
   editor's copy; the game's own Inter stays credited.
 - Other platforms' pieces: D3D12 Memory Allocator, DirectX Headers, NVAPI and mingw-std-threads
   Windows only, ANGLE Windows and macOS, metal-cpp and SPIRV-Cross macOS, the Android Open Source
-  Project, ProcessPhoenix, Swappy and libjingle Android, the three Wayland pieces Linux, SDL,
-  hidapi, GamepadMotionHelpers and AccessKit the desktops. About 80 are left on the Linux server's
-  list. Each is checked against 4.7.2's platform build files as the table is written.
+  Project, ProcessPhoenix, Swappy and libjingle Android, the three Wayland pieces Linux, SDL and
+  hidapi the desktops (and iOS), AccessKit the desktops. 78 are left on the Linux server's list.
+  Each was checked against 4.7.2's platform build files as the table was written: GamepadMotionHelpers,
+  first thought the desktops', is in `core/input`, so on every platform.
 - The server build (`"res://": "strip"`, `assets/audio/*` and `addons/godotsteam/*` left out) still
   packs every font and the tap icon; its PCK of 2026-10-20 holds the eleven `.fontdata`.
 - The hall runs without the game's autoloads (GameTree), so a script that names `Audio`, `Game` or a
@@ -5422,13 +5423,13 @@ How it fits together:
 
 | Step | What | State |
 |------|------|-------|
-| N1 | The Reenie Beanie row in THIRD_PARTY.md, and test_about checking both ways | |
-| N2 | `Credits` safe for the hall, with `files`, `license` and `copyright` | |
-| N3 | `Licenses`, `--licenses`, their tests | |
-| N4 | The About page's fold, its tests, GAME.md 8.5, the CHANGELOG line | |
-| N5 | The server's answers queued and gzipped, `/licenses.html` and its footer link, their tests, GAME.md 9.3a, SERVER.md | |
-| N6 | The server check fetching the page | |
-| N7 | Checks: every commit's suite, lint and format, an exported game's and server's `--licenses`, the server check on an exported server, the fold timed | |
+| N1 | The Reenie Beanie row in THIRD_PARTY.md, and test_about checking both ways | Done: 2d1024f5 |
+| N2 | `Credits` safe for the hall, with `files`, `license` and `copyright` | Done: 3329ae09 |
+| N3 | `Licenses`, `--licenses`, their tests | Done: 57f8c5d6 |
+| N4 | The About page's fold, its tests, GAME.md 8.5, the CHANGELOG line | Done: b40ef69b, after a087f250 (the cursor lost when the pack is bought on the page, found on the way) |
+| N5 | The server's answers queued and gzipped, `/licenses.html` and its footer link, their tests, GAME.md 9.3a, SERVER.md | Done: 1437511f |
+| N6 | The server check fetching the page | Done: 7f7f44c2, and a061fbcd (FreeType's line read from the engine in the tests) |
+| N7 | Checks: every commit's suite, lint and format, an exported game's and server's `--licenses`, the server check on an exported server, the fold timed | Done 2026-11-27: every commit's suite (2611 to 2629 cases, none failing), lint, format, changelog, smoke; exported Linux game and server: `--licenses` 78 pieces and 17 texts each, the game with its sounds and music and no gdUnit4 or GodotSteam, the server with neither sound nor music; the server check on the editor build and the exported server (idle 125 and 90 MB); the fold's first frame 16 ms here, all in within 19 frames |
 
 ## Pending
 
