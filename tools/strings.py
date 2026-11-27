@@ -10,6 +10,7 @@ merges that into each language's .po file, keeping every translation already mad
     tools/strings.py update          write the template and bring every .po file up to it
     tools/strings.py check           fail if either is behind the code, or if text is not marked
     tools/strings.py loose [PATH..]  list what looks like text and is not marked, by file and line
+    tools/strings.py tables          list consts shown through tr() that are not marked as tables
     tools/strings.py stats           how much of each language is translated
     tools/strings.py add LOCALE      start a language: an empty .po file for LOCALE
 
@@ -772,6 +773,46 @@ def loose_in(paths):
     return found
 
 
+SHOWN = re.compile(
+    r"\b(?:tr|tr_n|atr|Lang\.t|Lang\.tn)\(\s*(?:([A-Z][A-Za-z0-9]*)\.)?([A-Z][A-Z0-9_]+)\b"
+)
+
+
+def unmarked_tables():
+    """Consts shown through tr() whose words the template never gets, since the comment over the
+    table does not say it is shown through tr(): (where it is shown, the const's file, its name)."""
+    classes = {}
+    tables = {}
+    for path, rel in sources():
+        with open(path, encoding="utf-8") as f:
+            source = f.read()
+        m = re.search(r"^class_name\s+(\w+)", source, re.M)
+        if m:
+            classes[m.group(1)] = rel
+        _, _, depth_at_line = lex(source)
+        lines = source.split("\n")
+        found = {}
+        for first, _, above, declares in statements(lines, depth_at_line):
+            m = DECLARATION.match(lines[first - 1])
+            if not declares or not m:
+                continue
+            name = m.group(0).split()[-1]
+            joined = " ".join(above)
+            found[name] = "tr()" in joined or "NO_TRANSLATE" in joined
+        tables[rel] = found
+    wrong = []
+    for path, rel in sources():
+        with open(path, encoding="utf-8") as f:
+            for number, line in enumerate(f, 1):
+                code = line.split("#", 1)[0] if '"' not in line else line
+                for m in SHOWN.finditer(code):
+                    owner = classes.get(m.group(1), "") if m.group(1) else rel
+                    marked = tables.get(owner, {}).get(m.group(2))
+                    if marked is False:
+                        wrong.append(("%s:%d" % (rel, number), owner, m.group(2)))
+    return wrong
+
+
 def main(args):
     command = args[0] if args else "check"
     if command == "update":
@@ -798,6 +839,10 @@ def main(args):
         for rel, lit in found:
             print("%s:%d: %s" % (rel, lit.line, lit.value[:100].replace("\n", "\\n")))
         print("%d strings look like text and are not marked" % len(found), file=sys.stderr)
+        return 0
+    if command == "tables":
+        for where, owner, name in unmarked_tables():
+            print("%s: %s of %s" % (where, name, owner))
         return 0
     if command == "stats":
         _, entries = wanted_files()
@@ -826,6 +871,9 @@ def main(args):
             for word, wrong in broken_translations(locale, os.path.join(ROOT, path)):
                 print("%s: %s: %s" % (path, word[:60].replace("\n", "\\n"), wrong))
                 failed = True
+        for where, owner, name in unmarked_tables():
+            print("%s: shows %s of %s through tr(), not marked as shown so" % (where, name, owner))
+            failed = True
         found = loose_in([])
         for rel, lit in found:
             print("%s:%d: not marked for translation: %s" % (rel, lit.line, lit.value[:80]))
