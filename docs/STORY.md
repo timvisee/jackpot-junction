@@ -283,7 +283,9 @@ numbers as a House memo.
 A bot is a model of the people who have played: every Hunter is the average of a great many people
 who hunt. It plays at the pitch of the people at its table, which the code calls the mirror, and it
 emotes "so the table's other karts read as players rather than as machines", as GAME.md 9.1 puts
-it. The easiest bots are learners and wear the L.
+it. The easiest bots are learners and wear the L. The rest hold a license of the Department's,
+Class B, GAME.md 9.4a, which says nothing of this until the player has read the mirror, note 14:
+from then on the House's stamp on its back reads MODEL · AVERAGED FROM so many PARTICIPANTS.
 
 A bot is also an instrument. The House deals a Hunter to a table to see what the people at it do
 when they are hunted, a Greedy one to see who will fight for the Jackpot, a Cautious one to see who
@@ -2134,7 +2136,8 @@ different:
   drives from the first second on the profile's lifetime readings of GAME.md 9.1, items, nitro and
   drift, rather than learning them from the match as it goes; effort, the live gap in the score, is
   read as ever. Their traits are dealt as ever. This is the one place the story reaches into a bot,
-  and it changes what the bot reads, never what it can do.
+  and it changes what the bot reads, never what it can do. On the slip each model's license is the
+  player's own, under the model's name with its seat after the number, JJ-482913-2, GAME.md 9.4a.
 - **The hoardings** are both the House's, 6.1, and the room's poster is a monitor on a rack that
   reads HUMAN OVERSIGHT: 0 over a blinking cursor.
 - **The crowd** stands in its rows and dances, until the House begins to watch, 6.9.

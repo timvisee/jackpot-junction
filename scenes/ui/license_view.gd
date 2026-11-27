@@ -67,8 +67,8 @@ var _round: Array[CanvasItem] = []
 var _closing := false
 ## Whether it has the way back to the school under it, the title's, see [method open].
 var _with_school := false
-## Whose license it is, as it came over the wire, see [method open_theirs]: empty for this
-## machine's own.
+## Whose license it is, as it came over the wire, see [method open_theirs], or a bot's as this
+## screen made it up, see [BotLicense]: empty for this machine's own.
 var _holder: Dictionary = {}
 
 
@@ -96,9 +96,9 @@ static func open(
 
 
 ## Somebody else's license, [param holder] as it came over the wire, see [LicenseWire], GAME.md
-## 10.8: from Players and the payout slip, which [param from] is on, up on a layer of its own over
-## the HUD, the pause menu and the slip, which goes with the room it was shown in, or once it is put
-## away.
+## 10.8, or a bot's, see [BotLicense], 9.4a: from Players and the payout slip, which [param from]
+## is on, up on a layer of its own over the HUD, the pause menu and the slip, which goes with the
+## room it was shown in, or once it is put away.
 static func open_theirs(from: Control, holder: Dictionary, on_keyboard: bool) -> LicenseView:
 	var layer := CanvasLayer.new()
 	layer.name = "TheirLicense"
@@ -149,7 +149,12 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 22)
 	column.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	center.add_child(column)
-	card = LicenseCard.from_settings() if _holder.is_empty() else LicenseCard.from_wire(_holder)
+	if _holder.is_empty():
+		card = LicenseCard.from_settings()
+	elif _holder.get("bot", false):
+		card = LicenseCard.for_bot(_holder)
+	else:
+		card = LicenseCard.from_wire(_holder)
 	card.name = "LicenseFull"
 	stand = TiltedCard.of(card, FULL)
 	stand.name = "LicenseStand"

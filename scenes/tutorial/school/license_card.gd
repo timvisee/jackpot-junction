@@ -11,7 +11,8 @@ extends Control
 ## which whoever holds it up turns over to show, see [TiltedCard] and [method other_side]: a
 ## magnetic stripe, a hologram with the game's mark in it, a shader whose colors run with the
 ## card's [member tilt], the number as a barcode, the small print of whose card it is, and, for
-## whoever reads that far, a cheat code that does nothing.
+## whoever reads that far, a cheat code that does nothing. A bot's card is another, see
+## [method for_bot].
 
 const SIZE := Vector2(560.0, 352.0)
 const RADIUS := 18.0
@@ -93,6 +94,15 @@ const SUPPORTER := "SUPPORTER"
 const SUPPORTER_SINCE := "since %s"
 const CODE_LINE := "Does nothing. We checked."
 const EXAMINER := "The Examiner"
+## A bot's card, GAME.md 9.4a: on gray stock rather than cream, Class B, AUTOMATED printed where
+## a hand signs, its own fine print, and the examiner waived, since it never sat the test.
+const BOT_PAPER := Color(0.83, 0.85, 0.86)
+const BOT_PAPER_LOW := Color(0.7, 0.73, 0.76)
+const BOT_CLASS_WORD := "CLASS B"
+const BOT_CLASS_LINE := "B  ·  Bot"
+const BOT_SIGNED := "AUTOMATED"
+const BOT_MICRO := "NOT A PERSON  ·  NOT VALID AS ID  ·  DO NOT FEED"
+const BOT_EXAMINER := "WAIVED"
 ## What the examiner's red pen notes of the cones knocked over.
 const CONES := "cones %d"
 const BACK_MICRO := (
@@ -136,6 +146,8 @@ var rewritten := 1.0:
 ## Whether the story marks it, STORY.md 6.7: a line scratched into its stripe by somebody signing
 ## K., and its fine print ending HUMAN OVERSIGHT: 0, see [method Story.told_here].
 var scratched := false
+## Whether it is a bot's, see [method for_bot].
+var bot := false
 ## Where the card is turned toward, -1 to 1 either way, which the hologram's colors run with: set
 ## by whoever holds the card up, see [TiltedCard].
 var tilt := Vector2.ZERO:
@@ -200,6 +212,30 @@ static func from_wire(said: Dictionary) -> LicenseCard:
 	card.cones = int(given.get("cones", 0))
 	card.scratched = false
 	card.examiner = EXAMINER
+	card.approved = ""
+	return card
+
+
+## A bot's card, GAME.md 9.4a, from [param holder] as [BotLicense] makes it up at this screen:
+## its name, serial number and day of issue, its kart in its color and dress, its trait its one
+## endorsement, and the stamps on its back. Never the test's PASSED, nor any of the story's marks.
+static func for_bot(holder: Dictionary) -> LicenseCard:
+	var earned: Dictionary[String, bool] = {}
+	for word: Variant in holder.get("earned", []):
+		earned[str(word)] = true
+	var card := create(
+		str(holder.get("name", "")),
+		str(holder.get("number", "")),
+		str(holder.get("issued", "")),
+		int(holder.get("color", 0)),
+		KartStyle.from_array(holder.get("style", [])),
+		earned
+	)
+	card.bot = true
+	card.program_stamps = PackedStringArray(holder.get("stamps", []))
+	card.cones = 0
+	card.scratched = false
+	card.examiner = BOT_EXAMINER
 	card.approved = ""
 	return card
 
@@ -341,7 +377,7 @@ func _notification(what: int) -> void:
 ## What its face says, as a screen reader is told it: the fields down it under their labels, and
 ## the endorsements earned.
 func words() -> String:
-	var held := StoryLines.CLASS_AFTER if reads_operator() else CLASS_LINE
+	var held := _class_line()
 	var expires := StoryLines.EXPIRES_AFTER if reads_operator() else expiry(issued)
 	var earned := PackedStringArray()
 	for word: String in endorsements:
@@ -358,6 +394,13 @@ func words() -> String:
 		]
 	)
 	return ScreenReader.line(said)
+
+
+## The class it reads: a bot's, the Operator's after the ending, or the Kart's.
+func _class_line() -> String:
+	if bot:
+		return BOT_CLASS_LINE
+	return StoryLines.CLASS_AFTER if reads_operator() else CLASS_LINE
 
 
 ## The kart in the photo dressed as the settings now have it, after the kart dialog has changed
@@ -486,17 +529,19 @@ func _draw_back() -> void:
 	var owner := PROPERTY if approved.is_empty() else StoryLines.PROPERTY_AFTER
 	_text(Vector2(BACK_COLUMN, 94.0), owner, Type.STRONG, 11, INK)
 	for i: int in BACK_LINES.size():
-		_text(Vector2(BACK_COLUMN, 110.0 + float(i) * 14.0), BACK_LINES[i], Type.TEXT, 10, FAINT)
+		var line := BACK_LINES[i].replace("Class K", "Class B") if bot else BACK_LINES[i]
+		_text(Vector2(BACK_COLUMN, 110.0 + float(i) * 14.0), line, Type.TEXT, 10, FAINT)
 	_text(Vector2(BACK_COLUMN, 168.0), "EXAMINER", Type.STRONG, 8, FAINT)
 	var hand := SIGNATURE_FONT
+	# A bot's examiner is typed, not signed: nobody examined it.
 	draw_string(
-		hand,
+		Type.STRONG if bot else hand,
 		Vector2(BACK_COLUMN + 60.0, 184.0),
 		examiner,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
-		14,
-		SIGNATURE_INK
+		12 if bot else 14,
+		INK if bot else SIGNATURE_INK
 	)
 	draw_line(
 		Vector2(BACK_COLUMN, 190.0), Vector2(BACK_COLUMN + 200.0, 190.0), Color(INK, 0.4), 1.0
@@ -638,13 +683,13 @@ func _draw_barcode() -> void:
 ## suits as a watermark.
 func _draw_paper() -> void:
 	var style := StyleBoxFlat.new()
-	style.bg_color = PAPER
+	style.bg_color = BOT_PAPER if bot else PAPER
 	style.set_corner_radius_all(roundi(RADIUS))
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
 	style.shadow_size = 16
 	draw_style_box(style, Rect2(Vector2.ZERO, SIZE))
 	var low := StyleBoxFlat.new()
-	low.bg_color = Color(PAPER_LOW, 0.5)
+	low.bg_color = Color(BOT_PAPER_LOW if bot else PAPER_LOW, 0.5)
 	low.corner_radius_bottom_left = roundi(RADIUS)
 	low.corner_radius_bottom_right = roundi(RADIUS)
 	draw_style_box(low, Rect2(Vector2(0.0, SIZE.y - 40.0), Vector2(SIZE.x, 40.0)))
@@ -681,7 +726,7 @@ func _draw_band() -> void:
 	draw_style_box(chip, chip_rect)
 	_text(
 		chip_rect.position + Vector2(0.0, 5.0),
-		CLASS_WORD,
+		BOT_CLASS_WORD if bot else CLASS_WORD,
 		Type.display_font(),
 		12,
 		BAND,
@@ -713,7 +758,7 @@ func _draw_photo_frame() -> void:
 ## number, each under a small label.
 func _draw_fields() -> void:
 	_field(Vector2(COLUMN, 80.0), "NAME", holder_name, 30, Type.display_font(), RIGHT - COLUMN)
-	var held := StoryLines.CLASS_AFTER if reads_operator() else CLASS_LINE
+	var held := _class_line()
 	if reads_operator() and rewritten < 1.0:
 		_rewrite(Vector2(COLUMN, 134.0), "CLASS", Type.STRONG, _rewrites()[0])
 	else:
@@ -862,6 +907,9 @@ func _draw_signature() -> void:
 	var line_y := 292.0
 	draw_line(Vector2(26.0, line_y), Vector2(176.0, line_y), Color(INK, 0.5), 1.0)
 	_text(Vector2(26.0, line_y + 3.0), "SIGNATURE", Type.STRONG, 8, FAINT)
+	if bot:
+		_draw_automated(Vector2(101.0, line_y - 14.0))
+		return
 	# In a hand, a size down for a long name, and leaning a little further than the hand does.
 	var font := SIGNATURE_FONT
 	var font_size := SIGNATURE_SIZE
@@ -878,10 +926,30 @@ func _draw_signature() -> void:
 	draw_set_transform(Vector2.ZERO)
 
 
+## A bot's signature: AUTOMATED printed in a ruled box centered on [param at], a little askew,
+## where a hand would sign.
+func _draw_automated(at: Vector2) -> void:
+	var box := Rect2(Vector2(-62.0, -11.0), Vector2(124.0, 22.0))
+	draw_set_transform(at, -0.05, Vector2.ONE)
+	draw_rect(box, Color(SIGNATURE_INK, 0.85), false, 1.5)
+	draw_rect(box.grow(-2.5), Color(SIGNATURE_INK, 0.4), false, 0.8)
+	var baseline := Vector2(box.position.x, Type.STRONG.get_ascent(12) * 0.5 - 1.0)
+	draw_string(
+		Type.STRONG,
+		baseline,
+		BOT_SIGNED,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		box.size.x,
+		12,
+		SIGNATURE_INK
+	)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+
 func _draw_micro() -> void:
 	_text(
 		Vector2(0.0, SIZE.y - 18.0),
-		MICRO,
+		BOT_MICRO if bot else MICRO,
 		Type.STRONG,
 		8,
 		FAINT,

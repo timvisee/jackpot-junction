@@ -563,6 +563,9 @@ const NOT_NOW := "Not now"
 const CANDIDATE := "CANDIDATE"
 ## A model is named for the player as they wrote their name, and its seat at the table.
 const MODEL := "%s %d"
+## The House's stamp on the back of a bot's license once the player has read what the bots are,
+## STORY.md 3.6: how many participants its model is averaged from.
+const BOT_MODEL := "MODEL  ·  AVERAGED FROM %s PARTICIPANTS"
 ## The evaluation under the slip's lines, STORY.md 8.4: each line its label and its value.
 const EVALUATION_TITLE := "HOUSE EVALUATION  ·  FINAL HAND"
 const EVALUATION: Array[Array] = [

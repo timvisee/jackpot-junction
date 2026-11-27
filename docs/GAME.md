@@ -550,7 +550,8 @@ Below it, with air between the picture and the list, the slip is printed as a
 receipt: cream paper torn off the house's printer, the winner's color in the hairline
 inside its edge. Each player gets a line of their own rather than a line of text,
 with their place on a chip of their color and their name in it, darkened to read on
-paper, a bot's with the robot's head after it as in the room's standings, and a player's at another
+paper, a bot's with the robot's head after it as in the room's standings, which holds up its
+license as a little license does, 9.4a, a learner's aside, and a player's at another
 machine with a little license after it, in gray and darker under the pointer, which holds up their
 driver license over the slip, 10.8, for the mouse and a finger alone, so the slip's buttons keep the
 cursor; dotted leaders across to what they banked on the right, their kills and
@@ -8771,6 +8772,19 @@ it expires NEVER, and its back says it is the property of the house and was revi
 STORY.md 8.6. A license issued or retaken after that is signed by its holder as the examiner,
 STORY.md 6.7.
 
+**A bot's license.** Every bot that holds a license, all but the learners with the L, 4.4, has a
+card too, held up from the robot's head after its name on the payout slip, 3.8, the way another
+player's is, 10.8. None of it goes over the wire: each screen makes it up from what it knows of the
+bot, drawn from its name, so a bot shows the same card wherever it is looked at (`BotLicense`). It
+is the player's card on gray stock rather than cream: CLASS B, "B · Bot", a serial number, B and
+two groups of four digits, a day of issue some years back, its kart in its color and dress in the
+photo, its trait as its one endorsement, lit, AUTOMATED printed in a ruled box where a hand would
+sign, and no PASSED stamp, since it never sat the test; on the back the examiner is WAIVED, and the
+fine print along its foot reads NOT A PERSON · NOT VALID AS ID · DO NOT FEED. The story reaches it
+only once the player knows, STORY.md 3.6: with the mirror's note read, 7.3, the House's red stamp
+on its back reads MODEL · AVERAGED FROM so many PARTICIPANTS; and at the Final Hand a model's card
+is the player's own, under the model's name with its seat after the number, 8.2.
+
 A map may hold more than one Junction, each banking as the one does, and the
 Royal Flush is per room for the same reason: a map of rooms wants each room's
 own. No map has rooms now that the test is one lot, so the one Junction and the one
@@ -11303,7 +11317,8 @@ name. Each machine's license is its first seat's, the profile's that sat the tes
 host once seated, kept there and told to everybody with the rest of who is in the game
 (`LicenseWire`), cleaned at either end. Another player's card is theirs but the story's marks, the
 House's stamp, the Operator's class and the scratched stripe, which would tell a player who has not
-got that far what is to come. A learner has none to show, nor does a bot; a dedicated server's game
+got that far what is to come. A learner has none to show, and a bot's is made up at each screen,
+9.4a, so none of it goes over the wire; a dedicated server's game
 tells nobody but the player with the say who is in it, so it has none either. In a Steam game each card has their name on Steam, Profile,
 which opens their Steam profile in the overlay, and Mute. The
 host's is Manage players, with Kick as well. Mute hides that player's emotes, picture and sound, on
