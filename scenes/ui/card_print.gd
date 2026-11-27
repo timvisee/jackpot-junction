@@ -310,8 +310,9 @@ static func _rect(x: float, y: float, w: float, h: float, hex: String, op: float
 ## stub's bite out of either side, as points in its units, for its body and its frame. Its sides
 ## run straight from corner to bite: a bite is the round of the card's own bite grown by the inset,
 ## and it starts and ends where that round crosses the side, [param inset] in from the edge, not on
-## the edge itself, so a frame drawn in from the edge does not lean out to meet it.
-static func outline(inset: float, corner: float) -> PackedVector2Array:
+## the edge itself, so a frame drawn in from the edge does not lean out to meet it. Not
+## [param bitten], it is the card whole, as a card with no stub is, a table card's back.
+static func outline(inset: float, corner: float, bitten := true) -> PackedVector2Array:
 	var points := PackedVector2Array()
 	var bite := BITE + inset
 	var corners: Array[Vector2] = [
@@ -327,7 +328,7 @@ static func outline(inset: float, corner: float) -> PackedVector2Array:
 		# Down the right side, the bite into it; up the left, the bite into that: the round about
 		# the side's middle at the stub, turning into the card, from where it crosses the side to
 		# where it crosses it again, half a circle for an outline on the edge itself.
-		if i == 1 or i == 3:
+		if bitten and (i == 1 or i == 3):
 			var right := i == 1
 			var middle := Vector2(WIDE if right else 0.0, STUB)
 			var meet := acos(clampf(inset / bite, -1.0, 1.0))

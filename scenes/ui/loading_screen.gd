@@ -285,12 +285,15 @@ func _deal() -> Control:
 		_cards.append(card)
 		_rests.append(rest)
 		backs.append(_side(card, "Back"))  # NO_TRANSLATE
+	# Whole, as the faces they turn over to are, the table's cards and the House's, neither of
+	# which has a stub to bite into.
 	CardBack.picture(
 		CardBack.worn(),
 		self,
 		func(drawn: Texture2D) -> void:
 			for back: TextureRect in backs:
-				back.texture = drawn
+				back.texture = drawn,
+		false
 	)
 	if table >= 0:
 		_deal_table(backs)

@@ -60,6 +60,8 @@ class Face:
 	var lines := ENGRAVED
 	var doodled := false
 	var marked := true
+	## With the card's bites, or whole, see [method CardBack.inside_outline].
+	var bitten := true
 	## Which of the supporter pack's backs it is, see [SupporterBacks], or -1 for another.
 	var supporter := -1
 	var _lines: Array[PackedVector2Array] = []
@@ -74,15 +76,15 @@ class Face:
 		var inner := Rect2(Vector2.ONE * inset, size_of - Vector2.ONE * inset * 2.0)
 		var drawn := Engraving.rings(size_of * 0.5, size_of.x * 0.3, size_of.x * 0.04, 12, 10, 200)
 		drawn.append_array(Engraving.waves(inner, 7.0, 2.0, 30.0, 0.6, 4.0))
-		_lines = Engraving.inside(drawn, CardBack.inside_outline())
+		_lines = Engraving.inside(drawn, CardBack.inside_outline(bitten))
 
 	func _draw() -> void:
 		# The hairline inside the frame, round the bites as the frame goes round them.
-		var hairline := CardPrint.outline(JokerCard.INSET, 6.0)
+		var hairline := CardPrint.outline(JokerCard.INSET, 6.0, bitten)
 		hairline.append(hairline[0])
 		draw_polyline(hairline, Color(ink, JokerCard.HAIRLINE), 1.0, true)
 		if supporter >= 0:
-			SupporterBacks.draw(self, supporter, lines)
+			SupporterBacks.draw(self, supporter, lines, bitten)
 		else:
 			Engraving.draw_on(self, _lines, Color(ink, lines), 0.8)
 		if marked:
@@ -96,8 +98,9 @@ class Face:
 ## How many times its own size a back's picture is drawn at, see [method picture].
 const PICTURE_SCALE := 2
 
-## The pictures of the backs drawn so far this run, by the back, see [method picture].
-static var _pictures: Dictionary[int, Texture2D] = {}
+## The pictures of the backs drawn so far this run, by the back and whether bitten, see
+## [method picture].
+static var _pictures: Dictionary[Vector2i, Texture2D] = {}
 
 var _normal: JokerCard.CardStyle
 var _chosen: JokerCard.CardStyle
@@ -105,8 +108,10 @@ var _body: JokerCard.Body
 
 
 ## A card face down in [param style] of [constant STYLES], the one worn for -1; with the question
-## mark of a card not known yet, or not, as a card of the deck has none, [param marked].
-func _init(style := -1, marked := true) -> void:
+## mark of a card not known yet, or not, as a card of the deck has none, [param marked]; and with a
+## joker's bites, or whole, [param bitten], for a card whose face has no stub, the table's cards and
+## the House's face on the loading screen.
+func _init(style := -1, marked := true, bitten := true) -> void:
 	var back := worn() if style < 0 else clampi(style, 0, STYLES.size() - 1)
 	size = JokerCard.SIZE
 	pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, JokerCard.SIZE.y)
@@ -114,6 +119,8 @@ func _init(style := -1, marked := true) -> void:
 	_normal = JokerCard.style_of(BOARDS[back], INKS[back], 3.0, Color(0.0, 0.0, 0.0, 0.5), 6)
 	var gold := Color(Palette.CHIP_GOLD, 0.6)
 	_chosen = JokerCard.style_of(BOARDS[back], Palette.CHIP_WHITE, 5.0, gold, 18)
+	_normal.bitten = bitten
+	_chosen.bitten = bitten
 	add_theme_stylebox_override("panel", _normal)
 	_body = JokerCard.Body.new()
 	_body.name = "Body"
@@ -125,6 +132,7 @@ func _init(style := -1, marked := true) -> void:
 	face.doodled = back == DOODLED
 	face.supporter = SUPPORTER.find(back)
 	face.marked = marked
+	face.bitten = bitten
 	add_child(face)
 
 
@@ -132,16 +140,17 @@ func _init(style := -1, marked := true) -> void:
 ## question mark of a card not known yet or the shadow of one lying on a screen, handed to
 ## [param wear]: for a card shown moved, turned and faded a frame rather than its engraving drawn
 ## again every frame. Drawn once a run under [param host], see [method DrawnTexture.kept], and
-## handed at once after that.
-static func picture(style: int, host: Node, wear: Callable) -> void:
-	if _pictures.has(style):
-		wear.call(_pictures[style])
+## handed at once after that. Whole rather than [param bitten] for a card whose face has no stub.
+static func picture(style: int, host: Node, wear: Callable, bitten := true) -> void:
+	var key := Vector2i(style, int(bitten))
+	if _pictures.has(key):
+		wear.call(_pictures[key])
 		return
 	var sheet := Control.new()
 	var scaled := Node2D.new()
 	scaled.scale = Vector2.ONE * PICTURE_SCALE
 	sheet.add_child(scaled)
-	var back := CardBack.new(style, false)
+	var back := CardBack.new(style, false, bitten)
 	back._normal.spread = 0.0
 	scaled.add_child(back)
 	var pixels := Vector2i(JokerCard.SIZE * PICTURE_SCALE)
@@ -150,7 +159,7 @@ static func picture(style: int, host: Node, wear: Callable) -> void:
 		sheet,
 		pixels,
 		func(drawn: Texture2D) -> void:
-			_pictures[style] = drawn
+			_pictures[key] = drawn
 			if wear.is_valid():
 				wear.call(drawn)
 	)
@@ -236,6 +245,7 @@ func set_highlighted(on: bool) -> void:
 
 
 ## The outline inside the frame a back's pictures are kept to, in a card's measures: the card's own,
-## [constant JokerCard.INSET] in and a little more, round the bites as the card's sides go.
-static func inside_outline() -> PackedVector2Array:
-	return CardPrint.outline(JokerCard.INSET + 1.0, 5.0)
+## [constant JokerCard.INSET] in and a little more, round the bites as the card's sides go, or
+## whole where not [param bitten].
+static func inside_outline(bitten := true) -> PackedVector2Array:
+	return CardPrint.outline(JokerCard.INSET + 1.0, 5.0, bitten)

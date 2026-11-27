@@ -107,3 +107,15 @@ func test_a_back_is_the_card_s_shape() -> void:
 	var bite := Vector2(JokerCard.INSET + 2.0, CardPrint.STUB)
 	assert_bool(Geometry2D.is_point_in_polygon(bite, inside)).is_false()
 	assert_bool(Geometry2D.is_point_in_polygon(JokerCard.SIZE * 0.5, inside)).is_true()
+
+
+## A back for a card with no stub, the table's cards' and the loading screen's, is whole: no bite
+## out of its style's outline nor out of what its pictures are kept to.
+func test_a_back_can_be_whole() -> void:
+	var back := auto_free(CardBack.new(0, true, false)) as CardBack
+	var look := back.get_theme_stylebox(&"panel") as JokerCard.CardStyle
+	assert_bool(look.bitten).is_false()
+	var bite := Vector2(JokerCard.INSET + 2.0, CardPrint.STUB)
+	assert_bool(Geometry2D.is_point_in_polygon(bite, CardBack.inside_outline(false))).is_true()
+	var whole := CardPrint.outline(0.0, 10.0, false)
+	assert_bool(Geometry2D.is_point_in_polygon(Vector2(1.5, CardPrint.STUB), whole)).is_true()

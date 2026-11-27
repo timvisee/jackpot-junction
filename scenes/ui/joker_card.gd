@@ -86,6 +86,8 @@ class CardStyle:
 	var frame_width := 3.0
 	var shadow := Color.TRANSPARENT
 	var spread := 0.0
+	## With the bite out of either side at the stub, or whole, see [method CardPrint.outline].
+	var bitten := true
 
 	func _init() -> void:
 		draw_center = false
@@ -97,10 +99,9 @@ class CardStyle:
 class Body:
 	extends Control
 
-	## The shadows drawn so far, by how far out they reach, see [method shadow_layers].
-	static var _shadows: Dictionary[int, Array] = {}
-
-	var _shape := PackedVector2Array()
+	## The shadows drawn so far, by how far out they reach and whether bitten, see
+	## [method shadow_layers].
+	static var _shadows: Dictionary[Vector2i, Array] = {}
 
 	func _ready() -> void:
 		set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -110,26 +111,25 @@ class Body:
 		var style := get_parent().get_theme_stylebox(&"panel") as CardStyle
 		if style == null:
 			return
-		if _shape.is_empty():
-			_shape = CardPrint.outline(0.0, 10.0)
 		if style.shadow.a > 0.0 and style.spread >= 1.0:
-			var layers := shadow_layers(roundi(style.spread))
+			var layers := shadow_layers(roundi(style.spread), style.bitten)
 			var each := 1.0 - pow(1.0 - style.shadow.a, 1.0 / layers.size())
 			for layer: PackedVector2Array in layers:
 				draw_colored_polygon(layer, Color(style.shadow, each))
-		draw_colored_polygon(_shape, style.fill)
+		draw_colored_polygon(CardPrint.outline(0.0, 10.0, style.bitten), style.fill)
 		var half := style.frame_width * 0.5
-		var frame := CardPrint.outline(half, 10.0 - half)
+		var frame := CardPrint.outline(half, 10.0 - half, style.bitten)
 		frame.append(frame[0])
 		draw_polyline(frame, style.frame, style.frame_width, true)
 
 	## The card's outline grown out a step at a time to [param spread], the farthest first: a shadow
 	## or a glow laid in them, a little of it in each, fades out from the card's edge as a box's
-	## does, but in the card's own shape, its bites and all.
-	static func shadow_layers(spread: int) -> Array:
-		if _shadows.has(spread):
-			return _shadows[spread]
-		var shape := CardPrint.outline(0.0, 10.0)
+	## does, but in the card's own shape, its bites and all, or whole where not [param bitten].
+	static func shadow_layers(spread: int, bitten := true) -> Array:
+		var key := Vector2i(spread, int(bitten))
+		if _shadows.has(key):
+			return _shadows[key]
+		var shape := CardPrint.outline(0.0, 10.0, bitten)
 		var count := clampi(roundi(spread / 1.5), 3, 12)
 		var layers: Array = []
 		for i: int in count:
@@ -137,7 +137,7 @@ class Body:
 			var grown := Geometry2D.offset_polygon(shape, grow, Geometry2D.JOIN_ROUND)
 			if not grown.is_empty():
 				layers.append(grown[0])
-		_shadows[spread] = layers
+		_shadows[key] = layers
 		return layers
 
 

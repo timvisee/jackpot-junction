@@ -85,8 +85,8 @@ below, and hands the notes to the release workflow.
   roundabout's chip are redrawn in the same house print.
 - **Reprinted joker and power-up cards.** The cards are printed in the house print: a stub torn
   along a perforation, a halftone screen along the top, gems for rarity, rare and cursed cards
-  each printed their own way, and less detail when a card is shown small. Card backs have the same
-  shape, bites and all.
+  each printed their own way, and less detail when a card is shown small. A card's back has the
+  same shape as its face, bites and all, and the table's cards none.
 
 ### Fixed
 

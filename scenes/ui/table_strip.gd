@@ -393,12 +393,14 @@ class TableCardButton:
 
 	func _ready() -> void:
 		add_to_group(GROUP)
+		# Whole, as the table card's face is, with no stub to bite into.
 		CardBack.picture(
 			CardBack.worn(),
 			self,
 			func(drawn: Texture2D) -> void:
 				_back = drawn
-				queue_redraw()
+				queue_redraw(),
+			false
 		)
 		focus_entered.connect(queue_redraw)
 		focus_exited.connect(queue_redraw)

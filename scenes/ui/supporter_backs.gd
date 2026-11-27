@@ -23,11 +23,12 @@ const VIOLET := Color(0.65, 0.45, 1.0)
 
 
 ## Back [param kind] of [constant NAMES] drawn on [param on] in a card's measures, its lines as
-## strong as [param lines] says, as the other backs' are, see [member CardBack.Face.lines].
-static func draw(on: CanvasItem, kind: int, lines: float) -> void:
+## strong as [param lines] says, as the other backs' are, see [member CardBack.Face.lines], kept to
+## the card's bitten outline or, not [param bitten], the whole card's.
+static func draw(on: CanvasItem, kind: int, lines: float, bitten := true) -> void:
 	var inset := JokerCard.INSET + 1.0
 	var inner := Rect2(Vector2.ONE * inset, JokerCard.SIZE - Vector2.ONE * inset * 2.0)
-	var box := CardBack.inside_outline()
+	var box := CardBack.inside_outline(bitten)
 	# The other backs' lines are a whisper; these are pictures, a little stronger, and stronger
 	# again where the backs are drawn for the table, far off.
 	var strength := clampf(lines / CardBack.ENGRAVED, 1.0, 3.0)

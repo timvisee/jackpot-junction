@@ -6079,7 +6079,8 @@ as the game hanging rather than as the game working.
 
 So a map goes up a phase at a time with a loading screen over it: the name of the
 room, a bar, and what is being built, and over the name a hand of five cards fanned
-face down in the card back the player wears, 8.9, each over the one before as a hand
+face down in the card back the player wears, 8.9, whole as the faces they turn over to are,
+with no stub's bites, each over the one before as a hand
 held lies, a slow wave running through them all the while, so the screen is seen to be
 alive rather than stuck; one of them, any one, slides up out of the hand as the room
 nears up and turns over to the House's face, its seal in foil on black, as it is up. In the
@@ -9187,7 +9188,7 @@ somebody new who never touches the settings plays each card from the map after i
 **On the table.** Under the presets the cards of the table, 3.17, lie on a strip of the table's
 felt headed ON THE TABLE in foil, a card each in their order, `TableStrip`: face up, the House's
 cream with the card's picture and its name, for on, and face down, in the card back the player
-wears, 8.9, for off. A press turns one over, narrowing to its edge and widening on its other side,
+wears, 8.9, whole as the face is, with no stub's bites, for off. A press turns one over, narrowing to its edge and widening on its other side,
 and lights Custom; it is heard put down on the felt as it starts to turn, Kenney's card laid on a
 table, so a wave of them is heard card after card, and the cursor ticks on the cards and the die
 as on any button. Suits & hands turned up with Jokers down turn Jokers up with them, both cards
