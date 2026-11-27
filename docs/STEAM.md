@@ -431,7 +431,10 @@ the music's bars with ffmpeg.
 ## Words for the store page
 
 Everything Steamworks asks for in words, under Edit Store Page, written once here
-so the store page, itch.io's and the game say the same things. ITCH.md's words
+so the store page, itch.io's and the game say the same things. The page in another
+language the game speaks has its words in `steam/store_<language>.md`, Dutch's in
+[store_dutch.md](steam/store_dutch.md), with how to put it up; change it with the
+English. ITCH.md's words
 are the source, its numbers too: when a release adds jokers, power-ups or dress,
 they change in both. Steam takes no links to
 other sites in the description or in its pictures, not even a domain spelled
@@ -443,7 +446,7 @@ out: the links go in Basic Info's fields.
 |---|---|
 | Name | Jackpot Junction |
 | Developer, publisher | timvisee, as on itch.io and GitHub |
-| Supported languages | English: interface only, since nothing is voiced or subtitled |
+| Supported languages | English and Dutch: interface only, since nothing is voiced or subtitled; the Dutch page's words are in [store_dutch.md](steam/store_dutch.md) |
 | Platforms | Windows, and SteamOS + Linux; macOS once it is on Steam, see [Builds](#builds) |
 | Controllers | Full controller support: Xbox and PlayStation controllers, and every other controller through Steam Input, with the game's actions named in Steam's controller settings; if the controller questions ask whether the game uses the Steam Input API, it does |
 | Genres | Action, Casual, Indie, Free to Play |
@@ -667,7 +670,8 @@ its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands
 | Type | DLC, cosmetic only |
 
 Neither description names the thank-you card, which a player who bought the pack is to find for
-themselves on the title.
+themselves on the title. In Dutch, its name and words are in
+[store_dutch.md](steam/store_dutch.md#the-supporter-pack).
 
 Short description:
 

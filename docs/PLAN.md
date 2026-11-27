@@ -5448,7 +5448,7 @@ gettext files, for community tools such as Weblate and Poedit. Built in worktree
 | G5 | Dutch, informal ("je"), played through by the user | Open |
 | G6 | A guide for translators, `docs/TRANSLATING.md` | Done |
 | G7 | Simplified Chinese: a typeface with Chinese for each of the game's, line breaking in exports, a human translator | Open |
-| G8 | Steam: the store page, the achievements' names, the presence and the controller actions translated on Steamworks | Open |
+| G8 | Steam: the controller actions, the achievements and the presence written in every language from the game's translations; the store page's words by hand, `docs/steam/store_dutch.md`, its pictures and screenshots drawn per language | Done; Dutch to put up on Steamworks, STEAM.md |
 | G9 | Left in English for now, to translate later if wanted (the user, 2026-11-26): a dedicated server's web page and console, a debug build's story page, the tools in `scenes/dev` | Open |
 
 ## Pending

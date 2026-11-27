@@ -11828,7 +11828,8 @@ it (`Lang.on_steam()`, the words looked up with `Lang.t_in()` whatever is spoken
 actions' names in `data/steam/input/`, written by `make steam-input`, and the presence's words in
 `docs/steam/`, by `make steam-presence`, tests failing until they are; and the achievements' names
 and objectives in the table `make steam-achievement-art` writes for Steamworks' bulk import. The
-store page is translated on Steamworks.
+store page's words are written for each language by hand, `docs/steam/store_<language>.md`, and
+`make steam-art` draws its screenshots and its pictures with words in them in each.
 
 ## 11. Roadmap
 
