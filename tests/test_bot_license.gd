@@ -120,8 +120,8 @@ func _finished_match() -> Match:
 	return match_node
 
 
-## A learner bot, with the L, has none; the rest hold up theirs from the robot after their name on
-## the payout slip, over it.
+## A learner bot, with the L, has none; the rest hold up theirs from a little license after their
+## name and robot's head on the payout slip, over it, the same as a player's.
 func test_the_slips_robot_holds_it_up() -> void:
 	var match_node := _finished_match()
 	await _runner.simulate_frames(12, 17)
@@ -136,7 +136,8 @@ func test_the_slips_robot_holds_it_up() -> void:
 	var screen: ResultsScreen = match_node.hud._results
 	var robots: Array[Node] = screen.find_children("Bot", "", true, false)
 	assert_int(robots.size()).is_equal(2)
-	var held: Array[Node] = robots.filter(func(robot: Node) -> bool: return robot is Button)
+	assert_bool(robots.any(func(robot: Node) -> bool: return robot is Button)).is_false()
+	var held: Array[Node] = screen.find_children("License", "Button", true, false)
 	assert_int(held.size()).is_equal(1)
 	(held[0] as Button).pressed.emit()
 	var view := get_tree().root.find_child("LicenseView", true, false) as LicenseView

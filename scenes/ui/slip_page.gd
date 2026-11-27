@@ -487,9 +487,9 @@ func _place_chip(slot: PlayerSlot, rank: int) -> Control:
 
 
 ## A player's name as it is printed on the slip: their own color, darkened until it reads on paper,
-## and for a bot a robot's head after it, as the standings in the room have, GAME.md 8.3, which
-## holds up its license where it has one, 9.4a; for a player at another machine with a license, a
-## little license after it that holds theirs up, 10.8.
+## and for a bot a robot's head after it, as the standings in the room have, GAME.md 8.3; and for
+## anybody with a license to show, a bot, 9.4a, or a player at another machine, 10.8, a little
+## license after that, the same for all, that holds theirs up.
 func _name(slot: PlayerSlot) -> Control:
 	var size := _sized(30, COMPACT_NAME)
 	var name_label := _label(slot.display_name(), size, HouseTheme.on_paper(slot.color()))
@@ -502,18 +502,18 @@ func _name(slot: PlayerSlot) -> Control:
 	var named := HBoxContainer.new()
 	named.add_theme_constant_override("separation", 8)
 	named.add_child(name_label)
+	if is_bot:
+		var bot := Control.new()
+		bot.name = "Bot"
+		bot.custom_minimum_size = Vector2(size * 0.8, size * 0.8)
+		bot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		bot.draw.connect(
+			func() -> void:
+				IconShapes.robot(bot, Rect2(Vector2.ZERO, bot.size), FAINT, HouseTheme.PAPER)
+		)
+		named.add_child(bot)
 	if not license.is_empty():
-		named.add_child(_license_button(slot, license, size, is_bot))
-		return named
-	var bot := Control.new()
-	bot.name = "Bot"
-	bot.custom_minimum_size = Vector2(size * 0.8, size * 0.8)
-	bot.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	bot.draw.connect(
-		func() -> void:
-			IconShapes.robot(bot, Rect2(Vector2.ZERO, bot.size), FAINT, HouseTheme.PAPER)
-	)
-	named.add_child(bot)
+		named.add_child(_license_button(slot, license, size))
 	return named
 
 
@@ -531,28 +531,22 @@ static func _license_of(slot: PlayerSlot) -> Dictionary:
 
 
 ## A little license after the name of [param slot]'s player, at the size of [param size], that
-## holds up [param license], theirs, over the slip, GAME.md 10.8; for a bot, [param robot], its
-## robot's head does. For the mouse and a finger: the slip's buttons keep the cursor, and Players
-## on the pause menu has a License a pad reaches.
-func _license_button(slot: PlayerSlot, license: Dictionary, size: int, robot := false) -> Button:
+## holds up [param license], theirs, over the slip, GAME.md 10.8. For the mouse and a finger: the
+## slip's buttons keep the cursor, and Players on the pause menu has a License a pad reaches.
+func _license_button(slot: PlayerSlot, license: Dictionary, size: int) -> Button:
 	var button := Button.new()
-	button.name = "Bot" if robot else "License"
+	button.name = "License"
 	button.flat = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	var wide := 0.8 if robot else 1.1
-	button.custom_minimum_size = Vector2(size * wide, size * 0.8)
+	button.custom_minimum_size = Vector2(size * 1.1, size * 0.8)
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.tooltip_text = "%s's license" % slot.display_name()
 	ScreenReader.label(button, button.tooltip_text)
 	button.draw.connect(
 		func() -> void:
 			var ink := INK if button.is_hovered() else FAINT
-			var box := Rect2(Vector2.ZERO, button.size)
-			if robot:
-				IconShapes.robot(button, box, ink, HouseTheme.PAPER)
-			else:
-				IconShapes.license(button, box, ink, HouseTheme.PAPER)
+			IconShapes.license(button, Rect2(Vector2.ZERO, button.size), ink, HouseTheme.PAPER)
 	)
 	button.mouse_entered.connect(button.queue_redraw)
 	button.mouse_exited.connect(button.queue_redraw)

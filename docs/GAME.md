@@ -550,9 +550,9 @@ Below it, with air between the picture and the list, the slip is printed as a
 receipt: cream paper torn off the house's printer, the winner's color in the hairline
 inside its edge. Each player gets a line of their own rather than a line of text,
 with their place on a chip of their color and their name in it, darkened to read on
-paper, a bot's with the robot's head after it as in the room's standings, which holds up its
-license as a little license does, 9.4a, a learner's aside, and a player's at another
-machine with a little license after it, in gray and darker under the pointer, which holds up their
+paper, a bot's with the robot's head after it as in the room's standings, and anybody's with a
+license to show, a bot's, 9.4a, or a player's at another machine, with a little license after it,
+the same for all, in gray and darker under the pointer, which holds up their
 driver license over the slip, 10.8, for the mouse and a finger alone, so the slip's buttons keep the
 cursor; dotted leaders across to what they banked on the right, their kills and
 deaths in gray, and a dashed rule under the line. The line of whoever is reading the
@@ -8773,7 +8773,7 @@ STORY.md 8.6. A license issued or retaken after that is signed by its holder as 
 STORY.md 6.7.
 
 **A bot's license.** Every bot that holds a license, all but the learners with the L, 4.4, has a
-card too, held up from the robot's head after its name on the payout slip, 3.8, the way another
+card too, held up from the little license after its name on the payout slip, 3.8, the way another
 player's is, 10.8. None of it goes over the wire: each screen makes it up from what it knows of the
 bot, drawn from its name, so a bot shows the same card wherever it is looked at (`BotLicense`). It
 is the player's card on gray stock rather than cream: CLASS B, "B · Bot", a serial number, B and

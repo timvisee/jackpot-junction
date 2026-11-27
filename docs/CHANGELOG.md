@@ -29,8 +29,8 @@ below, and hands the notes to the release workflow.
   names go through Steam's text filter.
 - **Other players' licenses.** License in Players, and a little license after a name on the payout
   slip, hold up that player's driver license, as yours is on the title.
-- **Bots' licenses.** The robot after a bot's name on the payout slip holds up its license: Class
-  B, on gray stock, signed AUTOMATED. Learners still have none.
+- **Bots' licenses.** A little license after a bot's name on the payout slip holds up its own:
+  Class B, on gray stock, signed AUTOMATED. Learners still have none.
 - **Quick Play.** First on Play Online's Steam tab: one press joins a public game near you, a
   friend's first, or starts one with bots that people join as they come.
 - **The game goes on when its host leaves.** In Steam and LAN games the player who has been in it
