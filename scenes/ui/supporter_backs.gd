@@ -27,14 +27,7 @@ const VIOLET := Color(0.65, 0.45, 1.0)
 static func draw(on: CanvasItem, kind: int, lines: float) -> void:
 	var inset := JokerCard.INSET + 1.0
 	var inner := Rect2(Vector2.ONE * inset, JokerCard.SIZE - Vector2.ONE * inset * 2.0)
-	var box := PackedVector2Array(
-		[
-			inner.position,
-			Vector2(inner.end.x, inner.position.y),
-			inner.end,
-			Vector2(inner.position.x, inner.end.y),
-		]
-	)
+	var box := CardBack.inside_outline()
 	# The other backs' lines are a whisper; these are pictures, a little stronger, and stronger
 	# again where the backs are drawn for the table, far off.
 	var strength := clampf(lines / CardBack.ENGRAVED, 1.0, 3.0)

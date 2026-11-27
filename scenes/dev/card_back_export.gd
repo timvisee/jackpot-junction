@@ -42,10 +42,9 @@ func _render(style: int) -> Image:
 	# Its shadow is for a card lying on a screen, not printed on one; and seen from over the table,
 	# far off and small, its rim is broader and its lines stronger, so it reads as its own colors
 	# rather than as its board alone.
-	var look := (back.get_theme_stylebox(&"panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
-	look.shadow_size = 0
-	look.set_border_width_all(FAR_RIM)
-	back.add_theme_stylebox_override(&"panel", look)
+	var look := back.get_theme_stylebox(&"panel") as JokerCard.CardStyle
+	look.spread = 0.0
+	look.frame_width = FAR_RIM
 	var face := back.get_node("Face") as CanvasItem
 	face.set(&"lines", minf(float(face.get(&"lines")) * FAR_LINES, 1.0))
 	scaled.add_child(back)

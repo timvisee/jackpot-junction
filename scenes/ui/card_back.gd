@@ -1,10 +1,12 @@
 class_name CardBack
 extends Panel
 ## A card lying face down, GAME.md 8.8: a joker or an item the profile has never taken, in the
-## catalog, and a card of the respawn pick before it is turned over, 3.7. The size and the round
-## corners of a [JokerCard], so it holds the same place in the grid, but in the house's gray rather
-## than any kind's color, an engraved rosette over all its face and a question mark in the middle,
-## saying neither what it is, what kind nor how rare. Under the cursor it lights up as a card does.
+## catalog, and a card of the respawn pick before it is turned over, 3.7. The size and the shape of
+## a [JokerCard], the bite out of either side at its stub, its frame and its shadow drawn by the
+## same body, so it holds the same place in the grid and turns over into the same card, but in the
+## house's gray rather than any kind's color, an engraved rosette over all its face and a question
+## mark in the middle, saying neither what it is, what kind nor how rare. Under the cursor it lights
+## up as a card does.
 ##
 ## Its back is the profile playing's choice of [constant STYLES], GAME.md 8.9, and this machine's
 ## alone: the house's, gilt, drawn in pencil, or the house's with Kit's doodles over it, see
@@ -70,27 +72,15 @@ class Face:
 		var size_of := JokerCard.SIZE
 		var inset := JokerCard.INSET + 1.0
 		var inner := Rect2(Vector2.ONE * inset, size_of - Vector2.ONE * inset * 2.0)
-		var box := PackedVector2Array(
-			[
-				inner.position,
-				Vector2(inner.end.x, inner.position.y),
-				inner.end,
-				Vector2(inner.position.x, inner.end.y),
-			]
-		)
 		var drawn := Engraving.rings(size_of * 0.5, size_of.x * 0.3, size_of.x * 0.04, 12, 10, 200)
 		drawn.append_array(Engraving.waves(inner, 7.0, 2.0, 30.0, 0.6, 4.0))
-		_lines = Engraving.inside(drawn, box)
+		_lines = Engraving.inside(drawn, CardBack.inside_outline())
 
 	func _draw() -> void:
-		var hairline := StyleBoxFlat.new()
-		hairline.draw_center = false
-		hairline.set_border_width_all(1)
-		hairline.border_color = Color(ink, JokerCard.HAIRLINE)
-		hairline.set_corner_radius_all(6)
-		hairline.anti_aliasing = true
-		var inset := Vector2.ONE * JokerCard.INSET
-		draw_style_box(hairline, Rect2(inset, size - inset * 2.0))
+		# The hairline inside the frame, round the bites as the frame goes round them.
+		var hairline := CardPrint.outline(JokerCard.INSET, 6.0)
+		hairline.append(hairline[0])
+		draw_polyline(hairline, Color(ink, JokerCard.HAIRLINE), 1.0, true)
 		if supporter >= 0:
 			SupporterBacks.draw(self, supporter, lines)
 		else:
@@ -109,8 +99,9 @@ const PICTURE_SCALE := 2
 ## The pictures of the backs drawn so far this run, by the back, see [method picture].
 static var _pictures: Dictionary[int, Texture2D] = {}
 
-var _normal: StyleBoxFlat
-var _chosen: StyleBoxFlat
+var _normal: JokerCard.CardStyle
+var _chosen: JokerCard.CardStyle
+var _body: JokerCard.Body
 
 
 ## A card face down in [param style] of [constant STYLES], the one worn for -1; with the question
@@ -120,19 +111,13 @@ func _init(style := -1, marked := true) -> void:
 	size = JokerCard.SIZE
 	pivot_offset = Vector2(JokerCard.SIZE.x * 0.5, JokerCard.SIZE.y)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_normal = StyleBoxFlat.new()
-	_normal.bg_color = BOARDS[back]
-	_normal.set_corner_radius_all(10)
-	_normal.set_border_width_all(3)
-	_normal.border_color = INKS[back]
-	_normal.shadow_color = Color(0.0, 0.0, 0.0, 0.5)
-	_normal.shadow_size = 6
-	_chosen = _normal.duplicate()
-	_chosen.set_border_width_all(5)
-	_chosen.border_color = Palette.CHIP_WHITE
-	_chosen.shadow_color = Color(Palette.CHIP_GOLD, 0.6)
-	_chosen.shadow_size = 18
+	_normal = JokerCard.style_of(BOARDS[back], INKS[back], 3.0, Color(0.0, 0.0, 0.0, 0.5), 6)
+	var gold := Color(Palette.CHIP_GOLD, 0.6)
+	_chosen = JokerCard.style_of(BOARDS[back], Palette.CHIP_WHITE, 5.0, gold, 18)
 	add_theme_stylebox_override("panel", _normal)
+	_body = JokerCard.Body.new()
+	_body.name = "Body"
+	add_child(_body)
 	var face := Face.new()
 	face.name = "Face"
 	face.ink = INKS[back]
@@ -157,9 +142,7 @@ static func picture(style: int, host: Node, wear: Callable) -> void:
 	scaled.scale = Vector2.ONE * PICTURE_SCALE
 	sheet.add_child(scaled)
 	var back := CardBack.new(style, false)
-	var look := (back.get_theme_stylebox(&"panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
-	look.shadow_size = 0
-	back.add_theme_stylebox_override(&"panel", look)
+	back._normal.spread = 0.0
 	scaled.add_child(back)
 	var pixels := Vector2i(JokerCard.SIZE * PICTURE_SCALE)
 	DrawnTexture.kept(
@@ -249,3 +232,10 @@ static func draw_doodles(on: CanvasItem, size: Vector2) -> void:
 ## Lights the card up as the one under the cursor, as [method JokerCard.set_highlighted] does.
 func set_highlighted(on: bool) -> void:
 	add_theme_stylebox_override("panel", _chosen if on else _normal)
+	_body.queue_redraw()
+
+
+## The outline inside the frame a back's pictures are kept to, in a card's measures: the card's own,
+## [constant JokerCard.INSET] in and a little more, round the bites as the card's sides go.
+static func inside_outline() -> PackedVector2Array:
+	return CardPrint.outline(JokerCard.INSET + 1.0, 5.0)

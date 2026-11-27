@@ -4664,7 +4664,8 @@ lane beside it is as wide as it was.
   of the screen, one hand per local player, each card framed in its kind's
   color, its suit and kind in its top left corner, the joker's own picture in its
   middle and its name alone on the stub along its foot, a stub torn off along a
-  perforation with a bite out of either side. Over the stub, on the card itself,
+  perforation with a bite out of either side; a card face down has the same shape, its
+  frame and its shadow running round the same bites. Over the stub, on the card itself,
   stand one, two or three gems for how rare it is: steel for common, cyan for
   uncommon, magenta for rare. Count and color say it twice on purpose, since the
   card already spends its color on saying what kind of joker it is and color alone

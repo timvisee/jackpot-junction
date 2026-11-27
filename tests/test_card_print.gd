@@ -95,3 +95,15 @@ func test_the_frame_runs_straight_into_the_bites() -> void:
 			assert_bool(on_left or on_right).override_failure_message(str(point)).is_true()
 	for point: Vector2 in frame:
 		assert_float(point.x).is_between(inset - 0.01, CardPrint.WIDE - inset + 0.01)
+
+
+## A card face down is the same card as one face up: drawn by the same body in the same style,
+## its bites and shaped shadow and all, and its pictures kept off the bites as the face's are.
+func test_a_back_is_the_card_s_shape() -> void:
+	var back := auto_free(CardBack.new(0)) as CardBack
+	assert_object(back.get_theme_stylebox(&"panel")).is_instanceof(JokerCard.CardStyle)
+	assert_object(back.get_node_or_null("Body")).is_instanceof(JokerCard.Body)
+	var inside := CardBack.inside_outline()
+	var bite := Vector2(JokerCard.INSET + 2.0, CardPrint.STUB)
+	assert_bool(Geometry2D.is_point_in_polygon(bite, inside)).is_false()
+	assert_bool(Geometry2D.is_point_in_polygon(JokerCard.SIZE * 0.5, inside)).is_true()
