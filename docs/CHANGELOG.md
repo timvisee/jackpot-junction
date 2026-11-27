@@ -23,6 +23,8 @@ below, and hands the notes to the release workflow.
   controller, the cursor moves to the link above it rather than getting lost.
 - **Color blindness's box is as tall as the others.** On the Accessibility page it was a little
   shorter than every other box to pick from.
+- **The music holds its level as a match heats up or calms down.** It dipped for a moment in the
+  middle of every change between its calm, tense and full mixes.
 
 ## [0.24.1] - 2026-11-26
 

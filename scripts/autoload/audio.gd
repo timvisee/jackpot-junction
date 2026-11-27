@@ -490,7 +490,9 @@ func play_music() -> void:
 
 
 ## Crossfades to another intensity of the same track, continuing from the same position. The
-## fade is linear in amplitude: the layers are the same music, so their sum stays level.
+## layers are different recordings on one beat, which at half each add up quieter than either: the
+## fade keeps their power level, the old one going out along a cosine as the new one comes in along
+## a sine, so nothing dips.
 func set_layer(layer: StringName) -> void:
 	if layer == current_layer or not LAYER_FILES.has(layer):
 		return
@@ -520,10 +522,13 @@ func set_layer(layer: StringName) -> void:
 		to.play(position)
 	if _music_tween != null and _music_tween.is_valid():
 		_music_tween.kill()
-	_music_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_LINEAR)
-	_music_tween.tween_property(to, "volume_linear", 1.0, CROSSFADE_SECONDS)
-	_music_tween.tween_property(from, "volume_linear", 0.0, CROSSFADE_SECONDS)
-	_music_tween.chain().tween_callback(from.stop)
+	var levels := Vector2(from.volume_linear, to.volume_linear)
+	var fade := func(along: float) -> void:
+		from.volume_linear = levels.x * cos(along * PI * 0.5)
+		to.volume_linear = lerpf(levels.y, 1.0, sin(along * PI * 0.5))
+	_music_tween = create_tween()
+	_music_tween.tween_method(fade, 0.0, 1.0, CROSSFADE_SECONDS)
+	_music_tween.tween_callback(from.stop)
 
 
 ## The match's excitement level and how far through the levels it is, pushed in every tick.

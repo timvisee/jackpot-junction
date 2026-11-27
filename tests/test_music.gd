@@ -132,20 +132,47 @@ func test_building_a_match_puts_a_record_on() -> void:
 	assert_int(seen.size()).is_greater(1)
 
 
-func test_a_crossfade_keeps_the_summed_level_constant() -> void:
+func test_a_crossfade_keeps_the_summed_power_constant() -> void:
 	Audio.set_layer(Audio.LAYER_TENSE)
 	var players: Array[AudioStreamPlayer] = Audio._music_players
-	var total := players[0].volume_linear + players[1].volume_linear
-	assert_float(total).is_equal_approx(1.0, 0.05)
+	assert_float(_power(players)).is_equal_approx(1.0, 0.05)
 	await await_millis(400)
 	var active := players[Audio._active_player]
 	var other := players[1 - Audio._active_player]
 	if other.playing:
-		assert_float(active.volume_linear).is_between(0.2, 0.8)
-		assert_float(active.volume_linear + other.volume_linear).is_equal_approx(1.0, 0.05)
+		assert_float(active.volume_linear).is_between(0.2, 0.9)
+		assert_float(_power(players)).is_equal_approx(1.0, 0.05)
 	else:
 		assert_float(active.volume_linear).is_equal_approx(1.0, 0.001)
 	assert_str(Audio.music_debug()).contains("music tense L")
+
+
+## The intensities are different recordings, which at half each add up quieter than either: a
+## crossfade shares out their power, the new one coming in along a sine as the old one goes out
+## along a cosine, so it never dips.
+func test_a_crossfade_comes_in_along_a_sine(
+	_do_skip := not _music_to_check(), _skip_reason := "no music in this checkout"
+) -> void:
+	# Any crossfade still going from before played out, so the calm one is whole and playing.
+	if Audio._music_tween != null and Audio._music_tween.is_valid():
+		Audio._music_tween.custom_step(Audio.CROSSFADE_SECONDS + 0.1)
+	var players: Array[AudioStreamPlayer] = Audio._music_players
+	var from := players[Audio._active_player]
+	if not from.playing:
+		from.play()
+	Audio.set_layer(Audio.LAYER_TENSE)
+	var to := players[Audio._active_player]
+	assert_object(to).is_not_same(from)
+	for quarter: int in 5:
+		assert_float(to.volume_linear).is_equal_approx(sin(quarter * 0.25 * PI * 0.5), 0.001)
+		assert_float(_power(players)).is_equal_approx(1.0, 0.001)
+		Audio._music_tween.custom_step(Audio.CROSSFADE_SECONDS * (0.25 if quarter < 4 else 0.1))
+	assert_bool(from.playing).is_false()
+
+
+## How much of the music's power the two players give it between them, one when it is whole.
+static func _power(players: Array[AudioStreamPlayer]) -> float:
+	return players[0].volume_linear ** 2 + players[1].volume_linear ** 2
 
 
 ## GAME.md 8.4: the mix is chosen by the excitement level, calm up to 3, tense from 4 and the
