@@ -5223,8 +5223,8 @@ inside the game, so nothing here ever does; Steam asks players itself after a fe
 |------|------|-------|
 | L1 | The AI disclosure rewritten to say exactly what AI made, on Steam and itch.io: the code and text by AI, the art drawn by that code, no image, voice or music generators | On the Steam store page (2026-11-26); itch.io with the next release |
 | L2 | Windows: CI starts the exported Windows build, and the user plays it on a Windows PC once (it ran under Proton on Linux) | Open |
-| L3 | Public Steam lobbies, listed in Play Online beside friends' games; defaults, UI and managing players planned with the user first | Open: plan first |
-| L4 | Quick Play: a public game with a free seat, or a new one with bots in the empty seats | Open: plan first, with L3 |
+| L3 | Public Steam lobbies, listed in Play Online beside friends' games; defaults, UI and managing players planned with the user first | Planning: 34 questions with defaults asked on 2026-11-26 (1-23 here), the screens drawn at https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7 (its db, `picks/main`); branch and worktree `public-games` |
+| L4 | Quick Play: a public game with a free seat, or a new one with bots in the empty seats | Planning, with L3: questions 24-34 of the same list |
 | L5 | A first start to try: the invitation, then a three-minute match with prompts, the school offered after, the license asked once; kept or dropped after the user plays it; on its own branch, tried from a fresh profile | Open |
 | L6 | The game's text made translatable (gettext PO), a font for Chinese; Simplified Chinese by a human translator for the launch; done in the user's localize session | Open |
 | L7 | More Ovani music: the seven unused tracks of Electronic Vol. 8 auditioned by the user first; one new map layout before the launch; more layouts in the first month | Open |
