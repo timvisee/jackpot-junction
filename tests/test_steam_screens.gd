@@ -1,9 +1,9 @@
 extends GdUnitTestSuite
-## What a Steam build shows of Steam, GAME.md 10.8: Play Online's box of friends' games and Host for
-## friends, or why there is none; where a game is played, stamped; Invite friends in the menu of a
-## Steam game, through Steam's dialog or the game's own list; Lobby settings for a Steam game; the
-## overlay pausing a room of this machine's own; the version on the title. Steam here is always
-## [FakeSteam].
+## What a Steam build shows of Steam, GAME.md 10.8: Play Online's box of Steam games and Host a game
+## with who may join, or why there is none; where a game is played, stamped; Invite friends in the
+## menu of a Steam game, through Steam's dialog or the game's own list; Lobby settings for a Steam
+## game; the overlay pausing a room of this machine's own; the version on the title. Steam here is
+## always [FakeSteam].
 
 const PLAY_ONLINE := preload("res://scenes/ui/play_online.tscn")
 const TITLE := "res://scenes/ui/title.gd"
@@ -87,39 +87,68 @@ func test_friends_games_are_read_off_their_lobbies() -> void:
 	assert_array(Store.steam.friends.online()).is_equal([{"id": STRANGER, "name": "Cy"}])
 
 
-## In a Steam build, Play Online opens on Steam friends' games, Host for friends under them, and the
-## servers' box has room for fewer rows.
-func test_play_online_has_a_tab_for_steam_friends() -> void:
+## In a Steam build, Play Online opens on Steam games, friends' and strangers' public ones in one
+## box, with Host a game and who may join under them.
+func test_play_online_has_a_tab_for_steam_games() -> void:
 	_steam()
 	var lobby := _a_friend_hosting()
+	var stranger := 76561197960287977
+	var data := {
+		SteamLobby.GAME_KEY: SteamLobby.GAME,
+		SteamLobby.VERSION_KEY: GameVersion.current(),
+		SteamLobby.LINE_KEY: SteamLobby.line_of(GameVersion.current()),
+		SteamLobby.HOST_KEY: "Zed",
+		SteamLobby.PLAYERS_KEY: "1",
+		SteamLobby.MOST_KEY: "8",
+		SteamLobby.COLORS_KEY: "2",
+	}
+	var public := _fake.public_lobby(stranger, data)
+	_fake.players_now = 140
 	var screen: Control = auto_free(PLAY_ONLINE.instantiate())
 	var runner := scene_runner(screen)
 	await runner.simulate_frames(10)
-	screen.set("_friends_since", 100.0)
-	await runner.simulate_frames(2)
-	# Steam friends first, on a page of its own, the servers and the network on theirs, the tabs on
-	# the box showing.
+	# Steam first, on a page of its own, the servers and the network on theirs, the tabs on the box
+	# showing.
 	assert_array(screen.tab_keys).is_equal([screen.STEAM_TAB, screen.SERVERS_TAB, screen.LAN_TAB])
 	assert_str(screen.tab_showing()).is_equal(screen.STEAM_TAB)
 	assert_bool(screen.steam_page.visible).is_true()
 	assert_bool(screen.servers_page.visible).is_false()
 	assert_bool(screen.lan.visible).is_false()
-	assert_object(screen.tabs_row.get_parent()).is_same(screen.steam_box)
-	assert_str(screen.steam_box.link.text).is_equal("Host for friends")
-	assert_int(screen.friends_games.get_child_count()).is_equal(1)
-	assert_str(screen.friends_games.row_text(lobby & 0x7FFFFFFF)).contains("Bo's game")
-	# Turned to Servers, which is kept for next time; Invite only kept too.
+	var page: SteamPage = screen.steam_page
+	assert_object(screen.tabs_row.get_parent()).is_same(page.box)
+	assert_str(page.box.link.text).is_equal("Host a game")
+	# The friend's game first, the stranger's public one after it; how many play said over them.
+	assert_int(page.games.get_child_count()).is_equal(2)
+	assert_str(page.games.row_text(lobby & 0x7FFFFFFF)).contains("Bo's game")
+	assert_str(page.games.row_text(public & 0x7FFFFFFF)).contains("Zed's game")
+	assert_str(page.games.get_child(0).find_child("Join*", true, false).name).is_equal(
+		"Join%d" % (lobby & 0x7FFFFFFF)
+	)
+	assert_str(page.line.text).starts_with("140 playing now.")
+	# Turned to Servers, which is kept for next time; who may join kept too.
 	screen.show_tab(screen.SERVERS_TAB)
 	assert_bool(screen.steam_page.visible).is_false()
 	assert_bool(screen.servers_page.visible).is_true()
 	assert_str(Game.settings.play_online_tab).is_equal(screen.SERVERS_TAB)
-	screen.invite_only_button.button_pressed = true
-	assert_bool(Game.settings.lobby_invite_only).is_true()
+	page.who_button.select(SteamLobby.Who.ANYONE)
+	page.who_button.item_selected.emit(SteamLobby.Who.ANYONE)
+	assert_int(Game.settings.lobby_who).is_equal(SteamLobby.Who.ANYONE)
+	assert_int(SteamJoins.host_config().lobby_who).is_equal(SteamLobby.Who.ANYONE)
 	var again: Control = auto_free(PLAY_ONLINE.instantiate())
 	runner = scene_runner(again)
 	await runner.simulate_frames(5)
 	assert_str(again.tab_showing()).is_equal(again.SERVERS_TAB)
-	assert_bool(again.invite_only_button.button_pressed).is_true()
+	assert_int(again.steam_page.who_button.selected).is_equal(SteamLobby.Who.ANYONE)
+
+
+## Fewer than enough playing is not said: a small number would advertise an empty game.
+func test_a_small_count_is_not_said() -> void:
+	_steam()
+	_fake.players_now = SteamPublic.COUNT_FROM - 1
+	var screen: Control = auto_free(PLAY_ONLINE.instantiate())
+	var runner := scene_runner(screen)
+	await runner.simulate_frames(5)
+	assert_str((screen.steam_page as SteamPage).line.text).is_equal(SteamPage.LINE)
 
 
 ## Without Steam the box is not there at all; with Steam wanted and not running, it says so.
@@ -127,17 +156,19 @@ func test_play_online_without_steam() -> void:
 	var screen: Control = auto_free(PLAY_ONLINE.instantiate())
 	var runner := scene_runner(screen)
 	await runner.simulate_frames(5)
-	assert_object(screen.steam_box).is_null()
+	assert_object(screen.steam_page).is_null()
 	assert_array(screen.tab_keys).is_equal([screen.SERVERS_TAB, screen.LAN_TAB])
 	assert_bool(screen.servers_page.visible).is_true()
 	Store.missing = "Steam isn't running"
 	var wanting: Control = auto_free(PLAY_ONLINE.instantiate())
 	runner = scene_runner(wanting)
 	await runner.simulate_frames(5)
-	assert_object(wanting.steam_box).is_not_null()
-	assert_bool(wanting.steam_box.link.visible).is_false()
-	assert_bool(wanting.host_button.disabled).is_true()
-	var words := (wanting.friends_games.get_child(0) as Label).text
+	var page: SteamPage = wanting.steam_page
+	assert_object(page).is_not_null()
+	assert_bool(page.box.link.visible).is_false()
+	assert_bool(page.host_button.disabled).is_true()
+	assert_bool(page.who_button.disabled).is_true()
+	var words := (page.games.get_child(0) as Label).text
 	assert_str(words).is_equal("Steam isn't running")
 
 
@@ -176,20 +207,23 @@ func test_invite_friends() -> void:
 	assert_bool(bo.disabled).is_true()
 
 
-## A Steam game's Lobby settings have no password and say whether it is for those invited alone,
+## A Steam game's Lobby settings have no password and say who may join, as the lobby is open now,
 ## which goes to Steam and is kept.
 func test_lobby_settings_of_a_steam_game() -> void:
 	_steam()
-	Store.steam.lobbies.host(14)
+	Game.settings.lobby_who = SteamLobby.Who.FRIENDS
+	Store.steam.lobbies.host(14, SteamLobby.Who.ANYONE)
 	Net.session = NetSession.new()
-	Game.pending_config = SteamJoins.host_config(false)
+	Game.pending_config = SteamJoins.host_config(SteamLobby.Who.ANYONE)
 	var pane: LobbySettings = auto_free(LobbySettings.new())
 	add_child(pane)
 	pane.open()
-	var invite_only := pane.find_child("InviteOnly", true, false) as CheckButton
-	assert_bool(invite_only.is_visible_in_tree()).is_true()
-	invite_only.button_pressed = true
-	assert_bool(Game.settings.lobby_invite_only).is_true()
+	var who := pane.find_child("WhoCanJoin", true, false) as OptionButton
+	assert_bool(who.is_visible_in_tree()).is_true()
+	assert_int(who.selected).is_equal(SteamLobby.Who.ANYONE)
+	who.select(SteamLobby.Who.INVITE_ONLY)
+	who.item_selected.emit(SteamLobby.Who.INVITE_ONLY)
+	assert_int(Game.settings.lobby_who).is_equal(SteamLobby.Who.INVITE_ONLY)
 	assert_array(_fake.calls).contains(
 		["setLobbyType %d %d" % [Store.steam.lobby(), SteamLobby.INVITE_ONLY]]
 	)
@@ -215,7 +249,7 @@ func test_lobby_settings_of_a_steam_game() -> void:
 	Net.session.free()
 	Net.session = null
 	pane.open()
-	assert_bool(invite_only.is_visible_in_tree()).is_false()
+	assert_bool(who.is_visible_in_tree()).is_false()
 	assert_bool(invite.is_visible_in_tree()).is_false()
 
 

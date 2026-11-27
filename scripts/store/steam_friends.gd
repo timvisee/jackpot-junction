@@ -50,24 +50,11 @@ func games(now := Time.get_ticks_msec() / 1000.0) -> Array[Dictionary]:
 
 
 ## The friend's game [param lobby], hosted by [param host] called [param host_name], as [GameList]
-## lists games: what its lobby says of it.
+## lists games: what its lobby says of it, see [method SteamPublic.read], marked a friend's.
 func game_of(lobby: int, host: int, host_name: String) -> Dictionary:
-	var data := func(key: String) -> String: return str(api.call(&"getLobbyData", lobby, key))
-	var map: String = data.call(SteamLobby.MAP_KEY)
-	return {
-		"id": lobby & 0x7FFFFFFF,
-		"title": data.call(SteamLobby.TITLE_KEY),
-		"name": host_name,
-		"lobby": map.is_empty(),
-		"map": map,
-		"players": int(data.call(SteamLobby.PLAYERS_KEY)),
-		"most": int(data.call(SteamLobby.MOST_KEY)),
-		"password": false,
-		"version": data.call(SteamLobby.VERSION_KEY),
-		"watching": data.call(SteamLobby.WATCHING_KEY) != "0",
-		"steam_lobby": lobby,
-		"steam_host": host,
-	}
+	var game := SteamPublic.read(api, lobby, host, host_name)
+	game["friend"] = true
+	return game
 
 
 ## The friends online, by account and name, for inviting without Steam's overlay.

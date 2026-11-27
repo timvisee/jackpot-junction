@@ -8,10 +8,11 @@ extends PanelContainer
 ## shown out by any of them, they only answer the next knock. The name, the number and the two about
 ## watchers are kept for next time; the password is not.
 ##
-## In a Steam game, GAME.md 10.8, Invite friends stands before the way on and has the cursor as the
-## pane comes up, the first thing a host does there: Steam's invite dialog over the game, or with
-## Steam's overlay off, the game's own list of friends online, see [SteamInvites], in the pane's
-## place until Back.
+## In a Steam game, GAME.md 10.8, who may join is a choice of three, anyone, friends or those
+## invited, in place of the password, and Invite friends stands before the way on and has the
+## cursor as the pane comes up, the first thing a host does there: Steam's invite dialog over the
+## game, or with Steam's overlay off, the game's own list of friends online, see [SteamInvites], in
+## the pane's place until Back.
 
 ## Back: the menu is up again in its place.
 signal closed
@@ -26,14 +27,14 @@ var _players: OptionButton
 var _password: LineEdit
 var _watchers: CheckButton
 var _watch_free: CheckButton
-var _invite_only: CheckButton
+var _who: OptionButton
 var _invite: Button
 var _invites: SteamInvites
 var _back: Button
 ## The rows a Steam game has no use for, and the one only it has, GAME.md 10.8.
 var _password_row: Control
 var _watch_free_row: Control
-var _invite_only_row: Control
+var _who_row: Control
 
 
 func _ready() -> void:
@@ -80,12 +81,12 @@ func _ready() -> void:
 	_watch_free.toggled.connect(_on_watch_free)
 	_watch_free_row = MenuTheme.row("Watch without password", _watch_free)
 	column.add_child(_watch_free_row)
-	# A Steam game is for every friend, or for those invited alone, and has no password.
-	_invite_only = MenuTheme.toggle(false)
-	_invite_only.name = "InviteOnly"
-	_invite_only.toggled.connect(_on_invite_only)
-	_invite_only_row = MenuTheme.row("Invite only", _invite_only)
-	column.add_child(_invite_only_row)
+	# A Steam game is for anyone, every friend or those invited alone, and has no password.
+	_who = MenuTheme.option(SteamLobby.WHO_NAMES, Game.settings.lobby_who)
+	_who.name = "WhoCanJoin"
+	_who.item_selected.connect(_on_who)
+	_who_row = MenuTheme.row("Who can join", _who)
+	column.add_child(_who_row)
 	var note := MenuTheme.subtitle(
 		"Who can join changes for the next to come. Nobody already here is shown out.", Type.LABEL
 	)
@@ -118,11 +119,13 @@ func open() -> void:
 	_password.text = door.password
 	_watchers.set_pressed_no_signal(door.watchers_allowed)
 	_watch_free.set_pressed_no_signal(not door.watchers_need_password)
-	_invite_only.set_pressed_no_signal(Game.settings.lobby_invite_only)
+	# What the game is open to now: a Quick Play game is anybody's, whatever was last picked.
+	var lobby := Store.steam.lobbies if Store.on() else null
+	_who.select(lobby.who if lobby != null and lobby.hosting else Game.settings.lobby_who)
 	var steam := Store.steam_game()
 	_password_row.visible = not steam
 	_watch_free_row.visible = not steam
-	_invite_only_row.visible = steam
+	_who_row.visible = steam
 	_invite.visible = steam
 	_show_watching()
 	(_invite if steam else _players).grab_focus()
@@ -199,10 +202,12 @@ func _back_from_invites() -> void:
 	_invite.grab_focus()
 
 
-func _on_invite_only(on: bool) -> void:
+## The game opened to [param who], a [enum SteamLobby.Who], at once and for next time, GAME.md 10.8:
+## nobody already in is shown out.
+func _on_who(who: int) -> void:
 	if Store.on():
-		Store.steam.lobbies.set_invite_only(on)
-	Game.settings.lobby_invite_only = on
+		Store.steam.lobbies.set_who(who)
+	Game.settings.lobby_who = who
 	Game.settings.save_to_disk()
 
 

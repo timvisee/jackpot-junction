@@ -3,7 +3,7 @@ extends Control
 ## the page keys, the one last turned to kept for next time. Servers: the dedicated servers the
 ## player keeps, a row each in a box of their own, see [ServerList] and [ListBox], which connect to
 ## it, and under them, in a row, Add a server and Direct connect. LAN: the games on the network, see
-## [LanPage]. In a Steam build, GAME.md 10.8, Steam friends first. Once a server has let this
+## [LanPage]. In a Steam build, GAME.md 10.8, Steam first. Once a server has let this
 ## machine in, its games are listed on a screen of their own, see server_games.gd, over the
 ## connection made here.
 ##
@@ -19,24 +19,22 @@ extends Control
 ## Back from one of the server's games, the screen connects to it again by itself and goes on to
 ## its games, saying why it is back: a wrong password, a kick, a game that is over.
 ##
-## Steam friends is a box of Steam friends' games, read again every two seconds, each joined or
-## watched as a game on the network is, and under it Host for friends and Invite only; with Steam
-## not there, the box says why.
+## Steam is the games of Steam friends and the public games of strangers in one box, each joined or
+## watched as a game on the network is, and under it Host a game and who may join, see [SteamPage];
+## with Steam not there, the box says why.
 ##
 ## A server with a password asks for it in a dialog of the same look, Connect and Cancel, saying
 ## "Wrong password" in red after a wrong one, GAME.md 9.3a. The one it lets the player in with is
 ## kept with the server if it is on the list, and for the rest of the run if it is not, so coming
 ## back from its games, or to it again, does not ask again.
 
-## How often Steam friends' games are read again, in seconds.
-const FRIENDS_EVERY := 2.0
-## The tabs, by the names they are kept under, and what each is called; Steam friends only in a
-## Steam build.
+## The tabs, by the names they are kept under, and what each is called; Steam only in a Steam
+## build.
 const STEAM_TAB := "steam"
 const SERVERS_TAB := "servers"
 const LAN_TAB := "lan"
 const TAB_TITLES: Dictionary[String, String] = {
-	STEAM_TAB: "Steam friends",
+	STEAM_TAB: "Steam",
 	SERVERS_TAB: "Servers",
 	LAN_TAB: "LAN",
 }
@@ -83,19 +81,14 @@ var open_games: Callable = Game.go_to_server_games
 ## The box the kept servers are listed in.
 var servers_box: ListBox
 ## The tabs, the row they stand in on the box showing, which tab each is, and the pages they turn
-## between: the servers', the network's, and in a Steam build, GAME.md 10.8, Steam friends'.
+## between: the servers', the network's, and in a Steam build, GAME.md 10.8, Steam's.
 var tab_bar: TabBar
 var tabs_row: MarginContainer
 var tab_keys: Array[String] = []
 var servers_page: VBoxContainer
 var lan: LanPage
-## In a Steam build: the page of Steam friends' games, its box and its list, and the buttons under
-## it; null in any other.
-var steam_page: VBoxContainer
-var steam_box: ListBox
-var friends_games: GameList
-var host_button: Button
-var invite_only_button: Button
+## In a Steam build: the page of Steam games, see [SteamPage]; null in any other.
+var steam_page: SteamPage
 
 ## The server the link knocked at, as its address and its port.
 var _address := ""
@@ -111,7 +104,6 @@ var _editing: Dictionary = {}
 var _knocking: Tween
 ## Whether the busy dialog says what went wrong rather than that a server is being knocked at.
 var _failed := false
-var _friends_since := FRIENDS_EVERY
 var _back_button: Button
 
 
@@ -121,7 +113,7 @@ func _ready() -> void:
 	var steam := Store.on() or not Store.missing.is_empty()
 	if steam:
 		tab_keys.append(STEAM_TAB)
-		steam_page = _build_steam()
+		steam_page = SteamPage.new()
 		column.add_child(steam_page)
 	tab_keys.append_array([SERVERS_TAB, LAN_TAB])
 	tabs_row = _tabs_row()
@@ -241,7 +233,7 @@ func tab_showing() -> String:
 func _box_of(key: String) -> ListBox:
 	match key:
 		STEAM_TAB:
-			return steam_box
+			return steam_page.box
 		LAN_TAB:
 			return lan.box
 	return servers_box
@@ -251,82 +243,12 @@ func _box_of(key: String) -> ListBox:
 func _first_way_of(key: String) -> Control:
 	match key:
 		STEAM_TAB:
-			var first := friends_games.find_child("Join*", true, false) as Button
-			var way: Control = first if first != null else steam_box.link
-			return way if way.visible else _back_button
+			var way := steam_page.first_way()
+			return way if way.visible and not (way is Button and way.disabled) else _back_button
 		LAN_TAB:
 			return lan.first_way()
 	var server := _servers.connect_button(0)
 	return server if server != null else adding_button
-
-
-## Steam friends' games, GAME.md 10.8, in a box of their own with Host for friends and Invite only
-## under it; or, with Steam not there, why not.
-func _build_steam() -> VBoxContainer:
-	var page := VBoxContainer.new()
-	page.name = "SteamPage"
-	page.add_theme_constant_override("separation", 16)
-	# A line over the box as the servers' page has, so the two are one height and turning between
-	# them moves nothing.
-	page.add_child(
-		ListBox.fit(MenuTheme.subtitle("Join a Steam friend's game, or host one for your friends."))
-	)
-	friends_games = GameList.new()
-	friends_games.chosen.connect(_join_friend)
-	steam_box = ListBox.of("Steam friends", friends_games, "Host for friends")
-	steam_box.link.pressed.connect(_host_for_friends)
-	page.add_child(steam_box)
-	var ways := ListBox.button_row()
-	page.add_child(ways)
-	host_button = ListBox.add_row_button(ways, "Host for friends")
-	host_button.pressed.connect(_host_for_friends)
-	# Whether the game hosted is for every friend or for those invited alone, as Lobby settings
-	# have it too: the tick at the far end of the words, as the pause menu's Pause game has.
-	invite_only_button = ListBox.add_row_button(ways, "Invite only")
-	invite_only_button.name = "InviteOnly"
-	invite_only_button.toggle_mode = true
-	invite_only_button.icon_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	invite_only_button.expand_icon = false
-	invite_only_button.button_pressed = Game.settings.lobby_invite_only
-	_show_invite_only()
-	invite_only_button.toggled.connect(
-		func(on: bool) -> void:
-			Game.settings.lobby_invite_only = on
-			Game.settings.save_to_disk()
-			_show_invite_only()
-	)
-	if not Store.on():
-		steam_box.link.visible = false
-		host_button.disabled = true
-		invite_only_button.disabled = true
-		friends_games.add_child(ListBox.fit(MenuTheme.subtitle(Store.missing, Type.BODY)))
-	return page
-
-
-func _show_invite_only() -> void:
-	invite_only_button.icon = MenuTheme.tick() if invite_only_button.button_pressed else null
-
-
-func _process(delta: float) -> void:
-	if steam_box == null or not Store.on() or not steam_page.visible:
-		return
-	_friends_since += delta
-	if _friends_since < FRIENDS_EVERY:
-		return
-	_friends_since = 0.0
-	friends_games.show_games(Store.steam.friends.games(), steam_box.link)
-
-
-## A friend's game joined, or watched, through Steam, GAME.md 10.8.
-func _join_friend(game: Dictionary, mode: String) -> void:
-	var joins := get_tree().get_first_node_in_group(SteamJoins.GROUP) as SteamJoins
-	if joins != null:
-		joins.join(int(game["steam_lobby"]), mode == "watch")
-
-
-## A Steam game hosted for friends, GAME.md 10.8: into its waiting room, as a LAN game is.
-func _host_for_friends() -> void:
-	Game.go_to_waiting(SteamJoins.host_config())
 
 
 func _build_dialog() -> void:

@@ -168,7 +168,7 @@ func _host() -> void:
 func _open_the_lobby() -> void:
 	var lobbies := Store.steam.lobbies
 	lobbies.failed.connect(_on_lobby_failed)
-	lobbies.host(NetDoor.peers(false) + 1, config.invite_only)
+	lobbies.host(NetDoor.peers(false) + 1, config.lobby_who)
 
 
 func _on_lobby_failed(why: String) -> void:

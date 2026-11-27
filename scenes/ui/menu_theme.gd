@@ -554,7 +554,15 @@ static func lines_of(button: Button) -> String:
 	var lines: PackedStringArray = []
 	if button != null and button.has_node("Words"):
 		for each: Node in button.get_node("Words").get_children():
-			lines.append((each as Label).text)
+			if each is Label:
+				lines.append((each as Label).text)
+			else:
+				# A line with tags after its words, a game's name with Friend, see [GameList].
+				var parts: PackedStringArray = []
+				for part: Node in each.get_children():
+					if part is Label:
+						parts.append((part as Label).text)
+				lines.append(" ".join(parts))
 	return "\n".join(lines)
 
 

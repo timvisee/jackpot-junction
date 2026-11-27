@@ -41,17 +41,9 @@ func _process(delta: float) -> void:
 	# A Steam game's lobby says what the game is called, how full it is, and where, GAME.md 10.8.
 	var lobbies := Store.steam.lobbies
 	if lobbies.hosting and Net.session != null and place.has("players"):
-		var map := ""
-		if get_tree().current_scene.scene_file_path == Game.MATCH_SCENE:
-			map = ArenaMaps.NAMES[ArenaMaps.index_of(place["map"])]
-		var door := Net.session.door
-		var said := {
-			SteamLobby.TITLE_KEY: door.title,
-			SteamLobby.PLAYERS_KEY: place["players"],
-			SteamLobby.MOST_KEY: place["most"],
-			SteamLobby.MAP_KEY: map,
-			SteamLobby.WATCHING_KEY: "1" if door.watchers_allowed else "0",
-		}
+		var said := lobby_says(get_tree().current_scene, Net.session, Game.pending_config)
+		said[SteamLobby.HOST_KEY] = Store.steam.persona()
+		said[SteamLobby.PING_KEY] = Store.steam.public.here()
 		lobbies.describe(said)
 
 
@@ -80,6 +72,49 @@ static func place_of(scene: Node) -> Dictionary:
 	place["most"] = Net.session.door.max_players if Net.session != null else NetDoor.MOST_PLAYERS
 	place["lobby"] = Store.steam.lobby() if Store.on() else 0
 	return place
+
+
+## What the lobby of the Steam game hosted in [param scene] over [param session] says of it, for
+## the lists of games, GAME.md 10.8: its name, the people in it, their colors and how many may play,
+## the bots, the map with how far into a Grand Prix it is, empty in the lobby, how it is played, as
+## [param config] has it, and whether anybody may watch.
+static func lobby_says(scene: Node, session: NetSession, config: MatchConfig) -> Dictionary:
+	var match_node: Match = scene.get("match_node") if scene != null else null
+	var in_match := scene != null and scene.scene_file_path == Game.MATCH_SCENE
+	var colors: PackedStringArray = []
+	var bots := 0
+	if match_node != null:
+		for slot: PlayerSlot in match_node.slots:
+			if slot.is_human():
+				colors.append(str(slot.color_index))
+			elif in_match:
+				bots += 1
+	if not in_match and config != null:
+		# In the lobby the bots are still to come: as many as the match settings ask for, as far as
+		# there are seats for them.
+		bots = clampi(config.bot_count, 0, maxi(config.seats - colors.size(), 0))
+	var door := session.door
+	return {
+		SteamLobby.TITLE_KEY: door.title,
+		SteamLobby.PLAYERS_KEY: colors.size(),
+		SteamLobby.MOST_KEY: door.max_players,
+		SteamLobby.COLORS_KEY: ",".join(colors),
+		SteamLobby.BOTS_KEY: bots,
+		SteamLobby.MAP_KEY: LanBeacon.map_of(session) if in_match else "",
+		SteamLobby.MODE_KEY: mode_of(config),
+		SteamLobby.WATCHING_KEY: "1" if door.watchers_allowed else "0",
+	}
+
+
+## How the game [param config] sets up is played, in a few words for the lists of games: "Grand
+## Prix", "Single map, 5 min", with "Teams" after it for a game of teams.
+static func mode_of(config: MatchConfig) -> String:
+	if config == null:
+		return ""
+	var mode := "Final Hand" if config.final_hand else "Grand Prix"
+	if not config.final_hand and config.rounds <= 0:
+		mode = "Single map, %d min" % roundi(config.duration / 60.0)
+	return mode + (" · Teams" if config.teams > 0 else "")
 
 
 ## Steam's keys for [param place], GAME.md 10.8's table: the token and what fills it in.

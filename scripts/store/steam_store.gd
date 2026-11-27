@@ -46,10 +46,11 @@ var api: Object
 ## The Steam app started as, and the account playing, its SteamID64, once started.
 var app := 0
 var account := 0
-## The lobby of the Steam game being played, the way friends come in, and the account's friends,
-## GAME.md 10.8.
+## The lobby of the Steam game being played, the way players come in, the account's friends, and
+## the games anybody may join, GAME.md 10.8.
 var lobbies: SteamLobby
 var friends: SteamFriends
+var public: SteamPublic
 
 ## What the next batch tells Steam: achievements by their names on Steam, with the batches each has
 ## left, and statistics with their counts; and what Steam has been told of each statistic.
@@ -97,6 +98,10 @@ func start(app_id: int) -> String:
 	account = int(api.call(&"getSteamID"))
 	lobbies = SteamLobby.new(api)
 	friends = SteamFriends.new(api, app)
+	public = SteamPublic.new(api, account)
+	# Where this machine is on Steam's network is measured from the start, for a host to say it in
+	# its lobby and a player to tell a host's ping by, GAME.md 10.8.
+	api.call(&"initRelayNetworkAccess")
 	return ""
 
 

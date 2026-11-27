@@ -101,11 +101,12 @@ var server_name := ""
 ## A dedicated server's password, GAME.md 9.3a: at a client of one of its games, the one the player
 ## gave the server, to knock with; at the game itself, the one its door asks for. Empty for none.
 var server_password := ""
-## A game over Steam's own network, GAME.md 10.8, rather than over the internet's: hosting, for
-## Steam friends, every one or [member invite_only] those invited; joining, the lobby it was found
-## by and the host's account to connect to, and the host's name on Steam to say.
+## A game over Steam's own network, GAME.md 10.8, rather than over the internet's: hosting, open to
+## [member lobby_who], a [enum SteamLobby.Who] by its number, anyone, every friend or those invited;
+## joining, the lobby it was found by and the host's account to connect to, and the host's name on
+## Steam to say.
 var steam := false
-var invite_only := false
+var lobby_who := 1
 var steam_lobby := 0
 var steam_host := 0
 var steam_name := ""

@@ -11158,20 +11158,21 @@ not marked.
 
 A third way to play online beside LAN and the servers of 9.3a: over Steam's own network, which
 finds a friend wherever they are, through any router, and never shows an address. A Steam game is
-a Steam lobby, friends-only, or invite-only if the host says so in Lobby settings; there is no
-list of strangers' games. Hosting makes the lobby and opens a session on it, and the lobby carries
-the game's name, its version and how full it is. Friends join from the game, from Steam's friends
-list (Join game), or by accepting an invite. A game Steam starts for a friend joins once the shader
+a Steam lobby, open to anyone, to every friend or to those invited, as the host picks, see Public
+games and Quick Play below. Hosting makes the lobby and opens a session on it, and the lobby
+carries the game's name, its version and how full it is. Players join from the game, from Steam's
+friends list (Join game), or by accepting an invite. A game Steam starts for a friend joins once the shader
 warm-up is done. Inside, it is the same session as any other, 10.3: the same knock, the version and
 the room checked by the host, the same seats, kicks and watchers. A Steam game has no password.
 
-Play Online in a Steam build has three tabs, Steam friends, Servers and LAN, 9.3, Steam friends the
-first time; the networks are never on one page, and every build has the other two. Steam friends is a box of friends' games, each with Join and Watch,
-grayed out with the version it needs where it is not this one, and under it Host for friends and
-Invite only; with Steam not there, the box says why. The list is read again every two seconds:
-Steam keeps what each friend is playing up to date by itself, but a lobby the player is not in only
-says how full it is and where it plays when asked, so each friend's lobby is asked again every five
-seconds. A room shows where it runs with the House's gold
+Play Online in a Steam build has three tabs, Steam, Servers and LAN, 9.3, Steam the first time;
+the networks are never on one page, and every build has the other two. Steam is one box of
+friends' games and public games, each with Join and Watch, a friend's game grayed out with the
+version it needs where it is not this one, and under it Host a game and who may join it; with Steam
+not there, the box says why, see Public games and Quick Play below. Friends' games are read again
+every two seconds: Steam keeps what each friend is playing up to date by itself, but a lobby the
+player is not in only says how full it is and where it plays when asked, so each friend's lobby is
+asked again every five seconds. A room shows where it runs with the House's gold
 rubber stamp, PLAYED ON over STEAM and FRIENDS, LAN and THIS NETWORK, or SERVER and its name:
 beside how friends come in at the foot of the waiting room, and on the corner of the pause menu's
 ticket. In a Steam game everybody has Invite friends in the pause menu, the room's included, over Manage
@@ -11204,8 +11205,10 @@ rather than as the "somewhere" every peer without an address would share.
 
 #### Public games and Quick Play
 
-Planned for the Steam launch, PLAN.md M24 L3 and L4, and not built yet. Once built, it replaces
-the friends-only lobby and the host leaving described above. Decided with the user on 2026-11-26
+For the Steam launch, PLAN.md M24 L3 and L4, built in steps. Built: who may come in, the list, a
+row and a full game; until Quick Play is in, an empty list's link is Host a game. Still planned:
+everything from Joining a match in play on, which once built replaces the host leaving described
+above. Decided with the user on 2026-11-26
 from 34 numbered questions, with the screens picked from drawings
 (https://claude.ai/artifact/MpMjGz3GWXqdpky3sAbSF7). Strangers can only find each other through a
 list Steam keeps, so a Steam game may be public, and Quick Play puts a player into one with a

@@ -140,15 +140,15 @@ static func join_config(lobby: int, host: int, host_name: String, watching := fa
 	return config
 
 
-## The configuration for hosting a Steam game, for every friend or [param invite_only], as Lobby
-## settings last had it.
-static func host_config(invite_only := Game.settings.lobby_invite_only) -> MatchConfig:
+## The configuration for hosting a Steam game open to [param who], a [enum SteamLobby.Who], as
+## Play Online and Lobby settings last had it.
+static func host_config(who := Game.settings.lobby_who) -> MatchConfig:
 	var config := MatchConfig.from_settings(Game.settings)
 	config.online = "host"
 	var named: Array[String] = [PlayerNames.clean(Game.settings.player_names[0])]
 	config.human_names = named
 	config.steam = true
-	config.invite_only = invite_only
+	config.lobby_who = who
 	return config
 
 

@@ -20,6 +20,9 @@ below, and hands the notes to the release workflow.
 - **Third-party licenses on the About page.** Show third-party licenses, under Godot's own license,
   lists everything inside the game and the engine that was made by others, and their licenses. A
   dedicated server's page links the same for the server in its footer.
+- **Public games on Steam.** A Steam game can be open to anyone, not only to friends or those
+  invited, and Play Online's Steam tab lists public games beside friends' ones, nearest first, with
+  their seats, bots and ping.
 
 ### Changed
 

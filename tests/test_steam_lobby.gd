@@ -20,8 +20,8 @@ func after_test() -> void:
 	Store.asked_lobby = 0
 
 
-## The host's lobby is up, friends-only or for invites alone, saying the game and its version;
-## told again, only what changed goes to Steam.
+## The host's lobby is up, for friends, anyone or invites alone, saying the game, its version and
+## the minor version public games are listed by; told again, only what changed goes to Steam.
 func test_the_host_makes_a_lobby_that_says_what_it_is() -> void:
 	var made: Array[int] = []
 	_lobbies.made.connect(func(lobby: int) -> void: made.append(lobby))
@@ -32,13 +32,48 @@ func test_the_host_makes_a_lobby_that_says_what_it_is() -> void:
 	assert_array(_fake.calls).contains(["createLobby %d 14" % SteamLobby.FRIENDS_ONLY])
 	assert_str(_fake.getLobbyData(made[0], SteamLobby.GAME_KEY)).is_equal(SteamLobby.GAME)
 	assert_str(_fake.getLobbyData(made[0], SteamLobby.VERSION_KEY)).is_equal(GameVersion.current())
+	var line := _fake.getLobbyData(made[0], SteamLobby.LINE_KEY)
+	assert_str(line).is_equal(SteamLobby.line_of(GameVersion.current()))
+	assert_bool(GameVersion.current().begins_with(line + ".")).is_true()
 	_lobbies.describe({SteamLobby.PLAYERS_KEY: 2})
 	assert_str(_fake.getLobbyData(made[0], SteamLobby.PLAYERS_KEY)).is_equal("2")
 	_lobbies.leave()
 	assert_int(_lobbies.id).is_equal(0)
 	assert_array(_fake.calls).contains(["leaveLobby %d" % made[0]])
-	_lobbies.host(14, true)
+	_lobbies.host(14, SteamLobby.Who.INVITE_ONLY)
 	assert_array(_fake.calls).contains(["createLobby %d 14" % SteamLobby.INVITE_ONLY])
+	assert_int(_lobbies.who).is_equal(SteamLobby.Who.INVITE_ONLY)
+	_lobbies.host(14, SteamLobby.Who.ANYONE)
+	assert_array(_fake.calls).contains(["createLobby %d 14" % SteamLobby.PUBLIC])
+	# Opened to friends from Lobby settings, at once.
+	_lobbies.set_who(SteamLobby.Who.FRIENDS)
+	assert_int(_fake.lobbies[_lobbies.id]["type"]).is_equal(SteamLobby.FRIENDS_ONLY)
+	assert_int(_lobbies.who).is_equal(SteamLobby.Who.FRIENDS)
+	assert_str(SteamLobby.line_of("1.2.3")).is_equal("1.2")
+	assert_str(SteamLobby.line_of("7")).is_equal("7")
+
+
+## The game of a host the player has blocked on Steam is not theirs to join, GAME.md 10.8.
+func test_a_blocked_hosts_game_is_left_again() -> void:
+	var lobby := _fake.friends_lobby(FRIEND, _ours())
+	_fake.blocked = [FRIEND]
+	var why: Array[String] = []
+	_lobbies.failed.connect(func(said: String) -> void: why.append(said))
+	_lobbies.join(lobby)
+	assert_array(why).is_equal(["That game can't be joined"])
+	assert_int(_lobbies.id).is_equal(0)
+	assert_array(_fake.calls).contains(["leaveLobby %d" % lobby])
+
+
+## A stranger's game Steam does not know the host of yet is called by the name its host said.
+func test_a_strangers_host_is_named_by_the_lobby() -> void:
+	var stranger := 76561197960287977
+	var data := _ours()
+	data[SteamLobby.HOST_KEY] = "Zed"
+	var lobby := _fake.public_lobby(stranger, data)
+	assert_str(_lobbies.host_of(lobby)).is_equal("Zed")
+	_fake.friends[stranger] = "Zedd"
+	assert_str(_lobbies.host_of(lobby)).is_equal("Zedd")
 
 
 ## A friend's game of this version is entered, its owner the host to connect to.
@@ -113,6 +148,30 @@ func test_what_joining_leaves() -> void:
 	menu.free()
 
 
+## Who may join is kept for next time; Invite only, kept as a switch of its own before, is taken as
+## the choice of three it became, and not written again.
+func test_who_may_join_is_kept() -> void:
+	var path := "user://test_steam_lobby_who.cfg"
+	var old := ConfigFile.new()
+	old.set_value("online", "lobby_invite_only", true)
+	old.save(path)
+	var read := Settings.new()
+	read.path = path
+	read.load_from_disk()
+	assert_int(read.lobby_who).is_equal(SteamLobby.Who.INVITE_ONLY)
+	read.lobby_who = SteamLobby.Who.ANYONE
+	read.save_to_disk()
+	var again := Settings.new()
+	again.path = path
+	again.load_from_disk()
+	assert_int(again.lobby_who).is_equal(SteamLobby.Who.ANYONE)
+	var written := ConfigFile.new()
+	written.load(path)
+	assert_bool(written.has_section_key("online", "lobby_invite_only")).is_false()
+	assert_int(Settings.new().lobby_who).is_equal(SteamLobby.Who.FRIENDS)
+	Settings.remove_files(path)
+
+
 ## The configurations a Steam game is hosted and joined with.
 func test_the_configurations() -> void:
 	var joining := SteamJoins.join_config(77, FRIEND, "Bo", true)
@@ -122,10 +181,10 @@ func test_the_configurations() -> void:
 	assert_int(joining.steam_lobby).is_equal(77)
 	assert_int(joining.steam_host).is_equal(FRIEND)
 	assert_str(joining.steam_name).is_equal("Bo")
-	var hosting := SteamJoins.host_config(true)
+	var hosting := SteamJoins.host_config(SteamLobby.Who.INVITE_ONLY)
 	assert_bool(hosting.steam).is_true()
 	assert_str(hosting.online).is_equal("host")
-	assert_bool(hosting.invite_only).is_true()
+	assert_int(hosting.lobby_who).is_equal(SteamLobby.Who.INVITE_ONLY)
 
 
 ## Joining asks Steam for the lobby and waits on its answer, which here never comes, since the

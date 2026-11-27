@@ -15,6 +15,8 @@ signal lobby_chat_update(lobby: int, changed: int, making_change: int, state: in
 signal floating_gamepad_text_input_dismissed
 signal dlc_installed(app: int)
 signal overlay_toggled(active: bool, user_initiated: bool, app_id: int)
+signal lobby_match_list(lobbies: Array)
+signal number_of_current_players(success: int, players: int)
 
 ## What starting answers, [constant SteamStore.STARTED] or why not.
 var status := SteamStore.STARTED
@@ -68,6 +70,21 @@ var timeline_mode := 0
 var tooltip := ""
 var phases: Array[Dictionary] = []
 var next_handle := 0
+## The accounts the player has blocked, GAME.md 10.8.
+var blocked: Array[int] = []
+## Where this machine is on Steam's network, empty until measured, and the ping to each place a
+## host may be, in milliseconds.
+var here := "ams"
+var pings: Dictionary[String, int] = {}
+## Whether a list of public games is answered at once; off, only on [method answer_list]. The
+## filters of the list being asked for, and how far it looks.
+var lists_answer := true
+var list_filters: Array[String] = []
+var list_distance := -1
+## How many play the game right now.
+var players_now := 0
+## Words Steam's text filter covers up, as a player's Steam setting has it.
+var rude: Array[String] = []
 
 
 func restartAppIfNecessary(app_id: int) -> bool:
@@ -241,6 +258,96 @@ func setLobbyType(lobby: int, lobby_type: int) -> bool:
 	if lobbies.has(lobby):
 		lobbies[lobby]["type"] = lobby_type
 	return true
+
+
+## A stranger's public game, as another game made it, for a test to find on the list: as far away
+## as [param distance], [constant SteamPublic.CLOSE] and the rest.
+func public_lobby(owner: int, data: Dictionary, distance := SteamPublic.CLOSE) -> int:
+	var lobby := friends_lobby(owner, data)
+	lobbies[lobby]["type"] = SteamLobby.PUBLIC
+	lobbies[lobby]["distance"] = distance
+	return lobby
+
+
+func initRelayNetworkAccess() -> void:
+	calls.append("initRelayNetworkAccess")
+
+
+func getFriendRelationship(steam_id: int) -> int:
+	if steam_id in blocked:
+		return SteamLobby.BLOCKED
+	return 3 if friends.has(steam_id) else 0
+
+
+func addRequestLobbyListStringFilter(key: String, value: String, comparison: int) -> void:
+	list_filters.append("%s=%s" % [key, value] if comparison == SteamPublic.EQUAL else key)
+
+
+func addRequestLobbyListDistanceFilter(distance: int) -> void:
+	list_distance = distance
+
+
+func addRequestLobbyListResultCountFilter(_count: int) -> void:
+	pass
+
+
+func requestLobbyList() -> void:
+	calls.append("requestLobbyList %d" % list_distance)
+	if lists_answer:
+		answer_list()
+
+
+## The public lobbies the list asked for says, as Steam answers a moment later.
+func answer_list() -> void:
+	var found: Array = []
+	for lobby: int in lobbies:
+		var each: Dictionary = lobbies[lobby]
+		if each["type"] != SteamLobby.PUBLIC or int(each.get("distance", 0)) > list_distance:
+			continue
+		var fits := true
+		for filter: String in list_filters:
+			var said := filter.split("=")
+			if said.size() == 2 and str(each["data"].get(said[0], "")) != said[1]:
+				fits = false
+		if fits:
+			found.append(lobby)
+	list_filters.clear()
+	lobby_match_list.emit(found)
+
+
+func getLocalPingLocation() -> Dictionary:
+	return {"location": here.to_utf8_buffer(), "age": 1} if not here.is_empty() else {}
+
+
+func convertPingLocationToString(location: PackedByteArray) -> String:
+	return location.get_string_from_utf8()
+
+
+func parsePingLocationString(string: String) -> Dictionary:
+	return {"success": true, "ping_location": string.to_utf8_buffer()}
+
+
+func estimatePingTimeFromLocalHost(location: PackedByteArray) -> int:
+	return pings.get(location.get_string_from_utf8(), -1)
+
+
+func getNumberOfCurrentPlayers() -> void:
+	number_of_current_players.emit(1, players_now)
+
+
+func setPlayedWith(steam_id: int) -> void:
+	calls.append("setPlayedWith %d" % steam_id)
+
+
+func initFilterText() -> bool:
+	return true
+
+
+func filterText(_context: int, _steam_id: int, message: String) -> String:
+	var said := message
+	for word: String in rude:
+		said = said.replace(word, "*".repeat(word.length()))
+	return said
 
 
 func inputInit(_explicitly_call_run_frame: bool) -> bool:

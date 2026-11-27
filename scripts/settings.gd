@@ -338,10 +338,10 @@ var lobby_players := NetDoor.DEFAULT_PLAYERS
 ## Whether anybody may come to watch such a game, and whether they may without its password.
 var lobby_watchers := true
 var lobby_watch_free := false
-## Whether a Steam game this machine hosts is for those invited alone rather than every friend,
-## GAME.md 10.8; kept too. And which of Play Online's tabs was last up, by name: Steam friends,
-## Servers or LAN, see play_online.gd.
-var lobby_invite_only := false
+## Who may join a Steam game this machine hosts, GAME.md 10.8, a [enum SteamLobby.Who] by its
+## number: anyone, every friend, the first time, or those invited alone; kept too. And which of Play
+## Online's tabs was last up, by name: Steam, Servers or LAN, see play_online.gd.
+var lobby_who := 1
 var play_online_tab := ""
 ## What such a game is called, empty for its host's name, see [member NetDoor.title]; kept too.
 var lobby_title := ""
@@ -465,7 +465,9 @@ func load_machine(file: ConfigFile) -> void:
 	)
 	lobby_watchers = bool(file.get_value("online", "lobby_watchers", lobby_watchers))
 	lobby_watch_free = bool(file.get_value("online", "lobby_watch_free", lobby_watch_free))
-	lobby_invite_only = bool(file.get_value("online", "lobby_invite_only", lobby_invite_only))
+	# Invite only, a switch of its own until who may join was a choice of three.
+	var invite_only := bool(file.get_value("online", "lobby_invite_only", false))
+	lobby_who = clampi(int(file.get_value("online", "lobby_who", 2 if invite_only else 1)), 0, 2)
 	play_online_tab = str(file.get_value("online", "play_online_tab", play_online_tab))
 	lobby_title = PlayerNames.clean(
 		str(file.get_value("online", "lobby_title", lobby_title)), PlayerNames.TITLE_LENGTH
@@ -540,7 +542,9 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("online", "lobby_players", lobby_players)
 	file.set_value("online", "lobby_watchers", lobby_watchers)
 	file.set_value("online", "lobby_watch_free", lobby_watch_free)
-	file.set_value("online", "lobby_invite_only", lobby_invite_only)
+	file.set_value("online", "lobby_who", lobby_who)
+	if file.has_section_key("online", "lobby_invite_only"):
+		file.erase_section_key("online", "lobby_invite_only")
 	file.set_value("online", "play_online_tab", play_online_tab)
 	file.set_value("online", "lobby_title", lobby_title)
 	file.set_value("supporter", "since", supporter_since)
