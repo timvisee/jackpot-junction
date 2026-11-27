@@ -24,7 +24,7 @@ signal asking(words: Array[String], action: Callable, from: Button)
 
 ## How wide a row is, and its buttons.
 ## What a player without the host's say is told over the list off Steam, where it has no Profile or
-## Mute: only to see who is in the game and who hosts it, GAME.md 10.8.
+## Mute: only to see who is in the game and who hosts it, GAME.md 10.8. Shown through tr().
 const OFF_STEAM_NOTE := "Only the host can kick players or make someone else the host."
 const ROW_WIDE := 640.0
 const KICK_SIZE := Vector2(110.0, 44.0)
@@ -53,7 +53,7 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 16)
 	add_child(column)
-	column.add_child(MenuTheme.title("Players", Type.TITLE))
+	column.add_child(MenuTheme.title(tr("Players"), Type.TITLE))
 	_note = MenuTheme.subtitle("", Type.LABEL)
 	column.add_child(_note)
 	column.add_child(MenuTheme.perforation())
@@ -61,7 +61,7 @@ func _ready() -> void:
 	_rows.add_theme_constant_override("separation", 8)
 	_scroll = FitScroll.around(_rows, self)
 	column.add_child(_scroll.shaded())
-	_back = MenuTheme.button("Back")
+	_back = MenuTheme.button(tr("Back"))
 	_back.pressed.connect(func() -> void: closed.emit())
 	column.add_child(_back)
 
@@ -71,17 +71,21 @@ func _ready() -> void:
 func open() -> void:
 	visible = true
 	MenuTheme.deal(self)
-	_note.text = "Somebody kicked goes back to the title, and can join again."
+	_note.text = tr("Somebody kicked goes back to the title, and can join again.")
 	if Store.public_game():
-		_note.text = "Somebody kicked goes back to the title, and can't join this game again."
+		_note.text = tr(
+			"Somebody kicked goes back to the title, and can't join this game again."
+		)
 	elif not _says() and Store.steam_game():
-		_note.text = "Mute hides somebody's emotes on your screen. Report is on their Steam profile."
+		_note.text = tr(
+			"Mute hides somebody's emotes on your screen. Report is on their Steam profile."
+		)
 	elif not _says():
-		_note.text = OFF_STEAM_NOTE
+		_note.text = tr(OFF_STEAM_NOTE)
 	if _handing():
-		_note.text = (
-			"Somebody kicked goes back to the server's games, and can join again."
-			+ " Make host hands them the host's say."
+		_note.text = tr(
+			"""Somebody kicked goes back to the server's games, and can join again. Make host hands \
+them the host's say."""
 		)
 	_drawn = ""
 	_redraw()
@@ -132,7 +136,7 @@ func _redraw() -> void:
 	for here: Dictionary in mine:
 		_rows.add_child(_row(here))
 	if guests.is_empty():
-		_rows.add_child(MenuTheme.subtitle("Nobody else is here.", Type.BODY))
+		_rows.add_child(MenuTheme.subtitle(tr("Nobody else is here."), Type.BODY))
 	for guest: Dictionary in guests:
 		_rows.add_child(_row(guest))
 	if lost:
@@ -170,9 +174,9 @@ func _row(guest: Dictionary) -> SeatCard:
 	var plays := guest.has("color")
 	var seat: int = guest.get("seat", -1)
 	var me: bool = guest.get("me", false)
-	var where := "Me" if me else ("Playing" if plays else "Watching")
+	var where := tr("Me") if me else (tr("Playing") if plays else tr("Watching"))
 	if bool(guest.get("host", false)):
-		where = "Host"
+		where = tr("Host")
 	var says := with_steam_name(where, _steam_name(guest))
 	# The seat in the room, as the corner of the screen says it, for everybody alike: the number of
 	# their seat at their own machine is for Kick.
@@ -214,7 +218,7 @@ func _row(guest: Dictionary) -> SeatCard:
 	# host is the machine it runs on, and has nobody to hand it to.
 	var named := str(guest["name"])
 	if _handing() and plays:
-		var hand := MenuTheme.button("Make host", Type.BODY)
+		var hand := MenuTheme.button(tr("Make host"), Type.BODY)
 		hand.name = "MakeHost"
 		hand.custom_minimum_size = HAND_SIZE
 		hand.pressed.connect(
@@ -227,7 +231,7 @@ func _row(guest: Dictionary) -> SeatCard:
 	elif _hosting_here() and plays and (account != 0 or not Store.steam_game()):
 		# The game handed to them, at once in the lobby and on the podium, and at the podium when
 		# asked during a map, GAME.md 10.8.
-		var giving := MenuTheme.button("Make host", Type.BODY)
+		var giving := MenuTheme.button(tr("Make host"), Type.BODY)
 		giving.name = "MakeHost"
 		giving.custom_minimum_size = HAND_SIZE
 		var to := peer
@@ -240,7 +244,7 @@ func _row(guest: Dictionary) -> SeatCard:
 		card.actions.add_child(giving)
 	if not _says():
 		return card
-	var kick := MenuTheme.button("Kick", Type.BODY)
+	var kick := MenuTheme.button(tr("Kick"), Type.BODY)
 	kick.name = "Kick"
 	kick.custom_minimum_size = KICK_SIZE
 	var barring := Store.public_game()
@@ -268,20 +272,23 @@ func _mute_button(guest: Dictionary) -> Button:
 
 ## What is asked before [param named] is kicked: back to the title, or to the server's games when
 ## [param to_games], at a dedicated server, and free to join again, unless [param barred] from a
-## public Steam game, GAME.md 10.8.
+## public Steam game, GAME.md 10.8, which is never at a dedicated server.
 static func kick_words(named: String, to_games: bool, barred := false) -> Array[String]:
-	var where := "the server's games" if to_games else "the title"
-	var after := "can't join this game again" if barred else "can join again"
-	return ["Kick %s?" % named, "%s goes back to %s, and %s." % [named, where, after], "Kick"]
+	var line := Lang.t("%s goes back to the title, and can join again.")
+	if barred:
+		line = Lang.t("%s goes back to the title, and can't join this game again.")
+	elif to_games:
+		line = Lang.t("%s goes back to the server's games, and can join again.")
+	return [Lang.t("Kick %s?") % named, line % named, Lang.t("Kick")]
 
 
 ## What is asked before the host's say is handed to [param named], at a dedicated server, GAME.md
 ## 9.3a: it is theirs from then on, and not to be taken back.
 static func hand_words(named: String) -> Array[String]:
 	return [
-		"Make %s the host?" % named,
-		"The host's say passes to %s: the match, the lobby and who is in it." % named,
-		"Make host"
+		Lang.t("Make %s the host?") % named,
+		Lang.t("The host's say passes to %s: the match, the lobby and who is in it.") % named,
+		Lang.t("Make host")
 	]
 
 
@@ -304,7 +311,8 @@ func _hosting_here() -> bool:
 ## [param says], with the Steam name [param steam_name] after it in a Steam game, GAME.md 10.8, the
 ## name the host knows them by on Steam whatever they call their kart.
 static func with_steam_name(says: String, steam_name: String) -> String:
-	return says if steam_name.is_empty() else "%s · %s on Steam" % [says, steam_name]
+	var both := {"says": says, "name": steam_name}
+	return says if steam_name.is_empty() else Lang.t("{says} · {name} on Steam").format(both)
 
 
 ## License, holding up [param license], the driver license of the player called [param named] as
@@ -326,7 +334,7 @@ func _license_button(license: Dictionary, named: String) -> Button:
 ## Profile, opening the Steam profile of the account [param account] in Steam's overlay, GAME.md
 ## 10.8.
 static func profile_button(account: int) -> Button:
-	var profile := MenuTheme.button("Profile", Type.BODY)
+	var profile := MenuTheme.button(Lang.t("Profile"), Type.BODY)
 	profile.name = "Profile"
 	profile.custom_minimum_size = PROFILE_SIZE
 	profile.pressed.connect(func() -> void: Store.steam.show_profile(account))

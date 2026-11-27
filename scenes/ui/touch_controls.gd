@@ -59,7 +59,7 @@ const MENU_INSET := Vector2(64.0, 62.0)
 ## thumb between the two presses one of them and not both. Without it, the slider's four are a
 ## button each in an arc round the corner with fire, the gas the biggest and nearest the corner, a
 ## thumb on the seam between gas and fire pressing both; the item button is further in, fire
-## being at the bottom edge already.
+## being at the bottom edge already. The words on them are shown through tr().
 const FIRE := &"fire"
 const ITEM := &"item"
 const SLIDER_BUTTONS: Dictionary[StringName, Array] = {
@@ -68,7 +68,7 @@ const SLIDER_BUTTONS: Dictionary[StringName, Array] = {
 }
 ## In simple driving, GAME.md 4.2, the stick works the pedals, and without the slider the corner is
 ## fire's, the button pressed most, with drift beside it along the bottom, nitro over it and the
-## item between the two.
+## item between the two. The words on them are shown through tr().
 const SIMPLE_BUTTONS: Dictionary[StringName, Array] = {
 	FIRE: [82.0, Vector2(-160.0, -168.0), "FIRE"],
 	TouchSlider.DRIFT: [60.0, Vector2(-345.0, -110.0), "DRIFT"],
@@ -234,7 +234,8 @@ func _build_pads() -> void:
 	_pads.append(TouchPad.new(MENU, MENU_RADIUS))
 	var buttons := driving_buttons()
 	for id: StringName in buttons:
-		_pads.append(TouchPad.new(id, buttons[id][0], buttons[id][2]))
+		var word: String = buttons[id][2]
+		_pads.append(TouchPad.new(id, buttons[id][0], tr(word) if not word.is_empty() else ""))
 	_layout()
 
 

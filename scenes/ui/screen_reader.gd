@@ -16,7 +16,8 @@ const VOICE := &"ScreenReaderVoice"
 ## What stands between the parts of something said as one line, the House's middle dot read as a
 ## pause rather than as its name.
 const PAUSE := ", "
-## How a switch flipped away from the cursor is said to be, see [method switched].
+## How a switch flipped away from the cursor is said to be, see [method switched], each shown
+## through tr().
 const ON := "On"
 const OFF := "Off"
 
@@ -122,7 +123,7 @@ static func said(on: Node) -> String:
 ## [param words], the name of a switch flipped by its bind rather than under the cursor, said with
 ## whether it is now [param on], see [method say].
 static func switched(words: String, on: bool) -> String:
-	return line([words, ON if on else OFF])
+	return line([words, Lang.t(ON if on else OFF)])
 
 
 ## The House's capitals said as a sentence, and its middle dots as pauses: "THE GARAGE  ·  BAY 1"

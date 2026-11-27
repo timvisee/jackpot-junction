@@ -67,7 +67,13 @@ static func said(on_page: int, simple: bool) -> Dictionary:
 ## reader.
 static func name_of(at: int) -> String:
 	if at < 0:
-		return ["", "Left mouse button", "Right mouse button", "Middle mouse button"][mini(-at, 3)]
+		var buttons := [
+			"",
+			Lang.t("Left mouse button"),
+			Lang.t("Right mouse button"),
+			Lang.t("Middle mouse button")
+		]
+		return buttons[mini(-at, 3)]
 	var event := InputEventKey.new()
 	event.physical_keycode = at as Key
 	return InputActions.event_text(event)
@@ -126,14 +132,16 @@ static func draw(on: CanvasItem, on_page: int, simple: bool) -> void:
 			_label(on, label, rail, rail + OUT if down else rail - OUT, down)
 
 
-## The keyboard's keys, the US layout's without its number pad, laid out the once.
+## The keyboard's keys, the US layout's without its number pad, laid out the once. The keys go by
+## their names, which are not translated, as no key's is.
 static func _lay_out() -> void:
 	if not _keys.is_empty():
 		return
-	_key(0, 0, 1, KEY_ESCAPE, "Esc")
+	_key(0, 0, 1, KEY_ESCAPE, "Esc")  # NO_TRANSLATE
 	for i: int in 12:
 		_key(2.0 + i + floorf(i / 4.0) * 0.5, 0, 1, (KEY_F1 + i) as Key, "F%d" % (i + 1))
 	for i: int in 3:
+		# NO_TRANSLATE
 		_key(
 			15.25 + i,
 			0,
@@ -147,30 +155,33 @@ static func _lay_out() -> void:
 	digits.append_array([KEY_MINUS, KEY_EQUAL])
 	for i: int in digits.size():
 		_key(i, 1.5, 1, digits[i])
-	_key(13, 1.5, 2, KEY_BACKSPACE, "Backspace")
+	_key(13, 1.5, 2, KEY_BACKSPACE, "Backspace")  # NO_TRANSLATE
 	for i: int in 3:
+		# NO_TRANSLATE
 		_key(15.25 + i, 1.5, 1, [KEY_INSERT, KEY_HOME, KEY_PAGEUP][i], ["Ins", "Home", "PgUp"][i])
-	_key(0, 2.5, 1.5, KEY_TAB, "Tab")
+	_key(0, 2.5, 1.5, KEY_TAB, "Tab")  # NO_TRANSLATE
 	var top: Array[Key] = [KEY_Q, KEY_W, KEY_E, KEY_R, KEY_T, KEY_Y, KEY_U, KEY_I, KEY_O, KEY_P]
 	top.append_array([KEY_BRACKETLEFT, KEY_BRACKETRIGHT])
 	for i: int in top.size():
 		_key(1.5 + i, 2.5, 1, top[i])
 	_key(13.5, 2.5, 1.5, KEY_BACKSLASH)
 	for i: int in 3:
+		# NO_TRANSLATE
 		_key(15.25 + i, 2.5, 1, [KEY_DELETE, KEY_END, KEY_PAGEDOWN][i], ["Del", "End", "PgDn"][i])
-	_key(0, 3.5, 1.75, KEY_CAPSLOCK, "Caps")
+	_key(0, 3.5, 1.75, KEY_CAPSLOCK, "Caps")  # NO_TRANSLATE
 	var home: Array[Key] = [KEY_A, KEY_S, KEY_D, KEY_F, KEY_G, KEY_H, KEY_J, KEY_K, KEY_L]
 	home.append_array([KEY_SEMICOLON, KEY_APOSTROPHE])
 	for i: int in home.size():
 		_key(1.75 + i, 3.5, 1, home[i])
-	_key(12.75, 3.5, 2.25, KEY_ENTER, "Enter")
-	_key(0, 4.5, 2.25, KEY_SHIFT, "Shift")
+	_key(12.75, 3.5, 2.25, KEY_ENTER, "Enter")  # NO_TRANSLATE
+	_key(0, 4.5, 2.25, KEY_SHIFT, "Shift")  # NO_TRANSLATE
 	var bottom: Array[Key] = [KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M]
 	bottom.append_array([KEY_COMMA, KEY_PERIOD, KEY_SLASH])
 	for i: int in bottom.size():
 		_key(2.25 + i, 4.5, 1, bottom[i])
-	_key(12.25, 4.5, 2.75, KEY_SHIFT, "Shift")
+	_key(12.25, 4.5, 2.75, KEY_SHIFT, "Shift")  # NO_TRANSLATE
 	_key(16.25, 4.5, 1, KEY_UP, "↑")
+	# NO_TRANSLATE
 	var mods: Array[Array] = [
 		[KEY_CTRL, "Ctrl"],
 		[KEY_META, "Super"],
@@ -252,7 +263,11 @@ static func _draw_mouse(on: CanvasItem, origin: Vector2, bound: Dictionary, on_p
 			lines.append([buttons[button], bound[-button], ""])
 	if on_page == 0:
 		lines.append(
-			[body.get_center() + Vector2(0.0, 40.0), ["Aim"] as Array[String], "the Swivel Cannon"]
+			[
+				body.get_center() + Vector2(0.0, 40.0),
+				[Lang.t("Aim")] as Array[String],
+				Lang.t("the Swivel Cannon")
+			]
 		)
 	var x := body.end.x + 44.0
 	var y := body.get_center().y - (lines.size() - 1) * 40.0

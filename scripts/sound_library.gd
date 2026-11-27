@@ -4,6 +4,7 @@ extends RefCounted
 ## for [Audio] to play. A name with a slash is under [constant Audio.AUDIO_DIR], anything else under
 ## [constant Audio.SFX_DIR]. Every file is logged in THIRD_PARTY.md.
 
+## Each effect's files, by the effect's name. NO_TRANSLATE: file names.
 const EFFECTS: Dictionary[StringName, Array] = {
 	&"chip": ["chip-lay-1.ogg", "chip-lay-2.ogg", "chip-lay-3.ogg"],
 	&"gold_chip": ["chips-stack-1.ogg", "chips-stack-2.ogg"],

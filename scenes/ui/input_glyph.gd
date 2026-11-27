@@ -65,8 +65,8 @@ const MOUSE_BUTTONS: Array[MouseButton] = [
 	MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE
 ]
 ## What a touch screen's own buttons are called on them, GAME.md 4.2, for the hint that names one:
-## a pill with the word on it, the way the screen has it. Steering is the stick under the left
-## thumb, drawn as a stick with nothing written in it.
+## a pill with the word on it, the way the screen has it, shown through tr(). Steering is the stick
+## under the left thumb, drawn as a stick with nothing written in it.
 const TOUCH_WORDS: Dictionary[StringName, String] = {
 	InputActions.THROTTLE: "GAS",
 	InputActions.BRAKE: "BRAKE",
@@ -202,7 +202,7 @@ static func of_touch(action: StringName, ink: Color, font_size: int) -> InputGly
 	glyph.ink = ink
 	glyph.font_size = font_size
 	glyph.kind = Kind.WHEEL if steering else Kind.SHOULDER
-	glyph.caption = "" if steering else TOUCH_WORDS[action]
+	glyph.caption = "" if steering else Lang.t(TOUCH_WORDS[action])
 	glyph.both_ways = steering
 	glyph.along = Vector2.RIGHT
 	glyph.custom_minimum_size = glyph._wanted()
@@ -535,7 +535,7 @@ func _art() -> GlyphArt.Art:
 		Kind.WHEEL:
 			art = GlyphArt.wheel()
 		Kind.MENU:
-			art = GlyphArt.icon("Menu")
+			art = GlyphArt.icon("Menu")  # NO_TRANSLATE
 		Kind.PICTURE:
 			art = null if _picture_svg.is_empty() else GlyphArt.steam(_picture_svg)
 		Kind.KEY:

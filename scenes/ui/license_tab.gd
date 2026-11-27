@@ -12,6 +12,8 @@ extends ScrollContainer
 ## the way to the catalog of GAME.md 8.8, which a match's pause menu reaches through here, having
 ## no room of its own for it.
 
+## What the page says before a license is earned, of the plate, and while the test is under way,
+## each shown through tr(), as every word the constants here hold is.
 const NONE_YET := "Missing license."
 const HOW := "Pass the driving school's test to earn one. It takes a few minutes."
 const EARN := "Earn it now"
@@ -21,63 +23,59 @@ const RETAKE := "Retake the driving test"
 const UNDERWAY := "License in progress"
 const UNDERWAY_HOW := "You're taking the driving test right now. Finish it to earn your license."
 const UNDERWAY_KEPT := "Your current license stays until you pass."
-## The story's switch, STORY.md 5.4: on to start with, for the profile playing.
+## The story's switch, STORY.md 5.4: on to start with, for the profile playing. Shown through tr().
 const STORY := "Story Progression"
 const STORY_LINE := "The small print, the notes, and where they lead."
 ## An operator's way to sit the Final Hand again, STORY.md 8.7, so Not This Time is never out of
-## reach once the stamp has come down.
+## reach once the stamp has come down. Shown through tr().
 const RESIT := "Sit the Final Hand again"
 const RESIT_LINE := "The House deals it once more at your next table. Tear it off to decline."
 const RESIT_WAITING := "The Final Hand is waiting at your next table."
-## Asked before the story goes off, STORY.md 5.4.
+## Asked before the story goes off, STORY.md 5.4, shown through tr().
 const STORY_OFF := "Turn off Story Progression?"
-const STORY_OFF_LINE := (
-	"The tables go back to how they were when you started: no notes turn up and nothing moves on."
-	+ " Your progress is kept, and you can turn it back on at any time to pick up where you left"
-	+ " off."
-)
+const STORY_OFF_LINE := """The tables go back to how they were when you started: no notes turn up \
+and nothing moves on. Your progress is kept, and you can turn it back on at any time to pick up \
+where you left off."""
 const STORY_OFF_YES := "Turn off"
 const STORY_OFF_NO := "Keep on"
-## The way to the kart dialog, GAME.md 4.4a, and the line under it.
+## The way to the kart dialog, GAME.md 4.4a, and the line under it, shown through tr().
 const KART := "Your kart"
 const KART_BUTTON := KartDialog.ENTRY
 const KART_LINE := "Its parts, its color, its name and its plate."
-## The way to the catalog, GAME.md 8.8, and the lines under it.
+## The way to the catalog, GAME.md 8.8, and the lines under it, shown through tr().
 const CATALOG := "Catalog"
 const CATALOG_BUTTON := "Open the catalog"
 const CATALOG_LINE := "Every joker and power-up you have found."
-const FOUND := "%d of %d found"
-## The way to the achievements, GAME.md 8.10, and the lines under it.
+const FOUND := "{found} of {every} found"
+## The way to the achievements, GAME.md 8.10, and the lines under it, shown through tr().
 const ACHIEVEMENTS := "Achievements"
 const ACHIEVEMENTS_BUTTON := "Open the achievements"
 const ACHIEVEMENTS_LINE := "Everything you have set out to do and done."
-const EARNED := "%d of %d earned"
-## The way to the loyalty program's map, GAME.md 8.9, and the lines over it.
+const EARNED := "{earned} of {every} earned"
+## The way to the loyalty program's map, GAME.md 8.9, and the lines over it, shown through tr().
 const PROGRAM_LINE := "The House's map of bets, and what each one pays."
 const PROGRAM_BUTTON := "Open the map"
-const WON := "%d of %d landmarks won"
+const WON := "{won} of {every} landmarks won"
 ## The Steam supporter pack's section, GAME.md 10.8: its title; for a player who owns it its thanks,
 ## since when, and the way to its thank-you card held up again; and where it is offered and not
-## owned, what it is and the way to its store page.
+## owned, what it is and the way to its store page. Shown through tr().
 const SUPPORTER := "Supporter Pack"
 const SUPPORTER_LINE := "Thank you for chipping in. The pack's pieces are yours in the Garage."
 const SUPPORTER_SINCE := "Supporter since %s"
 const THANKS_BUTTON := "Read the thank-you card"
-const OFFER_LINE := (
-	"Jackpot Junction is free. If you'd like to chip in, the Supporter Pack on Steam says thanks"
-	+ " with a few pieces of kart dress."
-)
+const OFFER_LINE := """Jackpot Junction is free. If you'd like to chip in, the Supporter Pack on \
+Steam says thanks with a few pieces of kart dress."""
 const OFFER_BUTTON := "See the Supporter Pack"
 ## The page's heading over the cards, and the line under it: whose it is, its number and its day,
-## as the Statistics page says whose record it is.
+## as the Statistics page says whose record it is. Shown through tr().
 const TITLE := "License"
-const HOLDER := "%s  ·  %s  ·  issued %s"
+const HOLDER := "{name}  ·  {number}  ·  issued {day}"
 ## The page's tab in the settings, named for what the House calls the player at the story's stage,
 ## STORY.md 5.1, see [enum Story.Stage]: Me before the story starts, or with it off, which says it
-## is the player's own page plainer than anything the House would call them.
+## is the player's own page plainer than anything the House would call them. Shown through tr().
 const TAB_WORDS: Array[String] = ["Me", "Player", "Participant", "Number", "Candidate", "Operator"]
 ## The sections under the cards, a grid of them as the Statistics page's groups are: their titles,
-## how wide each is, and the air between them.
+## shown through tr(), how wide each is, and the air between them.
 const PLATE := "Plate"
 const SCHOOL := "Driving school"
 const PASSED := "Passed on %s."
@@ -96,7 +94,8 @@ const PAGE_ROOM := 180.0
 ## Room kept round whatever has the cursor as the page scrolls to it, and round the page itself,
 ## so the cursor's mark, which stands out past the license, is never cut off at the page's edge.
 const MARK_ROOM := 16
-## Under the folder while a note taken in the map under way waits for it to be over.
+## Under the folder while a note taken in the map under way waits for it to be over, shown through
+## tr().
 const WAITING := "Read the new note once the map is over."
 
 var field: PlateField
@@ -152,9 +151,9 @@ var _card: LicenseCard
 var _was_focused: Control
 
 
-## What the page's tab says at the story's [param stage].
+## What the page's tab says at the story's [param stage], in the language spoken.
 static func tab_word(stage: int) -> String:
-	return TAB_WORDS[clampi(stage, 0, TAB_WORDS.size() - 1)]
+	return Lang.t(TAB_WORDS[clampi(stage, 0, TAB_WORDS.size() - 1)])
 
 
 static func make(settings: Settings, over_room := false) -> LicenseTab:
@@ -288,8 +287,7 @@ func _sections(column: VBoxContainer) -> GridContainer:
 ## A section of the page named [param named], headed [param title] as a page of settings heads its
 ## groups, see [SettingsColumns], what is in it under the heading down its left.
 static func _section(named: String, title: String) -> VBoxContainer:
-	var box := SettingsColumns.group(title)
-	box.name = named
+	var box := SettingsColumns.group(title, named)
 	box.custom_minimum_size.x = SECTION_WIDE
 	box.add_theme_constant_override("separation", 10)
 	return box
@@ -309,9 +307,9 @@ static func _section_line(words: String) -> Label:
 ## is: what it changes, and the button that opens it. Not over a room: its menu has its own way in
 ## where a kart can be changed, see [method PauseMenu.offer_kart].
 func _kart(grid: GridContainer) -> void:
-	var section := _section("KartSection", KART)
-	section.add_child(_section_line(KART_LINE))
-	kart = MenuTheme.button(KART_BUTTON, Type.BODY)
+	var section := _section("KartSection", tr(KART))
+	section.add_child(_section_line(tr(KART_LINE)))
+	kart = MenuTheme.button(tr(KART_BUTTON), Type.BODY)
 	kart.name = "Kart"
 	kart.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	kart.pressed.connect(open_kart)
@@ -340,7 +338,7 @@ func open_kart() -> void:
 ## The way to the catalog, GAME.md 8.8, over the screen the settings are on: from a room's pause
 ## menu too, which has no room of its own for it; with how much of it has been found.
 func _catalog(grid: GridContainer) -> void:
-	var section := _section("CatalogSection", CATALOG)
+	var section := _section("CatalogSection", tr(CATALOG))
 	var ids := CatalogDialog.page_ids()
 	var found := 0
 	var every := 0
@@ -349,12 +347,12 @@ func _catalog(grid: GridContainer) -> void:
 		listed.assign(page)
 		found += _settings.profile.catalog.found_of(listed)
 		every += page.size()
-	section.add_child(_section_line(CATALOG_LINE))
-	var count := _section_line(FOUND % [found, every])
+	section.add_child(_section_line(tr(CATALOG_LINE)))
+	var count := _section_line(tr(FOUND).format({"found": found, "every": every}))
 	count.name = "Found"
 	count.add_theme_color_override("font_color", StatsTab.VALUE_INK)
 	section.add_child(count)
-	catalog = MenuTheme.button(CATALOG_BUTTON, Type.BODY)
+	catalog = MenuTheme.button(tr(CATALOG_BUTTON), Type.BODY)
 	catalog.name = "Catalog"
 	catalog.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	catalog.pressed.connect(open_catalog)
@@ -366,19 +364,19 @@ func _catalog(grid: GridContainer) -> void:
 ## as the catalog's is: what it is, how many of its landmarks are won, and the button that opens it.
 func _program(grid: GridContainer) -> void:
 	var profile := _settings.profile
-	var section := _section("ProgramSection", LoyaltyDialog.program_name(profile))
-	section.add_child(_section_line(PROGRAM_LINE))
+	var section := _section("ProgramSection", tr(LoyaltyDialog.program_name(profile)))
+	section.add_child(_section_line(tr(PROGRAM_LINE)))
 	var won := 0
 	var every := 0
 	for landmark: LoyaltyLandmark in Loyalty.map().landmarks:
 		if Loyalty.is_drawn(profile, landmark):
 			every += 1
 			won += 1 if profile.loyalty.has_won(landmark.id) else 0
-	var count := _section_line(WON % [won, every])
+	var count := _section_line(tr(WON).format({"won": won, "every": every}))
 	count.name = "Won"
 	count.add_theme_color_override("font_color", StatsTab.VALUE_INK)
 	section.add_child(count)
-	program = MenuTheme.button(PROGRAM_BUTTON, Type.BODY)
+	program = MenuTheme.button(tr(PROGRAM_BUTTON), Type.BODY)
 	program.name = "Program"
 	program.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	program.pressed.connect(open_program)
@@ -398,16 +396,15 @@ func open_program() -> void:
 ## The way to the achievements, GAME.md 8.10, as the catalog's is: what they are, how many are
 ## earned of how many, and the button that opens them over the screen the settings are on.
 func _achievements(grid: GridContainer) -> void:
-	var section := _section("AchievementsSection", ACHIEVEMENTS)
-	section.add_child(_section_line(ACHIEVEMENTS_LINE))
+	var section := _section("AchievementsSection", tr(ACHIEVEMENTS))
+	section.add_child(_section_line(tr(ACHIEVEMENTS_LINE)))
 	var profile := _settings.profile
-	var earned := _section_line(
-		EARNED % [Achievements.earned_count(profile), Achievements.all().size()]
-	)
+	var count := {"earned": Achievements.earned_count(profile), "every": Achievements.all().size()}
+	var earned := _section_line(tr(EARNED).format(count))
 	earned.name = "Earned"
 	earned.add_theme_color_override("font_color", StatsTab.VALUE_INK)
 	section.add_child(earned)
-	achievements = MenuTheme.button(ACHIEVEMENTS_BUTTON, Type.BODY)
+	achievements = MenuTheme.button(tr(ACHIEVEMENTS_BUTTON), Type.BODY)
 	achievements.name = "Achievements"
 	achievements.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	achievements.pressed.connect(open_achievements)
@@ -436,7 +433,7 @@ func open_catalog() -> void:
 ## The Steam supporter pack's own section, GAME.md 10.8, filled as the pack is, see
 ## [method _fill_supporter].
 func _supporter(grid: GridContainer) -> void:
-	_supporter_section = _section("SupporterSection", SUPPORTER)
+	_supporter_section = _section("SupporterSection", tr(SUPPORTER))
 	grid.add_child(_supporter_section)
 	_fill_supporter()
 
@@ -453,8 +450,8 @@ func _fill_supporter() -> void:
 	thanks = null
 	offer = null
 	if not _supporter_owned:
-		_supporter_section.add_child(_section_line(OFFER_LINE))
-		offer = MenuTheme.button(OFFER_BUTTON, Type.BODY)
+		_supporter_section.add_child(_section_line(tr(OFFER_LINE)))
+		offer = MenuTheme.button(tr(OFFER_BUTTON), Type.BODY)
 		offer.name = "Offer"
 		offer.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 		offer.pressed.connect(
@@ -463,13 +460,13 @@ func _fill_supporter() -> void:
 		)
 		_supporter_section.add_child(offer)
 		return
-	_supporter_section.add_child(_section_line(SUPPORTER_LINE))
+	_supporter_section.add_child(_section_line(tr(SUPPORTER_LINE)))
 	if not _settings.supporter_since.is_empty():
-		var since := _section_line(SUPPORTER_SINCE % _settings.supporter_since)
+		var since := _section_line(tr(SUPPORTER_SINCE) % _settings.supporter_since)
 		since.name = "Since"
 		since.add_theme_color_override("font_color", StatsTab.VALUE_INK)
 		_supporter_section.add_child(since)
-	thanks = MenuTheme.button(THANKS_BUTTON, Type.BODY)
+	thanks = MenuTheme.button(tr(THANKS_BUTTON), Type.BODY)
 	thanks.name = "Thanks"
 	thanks.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	thanks.pressed.connect(open_thanks)
@@ -506,10 +503,10 @@ func open_thanks() -> void:
 ## In the school or its test: what is under way, and no way to the school, which would leave the
 ## test for the start of another. A license already held stays until the new one is earned.
 func _underway(column: VBoxContainer) -> void:
-	column.add_child(MenuTheme.title(UNDERWAY, Type.HEADING))
-	column.add_child(MenuTheme.subtitle(UNDERWAY_HOW, Type.BODY))
+	column.add_child(MenuTheme.title(tr(UNDERWAY), Type.HEADING))
+	column.add_child(MenuTheme.subtitle(tr(UNDERWAY_HOW), Type.BODY))
 	if not _settings.license_number.is_empty():
-		column.add_child(MenuTheme.subtitle(UNDERWAY_KEPT, Type.LABEL))
+		column.add_child(MenuTheme.subtitle(tr(UNDERWAY_KEPT), Type.LABEL))
 	var gap := Control.new()
 	gap.custom_minimum_size = Vector2(0.0, 8.0)
 	column.add_child(gap)
@@ -520,9 +517,9 @@ func _underway(column: VBoxContainer) -> void:
 
 ## No license: where to get one, and the L worn until then.
 func _none_yet(column: VBoxContainer) -> void:
-	column.add_child(MenuTheme.title(NONE_YET, Type.HEADING))
-	column.add_child(MenuTheme.subtitle(HOW, Type.BODY))
-	earn = MenuTheme.button(EARN)
+	column.add_child(MenuTheme.title(tr(NONE_YET), Type.HEADING))
+	column.add_child(MenuTheme.subtitle(tr(HOW), Type.BODY))
+	earn = MenuTheme.button(tr(EARN))
 	earn.name = "Earn"
 	earn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	earn.pressed.connect(_to_the_school)
@@ -533,7 +530,7 @@ func _none_yet(column: VBoxContainer) -> void:
 	var learner := SchoolFigure.of(SchoolFigure.Kind.LEARNER, 96.0)
 	learner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	column.add_child(learner)
-	column.add_child(MenuTheme.subtitle(MEANWHILE, Type.LABEL))
+	column.add_child(MenuTheme.subtitle(tr(MEANWHILE), Type.LABEL))
 
 
 ## The license, stamped as it was, Kit's folder beside it while the story has a note in it, under
@@ -541,18 +538,12 @@ func _none_yet(column: VBoxContainer) -> void:
 ## story and the catalog.
 func _license(column: VBoxContainer) -> void:
 	var profile := _settings.profile
-	column.add_child(MenuTheme.title(TITLE, Type.HEADING))
-	var holder := (
-		HOLDER
-		% [
-			(
-				profile.license_holder
-				if not profile.license_holder.is_empty()
-				else profile.display_name()
-			),
-			profile.license_number,
-			profile.license_date
-		]
+	column.add_child(MenuTheme.title(tr(TITLE), Type.HEADING))
+	var named := profile.license_holder
+	if named.is_empty():
+		named = profile.display_name()
+	var holder := tr(HOLDER).format(
+		{"name": named, "number": profile.license_number, "day": profile.license_date}
 	)
 	column.add_child(MenuTheme.subtitle(holder, Type.LABEL))
 	var row := HBoxContainer.new()
@@ -598,8 +589,8 @@ func _license(column: VBoxContainer) -> void:
 		side.add_theme_constant_override("separation", 8)
 		side.add_child(_held(folder, FolderPeek.SIZE, FOLDER_SCALE))
 		if folder.waiting:
-			folder.tooltip_text = WAITING
-			var line := MenuTheme.subtitle(WAITING, Type.LABEL)
+			folder.tooltip_text = tr(WAITING)
+			var line := MenuTheme.subtitle(tr(WAITING), Type.LABEL)
 			line.name = "Waiting"
 			line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			line.custom_minimum_size.x = FolderPeek.SIZE.x * FOLDER_SCALE
@@ -624,11 +615,11 @@ func _license(column: VBoxContainer) -> void:
 		else:
 			column.add_child(loyalty_card)
 	var grid := _sections(column)
-	var plate := _section("PlateSection", PLATE)
+	var plate := _section("PlateSection", tr(PLATE))
 	field = PlateField.make(_settings.license_plate)
 	field.plate_changed.connect(_on_plate_typed)
 	# Typed into in a dialog of its own with Steam's keyboard, which would come up over it here.
-	field.set_meta(SteamKeyboard.IN_DIALOG, KartDialog.PLATE_TYPED)
+	field.set_meta(SteamKeyboard.IN_DIALOG, tr(KartDialog.PLATE_TYPED))
 	var typed := HBoxContainer.new()
 	typed.add_theme_constant_override("separation", 16)
 	typed.add_child(field)
@@ -636,11 +627,11 @@ func _license(column: VBoxContainer) -> void:
 	how.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	typed.add_child(how)
 	plate.add_child(typed)
-	plate.add_child(_section_line(PLATE_LINE % LicensePlate.MOST))
+	plate.add_child(_section_line(tr(PLATE_LINE) % LicensePlate.MOST))
 	grid.add_child(plate)
-	var school := _section("SchoolSection", SCHOOL)
-	school.add_child(_section_line(PASSED % profile.license_date))
-	retake = MenuTheme.button(RETAKE, Type.BODY)
+	var school := _section("SchoolSection", tr(SCHOOL))
+	school.add_child(_section_line(tr(PASSED) % profile.license_date))
+	retake = MenuTheme.button(tr(RETAKE), Type.BODY)
 	retake.name = "Retake"
 	retake.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	retake.pressed.connect(_to_the_school)
@@ -652,14 +643,14 @@ func _license(column: VBoxContainer) -> void:
 ## the casino of the first stage throughout; on again, everything is where it was. Kept with the
 ## rest of the settings as they are left.
 func _story(grid: GridContainer) -> void:
-	var section := _section("StorySection", STORY_SECTION)
+	var section := _section("StorySection", tr(STORY_SECTION))
 	story_switch = MenuTheme.toggle(_settings.profile.story.on)
 	story_switch.name = "Story"
 	story_switch.toggled.connect(_on_story_toggled)
-	var line := MenuTheme.row(STORY, story_switch)
+	var line := MenuTheme.row(tr(STORY), story_switch)
 	line.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	section.add_child(line)
-	section.add_child(_section_line(STORY_LINE))
+	section.add_child(_section_line(tr(STORY_LINE)))
 	if _settings.profile.story.on and _settings.profile.story.ended():
 		_resit_control(section)
 	grid.add_child(section)
@@ -669,13 +660,13 @@ func _story(grid: GridContainer) -> void:
 ## for Not This Time after the stamp came down; the House deals it at the next table once asked.
 func _resit_control(section: VBoxContainer) -> void:
 	var pending := _settings.profile.story.resit
-	resit = MenuTheme.button(RESIT, Type.BODY)
+	resit = MenuTheme.button(tr(RESIT), Type.BODY)
 	resit.name = "Resit"
 	resit.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	resit.disabled = pending
 	resit.pressed.connect(_on_resit)
 	section.add_child(resit)
-	_resit_line = _section_line(RESIT_WAITING if pending else RESIT_LINE)
+	_resit_line = _section_line(tr(RESIT_WAITING if pending else RESIT_LINE))
 	section.add_child(_resit_line)
 
 
@@ -684,7 +675,7 @@ func _resit_control(section: VBoxContainer) -> void:
 func _on_resit() -> void:
 	FinalHand.resit(_settings.profile)
 	resit.disabled = true
-	_resit_line.text = RESIT_WAITING
+	_resit_line.text = tr(RESIT_WAITING)
 
 
 ## On at once; off only once asked, the switch staying on until the answer is yes.
@@ -724,7 +715,8 @@ func _ask_story_off() -> void:
 			if is_instance_valid(story_switch) and story_switch.is_inside_tree():
 				story_switch.grab_focus()
 	)
-	question.ask(STORY_OFF, STORY_OFF_LINE, STORY_OFF_YES, STORY_OFF_NO, RoadSign.Kind.QUESTION)
+	var no := tr(STORY_OFF_NO)
+	question.ask(tr(STORY_OFF), tr(STORY_OFF_LINE), tr(STORY_OFF_YES), no, RoadSign.Kind.QUESTION)
 
 
 ## The page scrolled to [param control] when it takes the cursor, with [constant MARK_ROOM] round

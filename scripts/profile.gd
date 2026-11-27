@@ -104,7 +104,7 @@ func table_set() -> int:
 
 ## What it is called: its first player's name, or "Player" and its number before they gave one.
 func display_name() -> String:
-	return player_names[0] if not player_names[0].is_empty() else "Player %s" % id
+	return player_names[0] if not player_names[0].is_empty() else tr("Player %s") % id
 
 
 ## A favorite color for its first seat, one of the players' colors at random, GAME.md 3.8: given as

@@ -10,7 +10,8 @@ extends RefCounted
 
 const KMH := "kmh"
 const MPH := "mph"
-## What the HUD writes beside the number, see [SpeedDial].
+## What the HUD writes beside the number, see [SpeedDial], each shown through tr().
+# TRANSLATORS: The speedometer's unit, written small beside the number: keep it short.
 const KMH_WORD := "KM/H"
 const MPH_WORD := "MPH"
 ## Miles in a kilometer.
@@ -66,7 +67,7 @@ static func locale_uses_mph(locale: String) -> bool:
 ## The locale the system's measures are in: LC_ALL, then LC_MEASUREMENT, then LANG, as POSIX
 ## looks for a category, where the system has them, and otherwise the system's own locale.
 static func system_locale() -> String:
-	for named: String in ["LC_ALL", "LC_MEASUREMENT", "LANG"]:
+	for named: String in ["LC_ALL", "LC_MEASUREMENT", "LANG"]:  # NO_TRANSLATE
 		var value := OS.get_environment(named).strip_edges()
 		if not value.is_empty() and value != "C" and value != "POSIX":
 			return value
@@ -85,6 +86,6 @@ static func from_kmh(kmh: float, unit: String) -> float:
 	return kmh * MILES_PER_KM if unit == MPH else kmh
 
 
-## What is written beside the number for [param unit].
+## What is written beside the number for [param unit], in the language spoken.
 static func word(unit: String) -> String:
-	return MPH_WORD if unit == MPH else KMH_WORD
+	return Lang.t(MPH_WORD if unit == MPH else KMH_WORD)

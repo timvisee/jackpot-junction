@@ -6,7 +6,7 @@ extends HBoxContainer
 
 signal chosen(mode: String)
 
-## What the two are called on their buttons.
+## What the two are called on their buttons, shown through tr().
 const WORDS: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE: "Simple",
 	Settings.DRIVE_ADVANCED: "Advanced",
@@ -44,7 +44,7 @@ func button(which: String) -> Button:
 func _add(which: String) -> void:
 	var pressable := MenuTheme.button("", Type.BODY)
 	pressable.toggle_mode = true
-	ScreenReader.name(pressable, WORDS[which])
+	ScreenReader.name(pressable, tr(WORDS[which]))
 	var inside := HBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -54,7 +54,7 @@ func _add(which: String) -> void:
 	picture.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	inside.add_child(picture)
 	var word := Label.new()
-	word.text = WORDS[which]
+	word.text = tr(WORDS[which])
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(word, Type.STRONG, Type.BODY)
 	inside.add_child(word)

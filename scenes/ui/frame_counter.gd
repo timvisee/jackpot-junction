@@ -39,4 +39,4 @@ func _process(delta: float) -> void:
 
 
 func _show() -> void:
-	_label.text = "%d fps" % roundi(Engine.get_frames_per_second())
+	_label.text = tr("%d fps") % roundi(Engine.get_frames_per_second())

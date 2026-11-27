@@ -17,6 +17,7 @@ const ZONES: Array[StringName] = [NITRO, GAS, BRAKE, DRIFT]
 const ZONE_SHARES: Array[float] = [1.15, 1.5, 1.0, 1.15]
 const SIMPLE_ZONES: Array[StringName] = [NITRO, DRIFT]
 const SIMPLE_SHARES: Array[float] = [1.0, 1.0]
+## What each zone says, shown through tr().
 const ZONE_WORDS: Dictionary[StringName, String] = {
 	NITRO: "NITRO", GAS: "GAS", BRAKE: "BRAKE", DRIFT: "DRIFT"
 }
@@ -96,15 +97,18 @@ func word(zone: StringName, kart: Kart) -> String:
 	return word_for(zone, kart, zone_rect(zone).size.x - TANK_INSET)
 
 
-## What [param zone] says in [param room] of width, on the slider or on a button of its own.
+## What [param zone] says in [param room] of width, on the slider or on a button of its own, in
+## the language spoken.
 static func word_for(zone: StringName, kart: Kart, room: float) -> String:
 	if zone != BRAKE or not standing_still(kart):
-		return ZONE_WORDS[zone]
+		return Lang.t(ZONE_WORDS[zone])
+	var reverse := Lang.t("REVERSE")
 	var font := Type.STRONG
 	var wide := font.get_string_size(
-		"REVERSE", HORIZONTAL_ALIGNMENT_LEFT, -1, TouchControls.LABEL_SIZE
+		reverse, HORIZONTAL_ALIGNMENT_LEFT, -1, TouchControls.LABEL_SIZE
 	)
-	return "REVERSE" if wide.x <= room else "REV"
+	# TRANSLATORS: The brake's word while it reverses, where REVERSE is too wide for its button.
+	return reverse if wide.x <= room else Lang.t("REV")
 
 
 ## Whether [param kart] is standing still or rolling back, where the brake is the reverse and there

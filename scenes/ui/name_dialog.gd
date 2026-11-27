@@ -14,12 +14,13 @@ signal named_also(name: String)
 ## Up no longer, whichever way it went.
 signal put_away
 
+## The button that puts it away, shown through tr().
 const CANCEL := "Cancel"
-## The button that goes ahead in a box's words typed again, see [method retype].
+## The button that goes ahead in a box's words typed again, see [method retype], shown through tr().
 const DONE := "Done"
 ## How wide the box is.
 const WIDE := 420.0
-## The tooltip on the die that rolls a name, where the box has one.
+## The tooltip on the die that rolls a name, where the box has one, shown through tr().
 const ROLL_TIP := "Roll a name"
 
 var field: LineEdit
@@ -72,7 +73,7 @@ static func open(
 ## typed goes back into [param box] as if it had been typed there, Enter and all, and the cursor
 ## goes back onto it.
 static func retype(box: LineEdit, title: String) -> NameDialog:
-	var dialog := open(box, title, box.text, DONE, "", Callable(), box)
+	var dialog := open(box, title, box.text, Lang.t(DONE), "", Callable(), box)
 	dialog.named.connect(_put_back.bind(box))
 	dialog.put_away.connect(
 		func() -> void:
@@ -100,7 +101,7 @@ static func _box_like(like: LineEdit, text: String) -> LineEdit:
 		plate.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		return plate
 	var longest := PlayerNames.MAX_LENGTH
-	var hint := PlayerNames.PLACEHOLDER
+	var hint := Lang.t(PlayerNames.PLACEHOLDER)
 	if like != null:
 		longest = like.max_length if like.max_length > 0 else longest
 		hint = like.placeholder_text if not like.placeholder_text.is_empty() else hint
@@ -144,7 +145,7 @@ func _build(title: String, text: String, ok: String, also: String, like: LineEdi
 		die = NameDie.new()
 		die.name = "Die"
 		die.custom_minimum_size = Vector2.ONE * MenuTheme.box_height()
-		die.tooltip_text = ROLL_TIP
+		die.tooltip_text = tr(ROLL_TIP)
 		die.pressed.connect(_roll_name)
 		box_row.add_child(die)
 		column.add_child(box_row)
@@ -162,7 +163,7 @@ func _build(title: String, text: String, ok: String, also: String, like: LineEdi
 		also_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		also_button.pressed.connect(_go_ahead.bind(true))
 		buttons.add_child(also_button)
-	cancel_button = MenuTheme.button(CANCEL, Type.BODY)
+	cancel_button = MenuTheme.button(tr(CANCEL), Type.BODY)
 	cancel_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	cancel_button.pressed.connect(close)
 	buttons.add_child(cancel_button)

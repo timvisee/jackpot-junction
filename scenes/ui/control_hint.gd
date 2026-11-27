@@ -90,19 +90,20 @@ static func _drawn_row(for_device: int, size: int, simple: bool, pedals: bool) -
 			InputHint.glyph(InputActions.THROTTLE, keyboard, INK, size),
 			InputHint.glyph(InputActions.FIRE, keyboard, INK, size)
 		]
-		return InputHint.row("%s steer   %s gas   %s fire", steering, INK, size)
+		# TRANSLATORS: Each %s is a button's picture, kept in this order.
+		return InputHint.row(Lang.t("%s steer   %s gas   %s fire"), steering, INK, size)
 	if simple:
 		var ways: Array = [
 			InputHint.way(keyboard, INK, size),
 			InputHint.glyph(InputActions.FIRE, keyboard, INK, size)
 		]
-		return InputHint.row("%s drive   %s fire", ways, INK, size)
+		return InputHint.row(Lang.t("%s drive   %s fire"), ways, INK, size)
 	var parts: Array = [
 		InputHint.glyph(InputActions.THROTTLE, keyboard, INK, size),
 		InputHint.pair(InputActions.STEER_LEFT, InputActions.STEER_RIGHT, keyboard, INK, size),
 		InputHint.glyph(InputActions.FIRE, keyboard, INK, size),
 	]
-	return InputHint.row("%s drive   %s steer   %s fire", parts, INK, size)
+	return InputHint.row(Lang.t("%s drive   %s steer   %s fire"), parts, INK, size)
 
 
 ## What the drawn line depends on, so a rebuild happens when the player picks up a pad and not on
@@ -165,7 +166,7 @@ func _rebuild() -> void:
 	if _row != null:
 		_row.queue_free()
 	InputGlyph.seat_under(self, ink)
-	_row = ScreenHint.hang(self, hint_row(device, size, simple, pedals), "Row")
+	_row = ScreenHint.hang(self, hint_row(device, size, simple, pedals), "Row")  # NO_TRANSLATE
 
 
 ## The color of the player whose line it is: their kart's.

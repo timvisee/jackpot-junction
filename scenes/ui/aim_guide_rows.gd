@@ -9,8 +9,8 @@ extends VBoxContainer
 ## The four have been put back as they were at first, see [method Settings.reset_aim_guide].
 signal reset
 
-## What Reset says to the mouse, and how big it is: a small button beside the rows, not one of
-## the menu's.
+## What Reset says to the mouse, shown through tr(), and how big it is: a small button beside the
+## rows, not one of the menu's.
 const RESET_TIP := "Put the aim guide's length, size, opacity and color back as they were"
 const RESET_SIZE := Vector2(130.0, 44.0)
 
@@ -38,19 +38,19 @@ func _ready() -> void:
 	rows.add_theme_constant_override("separation", 12)
 	length = _slider(AimGuide.FEWEST, AimGuide.MOST, 1.0, settings.aim_guide_length)
 	length.name = "AimGuideLength"
-	rows.add_child(MenuTheme.row("Aim guide length", length))
+	rows.add_child(MenuTheme.row(tr("Aim guide length"), length))
 	size_slider = _slider(AimGuide.SMALLEST, AimGuide.BIGGEST, 0.1, settings.aim_guide_size)
 	size_slider.name = "AimGuideSize"
-	rows.add_child(MenuTheme.row("Aim guide size", size_slider))
+	rows.add_child(MenuTheme.row(tr("Aim guide size"), size_slider))
 	opacity = _slider(AimGuide.FAINTEST, 1.0, 0.05, settings.aim_guide_opacity)
 	opacity.name = "AimGuideOpacity"
-	rows.add_child(MenuTheme.row("Aim guide opacity", opacity))
-	style = MenuTheme.option(AimGuide.STYLES, settings.aim_guide_style)
+	rows.add_child(MenuTheme.row(tr("Aim guide opacity"), opacity))
+	style = MenuTheme.option(AimGuide.STYLES.map(tr), settings.aim_guide_style)
 	style.name = "AimGuideStyle"
-	rows.add_child(MenuTheme.row("Aim guide color", style))
-	reset_button = MenuTheme.button("Reset", Type.BODY)
+	rows.add_child(MenuTheme.row(tr("Aim guide color"), style))
+	reset_button = MenuTheme.button(tr("Reset"), Type.BODY)
 	reset_button.name = "AimGuideReset"
-	reset_button.tooltip_text = RESET_TIP
+	reset_button.tooltip_text = tr(RESET_TIP)
 	reset_button.custom_minimum_size = RESET_SIZE
 	reset_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	reset_button.pressed.connect(_reset)

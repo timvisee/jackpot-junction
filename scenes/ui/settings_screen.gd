@@ -10,9 +10,9 @@ extends Control
 ## Back, from a screen laid over a room: it has gone, and the room is the pause menu's again.
 signal closed
 
-## The Controls page's groups, GAME.md 8.5, by their headings, and the actions bound in each: how
-## the first player drives and the bindings for driving, fighting and the game down the left, the
-## controllers and the bindings for jokers and emotes down the right.
+## The Controls page's groups, GAME.md 8.5, by their headings, each shown through tr(), and the
+## actions bound in each: how the first player drives and the bindings for driving, fighting and the
+## game down the left, the controllers and the bindings for jokers and emotes down the right.
 const DRIVING := "Driving"
 const FIGHTING := "Fighting"
 const GAME := "Game"
@@ -52,7 +52,7 @@ const BINDINGS: Dictionary[String, Array] = {
 }
 ## What each action is called down the left of its sockets, to a screen reader and while its new
 ## key is awaited: in sentence case as every other row of the settings is, and for the jokers'
-## by what they do.
+## by what they do. Shown through tr().
 const ACTION_WORDS: Dictionary[StringName, String] = {
 	InputActions.THROTTLE: "Throttle",
 	InputActions.BRAKE: "Brake",
@@ -78,7 +78,7 @@ const ACTION_WORDS: Dictionary[StringName, String] = {
 	InputActions.EMOTE_4: "Emote 4",
 	InputActions.EMOTE_WHEEL: "Emote wheel",
 }
-## The Audio page's groups, GAME.md 8.5, by their headings.
+## The Audio page's groups, GAME.md 8.5, by their headings, shown through tr().
 const VOLUME := "Volume"
 const MUSIC := "Music"
 const REBINDABLE: Array[StringName] = [
@@ -119,14 +119,14 @@ const BINDING_NAME := 260.0
 const BINDING_ROOM := 24
 ## The room between the two ways to drive and Help me choose.
 const DRIVING_ROOM := 8
-## What a socket says while it listens for a new key or button.
-## The heads of the bindings' columns, and what a socket with nothing bound in it says.
+## The heads of the bindings' columns, what a socket with nothing bound in it says, and what it says
+## while it listens for a new key or button, each shown through tr().
 const BINDING_HEADS: Array[String] = ["Action", "Keyboard and mouse", "Gamepad"]
 const NOT_BOUND := "Not bound"
 const LISTENING_KEY := "Press a key"
 const LISTENING_PAD := "Press a button"
 ## The question Reset bindings to defaults asks first, as what was bound cannot come back: its words
-## and its two answers.
+## and its two answers, shown through tr().
 const RESET_SURE := "Reset all bindings?"
 const RESET_LINE := "All keys and buttons go back to their default. The ones you set are lost."
 const RESET_YES := "Reset"
@@ -139,24 +139,30 @@ const TAB_HINT_SIZE := 18
 ## right, GAME.md 8.5.
 const MARGIN := Vector2(48.0, 28.0)
 const BACK_WIDE := 220.0
-## The page of the seats at this screen, GAME.md 8.5, and what it is for, said at its top.
+## The page of the seats at this screen, GAME.md 8.5, and what it is for, said at its top, each
+## shown through tr().
 const SEATS := "Seats"
 const PLAYERS_LINE := "What each seat at this screen is called, and how it drives."
-## Simple driving's Auto throttle switch on a seat, GAME.md 4.2, and what it says to the mouse.
+## Simple driving's Auto throttle switch on a seat, GAME.md 4.2, and what it says to the mouse;
+## what a seat's row says beside it while another profile sits in it, GAME.md 3.8. Each is shown
+## through tr().
 const AUTO := "Auto throttle"
-const AUTO_TIP := (
-	"Simple driving works the gas and brake for you. Off, the triggers or the touch screen's own"
-	+ " gas and brake do, and the stick only steers. The keyboard always works them for you."
-)
-## What a seat's row says beside it while another profile sits in it, GAME.md 3.8.
+const AUTO_TIP := """Simple driving works the gas and brake for you. Off, the triggers or the \
+touch screen's own gas and brake do, and the stick only steers. The keyboard always works them for \
+you."""
 const LINKED_TO := "Linked to %s"
 ## How big a color is drawn in a seat's row.
 const SWATCH := 30.0
-## What a screen reader is told of the swatch ringed in gold, the seat's favorite color.
+## What a screen reader is told of the swatch ringed in gold, the seat's favorite color, shown
+## through tr().
 const FAVORITE := "Favorite"
 ## Room kept round whatever has the cursor as a page scrolls to it, for the cursor's mark, which
 ## stands out past it, see [FocusMark].
 const FOCUS_ROOM := 16
+## The pages' tabs, by the pages' names, which stay as they are: shown through tr().
+const PAGE_TITLES: Array[String] = [
+	"Seats", "Controls", "Audio", "Video", "Accessibility", "Statistics", "Profiles", "About"
+]
 
 ## The page the next settings screen opens on, by its name, or the first.
 static var opening_on := ""
@@ -222,7 +228,7 @@ func _ready() -> void:
 			for shown: Callable in _seat_colors:
 				shown.call()
 	)
-	access.aim_guide_reset.connect(func() -> void: status.text = "Aim guide reset")
+	access.aim_guide_reset.connect(func() -> void: status.text = tr("Aim guide reset"))
 	tabs.add_child(access)
 	tabs.add_child(StatsTab.make(_settings))
 	tabs.add_child(ProfilesTab.make(_settings, not overlay, _on_profile_switched))
@@ -230,6 +236,10 @@ func _ready() -> void:
 	# Where the story is, and buttons to move it, for trying it out: debug builds alone.
 	if OS.is_debug_build():
 		tabs.add_child(StoryDebugTab.make(_settings))
+	# Each page's tab in the language spoken, the pages keeping their English names, GAME.md 10.9.
+	for page: Node in tabs.get_children():
+		if String(page.name) in PAGE_TITLES:
+			tabs.set_tab_title(page.get_index(), tr(page.name))
 	# The engine looks for the next control only in the part of a scroll that shows, unless the
 	# scroll follows the cursor: in one column, under a big UI scale, down from the foot of Driving
 	# found nothing, Fighting's heading pushing its first row out of sight. The License page keeps
@@ -286,7 +296,7 @@ func _head(column: VBoxContainer) -> Button:
 	head.name = "Head"
 	head.add_theme_constant_override("separation", 24)
 	column.add_child(head)
-	var title := MenuTheme.title("Settings", 56)
+	var title := MenuTheme.title(tr("Settings"), 56)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	head.add_child(title)
 	status = Label.new()
@@ -298,7 +308,7 @@ func _head(column: VBoxContainer) -> Button:
 	status.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	status.clip_text = true
 	head.add_child(status)
-	var button := MenuTheme.button("Back", 28)
+	var button := MenuTheme.button(tr("Back"), 28)
 	button.name = "Back"
 	button.custom_minimum_size.x = BACK_WIDE
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -364,7 +374,7 @@ func _on_profile_switched(_id: String) -> void:
 ## the Accessibility page it was chosen on.
 func _on_language_chosen() -> void:
 	_settings.save_to_disk()
-	opening_on = "Accessibility"
+	opening_on = "Accessibility"  # NO_TRANSLATE
 	Game.go_to_settings(Game.settings_return)
 
 
@@ -401,7 +411,7 @@ func _input(event: InputEvent) -> void:
 		return
 	var key := event as InputEventKey
 	if key != null and key.pressed and key.physical_keycode == KEY_ESCAPE:
-		_stop_listening("Rebind canceled")
+		_stop_listening(tr("Rebind canceled"))
 		get_viewport().set_input_as_handled()
 		return
 	if not _is_bindable_press(event):
@@ -415,7 +425,7 @@ func _input(event: InputEvent) -> void:
 	InputActions.rebind(_listening_action, descriptor)
 	_settings.remember_binding(_listening_action)
 	_refresh_bindings()
-	_stop_listening("Bound %s" % event.as_text())
+	_stop_listening(tr("Bound %s") % event.as_text())
 	get_viewport().set_input_as_handled()
 
 
@@ -479,7 +489,7 @@ func _controls_tab() -> Control:
 	groups.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(groups)
 	# The controllers first, Show controls and Reset at the top of the page however it stands.
-	var column := SettingsColumns.group(CONTROLLERS)
+	var column := SettingsColumns.group(tr(CONTROLLERS), CONTROLLERS)
 	groups.add_child(column)
 	# The pad drawn whole with what each button does, GAME.md 8.3b.
 	column.add_child(PadLeaflet.row(self))
@@ -496,21 +506,21 @@ func _controls_tab() -> Control:
 			_settings.stick_deadzone = value
 			_settings.apply_input()
 	)
-	column.add_child(MenuTheme.row("Stick dead zone", deadzone))
-	var reset := MenuTheme.button("Reset bindings to defaults", 22)
+	column.add_child(MenuTheme.row(tr("Stick dead zone"), deadzone))
+	var reset := MenuTheme.button(tr("Reset bindings to defaults"), 22)
 	reset.name = "ResetBindings"
 	var answer := func(yes: bool) -> void:
 		if yes:
 			_settings.reset_bindings()
 			_refresh_bindings()
-			status.text = "Bindings reset"
+			status.text = tr("Bindings reset")
 	reset.pressed.connect(
 		func() -> void:
 			var question := ConfirmPane.over_screen(reset, "ResetQuestion", answer)
-			question.ask(RESET_SURE, RESET_LINE, RESET_YES, RESET_NO)
+			question.ask(tr(RESET_SURE), tr(RESET_LINE), tr(RESET_YES), tr(RESET_NO))
 	)
 	column.add_child(MenuTheme.row("", reset))
-	column = SettingsColumns.group(DRIVING)
+	column = SettingsColumns.group(tr(DRIVING), DRIVING)
 	groups.add_child(column)
 	# How the first player drives, GAME.md 4.2. Everybody else says in the lobby, or in the pause
 	# menu over their own corner.
@@ -522,7 +532,7 @@ func _controls_tab() -> Control:
 			_show_seat_driving()
 	)
 	# And the question the first Play asked, again, for the two side by side with what each is.
-	var again := MenuTheme.button("Help me choose", Type.BODY)
+	var again := MenuTheme.button(tr("Help me choose"), Type.BODY)
 	again.custom_minimum_size = Vector2(0.0, 52.0)
 	var answered := func() -> void:
 		driving.mode = _settings.drive_mode(0)
@@ -532,11 +542,11 @@ func _controls_tab() -> Control:
 	driving.add_child(again)
 	# A little closer together than a picker's own, so the three fit half a 1080p page.
 	driving.add_theme_constant_override("separation", DRIVING_ROOM)
-	column.add_child(MenuTheme.row("Driving", driving))
+	column.add_child(MenuTheme.row(tr(DRIVING), driving))
 	# Its Auto throttle, as on its card on the Seats tab, while it drives the simple way.
 	var auto := _auto_switch(0)
 	auto.name = "AutoThrottle"
-	var auto_row := MenuTheme.row(AUTO, auto)
+	var auto_row := MenuTheme.row(tr(AUTO), auto)
 	column.add_child(auto_row)
 	var simple := func() -> void:
 		auto_row.visible = _settings.drive_mode(0) == Settings.DRIVE_SIMPLE
@@ -546,14 +556,14 @@ func _controls_tab() -> Control:
 	if TouchInput.enabled:
 		var touch := DrivePicker.make(_settings.touch_layout, Settings.TOUCH_LAYOUTS)
 		touch.chosen.connect(func(layout: String) -> void: _settings.touch_layout = layout)
-		column.add_child(MenuTheme.row("Touch driving", touch))
+		column.add_child(MenuTheme.row(tr("Touch driving"), touch))
 	_add_bindings(column, BINDINGS[DRIVING])
-	column = SettingsColumns.group(FIGHTING)
+	column = SettingsColumns.group(tr(FIGHTING), FIGHTING)
 	groups.add_child(column)
 	_add_bindings(column, BINDINGS[FIGHTING])
 	groups.split = groups.get_child_count()
 	for named: String in [GAME, JOKERS, EMOTES]:
-		column = SettingsColumns.group(named)
+		column = SettingsColumns.group(tr(named), named)
 		groups.add_child(column)
 		_add_bindings(column, BINDINGS[named])
 	return scroll
@@ -569,7 +579,7 @@ func _add_bindings(column: VBoxContainer, actions: Array) -> void:
 	header.add_child(under_names)
 	for text: String in BINDING_HEADS.slice(1):
 		var label := Label.new()
-		label.text = SteamInputRow.head(text)
+		label.text = tr(SteamInputRow.head(text))
 		label.uppercase = true
 		label.custom_minimum_size = Vector2(BINDING_CELL.x, 0.0)
 		# Over the middle of its sockets, as the keys in them are.
@@ -610,11 +620,11 @@ func _start_listening(action: StringName, keyboard: bool, button: Button) -> voi
 	_listening_action = action
 	_listening_keyboard = keyboard
 	_clear(button)
-	button.text = LISTENING_KEY if keyboard else LISTENING_PAD
-	status.text = (
-		"Press a %s input for %s, Escape cancels"
-		% ["keyboard or mouse" if keyboard else "gamepad", _action_words(action)]
-	)
+	button.text = tr(LISTENING_KEY if keyboard else LISTENING_PAD)
+	var asked := tr("Press a keyboard or mouse input for %s, Escape cancels")
+	if not keyboard:
+		asked = tr("Press a gamepad input for %s, Escape cancels")
+	status.text = asked % _action_words(action)
 
 
 func _stop_listening(message: String) -> void:
@@ -642,13 +652,13 @@ func _refresh_binding(action: StringName) -> void:
 		button.add_child(row)
 		# Its keys are pictures: a screen reader is told the action, the column and what is bound.
 		var bound := SteamInputRow.bound_text(action, i == 0)
-		var named := ScreenReader.line([_action_words(action), BINDING_HEADS[i + 1]])
-		ScreenReader.name(button, named, NOT_BOUND if bound == "-" else bound)
+		var named := ScreenReader.line([_action_words(action), tr(BINDING_HEADS[i + 1])])
+		ScreenReader.name(button, named, tr(NOT_BOUND) if bound == "-" else bound)
 
 
 ## What the row of [param action] is called, down the left of its sockets.
 static func _action_words(action: StringName) -> String:
-	return ACTION_WORDS.get(action, String(action).replace("_", " ").capitalize())
+	return Lang.t(ACTION_WORDS.get(action, String(action).replace("_", " ").capitalize()))
 
 
 static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
@@ -669,7 +679,7 @@ static func _bound_glyphs(action: StringName, keyboard: bool) -> HBoxContainer:
 			row.add_child(glyph)
 	if row.get_child_count() == 0:
 		var empty := Label.new()
-		empty.text = NOT_BOUND
+		empty.text = Lang.t(NOT_BOUND)
 		empty.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		Type.text(empty, Type.LABEL, HouseTheme.QUIET)
 		empty.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -692,7 +702,7 @@ func _players_tab() -> Control:
 	var column := VBoxContainer.new()
 	column.name = SEATS
 	column.add_theme_constant_override("separation", 8)
-	page_head(column, SEATS, PLAYERS_LINE)
+	page_head(column, tr(SEATS), tr(PLAYERS_LINE))
 	for seat: int in _settings.player_names.size():
 		column.add_child(_seat_card(seat))
 	return column
@@ -703,7 +713,7 @@ func _players_tab() -> Control:
 ## is linked to, its colors, and how it drives.
 func _seat_card(seat: int) -> SeatCard:
 	var linked := _settings.seat_profile(seat)
-	var says := LINKED_TO % linked.display_name() if linked != null else ""
+	var says := tr(LINKED_TO) % linked.display_name() if linked != null else ""
 	var card := SeatCard.make("", _chip_color(seat), str(seat + 1), says)
 	card.name = "Seat%d" % seat
 	card.custom_minimum_size.x = SeatCard.WIDE
@@ -713,11 +723,12 @@ func _seat_card(seat: int) -> SeatCard:
 		card.line.name = "Linked%d" % seat
 	# A seat another profile sits in, GAME.md 3.8, is that profile's name and way of driving.
 	var field := MenuTheme.field(
-		_settings.seat_name(seat), PlayerNames.PLACEHOLDER, PlayerNames.MAX_LENGTH
+		_settings.seat_name(seat), tr(PlayerNames.PLACEHOLDER), PlayerNames.MAX_LENGTH
 	)
 	field.custom_minimum_size = Vector2(300.0, 40.0)
-	ScreenReader.name(field, KartOwner.SEAT % (seat + 1), says)
-	field.set_meta(SteamKeyboard.IN_DIALOG, "%s's name" % (KartOwner.SEAT % (seat + 1)))
+	var seat_named := tr(KartOwner.SEAT) % (seat + 1)
+	ScreenReader.name(field, seat_named, says)
+	field.set_meta(SteamKeyboard.IN_DIALOG, tr("%s's name") % seat_named)
 	field.text_changed.connect(
 		func(text: String) -> void: _settings.set_seat_name(seat, PlayerNames.clean(text))
 	)
@@ -733,7 +744,7 @@ func _seat_card(seat: int) -> SeatCard:
 func _auto_throttle(seat: int) -> CheckButton:
 	var auto := _auto_switch(seat)
 	auto.name = "Auto%d" % seat
-	auto.text = AUTO
+	auto.text = tr(AUTO)
 	auto.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	# Its room kept on every card whether it is there or not, so the cards stand the same width.
 	var shown := func() -> void:
@@ -751,7 +762,7 @@ func _auto_throttle(seat: int) -> CheckButton:
 ## each says so when the other is switched.
 func _auto_switch(seat: int) -> CheckButton:
 	var auto := MenuTheme.toggle(_settings.auto_throttle(seat))
-	auto.tooltip_text = AUTO_TIP
+	auto.tooltip_text = tr(AUTO_TIP)
 	auto.toggled.connect(
 		func(on: bool) -> void:
 			_settings.set_auto_throttle(seat, on)
@@ -810,7 +821,7 @@ func _color_choice(seat: int, card: SeatCard) -> HBoxContainer:
 		var swatch := Button.new()
 		swatch.name = "Color%d" % color
 		swatch.custom_minimum_size = Vector2(SWATCH, SWATCH)
-		swatch.tooltip_text = Palette.color_name(color)
+		swatch.tooltip_text = tr(Palette.color_name(color))
 		swatch.focus_mode = Control.FOCUS_ALL
 		var empty := StyleBoxEmpty.new()
 		for state: String in ["normal", "hover", "pressed", "focus", "hover_pressed"]:
@@ -838,7 +849,7 @@ static func _ring_chosen(swatches: Array[Button], chosen: int) -> void:
 	for color: int in swatches.size():
 		swatches[color].set_meta(&"fill", Palette.player_color(color))
 		swatches[color].set_meta(&"chosen", color == chosen)
-		swatches[color].accessibility_description = FAVORITE if color == chosen else ""
+		swatches[color].accessibility_description = Lang.t(FAVORITE) if color == chosen else ""
 		swatches[color].queue_redraw()
 
 
@@ -874,7 +885,7 @@ func _drive_switch(seat: int) -> Button:
 	toggle.add_child(picture)
 	var shown := func() -> void:
 		picture.mode = _settings.drive_mode(seat)
-		toggle.tooltip_text = DriveSwitches.WORDS[picture.mode]
+		toggle.tooltip_text = tr(DriveSwitches.WORDS[picture.mode])
 	shown.call()
 	_seat_driving.append(shown)
 	toggle.pressed.connect(
@@ -906,28 +917,29 @@ func _audio_tab() -> Control:
 	groups.name = "Groups"
 	groups.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(groups)
-	var column := SettingsColumns.group(VOLUME)
+	var column := SettingsColumns.group(tr(VOLUME), VOLUME)
 	groups.add_child(column)
 	var master := func(v: float) -> void: _settings.master_volume = v
-	column.add_child(MenuTheme.row("Master", _volume_slider(_settings.master_volume, master)))
+	column.add_child(MenuTheme.row(tr("Master"), _volume_slider(_settings.master_volume, master)))
 	var music := func(v: float) -> void: _settings.music_volume = v
-	column.add_child(MenuTheme.row("Music", _volume_slider(_settings.music_volume, music)))
+	column.add_child(MenuTheme.row(tr(MUSIC), _volume_slider(_settings.music_volume, music)))
 	var effects := func(v: float) -> void: _settings.sfx_volume = v
-	column.add_child(MenuTheme.row("Effects", _volume_slider(_settings.sfx_volume, effects)))
+	column.add_child(MenuTheme.row(tr("Effects"), _volume_slider(_settings.sfx_volume, effects)))
 	var karts := func(v: float) -> void: _settings.kart_volume = v
-	column.add_child(MenuTheme.row("Karts", _volume_slider(_settings.kart_volume, karts)))
+	column.add_child(MenuTheme.row(tr("Karts"), _volume_slider(_settings.kart_volume, karts)))
 	groups.split = groups.get_child_count()
-	column = SettingsColumns.group(MUSIC)
+	column = SettingsColumns.group(tr(MUSIC), MUSIC)
 	groups.add_child(column)
 	# How much louder the music gets as the room heats up, on top of the level above, GAME.md 8.5.
 	var swell := SwellSlider.make(_settings.music_swell)
 	swell.name = "IntenseMusic"
 	swell.changed.connect(func(v: float) -> void: _settings.music_swell = v)
-	column.add_child(MenuTheme.row("Intense music", swell))
-	column.add_child(MenuTheme.row("Music muted", _check(_settings.music_muted, _set_music_muted)))
+	column.add_child(MenuTheme.row(tr("Intense music"), swell))
+	var muted := _check(_settings.music_muted, _set_music_muted)
+	column.add_child(MenuTheme.row(tr("Music muted"), muted))
 	var muffle := func(on: bool) -> void: _settings.muffle_on_death = on
 	column.add_child(
-		MenuTheme.row("Muffle music on death", _check(_settings.muffle_on_death, muffle))
+		MenuTheme.row(tr("Muffle music on death"), _check(_settings.muffle_on_death, muffle))
 	)
 	return scroll
 

@@ -7,32 +7,33 @@ extends RefCounted
 ## a controller in hand: each action where Steam has it on that controller, a binding asked to
 ## change opening Steam's settings, Steam binding it rather than the game.
 
+## The switch's row, by Steam's own name for it. NO_TRANSLATE
 const SWITCH := "Steam Input"
+## The layout's row and button, shown through tr().
 const LAYOUT_ROW := "Controller layout"
 const LAYOUT := "Change in Steam"
-## The Gamepad column's head, and what it says with a controller of Steam Input's in hand.
+## The Gamepad column's head, and what it says with a controller of Steam Input's in hand, each
+## shown through tr().
 const PAD_HEAD := "Gamepad"
 const IN_STEAM := "Gamepad, in Steam"
-## What the Controls page says as a binding of such a controller is asked to change.
+## What the Controls page says as a binding of such a controller is asked to change, and what the
+## switch says to the mouse, each shown through tr().
 const OPENED := "Steam binds this controller: change it in Steam's controller settings"
 const NO_OVERLAY := "Steam binds this controller: turn on the Steam overlay to change it there"
-const TIP := (
-	"On, Steam reads your controllers, each with the layout you pick for it in Steam. Off, the game"
-	+ " reads them itself. Steam has the same switch in the game's properties: set both alike."
-)
+const TIP := """On, Steam reads your controllers, each with the layout you pick for it in Steam. \
+Off, the game reads them itself. Steam has the same switch in the game's properties: set both \
+alike."""
 ## What the switch asks before it goes, the way to Steam's own switch a paragraph of its own, and
-## the two answers.
+## the two answers, each shown through tr().
 const OFF := "Turn Steam Input off?"
-const OFF_LINE := (
-	"Turn it off in Steam too, or Steam keeps your controllers from the game:\n\nIn your Steam"
-	+ " Library, open Jackpot Junction's Properties, then Controller, and pick Disable Steam Input."
-)
+const OFF_LINE := """Turn it off in Steam too, or Steam keeps your controllers from the \
+game:\n\nIn your Steam Library, open Jackpot Junction's Properties, then Controller, and pick \
+Disable Steam Input."""
 const OFF_YES := "Turn off"
 const ON := "Turn Steam Input on?"
-const ON_LINE := (
-	"Turn it on in Steam too, or Steam leaves your controllers to the game:\n\nIn your Steam"
-	+ " Library, open Jackpot Junction's Properties, then Controller, and pick Enable Steam Input."
-)
+const ON_LINE := """Turn it on in Steam too, or Steam leaves your controllers to the game:\n\nIn \
+your Steam Library, open Jackpot Junction's Properties, then Controller, and pick Enable Steam \
+Input."""
 const ON_YES := "Turn on"
 const CANCEL := "Cancel"
 
@@ -43,10 +44,10 @@ static func add_to(column: VBoxContainer, settings: Settings) -> void:
 		return
 	var switch := MenuTheme.toggle(settings.steam_input)
 	switch.name = "SteamInput"
-	switch.tooltip_text = TIP
-	var layout := MenuTheme.button(LAYOUT, Type.BODY)
+	switch.tooltip_text = Lang.t(TIP)
+	var layout := MenuTheme.button(Lang.t(LAYOUT), Type.BODY)
 	layout.name = "SteamLayout"
-	layout.tooltip_text = TIP
+	layout.tooltip_text = Lang.t(TIP)
 	layout.disabled = not settings.steam_input
 	var turn := func(on: bool) -> void:
 		settings.steam_input = on
@@ -59,7 +60,7 @@ static func add_to(column: VBoxContainer, settings: Settings) -> void:
 				SteamPads.running.show_layout()
 	)
 	column.add_child(MenuTheme.row(SWITCH, switch))
-	column.add_child(MenuTheme.row(LAYOUT_ROW, layout))
+	column.add_child(MenuTheme.row(Lang.t(LAYOUT_ROW), layout))
 
 
 ## Asks over the screen before [param switch] goes [param on], saying to set Steam's own switch
@@ -72,10 +73,11 @@ static func ask(switch: Button, on: bool, go: Callable) -> ConfirmPane:
 			switch.set_pressed_no_signal(on)
 			go.call()
 	var pane := ConfirmPane.over_screen(switch, "SteamInputQuestion", answer)
+	var no := Lang.t(CANCEL)
 	if on:
-		pane.ask(ON, ON_LINE, ON_YES, CANCEL, RoadSign.Kind.QUESTION)
+		pane.ask(Lang.t(ON), Lang.t(ON_LINE), Lang.t(ON_YES), no, RoadSign.Kind.QUESTION)
 	else:
-		pane.ask(OFF, OFF_LINE, OFF_YES, CANCEL, RoadSign.Kind.QUESTION)
+		pane.ask(Lang.t(OFF), Lang.t(OFF_LINE), Lang.t(OFF_YES), no, RoadSign.Kind.QUESTION)
 	return pane
 
 
@@ -91,7 +93,8 @@ static func pad() -> int:
 	return -1 if last >= 0 else DeviceInput.steam_pads.keys().min()
 
 
-## The Gamepad column's head [param head], or what it says with a controller of Steam's in hand.
+## The Gamepad column's head [param text], or what it says with a controller of Steam's in hand,
+## in English: one of [constant SettingsScreen.BINDING_HEADS] or [constant IN_STEAM].
 static func head(text: String) -> String:
 	return IN_STEAM if text == PAD_HEAD and pad() >= 0 else text
 
@@ -123,5 +126,5 @@ static func rebound_in_steam(status: Label) -> bool:
 	var device := pad()
 	if device < 0 or SteamPads.running == null:
 		return false
-	status.text = OPENED if SteamPads.running.show_layout(device) else NO_OVERLAY
+	status.text = Lang.t(OPENED if SteamPads.running.show_layout(device) else NO_OVERLAY)
 	return true

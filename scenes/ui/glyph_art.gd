@@ -54,7 +54,7 @@ const OUTLINE_SIZE := 128
 ## How many pictures are kept made before they are all let go.
 const KEEP := 384
 ## The names of a pad's small buttons drawn as a picture rather than written, see [method icon].
-const ICONS: Array[String] = ["Menu", "View", "+", "−", "-", "Home", "Capture"]
+const ICONS: Array[String] = ["Menu", "View", "+", "−", "-", "Home", "Capture"]  # NO_TRANSLATE
 ## Steam's colors, by what each is in its dark set: the body of a control, its marks, and the
 ## grays between, as how far from the body toward the marks each is.
 const STEAM_BODY: Array[String] = ["#0e141b", "black", "#000000", "#000"]
@@ -68,6 +68,7 @@ const STEAM_GRAYS: Dictionary[String, float] = {
 }
 ## Material Symbols' touch_app, see THIRD_PARTY.md: a hand with its finger on the glass and the
 ## ring of the tap round the fingertip, in a 960 box whose top is at -960.
+# NO_TRANSLATE: an SVG path.
 const TAP := (
 	"M445-80q-29 0-56-12t-45-35L143-383q-7-9-7-20t8-19l4-4q14-15 34.5-18.5T221-438l99 53v-365"
 	+ "q0-12.75 8.68-21.38 8.67-8.62 21.5-8.62 12.82 0 21.32 8.62 8.5 8.63 8.5 21.38v230h299.86"
@@ -135,16 +136,18 @@ static func svg(
 		parts.append(_set_letters(part, weight) if part.has("text") else part)
 	var out := PackedStringArray()
 	var head := '<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d"' % [px.x, px.y]
+	# NO_TRANSLATE: the picture's SVG.
 	head += ' viewBox="0 0 %s %s" preserveAspectRatio="none">' % [_n(art.wide), _n(art.tall)]
 	out.append(head)
 	var edge: Color = paint["edge"]
 	if edge.a > 0.0:
-		out.append('<g opacity="%s">' % _n(edge.a))
+		out.append('<g opacity="%s">' % _n(edge.a))  # NO_TRANSLATE
 		var hex := _hex(edge)
 		var spread := _n(float(paint["spread"]) * 2.0)
-		var around := ' fill="%s" stroke="%s" stroke-width="%s"' % [hex, hex, spread]
+		var around := ' fill="%s" stroke="%s" stroke-width="%s"' % [hex, hex, spread]  # NO_TRANSLATE
 		for part: Dictionary in parts:
 			if part["solid"]:
+				# NO_TRANSLATE: the picture's SVG.
 				out.append(
 					'<path d="%s"%s stroke-linejoin="round"%s/>' % [part["d"], around, _xf(part)]
 				)
@@ -155,7 +158,7 @@ static func svg(
 		out.append(_path(part, paint))
 	if not art.steam.is_empty():
 		out.append(_steam_painted(art, paint))
-	out.append("</svg>")
+	out.append("</svg>")  # NO_TRANSLATE
 	return "\n".join(out)
 
 
@@ -252,18 +255,18 @@ static func _path(part: Dictionary, paint: Dictionary) -> String:
 	var attrs := ""
 	var fill_tone: Variant = _tone(fill, paint)
 	if fill_tone is Color:
-		attrs += ' fill="%s"' % _hex(fill_tone)
+		attrs += ' fill="%s"' % _hex(fill_tone)  # NO_TRANSLATE
 		if (fill_tone as Color).a < 1.0:
-			attrs += ' fill-opacity="%s"' % _n((fill_tone as Color).a)
+			attrs += ' fill-opacity="%s"' % _n((fill_tone as Color).a)  # NO_TRANSLATE
 	else:
-		attrs += ' fill="none"'
+		attrs += ' fill="none"'  # NO_TRANSLATE
 	var stroke_tone: Variant = _tone(stroke, paint)
 	if stroke_tone is Color and width > 0.0:
-		attrs += ' stroke="%s" stroke-width="%s"' % [_hex(stroke_tone), _n(width)]
-		attrs += ' stroke-linejoin="round" stroke-linecap="round"'
+		attrs += ' stroke="%s" stroke-width="%s"' % [_hex(stroke_tone), _n(width)]  # NO_TRANSLATE
+		attrs += ' stroke-linejoin="round" stroke-linecap="round"'  # NO_TRANSLATE
 		if (stroke_tone as Color).a < 1.0:
-			attrs += ' stroke-opacity="%s"' % _n((stroke_tone as Color).a)
-	return '<path d="%s"%s%s/>' % [part["d"], attrs, _xf(part)]
+			attrs += ' stroke-opacity="%s"' % _n((stroke_tone as Color).a)  # NO_TRANSLATE
+	return '<path d="%s"%s%s/>' % [part["d"], attrs, _xf(part)]  # NO_TRANSLATE
 
 
 static func _tone(role: Variant, paint: Dictionary) -> Variant:
@@ -276,7 +279,7 @@ static func _tone(role: Variant, paint: Dictionary) -> Variant:
 
 static func _xf(part: Dictionary) -> String:
 	var xf: String = part["xf"]
-	return "" if xf.is_empty() else ' transform="%s"' % xf
+	return "" if xf.is_empty() else ' transform="%s"' % xf  # NO_TRANSLATE
 
 
 static func _n(value: float) -> String:
@@ -339,13 +342,13 @@ static func key(text: String) -> Art:
 ## Which way an arrow key points, from its name or the arrow written on it, or none.
 static func arrow_of(text: String) -> Vector2:
 	match text:
-		"Up", "↑":
+		"Up", "↑":  # NO_TRANSLATE
 			return Vector2.UP
-		"Down", "↓":
+		"Down", "↓":  # NO_TRANSLATE
 			return Vector2.DOWN
-		"Left", "←":
+		"Left", "←":  # NO_TRANSLATE
 			return Vector2.LEFT
-		"Right", "→":
+		"Right", "→":  # NO_TRANSLATE
 			return Vector2.RIGHT
 	return Vector2.ZERO
 
@@ -574,6 +577,7 @@ static func finger(wide: float) -> Art:
 	var scale := TALL / 960.0
 	# The hand's ink runs from 136 to 800 of the 960 across: set in the middle of the glyph.
 	var across := art.wide * 0.5 - 468.0 * scale
+	# NO_TRANSLATE: the picture's SVG.
 	art.add(TAP, "lit", true, null, 0.0, "translate(%s 32) scale(%s)" % [_n(across), _n(scale)])
 	return art
 
@@ -615,9 +619,9 @@ static func _view_of(source: String) -> Rect2:
 static func _steam_inside(art: Art, body: String) -> String:
 	var view := _view_of(art.steam)
 	var scale := (art.tall - INSET * 2.0) / maxf(view.size.y, 1.0)
-	var into := "translate(%s %s) scale(%s)" % [_n(INSET), _n(INSET), _n(scale)]
-	into += " translate(%s %s)" % [_n(-view.position.x), _n(-view.position.y)]
-	return '<g transform="%s">%s</g>' % [into, body]
+	var into := "translate(%s %s) scale(%s)" % [_n(INSET), _n(INSET), _n(scale)]  # NO_TRANSLATE
+	into += " translate(%s %s)" % [_n(-view.position.x), _n(-view.position.y)]  # NO_TRANSLATE
+	return '<g transform="%s">%s</g>' % [into, body]  # NO_TRANSLATE
 
 
 static func _steam_body(source: String) -> String:
@@ -660,11 +664,12 @@ static func _steam_painted(art: Art, paint: Dictionary) -> String:
 ## Steam's picture as one shape in [param hex], [param spread] wider than itself, for its edge.
 static func _steam_edge(art: Art, hex: String, spread: String) -> String:
 	var body := _steam_body(art.steam)
+	# NO_TRANSLATE: the picture's SVG.
 	var strip := RegEx.create_from_string('\\s(stroke|stroke-width|opacity|fill-opacity)="[^"]*"')
 	body = strip.sub(body, "", true)
 	var fill := RegEx.create_from_string('fill="(?!none)[^"]*"')
-	var around := 'fill="%s" stroke="%s" stroke-width="%s"' % [hex, hex, spread]
-	body = fill.sub(body, around + ' stroke-linejoin="round"', true)
+	var around := 'fill="%s" stroke="%s" stroke-width="%s"' % [hex, hex, spread]  # NO_TRANSLATE
+	body = fill.sub(body, around + ' stroke-linejoin="round"', true)  # NO_TRANSLATE
 	return _steam_inside(art, body)
 
 
@@ -690,7 +695,7 @@ static func _set_letters(part: Dictionary, weight: float) -> Dictionary:
 	var y := middle.y + cap * 0.5
 	var placed := part.duplicate()
 	placed["d"] = outline[0]
-	placed["xf"] = "translate(%s %s) scale(%s)" % [_n(x), _n(y), _n(scale)]
+	placed["xf"] = "translate(%s %s) scale(%s)" % [_n(x), _n(y), _n(scale)]  # NO_TRANSLATE
 	return placed
 
 
@@ -733,9 +738,9 @@ static func _font(weight: float) -> Font:
 
 ## [param text] shaped in the glyph font set [param weight] heavier, as one SVG path at
 ## [constant OUTLINE_SIZE] with its baseline at nought, and the box its ink takes: [path, top left,
-## bottom right].
+## bottom right]. Kept by the language spoken too, whose words they may be, GAME.md 10.9.
 static func _outline(text: String, weight := EMBOLDEN) -> Array:
-	var key := "%s|%s" % [text, weight]
+	var key := "%s|%s|%s" % [text, weight, Lang.current]
 	var known: Array = _letters.get(key, [])
 	if not known.is_empty():
 		return known
@@ -840,7 +845,7 @@ static func _d(steps: Array) -> String:
 
 ## The transform that turns a shape drawn for the left of the pad round to the right.
 static func _mirror(art: Art, side: int) -> String:
-	return "" if side <= 0 else "matrix(-1 0 0 1 %s 0)" % _n(art.wide)
+	return "" if side <= 0 else "matrix(-1 0 0 1 %s 0)" % _n(art.wide)  # NO_TRANSLATE
 
 
 static func _circle(middle: Vector2, radius: float) -> String:

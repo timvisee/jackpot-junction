@@ -74,15 +74,16 @@ func mark_x(swell: float) -> float:
 func _draw_marks() -> void:
 	var font := Type.TEXT
 	var size := Type.SMALL
-	for named: String in MusicSwell.MARKS:
+	for named: String in MusicSwell.MARK_NAMES:
 		var x := mark_x(MusicSwell.MARKS[named])
+		var word := tr(named)
 		_marks.draw_line(Vector2(x, 0.0), Vector2(x, TICK_HEIGHT), MARK_INK, 2.0)
-		var wide := font.get_string_size(named, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+		var wide := font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 		var left := clampf(x - wide * 0.5, 0.0, _marks.size.x - wide)
 		_marks.draw_string(
 			font,
 			Vector2(left, TICK_HEIGHT + size + 2.0),
-			named,
+			word,
 			HORIZONTAL_ALIGNMENT_LEFT,
 			-1,
 			size,

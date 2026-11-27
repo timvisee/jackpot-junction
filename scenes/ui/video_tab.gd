@@ -24,51 +24,48 @@ const RESOLUTIONS: Array[Vector2i] = [
 ## share of the fit, see [member Settings.camera_distance], Auto suiting the screen itself.
 const CAMERA_STEPS: Array[float] = [0.55, 0.7, 0.85, 1.0, 1.25]
 ## The bloom amounts the Bloom box offers, GAME.md 8.5, none first: a share of the room's own glow,
-## see [member Settings.bloom].
+## see [member Settings.bloom]; and what each is called, shown through tr().
 const BLOOM_LEVELS: Array[float] = [0.0, 0.5, 1.0, 1.5]
 const BLOOM_NAMES: Array[String] = ["Off", "Subtle", "Normal", "Intense"]
 ## The ambient occlusion amounts the box offers, none first, a share of the room's own; off on a
-## phone by default, see [member Settings.occlusion].
+## phone by default, see [member Settings.occlusion]; and what each is called, shown through tr().
 const OCCLUSION_LEVELS: Array[float] = [0.0, 0.6, 1.0]
 const OCCLUSION_NAMES: Array[String] = ["Off", "Low", "High"]
-## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name.
+## The upscalers the Upscaler box offers, see [constant Settings.UPSCALERS], by name, shown through
+## tr().
 const UPSCALER_NAMES: Array[String] = ["Bilinear", "FSR 1", "FSR 2"]
-## The Texture detail box, GAME.md 8.5, and what it says to the mouse and a screen reader.
+## The Texture detail box, GAME.md 8.5, and what it says to the mouse and a screen reader, each
+## shown through tr().
 const TEXTURES := "Texture detail"
-const TEXTURES_TIP := (
-	"How finely the floor's print is drawn. Auto suits your screen, Low saves video memory, High"
-	+ " is sharper up close and Ultra sharpest, for the most memory. It changes at once."
-)
+const TEXTURES_TIP := """How finely the floor's print is drawn. Auto suits your screen, Low saves \
+video memory, High is sharper up close and Ultra sharpest, for the most memory. It changes at \
+once."""
 ## The Screen type and Camera follows boxes, GAME.md 8.5, and what they say to the mouse and a
-## screen reader; and the names the camera's own choices go by after Auto.
+## screen reader; and the names the camera's own choices go by after Auto. Each is shown through
+## tr().
 const SCREEN := "Screen type"
-const SCREEN_TIP := (
-	"What you play on. A TV across the room or a handheld brings the camera in closer and keeps"
-	+ " only your own kart in the picture on Auto; picking one also sets the UI scale it suits."
-)
+const SCREEN_TIP := """What you play on. A TV across the room or a handheld brings the camera in \
+closer and keeps only your own kart in the picture on Auto; picking one also sets the UI scale it \
+suits."""
 const FOLLOWS := "Camera follows"
-const FOLLOWS_TIP := (
-	"Who the camera keeps in the picture: every kart, your kart and the rivals near it, or only"
-	+ " your kart, rivals off the screen pointed at from its edge. Auto suits your screen."
-)
+const FOLLOWS_TIP := """Who the camera keeps in the picture: every kart, your kart and the rivals \
+near it, or only your kart, rivals off the screen pointed at from its edge. Auto suits your \
+screen."""
 const FOLLOW_NAMES: Array[String] = ["Everyone", "Nearby rivals", "My kart"]
-## The fixed camera's switch, the same on this page and in Accessibility.
+## The fixed camera's switch, the same on this page and in Accessibility, shown through tr().
 const FIXED := "Fixed camera"
-const DISTANCE_NAMES: Array[String] = ["Closest", "Close", "Medium", "Far", "Farthest"]
 
 ## The Monitor box, there only with more than one screen to pick from, and what it says to the
-## mouse and a screen reader.
+## mouse and a screen reader, each shown through tr().
 const MONITOR := "Monitor"
 const MONITOR_TIP := "Which screen the game plays on, with more than one plugged in."
 ## The Quality box over the Graphics group, GAME.md 8.5, and what it says to the mouse and a screen
-## reader.
+## reader, each shown through tr().
 const QUALITY := "Quality"
-const QUALITY_TIP := (
-	"Sets the six below at once: Low asks least of your graphics card, Ultra is the sharpest."
-	+ " Change one of them yourself and it says Custom."
-)
-## The page's groups, GAME.md 8.5, by their headings: what is seen and how it is played on the left,
-## what it costs the card on the right.
+const QUALITY_TIP := """Sets the six below at once: Low asks least of your graphics card, Ultra is \
+the sharpest. Change one of them yourself and it says Custom."""
+## The page's groups, GAME.md 8.5, by their headings, each shown through tr(): what is seen and how
+## it is played on the left, what it costs the card on the right.
 const DISPLAY := "Display"
 const CAMERA := "Camera"
 const TABLE := "Table"
@@ -151,12 +148,12 @@ func _add_display() -> void:
 			_apply()
 			_say_autos()
 	)
-	_add("UI scale", _ui_box)
+	_add(tr("UI scale"), _ui_box)
 	# Over the room's own exposure, relit at once, since the room is standing.
 	var bright := func(v: float) -> void:
 		_settings.brightness = v
 		ArenaEnvironment.relight(get_tree())
-	_add("Brightness", share_slider(0.5, 2.0, _settings.brightness, bright))
+	_add(tr("Brightness"), share_slider(0.5, 2.0, _settings.brightness, bright))
 
 
 ## How far the camera sits from the karts, whom it keeps in the picture, and whether it moves at
@@ -168,21 +165,21 @@ func _add_camera() -> void:
 	var at := 0
 	if _settings.camera_distance > 0.0:
 		at = maxi(CAMERA_STEPS.find(_settings.camera_distance), 0) + 1
-	_distance_box = MenuTheme.option((["Auto"] as Array) + DISTANCE_NAMES, at)
+	_distance_box = MenuTheme.option([tr("Auto")] + _distance_names(), at)
 	_distance_box.item_selected.connect(
 		func(index: int) -> void:
 			_settings.camera_distance = 0.0 if index == 0 else CAMERA_STEPS[index - 1]
 	)
-	_add("Camera distance", _distance_box)
+	_add(tr("Camera distance"), _distance_box)
 	var follows := ViewChoices.FOLLOWS.find(_settings.camera_follows)
-	_follows_box = MenuTheme.option((["Auto"] as Array) + FOLLOW_NAMES, maxi(follows, 0))
-	_follows_box.tooltip_text = FOLLOWS_TIP
-	ScreenReader.name(_follows_box, FOLLOWS, FOLLOWS_TIP)
+	_follows_box = MenuTheme.option([tr("Auto")] + FOLLOW_NAMES.map(tr), maxi(follows, 0))
+	_follows_box.tooltip_text = tr(FOLLOWS_TIP)
+	ScreenReader.name(_follows_box, tr(FOLLOWS), tr(FOLLOWS_TIP))
 	_follows_box.item_selected.connect(
 		func(index: int) -> void: _settings.camera_follows = ViewChoices.FOLLOWS[index]
 	)
-	_add(FOLLOWS, _follows_box)
-	_add(FIXED, fixed_camera_switch(_settings))
+	_add(tr(FOLLOWS), _follows_box)
+	_add(tr(FIXED), fixed_camera_switch(_settings))
 
 
 ## How the room is drawn and what lies about the table besides the match, GAME.md 8.1b and 4.3.
@@ -190,22 +187,22 @@ func _add_table() -> void:
 	_group(TABLE)
 	# How the room is drawn, GAME.md 8.1b: a pass over the frame, the toon light, or both.
 	var looks := MenuTheme.option(
-		RenderLook.names(), maxi(RenderLook.ids().find(_settings.look), 0)
+		RenderLook.names().map(tr), maxi(RenderLook.ids().find(_settings.look), 0)
 	)
 	looks.item_selected.connect(
 		func(index: int) -> void:
 			_settings.look = RenderLook.ids()[index]
 			_apply()
 	)
-	_add("Look", looks)
+	_add(tr("Look"), looks)
 	# The bar at the foot of the screen that steps through the looks, to play with.
 	var bar := MenuTheme.toggle(_settings.show_looks)
 	bar.toggled.connect(func(on: bool) -> void: _settings.show_looks = on)
-	_add("Looks bar", bar)
-	var marks := MenuTheme.option(Settings.MARKS_NAMES, _settings.tire_marks)
+	_add(tr("Looks bar"), bar)
+	var marks := MenuTheme.option(Settings.MARKS_NAMES.map(tr), _settings.tire_marks)
 	marks.item_selected.connect(func(index: int) -> void: _settings.tire_marks = index)
-	_add("Tire marks", marks)
-	_add("Crowd", crowd_box(_settings))
+	_add(tr("Tire marks"), marks)
+	_add(tr("Crowd"), crowd_box(_settings))
 
 
 ## How often and how sharp a frame is drawn, and the count of them.
@@ -218,10 +215,10 @@ func _add_performance() -> void:
 				_settings.vsync = on
 				_apply()
 		)
-		_add("V-sync", vsync)
+		_add(tr("V-sync"), vsync)
 	var limits: Array = []
 	for limit: int in Settings.FRAME_LIMITS:
-		limits.append("Unlimited" if limit == 0 else str(limit))
+		limits.append(tr("Unlimited") if limit == 0 else str(limit))
 	var limit := MenuTheme.option(
 		limits, maxi(Settings.FRAME_LIMITS.find(_settings.frame_limit), 0)
 	)
@@ -230,15 +227,15 @@ func _add_performance() -> void:
 			_settings.frame_limit = Settings.FRAME_LIMITS[index]
 			_apply()
 	)
-	_add("Frame rate limit", limit)
+	_add(tr("Frame rate limit"), limit)
 	var scale := func(v: float) -> void:
 		_settings.render_scale = v
 		_apply()
-	_add("Render scale", share_slider(0.5, 1.0, _settings.render_scale, scale))
+	_add(tr("Render scale"), share_slider(0.5, 1.0, _settings.render_scale, scale))
 	var offered := upscalers()
 	var names: Array = []
 	for each: String in offered:
-		names.append(UPSCALER_NAMES[Settings.UPSCALERS.find(each)])
+		names.append(tr(UPSCALER_NAMES[Settings.UPSCALERS.find(each)]))
 	# FSR 2 kept from another renderer is drawn as FSR 1 here, see [method Settings.scaling_mode].
 	var shown := _settings.upscaler
 	if not shown in offered:
@@ -249,10 +246,10 @@ func _add_performance() -> void:
 			_settings.upscaler = offered[index]
 			_apply()
 	)
-	_add("Upscaler", upscaling)
+	_add(tr("Upscaler"), upscaling)
 	var counter := MenuTheme.toggle(_settings.show_fps)
 	counter.toggled.connect(func(on: bool) -> void: _settings.show_fps = on)
-	_add("Show FPS", counter)
+	_add(tr("Show FPS"), counter)
 
 
 ## What a room pays for on the card, GAME.md 8.5, under a preset that sets all six at once, see
@@ -260,33 +257,38 @@ func _add_performance() -> void:
 ## the room is standing.
 func _add_graphics() -> void:
 	_group(GRAPHICS)
-	var names: Array = QualityPresets.NAMES.slice(0, QualityPresets.offered(_full_renderer))
-	names.append(QualityPresets.CUSTOM)
+	var names := QualityPresets.NAMES.slice(0, QualityPresets.offered(_full_renderer)).map(tr)
+	names.append(tr(QualityPresets.CUSTOM))
 	_quality_box = MenuTheme.option(names, 0)
 	_quality_box.name = "Quality"
 	# Custom is what the box says, not a preset to pick.
 	_quality_box.set_item_disabled(names.size() - 1, true)
-	_quality_box.tooltip_text = QUALITY_TIP
-	ScreenReader.name(_quality_box, QUALITY, QUALITY_TIP)
+	_quality_box.tooltip_text = tr(QUALITY_TIP)
+	ScreenReader.name(_quality_box, tr(QUALITY), tr(QUALITY_TIP))
 	_quality_box.item_selected.connect(_use_preset)
-	_add(QUALITY, _quality_box)
+	_add(tr(QUALITY), _quality_box)
 	var relight := func() -> void: ArenaEnvironment.relight(get_tree())
-	var shadows := ["Off", "Low", "High"]
+	var shadows := [tr("Off"), tr("Low"), tr("High")]
 	var lit := func() -> void:
 		_apply()
 		relight.call()
-	_add_option("Shadows", shadows, Settings.SHADOW_LEVELS, &"shadows", lit)
+	_add_option(tr("Shadows"), shadows, Settings.SHADOW_LEVELS, &"shadows", lit)
 	var detail := texture_box(_settings, _full_renderer)
 	detail.item_selected.connect(func(_index: int) -> void: _say_quality())
 	_shown_again.append(
 		func() -> void: detail.select(maxi(_textures_offered().find(_shown_texture()), 0))
 	)
-	_add(TEXTURES, detail)
-	_add_option("Ambient occlusion", OCCLUSION_NAMES, OCCLUSION_LEVELS, &"occlusion", relight)
-	_add_option("Bloom", BLOOM_NAMES, BLOOM_LEVELS, &"bloom", relight)
-	_add_option("MSAA", ["Off", "2x", "4x", "8x"], Settings.MSAA_SAMPLES, &"msaa", _apply)
-	var smoothings := ["Off", "FXAA", "SMAA"]
-	_add_option("Screen smoothing", smoothings, Settings.SMOOTHINGS, &"screen_smoothing", _apply)
+	_add(tr(TEXTURES), detail)
+	var occlusion := OCCLUSION_NAMES.map(tr)
+	_add_option(tr("Ambient occlusion"), occlusion, OCCLUSION_LEVELS, &"occlusion", relight)
+	_add_option(tr("Bloom"), BLOOM_NAMES.map(tr), BLOOM_LEVELS, &"bloom", relight)
+	var samples := [tr("Off"), "2x", "4x", "8x"]
+	_add_option(tr("MSAA"), samples, Settings.MSAA_SAMPLES, &"msaa", _apply)
+	# NO_TRANSLATE: the two go by their own names.
+	var smoothings := [tr("Off"), "FXAA", "SMAA"]
+	_add_option(
+		tr("Screen smoothing"), smoothings, Settings.SMOOTHINGS, &"screen_smoothing", _apply
+	)
 	_say_quality()
 
 
@@ -347,7 +349,7 @@ func _shown_texture() -> String:
 ## The house stands up again at a new size a moment later, see [Crowd].
 static func crowd_box(settings: Settings) -> OptionButton:
 	var house := MenuTheme.option(
-		Settings.CROWD_NAMES, maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0)
+		Settings.CROWD_NAMES.map(Lang.t), maxi(Settings.CROWD_SIZES.find(settings.crowd_size), 0)
 	)
 	house.item_selected.connect(
 		func(index: int) -> void: settings.crowd_size = Settings.CROWD_SIZES[index]
@@ -415,19 +417,20 @@ static func texture_box(
 		offered.erase(Settings.TEXTURES_ULTRA)
 	var names: Array = []
 	for each: String in offered:
-		var label := Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(each)]
+		var label := Lang.t(Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(each)])
 		# Auto says in brackets which of Low or High it comes out as on this screen, GAME.md 8.5.
 		if each == Settings.TEXTURES_AUTO:
 			var mode := LayoutPrint.auto_detail(full_renderer)
-			label = "%s (%s)" % [label, Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(mode)]]
+			var comes := Settings.TEXTURE_NAMES[Settings.TEXTURE_DETAILS.find(mode)]
+			label = Lang.t("Auto (%s)") % Lang.t(comes)
 		names.append(label)
 	var shown := settings.texture_detail
 	if not shown in offered:
 		shown = Settings.TEXTURES_HIGH
 	var detail := MenuTheme.option(names, maxi(offered.find(shown), 0))
 	detail.name = "TextureDetail"
-	detail.tooltip_text = TEXTURES_TIP
-	ScreenReader.name(detail, TEXTURES, TEXTURES_TIP)
+	detail.tooltip_text = Lang.t(TEXTURES_TIP)
+	ScreenReader.name(detail, Lang.t(TEXTURES), Lang.t(TEXTURES_TIP))
 	detail.item_selected.connect(
 		func(index: int) -> void:
 			settings.texture_detail = offered[index]
@@ -446,7 +449,7 @@ func _add_window() -> void:
 			_settings.fullscreen = on
 			_apply()
 	)
-	_add("Fullscreen", fullscreen)
+	_add(tr("Fullscreen"), fullscreen)
 	var sizes: Array[String] = []
 	for size: Vector2i in RESOLUTIONS:
 		sizes.append("%d × %d" % [size.x, size.y])
@@ -456,9 +459,9 @@ func _add_window() -> void:
 			_settings.window_size = RESOLUTIONS[index]
 			_apply()
 	)
-	_add("Window size", window)
+	_add(tr("Window size"), window)
 	if _screens.size() > 1:
-		_add(MONITOR, _monitor_box())
+		_add(tr(MONITOR), _monitor_box())
 
 
 ## Which screen the game plays on, GAME.md 8.5: each by its number and size, the one it is on now
@@ -466,14 +469,15 @@ func _add_window() -> void:
 func _monitor_box() -> OptionButton:
 	var names: Array = []
 	for i: int in _screens.size():
-		names.append("Screen %d (%d × %d)" % [i + 1, _screens[i].x, _screens[i].y])
+		var screen := {"number": i + 1, "width": _screens[i].x, "height": _screens[i].y}
+		names.append(tr("Screen {number} ({width} × {height})").format(screen))
 	var at := _settings.monitor
 	if at < 0 or at >= _screens.size():
 		at = clampi(DisplayServer.window_get_current_screen(), 0, _screens.size() - 1)
 	var box := MenuTheme.option(names, at)
 	box.name = "Monitor"
-	box.tooltip_text = MONITOR_TIP
-	ScreenReader.name(box, MONITOR, MONITOR_TIP)
+	box.tooltip_text = tr(MONITOR_TIP)
+	ScreenReader.name(box, tr(MONITOR), tr(MONITOR_TIP))
 	box.item_selected.connect(
 		func(index: int) -> void:
 			_settings.monitor = index
@@ -486,9 +490,9 @@ func _monitor_box() -> OptionButton:
 ## UI scale box then shows, and Auto's distance and framing come out as they suit it.
 func _add_screen() -> void:
 	var at := maxi(ViewChoices.SCREENS.find(_settings.screen), 0)
-	var screen := MenuTheme.option(ViewChoices.SCREEN_NAMES, at)
-	screen.tooltip_text = SCREEN_TIP
-	ScreenReader.name(screen, SCREEN, SCREEN_TIP)
+	var screen := MenuTheme.option(ViewChoices.SCREEN_NAMES.map(tr), at)
+	screen.tooltip_text = tr(SCREEN_TIP)
+	ScreenReader.name(screen, tr(SCREEN), tr(SCREEN_TIP))
 	screen.item_selected.connect(
 		func(index: int) -> void:
 			_settings.screen = ViewChoices.SCREENS[index]
@@ -498,7 +502,7 @@ func _add_screen() -> void:
 			_apply()
 			_say_autos()
 	)
-	_add(SCREEN, screen)
+	_add(tr(SCREEN), screen)
 
 
 ## Auto in the Camera distance and Camera follows boxes says in brackets what it comes to on this
@@ -512,10 +516,16 @@ func _say_autos() -> void:
 		if absf(CAMERA_STEPS[j] - auto) < absf(CAMERA_STEPS[near] - auto):
 			near = j
 	if _distance_box != null:
-		_distance_box.set_item_text(0, "Auto (%s)" % DISTANCE_NAMES[near])
+		_distance_box.set_item_text(0, tr("Auto (%s)") % _distance_names()[near])
 	if _follows_box != null:
 		var way := ViewChoices.FOLLOWS.find(ViewChoices.follows_auto(screen)) - 1
-		_follows_box.set_item_text(0, "Auto (%s)" % FOLLOW_NAMES[way])
+		_follows_box.set_item_text(0, tr("Auto (%s)") % tr(FOLLOW_NAMES[way]))
+
+
+## What each of [constant CAMERA_STEPS] is called, nearest first: Close as in near, not as a page
+## is closed.
+func _distance_names() -> Array[String]:
+	return [tr("Closest"), tr("Close", &"near"), tr("Medium"), tr("Far"), tr("Farthest")]
 
 
 ## The entry of [constant Settings.UI_SCALES] nearest [param size].
@@ -527,9 +537,10 @@ static func ui_scale_index(size: float) -> int:
 	return best
 
 
-## A group under the heading [param title], which the rows after it go into.
+## A group under the heading [param title], one of the page's groups, which the rows after it go
+## into.
 func _group(title: String) -> void:
-	_column = SettingsColumns.group(title)
+	_column = SettingsColumns.group(tr(title), title)
 	_groups.add_child(_column)
 
 

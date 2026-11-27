@@ -138,8 +138,8 @@ const AXES: Dictionary[JoyAxis, StringName] = {
 	JOY_AXIS_TRIGGER_LEFT: &"lt",
 	JOY_AXIS_TRIGGER_RIGHT: &"rt",
 }
-## What an Xbox pad calls each button, which [method PadFamily.word] says as each family does, and
-## what the ones every family calls the same are called.
+## What an Xbox pad calls each button, which [method PadFamily.word] says as each family does.
+## NO_TRANSLATE: the names pads print, as keys' names are.
 const XBOX_NAMES: Dictionary[StringName, String] = {
 	&"lt": "LT",
 	&"lb": "LB",
@@ -152,6 +152,7 @@ const XBOX_NAMES: Dictionary[StringName, String] = {
 	&"west": "X",
 	&"south": "A",
 }
+## What the ones every family calls the same are called, shown through tr().
 const PLAIN_NAMES: Dictionary[StringName, String] = {
 	&"ls": "Left stick",
 	&"rs": "Right stick",
@@ -293,7 +294,7 @@ static func spot_of(event: InputEvent) -> StringName:
 ## What the button at [param spot] is called on this family's pads.
 func name_of(spot: StringName) -> String:
 	if PLAIN_NAMES.has(spot):
-		return PLAIN_NAMES[spot]
+		return tr(PLAIN_NAMES[spot])
 	return PadFamily.word(XBOX_NAMES.get(spot, ""), family)
 
 

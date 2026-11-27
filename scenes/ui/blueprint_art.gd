@@ -189,7 +189,8 @@ static func marks(on: CanvasItem, inside: Rect2, font: Font) -> void:
 	var quiet := Color(INK, 0.5)
 	for i: int in 8:
 		var y := inside.position.y + (i + 0.5) * inside.size.y / 8.0
-		_centered(on, font, "ABCDEFGH"[i], Vector2(inside.position.x - 14.0, y + 5.0), 13, quiet)
+		var row := "ABCDEFGH"[i]  # NO_TRANSLATE
+		_centered(on, font, row, Vector2(inside.position.x - 14.0, y + 5.0), 13, quiet)
 	for i: int in 12:
 		var x := inside.position.x + (i + 0.5) * inside.size.x / 12.0
 		_centered(on, font, str(i + 1), Vector2(x, inside.position.y - 8.0), 13, quiet)
@@ -197,16 +198,16 @@ static func marks(on: CanvasItem, inside: Rect2, font: Font) -> void:
 
 ## A scale bar from [param at], four blocks of it, and what it is the scale of, [param of], in
 ## [param font].
-static func scale_bar(on: CanvasItem, at: Vector2, font: Font, of := "ONE PAD") -> void:
+static func scale_bar(on: CanvasItem, at: Vector2, font: Font, of: String) -> void:
 	for i: int in 4:
 		var block := Rect2(at + Vector2(i * 50.0, 0.0), Vector2(50.0, 8.0))
 		on.draw_rect(block, Color(INK, 0.8), i % 2 == 0, -1.0 if i % 2 == 0 else 1.2)
 	_centered(on, font, "0", at + Vector2(0.0, 26.0), 13, FAINT)
-	_centered(on, font, "20 CM", at + Vector2(200.0, 26.0), 13, FAINT)
+	_centered(on, font, Lang.t("20 CM"), at + Vector2(200.0, 26.0), 13, FAINT)
 	on.draw_string(
 		font,
 		at + Vector2(240.0, 9.0),
-		"SCALE 1:1  ·  %s" % of,
+		Lang.t("SCALE 1:1  ·  %s") % of,
 		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		13,

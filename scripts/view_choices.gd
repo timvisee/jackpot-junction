@@ -9,6 +9,7 @@ const SCREEN_DESK := "desk"
 const SCREEN_TV := "tv"
 const SCREEN_HANDHELD := "handheld"
 const SCREENS: Array[String] = [SCREEN_DESK, SCREEN_TV, SCREEN_HANDHELD]
+## What the Video page calls each, shown through tr().
 const SCREEN_NAMES: Array[String] = ["Desk", "TV", "Handheld"]
 const SCREEN_UI_SCALES: Array[float] = [1.0, 1.25, 1.5]
 ## Steam's word on its own machines, GodotSteam's `SteamHardwareType`, see

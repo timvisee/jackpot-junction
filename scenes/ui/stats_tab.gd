@@ -4,6 +4,8 @@ extends ScrollContainer
 ## to the end, in four groups, games, driving, fighting and money, see [LifetimeStats]. Read only:
 ## a profile starts its numbers at nothing, and a new profile is the way to start them again.
 
+## The page's title, also its name among the pages, and whose numbers they are, each shown through
+## tr().
 const TITLE := "Statistics"
 const WHOSE := "%s, over every map played to the end."
 ## How wide each group stands, room for its heading's dotted rule to run on after its title.
@@ -34,13 +36,13 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 14)
 	center.add_child(column)
-	column.add_child(MenuTheme.title(TITLE, Type.HEADING))
-	column.add_child(MenuTheme.subtitle(WHOSE % _settings.profile.display_name(), Type.LABEL))
+	column.add_child(MenuTheme.title(tr(TITLE), Type.HEADING))
+	column.add_child(MenuTheme.subtitle(tr(WHOSE) % _settings.profile.display_name(), Type.LABEL))
 	# Whose record this is, as the story goes, STORY.md 6.6.
 	var stage := _stage()
 	var kept := str(StoryLines.at(StoryLines.STATS_LINE, stage))
 	if not kept.is_empty():
-		var line := MenuTheme.subtitle(kept, Type.LABEL)
+		var line := MenuTheme.subtitle(tr(kept), Type.LABEL)
 		line.name = "Kept"
 		column.add_child(line)
 	var groups := GridContainer.new()
@@ -58,7 +60,7 @@ func _ready() -> void:
 ## One group: its heading, as a page of settings heads its groups, see [SettingsColumns], then a
 ## line each, what it is and how much, the numbers lined up.
 func _group(title: String, lines: Array) -> VBoxContainer:
-	var box := SettingsColumns.group(title)
+	var box := SettingsColumns.group(tr(title), title)
 	box.add_theme_constant_override("separation", 6)
 	box.custom_minimum_size.x = GROUP_WIDE
 	var grid := GridContainer.new()
@@ -67,12 +69,12 @@ func _group(title: String, lines: Array) -> VBoxContainer:
 	box.add_child(grid)
 	for line: Array in lines:
 		var named := Label.new()
-		named.text = line[0]
+		named.text = tr(line[0])
 		Type.text(named, Type.LABEL, NAME_INK)
 		grid.add_child(named)
 		var value := Label.new()
 		value.text = (
-			str(_settings.profile.story.shifts)
+			Lang.number(_settings.profile.story.shifts)
 			if line[1] == SHIFTS
 			else LifetimeStats.shown(_settings.profile, line[1])
 		)

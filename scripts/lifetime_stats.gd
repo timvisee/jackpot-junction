@@ -16,7 +16,8 @@ const SHARE_KILLS := &"_kills"
 const SHARE_SECONDS := &"_seconds"
 
 ## The Statistics page, GAME.md 8.5: its groups, each a title and its lines, each line what it is
-## called and the statistic it reads, see [method value_of].
+## called and the statistic it reads, see [method value_of]. The titles and what the lines are
+## called are shown through tr().
 const GROUPS: Array[Array] = [
 	[
 		"Games",
@@ -158,28 +159,32 @@ static func add_grand_prix(profile: Profile, won: bool) -> void:
 	_add(profile, &"grand_prix_won", 1.0 if won else 0.0)
 
 
-## [param key] of [param profile]'s statistics as the page shows it.
+## [param key] of [param profile]'s statistics as the page shows it, in the language spoken: its
+## units, decimal mark and thousands as the language writes them.
 static func shown(profile: Profile, key: StringName) -> String:
 	var value := value_of(profile, key)
 	match key:
 		&"driven", &"drifted":
-			return "%.1f km" % (value / 1000.0)
+			return Lang.t("%s km") % Lang.decimal(value / 1000.0)
 		&"seconds":
 			var minutes := roundi(value / 60.0)
+			var time := {"hours": Lang.number(minutes / 60), "minutes": "%02d" % (minutes % 60)}
 			return (
-				"%d h %02d min" % [minutes / 60, minutes % 60]
+				Lang.t("{hours} h {minutes} min").format(time)
 				if minutes >= 60
-				else "%d min" % minutes
+				else Lang.t("%d min") % minutes
 			)
 		&"nitro":
-			return "%d s" % roundi(value)
+			# TRANSLATORS: A number of seconds.
+			return Lang.t("%s s") % Lang.number(roundi(value))
 		&"longest_drift":
-			return "%.1f s" % value
+			return Lang.t("%s s") % Lang.decimal(value)
 		&"accuracy":
 			return "%d%%" % roundi(value) if value >= 0.0 else "-"
 		&"max_mult":
-			return "×%s" % String.num(value, 1)
-	return str(roundi(value))
+			# One decimal place where there is one, ×2.5, and none where there is not, ×3.
+			return "×%s" % String.num(value, 1).replace(".", Lang.t(".", &"decimal"))
+	return Lang.number(roundi(value))
 
 
 ## [param key] of [param profile]'s statistics, worked out where it is not counted: accuracy is the

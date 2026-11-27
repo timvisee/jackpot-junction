@@ -12,16 +12,18 @@ extends RefCounted
 ## the menus' own `ui_up` to `ui_right`. So are the four ways to aim, which are the aim stick.
 
 ## The one action set: everything is in it, as everything is on a pad, since the game's menus and
-## its driving share a screen too often to tell Steam which is up.
+## its driving share a screen too often to tell Steam which is up. NO_TRANSLATE: Steam's words, as
+## every word of this class is, which Steam shows and Steamworks translates, GAME.md 10.9.
 const SET := "Play"
 const SET_TITLE := "Play"
 ## The sticks, Steam's joysticks, by Steam's name: what Steam calls it, and the actions its right
-## and its down are, the stick of the game's whose axes it moves, see [SteamPads].
+## and its down are, the stick of the game's whose axes it moves, see [SteamPads]. NO_TRANSLATE
 const STICKS: Dictionary[String, Array] = {
 	"steer_stick": ["Steer", InputActions.STEER_RIGHT, InputActions.DRIVE_DOWN],
 	"aim_stick": ["Aim and emote", InputActions.AIM_RIGHT, InputActions.AIM_DOWN],
 }
 ## The triggers, Steam's analog triggers: what Steam calls each, and the action it is.
+## NO_TRANSLATE
 const TRIGGERS: Dictionary[String, Array] = {
 	"throttle_trigger": ["Gas", InputActions.THROTTLE],
 	"brake_trigger": ["Brake", InputActions.BRAKE],
@@ -29,7 +31,7 @@ const TRIGGERS: Dictionary[String, Array] = {
 ## Every button action, by the game's name, which is Steam's too, in the order Steam lists them,
 ## with what Steam calls it: driving, the jokers, the emotes, the room, and the menus. In the fewest
 ## words that say it, those of the game's own picture of a pad, see [PadLeaflet]; a button's Gas
-## and Brake are the triggers' words too, Steam offering each only where it fits.
+## and Brake are the triggers' words too, Steam offering each only where it fits. NO_TRANSLATE
 const BUTTONS: Dictionary[StringName, String] = {
 	InputActions.FIRE: "Fire",
 	InputActions.USE_ITEM: "Use item",
@@ -164,7 +166,7 @@ const STAND_INS: Dictionary[String, Dictionary] = {
 ## What each layout is called on Steam, after Steam's own "Official Layout for Jackpot Junction",
 ## and what it says it is, and of a controller with buttons behind. In plain words, not the `#`
 ## words of the localization: Steam looks a layout's title up as Valve spells it, and showed
-## "#Title" for one it did not find.
+## "#Title" for one it did not find. NO_TRANSLATE
 const LAYOUT_TITLE := "Default"
 const LAYOUT_SAYS := "Every button does what it does on a gamepad in the game."
 const BACK_SAYS := " The buttons behind repeat A, B, X and Y."
@@ -253,7 +255,7 @@ static func manifest() -> String:
 	return vdf(
 		[
 			[
-				"Action Manifest",
+				"Action Manifest",  # NO_TRANSLATE
 				[
 					["configurations", configurations],
 					["actions", _actions(false)],
@@ -278,6 +280,7 @@ static func layout(controller: String) -> String:
 		for input: String in inputs.get(source, {}):
 			var bindings: Array = []
 			for action: StringName in inputs[source][input]:
+				# NO_TRANSLATE
 				bindings.append(
 					["binding", "game_action %s %s, %s" % [SET, action, BUTTONS[action]]]
 				)
@@ -297,7 +300,7 @@ static func layout(controller: String) -> String:
 		groups.append(["group", group])
 	var sources: Array = []
 	for here: String in bound:
-		sources.append([str(bound[here]), "%s active" % here])
+		sources.append([str(bound[here]), "%s active" % here])  # NO_TRANSLATE
 	var body: Array = [
 		["version", "3"],
 		["revision", "1"],
@@ -363,18 +366,20 @@ static func _source_on(controller: String, source: String) -> String:
 
 ## The action set, as the manifest has it, and as a layout does, with `legacy_set` beside it.
 static func _actions(in_layout: bool) -> Array:
-	var play: Array = [["title", "#Set_" + SET]]
+	var play: Array = [["title", "#Set_" + SET]]  # NO_TRANSLATE
 	if in_layout:
 		play.append(["legacy_set", "0"])
 	var sticks: Array = []
 	for stick: String in STICKS:
+		# NO_TRANSLATE
 		sticks.append([stick, [["title", "#Action_" + stick], ["input_mode", "joystick_move"]]])
 	var triggers: Array = []
 	for trigger: String in TRIGGERS:
-		triggers.append([trigger, "#Action_" + trigger])
+		triggers.append([trigger, "#Action_" + trigger])  # NO_TRANSLATE
 	var buttons: Array = []
 	for action: StringName in BUTTONS:
-		buttons.append([String(action), "#Action_" + action])
+		buttons.append([String(action), "#Action_" + action])  # NO_TRANSLATE
+	# NO_TRANSLATE
 	play.append_array([["StickPadGyro", sticks], ["AnalogTrigger", triggers], ["Button", buttons]])
 	return [[SET, play]]
 

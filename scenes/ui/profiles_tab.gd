@@ -11,8 +11,9 @@ extends ScrollContainer
 ## playing, so there the tab only lists them and says where to go. Making one in a room once froze
 ## the game, the settings going to a page of their own under a room that was stopped.
 
+## The page's title, also its name among the pages, shown through tr().
 const TITLE := "Profiles"
-## What the page is for, said at its top.
+## What the page is for, said at its top, and its buttons' words, shown through tr().
 const LINE := "Each person's names, karts, license and statistics. Switch to play as another."
 const PLAYING := "Playing"
 const SWITCH := "Switch"
@@ -22,33 +23,28 @@ const SAVE := "Save"
 const MAKE := "Make"
 const MAKE_AND_SWITCH := "Make and switch"
 const DELETE := "Delete"
-## The question Delete asks first, and its answers.
+## The question Delete asks first, and its answers, shown through tr().
 const SURE := "Delete this profile?"
 const SURE_LINE := "%s's names, karts, license and statistics are thrown away for good."
 const KEEP := "Keep"
 ## The Demo button, the question it asks first, and its answers: it restarts the game in demo mode
 ## on a separate throwaway profile, see [Demo] and [constant DEMO_FLAG].
 ## Demo mode's section under the profiles, GAME.md 9.8: its heading, what it is, and the room over
-## it.
+## it; and what the page says under the profiles. Each is shown through tr().
 const DEMO_SECTION := "Demo mode"
-const DEMO_ABOUT := (
-	"Plays by itself for a booth or a shop window, on a profile of its own."
-	+ " Your profiles are left as they are."
-)
+const DEMO_ABOUT := """Plays by itself for a booth or a shop window, on a profile of its own. Your \
+profiles are left as they are."""
 const DEMO_ROOM := 24.0
 const DEMO := "Start demo mode"
 const DEMO_SURE := "Start demo mode?"
-const DEMO_LINE := (
-	"The game restarts in demo mode, which plays itself on a separate temporary profile. "
-	+ "Your own profiles are left untouched."
-)
+const DEMO_LINE := """The game restarts in demo mode, which plays itself on a separate temporary \
+profile. Your own profiles are left untouched."""
 const DEMO_START := "Start demo"
 const CANCEL := "Cancel"
 const DEMO_FLAG := "--demo"
 const NEW := "New profile"
 const ONLY_FROM_TITLE := "Manage profiles from the title screen."
 const FULL := "Maximum number of profiles reached."
-const MAPS := "%d maps"
 const PLAYING_NOW := "Playing now  ·  %s"
 ## How big a row's icon buttons are.
 const ICON := Vector2(56.0, 44.0)
@@ -88,21 +84,21 @@ func _ready() -> void:
 	column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	column.add_theme_constant_override("separation", 12)
 	add_child(column)
-	SettingsScreen.page_head(column, TITLE, LINE)
+	SettingsScreen.page_head(column, tr(TITLE), tr(LINE))
 	var kept := _settings.profiles()
 	for profile: Profile in kept:
 		column.add_child(_row(profile))
 	# New profile under them, down the middle.
-	new_button = MenuTheme.button(NEW, Type.BODY)
+	new_button = MenuTheme.button(tr(NEW), Type.BODY)
 	new_button.name = "New"
 	new_button.disabled = kept.size() >= Profile.MOST or not can_switch
 	new_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	new_button.pressed.connect(_new)
 	column.add_child(new_button)
 	if not can_switch:
-		column.add_child(SettingsScreen.centered_line(ONLY_FROM_TITLE))
+		column.add_child(SettingsScreen.centered_line(tr(ONLY_FROM_TITLE)))
 	elif new_button.disabled:
-		column.add_child(SettingsScreen.centered_line(FULL))
+		column.add_child(SettingsScreen.centered_line(tr(FULL)))
 	column.add_child(_demo_section())
 
 
@@ -110,19 +106,19 @@ func _ready() -> void:
 ## settings head theirs, see [SettingsColumns], and as wide as the profiles over it: a thing of
 ## its own rather than another profile, which it stood beside New profile as if it were.
 func _demo_section() -> VBoxContainer:
-	var section := SettingsColumns.group(DEMO_SECTION)
+	var section := SettingsColumns.group(tr(DEMO_SECTION), DEMO_SECTION)
 	section.custom_minimum_size.x = SeatCard.WIDE
 	section.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	var room := Control.new()
 	room.custom_minimum_size.y = DEMO_ROOM
 	var said := Label.new()
 	said.name = "About"
-	said.text = DEMO_ABOUT
+	said.text = tr(DEMO_ABOUT)
 	said.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	said.custom_minimum_size.x = SeatCard.WIDE
 	Type.text(said, Type.LABEL, StatsTab.NAME_INK)
 	section.add_child(said)
-	demo_button = MenuTheme.button(DEMO, Type.BODY)
+	demo_button = MenuTheme.button(tr(DEMO), Type.BODY)
 	demo_button.name = "Demo"
 	demo_button.disabled = not can_switch
 	demo_button.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
@@ -141,31 +137,32 @@ func _demo_section() -> VBoxContainer:
 ## it. The one playing is rimmed in foil.
 func _row(profile: Profile) -> SeatCard:
 	var playing := profile.id == _settings.profile.id
-	var maps := MAPS % roundi(LifetimeStats.value_of(profile, &"maps"))
+	var played := roundi(LifetimeStats.value_of(profile, &"maps"))
+	var maps := tr_n("%d map", "%d maps", played) % played
 	var card := SeatCard.make(
 		profile.display_name(),
 		_color_of(profile),
 		profile.display_name().left(1).to_upper(),
-		PLAYING_NOW % maps if playing else maps,
+		tr(PLAYING_NOW) % maps if playing else maps,
 		playing
 	)
 	card.name = "Profile%s" % profile.id
 	card.custom_minimum_size.x = SeatCard.WIDE
 	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	card.show_plate(_worn_by(profile))
-	var switch := IconButton.of(IconButton.Kind.SWAP, PLAYING if playing else SWITCH)
+	var switch := IconButton.of(IconButton.Kind.SWAP, tr(PLAYING if playing else SWITCH))
 	switch.name = "Switch"
 	switch.custom_minimum_size = ICON
 	switch.disabled = playing or not can_switch
 	switch.pressed.connect(_switch.bind(profile.id))
 	card.actions.add_child(switch)
-	var edit := IconButton.of(IconButton.Kind.PENCIL, EDIT)
+	var edit := IconButton.of(IconButton.Kind.PENCIL, tr(EDIT))
 	edit.name = "Edit"
 	edit.custom_minimum_size = ICON
 	edit.disabled = not can_switch
 	edit.pressed.connect(_edit.bind(profile))
 	card.actions.add_child(edit)
-	var delete := IconButton.of(IconButton.Kind.TRASH, DELETE)
+	var delete := IconButton.of(IconButton.Kind.TRASH, tr(DELETE))
 	delete.name = "Delete"
 	delete.custom_minimum_size = ICON
 	delete.disabled = playing or not can_switch
@@ -192,7 +189,7 @@ static func _worn_by(profile: Profile) -> String:
 func _edit(profile: Profile) -> void:
 	if not can_switch:
 		return
-	_ask(RENAME, profile.player_names[0], SAVE, _rename.bind(profile))
+	_ask(tr(RENAME), profile.player_names[0], tr(SAVE), _rename.bind(profile))
 
 
 ## [param profile]'s first player is called [param named] from now on.
@@ -253,11 +250,11 @@ func _switch(id: String) -> void:
 func _new() -> void:
 	if can_switch:
 		_ask(
-			NEW,
+			tr(NEW),
 			_suggested_name(),
-			MAKE,
+			tr(MAKE),
 			_make.bind(false),
-			MAKE_AND_SWITCH,
+			tr(MAKE_AND_SWITCH),
 			_make.bind(true),
 			_random_name
 		)
@@ -342,10 +339,10 @@ func _delete(profile: Profile, button: Button) -> void:
 	if not can_switch:
 		return
 	_confirm(
-		SURE,
-		SURE_LINE % profile.display_name(),
-		DELETE,
-		KEEP,
+		tr(SURE),
+		tr(SURE_LINE) % profile.display_name(),
+		tr(DELETE),
+		tr(KEEP),
 		RoadSign.Kind.WARNING,
 		button,
 		func() -> void:
@@ -362,10 +359,10 @@ func _demo() -> void:
 	if not can_switch:
 		return
 	_confirm(
-		DEMO_SURE,
-		DEMO_LINE,
-		DEMO_START,
-		CANCEL,
+		tr(DEMO_SURE),
+		tr(DEMO_LINE),
+		tr(DEMO_START),
+		tr(CANCEL),
 		RoadSign.Kind.QUESTION,
 		demo_button,
 		func() -> void:

@@ -17,6 +17,9 @@ const STRONG := MOST
 ## The Normal of before, two to the power of 0.9, less one: a setting still at it was never moved
 ## from where it started, and starts from the Normal of now, see [method read].
 const WAS_NORMAL := 0.866066
+## The marks under the slider by name, in the order they are written, each shown through tr(), and
+## where on the slider each is.
+const MARK_NAMES: Array[String] = ["Off", "Gentle", "Normal", "Strong"]
 const MARKS: Dictionary[String, float] = {
 	"Off": OFF,
 	"Gentle": GENTLE,
@@ -33,7 +36,7 @@ static func db(swell: float) -> float:
 ## [param swell] as the slider says it: Off, or how much louder, to the percent.
 static func words(swell: float) -> String:
 	var percent := roundi(clampf(swell, OFF, MOST) * 100.0)
-	return "Off" if percent == 0 else "+%d%%" % percent
+	return Lang.t("Off") if percent == 0 else "+%d%%" % percent
 
 
 ## The setting as saved, [param saved], as it is read: on the slider, and the Normal of before,

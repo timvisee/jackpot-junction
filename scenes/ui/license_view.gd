@@ -16,12 +16,13 @@ signal put_away
 const THEIRS_LAYER := 50
 const FULL := 1.15
 ## How to turn it over and put it away, by the device in hand, and what the buttons say to the
-## mouse.
+## mouse, each shown through tr().
 const AWAY_MOUSE := "Click the card to turn it over, beside it to put it away"
 const AWAY_TOUCH := "Tap the card to turn it over, or beside it to put it away"
 const TURN_WORD := "Turn over"
 ## The way back to the school under a licensed player's license, on the title, and its bind, the
-## dialogs' option key, see [constant InputActions.MENU_OPTION].
+## dialogs' option key, see [constant InputActions.MENU_OPTION]; and Away's words. The words are
+## shown through tr().
 const SCHOOL_WORD := "Driving School"
 const SCHOOL_ACTION := InputActions.MENU_OPTION
 const AWAY_WORD := "Put it away"
@@ -172,17 +173,17 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 18)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	column.add_child(row)
-	turn = _icon_button("TurnOver", HouseArt.turning(), TURN_WORD, InputActions.JOKER_MENU)
+	turn = _icon_button("TurnOver", HouseArt.turning(), tr(TURN_WORD), InputActions.JOKER_MENU)
 	turn.pressed.connect(stand.turn_over)
 	row.add_child(turn)
 	if _with_school:
-		school = MenuTheme.button(SCHOOL_WORD, Type.BODY)
+		school = MenuTheme.button(tr(SCHOOL_WORD), Type.BODY)
 		school.name = "DrivingSchool"
 		school.focus_mode = Control.FOCUS_NONE
 		school.pressed.connect(_to_the_school)
 		ButtonBinds.mark(school, SCHOOL_ACTION)
 		row.add_child(school)
-	away = _icon_button("Away", HouseArt.cross(), AWAY_WORD, &"ui_cancel")
+	away = _icon_button("Away", HouseArt.cross(), tr(AWAY_WORD), &"ui_cancel")  # NO_TRANSLATE
 	away.pressed.connect(close)
 	row.add_child(away)
 	away_line = Control.new()
@@ -203,7 +204,7 @@ func _ready() -> void:
 	# screen reader is told the license as it comes up.
 	CursorHold.take(self)
 	ScreenReader.say(
-		self, ScreenReader.line([ScreenReader.spoken(LicenseCard.TITLE), card.words()])
+		self, ScreenReader.line([ScreenReader.spoken(tr(LicenseCard.TITLE)), card.words()])
 	)
 	Audio.play_sfx(&"joker_offer", MenuTheme.MOVE_DB, 0.0)
 
@@ -383,9 +384,9 @@ func say_away() -> void:
 		old.queue_free()
 	var row: Control
 	if TouchInput.enabled:
-		row = MenuTheme.subtitle(AWAY_TOUCH, Type.LABEL)
+		row = MenuTheme.subtitle(tr(AWAY_TOUCH), Type.LABEL)
 	elif _pointer:
-		row = MenuTheme.subtitle(AWAY_MOUSE, Type.LABEL)
+		row = MenuTheme.subtitle(tr(AWAY_MOUSE), Type.LABEL)
 	else:
 		return
 	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER)

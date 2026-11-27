@@ -18,12 +18,14 @@ extends Control
 
 signal put_away
 
+## Its title and the button that puts it up, shown through tr() as all its words are.
 const TITLE := "How to hold the wheel"
 const ENTRY := "Show controls"
-## The settings' Controls page's row it is on, 8.5.
+## The settings' Controls page's row it is on, 8.5, shown through tr().
 const ROW := "Overview"
 ## The switch between the keyboard's sheets and each pad's, and the words on its tabs: the
-## keyboard's, and a pad's by its family, a generic pad's where none is plugged in.
+## keyboard's, and a pad's by its family, a generic pad's where none is plugged in; shown through
+## tr(), the makers' names as they are.
 const SWITCH := InputActions.MENU_VIEW
 const SWITCH_WORDS: Array[String] = ["KEYBOARD", "GAMEPAD"]
 const PAD_WORDS: Dictionary[PadFamily.Family, String] = {
@@ -58,7 +60,8 @@ const TUG := Vector3(6.0, 0.08, 0.3)
 ## How strong the knock is as a pad's sheets come up, of Rumble's when switched on, see
 ## [method DeviceInput.nudge]: lighter, as it comes with every turn to a pad.
 const NUDGE := 0.8
-## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad.
+## What the sheet says of the keyboard drawn, as [constant FAMILY_WORDS] says of a pad, and the
+## sheets' names, each shown through tr().
 const KEYBOARD_WORDS := "Your keyboard"
 const PAGES: Array[String] = ["Driving", "Jokers", "Menus"]
 ## The room the pad and its words are laid out in, in the sheet's own units: the sheet is scaled so
@@ -87,7 +90,7 @@ const LINE_WIDTH := 1.6
 const STEAM_TALL := 34.0
 const INK := BlueprintArt.INK
 const FAINT := BlueprintArt.FAINT
-## What the sheet says of the pad drawn, by its family.
+## What the sheet says of the pad drawn, by its family, shown through tr().
 const FAMILY_WORDS: Dictionary[PadFamily.Family, String] = {
 	PadFamily.Family.GENERIC: "Your controller",
 	PadFamily.Family.XBOX: "Xbox controller",
@@ -163,7 +166,7 @@ var _bound: Dictionary[StringName, Array] = {}
 ## hand, which on a phone is only once one is plugged in, and not in the booth's demo, whose menu
 ## is kept to what a passer-by needs, GAME.md 9.8.
 static func entry(parent: Node, size := Type.LARGE) -> Button:
-	var button := MenuTheme.button(ENTRY, size)
+	var button := MenuTheme.button(Lang.t(ENTRY), size)
 	button.name = "PadLeafletButton"
 	var pad_here := not TouchInput.enabled or not DeviceInput.pads().is_empty()
 	button.visible = pad_here and not Demo.on
@@ -184,7 +187,7 @@ static func entry(parent: Node, size := Type.LARGE) -> Button:
 ## button is.
 static func row(parent: Node) -> HBoxContainer:
 	var button := entry(parent, Type.BODY)
-	var line := MenuTheme.row(ROW, button)
+	var line := MenuTheme.row(Lang.t(ROW), button)
 	line.visible = button.visible
 	button.visible = true
 	return line
@@ -252,7 +255,7 @@ func _ready() -> void:
 	_sheet.draw.connect(_draw_sheet)
 	_pane.add_child(_sheet)
 	for i: int in PAGES.size():
-		var tab := _tab_button("%d  ·  %s" % [i + 1, PAGES[i].to_upper()])
+		var tab := _tab_button("%d  ·  %s" % [i + 1, tr(PAGES[i]).to_upper()])
 		tab.name = "Tab%d" % i
 		tab.position = Vector2(TAB_FIRST + i * TAB_STEP, 0.0)
 		tab.pressed.connect(_turn_to.bind(i))
@@ -264,11 +267,11 @@ func _ready() -> void:
 	var band := (SHEET_TOP + BlueprintArt.TAB_BEHIND) * 0.5
 	_keys.position = Vector2(TAB_FIRST + PAGES.size() * TAB_STEP + 10.0, band - keys_tall * 0.5)
 	_sheet.add_child(_keys)
-	_back = _tab_button("BACK")
+	_back = _tab_button(tr("BACK"))
 	_back.name = "Back"
 	_back.size = BACK_SIZE
 	_back.pressed.connect(close)
-	ScreenReader.name(_back, "Back")
+	ScreenReader.name(_back, tr("Back"))
 	var key := InputGlyph.of_action(&"ui_cancel", Game.last_input_keyboard, INK, 16)
 	if key != null:
 		key.position = Vector2(24.0, band - key.custom_minimum_size.y * 0.5)
@@ -392,12 +395,12 @@ func _switch_tab(kind: int) -> Button:
 ## The words on a switch tab for [param kind]: a pad's by its family.
 func _switch_words(kind: int) -> String:
 	if kind == KEYBOARD_TAB:
-		return SWITCH_WORDS[0]
+		return tr(SWITCH_WORDS[0])
 	if kind == ANY_PAD_TAB:
-		return SWITCH_WORDS[1]
+		return tr(SWITCH_WORDS[1])
 	if kind == STEP_TAB:
 		return _switch_words(pad if pad >= 0 else _pads[0])
-	return PAD_WORDS[PadFamily.of_device(kind)]
+	return tr(PAD_WORDS[PadFamily.of_device(kind)])
 
 
 ## The stepping tab's words the pad's it shows, and every tab named for a screen reader.
@@ -412,7 +415,8 @@ func _word_switch() -> void:
 			_place_mine(_switch[i])
 		var named := _switch[i].text.capitalize()
 		if shows >= 0:
-			named = "Gamepad %d, %s" % [DeviceInput.number_of(shows), named]
+			var pad_named := {"number": DeviceInput.number_of(shows), "name": named}
+			named = tr("Gamepad {number}, {name}").format(pad_named)
 		ScreenReader.name(_switch[i], named)
 
 
@@ -594,7 +598,8 @@ func _turn_to(to: int, sound := true) -> void:
 func _name_tabs() -> void:
 	for i: int in _tabs.size():
 		var said := _said(i)
-		ScreenReader.name(_tabs[i], ScreenReader.line([TITLE, "%s page" % PAGES[i]]), said)
+		var page_named := tr("%s page") % tr(PAGES[i])
+		ScreenReader.name(_tabs[i], ScreenReader.line([tr(TITLE), page_named]), said)
 
 
 ## Where Steam has every action of the sheets bound on [member pad] now, GAME.md 10.8, drawn in
@@ -847,18 +852,19 @@ func _draw_foot(inside: Rect2) -> void:
 		_sheet,
 		inside.position + Vector2(40.0, inside.size.y - 40.0),
 		Type.micro_font(),
-		"ONE KEYBOARD" if keyboard else "ONE PAD"
+		tr("ONE KEYBOARD") if keyboard else tr("ONE PAD")
 	)
 	var corner := inside.end - Vector2(24.0, 22.0)
-	var sheet := (
-		"DEPT. OF KARTS   ·   %s   ·   SHEET %d OF %d   ·   %s"
-		% [TITLE.to_upper(), page + 1, PAGES.size(), PAGES[page].to_upper()]
+	var sheet := tr("DEPT. OF KARTS   ·   {title}   ·   SHEET {sheet} OF {sheets}   ·   {page}")
+	var named := {"title": tr(TITLE).to_upper(), "sheet": page + 1, "sheets": PAGES.size()}
+	named["page"] = tr(PAGES[page]).to_upper()
+	_words(Type.micro_font(), sheet.format(named), corner, 14, FAINT, -1)
+	var drawn := tr(KEYBOARD_WORDS if keyboard else FAMILY_WORDS[family])
+	var steam := not keyboard and not _bound.is_empty()
+	var whose := tr("%s, as you have it bound in Steam" if steam else "%s, as you have it bound")
+	_words(
+		BayArt.hand_font(), whose % drawn, corner - Vector2(0.0, 26.0), 28, BlueprintArt.PENCIL, -1
 	)
-	_words(Type.micro_font(), sheet, corner, 14, FAINT, -1)
-	var whose := "%s, as you have it bound" % (KEYBOARD_WORDS if keyboard else FAMILY_WORDS[family])
-	if not keyboard and not _bound.is_empty():
-		whose += " in Steam"
-	_words(BayArt.hand_font(), whose, corner - Vector2(0.0, 26.0), 28, BlueprintArt.PENCIL, -1)
 
 
 ## The words down one side of the pad, [param side] of it at [param edge], each beside its button

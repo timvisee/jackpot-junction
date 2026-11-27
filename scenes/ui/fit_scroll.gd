@@ -53,7 +53,7 @@ func _ready() -> void:
 ## shades follow the scroll wherever the pane is and however it is scaled.
 func shaded() -> Container:
 	var holder := MarginContainer.new()
-	holder.name = name + "Holder"
+	holder.name = name + "Holder"  # NO_TRANSLATE
 	_holder = holder
 	# What it holds, in padding of its own, which [method reach] gives the gaps round it to.
 	var content := get_child(0) as Control

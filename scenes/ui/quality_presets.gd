@@ -6,8 +6,9 @@ extends RefCounted
 ## rather than what it costs the card, so a preset has each at the room's own strength or off. High
 ## is where a desktop starts, and a phone's own start reads as Low.
 
+## Each preset's name, shown through tr().
 const NAMES: Array[String] = ["Low", "Medium", "High", "Ultra"]
-## What a box of them says while the six are set as none of them.
+## What a box of them says while the six are set as none of them, shown through tr().
 const CUSTOM := "Custom"
 ## Each preset's six settings, by their names on [Settings].
 const SETS: Array[Dictionary] = [

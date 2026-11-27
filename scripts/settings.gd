@@ -31,11 +31,12 @@ const UPSCALE_BILINEAR := "bilinear"
 const UPSCALE_FSR := "fsr"
 const UPSCALE_FSR2 := "fsr2"
 ## The sizes of house the crowd setting offers, as a share of the people who would have come,
-## and what each is called: all of them, half, or nobody at all.
+## and what each is called, shown through tr(): all of them, half, or nobody at all.
 const CROWD_SIZES: Array[float] = [1.0, 0.5, 0.0]
 const CROWD_NAMES: Array[String] = ["Full", "Half", "Off"]
 ## The tire marks, GAME.md 4.3: every kart's lasting, every kart's fading soon, only the karts of
-## the players at this screen and fading soon as well, or none, and what each is called.
+## the players at this screen and fading soon as well, or none, and what each is called, shown
+## through tr().
 const MARKS_FULL := 0
 const MARKS_SHORT := 1
 const MARKS_MINE := 2
@@ -59,13 +60,14 @@ const TEXTURES_LOW := "low"
 const TEXTURES_HIGH := "high"
 const TEXTURES_ULTRA := "ultra"
 const TEXTURE_DETAILS: Array[String] = [TEXTURES_AUTO, TEXTURES_LOW, TEXTURES_HIGH, TEXTURES_ULTRA]
+## What each is called, shown through tr().
 const TEXTURE_NAMES: Array[String] = ["Auto", "Low", "High", "Ultra"]
 ## The most frames a second the game draws, GAME.md 8.5, 0 for as many as it can: 30 for a phone
 ## to last longer on its battery, 40 and 90 as a Steam Deck runs its screen, and the refresh rates
 ## screens come in.
 const FRAME_LIMITS: Array[int] = [0, 30, 40, 60, 90, 120, 144, 165, 240]
 ## The display servers that let a game pick which screen it plays on, see [member monitor].
-const PICKS_SCREENS: Array[String] = ["Windows", "X11", "macOS"]
+const PICKS_SCREENS: Array[String] = ["Windows", "X11", "macOS"]  # NO_TRANSLATE
 const TOUCH_SLIDER := "slider"
 const TOUCH_BUTTONS := "buttons"
 const TOUCH_LAYOUTS: Array[String] = [TOUCH_SLIDER, TOUCH_BUTTONS]

@@ -128,6 +128,7 @@ const CHORD_TO := 128
 ## dialog's own Back button reads as that one; today's Xbox calls it View, as the engine already
 ## calls Start by today's Menu.
 ## A PlayStation pad's touchpad is "PS4/5 Touchpad" to the engine, which is the pads it is on.
+## NO_TRANSLATE: names the code goes by, as keys' names are.
 const PAD_NAMES: Dictionary[String, String] = {"Back": "View", "PS4/5 Touchpad": "Touchpad"}
 
 ## Default events per action. A descriptor is one of
@@ -396,9 +397,9 @@ static func shared_stick(left: StringName, right: StringName) -> String:
 	if axis < 0 or axis != _axis_of(right):
 		return ""
 	if axis == JOY_AXIS_LEFT_X or axis == JOY_AXIS_LEFT_Y:
-		return "Left stick"
+		return "Left stick"  # NO_TRANSLATE
 	if axis == JOY_AXIS_RIGHT_X or axis == JOY_AXIS_RIGHT_Y:
-		return "Right stick"
+		return "Right stick"  # NO_TRANSLATE
 	return ""
 
 

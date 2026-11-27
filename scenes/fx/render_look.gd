@@ -15,26 +15,32 @@ extends Node
 ## of any screen with a room on it that steps through them, F7 and F8 or its buttons, see
 ## [method _build_switcher], to play with.
 
-## Every look: the name the settings keep, what the Video page calls it, the pass it draws over the
-## frame by the name of its shader (empty for none), the light on the room's materials ("made" for
-## the light they were made with, "toon" for flat bands, "flat" for none, their color alone), and
-## what the pass is set to, which is how two looks share one pass.
+## Every look: the name the settings keep, what the Video page calls it (shown through tr()), the
+## pass it draws over the frame by the name of its shader (empty for none), the light on the room's
+## materials ("made" for the light they were made with, "toon" for flat bands, "flat" for none,
+## their color alone), and what the pass is set to, which is how two looks share one pass.
 const TABLE: Array[Array] = [
-	["clean", "Clean", "", "made", {}],
-	["vivid", "Vivid", "vivid", "made", {}],
-	["houseprint", "House print", "houseprint", "made", {}],
-	["halftone", "Halftone", "halftone", "made", {}],
-	["fineprint", "Fine print", "fineprint", "made", {"grain": 0.1, "spread": 0.8, "corners": 0.5}],
-	["riso", "Riso", "riso", "made", {}],
-	["watercolor", "Watercolor", "watercolor", "made", {}],
-	["pencil", "Pencil", "pencil", "made", {}],
-	["inkwash", "Ink wash", "inkwash", "made", {}],
-	["blueprint", "Blueprint", "blueprint", "flat", {}],
-	["chalk", "Chalkboard", "chalk", "flat", {}],
-	["crayon", "Crayon", "crayon", "toon", {}],
-	["oil", "Oil paint", "oil", "made", {}],
-	["screenprint", "Screen print", "screenprint", "toon", {}],
-	["duotone", "Duotone", "duotone", "made", {}],
+	[&"clean", "Clean", "", &"made", {}],
+	[&"vivid", "Vivid", &"vivid", &"made", {}],
+	[&"houseprint", "House print", &"houseprint", &"made", {}],
+	[&"halftone", "Halftone", &"halftone", &"made", {}],
+	[
+		&"fineprint",
+		"Fine print",
+		&"fineprint",
+		&"made",
+		{"grain": 0.1, "spread": 0.8, "corners": 0.5}
+	],
+	[&"riso", "Riso", &"riso", &"made", {}],
+	[&"watercolor", "Watercolor", &"watercolor", &"made", {}],
+	[&"pencil", "Pencil", &"pencil", &"made", {}],
+	[&"inkwash", "Ink wash", &"inkwash", &"made", {}],
+	[&"blueprint", "Blueprint", &"blueprint", &"flat", {}],
+	[&"chalk", "Chalkboard", &"chalk", &"flat", {}],
+	[&"crayon", "Crayon", &"crayon", &"toon", {}],
+	[&"oil", "Oil paint", &"oil", &"made", {}],
+	[&"screenprint", "Screen print", &"screenprint", &"toon", {}],
+	[&"duotone", "Duotone", &"duotone", &"made", {}],
 ]
 ## Where a material keeps the light it was made with while a look lights it otherwise.
 const KEPT := &"look_kept_modes"
@@ -58,11 +64,11 @@ var _switcher_wait := 0.0
 static func ids() -> Array[String]:
 	var all: Array[String] = []
 	for row: Array in TABLE:
-		all.append(row[0])
+		all.append(str(row[0]))
 	return all
 
 
-## What each look is called, in the order of [method ids].
+## What each look is called, in English, in the order of [method ids].
 static func names() -> Array[String]:
 	var all: Array[String] = []
 	for row: Array in TABLE:
@@ -297,8 +303,10 @@ func _show_switcher() -> void:
 	if _switcher_name == null:
 		return
 	var all := ids()
-	_switcher_name.text = str(row_of(look)[1])
-	_switcher_place.text = "Look %d of %d" % [all.find(look) + 1, all.size()]
+	_switcher_name.text = tr(row_of(look)[1])
+	_switcher_place.text = tr("Look {at} of {all}").format(
+		{"at": all.find(look) + 1, "all": all.size()}
+	)
 
 
 func _process(delta: float) -> void:

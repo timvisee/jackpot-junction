@@ -6,7 +6,7 @@ extends Control
 ## only until it has been answered; Back leaves the title as it was and asks again next time. The
 ## settings ask it again on request, for the first player alone.
 
-## What each way is, in a line under its name.
+## What each way is, in a line under its name, shown through tr().
 const WHAT: Dictionary[String, String] = {
 	Settings.DRIVE_SIMPLE:
 	"Push the way you want to go. The kart steers, speeds up and brakes itself.",
@@ -74,7 +74,7 @@ func _ready() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 18)
 	pane.add_child(column)
-	column.add_child(MenuTheme.title("How do you want to drive?", Type.TITLE))
+	column.add_child(MenuTheme.title(tr("How do you want to drive?"), Type.TITLE))
 	column.add_child(MenuTheme.perforation())
 	var cards := HBoxContainer.new()
 	cards.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -85,7 +85,8 @@ func _ready() -> void:
 	# Asked again, it is being asked from the settings, where saying so would be telling the player
 	# where they already are.
 	if seat < 0:
-		column.add_child(MenuTheme.subtitle("You can change this later in Settings.", Type.BODY))
+		var later := tr("You can change this later in Settings.")
+		column.add_child(MenuTheme.subtitle(later, Type.BODY))
 	_confine()
 	_was_focused = get_viewport().gui_get_focus_owner()
 	# Asked again, the cursor starts on what it says now; the first time, on simple.
@@ -127,7 +128,7 @@ func _input(event: InputEvent) -> void:
 func _card(mode: String) -> Button:
 	var pressable := MenuTheme.button("", Type.LARGE)
 	pressable.custom_minimum_size = CARD
-	ScreenReader.name(pressable, DrivePicker.WORDS[mode], WHAT[mode])
+	ScreenReader.name(pressable, tr(DrivePicker.WORDS[mode]), tr(WHAT[mode]))
 	var inside := VBoxContainer.new()
 	inside.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	inside.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -139,13 +140,13 @@ func _card(mode: String) -> Button:
 	picture.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	inside.add_child(picture)
 	var word := Label.new()
-	word.text = DrivePicker.WORDS[mode]
+	word.text = tr(DrivePicker.WORDS[mode])
 	word.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	word.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Type.set_font(word, Type.STRONG, Type.HEADING)
 	inside.add_child(word)
 	var what := Label.new()
-	what.text = WHAT[mode]
+	what.text = tr(WHAT[mode])
 	what.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	what.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	what.mouse_filter = Control.MOUSE_FILTER_IGNORE

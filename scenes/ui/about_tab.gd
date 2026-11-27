@@ -15,14 +15,14 @@ const FAINT := Color(0.6, 0.6, 0.65)
 const MARK := 168.0
 const MARK_ROOM := 18.0
 ## The Steam supporter pack, GAME.md 10.8: a faint line under the game's own links, and a link
-## that opens its store page in Steam's overlay, the pack's star pinned beside it, how big.
-const SUPPORTER_LINE := (
-	"Enjoying it? The Supporter Pack on Steam is a small way to chip in, and says thanks with a"
-	+ " few pieces of kart dress."
-)
+## that opens its store page in Steam's overlay, each shown through tr(), the pack's star pinned
+## beside it, how big.
+const SUPPORTER_LINE := """Enjoying it? The Supporter Pack on Steam is a small way to chip in, and \
+says thanks with a few pieces of kart dress."""
 const SUPPORTER_LINK := "Get the Supporter Pack on Steam"
 const SUPPORTER_PIN := 24.0
-## The link at the foot that opens the third-party notices under it, and folds them away again.
+## The link at the foot that opens the third-party notices under it, and folds them away again,
+## each shown through tr().
 const SHOW_LICENSES := "Show third-party licenses"
 const HIDE_LICENSES := "Hide third-party licenses"
 ## How many characters of the notices go in a frame once they open, how long a piece of a
@@ -69,39 +69,30 @@ func _ready() -> void:
 	holder.custom_minimum_size.y = MARK + MARK_ROOM
 	holder.add_child(mark)
 	column.add_child(holder)
-	column.add_child(MenuTheme.title("Jackpot Junction", Type.TITLE))
-	column.add_child(MenuTheme.subtitle("Version %s" % Game.version(), Type.BODY))
-	(
-		column
-		. add_child(
-			_paragraph(
-				(
-					(
-						"Jackpot Junction is an experiment in what an AI model can make. Everything in it "
-						+ "that is not credited below, its design, its code, the pictures it draws and how "
-						+ "it all fits together, was made by Anthropic's Claude: %s. "
-						+ StoryLines.ABOUT
-					)
-					% Credits.models_in_words()
-				)
-			)
-		)
+	column.add_child(MenuTheme.title("Jackpot Junction", Type.TITLE))  # NO_TRANSLATE
+	column.add_child(MenuTheme.subtitle(tr("Version %s") % Game.version(), Type.BODY))
+	var made := {"models": Credits.models_in_words(), "human": tr(StoryLines.ABOUT)}
+	var experiment := tr(
+		"""Jackpot Junction is an experiment in what an AI model can make. Everything \
+in it that is not credited below, its design, its code, the pictures it draws and how it all fits \
+together, was made by Anthropic's Claude: {models}. {human}"""
 	)
+	column.add_child(_paragraph(experiment.format(made)))
 	# Where to get it, Steam and then itch.io, then where its source lives.
 	column.add_child(_link(Credits.STEAM))
 	column.add_child(_link(Credits.ITCH))
 	column.add_child(_link(Credits.REPOSITORY))
 	if Supporter.offered() and not Supporter.owned():
 		_supporter(column)
-	column.add_child(_heading("Made with"))
+	column.add_child(_heading(tr("Made with")))
 	for thing: Dictionary in Credits.in_this_build():
 		column.add_child(_credit(thing))
-	column.add_child(_heading("Licenses"))
-	column.add_child(_subheading("Godot Engine"))
+	column.add_child(_heading(tr("Licenses")))
+	column.add_child(_subheading("Godot Engine"))  # NO_TRANSLATE
 	column.add_child(_notice(Engine.get_license_text()))
 	licenses_link = _link("")
 	licenses_link.name = "LicensesLink"
-	licenses_link.text = SHOW_LICENSES
+	licenses_link.text = tr(SHOW_LICENSES)
 	licenses_link.pressed.connect(toggle_licenses)
 	column.add_child(licenses_link)
 
@@ -118,7 +109,7 @@ func toggle_licenses() -> void:
 		_fill()
 	else:
 		notices.visible = not notices.visible
-	licenses_link.text = HIDE_LICENSES if notices.visible else SHOW_LICENSES
+	licenses_link.text = tr(HIDE_LICENSES) if notices.visible else tr(SHOW_LICENSES)
 
 
 ## Whether the notices are still coming in, see [method _fill].
@@ -149,7 +140,7 @@ static func _notices() -> Array[Control]:
 			var terms := Licenses.copyright(thing.get("copyright", []))
 			terms.append(Licenses.title(thing["license"]))
 			ours.append(PackedStringArray([thing["what"], ", ".join(terms)]))
-	box.append(_subheading("In the game", true))
+	box.append(_subheading(Lang.t("In the game"), true))
 	box.append(_list(ours))
 	var godots: Array[PackedStringArray] = []
 	for piece: Dictionary in of:
@@ -159,7 +150,7 @@ static func _notices() -> Array[Control]:
 			terms.append(Licenses.title(part["license"]))
 			parts.append(", ".join(terms))
 		godots.append(PackedStringArray([piece["name"], "; ".join(parts)]))
-	box.append(_subheading("Inside Godot Engine", true))
+	box.append(_subheading(Lang.t("Inside Godot Engine"), true))
 	for start: int in range(0, godots.size(), LIST_PIECE):
 		box.append(_list(godots.slice(start, start + LIST_PIECE)))
 	var texts := Engine.get_license_info()
@@ -191,7 +182,7 @@ static func _pieces(text: String) -> PackedStringArray:
 ## line, and a gold link in the middle as the others are, with the pack's star pinned beside it,
 ## which opens its store page.
 func _supporter(column: VBoxContainer) -> void:
-	_supporter_line = _paragraph(SUPPORTER_LINE, Type.BODY, FAINT)
+	_supporter_line = _paragraph(tr(SUPPORTER_LINE), Type.BODY, FAINT)
 	column.add_child(_supporter_line)
 	var row := HBoxContainer.new()
 	row.name = "SupporterLink"
@@ -205,7 +196,7 @@ func _supporter(column: VBoxContainer) -> void:
 	row.add_child(pin)
 	supporter_link = _link(Credits.STEAM)
 	supporter_link.uri = ""
-	supporter_link.text = SUPPORTER_LINK
+	supporter_link.text = tr(SUPPORTER_LINK)
 	supporter_link.pressed.connect(
 		func() -> void:
 			Audio.play_sfx(&"ui_click" if Store.open_supporter() else &"ui_back", -4.0, 0.05)
@@ -338,7 +329,8 @@ static func _paragraph(text: String, size := Type.BODY, ink := INK) -> Label:
 	return label
 
 
-## One thing somebody else made: what it is in bold, then who, on what terms and where.
+## One thing somebody else made: what it is in bold, then who, on what terms and where; each but
+## where shown through tr(), see [Credits].
 static func _credit(thing: Dictionary) -> RichTextLabel:
 	var line := RichTextLabel.new()
 	line.bbcode_enabled = true
@@ -349,8 +341,11 @@ static func _credit(thing: Dictionary) -> RichTextLabel:
 	line.add_theme_font_size_override("bold_font_size", Type.BODY)
 	line.add_theme_font_override("bold_font", Type.STRONG)
 	line.add_theme_color_override("default_color", INK)
-	line.text = (
-		"[center][b]%s[/b] by %s, %s, [color=#%s]%s[/color][/center]"
-		% [thing["what"], thing["who"], thing["terms"], FAINT.to_html(false), thing["where"]]
-	)
+	var parts := {
+		"what": "[b]%s[/b]" % Lang.t(thing["what"]),
+		"who": Lang.t(thing["who"]),
+		"terms": Lang.t(thing["terms"]),
+		"where": "[color=#%s]%s[/color]" % [FAINT.to_html(false), thing["where"]],
+	}
+	line.text = "[center]%s[/center]" % Lang.t("{what} by {who}, {terms}, {where}").format(parts)
 	return line

@@ -211,6 +211,7 @@ func _bar(index: int, from: Vector2, to: Vector2) -> void:
 
 ## The line at the foot, in the middle of the frame's foot.
 func _say(rig: CameraRig) -> void:
+	# NO_TRANSLATE: a debug drawing's, left in English.
 	_line.text = (
 		"camera %.1f m   slide %+.1f, %+.1f   %d under   %d panels"
 		% [rig._distance, rig._slide.x, rig._slide.y, _under, rig.covers.size()]

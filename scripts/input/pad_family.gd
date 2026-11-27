@@ -52,7 +52,7 @@ const STEAM_TYPES: Dictionary[int, Family] = {
 	17: Family.STEAM_CONTROLLER,
 }
 ## Words in a pad's name that say its family, for a pad whose maker's id does not, in the order
-## they are looked for.
+## they are looked for. NO_TRANSLATE: they are matched, not shown.
 const NAMED: Array[Array] = [
 	["dualsense", Family.PLAYSTATION],
 	["ps5", Family.PLAYSTATION],
@@ -72,6 +72,8 @@ const NAMED: Array[Array] = [
 ## What each family calls the buttons the engine names an Xbox pad's way, see
 ## [method InputActions.event_text]; a name left out is the same on that family's pads. A
 ## PlayStation pad's four are named for their shapes and drawn as them, see [InputGlyph].
+## NO_TRANSLATE: the names the makers print and call them by, as keys' names are, and which pick
+## the picture a button is drawn as.
 const WORDS: Dictionary[Family, Dictionary] = {
 	Family.PLAYSTATION:
 	{
@@ -265,16 +267,17 @@ static func touched(device: int) -> void:
 
 
 ## Each pad plugged in as the engine and Steam tell of it, for `++ --pads`: what to send in where a
-## pad is drawn as the wrong one.
+## pad is drawn as the wrong one. In English, as the log is.
 static func told() -> PackedStringArray:
 	var lines: PackedStringArray = []
 	for device: int in Input.get_connected_joypads():
 		var info := Input.get_joy_info(device)
 		var family: String = Family.keys()[of_device(device)]
-		lines.append("pad %d: %s, %s" % [device, Input.get_joy_name(device), info])
-		lines.append("pad %d: drawn as %s" % [device, family.capitalize()])
+		lines.append("pad %d: %s, %s" % [device, Input.get_joy_name(device), info])  # NO_TRANSLATE
+		lines.append("pad %d: drawn as %s" % [device, family.capitalize()])  # NO_TRANSLATE
 	for device: int in DeviceInput.steam_pads:
 		var family: String = Family.keys()[of_device(device)]
+		# NO_TRANSLATE
 		lines.append("pad %d: Steam Input's, drawn as %s" % [device, family.capitalize()])
 	return lines
 

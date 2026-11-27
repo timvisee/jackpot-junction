@@ -35,7 +35,8 @@ const SWATCH := 26.0
 ## How the card under a switch is drawn.
 const CARD_SIZE := 16
 const CARD_INK := Color(0.86, 0.86, 0.9)
-## Whether simple driving works the pedals by itself, GAME.md 4.2, as its switch says it.
+## Whether simple driving works the pedals by itself, GAME.md 4.2, as its switch says it; and what
+## each button says, shown through tr().
 const AUTO_ON := "auto_on"
 const AUTO_OFF := "auto_off"
 const WORDS: Dictionary[String, String] = {
@@ -53,9 +54,11 @@ const TOUCH := &"touch"
 ## And whether simple driving works the pedals by itself, for a player on a pad or the touch screen
 ## while they drive the simple way: a keyboard's always does.
 const AUTO := &"auto"
+## The button that lists the profiles a seat can play as, shown through tr().
 const LINK := "Link profile"
 const CHANGE := "Change profile"
-## The line under the name of a seat sat in as another profile, and how wide its plate is drawn.
+## The line under the name of a seat sat in as another profile, and how wide its plate is drawn;
+## and the list's last two buttons. Each is shown through tr().
 const LINKED := "%s's profile"
 const LINKED_PLATE := 72.0
 const UNLINK := "Unlink"
@@ -242,10 +245,10 @@ func _switch(slot: PlayerSlot, player: PlayerInput, corner: Control, can_leave: 
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
 		_toggle(column, each, TOUCH)
 	if player.seat > 0 and Game.settings.profiles().size() > 1 and not Demo.playing():
-		var words := LINK if Game.settings.seat_profile(player.seat) == null else CHANGE
+		var words := tr(LINK if Game.settings.seat_profile(player.seat) == null else CHANGE)
 		each["link"] = _wide_button(column, each, words, _choose_profile.bind(player.seat))
 	if can_leave:
-		var leave := MenuTheme.button("Leave", Type.BODY)
+		var leave := MenuTheme.button(tr("Leave"), Type.BODY)
 		leave.custom_minimum_size = Vector2(WIDTH, 52.0)
 		leave.pressed.connect(_leave.bind(each))
 		column.add_child(leave)
@@ -297,7 +300,7 @@ static func _linked_line(column: VBoxContainer, seat: int) -> void:
 	var worn := "L" if profile.license_number.is_empty() else profile.license_plate
 	line.add_child(LicensePlate.badge(worn, LINKED_PLATE))
 	var words := Label.new()
-	words.text = LINKED % profile.display_name()
+	words.text = Lang.t(LINKED) % profile.display_name()
 	words.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	Type.text(words, Type.LABEL, Color(0.86, 0.86, 0.9))
 	line.add_child(words)
@@ -327,9 +330,9 @@ func _profile_list(column: VBoxContainer, each: Dictionary) -> void:
 		pick.name = "Profile%s" % profile.id
 		pick.disabled = profile.id == now
 	if not now.is_empty():
-		var unlink := _wide_button(column, each, UNLINK, _pick.bind(seat, ""))
+		var unlink := _wide_button(column, each, tr(UNLINK), _pick.bind(seat, ""))
 		unlink.name = "Unlink"
-	var back := _wide_button(column, each, BACK, _picked.bind(seat))
+	var back := _wide_button(column, each, tr(BACK), _picked.bind(seat))
 	back.name = "Back"
 	each["button"] = (each["buttons"] as Array)[0]
 
@@ -366,15 +369,15 @@ func _again(seat: int, focus: Callable) -> void:
 ## What [param player] is playing on, as the card under their switch says it.
 static func device_words(player: PlayerInput) -> String:
 	if TouchInput.enabled and player.device == DeviceInput.ANY:
-		return "Touch screen"
+		return Lang.t("Touch screen")
 	# Numbered as the menus number pads, so one of Steam Input's is Gamepad 1 rather than 33; one of
 	# the engine's not plugged in now by its id, as it was.
 	var number := DeviceInput.number_of(player.device) if player.device >= 0 else 0
 	if number == 0 and player.device >= 0 and player.device < SteamPads.FIRST_DEVICE:
 		number = player.device + 1
 	if number > 0:
-		return "Gamepad %d" % number
-	return "Keyboard" if DeviceInput.uses_keyboard(player.device) else "Gamepad"
+		return Lang.t("Gamepad %d") % number
+	return Lang.t("Keyboard") if DeviceInput.uses_keyboard(player.device) else Lang.t("Gamepad")
 
 
 ## The card under [param each]'s switch, made again when what it says changes: the player picks
@@ -411,10 +414,10 @@ func _show_controls(each: Dictionary) -> void:
 			InputHint.glyph(InputActions.THROTTLE, keyboard, CARD_INK, CARD_SIZE),
 			fire,
 		]
-		row = InputHint.row("%s steer   %s gas   %s fire", parts, CARD_INK, CARD_SIZE)
+		row = InputHint.row(tr("%s steer   %s gas   %s fire"), parts, CARD_INK, CARD_SIZE)
 	elif simple:
 		var parts: Array = [InputHint.way(keyboard, CARD_INK, CARD_SIZE), fire]
-		row = InputHint.row("%s drive   %s fire", parts, CARD_INK, CARD_SIZE)
+		row = InputHint.row(tr("%s drive   %s fire"), parts, CARD_INK, CARD_SIZE)
 	else:
 		var parts: Array = [
 			InputHint.glyph(InputActions.THROTTLE, keyboard, CARD_INK, CARD_SIZE),
@@ -423,7 +426,8 @@ func _show_controls(each: Dictionary) -> void:
 			),
 			fire,
 		]
-		row = InputHint.row("%s throttle   %s steer   %s fire", parts, CARD_INK, CARD_SIZE)
+		# TRANSLATORS: Each %s is a button's picture, kept in this order.
+		row = InputHint.row(tr("%s throttle   %s steer   %s fire"), parts, CARD_INK, CARD_SIZE)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	column.add_child(row)
 
@@ -441,8 +445,8 @@ func _name_box(column: VBoxContainer, each: Dictionary) -> LineEdit:
 	box.select_all_on_focus = true
 	var kept := Game.settings.seat_name(player.seat)
 	box.text = kept
-	box.placeholder_text = slot.display_name() if kept.is_empty() else PlayerNames.PLACEHOLDER
-	ScreenReader.name(box, KartOwner.SEAT % (player.seat + 1))
+	box.placeholder_text = slot.display_name() if kept.is_empty() else tr(PlayerNames.PLACEHOLDER)
+	ScreenReader.name(box, tr(KartOwner.SEAT) % (player.seat + 1))
 	each["shown"] = kept
 	Type.set_font(box, Type.TEXT, Type.BODY)
 	box.text_submitted.connect(func(_typed: String) -> void: _keep_name(each))
@@ -577,9 +581,9 @@ func _show(each: Dictionary) -> void:
 		picture.visible = toggle["kind"] != AUTO
 		if picture.visible:
 			picture.mode = now
-		(toggle["word"] as Label).text = WORDS[now]
+		(toggle["word"] as Label).text = tr(WORDS[now])
 		# Its words are a label of its own: a screen reader is told them as its name.
-		ScreenReader.name(toggle["button"] as Control, WORDS[now])
+		ScreenReader.name(toggle["button"] as Control, tr(WORDS[now]))
 	_follow(each)
 
 
@@ -601,9 +605,9 @@ func _follow(each: Dictionary) -> void:
 	)
 	if each.has("swatch"):
 		(each["swatch"] as ColorRect).color = color
-		var word := Palette.color_name(slot.color_index)
+		var word := tr(Palette.color_name(slot.color_index))
 		if slot.team >= 0:
-			word = "Team: %s" % Teams.name_of(slot.team)
+			word = tr("Team: %s") % tr(Teams.name_of(slot.team))
 		(each["color_word"] as Label).text = word
 		ScreenReader.name(each["color_button"] as Control, word)
 

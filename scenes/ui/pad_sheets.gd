@@ -5,13 +5,16 @@ extends RefCounted
 ## at each button of a pad as the actions are bound, and several things on one button as one line.
 
 
-## What each page names, in order: the actions, the words for them, and a note in red pen.
+## What each page names, in order: the actions, the words for them, and a note in red pen, in the
+## language spoken.
 static func entries(on_page: int, simple_driving: bool) -> Array[Dictionary]:
 	var list: Array[Dictionary] = []
 	match on_page:
 		0:
-			list.append(_entry([InputActions.THROTTLE], "Gas", "squeeze, don't stab"))
-			list.append(_entry([InputActions.BRAKE], "Brake"))
+			list.append(
+				_entry([InputActions.THROTTLE], Lang.t("Gas"), Lang.t("squeeze, don't stab"))
+			)
+			list.append(_entry([InputActions.BRAKE], Lang.t("Brake")))
 			if simple_driving:
 				var ways: Array[StringName] = [
 					InputActions.STEER_LEFT,
@@ -19,50 +22,60 @@ static func entries(on_page: int, simple_driving: bool) -> Array[Dictionary]:
 					InputActions.DRIVE_UP,
 					InputActions.DRIVE_DOWN,
 				]
-				list.append(_entry(ways, "Drive"))
+				list.append(_entry(ways, Lang.t("Drive")))
 			else:
-				list.append(_entry([InputActions.STEER_LEFT, InputActions.STEER_RIGHT], "Steer"))
-			list.append(_entry([InputActions.HANDBRAKE], "Drift"))
-			list.append(_entry([InputActions.NITRO], "Nitro"))
-			list.append(_entry([InputActions.FIRE], "Fire"))
-			list.append(_entry([InputActions.USE_ITEM], "Use item"))
-			list.append(_entry([InputActions.JOKER_MENU], "Joker hand"))
+				list.append(
+					_entry([InputActions.STEER_LEFT, InputActions.STEER_RIGHT], Lang.t("Steer"))
+				)
+			list.append(_entry([InputActions.HANDBRAKE], Lang.t("Drift")))
+			list.append(_entry([InputActions.NITRO], Lang.t("Nitro")))
+			list.append(_entry([InputActions.FIRE], Lang.t("Fire")))
+			list.append(_entry([InputActions.USE_ITEM], Lang.t("Use item")))
+			list.append(_entry([InputActions.JOKER_MENU], Lang.t("Joker hand")))
 			var aim: Array[StringName] = [
 				InputActions.AIM_LEFT,
 				InputActions.AIM_RIGHT,
 				InputActions.AIM_UP,
 				InputActions.AIM_DOWN
 			]
-			list.append(_entry(aim, "Aim"))
-			list.append(_entry([InputActions.PAUSE], "Pause"))
-			list.append(_entry([InputActions.JOIN], "Join"))
-			list.append(_entry([InputActions.EMOTE_WHEEL], "Emotes"))
+			list.append(_entry(aim, Lang.t("Aim")))
+			list.append(_entry([InputActions.PAUSE], Lang.t("Pause")))
+			list.append(_entry([InputActions.JOIN], Lang.t("Join")))
+			list.append(_entry([InputActions.EMOTE_WHEEL], Lang.t("Emotes")))
 		1:
-			list.append(_entry([InputActions.STEER_LEFT, InputActions.STEER_RIGHT], "Cycle"))
+			list.append(
+				_entry([InputActions.STEER_LEFT, InputActions.STEER_RIGHT], Lang.t("Cycle"))
+			)
 			var flip: Array[StringName] = [InputActions.JOKER_PREV, InputActions.JOKER_NEXT]
-			list.append(_entry(flip, "Previous / next joker", "flip through your hand"))
-			list.append(_entry([InputActions.JOKER_DROP], "Drop"))
-			list.append(_entry([InputActions.FIRE], "Take"))
-			list.append(_entry([InputActions.JOKER_DESTROY], "Destroy or skip", "no take-backs"))
-			list.append(_entry([InputActions.JOKER_MENU], "Open or close the hand"))
-			list.append(_entry([InputActions.DETAILS], "Details"))
-			list.append(_entry([InputActions.NITRO], "Reroll"))
+			list.append(
+				_entry(flip, Lang.t("Previous / next joker"), Lang.t("flip through your hand"))
+			)
+			list.append(_entry([InputActions.JOKER_DROP], Lang.t("Drop")))
+			list.append(_entry([InputActions.FIRE], Lang.t("Take")))
+			list.append(
+				_entry(
+					[InputActions.JOKER_DESTROY], Lang.t("Destroy or skip"), Lang.t("no take-backs")
+				)
+			)
+			list.append(_entry([InputActions.JOKER_MENU], Lang.t("Open or close the hand")))
+			list.append(_entry([InputActions.DETAILS], Lang.t("Details")))
+			list.append(_entry([InputActions.NITRO], Lang.t("Reroll")))
 		_:
 			var moves: Array[StringName] = [&"ui_left", &"ui_right", &"ui_up", &"ui_down"]
-			list.append(_entry(moves, "Move"))
-			list.append(_entry([&"ui_accept"], "Choose"))
-			list.append(_entry([&"ui_cancel"], "Back", "always a way out"))
-			list.append(_entry([InputActions.MENU_PAGE_PREV], "Previous page"))
-			list.append(_entry([InputActions.MENU_PAGE_NEXT], "Next page"))
-			list.append(_entry([InputActions.MENU_VIEW], "Change the view"))
-			list.append(_entry([InputActions.MENU_OPTION], "Option"))
+			list.append(_entry(moves, Lang.t("Move")))
+			list.append(_entry([&"ui_accept"], Lang.t("Choose")))
+			list.append(_entry([&"ui_cancel"], Lang.t("Back"), Lang.t("always a way out")))
+			list.append(_entry([InputActions.MENU_PAGE_PREV], Lang.t("Previous page")))
+			list.append(_entry([InputActions.MENU_PAGE_NEXT], Lang.t("Next page")))
+			list.append(_entry([InputActions.MENU_VIEW], Lang.t("Change the view")))
+			list.append(_entry([InputActions.MENU_OPTION], Lang.t("Option")))
 			# The keyboard's sheet keeps to what a menu is mostly worked with: the rest are named on
 			# the buttons they press, and a keyboard has keys enough to crowd it.
-			list.append(_entry([InputActions.MENU_FILTER], "Filter", "", false))
-			list.append(_entry([InputActions.MENU_SORT], "Sort", "", false))
-			list.append(_entry([InputActions.MENU_HELP], "How it works", "", false))
-			list.append(_entry([InputActions.MENU_NEXT_NEW], "Next new", "", false))
-			list.append(_entry([InputActions.MATCH_SETTINGS], "Match settings"))
+			list.append(_entry([InputActions.MENU_FILTER], Lang.t("Filter"), "", false))
+			list.append(_entry([InputActions.MENU_SORT], Lang.t("Sort"), "", false))
+			list.append(_entry([InputActions.MENU_HELP], Lang.t("How it works"), "", false))
+			list.append(_entry([InputActions.MENU_NEXT_NEW], Lang.t("Next new"), "", false))
+			list.append(_entry([InputActions.MATCH_SETTINGS], Lang.t("Match settings")))
 	return list
 
 
