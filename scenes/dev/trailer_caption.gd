@@ -49,6 +49,33 @@ const RACK_Y := Vector2(0.25, 0.86)
 const RACKED := 0.62
 const BIG_WORDS: Array[String] = ["And", "much", "more", "fun"]
 const BIG_TURNS: Array[float] = [-0.04, 0.03, -0.025, 0.045]
+## Every word the trailer prints, in each other language the game speaks, by its locale, keyed by
+## the English: the captions `tools/trailer` gives the shots, the run of features and its big words,
+## and the end card's, see [method said]. Written with the store page's words in that language,
+## docs/steam/store_<language>.md, in the game's own terms; a word not here is printed in English.
+const WORDS_IN: Dictionary[String, Dictionary] = {
+	"nl":
+	{
+		"Drift. Shoot.": "Drift. Schiet.",
+		"Knock them out.": "Schakel ze uit.",
+		"Scoop the chips.": "Graai de fiches.",
+		"Cash out before they cash you in.": "Verzilver voor zij jou verzilveren.",
+		"Bend the rules.": "Buig de regels.",
+		"4 on one screen · 8 online": "4 op één scherm · 8 online",
+		"7 tables": "7 tafels",
+		"Slot machines": "Gokkasten",
+		"Bounties": "Premies",
+		"Driving school": "Rijschool",
+		"Loyalty rewards": "Loyaliteitsprogramma",
+		"Any controller": "Elke controller",
+		"And": "En",
+		"much": "nog",
+		"more": "meer",
+		"fun": "plezier",
+		"PLAY FREE ON STEAM": "SPEEL GRATIS OP STEAM",
+		"Up to 4 on one screen  ·  8 online": "Tot 4 op één scherm  ·  8 online",
+	},
+}
 const BIG := Vector2(0.5, 0.5)
 const BIG_SIZE := 1.6
 ## How big a feature is stamped in the middle of the frame, and when it sets off for its place in
@@ -111,6 +138,12 @@ static func rack(parent: Node, index: int) -> void:
 		over(parent, BIG_WORDS[past], BIG_TURNS[past], BIG, BIG_SIZE)
 
 
+## [param english] in the language the trailer is recorded in, `tools/trailer --language=nl`:
+## from [constant WORDS_IN], or as it is.
+static func said(english: String) -> String:
+	return WORDS_IN.get(Lang.current, {}).get(english, english)
+
+
 func _build(words: String) -> void:
 	_ticket = PanelContainer.new()
 	var stock := TicketStyle.cut(HouseTheme.STOCK, 11.0, ACROSS, DOWN)
@@ -119,7 +152,7 @@ func _build(words: String) -> void:
 	stock.shadow = 18.0
 	_ticket.add_theme_stylebox_override(&"panel", stock)
 	var label := Label.new()
-	label.text = words.to_upper()
+	label.text = said(words).to_upper()
 	label.add_theme_font_override(&"font", Type.mark_font())
 	label.add_theme_font_size_override(&"font_size", WORDS)
 	label.add_theme_color_override(&"font_color", HouseTheme.FOIL)

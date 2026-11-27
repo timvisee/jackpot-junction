@@ -401,13 +401,13 @@ func _endcard() -> void:
 	var lockup: Container = KEY_ART.lockup(SEAL, NAME, 46.0)
 	middle.add_child(lockup)
 	var where := Label.new()
-	where.text = "PLAY FREE ON STEAM"
+	where.text = CAPTION.said("PLAY FREE ON STEAM")
 	where.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.set_font(where, Type.mark_font(), WHERE)
 	where.add_theme_color_override(&"font_color", HouseTheme.FOIL)
 	middle.add_child(where)
 	var subline := Label.new()
-	subline.text = "Up to 4 on one screen  ·  8 online"
+	subline.text = CAPTION.said("Up to 4 on one screen  ·  8 online")
 	subline.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	Type.set_font(subline, Type.STRONG, SUBLINE)
 	subline.add_theme_color_override(&"font_color", Color("#efe8d6"))

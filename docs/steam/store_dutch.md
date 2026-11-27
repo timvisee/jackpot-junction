@@ -25,8 +25,12 @@ controller actions, comes from the game's translations, see STEAM.md.
    page, drag each onto the thumbnail of the English one with its number: Steam keeps it as that
    screenshot's Dutch version, which the `_dutch` in its name tells it. Mark each suitable for all
    ages, as the English ones are.
-5. Publish the store page. The capsules, the library's art and the trailer have no words but the
-   game's name, which stays, and Steam has no Dutch version of them.
+5. **The trailer**, if wanted: `make trailer LANGUAGE=nl` records it in Dutch into
+   `build/trailer/dutch/`, see STEAM.md "The trailer". Upload `jackpot-junction-trailer.mp4` from
+   there as a trailer of its own and set its language to Dutch, so Dutch visitors see it in place
+   of the English one.
+6. Publish the store page. The capsules and the library's art have no words but the game's name,
+   which stays, and Steam has no Dutch version of them.
 
 ## Short description
 

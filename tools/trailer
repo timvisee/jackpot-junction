@@ -16,17 +16,22 @@ smooth edges, as the store's screenshots are; and `--8k` at 7680x4320, scaled do
 Usage: tools/trailer [--final|--8k] [shot ...]   renders the shots named, or all, then cuts the
                                                  trailer
        tools/trailer [--final|--8k] --cut        only cuts the trailer, from the shots recorded
+       tools/trailer --language=nl [...]         the trailer in another language the game speaks
        GODOT_HIDDEN=1 tools/trailer              renders without a window, in gamescope
        JOBS=3 tools/trailer                      renders this many shots at once (default 3, at 8K
                                                  1; more crash the hidden display now and then)
 Writes build/trailer/jackpot-junction-trailer.mp4, -draft.mp4 or -4k.mp4, and each shot's recording
 to build/trailer/shots, shots-draft or shots-8k, which a later run cutting only some shots again
-reuses.
+reuses. In English whatever the machine speaks; with --language, the game in that language and
+the captions, the run of features and the end card in it, from WORDS_IN in
+scenes/dev/trailer_caption.gd, all into a folder named for the language as Steam names it,
+build/trailer/dutch, beside the English.
 """
 
 import concurrent.futures
 import os
 import pathlib
+import re
 import signal
 import subprocess
 import sys
@@ -34,6 +39,9 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "build" / "trailer"
+# The language the game speaks in the trailer, by its locale: English unless --language says, in
+# a folder of OUT's named for it, see [language].
+LANGUAGE = "en"
 FPS = 60
 # What each kind of run draws at and gives: the window, its shots' folder, how many are recorded at
 # once and how long one may take, how well its frames are kept, and each trailer it cuts, its size,
@@ -328,10 +336,11 @@ def _starts(shots: list[tuple]) -> list[float]:
 SHOTS_IN_ORDER = placed(SHOTS_IN_ORDER)
 # How long each shot goes on past its end, room for a transition out of it.
 TAIL = 0.5
-# The settings each shot plays with: English whatever the machine speaks, as the captions are.
+# The settings each shot plays with: the trailer's language, English unless --language says, whatever
+# the machine speaks.
 SETTINGS = """[game]
 
-language="en"
+language="%s"
 
 [video]
 
@@ -350,13 +359,13 @@ control_hints=false
 
 def render(scratch: pathlib.Path, shot: tuple, mode: dict) -> str | None:
     """Plays and records [shot] in a user directory of its own, so the player's settings and
-    profiles are never touched: in English, no music, which the trailer lays under itself, no
-    control hints, and frames not held to a display. Returns why it failed, or None."""
+    profiles are never touched: in the trailer's language, no music, which the trailer lays under
+    itself, no control hints, and frames not held to a display. Returns why it failed, or None."""
     name, length, scene, args, _ = shot
     user = scratch / name / "godot/app_userdata/Jackpot Junction"
     user.mkdir(parents=True, exist_ok=True)
     wide, tall = mode["drawn"]
-    (user / "settings.cfg").write_text(SETTINGS % (wide, tall))
+    (user / "settings.cfg").write_text(SETTINGS % (LANGUAGE, wide, tall))
     shots = OUT / mode["shots"]
     movie = shots / f"{name}.avi"
     movie.unlink(missing_ok=True)
@@ -713,13 +722,29 @@ def drawn_at(size: tuple[int, int], quality: float) -> pathlib.Path:
     return override
 
 
+def language(locale: str) -> str:
+    """Steam's name for [locale], a language the game speaks, from scripts/lang.gd's STEAM_NAMES:
+    what its trailer's folder is called. Quits if the game does not speak it."""
+    names = (ROOT / "scripts" / "lang.gd").read_text()
+    found = re.search(r'^\t"([a-z]+)": "%s",$' % re.escape(locale), names, re.M)
+    if not found or not (ROOT / "data" / "locale" / f"{locale}.po").is_file():
+        print(f"trailer: the game speaks no {locale}", file=sys.stderr)
+        sys.exit(1)
+    return found.group(1)
+
+
 def main() -> None:
+    global OUT, LANGUAGE
     # Before a single shot is drawn: the music is licensed and lives in a private repository,
     # GAME.md 10.6, so a checkout may not have it.
     if not all((MUSIC / layer).is_file() for layer in LAYERS):
         missing = MUSIC.relative_to(ROOT)
         print(f"trailer: no music in {missing}, see make private-assets", file=sys.stderr)
         sys.exit(1)
+    for arg in sys.argv[1:]:
+        if arg.startswith("--language=") and arg != "--language=en":
+            LANGUAGE = arg.removeprefix("--language=")
+            OUT = OUT / language(LANGUAGE)
     mode = DRAFT
     if "--final" in sys.argv[1:]:
         mode = FINAL

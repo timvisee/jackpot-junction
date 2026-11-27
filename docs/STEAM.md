@@ -421,7 +421,14 @@ the music's bars with ffmpeg.
   time, as each needs 3 GB of video memory. Shots named after the command are
   the only ones recorded again, `tools/trailer --8k slot license`, and `--cut`
   cuts again from the recordings alone, in about a quarter of an hour.
-  `GODOT_HIDDEN=1` in front records without a window.
+  `GODOT_HIDDEN=1` in front records without a window. It is recorded in English
+  whatever the machine speaks.
+- **In another language**: `make trailer LANGUAGE=nl` (or `trailer-draft`, or
+  `tools/trailer --language=nl`) records the game in Dutch, its captions, run of
+  features and end card in Dutch from `WORDS_IN` in `trailer_caption.gd`, into
+  `build/trailer/dutch/` with its own recordings, the English left as it is. A
+  word missing there is printed in English. On Steamworks it goes up as a
+  trailer of its own, set to Dutch; see [store_dutch.md](steam/store_dutch.md).
 - **Uploading**: Valve takes up to 1920 × 1080 at 30 or 60 frames a second,
   H.264 and AAC in an .mp4. The first trailer should be mostly play with the HUD
   shown, and must work muted: the captions carry it. Its thumbnail is a

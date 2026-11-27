@@ -190,11 +190,12 @@ screenshots: | $(CACHE)
 # The store trailer, docs/STEAM.md "The trailer": its shots recorded by the game's movie writer, one
 # by one, and cut to the music, into build/trailer, drawn at 8K and scaled down to 4K for YouTube
 # and 1080p for the store; a quicker draft at 1080p with trailer-draft. GODOT_HIDDEN=1 for no window.
+# LANGUAGE=nl records it in another language the game speaks, into build/trailer/dutch.
 trailer:
-	tools/trailer --8k
+	tools/trailer --8k $(if $(LANGUAGE),--language=$(LANGUAGE))
 
 trailer-draft:
-	tools/trailer
+	tools/trailer $(if $(LANGUAGE),--language=$(LANGUAGE))
 
 # What the achievements dialog and the catalog cost a frame, GAME.md 10.7, and whether each is
 # within its budget of draw calls: their chips and cards drawn once into pictures rather than as
