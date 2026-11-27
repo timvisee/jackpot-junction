@@ -55,6 +55,8 @@ static func kept(
 ) -> void:
 	of(host, drawing, pixels, msaa, scale)
 	var render := host.get_child(host.get_child_count() - 1) as SubViewport
+	# Drawn when its keeper asks, in the next frame, not in this one, see [Keeper].
+	render.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	var keeper := Keeper.new()
 	keeper.keep = keep
 	render.add_child(keeper)
@@ -62,6 +64,12 @@ static func kept(
 
 ## Waits in the viewport of [method kept] for it to have drawn, and hands its picture on; goes with
 ## the viewport, its wait with it, whenever that goes first.
+##
+## The viewport draws at the start of the frame after the one it was made in, when the keeper asks
+## it to, and is looked at once that frame is drawn. A viewport made partway through a frame may
+## not draw in it, and its picture read before it has drawn is whatever the memory under it last
+## held, which need not be blank: the speed dial was once seen wearing the House's KEEP CLEAR from
+## the floor of the room going up at the same moment.
 class Keeper:
 	extends Node
 
@@ -69,6 +77,10 @@ class Keeper:
 	var _tries := KEEP_TRIES
 
 	func _ready() -> void:
+		get_tree().process_frame.connect(_start, CONNECT_ONE_SHOT)
+
+	func _start() -> void:
+		(get_parent() as SubViewport).render_target_update_mode = SubViewport.UPDATE_ONCE
 		RenderingServer.frame_post_draw.connect(_look)
 
 	func _look() -> void:
