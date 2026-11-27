@@ -16,7 +16,7 @@ import pathlib
 
 from PIL import Image, ImageDraw, ImageFont
 
-from baked_words import _, languages, translates_any, translator
+from baked_words import _, languages, length, text, translates_any, translator
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
@@ -54,11 +54,11 @@ def rail(tr=lambda text: text, name="rail_print.png"):
     items = []
     for phrase in MICROPRINT:
         items += [tr(phrase), "\u00b7"]
-    widths = [d.textlength(item, font=font) for item in items]
+    widths = [length(d, item, font) for item in items]
     gap = (w - sum(widths)) / len(items)
     x = gap / 2
     for item, width in zip(items, widths):
-        d.text((x, h / 2), item, font=font, fill=ink, anchor="lm")
+        text(d, (x, h / 2), item, font, ink, "lm")
         x += width + gap
     img.save(OUT / name)
 

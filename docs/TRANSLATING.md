@@ -81,9 +81,9 @@ Chinese is drawn in fonts cut down to the characters its translation uses: after
 missing.
 
 Words drawn into pictures, the House rail's microprint and Kit's chalkboard, are in the template
-too. After translating them, run `python3 tools/make_house_prints.py` and
-`python3 tools/make_workbench_prints.py` to draw that language's pictures (they need Pillow and
-numpy).
+too. After translating them, and for Chinese running `make fonts`, run
+`python3 tools/make_house_prints.py` and `python3 tools/make_workbench_prints.py` to draw that
+language's pictures (they need Pillow and numpy).
 
 Some words are Steam's too: the names Steam shows for the game's controls in its controller
 settings, what the friends list says a player is doing, and the achievements' names and objectives

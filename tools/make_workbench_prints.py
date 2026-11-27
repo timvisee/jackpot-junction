@@ -24,7 +24,7 @@ import re
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-from baked_words import _, languages, translates_any, translator
+from baked_words import _, languages, text, translates_any, translator
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "textures"
@@ -147,7 +147,7 @@ def chalkboard(tr=lambda text: text, name="kit_chalkboard.png"):
     d = ImageDraw.Draw(ink)
     hand = font("Kalam-Regular.ttf", 64)
     small = font("Kalam-Regular.ttf", 40)
-    d.text((70, 60), tr("TABLE No. 1"), font=hand, fill=255)
+    text(d, (70, 60), tr("TABLE No. 1"), hand, 255)
     # Kit's plan of the table, from its own grid: the walls in outline, the Junction a ring.
     rows = lucky_crossing()
     cell = 26
@@ -183,7 +183,7 @@ def chalkboard(tr=lambda text: text, name="kit_chalkboard.png"):
         tr("check the wheel!"),
     ]
     for i, line in enumerate(sums):
-        d.text((1010, 210 + i * 66), line, font=small, fill=235)
+        text(d, (1010, 210 + i * 66), line, small, 235)
     chalk_line(d, [(1000, 300 + 66 * 3), (1420, 300 + 66 * 3)], 3)
     d.text((1380, 680), "K.", font=hand, fill=255, anchor="mm")
     # Chalk is never solid: broken up by the slate's tooth and a little smudged.
