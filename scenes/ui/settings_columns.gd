@@ -20,10 +20,11 @@ var _linked: Dictionary[Control, Side] = {}
 
 
 ## A group of rows under [param title] in capitals with a dotted rule running on after it, as the
-## house prints a heading, GAME.md 8.1a. Put the rows in it, then the group in the page.
-static func group(title: String) -> VBoxContainer:
+## house prints a heading, GAME.md 8.1a. Put the rows in it, then the group in the page. It is named
+## [param id], the heading's English, whatever language [param title] is in, GAME.md 10.9.
+static func group(title: String, id := "") -> VBoxContainer:
 	var rows := VBoxContainer.new()
-	rows.name = title
+	rows.name = title if id.is_empty() else id
 	rows.add_theme_constant_override("separation", 12)
 	var head := HBoxContainer.new()
 	head.name = "Heading"

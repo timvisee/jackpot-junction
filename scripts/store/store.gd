@@ -222,6 +222,11 @@ static func persona() -> String:
 	return PlayerNames.clean(steam.persona()) if steam != null else ""
 
 
+## The language the player has the game in on Steam, by Steam's name for it; empty with no Steam.
+static func language() -> String:
+	return steam.language() if steam != null else ""
+
+
 ## Which of Steam's own machines the game runs on, [constant SteamStore.NOT_STEAM_HARDWARE] for
 ## none or with no Steam.
 static func hardware() -> int:

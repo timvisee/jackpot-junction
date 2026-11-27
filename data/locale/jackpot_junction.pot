@@ -1,0 +1,2143 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Jackpot Junction\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Seeing"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Motion and light"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Aiming"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "HUD and hints"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Language"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Off"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "My kart"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "All karts"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Kart rings"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Marker over my kart"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Faint"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Full"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Rival arrows"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Screen shake"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Rumble"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Cursor glide"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Reduce flashing"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Few"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Disco lights"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Crowd"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Aim assist strength"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Aim guide"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "See-through HUD"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "km/h"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "mph"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Speed in"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Control hints"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Always show drive hints"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Automatic ({language})"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Change the language from the title screen."
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Protanopia (red-weak)"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Deuteranopia (green-weak)"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Tritanopia (blue-weak)"
+msgstr ""
+
+#: scenes/ui/accessibility_tab.gd
+msgid "Color blindness"
+msgstr ""
+
+#: scripts/lang.gd
+msgctxt "thousands"
+msgid ","
+msgstr ""
+
+#: scripts/lang.gd
+msgctxt "decimal"
+msgid "."
+msgstr ""
+
+#: scripts/lang.gd
+msgctxt "list"
+msgid ", "
+msgstr ""
+
+#: scripts/lang.gd
+msgid "{some} and {last}"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Street Legal"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Pass the driving test and earn your license"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Honor Roll"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Pass the driving test with all seven endorsements"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Flawless"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win a map against two or more without losing a single life"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Beat the House"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win a map against three bots on Hard"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Clean Sweep"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win every map of a Grand Prix of three maps or more, against three or more"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Last Kart Standing"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Be the last kart left in sudden death, with three or more others in it as it began"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "All In"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win a map against three or more with a single cash-out"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "By a Nose"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win a map against two or more by 50 points or fewer"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Push Your Luck"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Carry a pot worth three times the target score"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Let It Ride"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Hit three of a kind on a slot machine at match point"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Point of Sale"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Reach Match Point while cashing out on the Junction"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Hit the Jackpot"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Empty a Jackpot pile of 120 chips with nobody else on it"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Most Wanted"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Cash out 1,000 or more with a bounty on your head"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Bank Shot"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out a kart with a bullet that bounced off two walls"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Parry"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Shoot down five bullets of other karts in one life"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Long Shot"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out a kart 25 m away or more"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Payback"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out whoever took you out within 10 s of coming back, three times in one map"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Payment Interrupted"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out a kart cashing out on the Junction at Match Point"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Untouchable"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out eight karts without dying"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Tough as Nails"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take ten hits without dying"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Two Birds"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out two karts with one bomb"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Set and Forget"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Have one turret take out three karts"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Push Comes to Shove"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Knock three karts into pits in one map"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "A Pit. Do Not."
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Drive into a pit carrying a pot worth 1,000 or more"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "A Real Handful"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Hold nine jokers at once"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Stacked"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Hold two jokers at full stacks at once"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Asking for Trouble"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win a map holding three cursed jokers"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Suit Yourself"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Make every hand, and be Suited in every suit"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Full Deck"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take every joker at least once"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Toybox"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Use every power-up at least once"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Plus One"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Play a map with somebody else at the same screen"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Long Distance"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Play a map online with somebody at another machine"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Full Table"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Play an online map with eight karts at the table, bots counting"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Front Row"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Watch an online map from its flag to its whistle, and send some emotes while you do"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Dressed to the Nines"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Wear something in all seven parts of the dress at once"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Know Every Street"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win every landmark of one district of the loyalty program"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Most Valued Member"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win every landmark on the House's map"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Lap of Luxury"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Drive a lap of the roundabout: win all seven of its bets"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Off the Books"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Find a note"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Terms Accepted"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Stamp the House's evaluation"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Not This Time"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Tear the House's evaluation off"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Employee of the Month"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Play a map after the ending"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Under the Floorboards"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take all five of Kit's cards"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "A Fresh Start"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Find every note of the story"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Buzzer Beater"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take the lead with a cash-out in a map's last 5 seconds, and win it"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Winner Takes All"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Win a Grand Prix in its showdown"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Partners in Crime"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Cash out on the Junction at the same time as a teammate, and win the map as a team against two or more"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Snatch and Grab"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out a kart collecting a Jackpot, then empty that pile yourself"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Full House"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Make three Royal Flushes in one map"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Road Hog"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Take out two karts with one Boost"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Slick Operator"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Spin out three karts on one oil slick"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Dead Ringer"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Have your decoy take out a kart"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Long Way Round"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Hold one drift for 15 seconds"
+msgstr ""
+
+#. title
+#: data/achievements/list.tres
+msgid "Property Damage"
+msgstr ""
+
+#. objective
+#: data/achievements/list.tres
+msgid "Break 250 crates"
+msgstr ""
+
+#. display name
+#: data/ai/easy.tres
+msgid "Easy"
+msgstr ""
+
+#. display name
+#: data/ai/hard.tres
+msgid "Hard"
+msgstr ""
+
+#. display name
+#: data/ai/normal.tres
+msgid "Normal"
+msgstr ""
+
+#. display name
+#: data/ai/traits/balanced.tres
+msgid "Balanced"
+msgstr ""
+
+#. display name
+#: data/ai/traits/bumper.tres
+msgid "Bumper"
+msgstr ""
+
+#. display name
+#: data/ai/traits/cautious.tres
+msgid "Cautious"
+msgstr ""
+
+#. display name
+#: data/ai/traits/grazer.tres
+msgid "Grazer"
+msgstr ""
+
+#. display name
+#: data/ai/traits/greedy.tres
+msgid "Greedy"
+msgstr ""
+
+#. display name
+#: data/ai/traits/hunter.tres
+msgid "Hunter"
+msgstr ""
+
+#. display name
+#: data/jokers/aimbot.tres
+msgid "Aimbot"
+msgstr ""
+
+#. description
+#: data/jokers/aimbot.tres
+msgid "Every shot leaves the barrel aimed up to {deg} toward the nearest enemy."
+msgstr ""
+
+#. display name
+#: data/jokers/backfire.tres
+msgid "Backfire"
+msgstr ""
+
+#. description
+#: data/jokers/backfire.tres
+msgid "Hold the brake, or drift, and your cannon points out of the back of the kart."
+msgstr ""
+
+#. display name
+#: data/jokers/big_tank.tres
+msgid "Big Tank"
+msgstr ""
+
+#. description
+#: data/jokers/big_tank.tres
+msgid "{bullets} max live bullets."
+msgstr ""
+
+#. display name
+#: data/jokers/blind_spot.tres
+msgid "Blind Spot"
+msgstr ""
+
+#. description
+#: data/jokers/blind_spot.tres
+msgid "Bots aim at where you are, never at where you are going. No standings board while you hold it."
+msgstr ""
+
+#. kit line
+#: data/jokers/blind_spot.tres
+msgid "If they can't guess you, they can't aim."
+msgstr ""
+
+#. kit back
+#: data/jokers/blind_spot.tres
+msgid "They don't aim at you. They aim at the you they expect. Give them nothing to expect. —K."
+msgstr ""
+
+#. display name
+#: data/jokers/brake_check.tres
+msgid "Brake Check"
+msgstr ""
+
+#. description
+#: data/jokers/brake_check.tres
+msgid "A dead stop with chips in the pot: +1 mult, three a life, one every 8 seconds. Top speed 10% down."
+msgstr ""
+
+#. kit line
+#: data/jokers/brake_check.tres
+msgid "Brake on a straight now and then. It hates that."
+msgstr ""
+
+#. kit back
+#: data/jokers/brake_check.tres
+msgid "The models never brake on a straight. Nobody would, they figured. So I did, every lap, for a week, and they wrote a memo about it. —K."
+msgstr ""
+
+#. display name
+#: data/jokers/burnout.tres
+msgid "Burnout"
+msgstr ""
+
+#. description
+#: data/jokers/burnout.tres
+msgid "Your jokers count every drift boost as a turbo pad."
+msgstr ""
+
+#. display name
+#: data/jokers/carbon_copy.tres
+msgid "Carbon Copy"
+msgstr ""
+
+#. description
+#: data/jokers/carbon_copy.tres
+msgid "A joker your death drops is a copy: you keep your own."
+msgstr ""
+
+#. display name
+#: data/jokers/comeback.tres
+msgid "Comeback"
+msgstr ""
+
+#. description
+#: data/jokers/comeback.tres
+msgid "Respawn with mult equal to half your mult at death, rounded up."
+msgstr ""
+
+#. display name
+#: data/jokers/copy_cat.tres
+msgid "Copy Cat"
+msgstr ""
+
+#. description
+#: data/jokers/copy_cat.tres
+msgid "Counts as one more copy of the joker just before it in your hand, even past its most. Only a joker that stacks."
+msgstr ""
+
+#. display name
+#: data/jokers/curve_ball.tres
+msgid "Curve Ball"
+msgstr ""
+
+#. description
+#: data/jokers/curve_ball.tres
+msgid "Your bullets curve hard toward enemies, turning up to {turn} a second, further out, and keep curving after a bounce."
+msgstr ""
+
+#. display name
+#: data/jokers/cushion_shot.tres
+msgid "Cushion Shot"
+msgstr ""
+
+#. description
+#: data/jokers/cushion_shot.tres
+msgid "+{coins} every time one of your bullets bounces off a wall."
+msgstr ""
+
+#. display name
+#: data/jokers/daredevil.tres
+msgid "Daredevil"
+msgstr ""
+
+#. description
+#: data/jokers/daredevil.tres
+msgid "A graze while you are wounded patches you up."
+msgstr ""
+
+#. display name
+#: data/jokers/deep_pockets.tres
+msgid "Deep Pockets"
+msgstr ""
+
+#. description
+#: data/jokers/deep_pockets.tres
+msgid "{slots} joker slots, and every Deep Pockets stands in one of them."
+msgstr ""
+
+#. display name
+#: data/jokers/direct_debit.tres
+msgid "Direct Debit"
+msgstr ""
+
+#. description
+#: data/jokers/direct_debit.tres
+msgid "{points} points of your pot bank themselves every second, wherever you are. Your mult is left alone."
+msgstr ""
+
+#. display name
+#: data/jokers/double_tap.tres
+msgid "Double Tap"
+msgstr ""
+
+#. description
+#: data/jokers/double_tap.tres
+msgid "Your bullets wait out only {share} of a wounded kart's moment of grace."
+msgstr ""
+
+#. display name
+#: data/jokers/echo.tres
+msgid "Echo"
+msgstr ""
+
+#. description
+#: data/jokers/echo.tres
+msgid "Your jokers that pay chips or mult pay again one time in four."
+msgstr ""
+
+#. display name
+#: data/jokers/flush_draw.tres
+msgid "Flush Draw"
+msgstr ""
+
+#. description
+#: data/jokers/flush_draw.tres
+msgid "Two cards of a suit are enough to be Suited."
+msgstr ""
+
+#. display name
+#: data/jokers/getaway_driver.tres
+msgid "Getaway Driver"
+msgstr ""
+
+#. description
+#: data/jokers/getaway_driver.tres
+msgid "Junction drain ramps {times} as fast."
+msgstr ""
+
+#. display name
+#: data/jokers/glass_jackpot.tres
+msgid "Glass Jackpot"
+msgstr ""
+
+#. description
+#: data/jokers/glass_jackpot.tres
+msgid "Completed cash-outs pay 150%, but dying drops all your chips and 2 jokers."
+msgstr ""
+
+#. display name
+#: data/jokers/green_light.tres
+msgid "Green Light"
+msgstr ""
+
+#. description
+#: data/jokers/green_light.tres
+msgid "Turbo pads give {mult} mult."
+msgstr ""
+
+#. display name
+#: data/jokers/guardian_angel.tres
+msgid "Guardian Angel"
+msgstr ""
+
+#. description
+#: data/jokers/guardian_angel.tres
+msgid "A hit about to cost you a life uses your Shield or Bullet Wipe instead."
+msgstr ""
+
+#. display name
+#: data/jokers/hair_trigger.tres
+msgid "Hair Trigger"
+msgstr ""
+
+#. description
+#: data/jokers/hair_trigger.tres
+msgid "Fire cooldown {cut}."
+msgstr ""
+
+#. display name
+#: data/jokers/high_roller.tres
+msgid "High Roller"
+msgstr ""
+
+#. description
+#: data/jokers/high_roller.tres
+msgid "All mult gains are doubled, but death banks 0%."
+msgstr ""
+
+#. display name
+#: data/jokers/hot_streak.tres
+msgid "Hot Streak"
+msgstr ""
+
+#. description
+#: data/jokers/hot_streak.tres
+msgid "{mult} mult every 10 seconds you stay on the floor."
+msgstr ""
+
+#. display name
+#: data/jokers/insurance_policy.tres
+msgid "Insurance Policy"
+msgstr ""
+
+#. description
+#: data/jokers/insurance_policy.tres
+msgid "Bank all that is left of your pot on death."
+msgstr ""
+
+#. display name
+#: data/jokers/jerry_can.tres
+msgid "Jerry Can"
+msgstr ""
+
+#. description
+#: data/jokers/jerry_can.tres
+msgid "Nitro refills {times} as fast."
+msgstr ""
+
+#. display name
+#: data/jokers/loaded_dice.tres
+msgid "Loaded Dice"
+msgstr ""
+
+#. description
+#: data/jokers/loaded_dice.tres
+msgid "Every chip has a {chance} chance to count as a gold chip."
+msgstr ""
+
+#. display name
+#: data/jokers/loose_change.tres
+msgid "Loose Change"
+msgstr ""
+
+#. description
+#: data/jokers/loose_change.tres
+msgid "The chips you drop never fade back to the House. You drop half again as many."
+msgstr ""
+
+#. kit line
+#: data/jokers/loose_change.tres
+msgid "What they don't pick up isn't theirs."
+msgstr ""
+
+#. kit back
+#: data/jokers/loose_change.tres
+msgid "Everything that hits their floor goes back to them, sooner or later. Not this. Let somebody else have it. —K."
+msgstr ""
+
+#. display name
+#: data/jokers/lucky_charm.tres
+msgid "Lucky Charm"
+msgstr ""
+
+#. description
+#: data/jokers/lucky_charm.tres
+msgid "Slot machines pay you a step better: a pair as three of a kind, three of a kind as three sevens."
+msgstr ""
+
+#. display name
+#: data/jokers/lucky_seven.tres
+msgid "Lucky Seven"
+msgstr ""
+
+#. description
+#: data/jokers/lucky_seven.tres
+msgid "Every 7 chips you collect give {mult} mult, a gold chip counting as five."
+msgstr ""
+
+#. display name
+#: data/jokers/magnet_hubcaps.tres
+msgid "Magnet Hubcaps"
+msgstr ""
+
+#. description
+#: data/jokers/magnet_hubcaps.tres
+msgid "Pickup radius times {times}."
+msgstr ""
+
+#. display name
+#: data/jokers/nitro_habit.tres
+msgid "Nitro Habit"
+msgstr ""
+
+#. description
+#: data/jokers/nitro_habit.tres
+msgid "Drift exit boosts and turbo pads last {times} as long."
+msgstr ""
+
+#. display name
+#: data/jokers/not_today.tres
+msgid "Not Today"
+msgstr ""
+
+#. description
+#: data/jokers/not_today.tres
+msgid "Skip a pick: +2 mult when you come back. Take one of theirs: 1 mult off."
+msgstr ""
+
+#. kit line
+#: data/jokers/not_today.tres
+msgid "Say no to one of theirs."
+msgstr ""
+
+#. kit back
+#: data/jokers/not_today.tres
+msgid "Every card they deal you is a question, and the answer they want is yes. This one is for the other answer. —K."
+msgstr ""
+
+#. display name
+#: data/jokers/odometer.tres
+msgid "Odometer"
+msgstr ""
+
+#. description
+#: data/jokers/odometer.tres
+msgid "+{coins} for every 20 m you drive, meters on nitro counting double."
+msgstr ""
+
+#. display name
+#: data/jokers/pack_rat.tres
+msgid "Pack Rat"
+msgstr ""
+
+#. description
+#: data/jokers/pack_rat.tres
+msgid "{items} items in reserve, brought out as the one in hand is used."
+msgstr ""
+
+#. display name
+#: data/jokers/payday.tres
+msgid "Payday"
+msgstr ""
+
+#. description
+#: data/jokers/payday.tres
+msgid "+{coins} every second, wherever you are."
+msgstr ""
+
+#. display name
+#: data/jokers/pickpocket.tres
+msgid "Pickpocket"
+msgstr ""
+
+#. description
+#: data/jokers/pickpocket.tres
+msgid "Kills move 50% of the victim's chips into your pot; the victim drops none."
+msgstr ""
+
+#. display name
+#: data/jokers/pit_crew.tres
+msgid "Pit Crew"
+msgstr ""
+
+#. description
+#: data/jokers/pit_crew.tres
+msgid "Turbo pads refill {share} of your nitro tank, once every 3 s."
+msgstr ""
+
+#. display name
+#: data/jokers/road_rage.tres
+msgid "Road Rage"
+msgstr ""
+
+#. description
+#: data/jokers/road_rage.tres
+msgid "Ramming above 90% of top speed kills without Boost, but top speed is -10%."
+msgstr ""
+
+#. display name
+#: data/jokers/royal_court.tres
+msgid "Royal Court"
+msgstr ""
+
+#. description
+#: data/jokers/royal_court.tres
+msgid "Come back with +1 mult for every Cursed joker you hold."
+msgstr ""
+
+#. display name
+#: data/jokers/rubber_bumpers.tres
+msgid "Rubber Bumpers"
+msgstr ""
+
+#. description
+#: data/jokers/rubber_bumpers.tres
+msgid "Your bullets bounce off walls {more} more."
+msgstr ""
+
+#. display name
+#: data/jokers/scar_tissue.tres
+msgid "Scar Tissue"
+msgstr ""
+
+#. description
+#: data/jokers/scar_tissue.tres
+msgid "{lives}, but nothing heals you: only coming back does."
+msgstr ""
+
+#. display name
+#: data/jokers/second_wind.tres
+msgid "Second Wind"
+msgstr ""
+
+#. description
+#: data/jokers/second_wind.tres
+msgid "Come back with a full tank of nitro and a Boost running."
+msgstr ""
+
+#. display name
+#: data/jokers/slipstream.tres
+msgid "Slipstream"
+msgstr ""
+
+#. description
+#: data/jokers/slipstream.tres
+msgid "Grazes give {mult} mult instead of +0.5."
+msgstr ""
+
+#. display name
+#: data/jokers/snake_eyes.tres
+msgid "Snake Eyes"
+msgstr ""
+
+#. description
+#: data/jokers/snake_eyes.tres
+msgid "Start every life with mult 3, but grazes give nothing."
+msgstr ""
+
+#. display name
+#: data/jokers/snowball.tres
+msgid "Snowball"
+msgstr ""
+
+#. description
+#: data/jokers/snowball.tres
+msgid "Fire rate +10% for every kill this life, up to +50%."
+msgstr ""
+
+#. display name
+#: data/jokers/spare_tire.tres
+msgid "Spare Tire"
+msgstr ""
+
+#. description
+#: data/jokers/spare_tire.tres
+msgid "{lives}. Lost when you die."
+msgstr ""
+
+#. display name
+#: data/jokers/tailslide.tres
+msgid "Tailslide"
+msgstr ""
+
+#. description
+#: data/jokers/tailslide.tres
+msgid "+{coins} for every 8 m you drift."
+msgstr ""
+
+#. display name
+#: data/jokers/tight_grip.tres
+msgid "Tight Grip"
+msgstr ""
+
+#. description
+#: data/jokers/tight_grip.tres
+msgid "Your pot never spills: no chips dropped on death or knocked out by a ram."
+msgstr ""
+
+#. display name
+#: data/jokers/toll_booth.tres
+msgid "Toll Booth"
+msgstr ""
+
+#. description
+#: data/jokers/toll_booth.tres
+msgid "Whenever another kart completes a cash-out, you bank {share} of it."
+msgstr ""
+
+#. display name
+#: data/jokers/under_the_table.tres
+msgid "Under the Table"
+msgstr ""
+
+#. description
+#: data/jokers/under_the_table.tres
+msgid "Your bank is off the standings until the whistle: no bounty, no match point. Last Call pays you single."
+msgstr ""
+
+#. kit line
+#: data/jokers/under_the_table.tres
+msgid "Keep it off their board."
+msgstr ""
+
+#. kit back
+#: data/jokers/under_the_table.tres
+msgid "Their board is how they keep count of you. Stay off it for a while and watch what they do. —K."
+msgstr ""
+
+#. display name
+#: data/jokers/vulture.tres
+msgid "Vulture"
+msgstr ""
+
+#. description
+#: data/jokers/vulture.tres
+msgid "Chips dropped by other karts are worth {coins} to you."
+msgstr ""
+
+#. display name
+#: data/jokers/wild_card.tres
+msgid "Wild Card"
+msgstr ""
+
+#. description
+#: data/jokers/wild_card.tres
+msgid "Respawn offers {offers} jokers instead of 3."
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Slip Road"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Activate your loyalty card"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Cashier's Cage"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Cash out {count} times"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Dealer's visor"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Card Room"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Take {count} jokers"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Chip Alley"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Pick up {count} chips"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Poker chips"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The High Limit Room"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Cash out {count} at once"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Card suits"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Flush Row"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "{count} Royal Flushes"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Ace of spades"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Ten Times Bar"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Cash out at ×{count} mult or more"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Prize Counter"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Use {count} power-ups"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Jackpot Plaza"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "{count} chips out of the Jackpot"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Fedora"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Bounty Board"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Collect {count} bounties"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Last Call Bar"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Win a map you were not leading as Last Call began"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Gilt"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Shuffle Room"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Counting Room"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Bank {count} in one map"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Winners' Circle"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Win {count} maps"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Crazy Eights"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Hold {count} jokers at once"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Grand Salon"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Win three Grand Prix"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Shark fin"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Milestone 2.5"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Drive {count}"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Racing stripes"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Skid Pan"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Drift {count}"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Chalk"
+msgstr ""
+
+#. endorsement
+#: data/loyalty/map.tres
+msgid "DRIFT"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Boost Bend"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "{count} drift boosts"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Flames"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Turbo Lane"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "{count} turbo pads"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Windsock"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Nitro Pumps"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Burn {count} of nitro"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Afterburn"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Records Office"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "A map of {count} or more without dying"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Gold"
+msgstr ""
+
+#. endorsement
+#: data/loyalty/map.tres
+msgid "CLEAN RECORD"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Firing Range"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Land {count} of 30 shots or more in one map"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Ear defenders"
+msgstr ""
+
+#. endorsement
+#: data/loyalty/map.tres
+msgid "MARKSMAN"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Body Shop"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Ram {count} karts"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Horns"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Lost Property, the School"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Lost at the driving school, out past the cones"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Traffic cone"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Lost Property, the Yard"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Lost in the Yard, by the warehouse doors"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Hard hat"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Lost Property, the Workbench"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Lost in the Workbench, up against a wall"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Tape measure"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "Lost Property, After Hours"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Lost in After Hours, in a dark corner"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Fuzzy dice"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Long Haul"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Dashed"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "The Showroom"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Win three maps in a row, one in each of the three rooms"
+msgstr ""
+
+#. endorsement
+#: data/loyalty/map.tres
+msgid "ADVANCED"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "pencils"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Find {count} notes"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Pencil"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "seven exactly"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Cash out a pot of exactly {count} chips"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Patchwork"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "no thank you"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Skip every joker offered in a map, {count} or more of them"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Kit's rag"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "torn up"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Destroy a rare joker"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "empty handed"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Win a map without ever taking a joker"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Welding goggles"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "quiet hours"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "A map of {count} or more without firing a shot"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Paper hat"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "walk away"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Drive off the Junction with {count} chips or more still in the pot"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "left on the floor"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Drop a full hand of jokers in one map"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Graph paper"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "no strings"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Win a map without picking up a power-up"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "house money"
+msgstr ""
+
+#. bet
+#: data/loyalty/map.tres
+msgid "Cash out {count} or more with an empty hand"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Doodled"
+msgstr ""
+
+#. title
+#: data/loyalty/map.tres
+msgid "the back roads"
+msgstr ""
+
+#. dress
+#: data/loyalty/map.tres
+msgid "Hand-drawn"
+msgstr ""
+
+#. display name
+#: data/powerups/bomb.tres
+msgid "Bomb"
+msgstr ""
+
+#. description
+#: data/powerups/bomb.tres
+msgid "Drops a bomb behind you. It goes off under any kart, when shot, or in time, and its kills are yours."
+msgstr ""
+
+#. display name
+#: data/powerups/boomerang.tres
+msgid "Boomerang"
+msgstr ""
+
+#. description
+#: data/powerups/boomerang.tres
+msgid "Your next shots fly out and curve back, able to hit both ways."
+msgstr ""
+
+#. display name
+#: data/powerups/boost.tres
+msgid "Boost"
+msgstr ""
+
+#. description
+#: data/powerups/boost.tres
+msgid "Faster, and ramming kills. Bullets still hurt."
+msgstr ""
+
+#. display name
+#: data/powerups/bullet_wipe.tres
+msgid "Bullet Wipe"
+msgstr ""
+
+#. description
+#: data/powerups/bullet_wipe.tres
+msgid "Erases every bullet near you."
+msgstr ""
+
+#. display name
+#: data/powerups/chain_lightning.tres
+msgid "Chain Lightning"
+msgstr ""
+
+#. description
+#: data/powerups/chain_lightning.tres
+msgid "Your next shots leap from what they hit to the next kart, turret or crate nearby."
+msgstr ""
+
+#. display name
+#: data/powerups/coin_magnet.tres
+msgid "Chip Magnet"
+msgstr ""
+
+#. description
+#: data/powerups/coin_magnet.tres
+msgid "Chips come flying to you from further off."
+msgstr ""
+
+#. display name
+#: data/powerups/decoy_kart.tres
+msgid "Decoy Kart"
+msgstr ""
+
+#. description
+#: data/powerups/decoy_kart.tres
+msgid "A bot copy of you fights on your side. Its kills and chips are yours, and it can hit you."
+msgstr ""
+
+#. display name
+#: data/powerups/flak_cannon.tres
+msgid "Flak Cannon"
+msgstr ""
+
+#. description
+#: data/powerups/flak_cannon.tres
+msgid "Your next shots airburst into a spray of pellets at range."
+msgstr ""
+
+#. display name
+#: data/powerups/grenade.tres
+msgid "Grenade"
+msgstr ""
+
+#. description
+#: data/powerups/grenade.tres
+msgid "Your next shots bounce off walls and burst on a short fuse."
+msgstr ""
+
+#. display name
+#: data/powerups/oil_stain.tres
+msgid "Oil Stain"
+msgstr ""
+
+#. description
+#: data/powerups/oil_stain.tres
+msgid "Leaves a slick behind you. Whoever drives over it spins out, you too."
+msgstr ""
+
+#. display name
+#: data/powerups/proximity_mine.tres
+msgid "Proximity Mine"
+msgstr ""
+
+#. description
+#: data/powerups/proximity_mine.tres
+msgid "Your next shots are lobbed traps that burst when an enemy drives near."
+msgstr ""
+
+#. display name
+#: data/powerups/railgun.tres
+msgid "Railgun"
+msgstr ""
+
+#. description
+#: data/powerups/railgun.tres
+msgid "Your next shots are fast bolts that pierce clean through a line of karts."
+msgstr ""
+
+#. display name
+#: data/powerups/ricochet_cannon.tres
+msgid "Ricochet Cannon"
+msgstr ""
+
+#. description
+#: data/powerups/ricochet_cannon.tres
+msgid "Your next shots bounce off walls once more and fly faster."
+msgstr ""
+
+#. display name
+#: data/powerups/rocket.tres
+msgid "Rocket"
+msgstr ""
+
+#. description
+#: data/powerups/rocket.tres
+msgid "Your next shots are slow homing rockets that burst where they hit."
+msgstr ""
+
+#. display name
+#: data/powerups/scrambler.tres
+msgid "Scrambler"
+msgstr ""
+
+#. description
+#: data/powerups/scrambler.tres
+msgid "Your next shots take no life but jam the hit kart's cannon for a few seconds."
+msgstr ""
+
+#. display name
+#: data/powerups/shield.tres
+msgid "Shield"
+msgstr ""
+
+#. description
+#: data/powerups/shield.tres
+msgid "Takes one bullet or ram for you, then pops."
+msgstr ""
+
+#. display name
+#: data/powerups/spread_cannon.tres
+msgid "Spread Cannon"
+msgstr ""
+
+#. description
+#: data/powerups/spread_cannon.tres
+msgid "Your next shots each fire a fan of bullets."
+msgstr ""
+
+#. display name
+#: data/powerups/sticky_bomb.tres
+msgid "Sticky Bomb"
+msgstr ""
+
+#. description
+#: data/powerups/sticky_bomb.tres
+msgid "Your next shots stick to the kart they hit, then burst a moment later."
+msgstr ""
+
+#. display name
+#: data/powerups/swivel_cannon.tres
+msgid "Swivel Cannon"
+msgstr ""
+
+#. description
+#: data/powerups/swivel_cannon.tres
+msgid "Aim anywhere with the right stick, the mouse or a finger, with no aim assist."
+msgstr ""
+
+#. display name
+#: data/powerups/turret.tres
+msgid "Turret"
+msgstr ""
+
+#. description
+#: data/powerups/turret.tres
+msgid "Puts down a turret that shoots the nearest enemy. Its kills are yours, and it can hit you."
+msgstr ""
+
+#. display name
+#: data/powerups/windfall.tres
+msgid "Windfall"
+msgstr ""
+
+#. description
+#: data/powerups/windfall.tres
+msgid "A pile of coins straight into your pot, more the further you are behind."
+msgstr ""
+
+#. display name
+#: data/rooms/after_hours.tres
+msgid "After Hours"
+msgstr ""
+
+#. display name
+#: data/rooms/count_room.tres
+msgid "The Count Room"
+msgstr ""
+
+#. display name
+#: data/rooms/garage.tres
+msgid "The Garage"
+msgstr ""
+
+#. display name
+#: data/rooms/high_limit.tres
+msgid "High Limit"
+msgstr ""
+
+#. display name
+#: data/rooms/pinball.tres
+msgid "The Arcade"
+msgstr ""
+
+#. display name
+#: data/rooms/playset.tres
+msgid "The Playroom"
+msgstr ""
+
+#. display name
+#: data/rooms/school.tres
+msgid "The Driving School"
+msgstr ""
+
+#. display name
+#: data/rooms/stitch.tres
+msgid "The Sewing Table"
+msgstr ""
+
+#. display name
+#: data/rooms/the_yard.tres
+msgid "The Yard"
+msgstr ""
+
+#. display name
+#: data/rooms/workbench.tres
+msgid "The Workbench"
+msgstr ""

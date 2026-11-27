@@ -180,6 +180,8 @@ var control_hints := true
 ## How the speedometer counts, [constant SpeedUnits.KMH] or [constant SpeedUnits.MPH], once the
 ## player has chosen; empty until they do, when the system's locale says, see [method speed_unit].
 var speed_unit_chosen := ""
+## The language the game speaks, by its locale, see [Lang]; empty for Steam's or the system's.
+var language := ""
 ## The drive and fire hint over a kart at the start of every map, GAME.md 3.8, rather than only the
 ## first room a seat plays in.
 var always_drive_hints := false
@@ -405,6 +407,7 @@ func load_machine(file: ConfigFile) -> void:
 	muffle_on_death = file.get_value("audio", "muffle_on_death", muffle_on_death)
 	_video_io().load_into(self, file)
 	show_clearance = file.get_value("debug", "show_clearance", show_clearance)
+	language = str(file.get_value("game", "language", ""))
 	screen_shake = file.get_value("accessibility", "screen_shake", screen_shake)
 	flash_reduction = file.get_value("accessibility", "flash_reduction", flash_reduction)
 	cursor_glide = file.get_value("accessibility", "cursor_glide", cursor_glide)
@@ -515,6 +518,7 @@ func write_machine(file: ConfigFile) -> void:
 	file.set_value("audio", "muffle_on_death", muffle_on_death)
 	_video_io().save_from(self, file)
 	file.set_value("debug", "show_clearance", show_clearance)
+	file.set_value("game", "language", language)
 	file.set_value("accessibility", "screen_shake", screen_shake)
 	file.set_value("accessibility", "flash_reduction", flash_reduction)
 	file.set_value("accessibility", "cursor_glide", cursor_glide)

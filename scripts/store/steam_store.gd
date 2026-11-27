@@ -131,6 +131,11 @@ func persona() -> String:
 	return str(api.call(&"getPersonaName"))
 
 
+## The language the player has the game in on Steam, by Steam's name for it: "english", "dutch".
+func language() -> String:
+	return str(api.call(&"getCurrentGameLanguage"))
+
+
 ## The name on Steam of the account [param account], somebody in the same lobby or a friend.
 func persona_of(account: int) -> String:
 	return PlayerNames.clean(str(api.call(&"getFriendPersonaName", account)))

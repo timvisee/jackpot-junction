@@ -36,7 +36,8 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 		AccessibilityTab.SEEING,
 		AccessibilityTab.MOTION,
 		AccessibilityTab.AIMING,
-		AccessibilityTab.HUD
+		AccessibilityTab.HUD,
+		AccessibilityTab.LANGUAGE,
 	]
 	assert_array(headings).is_equal(groups)
 	assert_int(page._groups.split).is_equal(2)
@@ -64,6 +65,25 @@ func test_the_rows_stand_in_groups_under_headings() -> void:
 	assert_array(_rows(page, AccessibilityTab.HUD)).contains_exactly(
 		["See-through HUD", "Speed in", "Control hints", "Always show drive hints"]
 	)
+	assert_array(_rows(page, AccessibilityTab.LANGUAGE)).contains_exactly(["Language"])
+
+
+## The Language row, GAME.md 10.9: Automatic first, then each language there is a translation
+## into by its own name; from over a room it is changed from the title screen instead.
+func test_the_language_row_offers_each_language_by_its_own_name() -> void:
+	var page: AccessibilityTab = auto_free(AccessibilityTab.make(Game.settings))
+	add_child(page)
+	var choice := page.find_child("Languages", true, false) as OptionButton
+	var words: Array[String] = []
+	for index: int in choice.item_count:
+		words.append(choice.get_item_text(index))
+	assert_str(words[0]).starts_with("Automatic (")
+	assert_array(words.slice(1)).contains_exactly(["English", "Nederlands"])
+	assert_int(choice.selected).is_equal(0)
+	assert_bool(choice.disabled).is_false()
+	var over: AccessibilityTab = auto_free(AccessibilityTab.make(Game.settings, true))
+	add_child(over)
+	assert_bool((over.find_child("Languages", true, false) as OptionButton).disabled).is_true()
 
 
 ## Rumble switched on knocks every pad plugged in, so it is felt that it is; switched off, none.

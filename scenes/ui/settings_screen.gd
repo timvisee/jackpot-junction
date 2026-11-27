@@ -215,7 +215,8 @@ func _ready() -> void:
 	tabs.add_child(_controls_tab())
 	tabs.add_child(_audio_tab())
 	tabs.add_child(VideoTab.make(_settings))
-	var access := AccessibilityTab.make(_settings)
+	var access := AccessibilityTab.make(_settings, overlay)
+	access.language_chosen.connect(_on_language_chosen)
 	access.palette_chosen.connect(
 		func() -> void:
 			for shown: Callable in _seat_colors:
@@ -356,6 +357,14 @@ func _on_profile_switched(_id: String) -> void:
 	if overlay:
 		return
 	opening_on = ProfilesTab.TITLE
+	Game.go_to_settings(Game.settings_return)
+
+
+## Another language was chosen, GAME.md 10.9: the settings come up again, every page in it, on
+## the Accessibility page it was chosen on.
+func _on_language_chosen() -> void:
+	_settings.save_to_disk()
+	opening_on = "Accessibility"
 	Game.go_to_settings(Game.settings_return)
 
 

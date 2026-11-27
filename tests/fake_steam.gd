@@ -24,6 +24,8 @@ var status := SteamStore.STARTED
 var restarts := false
 var account := 76561197960287930
 var persona := "Ann"
+## The language the game is in on Steam, by Steam's name for it.
+var game_language := "english"
 ## Every call made, its name and arguments, oldest first.
 var calls: Array[String] = []
 ## The achievements the app has on Steamworks, by name; empty for an app that takes any.
@@ -103,6 +105,10 @@ func getSteamID() -> int:
 
 func getPersonaName() -> String:
 	return persona
+
+
+func getCurrentGameLanguage() -> String:
+	return game_language
 
 
 func setAchievement(achievement_name: String) -> bool:

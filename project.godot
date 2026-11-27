@@ -59,6 +59,10 @@ theme/custom_font="res://assets/fonts/Barlow-Medium.ttf"
 
 sensors/enable_gravity=true
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://data/locale/nl.po")
+
 [layer_names]
 
 3d_physics/layer_1="world"

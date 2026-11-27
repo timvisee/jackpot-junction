@@ -115,6 +115,7 @@ func _init() -> void:
 		settings.path = own
 	var fresh := not SafeFile.exists(settings.path)
 	settings.load_from_disk()
+	speak()
 	if fresh:
 		# Steam's own machines start as what they are, GAME.md 8.5: a Steam Deck in the hand.
 		var on_deck := OS.get_environment(STEAM_DECK_ENV) == "1"
@@ -167,6 +168,10 @@ func _ready() -> void:
 	# Everything the profile playing has earned, told to the store again, GAME.md 8.10.
 	Store.tell_all(settings.profile)
 	settings.apply(get_tree())
+	# Every word goes through tr() where it is written, GAME.md 10.9, so a control translating
+	# its own text again would turn a translation that happens to be another English word into
+	# that word's.
+	get_tree().root.auto_translate_mode = Node.AUTO_TRANSLATE_MODE_DISABLED
 	# What shows wherever nothing is drawn: between one scene and the next, and for the moment
 	# quitting waits on the sounds, see [method quit]. The menus' own dark rather than the engine's
 	# gray, which flashed up as the game went.
@@ -533,6 +538,15 @@ func go_to_tutorial() -> void:
 func go_to_driving_test() -> void:
 	get_tree().paused = false
 	get_tree().change_scene_to_file(TUTORIAL_SCENE)
+
+
+## Speaks the language the settings choose, or with none chosen Steam's or the system's, GAME.md
+## 10.9: English for a script's run, the tests' among them, and for a dedicated server, whatever
+## the machine is set to.
+func speak() -> void:
+	var own := not serving and not scripted_run(OS.get_cmdline_args())
+	var steam := Store.language() if own else ""
+	Lang.apply(Lang.resolve(settings.language, steam, OS.get_locale() if own else ""))
 
 
 func go_to_settings(return_to: String = TITLE_SCENE) -> void:

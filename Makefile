@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check strings strings-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -45,6 +45,16 @@ format-check:
 
 format:
 	$(GDFORMAT) $(GD_DIRS)
+
+# The words for translators, GAME.md 10.9: every word marked in the code and held by the data, into
+# the template and each language's .po file in data/locale, keeping every translation made.
+strings:
+	python3 tools/strings.py update
+
+# Fails when the template or a language's file is behind the code, or a string that looks like text
+# is not marked for translation, and says which.
+strings-check:
+	python3 tools/strings.py check
 
 smoke: | $(CACHE)
 	# The first scene a player's game starts on, on its way to the title.

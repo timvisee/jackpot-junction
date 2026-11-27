@@ -10377,8 +10377,8 @@ nobody is near enough to have taken it, and it blinks out.
 - Tests with gdUnit4 for scoring math, the cash-out and Jackpot curves, the
   death split and joker hooks. Tests run headless in CI.
 - Formatting and linting with gdformat and gdlint from godot-gdscript-toolkit.
-- All user-facing strings go through `tr()` with English as the source
-  language, so translations can be added later without touching code.
+- Every word a player reads is written in English and marked for translation
+  where it is written, 10.9, and `make check` fails on one that is not.
 - Every tunable number here matches the value in the game. Changing one means
   changing both.
 - Nothing ships single-player only. A new mechanic, number, statistic or award
@@ -11733,6 +11733,69 @@ The game is GPL-3.0, and a Steam build links Valve's `steam_api`, which is not f
 additional permission under section 7 of the GPL, the game may be linked with the Steamworks SDK
 and GodotSteam and conveyed that way. The notice is in the README beside the license, and
 `THIRD_PARTY.md` lists both.
+
+### 10.9 Languages
+
+The game is written in English and speaks whatever language there is a translation into. Each
+translation is a gettext file in `data/locale`, named by its locale (`nl.po`), listed in the
+project's translations so the engine loads it at start. `make strings` reads every word marked in
+the code and every word the data resources hold into the template, `data/locale/jackpot_junction.pot`,
+and brings each language's file up to it, keeping every translation already made and setting aside
+those whose English is gone. `make check` fails when either is behind the code, or when a string
+that looks like text is not marked. A word with no translation is said in English. Dutch is the
+first translation; Simplified Chinese is planned once a native speaker can read it over, and needs
+a typeface with Chinese in it for each of the game's, none of which has any.
+
+Which language: the Language row on the Accessibility page of the settings, Automatic first, saying
+what that comes to, then each language there is a translation into, by its own name. Automatic is
+the language Steam has the game in, or else the system's, by its language alone where its country
+has no translation of its own, and English for neither; Chinese is matched by script, Simplified for
+the mainland and Singapore. A script's run, the tests' among them, and a dedicated server speak
+English whatever the machine is set to. Choosing another builds the settings again in it, on the
+page it was chosen on, and every screen after is built in it; from over a room it is changed from
+the title screen instead, as profiles are, since the room underneath would carry on in the old one.
+
+How a word is marked, so the template finds it and the language spoken shows it (`scripts/lang.gd`,
+`tools/strings.py`):
+
+- **Where it is written.** `tr("Rumble")` at the string itself, `Lang.t()` in a static function,
+  which has no `tr()`. A helper takes words already translated, `_add(tr("Rumble"), box)`, and never
+  translates what it is handed: a player's name handed to it would be translated too.
+- **Whole sentences.** A sentence is never put together out of translated pieces, since another
+  language orders them otherwise. One number or name goes in with `%`, `tr("%d chips") % count`;
+  two or more by name, `tr("{name} took {joker}").format({...})`, so a translation can turn them
+  round.
+- **Counts.** `tr_n("%d chip", "%d chips", count) % count`, `Lang.tn()` from a static function,
+  never an `s` added by hand: Dutch has two forms as English has, Chinese one.
+- **One English word, two meanings.** A context tells them apart, `tr("Back", &"body")`.
+- **Tables of words.** A const or var holding words keeps them in English and is translated where
+  they are shown, `tr(NAMES[index])`; the comment over it says they are shown through `tr()`, which is
+  how the template finds them. A run of declarations with no line between them shares the comment
+  over the first.
+- **The data's words.** A joker's name and description, an achievement's title and objective, a
+  loyalty bet: the fields `tools/strings.py` lists are read from the resources and translated where
+  shown, `tr(joker.display_name)`.
+- **Words for another machine.** Words sent over the network, or kept to be shown later, go in
+  English, marked with `Lang.later()`, and are translated by the machine that shows them, since a
+  host's language is not its guests'. A name a player gave is never translated.
+- **Numbers and lists.** `Lang.number()` sets thousands apart as the language does (1,204 and 1.204),
+  `Lang.decimal()` writes its decimal mark, and `Lang.listed()` makes a list in a sentence.
+- **Not text.** A string that is a name the code goes by, a node's, a key, a typeface's, an id, is
+  left as it is. One `make strings` still takes for text has `# NO_TRANSLATE` at the end of its line,
+  or in the comment over its statement or table. A `# TRANSLATORS:` comment over a statement goes to
+  the translator with its words: where they show, and how much room there is.
+- **Nothing compares shown words.** Ids are compared, not words, and node names stay English; a
+  page whose tab would show its node's name has its title set with `tr()`. No control translates its
+  own text: the root's `auto_translate_mode` is off, so that a translation which happens to be some
+  other English word is not translated again.
+- **Pictures drawn once.** A picture with words in it kept from one scene to the next is kept by
+  `Lang.current` as well, so another language draws it again.
+
+Left in English: the tools in `scenes/dev` for the store's pictures and trailers, debug builds' own
+pages, the log, and a dedicated server's console and web page; whatever a server sends a player goes
+as words for another machine. Steam's own words, the store page, the achievements' names on Steam,
+the presence and the controller actions in `data/steam`, are translated on Steamworks, after the
+game's.
 
 ## 11. Roadmap
 
