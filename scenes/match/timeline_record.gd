@@ -251,7 +251,7 @@ func _on_hands_changed(gained: Array[int], _lost: Array[int], at: int) -> void:
 		return
 	# One hand made at once is several in the pay table, a Flush its Four of a Kind: the best says it.
 	var best: int = gained.min()
-	Timeline.mark(&"hand", _titled(slot, JokerHands.NAMES[best]), JokerHands.IS[best])
+	Timeline.mark(&"hand", _titled(slot, tr(JokerHands.NAMES[best])), tr(JokerHands.IS[best]))
 
 
 func _on_kart_killed(victim: int, killer: int, cause: StringName) -> void:
