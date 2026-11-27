@@ -95,6 +95,8 @@ var _bench_started := 0
 
 
 func _init() -> void:
+	# Every face with what it does not draw behind it, before anything is drawn, GAME.md 10.9.
+	Type.dress()
 	InputActions.register_defaults()
 	# The demo for a booth, GAME.md 9.8, on settings and a profile of its own.
 	Demo.read_arguments(OS.get_cmdline_user_args())

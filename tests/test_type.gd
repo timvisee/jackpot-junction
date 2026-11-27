@@ -77,3 +77,105 @@ func test_chinese_breaks_between_its_characters() -> void:
 	assert_str("".join(rows)).is_equal(text)
 	for row: String in rows:
 		assert_bool(row.begins_with("。") or row.begins_with("，")).is_false()
+
+
+## Every face the game is set in has its Chinese partner behind it, GAME.md 10.9, and behind every
+## partner but its own the text face's, which holds every character a name may have.
+func test_every_face_has_its_chinese_partner_behind_it() -> void:
+	var partners: Dictionary = (load(Type.PARTNERED) as JSON).data
+	var faces: Dictionary = partners["faces"]
+	var last := load(Type.PARTNERS + String(partners["last"])) as Font
+	for file: String in DirAccess.get_files_at(Type.FACES):
+		if file.ends_with(".ttf") and file != Type.FALLBACK.resource_path.get_file():
+			assert_bool(faces.has(file)).override_failure_message(file).is_true()
+	for face: String in faces:
+		var font := load(Type.FACES + face) as FontFile
+		var partner := load(Type.PARTNERS + String(faces[face])) as Font
+		assert_bool(font.fallbacks.has(partner)).override_failure_message(face).is_true()
+		assert_bool(font.fallbacks.has(last)).override_failure_message(face).is_true()
+		assert_bool(partner.has_char("。".unicode_at(0))).is_true()
+
+
+## A line with Chinese in it stands no taller than one without, and no face measures taller for the
+## partners behind it: each is no taller over the baseline nor deeper under it than its faces,
+## GAME.md 10.9.
+func test_chinese_makes_no_line_taller() -> void:
+	var partners: Dictionary = (load(Type.PARTNERED) as JSON).data
+	var faces: Dictionary = partners["faces"]
+	for face: String in faces:
+		var font := load(Type.FACES + face) as FontFile
+		var alone := FontFile.new()
+		alone.data = font.data
+		for behind: Font in font.fallbacks:
+			if behind == Type.FALLBACK:
+				continue
+			var named := "%s behind %s" % [behind.resource_path.get_file(), face]
+			assert_float(behind.get_ascent(SAMPLE)).override_failure_message(named).is_less_equal(
+				alone.get_ascent(SAMPLE) + 0.5
+			)
+			assert_float(behind.get_descent(SAMPLE)).override_failure_message(named).is_less_equal(
+				alone.get_descent(SAMPLE) + 0.5
+			)
+	for font: Font in [Type.TEXT, Type.DISPLAY, NotePage.HAND, NotePage.TYPED]:
+		var english := TextLine.new()
+		english.add_string("Jackpot", font, SAMPLE)
+		var mixed := TextLine.new()
+		mixed.add_string("Jackpot 头奖。", font, SAMPLE)  # NO_TRANSLATE
+		assert_float(mixed.get_size().y).is_equal(english.get_size().y)
+
+
+## A name typed in Chinese shows in every face, the House's plates' characters among them: a face
+## whose partner lacks one falls back on the text face's, GAME.md 10.9.
+func test_a_chinese_name_shows_in_every_face() -> void:
+	var faces: Dictionary = ((load(Type.PARTNERED) as JSON).data)["faces"]
+	for face: String in faces:
+		var font := load(Type.FACES + face) as Font
+		for character: String in "张伟王秀英林小雨鑫淼京沪粤学警":  # NO_TRANSLATE
+			(
+				assert_bool(font.has_char(character.unicode_at(0)))
+				. override_failure_message("%s in %s" % [character, face])
+				. is_true()
+			)
+
+
+## Every character the Chinese translation uses is drawn by each face or by its own partner, not
+## left to the text face's behind it: `make fonts` cuts the partners again when one is missing,
+## GAME.md 10.9.
+func test_every_character_the_chinese_translation_uses_is_drawn() -> void:
+	var faces: Dictionary = ((load(Type.PARTNERED) as JSON).data)["faces"]
+	var used := {}
+	var chinese := TranslationServer.get_translation_object("zh_CN")
+	for said: String in chinese.get_translated_message_list():
+		for character: String in said:
+			if character.unicode_at(0) > 0x20:
+				used[character] = true
+	for face: String in faces:
+		var alone := FontFile.new()
+		alone.data = (load(Type.FACES + face) as FontFile).data
+		var partner := load(Type.PARTNERS + String(faces[face])) as Font
+		var missing: Array[String] = []
+		for character: String in used:
+			var code := character.unicode_at(0)
+			if not alone.has_char(code) and not partner.has_char(code):
+				missing.append(character)
+		(
+			assert_array(missing)
+			. override_failure_message("%s lacks %s: make fonts" % [face, "".join(missing)])
+			. is_empty()
+		)
+
+
+## Chinese in a face is drawn in that face's own partner, at its size, not in another partner behind
+## it: the engine reckons every partner draws Han, GAME.md 10.9.
+func test_chinese_is_drawn_in_the_faces_own_partner() -> void:
+	var faces: Dictionary = ((load(Type.PARTNERED) as JSON).data)["faces"]
+	var server := TextServerManager.get_primary_interface()
+	for face: String in faces:
+		var font := load(Type.FACES + face) as Font
+		var partner := load(Type.PARTNERS + String(faces[face])) as Font
+		assert_bool(server.font_is_script_supported(partner.get_rids()[0], "Hani")).is_true()
+		var han := "国"  # NO_TRANSLATE
+		if partner.has_char(han.unicode_at(0)):
+			var own := partner.get_string_size(han, HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
+			var drawn := font.get_string_size(han, HORIZONTAL_ALIGNMENT_LEFT, -1, SAMPLE).x
+			assert_float(drawn).override_failure_message(face).is_equal(own)

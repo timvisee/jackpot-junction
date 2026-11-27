@@ -26,8 +26,8 @@ add the language to `NAMES` in `scripts/lang.gd`, named in its own language ("De
 "German"), and to `STEAM_NAMES` by Steam's name for it, so the settings offer it and Steam players
 get it automatically. Or open an issue, and we'll set it up.
 
-Languages written in another script, such as Chinese, Japanese, Korean, Arabic or Thai, also need
-typefaces that have it: none of the game's do yet. Open an issue before starting one.
+Languages written in another script, such as Japanese, Korean, Arabic or Thai, also need typefaces
+that have it, as Chinese has (`tools/partner_fonts.py`). Open an issue before starting one.
 
 ## The rules
 
@@ -75,6 +75,10 @@ follows the language Steam has the game in, or else your system's.
 `make strings` brings the template and every `.po` file up to the code. New words arrive as empty
 entries; a translation whose English is gone is kept at the end of the file (`#~`), and comes back
 marked fuzzy if the English returns. Translators' comments and a tool's header fields are kept.
+
+Chinese is drawn in fonts cut down to the characters its translation uses: after translating, run
+`make fonts` (it needs [uv](https://docs.astral.sh/uv/)), or a test says which characters are
+missing.
 
 Words drawn into pictures, the House rail's microprint and Kit's chalkboard, are in the template
 too. After translating them, run `python3 tools/make_house_prints.py` and

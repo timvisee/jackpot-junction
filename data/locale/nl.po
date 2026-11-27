@@ -7723,6 +7723,98 @@ msgid "iginomarini.com/fell"
 msgstr "iginomarini.com/fell"
 
 #: scripts/credits.gd
+msgid "Noto Sans SC typeface, for Chinese beside Barlow"
+msgstr "Lettertype Noto Sans SC, voor Chinees naast Barlow"
+
+#: scripts/credits.gd
+msgid "Adobe and Google"
+msgstr "Adobe en Google"
+
+#: scripts/credits.gd
+msgid "fonts.google.com/noto/specimen/Noto+Sans+SC"
+msgstr "fonts.google.com/noto/specimen/Noto+Sans+SC"
+
+#: scripts/credits.gd
+msgid "Noto Serif SC typeface, for Chinese typed"
+msgstr "Lettertype Noto Serif SC, voor getypt Chinees"
+
+#: scripts/credits.gd
+msgid "fonts.google.com/noto/specimen/Noto+Serif+SC"
+msgstr "fonts.google.com/noto/specimen/Noto+Serif+SC"
+
+#: scripts/credits.gd
+msgid "ZCOOL XiaoWei typeface, for Chinese in an old book"
+msgstr "Lettertype ZCOOL XiaoWei, voor Chinees in een oud boek"
+
+#: scripts/credits.gd
+msgid "Li Dawei and ZCOOL"
+msgstr "Li Dawei en ZCOOL"
+
+#: scripts/credits.gd
+msgid "fonts.google.com/specimen/ZCOOL+XiaoWei"
+msgstr "fonts.google.com/specimen/ZCOOL+XiaoWei"
+
+#: scripts/credits.gd
+msgid "LXGW WenKai typeface, for Chinese in pencil"
+msgstr "Lettertype LXGW WenKai, voor Chinees in potlood"
+
+#: scripts/credits.gd
+msgid "LXGW and the Klee Project Authors"
+msgstr "LXGW en de Klee Project Authors"
+
+#: scripts/credits.gd
+msgid "github.com/lxgw/LxgwWenKai"
+msgstr "github.com/lxgw/LxgwWenKai"
+
+#: scripts/credits.gd
+msgid "Xiaolai typeface, for Chinese in another hand"
+msgstr "Lettertype Xiaolai, voor Chinees in een ander handschrift"
+
+#: scripts/credits.gd
+msgid "LXGW and Nozomi Seto"
+msgstr "LXGW en Nozomi Seto"
+
+#: scripts/credits.gd
+msgid "github.com/lxgw/kose-font"
+msgstr "github.com/lxgw/kose-font"
+
+#: scripts/credits.gd
+msgid "Long Cang typeface, for Chinese in a third hand and scratched"
+msgstr "Lettertype Long Cang, voor Chinees in een derde handschrift en gekrast"
+
+#: scripts/credits.gd
+msgid "Chen Xiaomin"
+msgstr "Chen Xiaomin"
+
+#: scripts/credits.gd
+msgid "fonts.google.com/specimen/Long+Cang"
+msgstr "fonts.google.com/specimen/Long+Cang"
+
+#: scripts/credits.gd
+msgid "Zhi Mang Xing typeface, for a signature in Chinese"
+msgstr "Lettertype Zhi Mang Xing, voor een handtekening in het Chinees"
+
+#: scripts/credits.gd
+msgid "Wei Zhimang"
+msgstr "Wei Zhimang"
+
+#: scripts/credits.gd
+msgid "fonts.google.com/specimen/Zhi+Mang+Xing"
+msgstr "fonts.google.com/specimen/Zhi+Mang+Xing"
+
+#: scripts/credits.gd
+msgid "ZCOOL KuaiLe typeface, for Chinese in marker"
+msgstr "Lettertype ZCOOL KuaiLe, voor Chinees in viltstift"
+
+#: scripts/credits.gd
+msgid "Liu Bingke, Yang Kang and Wu Shaojie"
+msgstr "Liu Bingke, Yang Kang en Wu Shaojie"
+
+#: scripts/credits.gd
+msgid "fonts.google.com/specimen/ZCOOL+KuaiLe"
+msgstr "fonts.google.com/specimen/ZCOOL+KuaiLe"
+
+#: scripts/credits.gd
 msgid "Free Controller Prompts, the pads on How to hold the wheel"
 msgstr "Free Controller Prompts, de controllers in \"Zo houd je het stuur vast\""
 

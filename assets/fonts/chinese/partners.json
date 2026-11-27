@@ -1,0 +1,17 @@
+{
+	"faces": {
+		"Barlow-Medium.ttf": "NotoSansSC-Medium.ttf",
+		"BarlowCondensed-Black.ttf": "NotoSansSC-Black.ttf",
+		"BarlowCondensed-ExtraBold.ttf": "NotoSansSC-Black.ttf",
+		"BarlowSemiCondensed-SemiBold.ttf": "NotoSansSC-Bold.ttf",
+		"Caveat-Variable.ttf": "WenKai-Regular.ttf",
+		"CourierPrime-Regular.ttf": "NotoSerifSC-Regular.ttf",
+		"HomemadeApple-Regular.ttf": "ZhiMangXing-Regular.ttf",
+		"IMFellEnglish-Regular.ttf": "ZCOOLXiaoWei-Regular.ttf",
+		"Kalam-Regular.ttf": "Xiaolai-Regular.ttf",
+		"PatrickHand-Regular.ttf": "LongCang-Regular.ttf",
+		"PermanentMarker-Regular.ttf": "ZCOOLKuaiLe-Regular.ttf",
+		"ReenieBeanie-Regular.ttf": "LongCang-Regular.ttf"
+	},
+	"last": "NotoSansSC-Medium.ttf"
+}

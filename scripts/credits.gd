@@ -12,6 +12,12 @@ const ITCH := "https://timvisee.itch.io/jackpot-junction"
 ## The models that made it, in the order they worked on it, all of them Anthropic's. NO_TRANSLATE:
 ## their names.
 const MODELS: Array[String] = ["Claude Fable 5.1", "Claude Opus 5", "Claude Opus 5.5"]
+## LXGW WenKai's own line, too long for one of the table's. NO_TRANSLATE: the license file's.
+const WENKAI_COPYRIGHT := (
+	"2021-2026 LXGW (https://github.com/lxgw/LxgwWenKai), with Reserved Font Name"
+	+ " '霞鹜', '霞鶩', '落霞孤鹜', '落霞孤鶩' and 'LXGW'"
+)
+
 ## What the game is built with and from: what it is, who made it, on what terms, and where. And so
 ## a build lists only what it holds, see [method in_this_build]: `files`, the res:// paths of it,
 ## one of which a build that holds it has; `steam`, for what only a Steam build has, GAME.md 10.8;
@@ -160,6 +166,115 @@ const THINGS: Array[Dictionary] = [
 		"files": ["res://assets/fonts/IMFellEnglish-Regular.ttf"],
 		"license": "OFL-1.1",  # NO_TRANSLATE
 		"copyright": ["2010, Igino Marini (mail@iginomarini.com)"],  # NO_TRANSLATE
+	},
+	{
+		"what": "Noto Sans SC typeface, for Chinese beside Barlow",
+		"who": "Adobe and Google",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/noto/specimen/Noto+Sans+SC",
+		"files":
+		[
+			"res://assets/fonts/chinese/NotoSansSC-Medium.ttf",
+			"res://assets/fonts/chinese/NotoSansSC-Bold.ttf",
+			"res://assets/fonts/chinese/NotoSansSC-Black.ttf",
+		],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			"2014-2021 Adobe (http://www.adobe.com/), with Reserved Font Name 'Source'",  # NO_TRANSLATE
+		],
+	},
+	{
+		"what": "Noto Serif SC typeface, for Chinese typed",
+		"who": "Adobe and Google",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/noto/specimen/Noto+Serif+SC",
+		"files": ["res://assets/fonts/chinese/NotoSerifSC-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright": ["2012 Google Inc. All Rights Reserved."],  # NO_TRANSLATE
+	},
+	{
+		"what": "ZCOOL XiaoWei typeface, for Chinese in an old book",
+		"who": "Li Dawei and ZCOOL",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/ZCOOL+XiaoWei",
+		"files": ["res://assets/fonts/chinese/ZCOOLXiaoWei-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			(
+				"2018 The ZCOOL XiaoWei Project Authors"  # NO_TRANSLATE
+				+ " (https://github.com/googlefonts/zcool-xiaowei/)"
+			),
+		],
+	},
+	{
+		"what": "LXGW WenKai typeface, for Chinese in pencil",
+		"who": "LXGW and the Klee Project Authors",
+		"terms": "SIL Open Font License 1.1",
+		"where": "github.com/lxgw/LxgwWenKai",
+		"files": ["res://assets/fonts/chinese/WenKai-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			WENKAI_COPYRIGHT,
+			"2020 The Klee Project Authors (https://github.com/fontworks-fonts/Klee)",  # NO_TRANSLATE
+		],
+	},
+	{
+		"what": "Xiaolai typeface, for Chinese in another hand",
+		"who": "LXGW and Nozomi Seto",
+		"terms": "SIL Open Font License 1.1",
+		"where": "github.com/lxgw/kose-font",
+		"files": ["res://assets/fonts/chinese/Xiaolai-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			"2020-2024 LXGW (https://github.com/lxgw/kose-font)",  # NO_TRANSLATE
+			"2014 Nozomi Seto (https://ja.osdn.net/projects/setofont/)",  # NO_TRANSLATE
+		],
+	},
+	{
+		"what": "Long Cang typeface, for Chinese in a third hand and scratched",
+		"who": "Chen Xiaomin",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/Long+Cang",
+		"files": ["res://assets/fonts/chinese/LongCang-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			"2018 The Long Cang Project Authors (https://github.com/googlefonts/longcang)",  # NO_TRANSLATE
+		],
+	},
+	{
+		"what": "Zhi Mang Xing typeface, for a signature in Chinese",
+		"who": "Wei Zhimang",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/Zhi+Mang+Xing",
+		"files": ["res://assets/fonts/chinese/ZhiMangXing-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			(
+				"2018 The Zhi Mang Xing Project Authors"  # NO_TRANSLATE
+				+ " (https://github.com/googlefonts/zhimangxing)"
+			),
+		],
+	},
+	{
+		"what": "ZCOOL KuaiLe typeface, for Chinese in marker",
+		"who": "Liu Bingke, Yang Kang and Wu Shaojie",
+		"terms": "SIL Open Font License 1.1",
+		"where": "fonts.google.com/specimen/ZCOOL+KuaiLe",
+		"files": ["res://assets/fonts/chinese/ZCOOLKuaiLe-Regular.ttf"],
+		"license": "OFL-1.1",  # NO_TRANSLATE
+		"copyright":
+		[
+			(
+				"2018 The ZCOOL KuaiLe Project Authors"  # NO_TRANSLATE
+				+ " (https://github.com/googlefonts/zcool-kuaile)"
+			),
+		],
 	},
 	{
 		"what": "Free Controller Prompts, the pads on How to hold the wheel",

@@ -250,3 +250,43 @@ func test_the_models_read_as_a_sentence() -> void:
 	assert_str(Credits.models_in_words()).is_equal(
 		"Claude Fable 5.1, Claude Opus 5 and Claude Opus 5.5"
 	)
+
+
+## The Chinese partner fonts are credited where a build has them and not on a dedicated server's
+## page, GAME.md 10.9: the server's exports leave their folder out, and every row crediting them
+## credits files in it alone, so none is listed by a build without it.
+func test_the_chinese_fonts_are_credited_only_where_a_build_has_them() -> void:
+	var folder := "res://assets/fonts/chinese/"
+	var theirs: Array[Dictionary] = []
+	for thing: Dictionary in Credits.THINGS:
+		var files: Array = thing.get("files", [])
+		if files.any(func(file: String) -> bool: return file.begins_with(folder)):
+			(
+				assert_bool(files.all(func(file: String) -> bool: return file.begins_with(folder)))
+				. is_true()
+			)
+			theirs.append(thing)
+	assert_int(theirs.size()).is_equal(8)
+	assert_int(Credits.in_this_build(theirs).size()).is_equal(8)
+	# The same rows in a build without the folder, as a dedicated server's is.
+	var elsewhere: Array[Dictionary] = []
+	for thing: Dictionary in theirs:
+		var moved := thing.duplicate()
+		moved["files"] = (thing["files"] as Array).map(
+			func(file: String) -> String: return file.replace(folder, "res://not/in/this/build/")
+		)
+		elsewhere.append(moved)
+	assert_array(Credits.in_this_build(elsewhere)).is_empty()
+	var presets := ConfigFile.new()
+	assert_int(presets.load("res://export_presets.cfg")).is_equal(OK)
+	var servers := 0
+	for section: String in presets.get_sections():
+		if (
+			section.ends_with(".options")
+			or not presets.get_value(section, "dedicated_server", false)
+		):
+			continue
+		servers += 1
+		var left_out := str(presets.get_value(section, "exclude_filter", ""))
+		assert_str(left_out).contains(folder.trim_prefix("res://") + "*")
+	assert_int(servers).is_greater(0)

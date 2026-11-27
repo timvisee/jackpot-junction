@@ -45,6 +45,7 @@ make private-assets  # the licensed music, linked in from its private repository
 make steam-addon  # GodotSteam into addons/godotsteam, pinned and checked, for the Steam builds
 make steam-run  # the game with Steam on, as Spacewar (480); Steam must be running
 make steam-check  # what the Steam client here answers: the account, presence, a lobby
+make fonts  # the Chinese partner of every typeface, cut into assets/fonts/chinese, GAME.md 10.9 (uv)
 make steam-input  # Steam Input's action manifest and layouts into data/steam/input, docs/STEAM.md
 make steam-presence  # the friends list's words, a file per language, into docs/steam, docs/STEAM.md
 make steam-export  # the Steam builds in build/steam, STEAM_APP_ID=<id> for an app of its own

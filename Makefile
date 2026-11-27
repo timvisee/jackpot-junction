@@ -7,7 +7,7 @@ GD_DIRS := scenes scripts tests
 # the touch controls on a desktop, the mouse standing in for a finger, GAME.md 4.2.
 ARGS ?=
 
-.PHONY: import test test-serial lint format format-check strings strings-check smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-presence steam-run steam-check steam-export
+.PHONY: import test test-serial lint format format-check strings strings-check fonts smoke run demo demo-soak jokers achievements achievement-art steam-achievement-art steam-timeline-icons itch-art steam-art steam-supporter-art screenshots trailer trailer-draft dialog-bench ui-bench logo card-backs textures bench profile probe warmup-check bots multiplayer multiplayer-lag server-check changelog check export docker android android-install android-release server private-assets steam-addon steam-input steam-presence steam-run steam-check steam-export
 
 # Godot keeps its import cache and its register of every class_name in .godot. Without them
 # nothing runs: no class_name is known, so every script that names another fails to parse and the
@@ -55,6 +55,13 @@ strings:
 # is not marked for translation, and says which.
 strings-check:
 	python3 tools/strings.py check
+
+# The Chinese partner of every typeface the game is set in, GAME.md 10.9: each open Chinese font
+# fetched, pinned and checksummed, into build/fonts and cut down to what the game needs into
+# assets/fonts/chinese. Run whenever the Chinese translation uses a character a partner lacks, which
+# a test says. Needs uv, which brings fontTools.
+fonts:
+	uv run --quiet --no-project --with fonttools==4.69.1 python3 tools/partner_fonts.py
 
 smoke: | $(CACHE)
 	# The first scene a player's game starts on, on its way to the title.

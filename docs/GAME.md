@@ -11756,8 +11756,24 @@ differ from its English, which the game would fill wrongly. The files are plain 
 translation tool, Weblate or Poedit: `make strings` keeps whatever such a tool adds, its header
 fields and the translators' comments, and the check reads the entries, not the bytes, so a tool's
 wrapping is no change. A word with no translation is said in English, and so is one marked fuzzy. Dutch is the
-first translation; Simplified Chinese is planned once a native speaker can read it over, and needs
-a typeface with Chinese in it for each of the game's, none of which has any.
+first translation; Simplified Chinese is under way, to be read over by a native speaker.
+
+None of the game's typefaces draws Chinese, so each has a Chinese partner behind it as a fallback,
+`Type.dress()` at start: a letter the face has is drawn in the face, a Chinese character in its
+partner. The partners are open fonts chosen to match the faces (Noto Sans SC behind Barlow at three
+weights, Noto Serif SC behind the typewriter, ZCOOL XiaoWei behind the old book, LXGW WenKai behind
+Kit's pencil, Xiaolai behind the driver's hand, Long Cang behind the stranger's and the scratch,
+Zhi Mang Xing behind the signatures, ZCOOL KuaiLe behind the marker), and `make fonts`,
+`tools/partner_fonts.py`, cuts each from its upstream release, pinned and checksummed and never kept
+whole: down to the characters the Chinese translation uses, and for the text faces every character
+of GB 2312 as well, the signatures its 3,755 common ones, so a name typed in Chinese shows; drawn so
+a Chinese character stands as tall beside its face's lowercase as Noto Sans SC's does beside
+Barlow's, so a hand set bigger for its small letters does not set its Chinese bigger too; with a
+line no taller nor deeper than its faces', so neither a line with Chinese in it nor a face measured
+with its fallbacks is any taller; and under a name of its own, as the license asks of a font
+changed. Behind every hand's partner stands the text face's, for a character in a name the hand's
+lacks. A test fails when the translation uses a character a partner lacks, and `make fonts` cuts
+them again. A dedicated server, which draws nothing, leaves them out.
 
 Which language: the Language row on the Accessibility page of the settings, Automatic first, saying
 what that comes to, then each language there is a translation into, by its own name. Automatic is

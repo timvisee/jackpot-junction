@@ -10,7 +10,8 @@ extends RefCounted
 ##
 ## Barlow was drawn after the highway signs and plates of California, which is a road in a face;
 ## the display cut is the condensed one, so a score and a clock take less of the corner. Each cut
-## falls back on Inter for what Barlow does not draw, a name in Cyrillic or Greek say.
+## falls back on Inter for what Barlow does not draw, a name in Cyrillic or Greek say, and every
+## face the game is set in on its Chinese partner, see [method dress].
 
 const TEXT := preload("res://assets/fonts/Barlow-Medium.ttf")
 const STRONG := preload("res://assets/fonts/BarlowSemiCondensed-SemiBold.ttf")
@@ -19,6 +20,11 @@ const DISPLAY := preload("res://assets/fonts/BarlowCondensed-ExtraBold.ttf")
 ## title, GAME.md 8.1a.
 const MARK := preload("res://assets/fonts/BarlowCondensed-Black.ttf")
 const FALLBACK := preload("res://assets/fonts/Inter-Regular.ttf")
+## Where the faces are, where their Chinese partners are, and which partner stands behind which
+## face, written with the partners by `make fonts`, tools/partner_fonts.py, GAME.md 10.9.
+const FACES := "res://assets/fonts/"
+const PARTNERS := "res://assets/fonts/chinese/"
+const PARTNERED := "res://assets/fonts/chinese/partners.json"
 
 ## The scale. Each step is about a quarter bigger than the one below it, which is far enough
 ## apart that two of them are never mistaken for the same size.
@@ -49,12 +55,41 @@ static var _numbers: FontVariation
 static var _numbers_text: FontVariation
 static var _mark: FontVariation
 static var _micro: FontVariation
+static var _dressed := false
+## The faces dressed, held so that none is let go of with its partners behind it and loaded again
+## without them.
+static var _faces: Array[Font] = []
 
 
 static func _static_init() -> void:
+	dress()
+
+
+## Hangs behind every face the game is set in what it does not draw itself, GAME.md 10.9: Inter
+## behind Barlow's cuts, and behind each face its Chinese partner, cut to the face's size and line,
+## and behind a hand's partner the text face's, which holds every character a name may have. Once,
+## from the first use of this class and the start of the game, whichever comes first; and without
+## the partners on a dedicated server, which draws nothing and leaves them out of its build.
+static func dress() -> void:
+	if _dressed:
+		return
+	_dressed = true
 	for font: FontFile in [TEXT, STRONG, DISPLAY, MARK]:
-		if font.fallbacks.is_empty():
-			font.fallbacks = [FALLBACK]
+		font.fallbacks = [FALLBACK]
+	if OS.has_feature("dedicated_server") or not ResourceLoader.exists(PARTNERED):
+		return
+	var partners: Dictionary = (load(PARTNERED) as JSON).data
+	var last := _partner(String(partners["last"]))
+	var faces: Dictionary = partners["faces"]
+	for face: String in faces:
+		var font := load(FACES + face) as FontFile
+		var partner := _partner(String(faces[face]))
+		var behind: Array[Font] = font.fallbacks.duplicate()
+		behind.append(partner)
+		if partner != last:
+			behind.append(last)
+		font.fallbacks = behind
+		_faces.append(font)
 
 
 ## The display cut, tracked out a little. A [FontVariation] rather than the file itself, because
@@ -105,6 +140,16 @@ static func micro_font() -> FontVariation:
 		_micro.base_font = STRONG
 		_micro.spacing_glyph = 3
 	return _micro
+
+
+## The Chinese partner in [param file], said to draw Han: the engine takes a fallback for a script
+## from those it reckons draw it, and reckons so from a font's own tables, which a partner cut down
+## to a few hundred characters may not say, so a hand's Chinese would be drawn in the text face's
+## partner, at its size, rather than in the hand's own.
+static func _partner(file: String) -> FontFile:
+	var partner := load(PARTNERS + file) as FontFile
+	partner.set_script_support_override("Hani", true)  # NO_TRANSLATE
+	return partner
 
 
 ## A number that changes: a score, a clock, a speed.
