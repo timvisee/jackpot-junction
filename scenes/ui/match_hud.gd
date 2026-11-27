@@ -556,6 +556,7 @@ func _update_blocks() -> void:
 		var nitro: NitroBottle = block["nitro"]
 		nitro.value = kart.nitro_charge * 100.0
 		nitro.lit = kart.nitro_active
+		nitro.start_at = kart.stats.nitro_min_start
 		HudBlock.follow(block, slot)
 		HudBlock.place_bot(block, slot)
 		_update_speed(block, kart)

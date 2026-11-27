@@ -74,7 +74,8 @@ below, and hands the notes to the release workflow.
 - **Redrawn HUD marks and stamps.** The lives, the bounty's crown, a bot's robot, the skull, the
   mult's die and the House's rubber stamp are redrawn in the same house print.
 - **Nitro bottle round the dial.** The HUD's nitro tank is a nitro bottle bent round the foot of
-  the speed dial, filling in the player's color, its valve piped into the dial's rim.
+  the speed dial, filling in the player's color, its valve piped into the dial's rim. What is left
+  turns red while it is too little to start the nitro.
 - **Speed dial in your color.** The HUD's speed dial fills in the player's own color, amber on
   nitro, with a cream needle out on the ring that no longer crosses the number.
 - **Redrawn slot machine reels.** The seven, cherries, bell, BAR, lemon and chip on the slot

@@ -4794,7 +4794,9 @@ lane beside it is as wide as it was.
   tenths, narrowing into a neck with a gas cylinder's valve standing straight off
   it, its red hand wheel across its end and its outlet piped into the dial's rim
   through a collar laid against the rim's edge, curved as the rim is. Amber while
-  it burns, as the dial's fill is (`NitroBottle`).
+  it burns, as the dial's fill is, and red while what is left is too little to
+  start it again, under the fifth a start needs, so the last drop reads as not
+  enough before the button is pressed (`NitroBottle`).
 - **Speedometer** in it: a small dial, three quarters of a ring open at the
   foot, with the number in km/h in its middle and the unit written in the gap,
   the number and the ring's fill turning the nitro's amber while the bottle is lit. The dial is full at a kart flat out on
