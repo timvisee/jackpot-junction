@@ -8,7 +8,8 @@ data resources hold (a joker's name, an achievement's objective), into a gettext
 merges that into each language's .po file, keeping every translation already made.
 
     tools/strings.py update          write the template and bring every .po file up to it
-    tools/strings.py check           fail if either is behind the code, or if text is not marked
+    tools/strings.py check           fail if either is behind the code, if text is not marked,
+                                     or if translated words go to another machine
     tools/strings.py loose [PATH..]  list what looks like text and is not marked, by file and line
     tools/strings.py tables          list consts shown through tr() that are not marked as tables
     tools/strings.py stats           how much of each language is translated
@@ -158,8 +159,9 @@ def unescape(body, raw):
     return "".join(out)
 
 
-def lex(source):
-    """The strings in a script with the brackets they are in, and its comments by line."""
+def lex(source, calls=None):
+    """The strings in a script with the brackets they are in, and its comments by line; with
+    [calls] a list, every call opened too, by its name, line and the brackets around it."""
     literals = []
     comments = {}
     depth_at_line = {}
@@ -214,6 +216,8 @@ def lex(source):
                 m = CALLEE.search(source[max(0, i - 80) : i])
                 callee = m.group(1) if m else ""
             calls_made = len(literals) * 100000 + i
+            if calls is not None and callee:
+                calls.append((callee, line, [dict(f) for f in frames]))
             frames.append({"kind": c, "callee": callee, "arg": 0, "id": calls_made})
             i += 1
             continue
@@ -870,6 +874,40 @@ def unmarked_tables():
     return wrong
 
 
+# The calls whose arguments go to another machine, GAME.md 10.9: a network call, a relayed event,
+# and the functions that send what they are handed. Words given to one go in English.
+WIRE_CALLS = ("rpc", "rpc_id", "went_off", "used_up", "kick", "end_the_game", "show_out")
+# Packing words for another machine: its values go as they are, so none is translated here either.
+PACKING = ("Lang.message", "Lang.message_n")
+RELAYED = re.compile(r"const RELAYED[^=]*=\s*\[(.*?)\]", re.S)
+
+
+def wire_mistakes():
+    """Words translated here and handed to another machine, which would show them in this
+    machine's language: (file:line, the translating call, the call it is handed to)."""
+    with open(os.path.join(ROOT, "scenes", "net", "net_events.gd"), encoding="utf-8") as f:
+        relayed = set(re.findall(r'&"(\w+)"', RELAYED.search(f.read()).group(1)))
+    found = []
+    for path, rel in sources():
+        with open(path, encoding="utf-8") as f:
+            calls = []
+            lex(f.read(), calls)
+        for callee, line, around in calls:
+            if translating(callee) is None or callee in ("Lang.later",) + PACKING:
+                continue
+            for frame in around:
+                outer = frame["callee"]
+                event = re.match(r"Events\.(\w+)\.emit$", outer)
+                if (
+                    outer.rsplit(".", 1)[-1] in WIRE_CALLS
+                    or outer in PACKING
+                    or (event and event.group(1) in relayed)
+                ):
+                    found.append(("%s:%d" % (rel, line), callee, outer))
+                    break
+    return found
+
+
 def main(args):
     command = args[0] if args else "check"
     if command == "update":
@@ -930,6 +968,12 @@ def main(args):
                 failed = True
         for where, owner, name in unmarked_tables():
             print("%s: shows %s of %s through tr(), not marked as shown so" % (where, name, owner))
+            failed = True
+        for where, translated, wire in wire_mistakes():
+            print(
+                "%s: %s() hands translated words to %s(), for another machine: send the English, "
+                "Lang.later() or Lang.message(), GAME.md 10.9" % (where, translated, wire)
+            )
             failed = True
         found = loose_in([])
         for rel, lit in found:

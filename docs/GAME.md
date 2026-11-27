@@ -11792,8 +11792,10 @@ How a word is marked, so the template finds it and the language spoken shows it 
   has: the machine that shows them fills them in in its own language. So a message with values
   needs no network call of its own, and the language needs no new protocol, 10.3: the packed
   fields keep their names, and a field an earlier version does not know it leaves out. Words
-  already translated never go over the wire. A name a player gave is never translated; a bot's is
-  translated by the machine that seats it, and goes as a name.
+  already translated never go over the wire: `make check` fails on a translation handed to a
+  network call, a relayed event, a function that sends what it is handed, or a packed value. A
+  name a player gave is never translated; a bot's is translated by the machine that seats it, and
+  goes as a name.
 - **Numbers and lists.** `Lang.number()` sets thousands apart as the language does (1,204 and 1.204),
   `Lang.decimal()` writes its decimal mark, and `Lang.listed()` makes a list in a sentence.
 - **Not text.** A string that is a name the code goes by, a node's, a key, a typeface's, an id, is
