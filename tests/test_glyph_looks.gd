@@ -81,3 +81,33 @@ func test_outlined_letters_are_set_lighter() -> void:
 		var text := GlyphArt.svg(art, INK, Vector2i(32, 32), look)
 		return text.split("\n")[-2]
 	assert_str(letters.call(GlyphArt.Look.OUTLINE)).is_not_equal(letters.call(GlyphArt.Look.LIGHT))
+
+
+## A glyph drawn round has no line through it, GAME.md 8.3: the shapes an outlined glyph draws a
+## line round never overlap, so no line crosses another or the words on it. The stick pressed in is
+## its head and its stick, apart; a mouse is one line round with its grooves drawn in; a pad's
+## small button its disc alone, its picture drawn on it.
+func test_an_outlined_glyph_has_no_lines_through_it() -> void:
+	assert_int(_outlined(GlyphArt.click("R3"))).is_equal(2)
+	for button: MouseButton in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
+		assert_int(_outlined(GlyphArt.mouse(button, "", 1.0))).is_equal(1)
+	for name: String in GlyphArt.ICONS:
+		assert_int(_outlined(GlyphArt.icon(name))).override_failure_message(name).is_equal(1)
+	# The filled looks keep the mouse's pieces, each in its own tone, over its groove.
+	var filled := GlyphArt.mouse(MOUSE_BUTTON_LEFT, "", 1.0).parts.filter(
+		func(part: Dictionary) -> bool: return not part.get("only", false)
+	)
+	assert_int(filled.size()).is_equal(5)
+	var outlined := GlyphArt.svg(
+		GlyphArt.mouse(MOUSE_BUTTON_LEFT, "", 1.0), INK, Vector2i(64, 64), GlyphArt.Look.OUTLINE
+	)
+	assert_object(GlyphArt.texture(outlined)).is_not_null()
+
+
+## How many of [param art]'s shapes are drawn as a line round them where it is outlined.
+static func _outlined(art: GlyphArt.Art) -> int:
+	var count := 0
+	for part: Dictionary in art.parts:
+		if part.get("only", true) and part["fill"] in ["body", "face", "dim"]:
+			count += 1
+	return count

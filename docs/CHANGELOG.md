@@ -11,6 +11,12 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Outlined button pictures without lines through them.** Under a joker's details and in the
+  controls leaflet, a stick pressed in, a mouse and the View and Home buttons are drawn as one
+  outline, rather than shapes whose outlines crossed each other and the letters on them.
+
 ## [0.25.0] - 2026-11-27
 
 The game speaks Dutch and Simplified Chinese, Steam games can be public and carry on when their

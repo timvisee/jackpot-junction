@@ -115,6 +115,12 @@ class Art:
 			{"d": d, "fill": fill, "solid": solid, "stroke": stroke, "width": width, "xf": xf}
 		)
 
+	## The last shape added painted only where the glyph is [param outlined], or only where it is
+	## filled: a glyph whose filled pieces, outlined each, would cross one another is drawn round
+	## as one, see [method mouse].
+	func only(outlined: bool) -> void:
+		parts[-1]["only"] = outlined
+
 	## [param text] set [param cap] tall in the middle of [param middle], in [param fill]: its
 	## outline is drawn when it is painted, in the weight the look sets, see [method svg].
 	func letters(text: String, middle: Vector2, cap: float, fill: Variant, solid: bool) -> void:
@@ -138,6 +144,8 @@ static func svg(
 	var weight := EMBOLDEN_OUTLINED if paint["outline"] else EMBOLDEN
 	var parts: Array[Dictionary] = []
 	for part: Dictionary in art.parts:
+		if part.get("only", paint["outline"]) != paint["outline"]:
+			continue
 		parts.append(_set_letters(part, weight) if part.has("text") else part)
 	var out := PackedStringArray()
 	var head := '<svg xmlns="http://www.w3.org/2000/svg" width="%d" height="%d"' % [px.x, px.y]
@@ -257,6 +265,8 @@ static func _path(part: Dictionary, paint: Dictionary) -> String:
 		stroke = fill
 		width = paint["line"]
 		fill = null
+	if width < 0.0:
+		width = paint["line"]
 	var attrs := ""
 	var fill_tone: Variant = _tone(fill, paint)
 	if fill_tone is Color:
@@ -432,8 +442,28 @@ static func click(text: String) -> Art:
 	art.wide = maxf(TALL, words_wide(text, cap) + 15.0)
 	var middle := art.wide * 0.5
 	art.add(_head(Vector2(middle, 4.4), Vector2.DOWN, 10.4, 5.8), "body")
-	art.add(_box(Rect2(art.wide * 0.21, 16.0, art.wide * 0.58, 14.5), 2.5), "body")
-	art.add(_box(Rect2(INSET, 9.5, art.wide - INSET * 2.0, 10.0), 5.0), "body")
+	# The stick's head, round at its ends, and its shaft under it as one shape: as two, an outlined
+	# glyph's lines crossed each other and the words on it.
+	var left := INSET
+	var right := art.wide - INSET
+	var top := 9.5
+	var rim := 19.5
+	var round := (rim - top) * 0.5
+	var shaft := Vector2(art.wide * 0.21, art.wide * 0.79)
+	var foot := TALL - INSET
+	var corner := 2.5
+	var d := (
+		_d(["M", Vector2(left + round, top), "L", Vector2(right - round, top)])
+		+ _d(["Q", Vector2(right, top), Vector2(right, top + round)])
+		+ _d(["Q", Vector2(right, rim), Vector2(right - round, rim)])
+		+ _d(["L", Vector2(shaft.y, rim), "L", Vector2(shaft.y, foot - corner)])
+		+ _d(["Q", Vector2(shaft.y, foot), Vector2(shaft.y - corner, foot)])
+		+ _d(["L", Vector2(shaft.x + corner, foot), "Q", Vector2(shaft.x, foot)])
+		+ _d([Vector2(shaft.x, foot - corner), "L", Vector2(shaft.x, rim)])
+		+ _d(["L", Vector2(left + round, rim), "Q", Vector2(left, rim), Vector2(left, rim - round)])
+		+ _d(["Q", Vector2(left, top), Vector2(left + round, top), "Z"])
+	)
+	art.add(d, "body")
 	_letter(art, text, Vector2(middle, 21.4), cap, "mark")
 	return art
 
@@ -504,6 +534,7 @@ static func mouse(button: MouseButton, mark: String, wide: float) -> Art:
 	var right := left + span
 	var middle := left + round
 	art.add(_box(Rect2(left, INSET, span, TALL - INSET * 2.0), round), "gap")
+	art.only(false)
 	var groove := 0.75
 	var split := 14.4
 	var crown := INSET + round
@@ -515,37 +546,88 @@ static func mouse(button: MouseButton, mark: String, wide: float) -> Art:
 	var arc := ["A", round, round, 0, 0, 1]
 	var near := middle - groove
 	var far := middle + groove
-	art.add(
-		(
-			_d(["M", Vector2(left, split - groove), "L", Vector2(left, crown)])
-			+ _d(arc + [Vector2(near, reach), "L", Vector2(near, split - groove), "Z"])
-		),
-		lit_left,
-		false
+	var left_button := (
+		_d(["M", Vector2(left, split - groove), "L", Vector2(left, crown)])
+		+ _d(arc + [Vector2(near, reach), "L", Vector2(near, split - groove), "Z"])
 	)
-	art.add(
-		(
-			_d(["M", Vector2(far, split - groove), "L", Vector2(far, reach)])
-			+ _d(arc + [Vector2(right, crown), "L", Vector2(right, split - groove), "Z"])
-		),
-		lit_right,
-		false
+	var right_button := (
+		_d(["M", Vector2(far, split - groove), "L", Vector2(far, reach)])
+		+ _d(arc + [Vector2(right, crown), "L", Vector2(right, split - groove), "Z"])
 	)
-	art.add(
-		(
-			_d(["M", Vector2(left, split + groove), "L", Vector2(right, split + groove)])
-			+ _d(["L", Vector2(right, heel)] + arc + [Vector2(left, heel), "Z"])
-		),
-		"dim",
-		false
-	)
-	art.add(_box(Rect2(middle - 2.3, 4.4, 4.6, 7.6), 2.3), lit_wheel, false, "gap", 1.3)
+	var wheel := Rect2(middle - 2.3, 4.4, 4.6, 7.6)
+	for piece: Array in [
+		[left_button, lit_left],
+		[right_button, lit_right],
+		[
+			(
+				_d(["M", Vector2(left, split + groove), "L", Vector2(right, split + groove)])
+				+ _d(["L", Vector2(right, heel)] + arc + [Vector2(left, heel), "Z"])
+			),
+			"dim"
+		],
+	]:
+		art.add(piece[0], piece[1], false)
+		art.only(false)
+	art.add(_box(wheel, 2.3), lit_wheel, false, "gap", 1.3)
+	art.only(false)
+	# Outlined, one line round it with its groove drawn in, stopping at the wheel, and the button
+	# pressed filled: its pieces each drawn round crossed one another.
+	art.add(_box(Rect2(left, INSET, span, TALL - INSET * 2.0), round), "body")
+	art.only(true)
+	if button in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
+		var turn := (
+			"" if button == MOUSE_BUTTON_LEFT else "matrix(-1 0 0 1 %s 0)" % _n(middle * 2.0)
+		)
+		art.add(_pressed(left, round, split, wheel), "lit", false, null, 0.0, turn)
+		art.only(true)
+	var grooves := _d(["M", Vector2(left, split), "L", Vector2(right, split)])
+	grooves += _d(["M", Vector2(middle, INSET), "L", Vector2(middle, wheel.position.y)])
+	grooves += _d(["M", Vector2(middle, wheel.end.y), "L", Vector2(middle, split)])
+	art.add(grooves, null, false, "body", -1.0)
+	art.only(true)
+	var wheel_fill: Variant = "lit" if button == MOUSE_BUTTON_MIDDLE else null
+	art.add(_box(wheel, 2.3), wheel_fill, false, "body", -1.0)
+	art.only(true)
 	art.wide = TALL * wide
 	if not mark.is_empty():
 		var run := words_wide(mark, CAP_FEW)
 		_letter(art, mark, Vector2(art.wide + 2.0 + run * 0.5, 16.0), CAP_FEW, "lit", true)
 		art.wide += run + 4.0
 	return art
+
+
+## An outlined mouse's left button pressed, filled: from the line round the mouse to a little short
+## of the grooves and round the wheel, so they stay drawn. [param left] is the mouse's side, its
+## corners [param round] round, [param split] the groove under the buttons. Mirrored for the
+## right.
+static func _pressed(left: float, round: float, split: float, wheel: Rect2) -> String:
+	var clear := 1.5
+	var middle := left + round
+	var inner := middle - clear
+	var crown := INSET + round
+	var foot := split - clear
+	# Along the line round the mouse, which is the corner of [method _box], up to where it is
+	# [param clear] from the groove: that curve cut short there, so no sliver shows between them.
+	var corner := [Vector2(left, crown), Vector2(left, INSET), Vector2(middle, INSET)]
+	var cut := sqrt((inner - left) / (middle - left))
+	var bend: Vector2 = corner[0].lerp(corner[1], cut)
+	var reach: Vector2 = bend.lerp((corner[1] as Vector2).lerp(corner[2], cut), cut)
+	var ring := wheel.size.x * 0.5 + clear
+	var top := wheel.position.y + wheel.size.x * 0.5
+	var low := wheel.end.y - wheel.size.x * 0.5
+	var into := sqrt(ring * ring - clear * clear)
+	var under := foot - low
+	var out := Vector2(inner, foot)
+	if under < ring:
+		out = Vector2(middle - sqrt(ring * ring - under * under), foot)
+	return (
+		_d(["M", Vector2(left, foot), "L", Vector2(left, crown)])
+		+ _d(["Q", bend, reach])
+		+ _d(
+			["L", Vector2(inner, top - into), "A", ring, ring, 0, 0, 0, Vector2(middle - ring, top)]
+		)
+		+ _d(["L", Vector2(middle - ring, low), "A", ring, ring, 0, 0, 0, out, "Z"])
+	)
 
 
 ## One of a pad's small buttons that carry a picture rather than a word, on a round button: the
@@ -562,16 +644,25 @@ static func icon(name: String) -> Art:
 			for row: int in 3:
 				art.add(_box(Rect2(10.0, 10.9 + row * 4.0, 12.0, 2.2), 1.1), "mark", false)
 		"View":
-			art.add(_box(Rect2(9.8, 9.8, 8.6, 7.0), 1.2), null, false, "mark", 1.9)
-			art.add(_box(Rect2(13.6, 15.2, 8.6, 7.0), 1.2), "body", false, "mark", 1.9)
+			# The window behind only where the one in front leaves it, so no line crosses another
+			# where the glyph is only drawn round.
+			var behind := (
+				_d(["M", Vector2(13.6, 16.8), "L", Vector2(11.0, 16.8), "Q", Vector2(9.8, 16.8)])
+				+ _d([Vector2(9.8, 15.6), "L", Vector2(9.8, 11.0), "Q", Vector2(9.8, 9.8)])
+				+ _d([Vector2(11.0, 9.8), "L", Vector2(17.2, 9.8), "Q", Vector2(18.4, 9.8)])
+				+ _d([Vector2(18.4, 11.0), "L", Vector2(18.4, 15.2)])
+			)
+			art.add(behind, null, false, "mark", 1.9)
+			art.add(_box(Rect2(13.6, 15.2, 8.6, 7.0), 1.2), null, false, "mark", 1.9)
 		"+":
 			art.add(_box(Rect2(9.6, 14.7, 12.8, 2.6), 0.8), "mark", false)
 			art.add(_box(Rect2(14.7, 9.6, 2.6, 12.8), 0.8), "mark", false)
 		"−", "-":
 			art.add(_box(Rect2(9.6, 14.7, 12.8, 2.6), 0.8), "mark", false)
 		"Home":
-			art.add("M16 8.6L23.6 15.4H21.4V22.6H10.6V15.4H8.4Z", "mark", false)
-			art.add(_box(Rect2(14.5, 17.6, 3.0, 5.0), 0.4), "body", false)
+			# The door a notch in the house, not a patch of the button over it, which drawn round
+			# stood out under it.
+			art.add("M16 8.6L23.6 15.4H21.4V22.6H17.5V17.6H14.5V22.6H10.6V15.4H8.4Z", "mark", false)
 		"Capture":
 			art.add(_box(Rect2(10.0, 10.0, 12.0, 12.0), 2.0), null, false, "mark", 2.0)
 			art.add(_circle(middle, 2.8), "mark", false)
