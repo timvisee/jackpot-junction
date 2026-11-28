@@ -70,11 +70,12 @@ func lit() -> int:
 	return _lit
 
 
-## The next chip along from the one lit, Custom after the presets and the first after Custom, as
-## the presets' key goes round them, GAME.md 9.6.
-func next_along() -> Button:
+## The chip [param step] along from the one lit, Custom after the presets and the first after
+## Custom, as the presets' key and a pad's triggers go round them, GAME.md 9.6: on for a step on,
+## back for a step back.
+func along(step: int) -> Button:
 	var at := _lit if _lit >= 0 else _buttons.size() - 1
-	return _buttons[(at + 1) % _buttons.size()]
+	return _buttons[posmod(at + step, _buttons.size())]
 
 
 ## Whether any of them can be pressed: not at the Final Hand, STORY.md 8.1.

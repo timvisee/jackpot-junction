@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+### Added
+
+- **Presets on the triggers.** In the match settings, a controller's right and left triggers step
+  forward and back through the presets.
+
 ### Fixed
 
 - **Outlined button pictures without lines through them.** Under a joker's details and in the

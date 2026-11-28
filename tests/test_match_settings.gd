@@ -379,6 +379,45 @@ func test_the_option_key_goes_round_the_presets() -> void:
 	assert_object(bar.button(1).get_node_or_null("Bind")).is_null()
 
 
+## A pad's triggers go round the presets too, GAME.md 9.6: the right one on and the left one back,
+## once a squeeze however far it goes; the keys they share an action with, Sort's and Filter's, do
+## not, and no bind is drawn for them, the option key's on the lit chip alone.
+func test_the_triggers_go_round_the_presets_both_ways() -> void:
+	var pane := _pane()
+	var bar := pane.options.presets
+	bar.button(1).pressed.emit()
+	# Squeezed past halfway and on to the end, and let go: one step.
+	for value: float in [0.3, 0.6, 0.9, 1.0, 0.1]:
+		pane._input(_trigger(JOY_AXIS_TRIGGER_RIGHT, value))
+	assert_int(bar.lit()).is_equal(2)
+	for value: float in [0.7, 1.0, 0.0]:
+		pane._input(_trigger(JOY_AXIS_TRIGGER_LEFT, value))
+	assert_int(bar.lit()).is_equal(1)
+	# Back from the first is Custom, round the other way.
+	bar.button(0).pressed.emit()
+	pane._input(_trigger(JOY_AXIS_TRIGGER_LEFT, 1.0))
+	assert_int(bar.lit()).is_equal(-1)
+	pane._input(_trigger(JOY_AXIS_TRIGGER_LEFT, 0.0))
+	pane._input(_key(KEY_T))
+	pane._input(_key(KEY_R))
+	assert_int(bar.lit()).is_equal(-1)
+	pane._keyboard = false
+	pane._pointer = false
+	pane._show_bind()
+	var marked: Array = []
+	for chip: Button in bar.buttons():
+		if chip.has_meta(&"bind_action"):
+			marked.append(chip.get_meta(&"bind_action"))
+	assert_array(marked).is_equal([InputActions.MENU_OPTION])
+
+
+func _trigger(axis: JoyAxis, value: float) -> InputEventJoypadMotion:
+	var motion := InputEventJoypadMotion.new()
+	motion.axis = axis
+	motion.axis_value = value
+	return motion
+
+
 func _key(code: Key) -> InputEventKey:
 	var key := InputEventKey.new()
 	key.physical_keycode = code

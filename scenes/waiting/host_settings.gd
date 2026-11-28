@@ -52,6 +52,8 @@ var _bind_lit := -3
 ## The question asked before a card of the table is opened early, GAME.md 9.6, and of which card.
 var _confirm: ConfirmPane
 var _asking := -1
+## A pad's triggers held down, by the pad and the action, see [method _trigger_step].
+var _triggers_held: Dictionary[String, bool] = {}
 
 
 static func add_to(
@@ -348,11 +350,33 @@ func _tab_of(event: InputEvent) -> int:
 	return 0
 
 
-## The presets gone round, GAME.md 9.6, a pad's X or F: the next chip along from the one lit
-## pressed, Custom after the four and Standard after Custom. Not at the Final Hand.
-func _next_preset() -> void:
+## Which way [param event] steps the presets, GAME.md 9.6: a pad's left trigger back and its right
+## trigger on, once a squeeze however far it goes, -1 or 1; 0 for anything else. They are the
+## dialogs' Sort and Filter, whose keys are not counted: only the triggers were asked for, and no
+## bind is drawn for them, the presets' own key being the one shown.
+func _trigger_step(event: InputEvent) -> int:
+	if event is InputEventKey or event is InputEventMouse:
+		return 0
+	for step: int in [-1, 1]:
+		var action := InputActions.MENU_SORT if step < 0 else InputActions.MENU_FILTER
+		if not event.is_action(action):
+			continue
+		# A trigger is pressed for every move past halfway: only the first counts, until let go.
+		var held := "%d %s" % [event.device, action]
+		var down := event.is_action_pressed(action)
+		var was: bool = _triggers_held.get(held, false)
+		_triggers_held[held] = down
+		if down and not was:
+			return step
+	return 0
+
+
+## The presets gone round, GAME.md 9.6, a pad's X or F, or its right trigger: the next chip along
+## from the one lit pressed, Custom after the four and Standard after Custom; [param step] back,
+## the left trigger, the one before. Not at the Final Hand.
+func _next_preset(step := 1) -> void:
 	var bar := options.presets
-	var next := bar.next_along()
+	var next := bar.along(step)
 	if next.disabled:
 		return
 	next.pressed.emit()
@@ -412,6 +436,8 @@ func close() -> void:
 ## is a window of its own and closes itself first. A pad's Start is left alone: it is also how
 ## somebody new takes a seat, and a friend sitting down should not close the host's menu for them.
 func _input(event: InputEvent) -> void:
+	# Whether a trigger is held is kept whatever is up, so one let go elsewhere is not still held.
+	var trigger := _trigger_step(event)
 	if not _panel.visible:
 		return
 	# The question over the pane answers to its own buttons; Back is not.
@@ -433,6 +459,10 @@ func _input(event: InputEvent) -> void:
 		return
 	if not on_lobby() and event.is_action_pressed(InputActions.MENU_OPTION):
 		_next_preset()
+		get_viewport().set_input_as_handled()
+		return
+	if not on_lobby() and trigger != 0:
+		_next_preset(trigger)
 		get_viewport().set_input_as_handled()
 		return
 	# Across from one column to the other, to what is level with it, see [method MatchOptions.across].

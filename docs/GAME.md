@@ -9167,7 +9167,9 @@ what the blacked-out values are.
 other as they page a dialog, 8.5, drawn on them while keys or a pad are in hand, the quick match's
 arena dealt as a press of it deals it. F, or a pad's X, goes round the five chips of the presets
 below, the next one along from the one lit, Custom after the four and Standard after Custom, its
-key drawn on the chip lit.
+key drawn on the chip lit. A pad's triggers go round them too, the right one on and the left one
+back, once a squeeze; no bind is drawn for them, X's being the one shown, and the keys their
+actions share elsewhere, Sort's and Filter's, do nothing here.
 
 **Presets.** Between the big buttons and the columns a row of chips sets every one of House rules'
 rows at once, but for Jokers between maps, and the cards on the table under them: a poker chip of
