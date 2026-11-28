@@ -137,12 +137,6 @@ static func _crest(
 	IconPress.draw(on, box, &"crest_disc", ink, IconPress.Ground.TWO_INKS, face, true)
 
 
-## The gold NEW tag over [param rect]'s top left corner, at [param zoom], clear of the stamp.
-static func draw_new(on: CanvasItem, rect: Rect2, zoom: float) -> void:
-	var rects: Array[Rect2] = [rect]
-	draw_new_tags(on, rects, zoom)
-
-
 ## The NEW tags of the signs at [param rects] on [param on], the tags first and the words after, so
 ## however many there are they are drawn in a draw or two rather than a few each.
 static func draw_new_tags(on: CanvasItem, rects: Array[Rect2], zoom: float) -> void:

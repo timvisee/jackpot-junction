@@ -1,7 +1,7 @@
 class_name TouchInk
 extends RefCounted
 ## The color the touch controls are cut in, GAME.md 4.2: the player's own, as their corner of the
-## HUD and their nitro cells are, so the buttons under the thumbs say whose they are; the house's
+## HUD and their nitro bottle are, so the buttons under the thumbs say whose they are; the house's
 ## gold until there is a player. A touch screen has one player, so one color serves all of it,
 ## put on by [TouchControls] each frame. And the notches round a round button's rim, a chip's.
 

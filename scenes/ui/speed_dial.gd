@@ -2,7 +2,7 @@ class_name SpeedDial
 extends Range
 ## The speedometer of a corner block, GAME.md 8.3 and 8.1a: a small dial, three quarters of a ring
 ## open at the foot, filling clockwise from the bottom left with the kart's speed, in its player's
-## own color, as their name and their nitro cells are, and amber while the nitro is lit. Its face
+## own color, as their name and their nitro bottle are, and amber while the nitro is lit. Its face
 ## is a gauge's: a foil rim, a tick every so far round between the ring and the rim, longer every
 ## third, the track foil past the kart's own top speed where only nitro takes it and red at the end
 ## of that, and the unit written in the gap at the foot. A cream needle swings onto the speed on a

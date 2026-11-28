@@ -1654,7 +1654,7 @@ HUD's panels, 8.2, while they are up: the middle of each, seven tenths of its si
 down, since a kart partly under the see-through edge of one is still seen. Being round, they
 are chips of 8.1a: the house's stock with a rim and notches round it in the player's own color,
 lit in it while a thumb is on one, and the slider, the stick and the nitro tank are in it too,
-as the player's corner and nitro cells are, so the controls under the thumbs say whose they are
+as the player's corner and nitro bottle are, so the controls under the thumbs say whose they are
 (`TouchInk`). The hand of jokers is tucked into the bottom edge while none of its cards is
 being read, smaller and half below the edge, and comes up to its full size as a card is held or
 kept open.
@@ -4655,7 +4655,7 @@ movement: the one thing a corner block must not do is ask to be looked at. It is
 the strip of 8.1a, bled off its corner of the screen rather than standing 16 px
 off it, its inner end slanted and striped in the player's color: the name with
 kills and deaths beside it along the top, the banked score and the lives over the
-pot on the edge it comes off, the speed dial and the nitro cells on its inner end,
+pot on the edge it comes off, the speed dial and the nitro bottle on its inner end,
 toward the middle of the screen, and the item and the hints along the foot. It is
 352 px across, the room the old card and its margin took, so a cornered hand's
 lane beside it is as wide as it was.
@@ -4831,7 +4831,7 @@ lane beside it is as wide as it was.
   foil rim and a tick every so far round between the ring and the rim, the ring's
   track dark up to the kart's own top speed, the foil's past it where only nitro
   takes it and red at the end of that; the fill is in the player's own color over
-  it, as their name and nitro cells are, and a slim cream needle out on the ring,
+  it, as their name and nitro bottle are, and a slim cream needle out on the ring,
   across the track and the ticks, swings onto the speed on a spring, overshooting a sudden
   change a little before it settles, and trembles at the top of the nitro's
   stretch. The fill is drawn to where the needle stands rather than to the speed

@@ -98,7 +98,7 @@ const PICK := &"pick"
 ## held it, in seconds. Longer is reading it, and letting go after reading takes nothing.
 const TAP_SECONDS := 0.3
 ## The nitro tank, a bar across the bottom of the slider's nitro, in the player's color as their
-## nitro cells are, and how wide the ring an item counts down in round the rim of its button is.
+## nitro bottle is, and how wide the ring an item counts down in round the rim of its button is.
 const TANK := 0.95
 const TANK_WIDTH := 6.0
 ## How strongly the stick and the driving buttons are drawn while the kart cannot be driven, and

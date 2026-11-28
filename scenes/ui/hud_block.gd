@@ -1,10 +1,10 @@
 class_name HudBlock
 extends RefCounted
 ## A player's corner of the match HUD, GAME.md 8.3 and 8.1a: their name, what they have banked, the
-## pot, kills and deaths, the lives, the speed dial and the nitro cells, the item row and the hints,
-## on a strip of the house's stock bled off the corner of the screen, its inner end slanted and
-## striped in the player's color. Built here and kept up to date by [MatchHud], which holds what
-## this hands back.
+## pot, kills and deaths, the lives, the speed dial and the nitro bottle, the item row and the
+## hints, on a strip of the house's stock bled off the corner of the screen, its inner end slanted
+## and striped in the player's color. Built here and kept up to date by [MatchHud], which holds
+## what this hands back.
 
 ## How far the strip's inner end leans over its height, and how wide its stripe is.
 const SLANT := 30.0
