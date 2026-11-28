@@ -8,7 +8,7 @@ class_name LooseThings
 ##
 ## A bomb or a mine is set off by what the room has that strikes or runs into it, see
 ## [method set_off_where]: a sewing needle stabbing it, a wind-up toy running into it, a laser
-## tripwire's beam through it.
+## tripwire's beam through it, a live cabinet it is against.
 ##
 ## What the room does to them is the host's alone, as everything else a match's floor holds is,
 ## GAME.md 10.3: where each one is goes to the clients in the snapshot, see [MatchSnapshot].

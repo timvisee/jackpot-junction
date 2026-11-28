@@ -2367,7 +2367,7 @@ protection makes the kart untouchable.
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
-| Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again, see below |
+| Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again; a bomb or mine against it while live goes off, see below |
 | Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, and the bombs, mines and a death's chips lying on it, see below |
 | Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts, bombs, mines and a death's chips within 7 m in toward it hard, see below |
 | Sewing needle  | A machine's head running along a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
@@ -2470,7 +2470,9 @@ off its bare end, and while it charges it is quiet (`CabinetLook`). As it comes 
 short crackle, a third of a second of snap and buzz (`cabinet_live.ogg`, `tools/make_zap_sound`). For fewer flashes, 8.5, the beacon, the meter and the glow hold on while
 it is live and steady as it kills, the cable's arcs and those at a kill hold their shape as they
 fade, and an electrocuted kart goes black and stays black rather than flicker. A shot meets
-it as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. The
+it as it meets a wall, stopping there or coming off with a bounce in it, and throws a spark. A
+bomb or a mine against it while it is live, within 0.05 m of its box and a bomb's size, goes off,
+the owner's, and leaves it live: only a kart spends it, which every machine hears of. The
 floor round its foot wears the hazard paint a drain's rim does. A run of `E` is one cabinet, standing in the middle of it, so a
 pair of them along a wall block two cells long puts the cabinet in the middle of that wall. It
 stands as a yard puts one up, flush against the wall beside the run with its back to it and its

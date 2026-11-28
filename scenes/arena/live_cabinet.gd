@@ -9,8 +9,9 @@ extends StaticBody3D
 ## up or, by Guardian Angel, in hand, and the kart lives, see [method shock]; the kill is whoever
 ## shoved it in inside the last couple of seconds, or nobody's, as a pit's is, 3.6. A kart already
 ## against it as it goes live is touching it. The shock spends the cabinet, and it charges again. A
-## shot meets it as it meets a wall, stopping there or coming off with a bounce left in it, and
-## throws a spark.
+## bomb or a mine against it while it is live goes off, see [LooseThings], and leaves it live, a
+## kart the one thing that spends it. A shot meets it as it meets a wall, stopping there or coming
+## off with a bounce left in it, and throws a spark.
 ##
 ## Each cabinet keeps its own time, from the flag or from the last kart it caught, on the match's
 ## clock, see [method clock]. Whether a kart died of one is the host's to say, GAME.md 10.3, and so
@@ -306,6 +307,7 @@ func _physics_process(delta: float) -> void:
 		Audio.play_sfx(&"cabinet_live", LIVE_DB, 0.08)
 	if live() and _match != null and not _match.puppet:
 		_shock_touching()
+		LooseThings.set_off_where(_match, _against)
 
 
 ## Electrocutes every kart touching it while it is live, on the machine whose word that is: a kart
@@ -320,6 +322,14 @@ func _shock_touching() -> void:
 			continue
 		if _match.is_ancestor_of(kart) and touching(kart):
 			shock(kart)
+
+
+## Whether [param point], where a bomb or a mine lies, is against the cabinet: within its box and
+## a bomb's size and [constant TOUCH] more, flat, see [LooseThings].
+func _against(point: Vector3) -> bool:
+	var local := to_local(point)
+	var reach := Vector2(SIZE.x, SIZE.z) * 0.5 + Vector2.ONE * (TOUCH + Bomb.BODY_RADIUS)
+	return absf(local.x) <= reach.x and absf(local.z) <= reach.y
 
 
 ## Whether [param kart]'s body is against the cabinet's, flat, within [constant TOUCH]: the two

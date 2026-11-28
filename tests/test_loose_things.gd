@@ -199,3 +199,23 @@ func test_a_tripwire_sets_off_a_bomb_across_its_beam() -> void:
 	wire.run_to(Tripwire.OFF + 0.1)
 	await _frames(3)
 	assert_array(_heard).is_not_empty()
+
+
+## A live cabinet sets off a bomb against it and stays live, a kart the one thing that spends it;
+## one still charging leaves the bomb be.
+func test_a_live_cabinet_sets_off_a_bomb_against_it() -> void:
+	var match_node := await _match(&"crossfire")
+	var cabinet: LiveCabinet = match_node.arena.cabinets[0]
+	cabinet.charge_for(0.0)
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	var out := cabinet.global_basis.z.normalized()
+	var at := cabinet.global_position + out * (LiveCabinet.SIZE.z * 0.5 + 0.3)
+	bomb.global_position = Vector3(at.x, 0.0, at.z)
+	await _frames(3)
+	assert_array(_heard).is_empty()
+	cabinet.charge_for(LiveCabinet.CHARGE + 1.0)
+	await _frames(3)
+	assert_array(_heard).is_not_empty()
+	assert_bool(cabinet.live()).is_true()

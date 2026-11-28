@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Live cabinets set off bombs.** On Crossfire, a bomb or mine against a live cabinet goes off,
+  and the cabinet stays live.
 - **Tripwires set off bombs.** In the Vault, a bomb or mine lying across a laser tripwire goes off
   when the beam comes on.
 - **Wind-up toys set off bombs.** On Crossfire XL, a wind-up toy driving into a bomb or mine sets
