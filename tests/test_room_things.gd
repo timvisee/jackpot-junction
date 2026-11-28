@@ -1,7 +1,7 @@
 extends GdUnitTestSuite
 ## The rooms' own moving things, GAME.md 6.2: the Count Room's conveyor belts, the Workbench's
-## magnets, the Stitch's sewing needles, the Playset's wind-up toys and After Hours' tripwires, each
-## on the map of its room, 6.3.
+## magnets, which drag bombs too, the Stitch's sewing needles, the Playset's wind-up toys and After
+## Hours' tripwires, each on the map of its room, 6.3.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
@@ -77,6 +77,46 @@ func test_a_magnet_pulls_karts_in_while_it_is_on() -> void:
 	var nearer := start.distance_to(magnet.global_position)
 	nearer -= kart.global_position.distance_to(magnet.global_position)
 	assert_float(nearer).is_greater(0.3)
+
+
+## A magnet that is on drags a bomb lying on the floor in toward it, as it pulls a kart, and stops
+## it short of itself; while off it leaves it be. A client's copy glides to where the host says it
+## is rather than jumping there, GAME.md 6.2.
+func test_a_magnet_drags_bombs_in_while_it_is_on() -> void:
+	var match_node: Match = await _match(&"lucky_crossing")
+	var magnet: Magnet = match_node.arena.get_node("Magnets/Magnet0")
+	var start := magnet.global_position + Vector3(0.0, 0.0, -3.0)
+	start.y = 0.0
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	bomb.global_position = start
+	magnet.run_to(0.5)
+	for i: int in 10:
+		await get_tree().physics_frame
+	assert_float(bomb.global_position.distance_to(start)).is_less(0.01)
+	magnet.run_to(Magnet.OFF + 0.1)
+	for i: int in 20:
+		await get_tree().physics_frame
+	var middle := Vector3(magnet.global_position.x, 0.0, magnet.global_position.z)
+	assert_float(start.distance_to(middle) - bomb.global_position.distance_to(middle)).is_greater(
+		0.3
+	)
+	for i: int in 60:
+		await get_tree().physics_frame
+	assert_float(bomb.global_position.distance_to(middle)).is_between(0.9, Magnet.TOUCH + 0.05)
+	var copy := Bomb.new()
+	copy.puppet = true
+	match_node.add_child(copy)
+	copy.glide_to(start)
+	assert_vector(copy.global_position).is_equal(start)
+	var there := start + Vector3(0.5, 0.0, 0.0)
+	copy.glide_to(there)
+	await get_tree().physics_frame
+	assert_float(copy.global_position.distance_to(start)).is_between(0.01, 0.4)
+	for i: int in 30:
+		await get_tree().physics_frame
+	assert_float(copy.global_position.distance_to(there)).is_less(0.02)
 
 
 ## A kart under the needle as it comes down spins out; one beside the seam does not.

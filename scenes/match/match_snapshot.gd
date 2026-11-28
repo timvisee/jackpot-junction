@@ -908,7 +908,8 @@ static func _apply_bombs(match_node: Match, entries: Array) -> void:
 			match_node.add_child(bomb)
 			bomb.collision_layer = 0
 			match_node.puppet_bombs[id] = bomb
-		bomb.global_position = Vector3(entry["x"], 0.0, entry["z"])
+		# Glided to rather than set, as a magnet may be dragging it, see [method Bomb.drag].
+		bomb.glide_to(Vector3(entry["x"], 0.0, entry["z"]))
 		bomb.armed = entry["armed"]
 	for id: int in match_node.puppet_bombs.keys():
 		if not seen.has(id):

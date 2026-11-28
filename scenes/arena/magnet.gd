@@ -2,7 +2,8 @@ class_name Magnet
 extends StaticBody3D
 ## A big magnet, GAME.md 6.2: an `M` on a map, a horseshoe magnet off Kit's bench standing on the
 ## table, solid as a bumper, that switches on now and then and pulls every kart within
-## [constant REACH] in toward it, the harder the nearer, see [FloorCarry]. Off for [constant OFF]
+## [constant REACH] in toward it, the harder the nearer, see [FloorCarry], and the bombs lying on
+## the floor with them, see [method drag_at]. Off for [constant OFF]
 ## seconds from the flag, then on for [constant ON], and round again, on the match's clock, see
 ## [method LiveCabinet.clock], so every machine has it on together with nothing on the wire. Its
 ## tips glow while it is on, and faint rings of the pull close in on it across the floor; for a
@@ -96,9 +97,16 @@ func run_to(seconds: float) -> void:
 ## How fast it pulls [param kart] in, see [FloorCarry]: toward it while it is on and the kart is
 ## within reach, harder the nearer, and not at all against it or for a kart of another match.
 func carry_at(kart: Kart) -> Vector3:
-	if not on() or (_match != null and not _match.is_ancestor_of(kart)):
+	return drag_at(kart)
+
+
+## How fast it drags [param loose], a kart or a bomb lying on the floor, see [method Bomb.drag]:
+## as it pulls a kart, toward it while it is on and the thing is within reach, harder the nearer,
+## and not at all against it or for something of another match.
+func drag_at(loose: Node3D) -> Vector3:
+	if not on() or (_match != null and not _match.is_ancestor_of(loose)):
 		return Vector3.ZERO
-	var toward := global_position - kart.global_position
+	var toward := global_position - loose.global_position
 	toward.y = 0.0
 	var far := toward.length()
 	if far >= REACH or far <= TOUCH:

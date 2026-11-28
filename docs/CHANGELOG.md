@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Magnets pull bombs too.** On Lucky Crossing a magnet that switches on drags the bombs lying
+  near it in as well, into whoever it is pulling.
 - **Presets on the triggers.** In the match settings, a controller's right and left triggers step
   forward and back through the presets.
 

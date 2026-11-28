@@ -3,13 +3,19 @@ extends StaticBody3D
 ## A dropped bomb, GAME.md 7.1. It arms shortly after being dropped, then blows up when a kart
 ## drives over it, when a bullet hits it or when its fuse runs out. The blast kills karts, breaks
 ## crates and turrets and sets off other bombs within its radius. Kills credit the owner, who is
-## not spared. Bullets see it on the bomb layer; karts drive over it without bumping into it.
+## not spared. Bullets see it on the bomb layer; karts drive over it without bumping into it. A
+## magnet that is on drags it along the floor as it pulls a kart, see [method drag], stopped by
+## anything solid in its way.
 
 signal exploded(bomb: Bomb)
 
 const ARM_TIME := 0.6
 const RADIUS := 2.6
 const BODY_RADIUS := 0.38
+## How quickly a puppet glides to where the host last said it is, as a share of the way each second
+## gone, see [method glide_to]; and how far off it is put there at once instead, set down anew.
+const GLIDE := 18.0
+const GLIDE_JUMP := 2.0
 
 var owner_slot := -1
 ## Its owner's team, GAME.md 3.14: with friendly fire off a teammate neither sets it off nor is
@@ -24,6 +30,9 @@ var armed := false
 var _age := 0.0
 var _trigger: Area3D
 var _fuse_light: MeshInstance3D
+## Where a puppet glides to, see [method glide_to], and whether it has been told one.
+var _glide := Vector3.ZERO
+var _gliding := false
 
 
 func _ready() -> void:
@@ -59,11 +68,16 @@ func _physics_process(delta: float) -> void:
 	_age += delta
 	_blink()
 	if puppet:
+		if _gliding:
+			var off := _glide - global_position
+			var share := 1.0 if off.length() > GLIDE_JUMP else 1.0 - exp(-GLIDE * delta)
+			global_position += off * share
 		return
 	armed = _age >= ARM_TIME
 	if _age >= fuse:
 		explode()
 		return
+	drag(delta)
 	if not armed:
 		return
 	for body: Node3D in _trigger.get_overlapping_bodies():
@@ -71,6 +85,40 @@ func _physics_process(delta: float) -> void:
 		if kart != null and kart.is_targetable() and not Teams.spares(owner_slot, team, kart):
 			explode()
 			return
+
+
+## Dragged along the floor for [param delta] seconds by whatever drags loose things, a magnet that
+## is on, see [method Magnet.drag_at], the way it pulls a kart; stopped short of anything solid in
+## the way, a wall, a crate or the magnet itself, as a kart sliding is.
+func drag(delta: float) -> void:
+	var pull := Vector3.ZERO
+	for node: Node in FrameGroups.of(get_tree(), FloorCarry.GROUP):
+		if is_instance_valid(node) and node.has_method(&"drag_at"):
+			pull += node.call(&"drag_at", self) as Vector3
+	pull.y = 0.0
+	if pull.length_squared() < 0.0001:
+		return
+	var motion := pull * delta
+	var ball := SphereShape3D.new()
+	ball.radius = BODY_RADIUS
+	var probe := PhysicsShapeQueryParameters3D.new()
+	probe.shape = ball
+	# Lifted a little off the floor, so the floor itself never stops it.
+	probe.transform = Transform3D(Basis(), global_position + Vector3.UP * (BODY_RADIUS + 0.05))
+	probe.motion = motion
+	probe.collision_mask = Layers.WORLD
+	var fit := get_world_3d().direct_space_state.cast_motion(probe)
+	global_position += motion * fit[0]
+
+
+## A puppet glides to [param at], where the host says it is: put there at once the first time and
+## when it is far off, see [constant GLIDE_JUMP], and slid the rest, so one a magnet drags moves
+## smoothly between the host's words.
+func glide_to(at: Vector3) -> void:
+	if not _gliding:
+		global_position = at
+	_glide = at
+	_gliding = true
 
 
 ## A bullet sets the bomb off, armed or not.
