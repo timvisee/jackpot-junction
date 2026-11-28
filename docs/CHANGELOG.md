@@ -33,6 +33,11 @@ below, and hands the notes to the release workflow.
 - **Presets on the triggers.** In the match settings, a controller's right and left triggers step
   forward and back through the presets.
 
+### Changed
+
+- **A license card on the payout slip.** The button after a name that shows their driver license
+  is a small license card in the house print, with its holder and the writing on it.
+
 ### Fixed
 
 - **Outlined button pictures without lines through them.** Under a joker's details and in the

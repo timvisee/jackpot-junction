@@ -43,16 +43,6 @@ static func bar(
 	on.draw_style_box(style, Rect2(at(box, x, y), Vector2(w, h) * box.size))
 
 
-## A driver license in [param box], GAME.md 9.4a, what the payout slip shows somebody's by, 10.8: a
-## card of [param ink], wider than tall, its photo and two lines of writing cut out of it in
-## [param cut], the color of whatever it is drawn on.
-static func license(on: CanvasItem, box: Rect2, ink: Color, cut: Color) -> void:
-	bar(on, box, 0.0, 0.16, 1.0, 0.68, ink)
-	bar(on, box, 0.1, 0.3, 0.3, 0.4, cut)
-	bar(on, box, 0.5, 0.34, 0.38, 0.08, cut)
-	bar(on, box, 0.5, 0.52, 0.26, 0.08, cut)
-
-
 ## A solid triangle of [param span] across, pointing [param facing] degrees clockwise from up.
 static func tri(
 	on: CanvasItem, box: Rect2, x: float, y: float, span: float, facing: float, ink: Color

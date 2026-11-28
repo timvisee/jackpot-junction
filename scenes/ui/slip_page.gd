@@ -33,6 +33,11 @@ const STAMP_INK := Color(0.8, 0.17, 0.14, 0.82)
 const STAMP_RADIUS := 44.0
 ## How far the stamp's ring keeps from the figures it stands beside.
 const STAMP_CLEAR := 9.0
+## A player's license button after their name: its drawing, and its size as shares of the name's,
+## as wide as the card drawn on it and only as tall as the card, so the line keeps its height.
+const LICENSE := &"ui_license"
+const LICENSE_WIDE := 0.95
+const LICENSE_TALL := 0.6
 ## The size the story's microprint under a line is printed at, STORY.md 6.2.
 const STORY_MICRO := 10
 ## How big a place's chip is on a line.
@@ -548,22 +553,27 @@ static func _license_of(slot: PlayerSlot) -> Dictionary:
 
 
 ## A little license after the name of [param slot]'s player, at the size of [param size], that
-## holds up [param license], theirs, over the slip, GAME.md 10.8. For the mouse and a finger: the
-## slip's buttons keep the cursor, and Players on the pause menu has a License a pad reaches.
+## holds up [param license], theirs, over the slip, GAME.md 10.8: its drawing of 8.3a, a card with
+## its holder and the writing cut out of it, about as tall as the name's small letters. For the
+## mouse and a finger: the slip's buttons keep the cursor, and Players on the pause menu has a
+## License a pad reaches.
 func _license_button(slot: PlayerSlot, license: Dictionary, size: int) -> Button:
 	var button := Button.new()
 	button.name = "License"
 	button.flat = true
 	button.focus_mode = Control.FOCUS_NONE
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	button.custom_minimum_size = Vector2(size * 1.1, size * 0.8)
+	button.custom_minimum_size = Vector2(size * LICENSE_WIDE, size * LICENSE_TALL)
 	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.tooltip_text = tr("%s's license") % slot.display_name()
 	ScreenReader.label(button, button.tooltip_text)
 	button.draw.connect(
 		func() -> void:
 			var ink := INK if button.is_hovered() else FAINT
-			IconShapes.license(button, Rect2(Vector2.ZERO, button.size), ink, HouseTheme.PAPER)
+			# The drawing's square as wide as the button; the card in it is wider than tall.
+			var side := button.size.x
+			var box := Rect2((button.size - Vector2(side, side)) * 0.5, Vector2(side, side))
+			IconPress.draw(button, box, LICENSE, ink, IconPress.Ground.PAPER)
 	)
 	button.mouse_entered.connect(button.queue_redraw)
 	button.mouse_exited.connect(button.queue_redraw)
