@@ -9167,11 +9167,13 @@ it has it, every row locked and nothing to change, the line under the title sayi
 "Kit chooses the match.", or while their pane is up "Kit is choosing the match.", and the rows
 following theirs as they change them, a few times a second. Close puts it away, keeping nothing
 as anybody's choice. At a dedicated server it is the player with the say whose match it shows,
-9.3a; while they choose it the server only shows it, and plays it once they are done. The host
-says the whole of the match inside what the line on the board is said from, again to everybody who
-arrives (`Events.match_planned`, `ReadyRoom.whole_plan`, `HostSettings.for_looking`), which a game
-of 0.25.0 skips, so it plays on with 0.25.1; from a 0.25.0 host the look shows what the line says,
-the arena or maps, the length, the target and the teams.
+9.3a; while they choose it the server only shows it, and plays it once they are done. At the
+story's Final Hand it is the House's table, as the dealer sees it: every value blacked out, and
+"The House has set this table.", STORY.md 8.1. The host says the whole of the match inside what
+the line on the board is said from, again to everybody who arrives (`Events.match_planned`,
+`ReadyRoom.whole_plan`, `HostSettings.for_looking`), which a game of 0.25.0 skips, so it plays on
+with 0.25.1; from a 0.25.0 host the look shows what the line says, the arena or maps, the length,
+the target and the teams.
 
 **How the pane is laid out.** Thirteen rows and more down one column ran off a desktop's screen as
 much as a phone's, and a first look at them was a wall of choices for somebody who only wanted to

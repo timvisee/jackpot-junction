@@ -1,7 +1,8 @@
 extends GdUnitTestSuite
 ## The match settings for everybody else in an online game, GAME.md 9.6: the same pane, every row
-## locked, showing the match as whoever chooses it has it, as they choose it, and who they are; and
-## the host's room saying all of it as it is chosen.
+## locked, showing the match as whoever chooses it has it, as they choose it, and who they are, and
+## the House's table under its marker bars at the Final Hand, STORY.md 8.1; and the host's room
+## saying all of it as it is chosen.
 
 const FreePorts := preload("res://tests/free_ports.gd")
 const WAITING_SCENE := preload("res://scenes/waiting/waiting_room.tscn")
@@ -154,8 +155,25 @@ func test_a_look_at_the_match_changes_nothing() -> void:
 	assert_str(Game.settings.map).is_equal(kept)
 
 
-## The room's look follows what it hears while it is up; the karts here held while it is up, as
-## under any menu.
+## At the Final Hand the House's table is looked at as the dealer sees it: locked, open, and every
+## value under a marker bar, STORY.md 8.1, saying the House set it.
+func test_the_house_table_is_looked_at_under_its_bars() -> void:
+	var room := await _host()
+	room.host_settings.close()
+	var plan := _a_plan("Bo", ArenaMaps.IDS[0])
+	plan["final_hand"] = true
+	var look := HostSettings.for_looking(room, null)
+	look.look_at(plan, false)
+	assert_bool(look.by_the_house()).is_true()
+	assert_str(look._line.text).is_equal(HostSettings.BY_THE_HOUSE)
+	assert_bool(look.options.rules_fold.locked).is_true()
+	assert_bool(look.options.map_option.disabled).is_true()
+	assert_object(look.options.map_option.get_node_or_null("Redacted")).is_not_null()
+
+
+## The room's look follows what it hears while it is up, and is made again once the House has set
+## the table, or cleared it, since the House's marker bars do not come off; the karts here held
+## while it is up, as under any menu.
 func test_the_look_follows_the_plan_heard() -> void:
 	var room := await _host()
 	room.host_settings.close()
@@ -169,7 +187,13 @@ func test_the_look_follows_the_plan_heard() -> void:
 	assert_object(room.looking).is_same(look)
 	assert_str(String(look.options._map_id())).is_equal(String(ArenaMaps.IDS[4]))
 	assert_str(look._line.text).is_equal("Bo is choosing the match.")
-	look.close()
+	var house := _a_plan("Bo", ArenaMaps.IDS[4])
+	house["final_hand"] = true
+	room._on_match_planned(_said_of(house), false, true)
+	assert_object(room.looking).is_not_same(look)
+	assert_bool(room.looking.by_the_house()).is_true()
+	assert_bool(room.looking.is_open()).is_true()
+	room.looking.close()
 	await _runner.simulate_frames(2, 17)
 	assert_bool(room._menu_up()).is_false()
 

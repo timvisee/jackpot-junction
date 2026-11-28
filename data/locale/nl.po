@@ -7577,6 +7577,11 @@ msgstr "De host kiest de match."
 msgid "The host is choosing the match."
 msgstr "De host is de match aan het kiezen."
 
+#. Under the title of the match settings at the story's Final Hand, whose every value is blacked out; the House is the casino's management.
+#: scenes/waiting/host_settings.gd
+msgid "The House has set this table."
+msgstr "Het Huis heeft deze tafel ingericht."
+
 #: scenes/waiting/host_settings.gd
 msgid "Anybody else here joins with J or Start while you choose."
 msgstr "Iedereen hier kan meedoen met J of Start terwijl jij kiest."

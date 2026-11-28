@@ -38,6 +38,10 @@ const CHOOSING := "{name} is choosing the match."
 const HOST_CHOOSES := "The host chooses the match."
 ## And while that host is choosing it, shown through tr().
 const HOST_CHOOSING := "The host is choosing the match."
+## And at the story's Final Hand, whose table the House set, STORY.md 8.1, shown through tr().
+# TRANSLATORS: Under the title of the match settings at the story's Final Hand, whose every value
+# is blacked out; the House is the casino's management.
+const BY_THE_HOUSE := "The House has set this table."
 
 var options: MatchOptions
 ## Whether this is a room on one machine rather than an online one, which is only a matter of who
@@ -101,8 +105,14 @@ static func for_looking(room: Node, session: NetSession) -> HostSettings:
 	return pane
 
 
+## Whether the House has set the table shown, STORY.md 8.1, its rows under its marker bars.
+func by_the_house() -> bool:
+	return _by_the_house
+
+
 ## Shows [param plan], the match as whoever chooses it has it, see [method
-## MatchOptions.to_wire], [param choosing] it still or not, and who they are, GAME.md 9.6.
+## MatchOptions.to_wire], [param choosing] it still or not, and who they are, GAME.md 9.6. The
+## House's table at the Final Hand under its marker bars, as the dealer sees it, STORY.md 8.1.
 func look_at(plan: Dictionary, choosing: bool) -> void:
 	var shown := MatchConfig.new()
 	MatchOptions.from_wire(shown, plan)
@@ -110,6 +120,11 @@ func look_at(plan: Dictionary, choosing: bool) -> void:
 	_line.text = tr(CHOOSING if choosing else CHOOSES).format({"name": by})
 	if by.is_empty():
 		_line.text = tr(HOST_CHOOSING if choosing else HOST_CHOOSES)
+	if shown.final_hand:
+		_line.text = tr(BY_THE_HOUSE)
+		if not _by_the_house:
+			set_by_the_house(shown)
+		return
 	options.show(shown)
 	_show_chosen()
 	if is_open():

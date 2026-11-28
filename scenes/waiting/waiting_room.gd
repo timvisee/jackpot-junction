@@ -631,17 +631,26 @@ func _open_the_settings() -> void:
 
 
 ## The match as whoever chooses it last said it, on the match settings with every row locked,
-## GAME.md 9.6.
+## GAME.md 9.6; the House's table under its marker bars at the Final Hand, STORY.md 8.1.
 func _look() -> void:
 	_show_the_look()
 	looking.open()
 
 
-## [member looking] showing the match as last heard.
+## [member looking] showing the match as last heard. Its rows lock for good and the House's bars do
+## not come off, so it is made again when the House's table is set or cleared.
 func _show_the_look() -> void:
+	var house := bool(_heard.get("final_hand", false))
+	var was_open := false
+	if looking != null and looking.by_the_house() != house:
+		was_open = looking.is_open()
+		looking.queue_free()
+		looking = null
 	if looking == null:
 		looking = HostSettings.for_looking(self, session)
 	looking.look_at(_heard, _heard_choosing)
+	if was_open:
+		looking.open()
 
 
 ## What the next match is, as whoever chooses it has it, heard here for a look at it, see [method

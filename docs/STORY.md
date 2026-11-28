@@ -2099,7 +2099,9 @@ the license is part of the ending, 8.6.
 - **Online too.** Online the House deals it for whoever has the say over the room, as Play does at
   one machine: a host with a player of their own, or at a dedicated server the player given the
   host's say, when the Final Hand is due for them. The invitation and the golden ticket are theirs
-  alone; every other screen in the room sees the next match blacked out as theirs is. The table is
+  alone; every other screen in the room sees the next match blacked out as theirs is, and the match
+  settings looked at there, GAME.md 9.6, are the dealer's: every row locked and every value under
+  the marker, saying "The House has set this table." The table is
   the same for everybody, the models the dealer's, and every screen plays the Final Hand for its
   own player: CANDIDATE on its own seat, the house watching its own kart, the whistle lighting it
   up, the evaluation of its own driving, its own stamp, and the last lines and the license after.
