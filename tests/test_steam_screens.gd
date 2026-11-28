@@ -299,7 +299,7 @@ func test_manage_players_opens_a_steam_profile() -> void:
 	add_child(pane)
 	var bo := pane._row({"name": "Bo", "color": Color.RED, "seat": 1, "peer": 2})
 	var profile := bo.find_child("Profile", true, false) as Button
-	assert_str(profile.text).is_equal("Profile")
+	assert_str(profile.tooltip_text).is_equal("Profile")
 	profile.pressed.emit()
 	assert_array(_fake.calls).contains(["activateGameOverlayToUser steamid %d" % FRIEND])
 	var me := pane._row({"name": "Ann", "color": Color.BLUE, "seat": 0, "me": true})

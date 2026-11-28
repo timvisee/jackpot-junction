@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Emotes muted</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <g class="piece ink">
+    <path class="body" d="M7,24A17,17 0 1 0 41,24A17,17 0 1 0 7,24Z"/>
+    <path class="cut" d="M15.8,20A2.6,3.4 0 1 0 21,20A2.6,3.4 0 1 0 15.8,20Z"/>
+    <path class="cut" d="M27,20A2.6,3.4 0 1 0 32.2,20A2.6,3.4 0 1 0 27,20Z"/>
+    <path class="cut" d="M15.5,27.5C18.5,34 29.5,34 32.5,27.5" stroke-width="3.2"/>
+  </g>
+  <g class="piece ink">
+    <path class="body" d="M10.59,7.41L40.59,37.41A2.25,2.25 0 0 1 37.41,40.59L7.41,10.59A2.25,2.25 0 0 1 10.59,7.41Z"/>
+  </g>
+</g>
+</svg>

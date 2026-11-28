@@ -8083,7 +8083,11 @@ its watchers is a dozen rows, so where they do not fit on the screen they scroll
 title and Back, the row with the cursor kept in sight. The list opens with the cursor on Back, so
 a press too many shows nobody out. Kick asks first, in place of the list,
 "Kick Bob?", saying they go back to the title, or the server's games, and can join again; Back
-is no, and the list again with the cursor on that Kick.
+is no, and the list again with the cursor on that Kick. The buttons beside a row wear pictures
+rather than words, as the buttons beside a list's rows do, 8.3: License a license card, Profile a
+head and shoulders, Mute the emotes' face, struck through while they are muted, Make host the
+House's key and Kick a door with the way out of it. Each word is the button's tooltip and what a
+screen reader says, and stands under the button the cursor is on, for a pad or the keys.
 Somebody kicked is told the host removed them from the game, on the pane a refusal comes up on,
 and goes back to the title from it; the host lets go of the connection half a second later
 whatever they do with that, so nobody stays by not listening. They may join again, but for a

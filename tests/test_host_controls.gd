@@ -418,9 +418,19 @@ func test_make_host_hands_the_say_to_another_player() -> void:
 			assert_str(str(guest.get("plate", ""))).is_empty()
 	var hands: Array[Button] = []
 	for button: Node in pane.find_children("*", "Button", true, false):
-		if (button as Button).text == "Make host":
+		if (button as Button).tooltip_text == "Make host":
 			hands.append(button)
 	assert_int(hands.size()).is_equal(1)
+	# A picture rather than a word, its word under it while the cursor is on it, for a pad.
+	assert_str(hands[0].text).is_empty()
+	hands[0].grab_focus()
+	pane._show_word()
+	assert_bool(pane._word.visible).is_true()
+	assert_str((pane._word.get_child(0) as Label).text).is_equal("Make host")
+	assert_float(pane._word.global_position.y).is_greater(hands[0].get_global_rect().end.y)
+	pane._back.grab_focus()
+	pane._show_word()
+	assert_bool(pane._word.visible).is_false()
 	# It asks first, and hands the say on yes.
 	var asked: Array = []
 	pane.asking.connect(
@@ -456,7 +466,7 @@ func test_the_list_of_players_scrolls_where_it_does_not_fit() -> void:
 		row.free()
 	for i: int in 12:
 		var row := Control.new()
-		row.custom_minimum_size = Vector2(600.0, ManagePlayers.KICK_SIZE.y)
+		row.custom_minimum_size = Vector2(600.0, ManagePlayers.BUTTON.y)
 		pane._rows.add_child(row)
 	var rows := pane._rows.get_combined_minimum_size().y
 	root.content_scale_factor = 3.0

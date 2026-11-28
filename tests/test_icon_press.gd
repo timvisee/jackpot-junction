@@ -104,7 +104,6 @@ func test_every_glyph_and_suit_has_a_drawing() -> void:
 		&"ui_padlock",
 		&"ui_star",
 		&"ui_sliders",
-		SlipPage.LICENSE,
 	]
 	glyphs.append_array(IconButton.PICTURES)
 	var suits: Array[StringName] = [JokerSuits.JESTER, JokerSuits.JESTER_BAND]

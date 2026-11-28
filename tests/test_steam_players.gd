@@ -245,13 +245,16 @@ func test_players_at_a_client() -> void:
 	assert_object(cy.find_child("Kick", true, false)).is_null()
 	assert_object(cy.find_child("Profile", true, false)).is_not_null()
 	var mute := cy.find_child("Mute", true, false) as Button
-	assert_str(mute.text).is_equal("Mute")
+	assert_str(mute.tooltip_text).is_equal("Mute")
 	mute.pressed.emit()
 	assert_bool(Muted.slot(2)).is_true()
 	assert_bool(Muted.slot(0)).is_false()
 	pane._process(0.0)
 	var again := pane._rows.get_children()
-	assert_str((again[1].find_child("Mute", true, false) as Button).text).is_equal("Unmute")
+	var unmute := again[1].find_child("Mute", true, false) as Button
+	assert_str(unmute.tooltip_text).is_equal("Unmute")
+	var picture := unmute.get_node("Picture") as IconButton.Picture
+	assert_int(picture.kind).is_equal(IconButton.Kind.MUTED)
 	var said := pane.find_children("*", "Label", true, false).map(
 		func(label: Label) -> String: return label.text
 	)

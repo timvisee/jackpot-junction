@@ -3,11 +3,13 @@ extends RefCounted
 ## A menu button with a picture on it rather than a word, GAME.md 8.3, for what is pressed beside a
 ## row of a list over and over: Remove as a trash can, Watch as an eye, Edit as a pencil, Switch as
 ## two arrows trading places, and the grip a row is moved by as six dots, which turn into an arrow
-## up and down while it is picked up.
+## up and down while it is picked up; and beside a player in Manage players, their License as a
+## license card, their Profile as a head and shoulders, Mute as their emotes' face, struck through
+## while muted, Make host as the House's key and Kick as a door with the way out of it.
 ## The word is its tooltip, for a mouse that hovers to ask. Each picture is a drawing of GAME.md
 ## 8.3a printed flat in the button's ink, its light parts left bare so the button shows through.
 
-enum Kind { TRASH, EYE, PENCIL, GRIP, MOVE, SWAP }
+enum Kind { TRASH, EYE, PENCIL, GRIP, MOVE, SWAP, LICENSE, PROFILE, EMOTES, MUTED, HOST, KICK }
 
 ## How big a button is, a grip's narrower, and how much of its height the picture takes.
 const SIZE := Vector2(64.0, 52.0)
@@ -16,7 +18,18 @@ const PICTURE := 0.56
 const INK := Color(0.92, 0.92, 0.95)
 ## Each kind's drawing, in [enum Kind] order.
 const PICTURES: Array[StringName] = [
-	&"ui_trash", &"ui_eye", &"ui_pencil", &"ui_grip", &"ui_move", &"ui_swap"
+	&"ui_trash",
+	&"ui_eye",
+	&"ui_pencil",
+	&"ui_grip",
+	&"ui_move",
+	&"ui_swap",
+	&"ui_license",
+	&"ui_profile",
+	&"ui_emotes",
+	&"ui_emotes_muted",
+	&"ui_key",
+	&"ui_kick",
 ]
 
 

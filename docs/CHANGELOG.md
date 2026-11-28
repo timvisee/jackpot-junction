@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Pictures on the Players buttons.** License, Profile, Mute, Make host and Kick in Manage
+  players are pictures, so a row fits in any language; the word stands under the chosen button.
 - **A license card on the payout slip.** The button after a name that shows their driver license
   is a small license card in the house print, with its holder and the writing on it.
 

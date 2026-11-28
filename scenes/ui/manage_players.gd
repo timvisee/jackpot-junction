@@ -4,7 +4,9 @@ extends PanelContainer
 ## itself: the host's own players first, marked Me, then each other player by the name and color
 ## of their seat and the plate on their kart, or the learner's L, and each watcher by the name
 ## the host gave them, with Kick beside every one of those, which asks first, as Make host does,
-## see [signal asking], and in a Steam game Profile, their profile in Steam's overlay. The cursor
+## see [signal asking], and in a Steam game Profile, their profile in Steam's overlay. The buttons
+## wear pictures rather than words, see [IconButton], each word its tooltip and, for a pad or the
+## keys, shown under the button the cursor is on, see [member _word]. The cursor
 ## starts on Back, so a press too many shows nobody out. Somebody kicked goes back to the title,
 ## told why, and may join again; in the lobby their seat is emptied, and on a map a bot takes their
 ## kart on, as for anybody who leaves. The list follows whoever comes and goes while it is up, and
@@ -22,18 +24,15 @@ signal closed
 ## again with the cursor on [param from], the button that asked.
 signal asking(words: Array[String], action: Callable, from: Button)
 
-## How wide a row is, and its buttons.
 ## What a player without the host's say is told over the list off Steam, where it has no Profile or
 ## Mute: only to see who is in the game and who hosts it, GAME.md 10.8. Shown through tr().
 const OFF_STEAM_NOTE := "Only the host can kick players or make someone else the host."
+## How wide a row is, how big each button on it, and the room between them.
 const ROW_WIDE := 640.0
-const KICK_SIZE := Vector2(110.0, 44.0)
-const HAND_SIZE := Vector2(150.0, 44.0)
-const PROFILE_SIZE := Vector2(130.0, 44.0)
-const MUTE_SIZE := Vector2(130.0, 44.0)
-const LICENSE_SIZE := Vector2(130.0, 44.0)
-## The room between a row's buttons.
+const BUTTON := Vector2(56.0, 44.0)
 const BUTTON_ROOM := 10.0
+## How far under its button the word of the one the cursor is on stands, see [member _word].
+const WORD_BELOW := 4.0
 
 var session: NetSession
 ## The button on the menu that opens the list, which it names: Manage players with the say, and
@@ -46,6 +45,8 @@ var _back: Button
 var _note: Label
 ## Who the rows were drawn for, so they are only made again when somebody comes or goes.
 var _drawn := ""
+## The word of the row's button the cursor is on, under it, as its tooltip is for a mouse.
+var _word: PanelContainer
 
 
 func _ready() -> void:
@@ -64,6 +65,24 @@ func _ready() -> void:
 	_back = MenuTheme.button(tr("Back"))
 	_back.pressed.connect(func() -> void: closed.emit())
 	column.add_child(_back)
+	_word = PanelContainer.new()
+	_word.name = "Word"
+	_word.top_level = true
+	_word.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_word.visible = false
+	var tag := StyleBoxFlat.new()
+	tag.bg_color = Color(HouseTheme.INK, 0.92)
+	tag.set_corner_radius_all(4)
+	tag.set_content_margin_all(4.0)
+	tag.content_margin_left = 8.0
+	tag.content_margin_right = 8.0
+	_word.add_theme_stylebox_override("panel", tag)
+	var said := Label.new()
+	Type.set_font(said, Type.STRONG, Type.LABEL)
+	said.add_theme_color_override("font_color", HouseTheme.PAPER)
+	said.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_word.add_child(said)
+	add_child(_word)
 
 
 ## Up, drawn afresh, with the cursor on Back: on the first Kick, a press too many showed somebody
@@ -95,6 +114,25 @@ func _process(_delta: float) -> void:
 		button.text = tr("Manage players") if _says() else tr("Players")
 	if visible:
 		_redraw()
+	_show_word()
+
+
+## The word of the row's button the cursor is on under it, or none: a pad or the keys have no
+## pointer to hover over it and ask.
+func _show_word() -> void:
+	var on := get_viewport().gui_get_focus_owner() as Button if visible else null
+	var shown := on != null and on.text.is_empty() and _rows.is_ancestor_of(on)
+	_word.visible = shown
+	if not shown:
+		return
+	var said := _word.get_child(0) as Label
+	if said.text != on.tooltip_text:
+		said.text = on.tooltip_text
+		_word.reset_size()
+	var under := on.get_global_rect()
+	_word.global_position = Vector2(
+		under.get_center().x - _word.size.x * 0.5, under.end.y + WORD_BELOW
+	)
 
 
 ## Whether a pause menu offers the list, see [member button]: to whoever has the host's say, and to
@@ -185,14 +223,15 @@ func _row(guest: Dictionary) -> SeatCard:
 	# Room for the buttons on every row, so the plates line up over rows with none, and the row
 	# wider by Profile's and Mute's, so the names keep theirs.
 	var handing := _handing() or _hosting_here()
-	var room := (KICK_SIZE.x if _says() else 0.0) + (HAND_SIZE.x + BUTTON_ROOM if handing else 0.0)
+	var each := BUTTON.x + BUTTON_ROOM
+	var room := (BUTTON.x if _says() else 0.0) + (each if handing else 0.0)
 	var profiles := _profiles()
 	# Room for License on every row, GAME.md 10.8, whoever has one to show.
-	var wider := LICENSE_SIZE.x + BUTTON_ROOM
+	var wider := each
 	if profiles:
-		wider += PROFILE_SIZE.x + BUTTON_ROOM
+		wider += each
 	if Store.steam_game():
-		wider += MUTE_SIZE.x + BUTTON_ROOM
+		wider += each
 	room += wider
 	card.custom_minimum_size.x = ROW_WIDE + wider
 	card.actions.custom_minimum_size.x = room
@@ -216,9 +255,9 @@ func _row(guest: Dictionary) -> SeatCard:
 	# host is the machine it runs on, and has nobody to hand it to.
 	var named := str(guest["name"])
 	if _handing() and plays:
-		var hand := MenuTheme.button(tr("Make host"), Type.BODY)
+		var hand := IconButton.of(IconButton.Kind.HOST, tr("Make host"))
 		hand.name = "MakeHost"
-		hand.custom_minimum_size = HAND_SIZE
+		hand.custom_minimum_size = BUTTON
 		hand.pressed.connect(
 			func() -> void:
 				asking.emit(
@@ -229,9 +268,9 @@ func _row(guest: Dictionary) -> SeatCard:
 	elif _hosting_here() and plays and (account != 0 or not Store.steam_game()):
 		# The game handed to them, at once in the lobby and on the podium, and at the podium when
 		# asked during a map, GAME.md 10.8.
-		var giving := MenuTheme.button(tr("Make host"), Type.BODY)
+		var giving := IconButton.of(IconButton.Kind.HOST, tr("Make host"))
 		giving.name = "MakeHost"
-		giving.custom_minimum_size = HAND_SIZE
+		giving.custom_minimum_size = BUTTON
 		var to := peer
 		giving.pressed.connect(
 			func() -> void:
@@ -242,9 +281,9 @@ func _row(guest: Dictionary) -> SeatCard:
 		card.actions.add_child(giving)
 	if not _says():
 		return card
-	var kick := MenuTheme.button(tr("Kick"), Type.BODY)
+	var kick := IconButton.of(IconButton.Kind.KICK, tr("Kick"))
 	kick.name = "Kick"
-	kick.custom_minimum_size = KICK_SIZE
+	kick.custom_minimum_size = BUTTON
 	var barring := Store.public_game()
 	kick.pressed.connect(
 		func() -> void:
@@ -261,9 +300,10 @@ func _row(guest: Dictionary) -> SeatCard:
 ## Mute, hiding [param guest]'s emotes on this screen, or Unmute once it has, GAME.md 10.8.
 func _mute_button(guest: Dictionary) -> Button:
 	var muted := Muted.is_muted(guest)
-	var mute := MenuTheme.button(tr("Unmute") if muted else tr("Mute"), Type.BODY)
+	var kind := IconButton.Kind.MUTED if muted else IconButton.Kind.EMOTES
+	var mute := IconButton.of(kind, tr("Unmute") if muted else tr("Mute"))
 	mute.name = "Mute"
-	mute.custom_minimum_size = MUTE_SIZE
+	mute.custom_minimum_size = BUTTON
 	mute.pressed.connect(func() -> void: Muted.mute(guest, not Muted.is_muted(guest)))
 	return mute
 
@@ -317,9 +357,9 @@ static func with_steam_name(says: String, steam_name: String) -> String:
 ## it came over the wire, see [LicenseWire], over everything, GAME.md 10.8; the cursor back on it
 ## once it is put away.
 func _license_button(license: Dictionary, named: String) -> Button:
-	var button := MenuTheme.button(tr("License"), Type.BODY)
+	var button := IconButton.of(IconButton.Kind.LICENSE, tr("License"))
 	button.name = "License"
-	button.custom_minimum_size = LICENSE_SIZE
+	button.custom_minimum_size = BUTTON
 	ScreenReader.label(button, tr("%s's license") % named)
 	button.pressed.connect(
 		func() -> void:
@@ -332,9 +372,9 @@ func _license_button(license: Dictionary, named: String) -> Button:
 ## Profile, opening the Steam profile of the account [param account] in Steam's overlay, GAME.md
 ## 10.8.
 static func profile_button(account: int) -> Button:
-	var profile := MenuTheme.button(Lang.t("Profile"), Type.BODY)
+	var profile := IconButton.of(IconButton.Kind.PROFILE, Lang.t("Profile"))
 	profile.name = "Profile"
-	profile.custom_minimum_size = PROFILE_SIZE
+	profile.custom_minimum_size = BUTTON
 	profile.pressed.connect(func() -> void: Store.steam.show_profile(account))
 	return profile
 

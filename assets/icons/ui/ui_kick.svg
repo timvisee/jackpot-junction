@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+<title>Out</title>
+<style>.ink>.body,.line.ink{fill:#f2c14e}.tint>.body{fill:#f2c14e;opacity:.4}.cream>.body{fill:#f2ead6}.shade{fill:#000;opacity:.2}.glint{fill:none;stroke:#f2ead6;stroke-width:1.5;stroke-linecap:round}.cut{fill:#17161d}.cut[stroke-width]{fill:none;stroke:#17161d;stroke-linecap:round;stroke-linejoin:round}.line{fill:none;stroke:#f2c14e;stroke-linecap:round;stroke-linejoin:round}.line.tint{opacity:.4}.line.cream{stroke:#f2ead6}</style>
+<g class="icon">
+  <path class="line ink" d="M26,14V10A2.5,2.5 0 0 0 23.5,7.5H11A2.5,2.5 0 0 0 8.5,10V38A2.5,2.5 0 0 0 11,40.5H23.5A2.5,2.5 0 0 0 26,38V34" stroke-width="4.2"/>
+  <g class="piece ink">
+    <path class="body" d="M18,21.5H31.5V16.5A1,1 0 0 1 33.2,15.8L42.1,23.3A0.9,0.9 0 0 1 42.1,24.7L33.2,32.2A1,1 0 0 1 31.5,31.5V26.5H18A2.5,2.5 0 0 1 18,21.5Z"/>
+  </g>
+</g>
+</svg>
