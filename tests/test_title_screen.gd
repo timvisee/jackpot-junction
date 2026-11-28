@@ -729,3 +729,21 @@ func _press(action: StringName) -> void:
 	press.action = action
 	press.pressed = true
 	get_viewport().push_input(press)
+
+
+## The name as the language spoken names the game, GAME.md 8.1a: 头奖路口 in Chinese with the
+## English small under it, and the English alone in Dutch, which keeps it.
+func test_the_name_is_as_the_language_names_the_game() -> void:
+	var was := Lang.current
+	Lang.apply("zh_CN")
+	var chinese: Control = auto_free(TitleWords.name_mark())
+	Lang.apply("nl")
+	var dutch: Control = auto_free(TitleWords.name_mark())
+	Lang.apply(was)
+	var lines: Array[Node] = chinese.find_children("*", "Label", true, false)
+	(
+		assert_array(lines.map(func(line: Label) -> String: return line.text))
+		. contains_exactly(["头奖路口", "Jackpot Junction"])
+	)
+	assert_int((lines[1] as Label).get_theme_font_size(&"font_size")).is_less(Type.HERO)
+	assert_str((dutch as Label).text).is_equal("Jackpot Junction")

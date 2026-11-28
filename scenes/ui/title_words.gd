@@ -1,12 +1,51 @@
 class_name TitleWords
 extends RefCounted
-## The words under the title's name, GAME.md 8.1a: the microprint between two rules of foil, and
-## after the story's ending the House's status line in the tagline's place, STORY.md 8.6.
+## The title's name and the words under it, GAME.md 8.1a: the name as the language names the game,
+## the microprint between two rules of foil, and after the story's ending the House's status line
+## in the tagline's place, STORY.md 8.6.
 
+## The game's name, shown through tr(): a language may name the game otherwise.
+# TRANSLATORS: The game's name, as the title screen and the House's invitation wear it. Keep it as
+# it is unless the game goes by another name in the language, as 头奖路口 in Chinese.
+const NAME := "Jackpot Junction"
+## How far under a name of its own the English is, as a share of the name's size: closer than a
+## label sets it, as the store's capsules have it.
+const UNDER_GAP := -0.08
 ## How long the microprint's rules are.
 const MICRO_RULE := 150.0
 ## The Operator's line after the ending, STORY.md 8.6: its size.
 const STATUS_SIZE := Type.BODY
+
+
+## The game's name, a mark rather than a heading: the condensed Black, as the language spoken names
+## the game; and where that is not the English, the English small under it, as wide, as the store's
+## capsules wear it, docs/STEAM.md.
+static func name_mark() -> Control:
+	var named := Lang.t(NAME)
+	var big := _name_line(named, Type.HERO)
+	if named == NAME:
+		return big
+	var both := VBoxContainer.new()
+	both.name = "Name"
+	both.alignment = BoxContainer.ALIGNMENT_CENTER
+	both.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	both.add_theme_constant_override("separation", roundi(Type.HERO * UNDER_GAP))
+	both.add_child(big)
+	# Measured down to the name's width, as the tracking stays as it is at every size.
+	var font := Type.mark_font()
+	var wide := font.get_string_size(named.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, Type.HERO).x
+	var english := NAME.to_upper()
+	var size := Type.HERO
+	while size > 1 and font.get_string_size(english, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > wide:
+		size -= 1
+	both.add_child(_name_line(NAME, size))
+	return both
+
+
+static func _name_line(words: String, size: int) -> Label:
+	var line := MenuTheme.title(words, size)
+	Type.set_font(line, Type.mark_font(), size)
+	return line
 
 
 ## After the ending, one line under the name in the Count Room's green, set as a terminal's, in the

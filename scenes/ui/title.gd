@@ -143,9 +143,8 @@ func _ready() -> void:
 	background.anchor = mark
 	_column = column
 	_mark = centered
-	# The name is a mark rather than a heading: the condensed Black, over a line of microprint.
-	var named := MenuTheme.title("Jackpot Junction", Type.HERO)  # NO_TRANSLATE
-	Type.set_font(named, Type.mark_font(), Type.HERO)
+	# The name is a mark rather than a heading, over a line of microprint.
+	var named := TitleWords.name_mark()
 	column.add_child(named)
 	# The microprint under the name moves with the story, STORY.md 6.4.
 	var printed := TitleWords.microprint(

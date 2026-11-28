@@ -7311,6 +7311,11 @@ msgstr ""
 msgid "Drive anyway"
 msgstr ""
 
+#. The game's name, as the title screen and the House's invitation wear it. Keep it as it is unless the game goes by another name in the language, as 头奖路口 in Chinese.
+#: scenes/ui/title_words.gd scripts/story/story_lines.gd
+msgid "Jackpot Junction"
+msgstr ""
+
 #: scenes/ui/touch_slider.gd
 msgid "REVERSE"
 msgstr ""
@@ -10507,10 +10512,6 @@ msgstr ""
 
 #: scripts/story/story_lines.gd
 msgid "Attendance is voluntary."
-msgstr ""
-
-#: scripts/story/story_lines.gd
-msgid "Jackpot Junction"
 msgstr ""
 
 #: scripts/story/story_lines.gd

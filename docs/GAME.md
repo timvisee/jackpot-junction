@@ -3952,7 +3952,9 @@ Amber and red belong to the boards and the warnings.
   under it all; it turns about the mark now rather than a point under it, once in
   200 seconds, with three bands of guilloché rings round the mark, drawn once and
   turned whole, once every four minutes; the name is set in the condensed Black in
-  foil over a line of microprint between two rules; the buttons are tickets. The
+  foil over a line of microprint between two rules, in a language that names the game
+  otherwise, 头奖路口 in Chinese, in it with the English small under it as wide, as the
+  store's capsules have it; the buttons are tickets. The
   beams and the rays fade from the mark out to nothing at 0.88 of the way to the
   nearest of the screen's sides and its foot, so they never touch one; running to
   every edge, they made the screen busy behind the menu. The chips drifting up are
