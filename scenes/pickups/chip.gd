@@ -32,8 +32,9 @@ var dropped_team := -1
 
 
 ## A chip a death dropped is dragged along the floor by whatever drags loose things, a magnet that
-## is on, see [LooseThings], as a bomb is: on the host, which tells the clients where it went, see
-## [PickupWire]; taken over a hole, it drops down it. Not one still in the air or on its way down.
+## is on or a belt, see [LooseThings], as a bomb is: on the host, which tells the clients where it
+## went, see [PickupWire]; taken over a hole, it drops down it. Not one still in the air or on its
+## way down.
 func _physics_process(delta: float) -> void:
 	if not dropped or falling or _thrown_left > 0.0:
 		return

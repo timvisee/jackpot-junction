@@ -1,10 +1,10 @@
 class_name LooseThings
 ## The loose things lying on a room's floor, GAME.md 6.2: the bombs dropped, 7.1, the mines lying
-## in wait, 5.3, and the chips a death dropped, 3.2. A magnet that is on drags them in, as it pulls
-## a kart, each a node in [constant FloorCarry.GROUP] that says how fast it moves one where it lies,
-## see [method Magnet.drag_at]; stopped by anything solid in the way, see [method slid]; and down a
-## hole once over one, see [method over_pit]: a bomb sinks without going off, a mine is gone and a
-## chip drops out of sight as one dropped over a hole does.
+## in wait, 5.3, and the chips a death dropped, 3.2. A magnet that is on drags them in and a belt
+## carries them along, as each does a kart, each a node in [constant FloorCarry.GROUP] that says how
+## fast it moves one where it lies, see [method Magnet.drag_at]; stopped by anything solid in the
+## way, see [method slid]; and down a hole once over one, see [method over_pit]: a bomb sinks
+## without going off, a mine is gone and a chip drops out of sight as one dropped over a hole does.
 ##
 ## What the room does to them is the host's alone, as everything else a match's floor holds is,
 ## GAME.md 10.3: where each one is goes to the clients in the snapshot, see [MatchSnapshot].

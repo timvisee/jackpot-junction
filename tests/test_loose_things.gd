@@ -1,6 +1,7 @@
 extends GdUnitTestSuite
 ## What the rooms do to the loose things on their floors, GAME.md 6.2: the bombs, the mines lying in
-## wait and the chips a death dropped, see [LooseThings]: down a hole once over one.
+## wait and the chips a death dropped, see [LooseThings]: carried along a belt, and down a hole once
+## over one.
 
 const MATCH_SCENE := preload("res://scenes/match/match.tscn")
 const DEFAULT_RULES: MatchRules = preload("res://data/match/default.tres")
@@ -115,3 +116,38 @@ func test_a_chip_gone_over_a_hole_goes_down_it_on_a_client() -> void:
 	assert_bool(chip.falling).is_true()
 	assert_bool(chip.is_queued_for_deletion()).is_false()
 	assert_bool(match_node.puppet_pickups.has(9)).is_false()
+
+
+## A belt carries the bombs, the mines and a death's chips lying on it along it, as it does a kart,
+## and down the hole it runs into, the bomb without going off, GAME.md 6.2.
+func test_a_belt_carries_loose_things_down_its_hole() -> void:
+	var match_node := await _match(&"house_rules")
+	var grid := match_node.arena.grid
+	var top := grid.belts[0]
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	bomb.global_position = grid.cell_center(top.position + Vector2i(1, 0))
+	var chip := Chip.new()
+	chip.dropped = true
+	match_node.arena.place_drop(chip, grid.cell_center(top.position + Vector2i(3, 0)))
+	var mine := Bullet.new()
+	match_node.bullets.add_child(mine)
+	mine.owner_slot = 0
+	mine.kind = &"mine"
+	mine.blast_radius = 2.0
+	mine.arm_radius = 0.1
+	mine.lifetime_left = 60.0
+	mine._at_rest = true
+	var laid := grid.cell_center(top.position + Vector2i(5, 0))
+	mine.global_position = laid + Vector3.UP * Bullet.GRENADE_REST_Y
+	mine.spawn_from = mine.global_position
+	var starts := [bomb.global_position.x, chip.global_position.x]
+	await _frames(20)
+	assert_float(bomb.global_position.x).is_greater(starts[0] + 0.5)
+	assert_float(chip.global_position.x).is_greater(starts[1] + 0.5)
+	await _frames(240)
+	assert_bool(not is_instance_valid(bomb) or bomb.falling).is_true()
+	assert_bool(not is_instance_valid(chip) or chip.falling).is_true()
+	assert_bool(not is_instance_valid(mine) or mine.is_dead()).is_true()
+	assert_array(_heard).is_empty()

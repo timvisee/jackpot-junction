@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Belts carry bombs, mines and chips.** In the Count Room on House Rules, the belts carry the
+  bombs, mines and dropped chips lying on them down their holes, as they carry karts.
 - **Holes swallow bombs, mines and chips.** A bomb or mine lying over a hole, or a dropped chip
   pulled over one, drops down it, a bomb without going off.
 - **Magnets pull more than karts.** On Lucky Crossing a magnet that switches on also drags in the

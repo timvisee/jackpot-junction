@@ -2368,7 +2368,7 @@ protection makes the kart untouchable.
 | Crate          | Destructible cover, see 3.2                                            |
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
 | Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again, see below |
-| Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, see below |
+| Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, and the bombs, mines and a death's chips lying on it, see below |
 | Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts, bombs, mines and a death's chips within 7 m in toward it hard, see below |
 | Sewing needle  | A machine's head running along a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
 | Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: shoves a kart it clips as a pop bumper does, and wrecks one caught square under its nose, see below |
@@ -2512,7 +2512,9 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
   Rules, each running into one of its two holes, carry a kart whose middle is on one along its
   length at 3 m/s, toward +x in the top half of the room and -x in the bottom, so the pair keeps the
   map's point symmetry: let one take you and it drops you down the hole. Their slats run with them,
-  dark on dark so they do not flicker. Shots fly over them.
+  dark on dark so they do not flicker. Shots fly over them. The bombs, the mines lying in wait and
+  a death's chips lying on one are carried along the same way and down its hole, a bomb without
+  going off; a chip off a pad stays where it lies.
 - **Magnets** (`Magnet`), a red horseshoe magnet off Kit's bench beside each Jackpot zone of Lucky
   Crossing, solid as a bumper, its open end toward the middle of the room. Off for 14 s from the
   flag, its steel tips warming up in the last second, then on for 4 s, pulling every kart within

@@ -4,7 +4,9 @@ extends Node3D
 ## the floor, that carries a kart on it along its length at [constant SPEED], driving or not, see
 ## [FloorCarry]. A belt runs along its longer side, toward +x in the top half of the room and -x in
 ## the bottom, toward +z in the left half and -z in the right, so a map's belts keep its point
-## symmetry. Floor to everything else: shots fly over it and coins lie on it.
+## symmetry. It carries the bombs, the mines and a death's chips lying on it the same way, see
+## [LooseThings], and down the hole at its end. Floor to everything else: shots fly over it and a
+## pad's chips lie on it.
 ##
 ## Its slats run along with it, moved every frame rather than drawn in a shader of their own, so it
 ## compiles nothing the room has not.
@@ -66,12 +68,18 @@ func _ready() -> void:
 	_match = node as Match
 
 
-## How fast the belt moves [param kart], see [FloorCarry]: along it at [constant SPEED] while the
-## kart's middle is on it, and not at all otherwise or for a kart of another match.
+## How fast the belt moves [param kart], see [FloorCarry].
 func carry_at(kart: Kart) -> Vector3:
-	if _match != null and not _match.is_ancestor_of(kart):
+	return drag_at(kart)
+
+
+## How fast the belt moves [param loose], a kart or a loose thing lying on it, see [LooseThings]:
+## along it at [constant SPEED] while its middle is on it, and not at all otherwise or for
+## something of another match.
+func drag_at(loose: Node3D) -> Vector3:
+	if _match != null and not _match.is_ancestor_of(loose):
 		return Vector3.ZERO
-	var local := kart.global_position - global_position
+	var local := loose.global_position - global_position
 	if absf(local.x) > half.x + EDGE or absf(local.z) > half.y + EDGE:
 		return Vector3.ZERO
 	return direction * SPEED

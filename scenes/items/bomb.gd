@@ -112,8 +112,8 @@ func _run(delta: float) -> void:
 
 
 ## Dragged along the floor for [param delta] seconds by whatever drags loose things, a magnet that
-## is on, see [LooseThings], the way it pulls a kart; stopped short of anything solid in the way, a
-## wall, a crate or the magnet itself, as a kart sliding is.
+## is on or a belt, see [LooseThings], the way it pulls a kart; stopped short of anything solid in
+## the way, a wall, a crate or the magnet itself, as a kart sliding is.
 func drag(delta: float) -> void:
 	var pull := LooseThings.pull_at(self)
 	if pull.length_squared() < 0.0001:

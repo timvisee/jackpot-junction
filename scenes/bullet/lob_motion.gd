@@ -40,8 +40,8 @@ static func run(bullet: Bullet, delta: float) -> void:
 	bullet._orient()
 
 
-## A mine lying in wait dragged along the floor by whatever drags loose things, a magnet that is on,
-## see [LooseThings], as a bomb is; stopped by anything solid in the way.
+## A mine lying in wait dragged along the floor by whatever drags loose things, a magnet that is on
+## or a belt, see [LooseThings], as a bomb is; stopped by anything solid in the way.
 static func _dragged(bullet: Bullet, delta: float) -> void:
 	var pull := LooseThings.pull_at(bullet)
 	if pull.length_squared() < 0.0001:
