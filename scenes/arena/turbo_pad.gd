@@ -21,6 +21,11 @@ const INNER_FRACTION := 0.8
 
 ## Karts overlapping the pad that have not been launched since they drove on.
 var _pending: Array[Node3D] = []
+## The bombs on the pad that it has launched since they came on, by instance id, see
+## [method _launch_bombs].
+var _launched: Dictionary[int, bool] = {}
+## The match the pad is in, none in the Garage.
+var _match: Match
 
 
 func _ready() -> void:
@@ -31,6 +36,7 @@ func _ready() -> void:
 	collision_mask = Layers.KART | Layers.PROTECTED | Layers.PUPPET
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	_match = LooseThings.match_of(self)
 
 
 func _physics_process(_delta: float) -> void:
@@ -45,6 +51,31 @@ func _physics_process(_delta: float) -> void:
 			_pending.erase(body)
 			body.call("apply_turbo", direction)
 			triggered.emit(body)
+	_launch_bombs(reach)
+
+
+## A bomb lying well onto the pad, [param reach] from its middle each way, as a kart's middle must
+## be, is launched down its arrow, see [method Bomb.launch], once each time it comes onto it: the
+## host's word, a client told where it rolls. Bombs are found by where they lie rather than by the
+## pad's area, which hears karts alone.
+func _launch_bombs(reach: Vector2) -> void:
+	if _match == null or _match.puppet:
+		return
+	var on: Dictionary[int, bool] = {}
+	for node: Node in FrameGroups.of(get_tree(), &"bombs"):
+		var bomb := node as Bomb if is_instance_valid(node) else null
+		if bomb == null or not bomb.alive or bomb.falling or bomb.puppet:
+			continue
+		if not _match.is_ancestor_of(bomb):
+			continue
+		var offset := bomb.global_position - global_position
+		if absf(offset.x) > reach.x or absf(offset.z) > reach.y:
+			continue
+		var id := bomb.get_instance_id()
+		on[id] = true
+		if not _launched.has(id):
+			bomb.launch(direction)
+	_launched = on
 
 
 func _on_body_entered(body: Node3D) -> void:

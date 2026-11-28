@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Turbo pads fire bombs.** A bomb lying on a turbo pad is launched rolling down its arrow, like
+  a pinball, and goes off against the first kart it reaches.
 - **Live cabinets set off bombs.** On Crossfire, a bomb or mine against a live cabinet goes off,
   and the cabinet stays live.
 - **Tripwires set off bombs.** In the Vault, a bomb or mine lying across a laser tripwire goes off

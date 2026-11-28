@@ -6,7 +6,8 @@ extends StaticBody3D
 ## not spared. Bullets see it on the bomb layer; karts drive over it without bumping into it. A
 ## magnet that is on drags it along the floor as it pulls a kart, see [method drag], stopped by
 ## anything solid in its way; over a hole, dropped there or taken there, it goes down it without
-## going off, see [method fall].
+## going off, see [method fall]. A turbo pad launches it rolling down its arrow, see
+## [method launch].
 
 signal exploded(bomb: Bomb)
 
@@ -20,6 +21,10 @@ const GLIDE_JUMP := 2.0
 ## How long it takes to drop out of sight down a hole, and how fast it sinks, as a pickup does.
 const FALL_TIME := Pickup.FALL_TIME
 const FALL_SPEED := Pickup.FALL_SPEED
+## How fast a turbo pad launches it rolling, in meters a second, and how quickly its roll dies away,
+## in meters a second each second: some eleven meters down a lane at the most, see [method launch].
+const LAUNCH_SPEED := 9.0
+const ROLL_DRAG := 3.6
 
 var owner_slot := -1
 ## Its owner's team, GAME.md 3.14: with friendly fire off a teammate neither sets it off nor is
@@ -32,6 +37,8 @@ var puppet := false
 var armed := false
 ## Whether it is on its way down a hole, see [method fall].
 var falling := false
+## How fast it is rolling along the floor, flat, launched by a turbo pad, see [method launch].
+var rolling := Vector3.ZERO
 
 var _age := 0.0
 var _trigger: Area3D
@@ -112,13 +119,28 @@ func _run(delta: float) -> void:
 
 
 ## Dragged along the floor for [param delta] seconds by whatever drags loose things, a magnet that
-## is on or a belt, see [LooseThings], the way it pulls a kart; stopped short of anything solid in
-## the way, a wall, a crate or the magnet itself, as a kart sliding is.
+## is on or a belt, see [LooseThings], the way it pulls a kart, and rolled on by a launch, slowing;
+## stopped short of anything solid in the way, a wall, a crate or the magnet itself, as a kart
+## sliding is, which ends its roll.
 func drag(delta: float) -> void:
 	var pull := LooseThings.pull_at(self)
-	if pull.length_squared() < 0.0001:
+	if pull.length_squared() < 0.0001 and rolling == Vector3.ZERO:
 		return
-	global_position = LooseThings.slid(self, BODY_RADIUS, pull * delta)
+	var motion := (pull + rolling) * delta
+	var to := LooseThings.slid(self, BODY_RADIUS, motion)
+	if rolling != Vector3.ZERO and to.distance_to(global_position) < motion.length() * 0.5:
+		rolling = Vector3.ZERO
+	global_position = to
+	rolling = rolling.move_toward(Vector3.ZERO, ROLL_DRAG * delta)
+
+
+## Launched rolling the way [param way] points, flat, by a turbo pad it lies on, see [TurboPad]:
+## off down the lane at [constant LAUNCH_SPEED], slowing, as a pinball is fired, and going off
+## against the first kart it is armed for. The host's; a client's copy glides after it.
+func launch(way: Vector3) -> void:
+	var flat := Vector3(way.x, 0.0, way.z)
+	if flat.length_squared() > 0.0001:
+		rolling = flat.normalized() * LAUNCH_SPEED
 
 
 ## Down a hole, GAME.md 3.6: it drops out of sight, shrinking, and is gone without going off, and

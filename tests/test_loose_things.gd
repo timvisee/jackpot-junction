@@ -219,3 +219,22 @@ func test_a_live_cabinet_sets_off_a_bomb_against_it() -> void:
 	await _frames(3)
 	assert_array(_heard).is_not_empty()
 	assert_bool(cabinet.live()).is_true()
+
+
+## A turbo pad launches a bomb lying on it rolling down its arrow, slowing, as a pinball is fired,
+## once each time it comes onto it.
+func test_a_turbo_pad_launches_a_bomb_down_its_lane() -> void:
+	var match_node := await _match(&"pin_alley")
+	var pad: TurboPad = match_node.arena.turbo_pads[0]
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	var start := Vector3(pad.global_position.x, 0.0, pad.global_position.z)
+	bomb.global_position = start
+	await _frames(2)
+	assert_float(bomb.rolling.length()).is_greater(Bomb.LAUNCH_SPEED * 0.8)
+	assert_float(bomb.rolling.normalized().dot(pad.direction.normalized())).is_greater(0.99)
+	await _frames(20)
+	var gone := bomb.global_position - start
+	assert_float(gone.dot(pad.direction.normalized())).is_greater(1.0)
+	assert_float(bomb.rolling.length()).is_less(Bomb.LAUNCH_SPEED)
