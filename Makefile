@@ -142,10 +142,10 @@ steam-achievement-art: | $(CACHE)
 	$(GODOT) --path . res://scenes/dev/steam_achievement_export.tscn -- --app=$(STEAM_APP_ID)
 
 # The game's own icons for the timeline of Steam's game recording, GAME.md 10.8, to upload by hand
-# on Steamworks, docs/STEAM.md: each white on nothing at 256 pixels, named as the game calls it,
-# into build/steam-timeline-icons, emptied first. Needs a display.
+# on Steamworks, docs/STEAM.md: each an SVG, white on nothing, 256 units square, named as the game
+# calls it, into build/steam-timeline-icons, emptied first.
 steam-timeline-icons: | $(CACHE)
-	$(GODOT) --path . res://scenes/dev/steam_timeline_icon_export.tscn
+	$(GODOT) --headless --path . res://scenes/dev/steam_timeline_icon_export.tscn
 
 # The pictures the game's page on itch.io wears, docs/ITCH.md: the cover, 630 by 500, and the
 # page's background, both put up from the game's own arena, karts and seal, into build/itch. At a

@@ -185,6 +185,22 @@ func test_the_timeline_icons_have_drawings() -> void:
 	for id: StringName in [export.get("SEVENS"), export.get("HAND")]:
 		assert_bool(IconPress.has(id)).override_failure_message("%s has no drawing" % id).is_true()
 	assert_array(_files("res://assets/icons/timeline/")).contains_exactly([&"timeline_777"])
+	# Each is written as an SVG that reads back as a picture, white where it is drawn, the four suits
+	# nested side by side with ids of their own.
+	for icon: String in Timeline.OWN_ICONS:
+		var svg: String = export.call("svg_of", icon)
+		var image := Image.new()
+		assert_int(image.load_svg_from_string(svg)).is_equal(OK)
+		assert_int(image.get_width()).is_equal(export.get("SIZE"))
+		var middle := image.get_pixel(image.get_width() / 2, image.get_height() / 2)
+		var drawn := 0
+		for y: int in range(0, image.get_height(), 8):
+			for x: int in range(0, image.get_width(), 8):
+				drawn += 1 if image.get_pixel(x, y).a > 0.5 else 0
+		assert_int(drawn).override_failure_message("%s is empty" % icon).is_greater(20)
+		assert_bool(middle.a <= 0.0 or middle.r > 0.9).is_true()
+	var flush: String = export.call("svg_of", "jj_royal_flush")
+	assert_int(flush.count('<g transform="translate(')).is_equal(JokerSuits.PICTURES.size())
 
 
 ## Every face of the slot machines' reels has its drawing and every drawing in the reels' folder is
