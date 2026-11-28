@@ -74,6 +74,9 @@ static func explosives(match_node: Match) -> Array[Node3D]:
 		var bomb := node as Bomb
 		if bomb != null and bomb.alive and not bomb.falling and not bomb.puppet:
 			found.append(bomb)
+	# A match that keeps no shots, as one only scoring a map does, has no mines either.
+	if match_node.bullets == null:
+		return found
 	for mine: Bullet in match_node.bullets.bullets:
 		if (
 			is_instance_valid(mine)
