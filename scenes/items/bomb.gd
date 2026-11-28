@@ -7,7 +7,7 @@ extends StaticBody3D
 ## magnet that is on drags it along the floor as it pulls a kart, see [method drag], stopped by
 ## anything solid in its way; over a hole, dropped there or taken there, it goes down it without
 ## going off, see [method fall]. A turbo pad launches it rolling down its arrow, see
-## [method launch].
+## [method launch], and a pop bumper it moves into kicks it back, see [method _off_bumpers].
 
 signal exploded(bomb: Bomb)
 
@@ -25,6 +25,11 @@ const FALL_SPEED := Pickup.FALL_SPEED
 ## in meters a second each second: some eleven meters down a lane at the most, see [method launch].
 const LAUNCH_SPEED := 9.0
 const ROLL_DRAG := 3.6
+## How near a pop bumper's side it is kicked, in meters, how fast, and how long before a bumper
+## kicks it again, see [method _off_bumpers].
+const KICK_REACH := 0.1
+const KICK_SPEED := 7.0
+const KICK_AGAIN := 0.25
 
 var owner_slot := -1
 ## Its owner's team, GAME.md 3.14: with friendly fire off a teammate neither sets it off nor is
@@ -47,6 +52,7 @@ var _fuse_light: MeshInstance3D
 var _glide := Vector3.ZERO
 var _gliding := false
 var _fallen := 0.0
+var _kick_left := 0.0
 
 
 func _ready() -> void:
@@ -123,15 +129,39 @@ func _run(delta: float) -> void:
 ## stopped short of anything solid in the way, a wall, a crate or the magnet itself, as a kart
 ## sliding is, which ends its roll.
 func drag(delta: float) -> void:
+	_kick_left = maxf(_kick_left - delta, 0.0)
 	var pull := LooseThings.pull_at(self)
 	if pull.length_squared() < 0.0001 and rolling == Vector3.ZERO:
 		return
+	_off_bumpers(pull + rolling)
 	var motion := (pull + rolling) * delta
 	var to := LooseThings.slid(self, BODY_RADIUS, motion)
 	if rolling != Vector3.ZERO and to.distance_to(global_position) < motion.length() * 0.5:
 		rolling = Vector3.ZERO
 	global_position = to
 	rolling = rolling.move_toward(Vector3.ZERO, ROLL_DRAG * delta)
+
+
+## Kicked back off a pop bumper it is moving into at [param moving], GAME.md 6.2: straight away from
+## the bumper's middle at [constant KICK_SPEED], as a pinball is, the bumper lit and heard on every
+## machine, see [method Bumper.fire]; one lying still against a bumper is left be.
+func _off_bumpers(moving: Vector3) -> void:
+	if _kick_left > 0.0 or moving.length_squared() < 0.0001:
+		return
+	var mine := _match()
+	for node: Node in FrameGroups.of(get_tree(), &"bumpers"):
+		var bumper := node as Bumper if is_instance_valid(node) else null
+		if bumper == null or (mine != null and not mine.is_ancestor_of(bumper)):
+			continue
+		var away := global_position - bumper.global_position
+		away.y = 0.0
+		var reach := Bumper.RADIUS + BODY_RADIUS + KICK_REACH
+		if away.length() > reach or away.length() < 0.01 or moving.dot(away) >= 0.0:
+			continue
+		rolling = away.normalized() * KICK_SPEED
+		_kick_left = KICK_AGAIN
+		bumper.fire(-1)
+		return
 
 
 ## Launched rolling the way [param way] points, flat, by a turbo pad it lies on, see [TurboPad]:

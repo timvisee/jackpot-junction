@@ -13,6 +13,7 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Bumpers kick bombs.** A bomb rolling into a pop bumper is kicked back, like a pinball.
 - **Turbo pads fire bombs.** A bomb lying on a turbo pad is launched rolling down its arrow, like
   a pinball, and goes off against the first kart it reaches.
 - **Live cabinets set off bombs.** On Crossfire, a bomb or mine against a live cabinet goes off,

@@ -6,7 +6,8 @@ extends StaticBody3D
 ## shot has a bounce left in it, and lights and sounds for that too, see [method Bullet._bounce];
 ## and a shot is bent toward one for want of anything else, see [method Bullet.nearest_target]. A
 ## kart is kicked ten times in a run at most, and then let be a while, see
-## [constant KartMotor.KICK_CAP].
+## [constant KartMotor.KICK_CAP]. A bomb rolling or dragged into it is kicked back too, see
+## [method Bomb._off_bumpers].
 ##
 ## The kick is movement, and is the same on every machine, GAME.md 10.3. A bumper stands in the
 ## same place on all of them, so a client driving its own kart throws it off one on the tick it

@@ -2366,7 +2366,7 @@ protection makes the kart untouchable.
 |----------------|------------------------------------------------------------------------|
 | Wall           | Solid, bounces bullets, stops karts                                    |
 | Crate          | Destructible cover, see 3.2                                            |
-| Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
+| Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot and a bomb rolling into it, lit and heard, see below |
 | Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again; a bomb or mine against it while live goes off, see below |
 | Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, and the bombs, mines and a death's chips lying on it, see below |
 | Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts, bombs, mines and a death's chips within 7 m in toward it hard, see below |
@@ -2409,6 +2409,11 @@ a moment, often its ten kicks in well under a second, and then drives out throug
 the bumpers let it be; a bot that gets in is out in about two seconds and does not go back. A shot
 that gets in rattles round for a kick or a few and comes out through a gap, in under a second
 whichever way it went, so it lives no longer there than anywhere, three seconds at most, 5.1.
+
+A bomb rolling into a bumper, fired off a turbo pad or dragged in, is kicked straight back off its
+middle at 7 m/s, slowing as a launched bomb does, the cap lit and the knock heard as for a kart, at
+most once in a quarter of a second; one lying still against a bumper is left be. The host kicks
+it and every machine sees the bumper fire, `Bomb._off_bumpers`.
 
 A bumper kicks every shot back, as a pinball machine's kicks the ball, whether or not the shot has
 a bounce in it from Rubber Bumpers or a Ricochet Cannon, and it lights and pops for it, a little

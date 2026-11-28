@@ -238,3 +238,28 @@ func test_a_turbo_pad_launches_a_bomb_down_its_lane() -> void:
 	var gone := bomb.global_position - start
 	assert_float(gone.dot(pad.direction.normalized())).is_greater(1.0)
 	assert_float(bomb.rolling.length()).is_less(Bomb.LAUNCH_SPEED)
+
+
+## A pop bumper kicks a bomb rolling into it straight back off its middle, lit as for a kart, and
+## leaves one lying still against it be.
+func test_a_bumper_kicks_a_bomb_rolling_into_it() -> void:
+	var match_node := await _match(&"pin_alley")
+	var bumper: Bumper = null
+	for node: Node in get_tree().get_nodes_in_group(&"bumpers"):
+		if match_node.is_ancestor_of(node):
+			bumper = node as Bumper
+			break
+	assert_object(bumper).is_not_null()
+	var out := Vector3(-bumper.global_position.x, 0.0, -bumper.global_position.z).normalized()
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	var against := bumper.global_position + out * (Bumper.RADIUS + Bomb.BODY_RADIUS + 0.05)
+	bomb.global_position = Vector3(against.x, 0.0, against.z)
+	await _frames(5)
+	assert_vector(bomb.rolling).is_equal(Vector3.ZERO)
+	assert_float(bomb.global_position.distance_to(Vector3(against.x, 0.0, against.z))).is_less(0.01)
+	bomb.rolling = -out * 3.0
+	await _frames(2)
+	assert_float(bomb.rolling.dot(out)).is_greater(Bomb.KICK_SPEED * 0.5)
+	assert_bool(bumper.lit()).is_true()
