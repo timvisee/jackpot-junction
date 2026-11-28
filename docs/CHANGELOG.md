@@ -11,6 +11,11 @@ below, and hands the notes to the release workflow.
 
 ## [Unreleased]
 
+## [0.25.1] - 2026-11-28
+
+The rooms now act on the bombs, mines and dropped chips lying in them, from magnets and belts to
+needles, tripwires and pinball bumpers, and the catalog holds a card up large. It plays with 0.25.0.
+
 ### Added
 
 - **A closer look at a card.** In the catalog, hold A, Enter or the mouse button on a joker or
@@ -57,7 +62,6 @@ below, and hands the notes to the release workflow.
   up to its edge, where a pale sliver showed at its corners.
 - **Straight back into the map when a host leaves.** Everybody else followed the new host through
   the lobby's loading screen first, then loaded the map again; now they go straight into the map.
-
 ## [0.25.0] - 2026-11-27
 
 The game speaks Dutch and Simplified Chinese, Steam games can be public and carry on when their
@@ -3178,7 +3182,8 @@ from that, one way or another.
   accessibility options: the aim guide, flash reduction and colour-blind roof
   markers.
 
-[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.25.0...HEAD
+[Unreleased]: https://github.com/timvisee/jackpot-junction/compare/v0.25.1...HEAD
+[0.25.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.25.1
 [0.25.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.25.0
 [0.24.1]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.1
 [0.24.0]: https://github.com/timvisee/jackpot-junction/releases/tag/v0.24.0
