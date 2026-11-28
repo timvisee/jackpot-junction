@@ -277,7 +277,8 @@ https://partner.steamgames.com/apps/timelinemarkers/5652730, each under the name
 without `.png`, which is what the game asks Steam for; without them, Steam draws its plain marker.
 Valve's documentation gives no size or format for these icons, and the 256-pixel PNGs were taken as
 they are. All three were uploaded on 2026-11-23, then redrawn from the game's own drawings, the
-suits, its sevens and the table card of the suits and hands, on 2026-11-27: upload those again.
+suits, its sevens and the table card of the suits and hands, on 2026-11-27, and uploaded again on
+2026-11-28.
 
 To see the markers, turn on Steam's game recording, play a map, and open the recording from the
 overlay or from Recordings & Screenshots.
@@ -336,7 +337,8 @@ from its translations, and Steam shows each player their own: run `make steam-in
    build reading the controllers through Steam Input is on the default branch: say
    in the controller survey that the game uses the Steam Input API, with full
    support for Xbox, PlayStation and other controllers, as the Controllers line of
-   [Basic Info](#basic-info) has it, then publish the store page.
+   [Basic Info](#basic-info) has it, then publish the store page. Done on
+   2026-11-28.
 
 The 2026 Steam Controller's layout is `controller_triton.vdf`, Steam's own name for
 it in the client's `controller_base`; Valve's list of controller names for the
