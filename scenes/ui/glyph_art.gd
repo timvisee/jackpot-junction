@@ -545,6 +545,7 @@ static func mouse(button: MouseButton, mark: String, wide: float) -> Art:
 		_d(["M", Vector2(left, crown)] + arc + [Vector2(right, crown), "L", Vector2(right, heel)])
 		+ _d(arc + [Vector2(left, heel), "Z"])
 	)
+	# NO_TRANSLATE: the picture's SVG.
 	var turn := "" if button != MOUSE_BUTTON_RIGHT else "matrix(-1 0 0 1 %s 0)" % _n(middle * 2.0)
 	var pressed := button in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
 	var lit_wheel := "lit" if button == MOUSE_BUTTON_MIDDLE else "dim"
