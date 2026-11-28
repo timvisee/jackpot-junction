@@ -7,7 +7,7 @@ class_name LooseThings
 ## without going off, a mine is gone and a chip drops out of sight as one dropped over a hole does.
 ##
 ## A bomb or a mine is set off by what the room has that strikes or runs into it, see
-## [method set_off_where]: a sewing needle stabbing it.
+## [method set_off_where]: a sewing needle stabbing it, a wind-up toy running into it.
 ##
 ## What the room does to them is the host's alone, as everything else a match's floor holds is,
 ## GAME.md 10.3: where each one is goes to the clients in the snapshot, see [MatchSnapshot].

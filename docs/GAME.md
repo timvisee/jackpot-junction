@@ -2538,7 +2538,9 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
   half a loop apart. Solid. A kart it only clips in passing is thrown off as a pop bumper throws
   one, once in half a second; a kart caught square under its nose is run clean over and wrecked, so
   the loop is a thing to keep out from under, not a bump to lean on. The host alone deals the wreck,
-  10.3, and a shielded or just-spawned kart is shoved clear rather than run down.
+  10.3, and a shielded or just-spawned kart is shoved clear rather than run down. A bomb or a mine
+  lying on its loop goes off as the toy drives into it, the owner's, as a kart sets one off, so a
+  bomb dropped on its loop is a trap timed by the toy.
 - **Tripwires** (`Tripwire`), a red laser beam across the top and bottom lanes of the Vault, between
   two emitters, on for 3 s and off for 3.5 s, flickering for 0.7 s before it comes on, steady for
   fewer flashes, 8.5. A kart through it while it is on sets the alarm off, and the House puts a

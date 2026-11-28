@@ -3,8 +3,9 @@ extends AnimatableBody3D
 ## A wind-up toy car, GAME.md 6.2: a ring of `W` on a map is the loop of floor the Playset's tin toy
 ## drives round, its key turning on its back. A kart that only clips it in passing is thrown off as
 ## a pop bumper throws one, see [method KartMotor.throw_off]; one caught square under its nose is
-## run clean over and wrecked, so the loop is to keep out from under, not a bump to lean on. Solid
-## to shots, which come off it as off a wall. Where it is is the match's clock's, see
+## run clean over and wrecked, so the loop is to keep out from under, not a bump to lean on; and a
+## bomb or a mine it drives into goes off, see [LooseThings]. Solid to shots, which come off it as
+## off a wall. Where it is is the match's clock's, see
 ## [method LiveCabinet.clock], so every machine has it in the same place; the host throws and wrecks
 ## the karts, a client its own as it meets it, as a turbo pad shoves it, the rest in the snapshot.
 
@@ -161,6 +162,16 @@ func _physics_process(delta: float) -> void:
 			continue
 		kart.motor.throw_off(away, nose * SPEED)
 		kart.velocity = kart.motor.velocity
+	if host and _match != null:
+		LooseThings.set_off_where(_match, _runs_into)
+
+
+## Whether the toy, where it is now, has driven into [param point], where a bomb or a mine lies:
+## within its body and a bomb's size more, see [LooseThings].
+func _runs_into(point: Vector3) -> bool:
+	var local := to_local(point)
+	var reach := Vector2(SIZE.x, SIZE.z) * 0.5 + Vector2.ONE * Bomb.BODY_RADIUS
+	return absf(local.x) <= reach.x and absf(local.z) <= reach.y
 
 
 func _process(delta: float) -> void:

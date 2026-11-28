@@ -168,3 +168,16 @@ func test_the_needle_sets_off_a_bomb_it_stabs() -> void:
 		bomb.global_position = Vector3(at.x, 0.0, at.z)
 		await get_tree().physics_frame
 	assert_array(_heard).is_not_empty()
+
+
+## A wind-up toy driving into a bomb sets it off, as a kart driving over one does.
+func test_the_toy_sets_off_a_bomb_it_drives_into() -> void:
+	var match_node := await _match(&"toy_box")
+	var toy: WindUpToy = match_node.arena.get_node("Toys/Toy0")
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	var at := toy.global_position + toy.global_basis.z.normalized() * 0.5
+	bomb.global_position = Vector3(at.x, 0.0, at.z)
+	await _frames(3)
+	assert_array(_heard).is_not_empty()
