@@ -151,3 +151,20 @@ func test_a_belt_carries_loose_things_down_its_hole() -> void:
 	assert_bool(not is_instance_valid(chip) or chip.falling).is_true()
 	assert_bool(not is_instance_valid(mine) or mine.is_dead()).is_true()
 	assert_array(_heard).is_empty()
+
+
+## A sewing needle coming down on a bomb sets it off, as it spins out a kart under it.
+func test_the_needle_sets_off_a_bomb_it_stabs() -> void:
+	var match_node := await _match(&"loose_threads")
+	var needle: SewingNeedle = match_node.arena.get_node("Needles/Needle0")
+	needle.run_to(2.0)
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	for i: int in 30:
+		if not is_instance_valid(bomb) or not bomb.alive:
+			break
+		var at := needle.to_global(needle.foot())
+		bomb.global_position = Vector3(at.x, 0.0, at.z)
+		await get_tree().physics_frame
+	assert_array(_heard).is_not_empty()

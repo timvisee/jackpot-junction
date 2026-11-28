@@ -6,6 +6,9 @@ class_name LooseThings
 ## way, see [method slid]; and down a hole once over one, see [method over_pit]: a bomb sinks
 ## without going off, a mine is gone and a chip drops out of sight as one dropped over a hole does.
 ##
+## A bomb or a mine is set off by what the room has that strikes or runs into it, see
+## [method set_off_where]: a sewing needle stabbing it.
+##
 ## What the room does to them is the host's alone, as everything else a match's floor holds is,
 ## GAME.md 10.3: where each one is goes to the clients in the snapshot, see [MatchSnapshot].
 
@@ -60,3 +63,50 @@ static func over_pit(node: Node, point: Vector3) -> bool:
 static func hosted(node: Node) -> bool:
 	var match_node := match_of(node)
 	return match_node == null or not match_node.puppet
+
+
+## The bombs and the mines lying in wait of [param match_node], which a needle and the like set
+## off: not a client's copies, nor one on its way down a hole.
+static func explosives(match_node: Match) -> Array[Node3D]:
+	var found: Array[Node3D] = []
+	for node: Node in MatchSnapshot.own_nodes(match_node, &"bombs"):
+		var bomb := node as Bomb
+		if bomb != null and bomb.alive and not bomb.falling and not bomb.puppet:
+			found.append(bomb)
+	for mine: Bullet in match_node.bullets.bullets:
+		if (
+			is_instance_valid(mine)
+			and mine.kind == &"mine"
+			and mine._at_rest
+			and not mine.is_dead()
+		):
+			found.append(mine)
+	return found
+
+
+## Sets off every bomb and mine of [param match_node] that [param meets], given where it lies,
+## says is met, see [method set_off].
+static func set_off_where(match_node: Match, meets: Callable) -> void:
+	for thing: Node3D in explosives(match_node):
+		if meets.call(thing.global_position):
+			set_off(thing)
+
+
+## Sets off every bomb and mine of [param match_node] within [param reach] of [param at], flat.
+static func set_off_near(match_node: Match, at: Vector3, reach: float) -> void:
+	var near := func(point: Vector3) -> bool:
+		return Vector2(point.x - at.x, point.z - at.z).length() <= reach
+	set_off_where(match_node, near)
+
+
+## Sets [param thing] off, a bomb or a mine of [method explosives]: the bomb goes up and the mine
+## bursts, each as when a kart sets it off, its owner's kill.
+static func set_off(thing: Node3D) -> void:
+	var bomb := thing as Bomb
+	if bomb != null:
+		bomb.explode()
+		return
+	var mine := thing as Bullet
+	if mine != null and not mine.is_dead():
+		mine._burst()
+		mine.destroy()

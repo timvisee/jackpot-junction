@@ -1,13 +1,14 @@
 class_name SewingNeedle
 extends Node3D
 ## A sewing machine's needle, GAME.md 6.2: a run of `N` on a map is a seam stitched across the
-## Stitch's floor, and a sewing machine's head runs along it over the karts, one way only, coming
-## in at one end and going at the other and in again after a moment, its needle hammering down
-## every [constant STAMP] seconds. A kart under the needle as it comes down spins out,
-## as on oil. Its shadow on the floor darkens and closes in as the needle comes down, so it is seen
-## coming. Where the head is and when the needle comes down are the match's clock's, see
-## [method LiveCabinet.clock], so every machine has it in the same place; whether it caught a kart
-## is the host's to say, and the kart's spin is in the snapshot like any other.
+## Stitch's floor, and a sewing machine's head runs along it over the karts, one way only, coming in
+## at one end and going at the other and in again after a moment, its needle hammering down every
+## [constant STAMP] seconds. A kart under the needle as it comes down spins out, as on oil, and a
+## bomb or a mine lying under it goes off, see [LooseThings]. Its shadow on the floor darkens and
+## closes in as the needle comes down, so it is seen coming. Where the head is and when the needle
+## comes down are the match's clock's, see [method LiveCabinet.clock], so every machine has it in
+## the same place; whether it caught a kart is the host's to say, and the kart's spin is in the
+## snapshot like any other.
 
 ## How fast the head runs along the seam, in meters a second; how long between stitches, how long
 ## the needle is down, and how near the needle a kart's middle must be to be caught, in meters.
@@ -125,6 +126,8 @@ func _physics_process(delta: float) -> void:
 		flat.y = 0.0
 		if flat.length() <= CATCH:
 			catch(kart)
+	# And a bomb or a mine it stabs goes off, see [LooseThings].
+	LooseThings.set_off_near(_match, at, CATCH)
 
 
 ## [param kart] under the needle as it came down: it spins out, as on oil, the way it is going, and

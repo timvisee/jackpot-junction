@@ -2530,7 +2530,8 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
   opposite ways: it grows in at one end, shrinks away at the other and comes in again 0.8 s later,
   its needle hammering down four times a second. A kart within 0.75 m of it as the needle comes
   down spins out, as on oil, 4.1, with the needle's stab heard over the tires letting go; its shadow
-  on the floor shows where it is.
+  on the floor shows where it is. A bomb or a mine lying within 0.75 m of it as the needle comes
+  down goes off, the owner's as when a kart sets it off.
 - **Wind-up toys** (`WindUpToy`), a tin toy car in plain lacquered red and cream, chrome bumpers
   and hubcaps, dark windows and a roundel on its hood, on four black tires with its key turning on
   its back, driving round a loop of floor about each pair of holes of Crossfire XL at 2.2 m/s, the two

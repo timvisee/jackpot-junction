@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **The needle sets off bombs.** On Lucky Crossing XL, the sewing needle coming down on a bomb or
+  mine sets it off.
 - **Belts carry bombs, mines and chips.** In the Count Room on House Rules, the belts carry the
   bombs, mines and dropped chips lying on them down their holes, as they carry karts.
 - **Holes swallow bombs, mines and chips.** A bomb or mine lying over a hole, or a dropped chip
