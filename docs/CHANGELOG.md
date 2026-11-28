@@ -23,6 +23,8 @@ below, and hands the notes to the release workflow.
 - **Outlined button pictures without lines through them.** Under a joker's details and in the
   controls leaflet, a stick pressed in, a mouse and the View and Home buttons are drawn as one
   outline, rather than shapes whose outlines crossed each other and the letters on them.
+- **The mouse's buttons meet its edge.** In the button hints, a mouse's pressed button fills it right
+  up to its edge, where a pale sliver showed at its corners.
 
 ## [0.25.0] - 2026-11-27
 

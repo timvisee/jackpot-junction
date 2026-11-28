@@ -525,7 +525,9 @@ static func dpad(ways: Array[Vector2]) -> Art:
 
 
 ## A mouse seen from above: its two buttons over its body, split by a groove with the wheel in it,
-## [param button] lit and the rest dimmed, and [param mark] beside it for a double click.
+## [param button] lit and the rest dimmed, and [param mark] beside it for a double click. Every
+## part of it follows the one line round it, round at its top and its foot, so nothing it is
+## painted in shows past another at its edge.
 static func mouse(button: MouseButton, mark: String, wide: float) -> Art:
 	var art := Art.new()
 	var span := TALL * wide - INSET * 2.0
@@ -533,57 +535,38 @@ static func mouse(button: MouseButton, mark: String, wide: float) -> Art:
 	var left := INSET
 	var right := left + span
 	var middle := left + round
-	art.add(_box(Rect2(left, INSET, span, TALL - INSET * 2.0), round), "gap")
-	art.only(false)
-	var groove := 0.75
-	var split := 14.4
 	var crown := INSET + round
-	var reach := crown - sqrt(round * round - groove * groove)
 	var heel := TALL - INSET - round
-	var lit_left := "lit" if button == MOUSE_BUTTON_LEFT else "dim"
-	var lit_right := "lit" if button == MOUSE_BUTTON_RIGHT else "dim"
-	var lit_wheel := "lit" if button == MOUSE_BUTTON_MIDDLE else "dim"
-	var arc := ["A", round, round, 0, 0, 1]
-	var near := middle - groove
-	var far := middle + groove
-	var left_button := (
-		_d(["M", Vector2(left, split - groove), "L", Vector2(left, crown)])
-		+ _d(arc + [Vector2(near, reach), "L", Vector2(near, split - groove), "Z"])
-	)
-	var right_button := (
-		_d(["M", Vector2(far, split - groove), "L", Vector2(far, reach)])
-		+ _d(arc + [Vector2(right, crown), "L", Vector2(right, split - groove), "Z"])
-	)
+	var split := 14.4
+	var groove := 1.5
 	var wheel := Rect2(middle - 2.3, 4.4, 4.6, 7.6)
-	for piece: Array in [
-		[left_button, lit_left],
-		[right_button, lit_right],
-		[
-			(
-				_d(["M", Vector2(left, split + groove), "L", Vector2(right, split + groove)])
-				+ _d(["L", Vector2(right, heel)] + arc + [Vector2(left, heel), "Z"])
-			),
-			"dim"
-		],
-	]:
-		art.add(piece[0], piece[1], false)
+	var arc := ["A", round, round, 0, 0, 1]
+	var body := (
+		_d(["M", Vector2(left, crown)] + arc + [Vector2(right, crown), "L", Vector2(right, heel)])
+		+ _d(arc + [Vector2(left, heel), "Z"])
+	)
+	var turn := "" if button != MOUSE_BUTTON_RIGHT else "matrix(-1 0 0 1 %s 0)" % _n(middle * 2.0)
+	var pressed := button in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]
+	var lit_wheel := "lit" if button == MOUSE_BUTTON_MIDDLE else "dim"
+	# Filled: the mouse in the dim tone, the button pressed lit on it to its edge, and the groove cut
+	# in over both in the gap's tone with the wheel in it.
+	art.add(body, "dim")
+	art.only(false)
+	if pressed:
+		art.add(_pressed(left, round, split, wheel, 0.0), "lit", false, null, 0.0, turn)
 		art.only(false)
+	art.add(_grooves(left, right, split, wheel, groove * 0.5), null, false, "gap", groove)
+	art.only(false)
 	art.add(_box(wheel, 2.3), lit_wheel, false, "gap", 1.3)
 	art.only(false)
-	# Outlined, one line round it with its groove drawn in, stopping at the wheel, and the button
-	# pressed filled: its pieces each drawn round crossed one another.
-	art.add(_box(Rect2(left, INSET, span, TALL - INSET * 2.0), round), "body")
+	# Outlined: one line round it with its groove drawn in, stopping at the wheel, and the button
+	# pressed filled short of the groove: its pieces each drawn round crossed one another.
+	art.add(body, "body")
 	art.only(true)
-	if button in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT]:
-		var turn := (
-			"" if button == MOUSE_BUTTON_LEFT else "matrix(-1 0 0 1 %s 0)" % _n(middle * 2.0)
-		)
-		art.add(_pressed(left, round, split, wheel), "lit", false, null, 0.0, turn)
+	if pressed:
+		art.add(_pressed(left, round, split, wheel, groove), "lit", false, null, 0.0, turn)
 		art.only(true)
-	var grooves := _d(["M", Vector2(left, split), "L", Vector2(right, split)])
-	grooves += _d(["M", Vector2(middle, INSET), "L", Vector2(middle, wheel.position.y)])
-	grooves += _d(["M", Vector2(middle, wheel.end.y), "L", Vector2(middle, split)])
-	art.add(grooves, null, false, "body", -1.0)
+	art.add(_grooves(left, right, split, wheel, LINE * 0.5), null, false, "body", -1.0)
 	art.only(true)
 	var wheel_fill: Variant = "lit" if button == MOUSE_BUTTON_MIDDLE else null
 	art.add(_box(wheel, 2.3), wheel_fill, false, "body", -1.0)
@@ -596,38 +579,52 @@ static func mouse(button: MouseButton, mark: String, wide: float) -> Art:
 	return art
 
 
-## An outlined mouse's left button pressed, filled: from the line round the mouse to a little short
-## of the grooves and round the wheel, so they stay drawn. [param left] is the mouse's side, its
-## corners [param round] round, [param split] the groove under the buttons. Mirrored for the
-## right.
-static func _pressed(left: float, round: float, split: float, wheel: Rect2) -> String:
-	var clear := 1.5
+## A mouse's groove: across under its buttons at [param split] from side to side, and up between
+## them from there to the wheel and on above it, each end [param end] short of the line round the
+## mouse, so the round end of a line that wide meets that line rather than poking past it.
+static func _grooves(left: float, right: float, split: float, wheel: Rect2, end: float) -> String:
+	var middle := (left + right) * 0.5
+	return (
+		_d(["M", Vector2(left + end, split), "L", Vector2(right - end, split)])
+		+ _d(["M", Vector2(middle, INSET + end), "L", Vector2(middle, wheel.position.y)])
+		+ _d(["M", Vector2(middle, wheel.end.y), "L", Vector2(middle, split)])
+	)
+
+
+## A mouse's left button pressed, filled: from the line round the mouse, along it, to
+## [param clear] short of the groove and round the wheel, so an outlined mouse's groove and wheel
+## stay drawn; none for a filled one, whose groove and wheel are drawn over it. [param left] is the
+## mouse's side, its top [param round] round, [param split] the groove under the buttons. Mirrored
+## for the right.
+static func _pressed(left: float, round: float, split: float, wheel: Rect2, clear: float) -> String:
 	var middle := left + round
 	var inner := middle - clear
 	var crown := INSET + round
 	var foot := split - clear
-	# Along the line round the mouse, which is the corner of [method _box], up to where it is
-	# [param clear] from the groove: that curve cut short there, so no sliver shows between them.
-	var corner := [Vector2(left, crown), Vector2(left, INSET), Vector2(middle, INSET)]
-	var cut := sqrt((inner - left) / (middle - left))
-	var bend: Vector2 = corner[0].lerp(corner[1], cut)
-	var reach: Vector2 = bend.lerp((corner[1] as Vector2).lerp(corner[2], cut), cut)
+	# The line round the mouse's top is an arc round its middle: up it to where it is [param clear]
+	# from the groove, then down beside the groove and round the wheel.
+	var reach := Vector2(inner, crown - sqrt(round * round - clear * clear))
 	var ring := wheel.size.x * 0.5 + clear
 	var top := wheel.position.y + wheel.size.x * 0.5
 	var low := wheel.end.y - wheel.size.x * 0.5
 	var into := sqrt(ring * ring - clear * clear)
-	var under := foot - low
-	var out := Vector2(inner, foot)
-	if under < ring:
-		out = Vector2(middle - sqrt(ring * ring - under * under), foot)
-	return (
-		_d(["M", Vector2(left, foot), "L", Vector2(left, crown)])
-		+ _d(["Q", bend, reach])
-		+ _d(
-			["L", Vector2(inner, top - into), "A", ring, ring, 0, 0, 0, Vector2(middle - ring, top)]
-		)
-		+ _d(["L", Vector2(middle - ring, low), "A", ring, ring, 0, 0, 0, out, "Z"])
+	var path := _d(["M", Vector2(left, foot), "L", Vector2(left, crown)])
+	path += _d(["A", round, round, 0, 0, 1, reach, "L", Vector2(inner, top - into)])
+	path += _d(
+		["A", ring, ring, 0, 0, 0, Vector2(middle - ring, top), "L", Vector2(middle - ring, low)]
 	)
+	# Round the wheel's foot back to the groove, or cut off where the groove under the buttons
+	# comes first.
+	if low + into <= foot:
+		path += _d(
+			["A", ring, ring, 0, 0, 0, Vector2(inner, low + into), "L", Vector2(inner, foot)]
+		)
+	else:
+		var under := foot - low
+		path += _d(
+			["A", ring, ring, 0, 0, 0, Vector2(middle - sqrt(ring * ring - under * under), foot)]
+		)
+	return path + "Z"
 
 
 ## One of a pad's small buttons that carry a picture rather than a word, on a round button: the

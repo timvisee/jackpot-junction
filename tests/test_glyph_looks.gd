@@ -90,16 +90,21 @@ func test_outlined_letters_are_set_lighter() -> void:
 func test_an_outlined_glyph_has_no_lines_through_it() -> void:
 	assert_int(_outlined(GlyphArt.click("R3"))).is_equal(2)
 	for button: MouseButton in [MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT, MOUSE_BUTTON_MIDDLE]:
-		assert_int(_outlined(GlyphArt.mouse(button, "", 1.0))).is_equal(1)
+		assert_int(_outlined(GlyphArt.mouse(button, "", InputGlyph.MOUSE_WIDE))).is_equal(1)
 	for name: String in GlyphArt.ICONS:
 		assert_int(_outlined(GlyphArt.icon(name))).override_failure_message(name).is_equal(1)
-	# The filled looks keep the mouse's pieces, each in its own tone, over its groove.
-	var filled := GlyphArt.mouse(MOUSE_BUTTON_LEFT, "", 1.0).parts.filter(
+	# Filled, a mouse is its body in the dim tone, the button pressed lit on it to its edge, and the
+	# groove and the wheel over both: nothing under its edge to show past it.
+	var filled := GlyphArt.mouse(MOUSE_BUTTON_LEFT, "", InputGlyph.MOUSE_WIDE).parts.filter(
 		func(part: Dictionary) -> bool: return not part.get("only", false)
 	)
-	assert_int(filled.size()).is_equal(5)
+	var fills: Array = filled.map(func(part: Dictionary) -> Variant: return part["fill"])
+	assert_array(fills).is_equal(["dim", "lit", null, "dim"])
 	var outlined := GlyphArt.svg(
-		GlyphArt.mouse(MOUSE_BUTTON_LEFT, "", 1.0), INK, Vector2i(64, 64), GlyphArt.Look.OUTLINE
+		GlyphArt.mouse(MOUSE_BUTTON_LEFT, "", InputGlyph.MOUSE_WIDE),
+		INK,
+		Vector2i(64, 64),
+		GlyphArt.Look.OUTLINE
 	)
 	assert_object(GlyphArt.texture(outlined)).is_not_null()
 
