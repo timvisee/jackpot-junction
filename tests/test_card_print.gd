@@ -97,6 +97,22 @@ func test_the_frame_runs_straight_into_the_bites() -> void:
 		assert_float(point.x).is_between(inset - 0.01, CardPrint.WIDE - inset + 0.01)
 
 
+## A power-up's name crosses its stub whatever language it is in: spaced out as a crate's label is,
+## or set closer, and smaller only past that, where a word is too long, as Dutch's compounds are.
+func test_a_long_item_name_fits_its_stub() -> void:
+	assert_object(ItemCard.name_set("TURRET")).is_equal(
+		Vector2i(ItemCard.NAME_SIZE, ItemCard.NAME_TRACKING)
+	)
+	for name: String in ["GESCHUTSTOREN", "KETTINGBLIKSEM", "NABIJHEIDSMIJN", "VERY LONG NAME"]:
+		var set_at := ItemCard.name_set(name)
+		for word: String in name.split(" "):
+			var wide := ItemCard.spaced(set_at.y).get_string_size(word, 0, -1, set_at.x).x
+			var room := JokerCard.NAME_ON.size.x - ItemCard.NAME_CLEAR * 2.0
+			assert_float(wide).override_failure_message(name).is_less_equal(room)
+	var dutch := ItemCard.name_set("GESCHUTSTOREN")
+	assert_int(dutch.y).is_less(ItemCard.NAME_TRACKING)
+
+
 ## A card face down is the same card as one face up: drawn by the same body in the same style,
 ## its bites and shaped shadow and all, and its pictures kept off the bites as the face's are.
 func test_a_back_is_the_card_s_shape() -> void:

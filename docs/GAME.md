@@ -6478,8 +6478,9 @@ card out. A debug build fills the catalog of the profile playing with
 
 **Power-ups.** The same for the items, each a card of its own the size and shape of a joker's, framed
 in its color, ITEM in its corner, its picture of 8.3a in its middle; its stub is the label of the
-crate it comes out of, solid in its color with the name printed out of it in small capitals and the
-screen rising from it in a small arch, clear of the rosette; a color too dark to be told from the card lightened,
+crate it comes out of, solid in its color with the name printed out of it in small capitals, set
+closer and then smaller where a word is too long to cross it, as a language's long compound can be
+(Geschutstoren), never broken in the middle, and the screen rising from it in a small arch, clear of the rosette; a color too dark to be told from the card lightened,
 the first set and then the later set as the sets list them; one never used is not printed yet, as a
 joker is. Its pane says what the item does in a sentence, then the numbers no match shows: how long it lasts,
 how many shots, how far it reaches, its fuse, and which set it is in, the later one switched on in

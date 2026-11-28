@@ -35,6 +35,8 @@ below, and hands the notes to the release workflow.
 
 ### Changed
 
+- **Long item names fit their cards.** A power-up whose name has a word too long for its card, as
+  Geschutstoren, Kettingbliksem and Nabijheidsmijn in Dutch do, is set tighter instead of broken.
 - **Pictures on the Players buttons.** License, Profile, Mute, Make host and Kick in Manage
   players are pictures, so a row fits in any language; the word stands under the chosen button.
   Your own row has License too.
