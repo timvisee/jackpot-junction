@@ -271,12 +271,12 @@ of it, but the test page still lists the keys.
 
 The game marks Steam's game-recording timeline, GAME.md 10.8, mostly with Steam's own icons, and
 with three of its own: `jj_royal_flush`, `jj_777` and `jj_cards`. Draw them with
-`make steam-timeline-icons`, which writes each as an SVG, white on transparency, 256 units square,
-to `build/steam-timeline-icons/`. Upload them at
+`make steam-timeline-icons` (needs a display), which writes each as a white PNG on transparency,
+256 pixels square, to `build/steam-timeline-icons/`. Upload them at
 https://partner.steamgames.com/apps/timelinemarkers/5652730, each under the name its file has
-without `.svg`, which is what the game asks Steam for; without them, Steam draws its plain marker.
-Valve's documentation gives no size or format for these icons; the upload takes SVG as well as PNG,
-and an SVG stays sharp at whatever size the client draws it. All three were uploaded on 2026-11-23, then redrawn from the game's own drawings, the
+without `.png`, which is what the game asks Steam for; without them, Steam draws its plain marker.
+Valve's documentation gives no size or format for these icons, and the 256-pixel PNGs were taken as
+they are. All three were uploaded on 2026-11-23, then redrawn from the game's own drawings, the
 suits, its sevens and the table card of the suits and hands, on 2026-11-27, and uploaded again on
 2026-11-28.
 

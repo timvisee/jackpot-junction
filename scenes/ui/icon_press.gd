@@ -194,17 +194,6 @@ static func printed(
 	return image(drawing, ink, side, ground, paper, shown, toned)
 
 
-## [param id]'s drawing as SVG text on its own [constant GRID]-unit square, printed flat in
-## [param ink] on bare paper as [method draw] prints it on [constant Ground.PAPER], for a picture
-## that leaves the game as a vector, the Steam timeline's icons; empty if there is no drawing.
-static func flat_svg(id: StringName, ink: Color) -> String:
-	var drawing := _drawing(id)
-	if drawing.is_empty():
-		return ""
-	var side := int(GRID)
-	return compose(drawing, ink, look_of(ink, side, Ground.PAPER), Layer.FLAT, side)
-
-
 ## The size of the steps that [param pixels] is rasterized at.
 static func step(pixels: float) -> int:
 	for size: int in STEPS:
