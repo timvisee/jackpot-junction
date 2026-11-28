@@ -8071,8 +8071,9 @@ and the cursor on Join; so does Back, or B, which says nothing, since nothing we
 
 The host can show anybody out. Manage players, on the host's pause menu wherever the room is,
 comes up in place of the menu: everybody in the game as a seat card of 8.1a, the host's own
-players first, rimmed in foil, marked Me and with nothing beside them, then each other player by
-the name of their seat, its chip in their color with their seat's number in the room, the one the
+players first, rimmed in foil, marked Me and with only their own License beside them, then each
+other player by the name of their seat, its chip in their color with their seat's number in the
+room, the one the
 corner of their screen says, every row alike, and each watcher by the
 name the host gave them on a gray chip, with Kick beside every one of those. Every player
 has the plate on their kart beside the name, see 4.4, or before a license the learner's L itself
@@ -11441,8 +11442,9 @@ Otherwise it is the host's game like any other: their rules, their kicks, their 
 
 **Players.** Everybody in a game a player hosts has Players on their pause menu, a LAN game's
 too: a seat card for everybody, the host's saying Host, so whoever hosts the game, the one it was
-handed to among them, is there to see. License on the card of anybody at another machine with
-one holds up their driver license, 9.4a, as the title holds up the player's own, on a layer of its
+handed to among them, is there to see. License on the card of anybody with one, at another
+machine or at this one, holds up their driver license, 9.4a, as the title holds up the player's own,
+on a layer of its
 own over the HUD and the menu; the payout slip has the same behind a little license after their
 name. Each machine's license is its first seat's, the profile's that sat the test: sent to the
 host once seated, kept there and told to everybody with the rest of who is in the game

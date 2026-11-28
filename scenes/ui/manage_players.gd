@@ -196,6 +196,7 @@ func _mine() -> Array[Dictionary]:
 						"plate": KartVisuals.plate_worn(slot.kart),
 						"seat": slot.index,
 						"me": true,
+						"license": SlipPage.license_of(slot),
 					}
 				)
 			)
@@ -205,7 +206,7 @@ func _mine() -> Array[Dictionary]:
 ## Somebody in the game, as a seat card, see [SeatCard]: their chip in their color with their seat
 ## on it, gray for a watcher with no kart; their name over whether they play or watch; the plate
 ## their kart wears; and Profile, Make host and Kick at the right end. The host's own rows are
-## rimmed in foil and say Me, with nothing to press.
+## rimmed in foil and say Me, with only their own License to press, held up as the title holds it.
 func _row(guest: Dictionary) -> SeatCard:
 	var plays := guest.has("color")
 	var seat: int = guest.get("seat", -1)
@@ -237,13 +238,15 @@ func _row(guest: Dictionary) -> SeatCard:
 	card.actions.custom_minimum_size.x = room
 	# Somebody watching has no kart, and the room a plate would take.
 	card.show_plate(str(guest.get("plate", "")))
-	if me:
-		return card
-	var peer: int = guest["peer"]
-	# Their driver license, held up to be looked at, GAME.md 10.8; a learner has none.
+	# Their driver license, held up to be looked at, GAME.md 10.8, one's own too; a learner has none.
 	var license: Dictionary = guest.get("license", {})
 	if not license.is_empty():
 		card.actions.add_child(_license_button(license, str(guest["name"])))
+	if me:
+		# From the left, so their License stands in the column everybody else's does.
+		card.actions.alignment = BoxContainer.ALIGNMENT_BEGIN
+		return card
+	var peer: int = guest["peer"]
 	# Their profile on Steam, in Steam's overlay over the game, GAME.md 10.8.
 	var account := _account(guest) if profiles else 0
 	if account != 0:

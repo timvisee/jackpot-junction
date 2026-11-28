@@ -242,6 +242,20 @@ func test_players_at_a_client() -> void:
 	var rows := pane._rows.get_children()
 	assert_int(rows.size()).is_equal(2)
 	var cy: Control = rows[1]
+	# One's own row has one's own license to hold up, and nothing else to press.
+	var own_license := {"name": "Ann", "own": true}
+	var own: Control = auto_free(
+		pane._row(
+			{"name": "Ann", "color": Color.RED, "seat": 0, "me": true, "license": own_license}
+		)
+	)
+	assert_object(own.find_child("License", true, false)).is_not_null()
+	for other: String in ["Profile", "Mute", "MakeHost", "Kick"]:
+		assert_object(own.find_child(other, true, false)).is_null()
+	var learner: Control = auto_free(
+		pane._row({"name": "Ann", "color": Color.RED, "seat": 0, "me": true, "license": {}})
+	)
+	assert_object(learner.find_child("License", true, false)).is_null()
 	assert_object(cy.find_child("Kick", true, false)).is_null()
 	assert_object(cy.find_child("Profile", true, false)).is_not_null()
 	var mute := cy.find_child("Mute", true, false) as Button

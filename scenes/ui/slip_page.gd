@@ -506,7 +506,7 @@ func _name(slot: PlayerSlot) -> Control:
 	var name_label := _label(slot.display_name(), size, HouseTheme.on_paper(slot.color()))
 	name_label.name = "Name"
 	Type.set_font(name_label, Type.STRONG, size)
-	var license := _license_of(slot)
+	var license := license_of(slot)
 	var is_bot := not slot.is_human() and not slot.is_dummy()
 	if not is_bot and license.is_empty():
 		return name_label
@@ -534,8 +534,9 @@ func _name(slot: PlayerSlot) -> Control:
 ## [BotLicense], GAME.md 9.4a; a player's at this machine as their profile has it, the first seat's
 ## marked "own" so it is held up as the title holds it up, see [LicenseView]; and a player's at
 ## another machine as the host told it, 10.8. Empty for a learner, a seat with no profile of its
-## own, and a seat of the demo for a booth, 9.8.
-static func _license_of(slot: PlayerSlot) -> Dictionary:
+## own, and a seat of the demo for a booth, 9.8. Players on the pause menu asks it of the players at
+## this machine too, see [ManagePlayers].
+static func license_of(slot: PlayerSlot) -> Dictionary:
 	if slot == null:
 		return {}
 	if not slot.is_human():
