@@ -24,6 +24,14 @@ const LEAN := 0.075
 const COUNTERSTEER := 0.75
 ## The name's two lines closer than a label sets them, its capitals all it has, against its size.
 const LINES_CLOSER := 0.21
+## The game's name, a line each, in each other language the game speaks that names it otherwise,
+## by its locale, as the store page in it does, docs/steam/store_<language>.md: as wide as the
+## English name, with the English under it as wide again, as most games put into Chinese wear
+## theirs. A language not here keeps the English name, see [method has_own_name].
+const NAMES_IN: Dictionary[String, Array] = {"zh_CN": ["头奖路口"]}
+## How far under a name of its own the English is, as a share of an English line: closer than a
+## label sets it, as the English name's two lines are.
+const NAME_UNDER_GAP := -0.12
 ## How many seconds of a kart's arc its tire marks are laid along before it starts to drive, and
 ## how dark they are, see [TireMarks]: a drift's dark, a kart going straight's barely there. Laid
 ## twice over, so a still picture shows them as a player sees the dark ones a drift leaves, and
@@ -346,14 +354,41 @@ static func lockup(mark: float, name_size: int, gap: float, stacked := false) ->
 	return box
 
 
-## The name in two lines of the mark's own cut, a little wider set, as the title sets it.
+## Whether the language spoken names the game otherwise than English does, see
+## [constant NAMES_IN].
+static func has_own_name() -> bool:
+	return NAMES_IN.has(Lang.current)
+
+
+## The name in two lines of the mark's own cut, a little wider set, as the title sets it: in the
+## language spoken, as wide, with the English small under it, if it names the game otherwise, see
+## [constant NAMES_IN].
 static func name_lines(size: int, centered := false) -> VBoxContainer:
+	var font := Type.mark_font().duplicate() as FontVariation
+	font.spacing_glyph = roundi(3.0 * size / Type.HERO)
+	var english: Array[String] = ["JACKPOT", "JUNCTION"]
+	if not has_own_name():
+		return _name_block(english, font, size, centered)
+	var wide := _widest(english, font, size)
+	var own: Array[String] = []
+	own.assign(NAMES_IN[Lang.current])
+	var both := VBoxContainer.new()
+	both.alignment = BoxContainer.ALIGNMENT_CENTER
+	both.add_theme_constant_override("separation", roundi(size * NAME_UNDER_GAP))
+	both.add_child(_name_block(own, font, _fitted(own, font, size * 3, wide), centered))
+	var under: Array[String] = [" ".join(english)]
+	both.add_child(_name_block(under, font, _fitted(under, font, size, wide), centered))
+	return both
+
+
+## [param lines] a line each at [param size], their lines closer than a label sets them.
+static func _name_block(
+	lines: Array[String], font: Font, size: int, centered: bool
+) -> VBoxContainer:
 	var words := VBoxContainer.new()
 	words.alignment = BoxContainer.ALIGNMENT_CENTER
 	words.add_theme_constant_override("separation", -roundi(size * LINES_CLOSER))
-	var font := Type.mark_font().duplicate() as FontVariation
-	font.spacing_glyph = roundi(3.0 * size / Type.HERO)
-	for word: String in ["Jackpot", "Junction"]:
+	for word: String in lines:
 		var label := MenuTheme.title(word, size)
 		Type.set_font(label, font, size)
 		label.horizontal_alignment = (
@@ -361,6 +396,23 @@ static func name_lines(size: int, centered := false) -> VBoxContainer:
 		)
 		words.add_child(label)
 	return words
+
+
+## How wide the widest of [param lines] is at [param size].
+static func _widest(lines: Array[String], font: Font, size: int) -> float:
+	var wide := 0.0
+	for word: String in lines:
+		wide = maxf(wide, font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x)
+	return wide
+
+
+## The biggest size up to [param most] [param lines] are no wider than [param wide] at, measured
+## down to it, as the tracking stays as it is at every size.
+static func _fitted(lines: Array[String], font: Font, most: int, wide: float) -> int:
+	var size := most
+	while size > 1 and _widest(lines, font, size) > wide:
+		size -= 1
+	return size
 
 
 ## A band of the house's stock [param ink] at one end, fading to nothing at the other, [param hold]

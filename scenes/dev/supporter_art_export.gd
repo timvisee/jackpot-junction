@@ -7,13 +7,15 @@ extends "res://scenes/dev/steam_art_export.gd"
 ## of its screenshots, the table close up, the rest coming from `tools/screenshots --supporter`.
 ##
 ## `-- --only=header,karts` renders those alone: the names of [constant PACK_SHOTS], or screens,
-## headings, karts and backs. `-- --language=nl` draws the headings alone in another language the
-## game speaks, the only pictures with words in them but the pack's name, see [method _described].
+## headings, karts and backs. `-- --language=nl` draws the headings and the capsules in another
+## language the game speaks, the only pictures with words in them, the capsules for the pack's name
+## and the game's, in a folder of the language's beside the English ones, see [method _described]
+## and [method in_language].
 
 const PACK_OUT := "res://build/steam-art/supporter"
 const PACK_DESCRIBED := "res://docs/description/supporter"
-## The pack's name under the seal, and the star pinned either side of it, see
-## [method PartTray.draw_star].
+## The pack's name under the seal, in the language spoken, and the star pinned either side of it,
+## see [method PartTray.draw_star].
 const PACK_NAME := "Supporter Pack"
 ## The store's capsules, as the game's are, see [constant SHOTS], the seal smaller to leave room
 ## for the pack's name under it, which is [code]pack[/code] pixels tall.
@@ -108,12 +110,15 @@ func _ready() -> void:
 			push_error("no headings in %s: give them in PACK_HEADINGS_IN" % language)
 		elif _wanted("headings"):
 			await _pack_headings(PACK_HEADINGS_IN[language])
-		get_tree().quit()
-		return
 	for shot: String in PACK_SHOTS:
 		if _wanted(shot):
 			var spec := PACK_SHOTS[shot]
-			save(await _pack_shot(spec), PACK_OUT + "/" + spec["file"], spec["size"])
+			var file: String = spec["file"]
+			var path := in_language(PACK_OUT.path_join(file.get_base_dir()), file.get_file())
+			save(await _pack_shot(spec), path, spec["size"])
+	if language != Lang.ENGLISH:
+		get_tree().quit()
+		return
 	if _wanted("screens"):
 		await _screens()
 	if _wanted("headings"):
@@ -188,7 +193,7 @@ static func _pack_name(tall: int) -> HBoxContainer:
 	var line := HBoxContainer.new()
 	line.alignment = BoxContainer.ALIGNMENT_CENTER
 	line.add_theme_constant_override("separation", roundi(tall * 0.45))
-	var words := MenuTheme.title(PACK_NAME, tall)
+	var words := MenuTheme.title(Lang.t(PACK_NAME), tall)
 	for side: int in 3:
 		if side == 1:
 			line.add_child(words)

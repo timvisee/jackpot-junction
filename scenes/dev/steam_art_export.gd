@@ -9,7 +9,10 @@ extends "res://scenes/dev/key_art.gd"
 ## `-- --only=header,hero` renders those alone: the names of [constant SHOTS], or background, logo,
 ## icons, avatars, headings and pictures. `-- --language=nl` draws the description's pictures that
 ## have words in them in another language the game speaks, for the store page in it, see
-## [method _described]; nothing else has words but the game's name.
+## [method _described]; and the capsules, the store's and the library's, and the library's logo,
+## the seal's ring and the room's signs in it and the name as it names the game, see
+## [constant KeyArt.NAMES_IN], in a folder of the language's beside the English ones, see
+## [method in_language].
 
 const OUT := "res://build/steam-art"
 ## The description's headings and pictures, kept with the words they go with too: docs/STEAM.md
@@ -341,7 +344,9 @@ func _ready() -> void:
 
 
 ## The description's pictures with words in them, in [member language]: its headings and the hands
-## of cards. The karts have none, so the store page in it shows the English picture.
+## of cards. The karts have none, so the store page in it shows the English picture. And the
+## capsules and the library's logo, the seal's ring and the room's signs in it; the hero's room is
+## blurred past reading, and the event's pictures go with an event's own words.
 func _in_language() -> void:
 	if not HEADINGS_IN.has(language):
 		push_error("no headings in %s: give them in HEADINGS_IN" % language)
@@ -350,6 +355,14 @@ func _in_language() -> void:
 		await _headings(HEADINGS_IN[language])
 	if _wanted("pictures"):
 		await _hands()
+	for shot: String in SHOTS:
+		var spec := SHOTS[shot]
+		if spec.has("lockup") and _wanted(shot):
+			var file: String = spec["file"]
+			var path := in_language(OUT.path_join(file.get_base_dir()), file.get_file())
+			save(await _shot(spec), path, spec["size"])
+	if _wanted("logo"):
+		await _logo()
 
 
 ## Each of [param headings], by its file's name, as [method _heading] draws it.
@@ -433,7 +446,8 @@ func _logo() -> void:
 	var used := image.get_used_rect()
 	var cut := image.get_region(used)
 	var fit := minf(float(LOGO.x) / used.size.x, float(LOGO.y) / used.size.y)
-	save(cut, OUT + "/library/library_logo.png", Vector2i(Vector2(used.size) * fit))
+	var path := in_language(OUT + "/library", "library_logo.png")
+	save(cut, path, Vector2i(Vector2(used.size) * fit))
 
 
 ## The mark at every size of [constant ICONS], a shortcut's icon files for Windows, macOS and Linux,

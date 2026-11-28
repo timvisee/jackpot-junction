@@ -394,6 +394,13 @@ it, and takes some minutes.
 - **Description**: the headings and pictures of ITCH.md's description, also kept
   in `docs/description/`, each uploaded into the description where it stands
   there, with its words as its alt text.
+- **In another language**: `make steam-art` draws the capsules, the library's capsule and header
+  and the library logo again in each other language the game speaks, the seal's ring and the
+  room's signs in it, into a folder of its own named for it, `store/dutch/header_capsule_dutch.png`
+  and on. Simplified Chinese names the game 头奖路口 on them, with JACKPOT JUNCTION under it as
+  wide, see `NAMES_IN` in `scenes/dev/key_art.gd`; Dutch keeps the English name. Each goes up as
+  that asset's version in the language, as a screenshot's does: dragged onto the English one. The
+  page background and the hero have no words to put into another language and stay as they are.
 - **Not made**: a bundle's header (707 × 232), only for a bundle; the Points Shop's
   animated avatars, frames, backgrounds and stickers; trading cards, once Steam
   turns them on for the game; and the Steam Deck's startup movie.
@@ -662,6 +669,8 @@ its star pins. `scenes/dev/supporter_art_export.gd` says where everything stands
   the pack is to find for themselves on the title. Mark every one suitable for all ages.
   `++ --dress=supporter` on the playground puts every kart in the pack's pieces, to see them in
   play.
+- **In another language**: the four capsules again in each other language the game speaks, the
+  pack's name in it under the game's, into `store/dutch/` and on, uploaded as the game's are.
 - **Description**: two headings, a row of five karts in the pack's pieces and a hand of its three
   card backs, also kept in `docs/description/supporter/`, each uploaded into the description where
   it stands below, with its alt text from the table under it.

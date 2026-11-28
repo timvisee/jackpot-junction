@@ -19,7 +19,7 @@ controller actions, comes from the game's translations, see STEAM.md.
 1. **The name**: under the game's General Application Settings (Steamworks Settings), Localized
    Application Names, Simplified Chinese: `头奖路口`, and publish the Steamworks settings. Chinese
    visitors see it on the store page and in their library, and Steam's search finds the game by
-   either name. The capsules keep the English wordmark.
+   either name. The capsules and the library's logo wear it too, see 7.
 2. **Supported languages** (Edit Store Page > Basic Info): add Simplified Chinese with Interface
    ticked, not Full Audio, not Subtitles, as nothing is voiced.
 3. **The words** (Edit Store Page, each tab with words): pick Simplified Chinese in the language
@@ -41,8 +41,13 @@ controller actions, comes from the game's translations, see STEAM.md.
    `build/trailer/schinese/`, see STEAM.md "The trailer". Upload `jackpot-junction-trailer.mp4`
    from there as a trailer of its own and set its language to Simplified Chinese, so Chinese
    visitors see it in place of the English one.
-7. Publish the store page. The capsules and the library's art have no words but the game's name,
-   which stays, and Steam has no Chinese version of them.
+7. **The capsules and the library's art**: `make steam-art` draws them in Simplified Chinese too,
+   into `build/steam-art/store/schinese/` and `build/steam-art/library/schinese/`: 头奖路口 beside
+   the seal with JACKPOT JUNCTION under it as wide, the seal's ring and the room's signs in Chinese.
+   Drag each onto its English one, as the screenshots, the four capsules on the store's Graphical
+   Assets and the library's capsule, header and logo on its Library Assets. The page background
+   and the hero have no words and stay as they are.
+8. Publish the store page.
 
 ## Short description
 
@@ -119,8 +124,10 @@ Where Steamworks takes them per language.
 
 The DLC's own store page, in its own Edit Store Page, as the game's above: Simplified Chinese under
 Supported languages, the words below with Simplified Chinese picked, its two headings from
-`docs/description/supporter/schinese/` and its three screenshots from
-`build/steam-art/supporter/screenshots/schinese/`, each dragged onto its English one.
+`docs/description/supporter/schinese/`, its three screenshots from
+`build/steam-art/supporter/screenshots/schinese/` and its four capsules from
+`build/steam-art/supporter/store/schinese/`, 支持者礼包 under 头奖路口, each dragged onto its
+English one.
 
 **Its name**: under the DLC's General Application Settings (Steamworks Settings), Localized
 Application Names, Simplified Chinese: `头奖路口 - 支持者礼包`, which the game's own

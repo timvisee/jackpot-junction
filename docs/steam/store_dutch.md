@@ -29,8 +29,12 @@ controller actions, comes from the game's translations, see STEAM.md.
    `build/trailer/dutch/`, see STEAM.md "The trailer". Upload `jackpot-junction-trailer.mp4` from
    there as a trailer of its own and set its language to Dutch, so Dutch visitors see it in place
    of the English one.
-6. Publish the store page. The capsules and the library's art have no words but the game's name,
-   which stays, and Steam has no Dutch version of them.
+6. **The capsules and the library's art**: `make steam-art` draws them in Dutch too, into
+   `build/steam-art/store/dutch/` and `build/steam-art/library/dutch/`, the name as it is, the
+   seal's ring and the room's signs in Dutch. Drag each onto its English one, as the screenshots,
+   the four capsules on the store's Graphical Assets and the library's capsule, header and logo on
+   its Library Assets. The page background and the hero have no words and stay as they are.
+7. Publish the store page.
 
 ## Short description
 
@@ -117,8 +121,10 @@ Where Steamworks takes them per language.
 
 The DLC's own store page, in its own Edit Store Page, as the game's above: Dutch under Supported
 languages, the words below with Dutch picked, its two headings from
-`docs/description/supporter/dutch/` and its three screenshots from
-`build/steam-art/supporter/screenshots/dutch/`, each dragged onto its English one.
+`docs/description/supporter/dutch/`, its three screenshots from
+`build/steam-art/supporter/screenshots/dutch/` and its four capsules from
+`build/steam-art/supporter/store/dutch/`, SUPPORTERSPAKKET under the seal, each dragged onto its
+English one.
 
 **Its name**: under the DLC's General Application Settings (Steamworks Settings), Localized
 Application Names, Dutch: `Jackpot Junction - Supporterspakket`, the pack's name in the game.

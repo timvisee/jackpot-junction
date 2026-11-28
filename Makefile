@@ -160,9 +160,9 @@ LANGUAGES := $(basename $(notdir $(wildcard data/locale/*.po)))
 # emptied first, each named after its field: the store's capsules and background, the library's
 # capsule, header, hero and logo, the icons, the avatars, the description's headings and pictures,
 # an announcement's cover and header, all put up from the game's own pieces, and the store page's
-# screenshots. Then, for the store page in each other language the game speaks, the screenshots and
-# the description's pictures with words in them in it, in a folder named for it. Needs a display,
-# or GODOT_HIDDEN=1 and gamescope.
+# screenshots. Then, for the store page in each other language the game speaks, the screenshots,
+# the description's pictures with words in them, the capsules and the library's capsule, header
+# and logo in it, in a folder named for it. Needs a display, or GODOT_HIDDEN=1 and gamescope.
 steam-art: | $(CACHE)
 	rm -rf build/steam-art
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/steam_art_export.tscn
@@ -176,9 +176,9 @@ steam-art: | $(CACHE)
 
 # The supporter pack's DLC's own store art, GAME.md 10.8, docs/STEAM.md "The supporter pack", into
 # build/steam-art/supporter, apart from the game's: its capsules, its description's headings and
-# pictures, also kept in docs/description/supporter, and its screenshots; then its headings and
-# screenshots in each other language the game speaks. Needs a display, or GODOT_HIDDEN=1 and
-# gamescope.
+# pictures, also kept in docs/description/supporter, and its screenshots; then its headings,
+# capsules and screenshots in each other language the game speaks. Needs a display, or
+# GODOT_HIDDEN=1 and gamescope.
 steam-supporter-art: | $(CACHE)
 	rm -rf build/steam-art/supporter
 	JJ_SETTINGS=tests.cfg $(GODOT) --path . --fixed-fps 60 res://scenes/dev/supporter_art_export.tscn
