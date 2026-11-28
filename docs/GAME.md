@@ -2369,7 +2369,7 @@ protection makes the kart untouchable.
 | Pop bumper     | Solid and round, never shot away. Kicks a kart that drives into it straight back off its middle, and every shot, lit and heard, see below |
 | Live cabinet   | Solid as a wall, and live until it catches a kart: a kart that touches it while live is electrocuted and dies, and it charges again, see below |
 | Conveyor belt  | Floor, laid in the Count Room's on House Rules: carries a kart on it along its length at 3 m/s, driving or not, see below |
-| Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts and bombs within 7 m in toward it hard, see below |
+| Magnet         | Solid, standing in the Workbench's on Lucky Crossing: off for 14 s, then on for 4 s, pulling karts, bombs, mines and a death's chips within 7 m in toward it hard, see below |
 | Sewing needle  | A machine's head running along a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
 | Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: shoves a kart it clips as a pop bumper does, and wrecks one caught square under its nose, see below |
 | Tripwire       | A red beam across a lane of After Hours' on the Vault, on for 3 s and off for 3.5 s: a kart through it while on gets a bounty put on it if none is up, see below |
@@ -2517,10 +2517,12 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
   Crossing, solid as a bumper, its open end toward the middle of the room. Off for 14 s from the
   flag, its steel tips warming up in the last second, then on for 4 s, pulling every kart within
   7 m in toward it, at up to 6.8 m/s at its foot, easing off to nothing at the edge of its reach, with
-  faint rings of the pull closing in on it across the floor. Bombs lying on the floor, 7.1, are
-  dragged in the same way, stopped by anything solid in their way and short of the magnet itself,
-  so a bomb dropped near it may be carried into whoever is caught in the pull. The host drags them
-  and says where they are, and a client's copy glides there.
+  faint rings of the pull closing in on it across the floor. Bombs lying on the floor, 7.1, mines
+  lying in wait, 5.3, and the chips a death dropped, 3.2, are dragged in the same way, stopped by
+  anything solid in their way and short of the magnet itself, so a bomb or a mine dropped near it
+  may be carried into whoever is caught in the pull, and a death's chips gather at its foot; a
+  chip that came off a pad stays where it lies. The host drags them and says where they are, and a
+  client's copy of a bomb glides there (`LooseThings`).
 - **Sewing needles** (`SewingNeedle`), a sewing machine's head running along a stitched seam
   across each side of the Junction on Lucky Crossing XL at 2.4 m/s, one way only, the two the
   opposite ways: it grows in at one end, shrinks away at the other and comes in again 0.8 s later,

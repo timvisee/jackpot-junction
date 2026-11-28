@@ -2,12 +2,12 @@ class_name Magnet
 extends StaticBody3D
 ## A big magnet, GAME.md 6.2: an `M` on a map, a horseshoe magnet off Kit's bench standing on the
 ## table, solid as a bumper, that switches on now and then and pulls every kart within
-## [constant REACH] in toward it, the harder the nearer, see [FloorCarry], and the bombs lying on
-## the floor with them, see [method drag_at]. Off for [constant OFF]
-## seconds from the flag, then on for [constant ON], and round again, on the match's clock, see
-## [method LiveCabinet.clock], so every machine has it on together with nothing on the wire. Its
-## tips glow while it is on, and faint rings of the pull close in on it across the floor; for a
-## moment before it comes on its tips warm up.
+## [constant REACH] in toward it, the harder the nearer, see [FloorCarry], and the bombs, the
+## mines and the chips a death dropped lying on the floor with them, see [LooseThings]. Off for
+## [constant OFF] seconds from the flag, then on for [constant ON], and round again, on the match's
+## clock, see [method LiveCabinet.clock], so every machine has it on together with nothing on the
+## wire. Its tips glow while it is on, and faint rings of the pull close in on it across the floor;
+## for a moment before it comes on its tips warm up.
 
 ## How far it pulls, in meters from its middle, and how hard at its foot, in meters a second,
 ## easing off toward nothing at that edge; how near a kart may come before it pulls no more, being
@@ -100,7 +100,7 @@ func carry_at(kart: Kart) -> Vector3:
 	return drag_at(kart)
 
 
-## How fast it drags [param loose], a kart or a bomb lying on the floor, see [method Bomb.drag]:
+## How fast it drags [param loose], a kart or a loose thing lying on the floor, see [LooseThings]:
 ## as it pulls a kart, toward it while it is on and the thing is within reach, harder the nearer,
 ## and not at all against it or for something of another match.
 func drag_at(loose: Node3D) -> Vector3:

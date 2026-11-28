@@ -88,27 +88,13 @@ func _physics_process(delta: float) -> void:
 
 
 ## Dragged along the floor for [param delta] seconds by whatever drags loose things, a magnet that
-## is on, see [method Magnet.drag_at], the way it pulls a kart; stopped short of anything solid in
-## the way, a wall, a crate or the magnet itself, as a kart sliding is.
+## is on, see [LooseThings], the way it pulls a kart; stopped short of anything solid in the way, a
+## wall, a crate or the magnet itself, as a kart sliding is.
 func drag(delta: float) -> void:
-	var pull := Vector3.ZERO
-	for node: Node in FrameGroups.of(get_tree(), FloorCarry.GROUP):
-		if is_instance_valid(node) and node.has_method(&"drag_at"):
-			pull += node.call(&"drag_at", self) as Vector3
-	pull.y = 0.0
+	var pull := LooseThings.pull_at(self)
 	if pull.length_squared() < 0.0001:
 		return
-	var motion := pull * delta
-	var ball := SphereShape3D.new()
-	ball.radius = BODY_RADIUS
-	var probe := PhysicsShapeQueryParameters3D.new()
-	probe.shape = ball
-	# Lifted a little off the floor, so the floor itself never stops it.
-	probe.transform = Transform3D(Basis(), global_position + Vector3.UP * (BODY_RADIUS + 0.05))
-	probe.motion = motion
-	probe.collision_mask = Layers.WORLD
-	var fit := get_world_3d().direct_space_state.cast_motion(probe)
-	global_position += motion * fit[0]
+	global_position = LooseThings.slid(self, BODY_RADIUS, pull * delta)
 
 
 ## A puppet glides to [param at], where the host says it is: put there at once the first time and

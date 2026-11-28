@@ -119,6 +119,46 @@ func test_a_magnet_drags_bombs_in_while_it_is_on() -> void:
 	assert_float(copy.global_position.distance_to(there)).is_less(0.02)
 
 
+## A magnet that is on drags a mine lying in wait and a chip a death dropped in toward it as it does
+## a bomb; a chip that came off a pad it leaves where it lies, GAME.md 6.2.
+func test_a_magnet_drags_mines_and_dropped_chips() -> void:
+	var match_node: Match = await _match(&"lucky_crossing")
+	var magnet: Magnet = match_node.arena.get_node("Magnets/Magnet0")
+	var middle := Vector3(magnet.global_position.x, 0.0, magnet.global_position.z)
+	var toward := (-middle).normalized()
+	var side := Vector3(-toward.z, 0.0, toward.x)
+	var mine: Bullet = auto_free(Bullet.new())
+	match_node.bullets.add_child(mine)
+	mine.owner_slot = 0
+	mine.kind = &"mine"
+	mine.blast_radius = 2.0
+	mine.arm_radius = 0.1
+	mine.lifetime_left = 60.0
+	mine._at_rest = true
+	mine.global_position = middle + toward * 3.0 + Vector3.UP * Bullet.GRENADE_REST_Y
+	# Laid there rather than fired from somewhere, so there is no way from a gun to look along.
+	mine.spawn_from = mine.global_position
+	var dropped := Chip.new()
+	dropped.dropped = true
+	match_node.arena.place_drop(dropped, middle + toward * 3.0 + side * 1.2)
+	var still := Chip.new()
+	var put := middle + toward * 3.0 - side * 1.2
+	match_node.arena.place_drop(still, put)
+	var starts := [mine.global_position, dropped.global_position]
+	magnet.run_to(Magnet.OFF + 0.1)
+	for i: int in 20:
+		await get_tree().physics_frame
+	for k: int in 2:
+		var thing: Node3D = [mine, dropped][k]
+		var was: Vector3 = starts[k]
+		var gained := Vector2(was.x - middle.x, was.z - middle.z).length()
+		gained -= (
+			Vector2(thing.global_position.x - middle.x, thing.global_position.z - middle.z).length()
+		)
+		assert_float(gained).override_failure_message("thing %d" % k).is_greater(0.3)
+	assert_float(still.global_position.distance_to(put)).is_less(0.01)
+
+
 ## A kart under the needle as it comes down spins out; one beside the seam does not.
 func test_the_needle_spins_out_a_kart_under_it() -> void:
 	var match_node: Match = await _match(&"loose_threads", 2)

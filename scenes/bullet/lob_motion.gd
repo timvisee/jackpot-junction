@@ -18,6 +18,8 @@ static func run(bullet: Bullet, delta: float) -> void:
 	if bullet._dead:
 		return
 	if bullet.kind == &"mine":
+		if bullet._at_rest:
+			_dragged(bullet, delta)
 		bullet._armed_left = maxf(bullet._armed_left - delta, 0.0)
 		var tripped := bullet._armed_left <= 0.0 and enemy_near(bullet, bullet.arm_radius)
 		if bullet._at_rest and (tripped or shot_by_enemy(bullet)):
@@ -32,6 +34,15 @@ static func run(bullet: Bullet, delta: float) -> void:
 		return
 	bullet._update_grazes()
 	bullet._orient()
+
+
+## A mine lying in wait dragged along the floor by whatever drags loose things, a magnet that is on,
+## see [LooseThings], as a bomb is; stopped by anything solid in the way.
+static func _dragged(bullet: Bullet, delta: float) -> void:
+	var pull := LooseThings.pull_at(bullet)
+	if pull.length_squared() < 0.0001:
+		return
+	bullet.global_position = LooseThings.slid(bullet, bullet.radius, pull * delta)
 
 
 ## The arc itself: gravity pulls it down, a wall or target in its flat path stops or turns it, and

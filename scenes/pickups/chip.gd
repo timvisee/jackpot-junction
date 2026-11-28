@@ -31,6 +31,18 @@ var dropped := false
 var dropped_team := -1
 
 
+## A chip a death dropped is dragged along the floor by whatever drags loose things, a magnet that
+## is on, see [LooseThings], as a bomb is: on the host, which tells the clients where it went, see
+## [PickupWire]. Not one still in the air or on its way down a hole.
+func _physics_process(delta: float) -> void:
+	if not dropped or falling or _thrown_left > 0.0:
+		return
+	var pull := LooseThings.pull_at(self)
+	if pull.length_squared() < 0.0001 or not LooseThings.hosted(self):
+		return
+	global_position = LooseThings.slid(self, PLAIN_RADIUS, pull * delta)
+
+
 func _build_visual(parent: Node3D) -> void:
 	# The chip is built standing up and then laid on its edge in one move, so everything inside
 	# is placed the way a chip is: the flat faces along its own Y, the rim round it.
