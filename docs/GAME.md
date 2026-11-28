@@ -553,8 +553,9 @@ with their place on a chip of their color and their name in it, darkened to read
 paper, a bot's with the robot's head after it as in the room's standings, and anybody's with a
 license to show, a bot's, 9.4a, a player's at another machine, or the reader's own, theirs as the
 title holds it up, and a linked seat's its profile's, with a little license after it,
-the same for all, a card with its holder and the writing cut out of it, the drawing of 8.3a, no
-taller than the name's capitals, in gray and darker under the pointer, which holds up their
+the same for all, a card with its holder and the writing cut out of it, the drawing of 8.3a, small
+and quiet beside the name with room round it for a finger, in gray and darker under the pointer,
+which holds up their
 driver license over the slip, 10.8, for the mouse and a finger alone, so the slip's buttons keep the
 cursor; dotted leaders across to what they banked on the right, their kills and
 deaths in gray, and a dashed rule under the line. The line of whoever is reading the
