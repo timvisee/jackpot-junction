@@ -6295,7 +6295,7 @@ with the kart's and the hand's in the settings, so a dialog's keys are always wh
 | Role | Keys | Pad | Catalog | Loyalty program | Achievements | Kart dialog |
 |---|---|---|---|---|---|---|
 | Move the cursor | Arrows, WASD | Cross, left stick | Walk the cards | Drive the roads | Walk the list | Walk the hooks and the bench |
-| Act on it | Enter, Space | A | | Pin a landmark; choose an edition | | Hang a rack out; wear a piece |
+| Act on it | Enter, Space | A | Held: the card held up large | Pin a landmark; choose an edition | | Hang a rack out; wear a piece |
 | Back | Escape | B | Back | Back | Back | Put the rack away; Back |
 | Page before, after | Q, E | Shoulders | Jokers, Power-ups | The House's map, Kit's map | | The keys |
 | The view | Tab | Y | Detailed | List | Sort | |
@@ -6306,7 +6306,12 @@ with the kart's and the hand's in the settings, so a dialog's keys are always wh
 | Next new | N | View | The next new card | The next new landmark | The next new row | The next new piece |
 | How it works | H | Left stick, pressed in | | The first look again | | |
 
-The card held up in full turns over on Enter or A alone. A pad's View is the button left of its
+The card held up in full turns over on Enter or A alone. In the catalog, Enter, Space or A held on a
+card face up for a quarter of a second, or the mouse or a finger held down on it, holds it up large
+over the dialog, four fifths of its height, its words drawn at that size, until let go: moving the
+cursor while A is held shows the card it comes to, a card face down shows nothing, and a finger
+that moves first is scrolling the cards (`CardZoom`). No hint says so; it is what holding a card to
+look at it closer does. A pad's View is the button left of its
 middle, which the engine calls Back after an older pad; the hints call it View, as today's pads
 print it, so it is never taken for a dialog's own Back.
 

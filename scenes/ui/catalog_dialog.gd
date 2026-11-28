@@ -17,9 +17,9 @@ extends CanvasLayer
 ## Each tab says how many of how many were found, and the row of tabs carries the binds at its
 ## right end, the dialogs' own, the same as the loyalty program's and the achievements', see
 ## [DialogBinds]: Q and E or the shoulders turn the pages, Tab or Y is Detailed, F or X steps the
-## stack. Read only, but for the NEW tags, which go as the cursor
-## comes to them and are kept gone as the dialog is put away; Next new in the head, or N or a pad's
-## View, takes the cursor to the next card wearing one, see [NextNew].
+## stack, and A held on a card holds it up large, see [CardZoom]. Read only, but for the NEW tags,
+## which go as the cursor comes to them and are kept gone as the dialog is put away; Next new in
+## the head, or N or a pad's View, takes the cursor to the next card wearing one, see [NextNew].
 ##
 ## Dressed as the House's press proof, see [ProofCover]: the pane a cutting mat, each page's cards a
 ## sheet of card stock on it, a card printed there once taken and its die line until then, see
@@ -371,6 +371,7 @@ func _ready() -> void:
 	cover.motto = tr(str(StoryLines.at(StoryLines.PROOF, _stage())))
 	cover.say(_settings, page_ids())
 	_pane.add_child(cover)
+	CardZoom.add_to(self)
 	tabs.tab_changed.connect(func(_tab: int) -> void: _show_binds())
 	_root.resized.connect(_fit)
 	_fit()

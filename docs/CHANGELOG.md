@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **A closer look at a card.** In the catalog, hold A, Enter or the mouse button on a joker or
+  power-up card to see it large; let go to put it back.
 - **Bumpers kick bombs.** A bomb rolling into a pop bumper is kicked back, like a pinball.
 - **Turbo pads fire bombs.** A bomb lying on a turbo pad is launched rolling down its arrow, like
   a pinball, and goes off against the first kart it reaches.

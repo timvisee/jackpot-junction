@@ -69,6 +69,12 @@ static func holding(what: StringName, taken: bool, make: Callable) -> CatalogCel
 	return cell
 
 
+## Its card made again, a [JokerCard] or [ItemCard] face up or a [DieLine], for showing elsewhere,
+## see [CardZoom].
+func make_card() -> Control:
+	return _make.call()
+
+
 ## The size of a cell for a card drawn at [param scale] of its own: the card and the frame's room.
 static func shape(scale_of: float) -> Vector2:
 	return JokerCard.SIZE * scale_of + Vector2.ONE * FRAME_ROOM * 2.0
