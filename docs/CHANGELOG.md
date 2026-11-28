@@ -13,6 +13,8 @@ below, and hands the notes to the release workflow.
 
 ### Added
 
+- **Tripwires set off bombs.** In the Vault, a bomb or mine lying across a laser tripwire goes off
+  when the beam comes on.
 - **Wind-up toys set off bombs.** On Crossfire XL, a wind-up toy driving into a bomb or mine sets
   it off.
 - **The needle sets off bombs.** On Lucky Crossing XL, the sewing needle coming down on a bomb or

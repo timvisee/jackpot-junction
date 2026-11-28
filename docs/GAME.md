@@ -2545,7 +2545,9 @@ rest in the snapshot (`FloorCarry`, run in a client's replays too, for what move
   two emitters, on for 3 s and off for 3.5 s, flickering for 0.7 s before it comes on, steady for
   fewer flashes, 8.5. A kart through it while it is on sets the alarm off, and the House puts a
   bounty on it there and then if none is up, as it would on a leader, 3.10: the room's way of
-  making a thief of you. Once in each time it is on.
+  making a thief of you. Once in each time it is on. A bomb or a mine lying across it, within
+  0.45 m of the beam, goes off while it is on, the owner's: dropped there, it is a charge set to go
+  as the laser comes on.
 
 ### 6.3 Maps
 

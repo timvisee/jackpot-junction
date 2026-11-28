@@ -4,7 +4,8 @@ extends Node3D
 ## After Hours, between two emitters, on for [constant ON] seconds and off for [constant OFF], and
 ## flickering for a moment before it comes on. A kart through it while it is on sets the alarm off,
 ## and the House puts a bounty on it there and then if none is up, see [method Bounty.call_on]: the
-## room's way of making a thief of you. When it is on is the match's clock's, see
+## room's way of making a thief of you. A bomb or a mine lying across it goes off as it comes on,
+## see [LooseThings]. When it is on is the match's clock's, see
 ## [method LiveCabinet.clock], so every machine shows it together; who set it off is the host's to
 ## say, and the bounty is in the snapshot like any other.
 
@@ -74,7 +75,12 @@ func on() -> bool:
 
 ## Whether [param kart]'s middle is through the beam.
 func crossing(kart: Kart) -> bool:
-	var local := to_local(kart.global_position)
+	return crosses(kart.global_position)
+
+
+## Whether [param point] is through the beam: a kart's middle, or where a bomb or a mine lies.
+func crosses(point: Vector3) -> bool:
+	var local := to_local(point)
 	var along := local.x if _along_x else local.z
 	var across := local.z if _along_x else local.x
 	return absf(along) <= _half and absf(across) <= CATCH
@@ -84,6 +90,8 @@ func _physics_process(delta: float) -> void:
 	_played = LiveCabinet.clock(_match, _played, delta)
 	if _match == null or _match.puppet or not on():
 		return
+	# A bomb or a mine across the beam while it is on goes off, see [LooseThings].
+	LooseThings.set_off_where(_match, crosses)
 	var shift := floori(_now() / (OFF + ON))
 	if shift == _tripped:
 		return

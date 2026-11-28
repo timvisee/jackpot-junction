@@ -181,3 +181,21 @@ func test_the_toy_sets_off_a_bomb_it_drives_into() -> void:
 	bomb.global_position = Vector3(at.x, 0.0, at.z)
 	await _frames(3)
 	assert_array(_heard).is_not_empty()
+
+
+## A laser tripwire's beam sets off a bomb lying across it while it is on, and leaves it be while it
+## is off.
+func test_a_tripwire_sets_off_a_bomb_across_its_beam() -> void:
+	var match_node := await _match(&"vault")
+	var wire: Tripwire = match_node.arena.get_node("Tripwires/Tripwire0")
+	wire.run_to(0.5)
+	var bomb := Bomb.new()
+	bomb.fuse = 60.0
+	match_node.add_child(bomb)
+	bomb.global_position = Vector3(wire.global_position.x, 0.0, wire.global_position.z)
+	assert_bool(wire.crosses(bomb.global_position)).is_true()
+	await _frames(3)
+	assert_array(_heard).is_empty()
+	wire.run_to(Tripwire.OFF + 0.1)
+	await _frames(3)
+	assert_array(_heard).is_not_empty()
