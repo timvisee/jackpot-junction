@@ -5,7 +5,8 @@ extends StaticBody3D
 ## crates and turrets and sets off other bombs within its radius. Kills credit the owner, who is
 ## not spared. Bullets see it on the bomb layer; karts drive over it without bumping into it. A
 ## magnet that is on drags it along the floor as it pulls a kart, see [method drag], stopped by
-## anything solid in its way.
+## anything solid in its way; over a hole, dropped there or taken there, it goes down it without
+## going off, see [method fall].
 
 signal exploded(bomb: Bomb)
 
@@ -16,6 +17,9 @@ const BODY_RADIUS := 0.38
 ## gone, see [method glide_to]; and how far off it is put there at once instead, set down anew.
 const GLIDE := 18.0
 const GLIDE_JUMP := 2.0
+## How long it takes to drop out of sight down a hole, and how fast it sinks, as a pickup does.
+const FALL_TIME := Pickup.FALL_TIME
+const FALL_SPEED := Pickup.FALL_SPEED
 
 var owner_slot := -1
 ## Its owner's team, GAME.md 3.14: with friendly fire off a teammate neither sets it off nor is
@@ -26,6 +30,8 @@ var color := Color.WHITE
 var alive := true
 var puppet := false
 var armed := false
+## Whether it is on its way down a hole, see [method fall].
+var falling := false
 
 var _age := 0.0
 var _trigger: Area3D
@@ -33,6 +39,7 @@ var _fuse_light: MeshInstance3D
 ## Where a puppet glides to, see [method glide_to], and whether it has been told one.
 var _glide := Vector3.ZERO
 var _gliding := false
+var _fallen := 0.0
 
 
 func _ready() -> void:
@@ -67,17 +74,34 @@ func _physics_process(delta: float) -> void:
 		return
 	_age += delta
 	_blink()
-	if puppet:
-		if _gliding:
-			var off := _glide - global_position
-			var share := 1.0 if off.length() > GLIDE_JUMP else 1.0 - exp(-GLIDE * delta)
-			global_position += off * share
-		return
+	if falling:
+		_sink(delta)
+	elif puppet:
+		_glide_on(delta)
+	else:
+		_run(delta)
+
+
+## A client's copy for [param delta] seconds: on toward where the host last said it is, see
+## [method glide_to].
+func _glide_on(delta: float) -> void:
+	if _gliding:
+		var off := _glide - global_position
+		var share := 1.0 if off.length() > GLIDE_JUMP else 1.0 - exp(-GLIDE * delta)
+		global_position += off * share
+
+
+## The host's bomb for [param delta] seconds: armed after a moment, gone off at the end of its
+## fuse, dragged, down a hole it is over, and set off by a kart it is armed for.
+func _run(delta: float) -> void:
 	armed = _age >= ARM_TIME
 	if _age >= fuse:
 		explode()
 		return
 	drag(delta)
+	if LooseThings.over_pit(self, global_position):
+		fall()
+		return
 	if not armed:
 		return
 	for body: Node3D in _trigger.get_overlapping_bodies():
@@ -97,6 +121,37 @@ func drag(delta: float) -> void:
 	global_position = LooseThings.slid(self, BODY_RADIUS, pull * delta)
 
 
+## Down a hole, GAME.md 3.6: it drops out of sight, shrinking, and is gone without going off, and
+## nothing sets it off on the way. A client's copy is told so, see [MatchSnapshot], and goes down
+## with it.
+func fall() -> void:
+	if falling or not alive:
+		return
+	falling = true
+	collision_layer = 0
+	remove_from_group(Bullet.TARGET_GROUP)
+	_trigger.set_deferred(&"monitoring", false)
+
+
+## Sinking down its hole, smaller the further it goes; gone once out of sight. A client's copy is
+## only put out of sight, for the host's word that it is gone to take away.
+func _sink(delta: float) -> void:
+	_fallen += delta
+	global_position.y -= FALL_SPEED * delta
+	var left := maxf(1.0 - _fallen / FALL_TIME, 0.05)
+	for child: Node in get_children():
+		var look := child as MeshInstance3D
+		if look != null:
+			look.scale = Vector3.ONE * left
+	if _fallen < FALL_TIME:
+		return
+	if puppet:
+		visible = false
+	else:
+		alive = false
+		queue_free()
+
+
 ## A puppet glides to [param at], where the host says it is: put there at once the first time and
 ## when it is far off, see [constant GLIDE_JUMP], and slid the rest, so one a magnet drags moves
 ## smoothly between the host's words.
@@ -110,7 +165,7 @@ func glide_to(at: Vector3) -> void:
 ## A bullet sets the bomb off, armed or not.
 ## Whether a shot may be aimed at this bomb, GAME.md 5.1.
 func is_targetable() -> bool:
-	return alive
+	return alive and not falling
 
 
 func take_hit(_bullet: Bullet) -> bool:
@@ -121,7 +176,7 @@ func take_hit(_bullet: Bullet) -> bool:
 
 
 func explode() -> void:
-	if not alive:
+	if not alive or falling:
 		return
 	alive = false
 	exploded.emit(self)

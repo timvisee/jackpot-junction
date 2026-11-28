@@ -304,6 +304,7 @@ static func _bombs(match_node: Match) -> Array:
 						"z": bomb.global_position.z,
 						"c": bomb.color,
 						"armed": bomb.armed,
+						"fall": bomb.falling,
 					}
 				)
 			)
@@ -787,6 +788,10 @@ static func _take_pickup(match_node: Match, id: int) -> void:
 	if not is_instance_valid(leaving):
 		return
 	var pickup := leaving as Pickup
+	# Gone over a hole: down it, as on the host, rather than into whoever is nearest.
+	if match_node.arena.is_over_pit(pickup.global_position):
+		pickup.fall_into_pit()
+		return
 	var taker := _nearest_puppet_kart(match_node, pickup.global_position)
 	if taker != null:
 		PickupFlight.take(pickup, taker)
@@ -911,6 +916,8 @@ static func _apply_bombs(match_node: Match, entries: Array) -> void:
 		# Glided to rather than set, as a magnet may be dragging it, see [method Bomb.drag].
 		bomb.glide_to(Vector3(entry["x"], 0.0, entry["z"]))
 		bomb.armed = entry["armed"]
+		if entry.get("fall", false):
+			bomb.fall()
 	for id: int in match_node.puppet_bombs.keys():
 		if not seen.has(id):
 			var gone: Variant = match_node.puppet_bombs[id]
@@ -918,5 +925,8 @@ static func _apply_bombs(match_node: Match, entries: Array) -> void:
 			if not is_instance_valid(gone):
 				continue
 			var bomb := gone as Bomb
-			if bomb.alive:
+			# Gone down a hole rather than up: it went down here too, and is only taken away.
+			if bomb.falling:
+				bomb.queue_free()
+			elif bomb.alive:
 				bomb.explode()

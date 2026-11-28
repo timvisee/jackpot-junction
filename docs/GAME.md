@@ -2373,7 +2373,7 @@ protection makes the kart untouchable.
 | Sewing needle  | A machine's head running along a seam across the Stitch's floor on Lucky Crossing XL: a kart under the needle as it comes down spins out, see below |
 | Wind-up toy    | Solid, driving round its loop of floor in the Playset's on Crossfire XL: shoves a kart it clips as a pop bumper does, and wrecks one caught square under its nose, see below |
 | Tripwire       | A red beam across a lane of After Hours' on the Vault, on for 3 s and off for 3.5 s: a kart through it while on gets a bounty put on it if none is up, see below |
-| Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it |
+| Pit            | A real hole: a shaft cut through the felt and the table. Karts that enter fall for 0.4 s and die, see 3.6. Bullets fly over it. A bomb or a mine lying over one, dropped or landed there or taken there, goes down it without going off, and so does a death's chip taken over one, as a chip dropped over one does (`LooseThings`) |
 | Turbo pad      | Directional speed boost, see 4.1                                       |
 | Coin pad       | Spawns chips, gold chips and mult dice, see 3.2                        |
 | Power-up pad   | Spawns a held item, see 7.1                                            |

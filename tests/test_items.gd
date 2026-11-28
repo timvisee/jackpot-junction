@@ -575,11 +575,12 @@ func test_a_mine_is_cleared_by_an_enemy_shot() -> void:
 	mine.blast_radius = 2.0
 	mine.arm_radius = 3.0
 	mine._at_rest = true
-	mine.global_position = Vector3(0.0, Bullet.GRENADE_REST_Y, 6.0)
+	# Beside the hole south of the Junction rather than over it, where a mine goes down.
+	mine.global_position = Vector3(3.0, Bullet.GRENADE_REST_Y, 6.0)
 	var shot: Bullet = auto_free(Bullet.new())
 	match_node.bullets.add_child(shot)
 	shot.owner_slot = 1
-	shot.global_position = Vector3(0.0, Bullet.HEIGHT, 6.0)
+	shot.global_position = Vector3(3.0, Bullet.HEIGHT, 6.0)
 	mine._run_grenade(0.0)
 	assert_bool(mine.is_dead()).is_true()
 	assert_bool(shot.is_dead()).is_true()

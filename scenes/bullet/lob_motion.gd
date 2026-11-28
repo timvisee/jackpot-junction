@@ -20,6 +20,10 @@ static func run(bullet: Bullet, delta: float) -> void:
 	if bullet.kind == &"mine":
 		if bullet._at_rest:
 			_dragged(bullet, delta)
+			# Down a hole it lies over, dragged there or landed there: gone, without going off.
+			if LooseThings.over_pit(bullet, bullet.global_position):
+				bullet.destroy()
+				return
 		bullet._armed_left = maxf(bullet._armed_left - delta, 0.0)
 		var tripped := bullet._armed_left <= 0.0 and enemy_near(bullet, bullet.arm_radius)
 		if bullet._at_rest and (tripped or shot_by_enemy(bullet)):

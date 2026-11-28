@@ -2,7 +2,9 @@ class_name LooseThings
 ## The loose things lying on a room's floor, GAME.md 6.2: the bombs dropped, 7.1, the mines lying
 ## in wait, 5.3, and the chips a death dropped, 3.2. A magnet that is on drags them in, as it pulls
 ## a kart, each a node in [constant FloorCarry.GROUP] that says how fast it moves one where it lies,
-## see [method Magnet.drag_at]; stopped by anything solid in the way, see [method slid].
+## see [method Magnet.drag_at]; stopped by anything solid in the way, see [method slid]; and down a
+## hole once over one, see [method over_pit]: a bomb sinks without going off, a mine is gone and a
+## chip drops out of sight as one dropped over a hole does.
 ##
 ## What the room does to them is the host's alone, as everything else a match's floor holds is,
 ## GAME.md 10.3: where each one is goes to the clients in the snapshot, see [MatchSnapshot].
@@ -44,6 +46,13 @@ static func match_of(node: Node) -> Match:
 			return found
 		at = at.get_parent()
 	return null
+
+
+## Whether [param point] is over one of the holes of the room [param node] lies in, so it goes
+## down there, as a pickup dropped over one does, see [method Arena.is_over_pit].
+static func over_pit(node: Node, point: Vector3) -> bool:
+	var match_node := match_of(node)
+	return match_node != null and match_node.arena != null and match_node.arena.is_over_pit(point)
 
 
 ## Whether it is this machine's word what happens to [param node]: the host's, or a game played
